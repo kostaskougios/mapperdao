@@ -1,0 +1,35 @@
+package com.rits.orm
+
+import scala.collection.mutable.HashMap
+
+/**
+ * contains entities sorted via 2 keys: class and ids
+ *
+ * @author kostantinos.kougios
+ *
+ * 7 Aug 2011
+ */
+class EntityMap {
+	type InnerMap = HashMap[List[Any], AnyRef]
+	private val m = HashMap[Class[_], InnerMap]()
+
+	def put[T](clz: Class[_], ids: List[Any], entity: T): Unit =
+		{
+			val im = m.getOrElseUpdate(clz, HashMap())
+			if (im.contains(ids)) throw new IllegalStateException("ids %s already contained for %s".format(ids, clz))
+			im(ids) = entity.asInstanceOf[AnyRef]
+		}
+
+	def reput[T](clz: Class[_], ids: List[Any], entity: T): Unit =
+		{
+			val im = m.getOrElseUpdate(clz, HashMap())
+			im(ids) = entity.asInstanceOf[AnyRef]
+		}
+
+	def get[T](clz: Class[_], ids: List[Any]): Option[T] = {
+		val im = m.get(clz)
+		if (im.isDefined) im.get.get(ids).asInstanceOf[Option[T]] else None
+	}
+
+	override def toString = "EntityMap(%s)".format(m.toString)
+}
