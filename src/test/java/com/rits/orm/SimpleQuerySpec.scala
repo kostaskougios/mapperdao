@@ -153,6 +153,19 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j9 = insert(JobPositionEntity, JobPosition(9, "x", DateTime.now.plusDays(3)))
 		query(q10).toSet must_== Set(j8, j12)
 	}
+
+	"query join with alias" in {
+		createJobPositionTable
+
+		val j1 = insert(JobPositionEntity, JobPosition(1, "developer", DateTime.now))
+		val j2 = insert(JobPositionEntity, JobPosition(2, "Scala Developer", DateTime.now))
+		val j3 = insert(JobPositionEntity, JobPosition(3, "manager", DateTime.now))
+		val j4 = insert(JobPositionEntity, JobPosition(4, "Scala Developer", DateTime.now))
+		val j5 = insert(JobPositionEntity, JobPosition(5, "Scala Developer", DateTime.now))
+		val j6 = insert(JobPositionEntity, JobPosition(6, "driver", DateTime.now))
+		query(q11).toSet must_== Set(j2, j4, j5)
+	}
+
 	def createJobPositionTable {
 		jdbc.update("drop table if exists JobPosition cascade")
 		jdbc.update("""
@@ -186,7 +199,10 @@ object SQSQueries {
 	def q11 =
 		{
 			val jp1 = alias(JobPositionEntity)
-			select from jpe join jp1 where jpe.name === jp1.name and jpe.id <> jp1.id
+			select from jpe join
+				jp1 where
+				jpe.name === jp1.name and
+				jpe.id <> jp1.id
 		}
 }
 
