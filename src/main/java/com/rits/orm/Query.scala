@@ -19,8 +19,8 @@ object Query {
 		def <(v: V) = new Operation(t.column, LT(), v)
 		def <(v: ColumnInfo[_, V]) = new Operation(t.column, LT(), v.column)
 
-		def <>(v: V) = new Operation(t.column, LT(), v)
-		def <>(v: ColumnInfo[_, V]) = new Operation(t.column, LT(), v.column)
+		def <>(v: V) = new Operation(t.column, NE(), v)
+		def <>(v: ColumnInfo[_, V]) = new Operation(t.column, NE(), v.column)
 
 		def <=(v: V) = new Operation(t.column, LE(), v)
 		def <=(v: ColumnInfo[_, V]) = new Operation(t.column, LE(), v.column)
@@ -121,7 +121,7 @@ object Query {
 		val entityForImplicit = entity
 	}
 	def alias[PC, T, E <: Entity[PC, T]](entity: E) = new Alias[PC, T, E](entity)
-	implicit def aliasToEntity[PC, T, E <: Entity[PC, T]](alias: Alias[PC, T, E]): E = alias.entityForImplicit
+	implicit def aliasToEntity[PC, T, E <: Entity[PC, T]](alias: AliasBase[PC, T, E]): E = alias.entityForImplicit
 
 	//	class AliasOneToMany[PC, T, FPC, FT](val foreignEntity: Entity[FPC, FT], oneToMany: ColumnInfoTraversableOneToMany[T, FT]) extends AliasBase {
 	//		val entityForImplicit = foreignEntity
