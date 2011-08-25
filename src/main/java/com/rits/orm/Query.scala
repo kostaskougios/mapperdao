@@ -51,7 +51,7 @@ object Query {
 
 	class QueryEntity[PC, T](protected[orm] val entity: Entity[PC, T], protected[orm] val alias: String) {
 		protected[orm] var wheres = List[QueryWhere[PC, T]]()
-		protected[orm] var joins = List[JoinBase[_, _, _, _]]()
+		protected[orm] var joins = List[Join[_, _, _, PC, T]]()
 
 		def where = {
 			val qw = new QueryWhere(this)
@@ -59,16 +59,16 @@ object Query {
 			qw
 		}
 
-		def join[JPC, JT] = {
-			val j = new Join[JPC, JT, PC, T](this)
+		def join[JPC, JT, E <: Entity[JPC, JT]] = {
+			val j = new Join[JPC, JT, E, PC, T](this)
 			joins ::= j
 			j
 		}
 	}
 
-	protected class JoinBase[PC, T, QPC, QT](queryEntity: QueryEntity[QPC, QT]) {
+	protected[orm] class Join[PC, T, E <: Entity[PC, T], QPC, QT](queryEntity: QueryEntity[QPC, QT]) {
 		protected[orm] var column: ColumnRelationshipBase = _
-		protected[orm] var alias: AliasBase[PC, T] = _
+		protected[orm] var alias: AliasBase[PC, T, E] = _
 
 		def apply(manyToOne: ColumnInfoManyToOne[PC, T]) =
 			{
@@ -85,13 +85,12 @@ object Query {
 				column = manyToMany.column
 				queryEntity
 			}
-		def apply(alias: Alias[PC, T]) =
+		def apply(alias: Alias[PC, T, E]) =
 			{
 				this.alias = alias;
 				queryEntity
 			}
 	}
-	class Join[PC, T, QPC, QT](queryEntity: QueryEntity[QPC, QT]) extends JoinBase[PC, T, QPC, QT](queryEntity)
 
 	class QueryWhere[PC, T](protected[orm] val queryEntity: QueryEntity[PC, T]) {
 		protected[orm] var clauses: OpBase = null
@@ -115,20 +114,20 @@ object Query {
 	/**
 	 * alias management
 	 */
-	abstract class AliasBase[PC, T] {
-		def entityForImplicit: Entity[PC, T]
+	abstract class AliasBase[PC, T, E <: Entity[PC, T]] {
+		def entityForImplicit: E
 	}
-	class Alias[PC, T](val entity: Entity[PC, T]) extends AliasBase {
+	class Alias[PC, T, E <: Entity[PC, T]](val entity: E) extends AliasBase[PC, T, E] {
 		val entityForImplicit = entity
 	}
-	class AliasOneToMany[PC, T, FPC, FT](val foreignEntity: Entity[FPC, FT], oneToMany: ColumnInfoTraversableOneToMany[T, FT]) extends AliasBase {
-		val entityForImplicit = foreignEntity
-	}
+	def alias[PC, T, E <: Entity[PC, T]](entity: E) = new Alias[PC, T, E](entity)
+	implicit def aliasToEntity[PC, T, E <: Entity[PC, T]](alias: Alias[PC, T, E]): E = alias.entityForImplicit
 
-	def alias[PC, T](entity: Entity[PC, T]) = new Alias(entity)
-	def alias[PC, T, FPC, FT](foreignEntity: Entity[FPC, FT], oneToMany: ColumnInfoTraversableOneToMany[T, FT]) = new AliasOneToMany(foreignEntity, oneToMany)
+	//	class AliasOneToMany[PC, T, FPC, FT](val foreignEntity: Entity[FPC, FT], oneToMany: ColumnInfoTraversableOneToMany[T, FT]) extends AliasBase {
+	//		val entityForImplicit = foreignEntity
+	//	}
 
-	implicit def aliasToEntity[PC, T](alias: AliasBase[PC, T]) = alias.entityForImplicit
+	//	def alias[PC, T, FPC, FT](foreignEntity: Entity[FPC, FT], oneToMany: ColumnInfoTraversableOneToMany[T, FT]) = new AliasOneToMany(foreignEntity, oneToMany)
 }
 
 sealed abstract class Operand {

@@ -186,7 +186,7 @@ object SQSQueries {
 	def q11 =
 		{
 			val jp1 = alias(JobPositionEntity)
-			select from jpe join jp1 where jpe.name <> jp1.name
+			select from jpe join jp1 where jpe.name <> aliasToEntity(jp1).name
 		}
 }
 
