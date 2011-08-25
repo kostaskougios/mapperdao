@@ -19,6 +19,9 @@ object Query {
 		def <(v: V) = new Operation(t.column, LT(), v)
 		def <(v: ColumnInfo[_, V]) = new Operation(t.column, LT(), v.column)
 
+		def <>(v: V) = new Operation(t.column, LT(), v)
+		def <>(v: ColumnInfo[_, V]) = new Operation(t.column, LT(), v.column)
+
 		def <=(v: V) = new Operation(t.column, LE(), v)
 		def <=(v: ColumnInfo[_, V]) = new Operation(t.column, LE(), v.column)
 
@@ -65,6 +68,7 @@ object Query {
 
 	protected class JoinBase[PC, T, QPC, QT](queryEntity: QueryEntity[QPC, QT]) {
 		protected[orm] var column: ColumnRelationshipBase = _
+		protected[orm] var alias: AliasBase[PC, T] = _
 
 		def apply(manyToOne: ColumnInfoManyToOne[PC, T]) =
 			{
@@ -79,6 +83,11 @@ object Query {
 		def apply(manyToMany: ColumnInfoTraversableManyToMany[PC, T]) =
 			{
 				column = manyToMany.column
+				queryEntity
+			}
+		def apply(alias: Alias[PC, T]) =
+			{
+				this.alias = alias;
 				queryEntity
 			}
 	}
@@ -106,10 +115,20 @@ object Query {
 	/**
 	 * alias management
 	 */
-	class AliasOneToMany[PC, T, FPC, FT](val foreignEntity: Entity[FPC, FT], oneToMany: ColumnInfoTraversableOneToMany[T, FT]) {
+	abstract class AliasBase[PC, T] {
+		def entityForImplicit: Entity[PC, T]
+	}
+	class Alias[PC, T](val entity: Entity[PC, T]) extends AliasBase {
+		val entityForImplicit = entity
+	}
+	class AliasOneToMany[PC, T, FPC, FT](val foreignEntity: Entity[FPC, FT], oneToMany: ColumnInfoTraversableOneToMany[T, FT]) extends AliasBase {
+		val entityForImplicit = foreignEntity
 	}
 
+	def alias[PC, T](entity: Entity[PC, T]) = new Alias(entity)
 	def alias[PC, T, FPC, FT](foreignEntity: Entity[FPC, FT], oneToMany: ColumnInfoTraversableOneToMany[T, FT]) = new AliasOneToMany(foreignEntity, oneToMany)
+
+	implicit def aliasToEntity[PC, T](alias: AliasBase[PC, T]) = alias.entityForImplicit
 }
 
 sealed abstract class Operand {
@@ -123,6 +142,7 @@ case class LE() extends Operand { def sql = "<=" }
 case class EQ() extends Operand { def sql = "=" }
 case class GT() extends Operand { def sql = ">" }
 case class GE() extends Operand { def sql = ">=" }
+case class NE() extends Operand { def sql = "<>" }
 case class LIKE() extends Operand { def sql = "like" }
 
 class OpBase {
