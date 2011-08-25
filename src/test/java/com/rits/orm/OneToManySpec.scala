@@ -30,15 +30,15 @@ class OneToManySpec extends SpecificationWithJUnit {
 		val inserted = mapperDao.insert(PersonEntity, person)
 
 		var updated: Person = inserted
-		def doUpdate(from: Person, to: Person) =
-			{
-				updated = mapperDao.update(PersonEntity, from, to)
-				updated must_== to
-				mapperDao.select(PersonEntity, 3).get must_== updated
-				mapperDao.select(PersonEntity, 3).get must_== to
-			}
+			def doUpdate(from: Person, to: Person) =
+				{
+					updated = mapperDao.update(PersonEntity, from, to)
+					updated must_== to
+					mapperDao.select(PersonEntity, 3).get must_== updated
+					mapperDao.select(PersonEntity, 3).get must_== to
+				}
 		doUpdate(updated, new Person(3, "Changed", "K", updated.owns, 18, updated.positions.filterNot(_ == jp1)))
-		doUpdate(updated, new Person(3, "Changed Again", "Surname changed too", updated.owns.filter(_.address == "London"), 18, jp5 :: updated.positions.filterNot(jp => jp == jp1 || jp == jp3)))
+		doUpdate(updated, new Person(3, "Changed Again", "Surname changed too", updated.owns.filter(_.address == "London"), 18, jp5 :: updated.positions.filterNot(jp ⇒ jp == jp1 || jp == jp3)))
 	}
 
 	"updating items (mutable)" in {
@@ -68,7 +68,7 @@ class OneToManySpec extends SpecificationWithJUnit {
 		val person = new Person(3, "Kostas", "K", Set(House(1, "London"), House(2, "Rhodes")), 16, List(jp1, jp2, jp3))
 		val inserted = mapperDao.insert(PersonEntity, person)
 
-		inserted.positions = inserted.positions.filterNot(jp => jp == jp1 || jp == jp3)
+		inserted.positions = inserted.positions.filterNot(jp ⇒ jp == jp1 || jp == jp3)
 		val updated = mapperDao.update(PersonEntity, inserted)
 		updated must_== inserted
 
@@ -144,6 +144,17 @@ class OneToManySpec extends SpecificationWithJUnit {
 		}
 
 	def createTables {
+		jdbc.update("drop table if exists Person cascade")
+		jdbc.update("""
+			create table Person (
+				id int not null,
+				name varchar(100) not null,
+				surname varchar(100) not null,
+				age int not null,
+				primary key (id)
+			)
+		""")
+
 		jdbc.update("drop table if exists JobPosition cascade")
 		jdbc.update("""
 			create table JobPosition (
@@ -165,16 +176,6 @@ class OneToManySpec extends SpecificationWithJUnit {
 				person_id int not null,
 				primary key (id),
 				constraint FK_House_Person foreign key (person_id) references Person(id) on delete cascade on update cascade
-			)
-		""")
-		jdbc.update("drop table if exists Person cascade")
-		jdbc.update("""
-			create table Person (
-				id int not null,
-				name varchar(100) not null,
-				surname varchar(100) not null,
-				age int not null,
-				primary key (id)
 			)
 		""")
 	}
@@ -226,7 +227,7 @@ object OneToManySpec {
 		val name = string("name", _.name) // _.name : JobPosition => Any . Function that maps the column to the value of the object
 		val rank = int("rank", _.rank)
 
-		val constructor = (m: ValuesMap) => new JobPosition(m(id), m(name), m(rank)) with Persisted {
+		val constructor = (m: ValuesMap) ⇒ new JobPosition(m(id), m(name), m(rank)) with Persisted {
 			// this holds the original values of the object as retrieved from the database.
 			// later on it is used to compare what changed in this object.
 			val valuesMap = m
@@ -237,7 +238,7 @@ object OneToManySpec {
 		val id = pk("id", _.id)
 		val address = string("address", _.address)
 
-		val constructor = (m: ValuesMap) => new House(m(id), m(address)) with Persisted {
+		val constructor = (m: ValuesMap) ⇒ new House(m(id), m(address)) with Persisted {
 			val valuesMap = m
 		}
 	}
@@ -257,7 +258,7 @@ object OneToManySpec {
 		 */
 		val jobPositions = oneToMany("jobPositionsAlias", classOf[JobPosition], "person_id", _.positions)
 
-		val constructor = (m: ValuesMap) => new Person(m(id), m(name), m(surname), m(houses).toSet, m(age), m(jobPositions).toList.sortWith(_.id < _.id)) with Persisted {
+		val constructor = (m: ValuesMap) ⇒ new Person(m(id), m(name), m(surname), m(houses).toSet, m(age), m(jobPositions).toList.sortWith(_.id < _.id)) with Persisted {
 			val valuesMap = m
 		}
 	}
