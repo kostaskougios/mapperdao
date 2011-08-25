@@ -185,8 +185,8 @@ object SQSQueries {
 	def q10 = select from JobPositionEntity where jpe.start > DateTime.now + 0.days and jpe.start < DateTime.now + 3.days - 60.seconds
 	def q11 =
 		{
-			val jp1 = alias[AnyRef, JobPosition, JobPositionEntity.type](JobPositionEntity)
-			select from jpe join jp1 where jpe.name <> jp1.name
+			val jp1 = alias(JobPositionEntity)
+			select from jpe join jp1 where jpe.name === jp1.name and jpe.id <> jp1.id
 		}
 }
 

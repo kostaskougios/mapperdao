@@ -51,7 +51,7 @@ object Query {
 
 	class QueryEntity[PC, T](protected[orm] val entity: Entity[PC, T], protected[orm] val alias: String) {
 		protected[orm] var wheres = List[QueryWhere[PC, T]]()
-		protected[orm] var joins = List[Join[_, _, _, PC, T]]()
+		protected[orm] var joins = List[Join[Any, Any, Any, PC, T]]()
 
 		def where = {
 			val qw = new QueryWhere(this)
@@ -59,14 +59,14 @@ object Query {
 			qw
 		}
 
-		def join[JPC, JT, E <: Entity[JPC, JT]] = {
-			val j = new Join[JPC, JT, E, PC, T](this)
+		def join[JPC, JT, E[JPC, JT] <: Entity[JPC, JT]] = {
+			val j = new Join[JPC, JT, E[JPC, JT], PC, T](this)
 			joins ::= j
 			j
 		}
 	}
 
-	protected[orm] class Join[PC, T, E <: Entity[PC, T], QPC, QT](queryEntity: QueryEntity[QPC, QT]) {
+	protected[orm] class Join[PC, T, E[PC, T] <: Entity[PC, T], QPC, QT](queryEntity: QueryEntity[QPC, QT]) {
 		protected[orm] var column: ColumnRelationshipBase = _
 		protected[orm] var alias: AliasBase[PC, T, E] = _
 
@@ -114,14 +114,14 @@ object Query {
 	/**
 	 * alias management
 	 */
-	abstract class AliasBase[PC, T, E <: Entity[PC, T]] {
-		def entityForImplicit: E
+	protected[orm] abstract class AliasBase[PC, T, E[PC, T] <: Entity[PC, T]] {
+		def entityForImplicit: E[PC, T]
 	}
-	class Alias[PC, T, E <: Entity[PC, T]](val entity: E) extends AliasBase[PC, T, E] {
+	protected[orm] class Alias[PC, T, E[PC, T] <: Entity[PC, T]](val entity: E[PC, T]) extends AliasBase[PC, T, E] {
 		val entityForImplicit = entity
 	}
-	def alias[PC, T, E <: Entity[PC, T]](entity: E) = new Alias[PC, T, E](entity)
-	implicit def aliasToEntity[PC, T, E <: Entity[PC, T]](alias: AliasBase[PC, T, E]): E = alias.entityForImplicit
+	def alias[PC, T, E[PC, T] <: Entity[PC, T]](entity: E[PC, T]) = new Alias(entity)
+	implicit def aliasToEntity[PC, T, E[PC, T] <: Entity[PC, T]](alias: AliasBase[PC, T, E]): E[PC, T] = alias.entityForImplicit
 
 	//	class AliasOneToMany[PC, T, FPC, FT](val foreignEntity: Entity[FPC, FT], oneToMany: ColumnInfoTraversableOneToMany[T, FT]) extends AliasBase {
 	//		val entityForImplicit = foreignEntity
