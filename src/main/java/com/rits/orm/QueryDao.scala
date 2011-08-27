@@ -39,14 +39,19 @@ class QueryDao(mapperDao: MapperDao) {
 		// iterate through the joins in the correct order
 		qe.joins.reverse.foreach { j =>
 			val column = j.column
-			val joinEntity = typeRegistry.entityOf(column)
-			j match {
-				case join: Query.Join[_, _, _, PC, T] =>
-					join.column match {
-						case manyToOne: ManyToOne[_] =>
-							val foreignEntity = typeRegistry.typeInfo(manyToOne.foreign.clz)
-							sb append driver.manyToOneJoin(aliases, joinEntity, foreignEntity, manyToOne)
-					}
+			if (column != null) {
+				val joinEntity = typeRegistry.entityOf(column)
+				j match {
+					case join: Query.Join[_, _, _, PC, T] =>
+						join.column match {
+							case manyToOne: ManyToOne[_] =>
+								val foreignEntity = typeRegistry.typeInfo(manyToOne.foreign.clz)
+								sb append driver.manyToOneJoin(aliases, joinEntity, foreignEntity, manyToOne)
+						}
+				}
+			} else {
+				val alias = j.alias
+				sb append "\njoin " append alias.entity.tpe.table.name append " " append aliases(alias)
 			}
 		}
 
@@ -61,13 +66,21 @@ object QueryDao {
 
 	// creates aliases for tables
 	class Aliases {
-		private val aliases = new scala.collection.mutable.HashMap[Table[_, _], String]
+		private val aliases = new java.util.IdentityHashMap[Any, String]
 		private var aliasCount = 0
 
-		def update(table: Table[_, _], alias: String): Unit = aliases(table) = alias
-		def apply(table: Table[_, _]) = aliases.getOrElseUpdate(table, {
-			aliasCount += 1
-			table.name.substring(0, 1).toLowerCase + aliasCount
-		})
+		def update(table: Table[_, _], alias: String): Unit = aliases.put(table, alias)
+		def apply(table: Table[_, _]): String =
+			{
+				val v = aliases.get(table)
+				if (v != null) v else {
+					aliasCount += 1
+					val v = table.name.substring(0, 1).toLowerCase + aliasCount
+					aliases.put(table, v)
+					v
+				}
+			}
+
+		def apply[E <: Entity[_, _]](alias: Query.Alias[E]): String = apply(alias.entity.tpe.table)
 	}
 }
