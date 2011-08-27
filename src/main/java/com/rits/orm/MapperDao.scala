@@ -159,7 +159,7 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 			val manyToOneChanged = table.manyToOneColumns.filter(onlyChanged _)
 			if (!columnsChanged.isEmpty || !manyToOneChanged.isEmpty) {
 				val mtoArgsV = manyToOneChanged.map(mto => (mto.foreign.clz, newValuesMap[Any](mto.alias))).map { t =>
-					typeRegistry.typeInfo[Any, Any](t._1).tpe.table.toListOfPrimaryKeyValues(t._2)
+					typeRegistry.entityOf[Any, Any](t._1).tpe.table.toListOfPrimaryKeyValues(t._2)
 				}.flatten
 				val mtoArgs = manyToOneChanged.map(_.columns).flatten zip mtoArgsV
 				val args = newValuesMap.toListOfColumnAndValueTuple(columnsChanged) ::: mtoArgs
@@ -351,7 +351,7 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 
 			// many to one
 			table.manyToOneColumns.foreach { c =>
-				val fe = typeRegistry.typeInfo[Any, Any](c.foreign.clz)
+				val fe = typeRegistry.entityOf[Any, Any](c.foreign.clz)
 				val foreignPKValues = c.columns.map(mtoc => om(mtoc.columnName))
 				val fo = entities.get(fe.clz, foreignPKValues)
 				val v = if (fo.isDefined) {
@@ -363,7 +363,7 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 			}
 			// one to many
 			table.oneToManyColumns.foreach { c =>
-				val ftpe = typeRegistry.typeInfo(c.foreign.clz).tpe
+				val ftpe = typeRegistry.entityOf(c.foreign.clz).tpe
 				val fom = driver.doSelect(ftpe, c.foreignColumns.zip(ids))
 				val otmL = toEntities(fom, ftpe, entities)
 				mods(c.foreign.alias) = otmL
@@ -371,7 +371,7 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 
 			// many to many
 			table.manyToManyColumns.foreach { c =>
-				val ftpe = typeRegistry.typeInfo(c.foreign.clz).tpe
+				val ftpe = typeRegistry.entityOf(c.foreign.clz).tpe
 				val fom = driver.doSelectManyToMany(tpe, ftpe, c, c.linkTable.left zip ids)
 				val mtmR = toEntities(fom, ftpe, entities)
 				mods(c.foreign.alias) = mtmR

@@ -45,7 +45,7 @@ class QueryDao(mapperDao: MapperDao) {
 					case join: Query.Join[_, _, _, PC, T] =>
 						join.column match {
 							case manyToOne: ManyToOne[_] =>
-								val foreignEntity = typeRegistry.typeInfo(manyToOne.foreign.clz)
+								val foreignEntity = typeRegistry.entityOf(manyToOne.foreign.clz)
 								sb append driver.manyToOneJoin(aliases, joinEntity, foreignEntity, manyToOne)
 						}
 				}

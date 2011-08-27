@@ -51,7 +51,7 @@ final class TypeRegistry {
 	/**
 	 * utility methods
 	 */
-	protected[orm] def typeInfo[PC, T](clz: Class[T]): Entity[PC, T] =
+	protected[orm] def entityOf[PC, T](clz: Class[T]): Entity[PC, T] =
 		{
 			checkInit
 			types(clz).asInstanceOf[Entity[PC, T]]
@@ -65,7 +65,7 @@ final class TypeRegistry {
 			val clz = o.asInstanceOf[Object].getClass.asInstanceOf[Class[T]]
 			o match {
 				case p: Persisted => types.get(clz.getSuperclass).get.asInstanceOf[Entity[PC, T]]
-				case _ => typeInfo(clz)
+				case _ => entityOf(clz)
 			}
 		}
 }
