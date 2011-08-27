@@ -57,7 +57,7 @@ final class TypeRegistry {
 			types(clz).asInstanceOf[Entity[PC, T]]
 		}
 
-	protected[orm] def typeInfo[PC, T](o: T): Entity[PC, T] =
+	protected[orm] def entityOf[PC, T](o: T): Entity[PC, T] =
 		{
 			checkInit
 			// there is a very weird compilation error from maven
