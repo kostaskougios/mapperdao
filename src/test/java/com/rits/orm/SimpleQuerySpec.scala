@@ -198,7 +198,7 @@ object SQSQueries {
 	def q10 = select from JobPositionEntity where jpe.start > DateTime.now + 0.days and jpe.start < DateTime.now + 3.days - 60.seconds
 	def q11 =
 		{
-			val jp1 = alias(JobPositionEntity)
+			val jp1 = new JobPositionEntityBase
 			select from jpe join
 				jp1 where
 				jpe.name === jp1.name and
@@ -209,7 +209,7 @@ object SQSQueries {
 object SimpleQuerySpec {
 	case class JobPosition(val id: Int, var name: String, val start: DateTime)
 
-	object JobPositionEntity extends SimpleEntity(classOf[JobPosition]) {
+	class JobPositionEntityBase extends SimpleEntity(classOf[JobPosition]) {
 		val id = pk("id", _.id)
 		val name = string("name", _.name)
 		val start = datetime("start", _.start)
@@ -218,4 +218,5 @@ object SimpleQuerySpec {
 			val valuesMap = m
 		}
 	}
+	val JobPositionEntity = new JobPositionEntityBase
 }

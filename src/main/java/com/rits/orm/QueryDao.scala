@@ -50,9 +50,10 @@ class QueryDao(mapperDao: MapperDao) {
 						}
 				}
 			} else {
-				val alias = j.alias
-				val qAlias = aliases(alias)
-				sb append "\njoin " append alias.entity.tpe.table.name append " " append qAlias
+				val jEntity = j.entity
+				val jTable = jEntity.tpe.table
+				val qAlias = aliases(jTable)
+				sb append "\njoin " append jTable.name append " " append qAlias
 			}
 		}
 
@@ -78,18 +79,6 @@ object QueryDao {
 					aliasCount += 1
 					val v = table.name.substring(0, 1).toLowerCase + aliasCount
 					aliases.put(table, v)
-					v
-				}
-			}
-
-		def apply[E <: Entity[_, _]](alias: Query.Alias[E]): String =
-			{
-				val v = aliases.get(alias)
-				if (v != null) v else {
-					aliasCount += 1
-					val table = alias.tpe.table
-					val v = table.name.substring(0, 1).toLowerCase + aliasCount
-					aliases.put(alias, v)
 					v
 				}
 			}

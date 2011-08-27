@@ -268,7 +268,10 @@ trait Driver {
 					def inner(op: OpBase): Unit = op match {
 						case o: Operation[_] =>
 							val leftEntity = typeRegistry.entityOf(o.left)
-							sb append " " append aliases(leftEntity.tpe.table) append "." append o.left.columnName append ' ' append o.operand.sql append " ?"
+							sb append " "
+							sb append aliases(leftEntity.tpe.table)
+							sb append "." append o.left.columnName append ' ' append o.operand.sql
+							sb append " ?"
 							args ::= o.right
 						case and: AndOp =>
 							sb append " ("
@@ -289,6 +292,12 @@ trait Driver {
 			}
 			(sb.toString, args.reverse)
 		}
+	//	protected def resolveWhereExpression(aliases: QueryDao.Aliases,sb:StringBuilder,v: Any): Unit = v match {
+	//		case c: ColumnBase =>
+	//			sb append aliases(leftEntity.tpe.table)
+	//							sb append "." append o.left.columnName
+	//		case _ => "?"
+	//	}
 	/**
 	 * =====================================================================================
 	 * standard methods

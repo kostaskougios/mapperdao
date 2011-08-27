@@ -38,7 +38,7 @@ abstract class Entity[PC, T](private val table: String, val clz: Class[T]) {
 	 * @foreignClz		the refered entity
 	 * @columnToValue	the function from T => Traversable[Any] that accesses the field of T to return the Traversable of E
 	 */
-	def oneToMany[E](foreignClz: Class[E], foreignKeyColumn: String, columnToValue: T => Traversable[E]): ColumnInfoTraversableOneToMany[T, E] = oneToMany(foreignClz.getSimpleName + "_Alias", foreignClz, foreignKeyColumn, columnToValue)
+	protected def oneToMany[E](foreignClz: Class[E], foreignKeyColumn: String, columnToValue: T => Traversable[E]): ColumnInfoTraversableOneToMany[T, E] = oneToMany(foreignClz.getSimpleName + "_Alias", foreignClz, foreignKeyColumn, columnToValue)
 	/**
 	 * one to many mapping from T to a traversable of an other entity E
 	 *
@@ -46,34 +46,34 @@ abstract class Entity[PC, T](private val table: String, val clz: Class[T]) {
 	 * @foreignClz		the refered entity
 	 * @columnToValue	the function from T => Traversable[Any] that accesses the field of T to return the Traversable of E
 	 */
-	def oneToMany[E](alias: String, foreignClz: Class[E], foreignKeyColumn: String, columnToValue: T => Traversable[E]): ColumnInfoTraversableOneToMany[T, E] =
+	protected def oneToMany[E](alias: String, foreignClz: Class[E], foreignKeyColumn: String, columnToValue: T => Traversable[E]): ColumnInfoTraversableOneToMany[T, E] =
 		{
 			val ci = ColumnInfoTraversableOneToMany[T, E](OneToMany(TypeRef(alias, foreignClz), Column.many(foreignKeyColumn)), columnToValue)
 			columns ::= ci
 			ci
 		}
 
-	def manyToOne[F](column: String, foreignClz: Class[F], columnToValue: T => F): ColumnInfoManyToOne[T, F] = manyToOne(column + "_Alias", column, foreignClz, columnToValue)
+	protected def manyToOne[F](column: String, foreignClz: Class[F], columnToValue: T => F): ColumnInfoManyToOne[T, F] = manyToOne(column + "_Alias", column, foreignClz, columnToValue)
 
 	/**
 	 * many to one mapping from T to F.
 	 */
-	def manyToOne[F](alias: String, column: String, foreignClz: Class[F], columnToValue: T => F): ColumnInfoManyToOne[T, F] =
+	protected def manyToOne[F](alias: String, column: String, foreignClz: Class[F], columnToValue: T => F): ColumnInfoManyToOne[T, F] =
 		{
 			require(alias != column)
 			manyToOne(alias, List(column), foreignClz, columnToValue)
 		}
 
-	def manyToOne[F](alias: String, columns: List[String], foreignClz: Class[F], columnToValue: T => F): ColumnInfoManyToOne[T, F] =
+	protected def manyToOne[F](alias: String, columns: List[String], foreignClz: Class[F], columnToValue: T => F): ColumnInfoManyToOne[T, F] =
 		{
 			val ci = ColumnInfoManyToOne(ManyToOne(columns.map(c => Column(c)), TypeRef(alias, foreignClz)), columnToValue)
 			this.columns ::= ci
 			ci
 		}
 
-	def manyToMany[F](linkTable: String, leftColumn: String, rightColumn: String, referencedType: Class[F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, F] = manyToMany(linkTable, linkTable, leftColumn, rightColumn, referencedType, columnToValue)
+	protected def manyToMany[F](linkTable: String, leftColumn: String, rightColumn: String, referencedType: Class[F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, F] = manyToMany(linkTable, linkTable, leftColumn, rightColumn, referencedType, columnToValue)
 
-	def manyToMany[F](alias: String, linkTable: String, leftColumn: String, rightColumn: String, referencedType: Class[F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, F] =
+	protected def manyToMany[F](alias: String, linkTable: String, leftColumn: String, rightColumn: String, referencedType: Class[F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, F] =
 		{
 			val ci = ColumnInfoTraversableManyToMany[T, F](
 				ManyToMany(
@@ -95,22 +95,22 @@ abstract class Entity[PC, T](private val table: String, val clz: Class[T]) {
 	/**
 	 * basic mapping to a database column
 	 */
-	def int(column: String, columnToValue: T => Int): ColumnInfo[T, Int] = basic(column, columnToValue)
-	def byte(column: String, columnToValue: T => Byte): ColumnInfo[T, Byte] = basic(column, columnToValue)
-	def long(column: String, columnToValue: T => Long): ColumnInfo[T, Long] = basic(column, columnToValue)
-	def short(column: String, columnToValue: T => Short): ColumnInfo[T, Short] = basic(column, columnToValue)
-	def float(column: String, columnToValue: T => Float): ColumnInfo[T, Float] = basic(column, columnToValue)
-	def double(column: String, columnToValue: T => Double): ColumnInfo[T, Double] = basic(column, columnToValue)
-	def boolean(column: String, columnToValue: T => Boolean): ColumnInfo[T, Boolean] = basic(column, columnToValue)
-	def char(column: String, columnToValue: T => Char): ColumnInfo[T, Char] = basic(column, columnToValue)
-	def string(column: String, columnToValue: T => String): ColumnInfo[T, String] = basic(column, columnToValue)
-	def datetime(column: String, columnToValue: T => org.joda.time.DateTime): ColumnInfo[T, org.joda.time.DateTime] = basic(column, columnToValue)
-	def calendar(column: String, columnToValue: T => Calendar): ColumnInfo[T, Calendar] = basic(column, columnToValue)
+	protected def int(column: String, columnToValue: T => Int): ColumnInfo[T, Int] = basic(column, columnToValue)
+	protected def byte(column: String, columnToValue: T => Byte): ColumnInfo[T, Byte] = basic(column, columnToValue)
+	protected def long(column: String, columnToValue: T => Long): ColumnInfo[T, Long] = basic(column, columnToValue)
+	protected def short(column: String, columnToValue: T => Short): ColumnInfo[T, Short] = basic(column, columnToValue)
+	protected def float(column: String, columnToValue: T => Float): ColumnInfo[T, Float] = basic(column, columnToValue)
+	protected def double(column: String, columnToValue: T => Double): ColumnInfo[T, Double] = basic(column, columnToValue)
+	protected def boolean(column: String, columnToValue: T => Boolean): ColumnInfo[T, Boolean] = basic(column, columnToValue)
+	protected def char(column: String, columnToValue: T => Char): ColumnInfo[T, Char] = basic(column, columnToValue)
+	protected def string(column: String, columnToValue: T => String): ColumnInfo[T, String] = basic(column, columnToValue)
+	protected def datetime(column: String, columnToValue: T => org.joda.time.DateTime): ColumnInfo[T, org.joda.time.DateTime] = basic(column, columnToValue)
+	protected def calendar(column: String, columnToValue: T => Calendar): ColumnInfo[T, Calendar] = basic(column, columnToValue)
 
 	/**
 	 * an autogenerated column that is a primary key
 	 */
-	def autoGeneratedPK[V](idColumn: String, columnToValue: T with PC => V): ColumnInfo[T with PC, V] =
+	protected def autoGeneratedPK[V](idColumn: String, columnToValue: T with PC => V): ColumnInfo[T with PC, V] =
 		{
 			var ci = ColumnInfo(PK(AutoGenerated(idColumn)), columnToValue)
 			persistedColumns ::= ci
@@ -120,7 +120,7 @@ abstract class Entity[PC, T](private val table: String, val clz: Class[T]) {
 	/**
 	 * map a primary key column. Use autoGeneratedPK to map a primary key that is auto generated
 	 */
-	def pk[V](idColumn: String, columnToValue: T => V): ColumnInfo[T, V] =
+	protected def pk[V](idColumn: String, columnToValue: T => V): ColumnInfo[T, V] =
 		{
 			var ci = ColumnInfo(PK(Column(idColumn)), columnToValue)
 			columns ::= ci
