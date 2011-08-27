@@ -23,16 +23,16 @@ class QueryDao(mapperDao: MapperDao) {
 		{
 			val sa = sqlAndArgs(qe)
 			val lm = jdbc.queryForList(sa.sql, sa.args)
-			mapperDao.toEntities(lm, qe.entity.tpe, new EntityMap)
+			mapperDao.toEntities(lm, typeRegistry.typeOf(qe.entity), new EntityMap)
 		}
 
 	private def sqlAndArgs[PC, T](qe: Query.QueryEntity[PC, T]): SqlAndArgs = {
 		val e = qe.entity
-		val tpe = e.tpe
+		val tpe = typeRegistry.typeOf(e)
 		val columns = driver.selectColumns(tpe)
 
 		val aliases = new Aliases
-		aliases(e.tpe.table) = qe.alias
+		aliases(tpe.table) = qe.alias
 
 		val sb = new StringBuilder(200, driver.startQuery(aliases, qe, columns))
 
@@ -51,14 +51,14 @@ class QueryDao(mapperDao: MapperDao) {
 				}
 			} else {
 				val jEntity = j.entity
-				val jTable = jEntity.tpe.table
+				val jTable = typeRegistry.typeOf(jEntity).table
 				val qAlias = aliases(jTable)
 				sb append "\njoin " append jTable.name append " " append qAlias
 			}
 		}
 
 		// append the where clause and get the list of arguments
-		val (sql, args) = driver.where(aliases, typeRegistry, qe)
+		val (sql, args) = driver.where(aliases, qe)
 		sb append sql
 		new SqlAndArgs(sb.toString, args)
 	}

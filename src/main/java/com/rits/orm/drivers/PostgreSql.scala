@@ -1,12 +1,13 @@
 package com.rits.orm.drivers
 import com.rits.jdbc.Jdbc
+import com.rits.orm.TypeRegistry
 
 /**
  * @author kostantinos.kougios
  *
  * 14 Jul 2011
  */
-class PostgreSql(override val jdbc: Jdbc) extends Driver {
+class PostgreSql(override val jdbc: Jdbc, override val typeRegistry: TypeRegistry) extends Driver {
 
 	val invalidColumnNames = Set("end", "select", "where", "group")
 

@@ -8,25 +8,30 @@ import java.util.IdentityHashMap
  *
  * 25 Jul 2011
  */
-final class TypeRegistry {
-	private var typesBuilder = Map.newBuilder[Class[_], Entity[_, _]]
+final class TypeRegistry(entities: List[Entity[_, _]]) {
 	private var types: Map[Class[_], Entity[_, _]] = _
 	private val columnsToEntity = new IdentityHashMap[ColumnBase, Entity[_, _]]
+	private var entityToType: Map[Entity[_, _], Type[_, _]] = _
 
-	/**
-	 * registration of entities
-	 */
-	def registerType[PC, T](entity: Entity[PC, T]): Unit =
-		{
-			if (types != null) throw new IllegalStateException("already initialized, cant register types after initialization")
-			// initialize entity
-			entity.init
+	{
+		var typesBuilder = Map.newBuilder[Class[_], Entity[_, _]]
+		var entityToTypeBuilder = Map.newBuilder[Entity[_, _], Type[_, _]]
 
-			entity.tpe.table.columns.foreach { c =>
+		entities.foreach { entity =>
+			def create[PC, T]: Type[PC, T] = Type(entity.clz.asInstanceOf[Class[T]], entity.constructor.asInstanceOf[(com.rits.orm.ValuesMap) => T with PC with com.rits.orm.Persisted], Table[PC, T](entity.table, entity.columns.reverse.asInstanceOf[List[com.rits.orm.ColumnInfoBase[T, _]]], entity.persistedColumns.asInstanceOf[List[com.rits.orm.ColumnInfoBase[T with PC, _]]]))
+			val tpe = create[Any, Any]
+			tpe.table.columns.foreach { c =>
 				columnsToEntity.put(c, entity)
 			}
 			typesBuilder += entity.clz -> entity
+			entityToTypeBuilder += entity -> tpe
 		}
+		types = typesBuilder.result
+		entityToType = entityToTypeBuilder.result
+	}
+	def typeOf[PC, T](entity: Entity[PC, T]): Type[PC, T] = entityToType(entity).asInstanceOf[Type[PC, T]]
+	def typeOf[PC, T](clz: Class[T]): Type[PC, T] = entityToType(entityOf(clz)).asInstanceOf[Type[PC, T]]
+	def typeOf[PC, T](o: T): Type[PC, T] = entityToType(entityOf(o)).asInstanceOf[Type[PC, T]]
 
 	def entityOf(column: ColumnBase): Entity[_, _] = {
 		val e = columnsToEntity.get(column)
@@ -34,32 +39,16 @@ final class TypeRegistry {
 		e
 	}
 
-	private def checkInit(): Unit =
-		{
-			if (types == null) throw new IllegalStateException("Not yet initialized. Please call init method after registering all types")
-		}
-	/**
-	 * call this after registering all types
-	 */
-	def init: Unit =
-		{
-			if (types != null) throw new IllegalStateException("already initialized. Please init only once after registering all types")
-			types = typesBuilder.result
-			typesBuilder = null
-		}
-
 	/**
 	 * utility methods
 	 */
 	protected[orm] def entityOf[PC, T](clz: Class[T]): Entity[PC, T] =
 		{
-			checkInit
 			types(clz).asInstanceOf[Entity[PC, T]]
 		}
 
 	protected[orm] def entityOf[PC, T](o: T): Entity[PC, T] =
 		{
-			checkInit
 			// there is a very weird compilation error from maven
 			// if I just do val clz = o.getClass.asInstanceOf[Class[T]]
 			val clz = o.asInstanceOf[Object].getClass.asInstanceOf[Class[T]]
@@ -74,13 +63,6 @@ object TypeRegistry {
 	/**
 	 * creates a TypeRegistry, registers all types and initializes the TypeRegistry.
 	 */
-	def apply(types: Entity[_, _]*): TypeRegistry =
-		{
-			val registry = new TypeRegistry
-			types.foreach { t =>
-				registry.registerType(t.asInstanceOf[Entity[Any, Any]])
-			}
-			registry.init
-			registry
-		}
+	def apply(types: Entity[_, _]*): TypeRegistry = new TypeRegistry(types.toList)
+	def apply(types: List[Entity[_, _]]): TypeRegistry = new TypeRegistry(types)
 }

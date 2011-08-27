@@ -6,25 +6,18 @@ import java.util.Calendar
  *
  * 13 Aug 2011
  */
-abstract class Entity[PC, T](private val table: String, val clz: Class[T]) {
+abstract class Entity[PC, T](protected[orm] val table: String, val clz: Class[T]) {
 
 	def this(clz: Class[T]) = this(clz.getSimpleName, clz)
 
 	val constructor: ValuesMap => T with PC with Persisted
 
-	private var persistedColumns = List[ColumnInfoBase[T with PC, _]]()
-	private var columns = List[ColumnInfoBase[T, _]]();
-
-	protected[orm] var tpe: Type[PC, T] = _
-
-	protected[orm] def init {
-		if (tpe != null) throw new IllegalStateException("Already initialized!")
-		tpe = Type[PC, T](clz, constructor, Table(table, columns.reverse, persistedColumns))
-	}
+	protected[orm] var persistedColumns = List[ColumnInfoBase[T with PC, _]]()
+	protected[orm] var columns = List[ColumnInfoBase[T, _]]();
 
 	override def hashCode = table.hashCode
 	override def equals(o: Any) = o match {
-		case e: Entity[PC, T] => true
+		case e: Entity[PC, T] => table == e.table && clz == e.clz
 		case _ => false
 	}
 

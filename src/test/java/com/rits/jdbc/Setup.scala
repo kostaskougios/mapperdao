@@ -27,7 +27,7 @@ object Setup {
 	def setupMapperDao(typeRegistry: TypeRegistry): (Jdbc, MapperDao) =
 		{
 			val jdbc = setupJdbc
-			val mapperDao = new MapperDao(new PostgreSql(jdbc), typeRegistry, typeManager)
+			val mapperDao = new MapperDao(new PostgreSql(jdbc, typeRegistry), typeRegistry, typeManager)
 			(jdbc, mapperDao)
 		}
 

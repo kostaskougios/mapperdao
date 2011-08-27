@@ -36,7 +36,7 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 		{
 			if (o.isInstanceOf[Persisted]) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o);
 
-			val tpe = entity.tpe
+			val tpe = typeRegistry.typeOf(entity)
 			val table = tpe.table
 
 			val modified = ValuesMap.fromEntity(typeManager, tpe, o).toMutableMap
@@ -44,8 +44,8 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 			// extra args for foreign keys
 			var extraArgs = if (parent != null) {
 				// parent of the one-to-many
-				val pti = typeRegistry.entityOf(parent)
-				val table = pti.tpe.table
+				val pti = typeRegistry.entityOf[Any, P](parent)
+				val table = typeRegistry.typeOf(pti).table
 				parentColumn match {
 					case otm: OneToMany[_] =>
 						val foreignKeyColumns = otm.foreignColumns
@@ -67,7 +67,7 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 						case x =>
 							insert(fe, x)
 					}
-					extraArgs :::= cis.column.columns zip fe.tpe.table.toListOfPrimaryKeyValues(v)
+					extraArgs :::= cis.column.columns zip typeRegistry.typeOf(fe).table.toListOfPrimaryKeyValues(v)
 					v
 				} else null
 				modified(cis.column.alias) = v
@@ -91,8 +91,8 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 				val traversable = cis.columnToValue(o)
 				if (traversable != null) {
 					traversable.foreach { nested =>
-						val nestedEntity = typeRegistry.entityOf(nested)
-						val nestedTpe = nestedEntity.tpe
+						val nestedEntity = typeRegistry.entityOf[Any, Any](nested)
+						val nestedTpe = typeRegistry.typeOf(nestedEntity)
 						val newO = if (isPersisted(nested)) {
 							val OneToMany(foreign: TypeRef[_], foreignColumns: List[Column]) = cis.column
 							// update
@@ -114,8 +114,8 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 				val traversable = cis.columnToValue(o)
 				if (traversable != null) {
 					traversable.foreach { nested =>
-						val nestedEntity = typeRegistry.entityOf(nested)
-						val nestedTpe = nestedEntity.tpe
+						val nestedEntity = typeRegistry.entityOf[Any, Any](nested)
+						val nestedTpe = typeRegistry.typeOf(nestedEntity)
 						val newO = if (isPersisted(nested)) {
 							nested
 						} else {
@@ -146,7 +146,7 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 
 	private def updateInner[PC, T](entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap): T with PC =
 		{
-			val tpe = typeRegistry.entityOf(o).tpe
+			val tpe = typeRegistry.typeOf(typeRegistry.entityOf[PC, T](o))
 			val table = tpe.table
 
 			val modified = oldValuesMap.toMutableMap ++ newValuesMap.toMutableMap
@@ -159,7 +159,7 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 			val manyToOneChanged = table.manyToOneColumns.filter(onlyChanged _)
 			if (!columnsChanged.isEmpty || !manyToOneChanged.isEmpty) {
 				val mtoArgsV = manyToOneChanged.map(mto => (mto.foreign.clz, newValuesMap[Any](mto.alias))).map { t =>
-					typeRegistry.entityOf[Any, Any](t._1).tpe.table.toListOfPrimaryKeyValues(t._2)
+					typeRegistry.typeOf(typeRegistry.entityOf[Any, Any](t._1)).table.toListOfPrimaryKeyValues(t._2)
 				}.flatten
 				val mtoArgs = manyToOneChanged.map(_.columns).flatten zip mtoArgsV
 				val args = newValuesMap.toListOfColumnAndValueTuple(columnsChanged) ::: mtoArgs
@@ -229,7 +229,7 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 						case p: Persisted => p
 						case n => insert[Any, Any](typeRegistry.entityOf(n), n)
 					}
-					val ftpe = typeRegistry.entityOf(newItem).tpe
+					val ftpe = typeRegistry.typeOf(newItem)
 					val fPKArgs = manyToMany.linkTable.right zip ftpe.table.toListOfPrimaryKeyValues(newItem)
 					driver.doInsertManyToMany(tpe, manyToMany, pkArgs, fPKArgs)
 					addToMap(manyToMany.alias, newItem, modifiedTraversables)
@@ -238,7 +238,7 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 				val odiff = oldValues.diff(newValues)
 				odiff.foreach(_ match {
 					case p: Persisted =>
-						val ftpe = typeRegistry.entityOf[Any, Any](p).tpe
+						val ftpe = typeRegistry.typeOf[Any, Any](p)
 						val ftable = ftpe.table
 						val fPkArgs = manyToMany.linkTable.right zip ftable.toListOfPrimaryKeyValues(p)
 						driver.doDeleteManyToManyRef(tpe, ftpe, manyToMany, pkArgs, fPkArgs)
@@ -264,7 +264,7 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 			val persisted = o.asInstanceOf[T with PC with Persisted]
 			validatePersisted(persisted)
 			val oldValuesMap = persisted.valuesMap
-			val newValuesMap = ValuesMap.fromEntity(typeManager, typeRegistry.entityOf(o).tpe, o)
+			val newValuesMap = ValuesMap.fromEntity(typeManager, typeRegistry.typeOf(o), o)
 			updateInner(entity, o, oldValuesMap, newValuesMap)
 		}
 
@@ -286,7 +286,7 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 			validatePersisted(persisted)
 			persisted.discarded = true
 			val oldValuesMap = persisted.valuesMap
-			val newValuesMap = ValuesMap.fromEntity(typeManager, typeRegistry.entityOf(newO).tpe, newO)
+			val newValuesMap = ValuesMap.fromEntity(typeManager, typeRegistry.typeOf(newO), newO)
 			updateInner(entity, newO, oldValuesMap, newValuesMap)
 		}
 
@@ -312,7 +312,7 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 	private def select[PC, T](entity: Entity[PC, T], ids: List[Any], entities: EntityMap): Option[T with PC] =
 		{
 			val clz = entity.clz
-			val tpe = entity.tpe
+			val tpe = typeRegistry.typeOf(entity)
 			if (tpe.table.primaryKeys.size != ids.size) throw new IllegalStateException("Primary keys number dont match the number of parameters. Primary keys: %s".format(tpe.table.primaryKeys))
 
 			val om = driver.doSelect(tpe, tpe.table.primaryKeys.map(_.column).zip(ids))
@@ -363,7 +363,7 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 			}
 			// one to many
 			table.oneToManyColumns.foreach { c =>
-				val ftpe = typeRegistry.entityOf(c.foreign.clz).tpe
+				val ftpe = typeRegistry.typeOf(c.foreign.clz)
 				val fom = driver.doSelect(ftpe, c.foreignColumns.zip(ids))
 				val otmL = toEntities(fom, ftpe, entities)
 				mods(c.foreign.alias) = otmL
@@ -371,7 +371,7 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 
 			// many to many
 			table.manyToManyColumns.foreach { c =>
-				val ftpe = typeRegistry.entityOf(c.foreign.clz).tpe
+				val ftpe = typeRegistry.typeOf(c.foreign.clz)
 				val fom = driver.doSelectManyToMany(tpe, ftpe, c, c.linkTable.left zip ids)
 				val mtmR = toEntities(fom, ftpe, entities)
 				mods(c.foreign.alias) = mtmR
@@ -396,7 +396,7 @@ final class MapperDao(protected[orm] val driver: Driver, protected[orm] val type
 			if (persisted.discarded) throw new IllegalArgumentException("can't operate on an object twice. An object that was updated/deleted must be discarded and replaced by the return value of update(), i.e. onew=update(o) or just be disposed if it was deleted. The offending object was : " + o);
 			persisted.discarded = true
 
-			val tpe = typeRegistry.entityOf(o).tpe
+			val tpe = typeRegistry.typeOf(entity)
 			val table = tpe.table
 
 			val keyValues = table.toListOfPrimaryKeyAndValueTuples(o)
