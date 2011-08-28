@@ -154,18 +154,6 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		query(q10).toSet must_== Set(j8, j12)
 	}
 
-	"query join with alias" in {
-		createJobPositionTable
-
-		val j1 = insert(JobPositionEntity, JobPosition(1, "developer", DateTime.now))
-		val j2 = insert(JobPositionEntity, JobPosition(2, "Scala Developer", DateTime.now))
-		val j3 = insert(JobPositionEntity, JobPosition(3, "manager", DateTime.now))
-		val j4 = insert(JobPositionEntity, JobPosition(4, "Scala Developer", DateTime.now))
-		val j5 = insert(JobPositionEntity, JobPosition(5, "Scala Developer", DateTime.now))
-		val j6 = insert(JobPositionEntity, JobPosition(6, "driver", DateTime.now))
-		query(q11).toSet must_== Set(j2, j4, j5)
-	}
-
 	def createJobPositionTable {
 		jdbc.update("drop table if exists JobPosition cascade")
 		jdbc.update("""
@@ -179,34 +167,24 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 	}
 }
 
-// the scala compiler gets an internal error if I embed those inside the spec, due to the implicits!
-object SQSQueries {
-	import SimpleQuerySpec._
-	val jpe = JobPositionEntity
-	import Query._
-
-	def q0 = select from JobPositionEntity
-	def q1 = select from JobPositionEntity where jpe.name === "Scala Developer"
-	def q2 = select from JobPositionEntity where jpe.name === "Scala Developer" and jpe.id > 6
-	def q3 = select from JobPositionEntity where jpe.name === "Scala Developer" or jpe.id < 7
-	def q4 = select from JobPositionEntity where jpe.id <= 7
-	def q5 = select from JobPositionEntity where jpe.id >= 7
-	def q6 = select from JobPositionEntity where jpe.id === 7
-	def q7 = select from JobPositionEntity where (jpe.name like "%eveloper%")
-	def q8 = select from JobPositionEntity where (jpe.id >= 9 or jpe.id < 6) or jpe.name === "manager"
-	def q9 = select from JobPositionEntity where ((jpe.id > 10 and jpe.id < 20) or (jpe.id > 30 and jpe.id < 40)) and jpe.name === "correct"
-	def q10 = select from JobPositionEntity where jpe.start > DateTime.now + 0.days and jpe.start < DateTime.now + 3.days - 60.seconds
-	def q11 =
-		{
-			val jp1 = new JobPositionEntityBase
-			select from jpe join
-				jp1 where
-				jpe.name === jp1.name and
-				jpe.id <> jp1.id
-		}
-}
-
 object SimpleQuerySpec {
+	// the scala compiler gets an internal error if I embed those inside the spec, due to the implicits!
+	object SQSQueries {
+		val jpe = JobPositionEntity
+		import Query._
+
+		def q0 = select from JobPositionEntity
+		def q1 = select from JobPositionEntity where jpe.name === "Scala Developer"
+		def q2 = select from JobPositionEntity where jpe.name === "Scala Developer" and jpe.id > 6
+		def q3 = select from JobPositionEntity where jpe.name === "Scala Developer" or jpe.id < 7
+		def q4 = select from JobPositionEntity where jpe.id <= 7
+		def q5 = select from JobPositionEntity where jpe.id >= 7
+		def q6 = select from JobPositionEntity where jpe.id === 7
+		def q7 = select from JobPositionEntity where (jpe.name like "%eveloper%")
+		def q8 = select from JobPositionEntity where (jpe.id >= 9 or jpe.id < 6) or jpe.name === "manager"
+		def q9 = select from JobPositionEntity where ((jpe.id > 10 and jpe.id < 20) or (jpe.id > 30 and jpe.id < 40)) and jpe.name === "correct"
+		def q10 = select from JobPositionEntity where jpe.start > DateTime.now + 0.days and jpe.start < DateTime.now + 3.days - 60.seconds
+	}
 	case class JobPosition(val id: Int, var name: String, val start: DateTime)
 
 	class JobPositionEntityBase extends SimpleEntity(classOf[JobPosition]) {
