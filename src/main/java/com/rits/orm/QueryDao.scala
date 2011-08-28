@@ -34,7 +34,7 @@ class QueryDao(mapperDao: MapperDao) {
 		val aliases = new Aliases(typeRegistry)
 
 		val sb = new StringBuilder(200, driver.startQuery(aliases, qe, columns))
-
+		var args = List[Any]()
 		// iterate through the joins in the correct order
 		qe.joins.reverse.foreach { j =>
 			val column = j.column
@@ -49,13 +49,18 @@ class QueryDao(mapperDao: MapperDao) {
 						}
 				}
 			} else {
-				sb append driver.joinTable(aliases, j)
+				val joined = driver.joinTable(aliases, j)
+				sb append joined._1
+				args = args ::: joined._2
 			}
 		}
 
 		// append the where clause and get the list of arguments
-		val (sql, args) = driver.where(aliases, qe)
-		sb append sql
+		if (!qe.wheres.isEmpty) {
+			val (sql, wargs) = driver.queryExpressions(aliases, qe.wheres)
+			args = args ::: wargs
+			sb append "\nwhere " append sql
+		}
 		new SqlAndArgs(sb.toString, args)
 	}
 }

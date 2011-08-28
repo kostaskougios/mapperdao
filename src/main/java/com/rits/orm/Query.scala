@@ -69,7 +69,7 @@ object Query {
 	protected[orm] class Join[PC, T, E <: Entity[_, _], QPC, QT](queryEntity: QueryEntity[QPC, QT]) {
 		protected[orm] var column: ColumnRelationshipBase = _
 		protected[orm] var entity: E = _
-
+		protected[orm] var on: JoinOn[QPC, QT] = _
 		def apply(manyToOne: ColumnInfoManyToOne[PC, T]) =
 			{
 				column = manyToOne.column
@@ -88,7 +88,8 @@ object Query {
 		def apply(entity: E) =
 			{
 				this.entity = entity;
-				new JoinOn(queryEntity)
+				on = new JoinOn(queryEntity)
+				on
 			}
 	}
 

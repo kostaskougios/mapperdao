@@ -262,44 +262,48 @@ trait Driver {
 			sb.toString
 		}
 
-	def joinTable[JPC, JT, E <: Entity[PC, T], PC, T](aliases: QueryDao.Aliases, join: Query.Join[JPC, JT, E, PC, T]): String =
+	def joinTable[JPC, JT, E <: Entity[PC, T], PC, T](aliases: QueryDao.Aliases, join: Query.Join[JPC, JT, E, PC, T]): (String, List[Any]) =
 		{
 			val jEntity = join.entity
 			val jTable = typeRegistry.typeOf(jEntity).table
 			val qAlias = aliases(jEntity)
 			val sb = new StringBuilder
 			sb append "\njoin " append jTable.name append " " append qAlias
-			sb.toString
+
+			var args = if (join.on != null) {
+				val expressions = queryExpressions(aliases, join.on.ons)
+				sb append " on " append expressions._1
+				expressions._2
+			} else List[Any]()
+
+			(sb.toString, args)
 		}
 
 	// where clause
-	def where[PC, T](aliases: QueryDao.Aliases, qe: Query.QueryEntity[PC, T]): (String, List[Any]) =
+	def queryExpressions[PC, T](aliases: QueryDao.Aliases, wheres: List[Query.QueryExpressions[PC, T]]): (String, List[Any]) =
 		{
 			val sb = new StringBuilder(100)
 			var args = List.newBuilder[Any]
-			if (!qe.wheres.isEmpty) {
-				sb append "\nwhere"
-				qe.wheres.map(_.clauses).foreach { op =>
-					def inner(op: OpBase): Unit = op match {
-						case o: Operation[_] =>
-							sb append " " append resolveWhereExpression(aliases, args, o.left)
-							sb append ' ' append o.operand.sql append ' ' append resolveWhereExpression(aliases, args, o.right)
-						case and: AndOp =>
-							sb append " ("
-							inner(and.left)
-							sb append " and"
-							inner(and.right)
-							sb append " )"
-						case and: OrOp =>
-							sb append " ("
-							inner(and.left)
-							sb append " or"
-							inner(and.right)
-							sb append " )"
-					}
-
-					inner(op)
+			wheres.map(_.clauses).foreach { op =>
+				def inner(op: OpBase): Unit = op match {
+					case o: Operation[_] =>
+						sb append resolveWhereExpression(aliases, args, o.left)
+						sb append ' ' append o.operand.sql append ' ' append resolveWhereExpression(aliases, args, o.right)
+					case and: AndOp =>
+						sb append "( "
+						inner(and.left)
+						sb append " and "
+						inner(and.right)
+						sb append " )"
+					case and: OrOp =>
+						sb append "( "
+						inner(and.left)
+						sb append " or "
+						inner(and.right)
+						sb append " )"
 				}
+
+				inner(op)
 			}
 			(sb.toString, args.result)
 		}
