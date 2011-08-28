@@ -26,12 +26,13 @@ class ManyToOneSelfJoinQuerySpec extends SpecificationWithJUnit {
 		val a1 = insert(AddressEntity, Address(101, "SE2 2BB"))
 		val h0 = insert(HouseEntity, House(10, "Appartment A", a0))
 		val h1 = insert(HouseEntity, House(11, "Block B", a1))
+		insert(HouseEntity, House(12, "Block B", a1))
 		val p0 = insert(PersonEntity, Person(0, "p0", h0))
 		val p1 = insert(PersonEntity, Person(1, "p1", h0))
 		val p2 = insert(PersonEntity, Person(2, "p2", h0))
 		val p3 = insert(PersonEntity, Person(3, "p3", h1))
 		val p4 = insert(PersonEntity, Person(4, "p4", h1))
-		query(q0) must_== List(p0, p1, p2, p3, p4)
+		query(q0).toSet must_== Set(p0, p1, p2)
 	}
 
 	def createTables {
@@ -73,13 +74,11 @@ object ManyToOneSelfJoinQuerySpec {
 		import Query._
 
 		val pe = PersonEntity
-		val he = HouseEntity
-		val ad = AddressEntity
 
 		val q0 = {
-			val he1 = HouseEntity
-			val he2 = new HouseEntityBase
-			select from pe join pe.lives join he1 on he1.name <> he2.name
+			val ho1 = HouseEntity
+			val ho2 = new HouseEntityBase
+			select from pe join pe.lives join ho2 on ho1.name <> ho2.name and ho2.id === 11
 		}
 	}
 	case class Person(val id: Int, var name: String, lives: House)

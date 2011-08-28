@@ -70,14 +70,20 @@ object QueryDao {
 	// creates aliases for tables
 	class Aliases(typeRegistry: TypeRegistry) {
 		private val aliases = new java.util.IdentityHashMap[Any, String]
-		private var aliasCount = 0
+		private var aliasCount = new scala.collection.mutable.HashMap[String, Int]
 
+		private def getCnt(prefix: String): Int = {
+			val v = aliasCount.getOrElseUpdate(prefix, 1)
+			aliasCount(prefix) = v + 1
+			v
+		}
 		def apply[PC, T](entity: Entity[PC, T]): String =
 			{
 				val v = aliases.get(entity)
 				if (v != null) v else {
-					aliasCount += 1
-					val v = entity.table.substring(0, 1).toLowerCase + aliasCount
+					val prefix = entity.table.substring(0, 2)
+
+					val v = prefix.toLowerCase + getCnt(prefix)
 					aliases.put(entity, v)
 					entity.columns.foreach { ci =>
 						aliases.put(ci.column, v)
@@ -90,7 +96,7 @@ object QueryDao {
 			{
 				val v = aliases.get(c)
 				if (v == null)
-					throw new IllegalStateException("key not found:" + c)
+					throw new IllegalStateException("key not found:" + c + " , are your aliases correct?")
 				v
 			}
 	}
