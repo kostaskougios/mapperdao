@@ -46,6 +46,9 @@ class QueryDao(mapperDao: MapperDao) {
 							case manyToOne: ManyToOne[_] =>
 								val foreignEntity = typeRegistry.entityOf(manyToOne.foreign.clz)
 								sb append driver.manyToOneJoin(aliases, joinEntity, foreignEntity, manyToOne)
+							case oneToMany: OneToMany[_] =>
+								val foreignEntity = typeRegistry.entityOf(oneToMany.foreign.clz)
+								sb append driver.oneToManyJoin(aliases, joinEntity, foreignEntity, oneToMany)
 						}
 				}
 			} else {

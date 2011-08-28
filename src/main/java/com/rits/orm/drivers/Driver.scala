@@ -246,7 +246,7 @@ trait Driver {
 		}
 
 	// creates the join for many-to-one
-	def manyToOneJoin[PC, T, FPC, FT](aliases: QueryDao.Aliases, joinEntity: Entity[PC, T], foreignEntity: Entity[FPC, FT], manyToOne: ManyToOne[_]): String =
+	def manyToOneJoin[PC, T, FPC, FT](aliases: QueryDao.Aliases, joinEntity: Entity[PC, T], foreignEntity: Entity[FPC, FT], manyToOne: ManyToOne[FT]): String =
 		{
 			val foreignTpe = typeRegistry.typeOf(foreignEntity)
 
@@ -261,7 +261,23 @@ trait Driver {
 			}
 			sb.toString
 		}
+	// creates the join for many-to-one
+	def oneToManyJoin[PC, T, FPC, FT](aliases: QueryDao.Aliases, joinEntity: Entity[PC, T], foreignEntity: Entity[FPC, FT], oneToMany: OneToMany[FT]): String =
+		{
+			val joinTpe = typeRegistry.typeOf(joinEntity)
+			val foreignTpe = typeRegistry.typeOf(foreignEntity)
 
+			val foreignTable = foreignTpe.table
+			val fAlias = aliases(foreignEntity)
+			val jAlias = aliases(joinEntity)
+
+			val sb = new StringBuilder
+			sb append "\njoin " append foreignTable.name append " " append fAlias append " on "
+			(joinTpe.table.primaryKeys zip oneToMany.foreignColumns).foreach { t =>
+				sb append jAlias append "." append t._1.columnName append " = " append fAlias append "." append t._2.columnName
+			}
+			sb.toString
+		}
 	// creates the join sql and params for joins (including join on expressions, i.e. join T on j1.name<>j2.name)
 	def joinTable[JPC, JT, E <: Entity[PC, T], PC, T](aliases: QueryDao.Aliases, join: Query.Join[JPC, JT, E, PC, T]): (String, List[Any]) =
 		{
