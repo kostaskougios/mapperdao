@@ -32,7 +32,6 @@ class QueryDao(mapperDao: MapperDao) {
 		val columns = driver.selectColumns(tpe)
 
 		val aliases = new Aliases
-		aliases(tpe.table) = qe.alias
 
 		val sb = new StringBuilder(200, driver.startQuery(aliases, qe, columns))
 
@@ -52,7 +51,7 @@ class QueryDao(mapperDao: MapperDao) {
 			} else {
 				val jEntity = j.entity
 				val jTable = typeRegistry.typeOf(jEntity).table
-				val qAlias = aliases(jTable)
+				val qAlias = aliases(jEntity)
 				sb append "\njoin " append jTable.name append " " append qAlias
 			}
 		}
@@ -71,16 +70,27 @@ object QueryDao {
 		private val aliases = new java.util.IdentityHashMap[Any, String]
 		private var aliasCount = 0
 
-		def update(table: Table[_, _], alias: String): Unit = aliases.put(table, alias)
-		def apply(table: Table[_, _]): String =
+		//		def update(table: Table[_, _], alias: String): Unit = aliases.put(table, alias)
+		//		def apply(table: Table[_, _]): String =
+		//			{
+		//				val v = aliases.get(table)
+		//				if (v != null) v else {
+		//					aliasCount += 1
+		//					val v = table.name.substring(0, 1).toLowerCase + aliasCount
+		//					aliases.put(table, v)
+		//					v
+		//				}
+		//			}
+		def apply[E <: Entity[_, _]](entity: E): String =
 			{
-				val v = aliases.get(table)
+				val v = aliases.get(entity)
 				if (v != null) v else {
 					aliasCount += 1
-					val v = table.name.substring(0, 1).toLowerCase + aliasCount
-					aliases.put(table, v)
+					val v = entity.table.substring(0, 1).toLowerCase + aliasCount
+					aliases.put(entity, v)
 					v
 				}
+
 			}
 	}
 }

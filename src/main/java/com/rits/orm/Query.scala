@@ -46,10 +46,10 @@ object Query {
 
 	// "from" syntactic sugar
 	protected class QueryFrom[PC, T] {
-		def from(entity: Entity[PC, T]) = new QueryEntity(entity, "e")
+		def from(entity: Entity[PC, T]) = new QueryEntity(entity)
 	}
 
-	class QueryEntity[PC, T](protected[orm] val entity: Entity[PC, T], protected[orm] val alias: String) {
+	class QueryEntity[PC, T](protected[orm] val entity: Entity[PC, T]) {
 		protected[orm] var wheres = List[QueryWhere[PC, T]]()
 		protected[orm] var joins = List[Join[Any, Any, Entity[_, _], PC, T]]()
 

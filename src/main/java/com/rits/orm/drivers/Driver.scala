@@ -235,10 +235,12 @@ trait Driver {
 	// select ... from 
 	def startQuery[PC, T](aliases: QueryDao.Aliases, qe: Query.QueryEntity[PC, T], columns: List[ColumnBase]): String =
 		{
-			val tpe = typeRegistry.typeOf(qe.entity)
+			val entity = qe.entity
+			val tpe = typeRegistry.typeOf(entity)
 			val sb = new StringBuilder(100, "select ")
-			sb append commaSeparatedListOfSimpleTypeColumns(qe.alias + ".", ",", columns)
-			sb append "\nfrom " append tpe.table.name append " " append aliases(tpe.table)
+			val alias = aliases(entity)
+			sb append commaSeparatedListOfSimpleTypeColumns(alias + ".", ",", columns)
+			sb append "\nfrom " append tpe.table.name append " " append alias
 
 			sb.toString
 		}
@@ -247,11 +249,10 @@ trait Driver {
 	def manyToOneJoin[PC, T, FPC, FT](aliases: QueryDao.Aliases, joinEntity: Entity[PC, T], foreignEntity: Entity[FPC, FT], manyToOne: ManyToOne[_]): String =
 		{
 			val foreignTpe = typeRegistry.typeOf(foreignEntity)
-			val joinTpe = typeRegistry.typeOf(joinEntity)
 
 			val foreignTable = foreignTpe.table
-			val fAlias = aliases(foreignTable)
-			val jAlias = aliases(joinTpe.table)
+			val fAlias = aliases(foreignEntity)
+			val jAlias = aliases(joinEntity)
 
 			val sb = new StringBuilder
 			sb append "\njoin " append foreignTable.name append " " append fAlias append " on "
@@ -273,8 +274,7 @@ trait Driver {
 						case o: Operation[_] =>
 							val leftEntity = typeRegistry.entityOf(o.left)
 							sb append " "
-							val leftTpe = typeRegistry.typeOf(leftEntity)
-							sb append aliases(leftTpe.table)
+							sb append aliases(leftEntity)
 							sb append "." append o.left.columnName append ' ' append o.operand.sql
 							sb append " ?"
 							args ::= o.right
