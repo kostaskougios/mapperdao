@@ -276,15 +276,14 @@ trait Driver {
 	def where[PC, T](aliases: QueryDao.Aliases, qe: Query.QueryEntity[PC, T]): (String, List[Any]) =
 		{
 			val sb = new StringBuilder(100)
-			var args = List[Any]()
+			var args = List.newBuilder[Any]
 			if (!qe.wheres.isEmpty) {
 				sb append "\nwhere"
 				qe.wheres.map(_.clauses).foreach { op =>
 					def inner(op: OpBase): Unit = op match {
 						case o: Operation[_] =>
-							sb append " " append resolveWhereExpression(aliases, o.left)
-							sb append ' ' append o.operand.sql append ' ' append resolveWhereExpression(aliases, o.right)
-							args ::= o.right
+							sb append " " append resolveWhereExpression(aliases, args, o.left)
+							sb append ' ' append o.operand.sql append ' ' append resolveWhereExpression(aliases, args, o.right)
 						case and: AndOp =>
 							sb append " ("
 							inner(and.left)
@@ -302,13 +301,15 @@ trait Driver {
 					inner(op)
 				}
 			}
-			(sb.toString, args.reverse)
+			(sb.toString, args.result)
 		}
 
-	protected def resolveWhereExpression(aliases: QueryDao.Aliases, v: Any): String = v match {
+	protected def resolveWhereExpression(aliases: QueryDao.Aliases, args: scala.collection.mutable.Builder[Any, List[Any]], v: Any): String = v match {
 		case c: ColumnBase =>
 			aliases(c) + "." + c.columnName
-		case _ => "?"
+		case _ =>
+			args += v
+			"?"
 	}
 	/**
 	 * =====================================================================================
