@@ -282,8 +282,8 @@ trait Driver {
 				qe.wheres.map(_.clauses).foreach { op =>
 					def inner(op: OpBase): Unit = op match {
 						case o: Operation[_] =>
-							sb append " " append resolveWhereExpression(aliases, sb, o.left)
-							sb append ' ' append o.operand.sql append ' ' append resolveWhereExpression(aliases, sb, o.right)
+							sb append " " append resolveWhereExpression(aliases, o.left)
+							sb append ' ' append o.operand.sql append ' ' append resolveWhereExpression(aliases, o.right)
 							args ::= o.right
 						case and: AndOp =>
 							sb append " ("
@@ -304,7 +304,8 @@ trait Driver {
 			}
 			(sb.toString, args.reverse)
 		}
-	protected def resolveWhereExpression(aliases: QueryDao.Aliases, sb: StringBuilder, v: Any): String = v match {
+
+	protected def resolveWhereExpression(aliases: QueryDao.Aliases, v: Any): String = v match {
 		case c: ColumnBase =>
 			aliases(c) + "." + c.columnName
 		case _ => "?"
@@ -314,5 +315,5 @@ trait Driver {
 	 * standard methods
 	 * =====================================================================================
 	 */
-	override def toString = "Driver(%s)".format(jdbc)
+	override def toString = "Driver(%s,%s)".format(jdbc, typeRegistry)
 }

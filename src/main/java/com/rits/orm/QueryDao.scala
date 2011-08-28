@@ -67,17 +67,6 @@ object QueryDao {
 		private val aliases = new java.util.IdentityHashMap[Any, String]
 		private var aliasCount = 0
 
-		//		def update(table: Table[_, _], alias: String): Unit = aliases.put(table, alias)
-		//		def apply(table: Table[_, _]): String =
-		//			{
-		//				val v = aliases.get(table)
-		//				if (v != null) v else {
-		//					aliasCount += 1
-		//					val v = table.name.substring(0, 1).toLowerCase + aliasCount
-		//					aliases.put(table, v)
-		//					v
-		//				}
-		//			}
 		def apply[PC, T](entity: Entity[PC, T]): String =
 			{
 				val v = aliases.get(entity)
@@ -85,14 +74,19 @@ object QueryDao {
 					aliasCount += 1
 					val v = entity.table.substring(0, 1).toLowerCase + aliasCount
 					aliases.put(entity, v)
-					val tpe = typeRegistry.typeOf(entity)
-					tpe.table.columns.foreach { c =>
-						aliases.put(c, v)
+					entity.columns.foreach { ci =>
+						aliases.put(ci.column, v)
 					}
 					v
 				}
 
 			}
-		def apply(c: ColumnBase): String = aliases.get(c)
+		def apply(c: ColumnBase): String =
+			{
+				val v = aliases.get(c)
+				if (v == null)
+					throw new IllegalStateException("key not found:" + c)
+				v
+			}
 	}
 }
