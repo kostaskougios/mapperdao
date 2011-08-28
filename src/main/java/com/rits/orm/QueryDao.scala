@@ -49,10 +49,7 @@ class QueryDao(mapperDao: MapperDao) {
 						}
 				}
 			} else {
-				val jEntity = j.entity
-				val jTable = typeRegistry.typeOf(jEntity).table
-				val qAlias = aliases(jEntity)
-				sb append "\njoin " append jTable.name append " " append qAlias
+				sb append driver.joinTable(aliases, j)
 			}
 		}
 

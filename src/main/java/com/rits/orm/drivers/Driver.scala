@@ -262,6 +262,16 @@ trait Driver {
 			sb.toString
 		}
 
+	def joinTable[JPC, JT, E <: Entity[PC, T], PC, T](aliases: QueryDao.Aliases, join: Query.Join[JPC, JT, E, PC, T]): String =
+		{
+			val jEntity = join.entity
+			val jTable = typeRegistry.typeOf(jEntity).table
+			val qAlias = aliases(jEntity)
+			val sb = new StringBuilder
+			sb append "\njoin " append jTable.name append " " append qAlias
+			sb.toString
+		}
+
 	// where clause
 	def where[PC, T](aliases: QueryDao.Aliases, qe: Query.QueryEntity[PC, T]): (String, List[Any]) =
 		{

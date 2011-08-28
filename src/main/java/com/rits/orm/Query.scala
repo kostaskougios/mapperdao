@@ -51,7 +51,7 @@ object Query {
 
 	class QueryEntity[PC, T](protected[orm] val entity: Entity[PC, T]) {
 		protected[orm] var wheres = List[QueryWhere[PC, T]]()
-		protected[orm] var joins = List[Join[Any, Any, Entity[_, _], PC, T]]()
+		protected[orm] var joins = List[Join[Any, Any, Entity[PC, T], PC, T]]()
 
 		def where = {
 			val qw = new QueryWhere(this)
@@ -61,7 +61,7 @@ object Query {
 
 		def join[JPC, JT, E <: Entity[_, _]] = {
 			val j = new Join[JPC, JT, E, PC, T](this)
-			joins ::= j.asInstanceOf[Join[Any, Any, Entity[_, _], PC, T]]
+			joins ::= j.asInstanceOf[Join[Any, Any, Entity[PC, T], PC, T]]
 			j
 		}
 	}
