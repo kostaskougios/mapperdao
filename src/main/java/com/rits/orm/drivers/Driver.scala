@@ -282,11 +282,8 @@ trait Driver {
 				qe.wheres.map(_.clauses).foreach { op =>
 					def inner(op: OpBase): Unit = op match {
 						case o: Operation[_] =>
-							val leftEntity = typeRegistry.entityOf(o.left)
-							sb append " "
-							sb append aliases(leftEntity)
-							sb append "." append o.left.columnName append ' ' append o.operand.sql
-							sb append " ?"
+							sb append " " append resolveWhereExpression(aliases, sb, o.left)
+							sb append ' ' append o.operand.sql append ' ' append resolveWhereExpression(aliases, sb, o.right)
 							args ::= o.right
 						case and: AndOp =>
 							sb append " ("
@@ -307,12 +304,11 @@ trait Driver {
 			}
 			(sb.toString, args.reverse)
 		}
-	//	protected def resolveWhereExpression(aliases: QueryDao.Aliases,sb:StringBuilder,v: Any): Unit = v match {
-	//		case c: ColumnBase =>
-	//			sb append aliases(leftEntity.tpe.table)
-	//							sb append "." append o.left.columnName
-	//		case _ => "?"
-	//	}
+	protected def resolveWhereExpression(aliases: QueryDao.Aliases, sb: StringBuilder, v: Any): String = v match {
+		case c: ColumnBase =>
+			aliases(c) + "." + c.columnName
+		case _ => "?"
+	}
 	/**
 	 * =====================================================================================
 	 * standard methods

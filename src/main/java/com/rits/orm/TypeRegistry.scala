@@ -31,6 +31,7 @@ final class TypeRegistry(entities: List[Entity[_, _]]) {
 	}
 	def typeOf[PC, T](entity: Entity[PC, T]): Type[PC, T] = entityToType(entity).asInstanceOf[Type[PC, T]]
 	def typeOf[PC, T](clz: Class[T]): Type[PC, T] = entityToType(entityOf(clz)).asInstanceOf[Type[PC, T]]
+	def typeOf[PC, T](column: ColumnBase): Type[PC, T] = entityToType(entityOf(column)).asInstanceOf[Type[PC, T]]
 	def typeOf[PC, T](o: T): Type[PC, T] = entityToType(entityOf(o)).asInstanceOf[Type[PC, T]]
 
 	def entityOf(column: ColumnBase): Entity[_, _] = {

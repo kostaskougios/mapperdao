@@ -31,7 +31,7 @@ class QueryDao(mapperDao: MapperDao) {
 		val tpe = typeRegistry.typeOf(e)
 		val columns = driver.selectColumns(tpe)
 
-		val aliases = new Aliases
+		val aliases = new Aliases(typeRegistry)
 
 		val sb = new StringBuilder(200, driver.startQuery(aliases, qe, columns))
 
@@ -63,7 +63,7 @@ class QueryDao(mapperDao: MapperDao) {
 object QueryDao {
 
 	// creates aliases for tables
-	class Aliases {
+	class Aliases(typeRegistry: TypeRegistry) {
 		private val aliases = new java.util.IdentityHashMap[Any, String]
 		private var aliasCount = 0
 
@@ -78,16 +78,21 @@ object QueryDao {
 		//					v
 		//				}
 		//			}
-		def apply[E <: Entity[_, _]](entity: E): String =
+		def apply[PC, T](entity: Entity[PC, T]): String =
 			{
 				val v = aliases.get(entity)
 				if (v != null) v else {
 					aliasCount += 1
 					val v = entity.table.substring(0, 1).toLowerCase + aliasCount
 					aliases.put(entity, v)
+					val tpe = typeRegistry.typeOf(entity)
+					tpe.table.columns.foreach { c =>
+						aliases.put(c, v)
+					}
 					v
 				}
 
 			}
+		def apply(c: ColumnBase): String = aliases.get(c)
 	}
 }
