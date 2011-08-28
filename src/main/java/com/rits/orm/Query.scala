@@ -50,13 +50,13 @@ object Query {
 	}
 
 	class QueryEntity[PC, T](protected[orm] val entity: Entity[PC, T]) {
-		protected[orm] var wheres = List[QueryWhere[PC, T]]()
+		protected[orm] var wheres = List[QueryExpressions[PC, T]]()
 		protected[orm] var joins = List[Join[Any, Any, Entity[PC, T], PC, T]]()
 
 		def where = {
-			val qw = new QueryWhere(this)
-			wheres ::= qw
-			qw
+			val qe = new QueryExpressions(this)
+			wheres ::= qe
+			qe
 		}
 
 		def join[JPC, JT, E <: Entity[_, _]] = {
@@ -92,8 +92,19 @@ object Query {
 			}
 	}
 
-	class QueryWhere[PC, T](protected[orm] val queryEntity: QueryEntity[PC, T]) {
-		protected[orm] var clauses: OpBase = null
+	protected[orm] class JoinOn[PC, T](protected[orm] val queryEntity: QueryEntity[PC, T]) {
+		protected[orm] var ons = List[QueryExpressions[PC, T]]()
+		def on: QueryExpressions[PC, T] =
+			{
+				val qe = new QueryExpressions(queryEntity)
+				ons ::= qe
+				qe
+
+			}
+	}
+
+	protected[orm] class QueryExpressions[PC, T](protected[orm] val queryEntity: QueryEntity[PC, T]) {
+		var clauses: OpBase = null
 
 		def apply(op: OpBase) =
 			{

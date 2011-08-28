@@ -17,7 +17,7 @@ class QueryDao(mapperDao: MapperDao) {
 
 	private class SqlAndArgs(val sql: String, val args: List[Any])
 
-	def query[PC, T](qw: Query.QueryWhere[PC, T]): List[T with PC] = query(qw.queryEntity)
+	def query[PC, T](qe: Query.QueryExpressions[PC, T]): List[T with PC] = query(qe.queryEntity)
 
 	def query[PC, T](qe: Query.QueryEntity[PC, T]): List[T with PC] =
 		{
