@@ -11,11 +11,13 @@ import com.rits.jdbc.Setup
  */
 class OneToManyQuerySpec extends SpecificationWithJUnit {
 	import OneToManyQuerySpec._
+
 	val (jdbc, mapperDao, queryDao) = Setup.setupQueryDao(TypeRegistry(HouseEntity, PersonEntity))
+
 	import mapperDao._
 	import queryDao._
-
 	import TestQueries._
+
 	"join 1 level" in {
 		createTables
 		val p0 = insert(PersonEntity, Person(5, "person0", Set(House(1, "London"), House(2, "Paris"))))
@@ -23,6 +25,16 @@ class OneToManyQuerySpec extends SpecificationWithJUnit {
 		val p2 = insert(PersonEntity, Person(7, "person2", Set(House(5, "Rome"), House(6, "Athens"))))
 
 		query(q0).toSet must_== Set(p0, p1)
+	}
+
+	"join with 2 conditions" in {
+		createTables
+		val p0 = insert(PersonEntity, Person(5, "person0", Set(House(1, "London"), House(2, "Paris"))))
+		val p1 = insert(PersonEntity, Person(6, "person1", Set(House(3, "London"), House(4, "Athens"))))
+		val p2 = insert(PersonEntity, Person(7, "person2", Set(House(5, "Rome"), House(6, "Sofia"))))
+		val p3 = insert(PersonEntity, Person(8, "person3", Set(House(7, "Madrid"))))
+
+		query(q1).toSet must_== Set(p3)
 	}
 
 	def createTables {
@@ -57,6 +69,7 @@ object OneToManyQuerySpec {
 		val h = HouseEntity
 
 		def q0 = select from p join p.owns where h.address === "London"
+		def q1 = select from p join p.owns where (h.address === "Madrid" or h.address === "Rome") and h.id >= 6
 	}
 	case class Person(val id: Int, var name: String, owns: Set[House])
 	case class House(val id: Int, val address: String)

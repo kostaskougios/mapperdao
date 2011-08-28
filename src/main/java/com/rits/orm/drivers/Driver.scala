@@ -261,7 +261,8 @@ trait Driver {
 			}
 			sb.toString
 		}
-	// creates the join for many-to-one
+
+	// creates the join for one-to-many
 	def oneToManyJoin[PC, T, FPC, FT](aliases: QueryDao.Aliases, joinEntity: Entity[PC, T], foreignEntity: Entity[FPC, FT], oneToMany: OneToMany[FT]): String =
 		{
 			val joinTpe = typeRegistry.typeOf(joinEntity)
