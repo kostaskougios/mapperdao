@@ -109,7 +109,9 @@ class ManyToManySpec extends SpecificationWithJUnit {
 					create table Product_Attribute (
 						product_id int not null,
 						attribute_id int not null,
-						primary key(product_id,attribute_id)
+						primary key(product_id,attribute_id),
+						foreign key (product_id) references Product(id),
+						foreign key (attribute_id) references Attribute(id)
 					)
 			""")
 		}
@@ -143,6 +145,5 @@ object ManyToManySpec {
 		val constructor = (m: ValuesMap) => new Attribute(m(id), m(name), m(value)) with Persisted {
 			val valuesMap = m
 		}
-
 	}
 }
