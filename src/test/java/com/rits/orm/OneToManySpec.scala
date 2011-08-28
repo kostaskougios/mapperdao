@@ -30,13 +30,13 @@ class OneToManySpec extends SpecificationWithJUnit {
 		val inserted = mapperDao.insert(PersonEntity, person)
 
 		var updated: Person = inserted
-			def doUpdate(from: Person, to: Person) =
-				{
-					updated = mapperDao.update(PersonEntity, from, to)
-					updated must_== to
-					mapperDao.select(PersonEntity, 3).get must_== updated
-					mapperDao.select(PersonEntity, 3).get must_== to
-				}
+		def doUpdate(from: Person, to: Person) =
+			{
+				updated = mapperDao.update(PersonEntity, from, to)
+				updated must_== to
+				mapperDao.select(PersonEntity, 3).get must_== updated
+				mapperDao.select(PersonEntity, 3).get must_== to
+			}
 		doUpdate(updated, new Person(3, "Changed", "K", updated.owns, 18, updated.positions.filterNot(_ == jp1)))
 		doUpdate(updated, new Person(3, "Changed Again", "Surname changed too", updated.owns.filter(_.address == "London"), 18, jp5 :: updated.positions.filterNot(jp ⇒ jp == jp1 || jp == jp3)))
 	}
@@ -208,8 +208,7 @@ object OneToManySpec {
 	 * Also the only reason for this class to be mutable is for testing. In a real application
 	 * it could be immutable.
 	 */
-	case class Person(val id: Int, var name: String, val surname: String, owns: Set[House], var age: Int, var positions: List[JobPosition]) {
-	}
+	case class Person(val id: Int, var name: String, val surname: String, owns: Set[House], var age: Int, var positions: List[JobPosition])
 
 	case class House(val id: Int, val address: String)
 
