@@ -8,34 +8,19 @@ import org.scala_tools.time.Imports._
 /**
  * @author kostantinos.kougios
  *
- * 20 Aug 2011
+ * 28 Aug 2011
  */
-class ManyToOneQuerySpec extends SpecificationWithJUnit {
-	import ManyToOneQuerySpec._
+class ManyToOneSelfJoinQuerySpec extends SpecificationWithJUnit {
+
+	import ManyToOneSelfJoinQuerySpec._
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupQueryDao(TypeRegistry(PersonEntity, HouseEntity, AddressEntity))
 
-	import MTOQuerySpec._
+	import TestQueries._
 	import mapperDao._
 	import queryDao._
 
-	"query 1 level join" in {
-		val (p0, p1, p2, p3, p4) = testData1
-
-		query(q0) must_== List(p3, p4)
-	}
-
-	"query 2 level join" in {
-		val (p0, p1, p2, p3, p4) = testData1
-		query(q1) must_== List(p0, p1, p2)
-	}
-
-	"query 2 level join with or" in {
-		val (p0, p1, p2, p3, p4) = testData1
-		query(q2) must_== List(p0, p1, p2, p3, p4)
-	}
-
-	def testData1 = {
+	"self join query on house" in {
 		createTables
 		val a0 = insert(AddressEntity, Address(100, "SE1 1AA"))
 		val a1 = insert(AddressEntity, Address(101, "SE2 2BB"))
@@ -46,7 +31,7 @@ class ManyToOneQuerySpec extends SpecificationWithJUnit {
 		val p2 = insert(PersonEntity, Person(2, "p2", h0))
 		val p3 = insert(PersonEntity, Person(3, "p3", h1))
 		val p4 = insert(PersonEntity, Person(4, "p4", h1))
-		(p0, p1, p2, p3, p4)
+		query(q0) must_== List(p0, p1, p2, p3, p4)
 	}
 
 	def createTables {
@@ -78,32 +63,25 @@ class ManyToOneQuerySpec extends SpecificationWithJUnit {
 				foreign key (lives_id) references House(id) on delete cascade
 			)
 		""")
+
 	}
 }
 
-object ManyToOneQuerySpec {
+object ManyToOneSelfJoinQuerySpec {
 
-	object MTOQuerySpec {
+	object TestQueries {
 		import Query._
 
 		val pe = PersonEntity
 		val he = HouseEntity
 		val ad = AddressEntity
 
-		val q0 = select from pe join pe.lives where he.name === "Block B"
-
-		val q1 = select from pe join
-			pe.lives join
-			he.address where
-			ad.postCode === "SE1 1AA"
-
-		val q2 = select from pe join
-			pe.lives join
-			he.address where
-			ad.postCode === "SE1 1AA" or
-			ad.postCode === "SE2 2BB"
+		val q0 = {
+			val he1 = HouseEntity
+			val he2 = new HouseEntityBase
+			select from pe join pe.lives join he1 on he1.name <> he2.name
+		}
 	}
-
 	case class Person(val id: Int, var name: String, lives: House)
 	case class House(val id: Int, val name: String, val address: Address)
 	case class Address(val id: Int, val postCode: String)

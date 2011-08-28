@@ -26,7 +26,8 @@ import com.rits.orm.utils.ISetSpec
 		classOf[ManyToOneSpec],
 		classOf[SimpleQuerySpec],
 		classOf[ManyToOneQuerySpec],
-		classOf[SimpleSelfJoinQuerySpec]
+		classOf[SimpleSelfJoinQuerySpec],
+		classOf[ManyToOneSelfJoinQuerySpec]
 	)
 )
 class All extends SpecificationWithJUnit

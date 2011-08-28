@@ -50,8 +50,11 @@ object SimpleSelfJoinQuerySpec {
 		import Query._
 		def q11 =
 			{
+				// main table
 				val jp1 = JobPositionEntity
+				// alias of same table
 				val jp2 = new JobPositionEntityBase
+
 				select from jp1 join
 					jp2 on
 					jp1.name === jp2.name and

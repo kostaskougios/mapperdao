@@ -262,6 +262,7 @@ trait Driver {
 			sb.toString
 		}
 
+	// creates the join sql and params for joins (including join on expressions, i.e. join T on j1.name<>j2.name)
 	def joinTable[JPC, JT, E <: Entity[PC, T], PC, T](aliases: QueryDao.Aliases, join: Query.Join[JPC, JT, E, PC, T]): (String, List[Any]) =
 		{
 			val jEntity = join.entity
@@ -279,7 +280,7 @@ trait Driver {
 			(sb.toString, args)
 		}
 
-	// where clause
+	// creates the sql and params for expressions (i.e. id=5 and name='x')
 	def queryExpressions[PC, T](aliases: QueryDao.Aliases, wheres: List[Query.QueryExpressions[PC, T]]): (String, List[Any]) =
 		{
 			val sb = new StringBuilder(100)
