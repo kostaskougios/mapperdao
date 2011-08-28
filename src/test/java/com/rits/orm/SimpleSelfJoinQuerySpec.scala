@@ -53,7 +53,7 @@ object SimpleSelfJoinQuerySpec {
 				val jp1 = JobPositionEntity
 				val jp2 = new JobPositionEntityBase
 				select from jp1 join
-					jp2 where
+					jp2 on
 					jp1.name === jp2.name and
 					jp1.id <> jp2.id
 			}

@@ -88,7 +88,7 @@ object Query {
 		def apply(entity: E) =
 			{
 				this.entity = entity;
-				queryEntity
+				new JoinOn(queryEntity)
 			}
 	}
 

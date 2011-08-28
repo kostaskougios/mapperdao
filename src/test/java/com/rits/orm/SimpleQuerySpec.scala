@@ -187,7 +187,7 @@ object SimpleQuerySpec {
 	}
 	case class JobPosition(val id: Int, var name: String, val start: DateTime)
 
-	class JobPositionEntityBase extends SimpleEntity(classOf[JobPosition]) {
+	object JobPositionEntity extends SimpleEntity(classOf[JobPosition]) {
 		val id = pk("id", _.id)
 		val name = string("name", _.name)
 		val start = datetime("start", _.start)
@@ -196,5 +196,4 @@ object SimpleQuerySpec {
 			val valuesMap = m
 		}
 	}
-	val JobPositionEntity = new JobPositionEntityBase
 }
