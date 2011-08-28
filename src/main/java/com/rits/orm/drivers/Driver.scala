@@ -257,7 +257,7 @@ trait Driver {
 			val sb = new StringBuilder
 			sb append "\njoin " append foreignTable.name append " " append fAlias append " on "
 			(manyToOne.columns zip foreignTable.primaryKeys).foreach { t =>
-				sb append jAlias append "." append t._1.columnName append " = " append fAlias append "." append t._2.columnName
+				sb append jAlias append "." append t._1.columnName append " = " append fAlias append "." append t._2.columnName append " "
 			}
 			sb.toString
 		}
@@ -275,10 +275,38 @@ trait Driver {
 			val sb = new StringBuilder
 			sb append "\njoin " append foreignTable.name append " " append fAlias append " on "
 			(joinTpe.table.primaryKeys zip oneToMany.foreignColumns).foreach { t =>
-				sb append jAlias append "." append t._1.columnName append " = " append fAlias append "." append t._2.columnName
+				sb append jAlias append "." append t._1.columnName append " = " append fAlias append "." append t._2.columnName append " "
 			}
 			sb.toString
 		}
+	// creates the join for one-to-many
+	def manyToManyJoin[PC, T, FPC, FT](aliases: QueryDao.Aliases, joinEntity: Entity[PC, T], foreignEntity: Entity[FPC, FT], manyToMany: ManyToMany[FT]): String =
+		{
+			val joinTpe = typeRegistry.typeOf(joinEntity)
+			val foreignTpe = typeRegistry.typeOf(foreignEntity)
+
+			val foreignTable = foreignTpe.table
+			val fAlias = aliases(foreignEntity)
+			val jAlias = aliases(joinEntity)
+
+			val linkTable = manyToMany.linkTable
+			val linkTableAlias = aliases(linkTable)
+
+			val sb = new StringBuilder
+			// left part
+			sb append "\njoin " append linkTable.name append " " append linkTableAlias append " on "
+			(joinTpe.table.primaryKeys zip linkTable.left).foreach { t =>
+				sb append linkTableAlias append "." append t._2.columnName append " = " append jAlias append "." append t._1.columnName append " "
+			}
+
+			// right part
+			sb append "\njoin " append foreignTable.name append " " append fAlias append " on "
+			(foreignTable.primaryKeys zip linkTable.right).foreach { t =>
+				sb append fAlias append "." append t._1.columnName append " = " append linkTableAlias append "." append t._2.columnName append " "
+			}
+			sb.toString
+		}
+
 	// creates the join sql and params for joins (including join on expressions, i.e. join T on j1.name<>j2.name)
 	def joinTable[JPC, JT, E <: Entity[PC, T], PC, T](aliases: QueryDao.Aliases, join: Query.Join[JPC, JT, E, PC, T]): (String, List[Any]) =
 		{

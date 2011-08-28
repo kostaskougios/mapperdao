@@ -49,6 +49,9 @@ class QueryDao(mapperDao: MapperDao) {
 							case oneToMany: OneToMany[_] =>
 								val foreignEntity = typeRegistry.entityOf(oneToMany.foreign.clz)
 								sb append driver.oneToManyJoin(aliases, joinEntity, foreignEntity, oneToMany)
+							case manyToMany: ManyToMany[_] =>
+								val foreignEntity = typeRegistry.entityOf(manyToMany.foreign.clz)
+								sb append driver.manyToManyJoin(aliases, joinEntity, foreignEntity, manyToMany)
 						}
 				}
 			} else {
@@ -80,6 +83,7 @@ object QueryDao {
 			aliasCount(prefix) = v + 1
 			v
 		}
+
 		def apply[PC, T](entity: Entity[PC, T]): String =
 			{
 				val v = aliases.get(entity)
@@ -93,8 +97,20 @@ object QueryDao {
 					}
 					v
 				}
-
 			}
+
+		def apply(linkTable: LinkTable): String =
+			{
+				val v = aliases.get(linkTable)
+				if (v != null) v else {
+					val prefix = linkTable.name.substring(0, 2)
+
+					val v = prefix.toLowerCase + getCnt(prefix)
+					aliases.put(linkTable, v)
+					v
+				}
+			}
+
 		def apply(c: ColumnBase): String =
 			{
 				val v = aliases.get(c)
