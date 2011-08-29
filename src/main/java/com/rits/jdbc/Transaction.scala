@@ -31,6 +31,15 @@ final class Transaction(transactionManager: PlatformTransactionManager, transact
 					}
 			})
 		}
+	def apply[V](f: TransactionStatus => V): V =
+		{
+			t.execute(new TransactionCallback[V]() {
+				override def doInTransaction(status: TransactionStatus): V =
+					{
+						f(status)
+					}
+			})
+		}
 }
 
 object Transaction {
@@ -59,14 +68,12 @@ object Transaction {
 		object Serializable extends Level(TransactionDefinition.ISOLATION_SERIALIZABLE)
 	}
 	/**
-	 * returns a transaction manager for the provided datasource
+	 * returns a transaction manager for the provided datasource. Keep 1 transaction manager per database
 	 */
-	def transactionManager(dataSource: DataSource): PlatformTransactionManager =
-		{
-			new DataSourceTransactionManager(dataSource)
-		}
+	def transactionManager(dataSource: DataSource): PlatformTransactionManager = new DataSourceTransactionManager(dataSource)
+	def transactionManager(jdbc: Jdbc): PlatformTransactionManager = transactionManager(jdbc.dataSource)
 
-	def apply(transactionManager: PlatformTransactionManager, propagation: Propagation.Level, isolation: Isolation.Level, timeOutSec: Int) =
+	def apply(transactionManager: PlatformTransactionManager, propagation: Propagation.Level, isolation: Isolation.Level, timeOutSec: Int): Transaction =
 		{
 			val td = new DefaultTransactionDefinition();
 			td.setPropagationBehavior(propagation.level)
