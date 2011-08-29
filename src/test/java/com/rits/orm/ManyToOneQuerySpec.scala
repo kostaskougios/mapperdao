@@ -90,16 +90,16 @@ object ManyToOneQuerySpec {
 		val he = HouseEntity
 		val ad = AddressEntity
 
-		val q0 = select from pe join pe.lives where he.name === "Block B"
+		val q0 = select from pe join (pe, pe.lives, he) where he.name === "Block B"
 
 		val q1 = select from pe join
-			pe.lives join
-			he.address where
+			(pe, pe.lives, he) join
+			(he, he.address, ad) where
 			ad.postCode === "SE1 1AA"
 
 		val q2 = select from pe join
-			pe.lives join
-			he.address where
+			(pe, pe.lives, he) join
+			(he, he.address, ad) where
 			ad.postCode === "SE1 1AA" or
 			ad.postCode === "SE2 2BB"
 	}

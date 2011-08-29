@@ -78,7 +78,7 @@ object ManyToOneSelfJoinQuerySpec {
 		val q0 = {
 			val ho1 = HouseEntity
 			val ho2 = new HouseEntityBase
-			select from pe join pe.lives join ho2 on ho1.name <> ho2.name and ho2.id === 11
+			select from pe join (pe, pe.lives, ho1) join ho2 on ho1.name <> ho2.name and ho2.id === 11
 		}
 	}
 	case class Person(val id: Int, var name: String, lives: House)

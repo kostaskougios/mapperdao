@@ -76,14 +76,17 @@ object ManyToManyQueryWithAliasesSpec {
 
 		def q0 = {
 			val p1 = new ProductEntityBase
+			val p2 = new ProductEntityBase
 			val a1 = new AttributeEntityBase
+			val a2 = new AttributeEntityBase
 
 			select from p join
-				(p.attributes, a) join
-				(p1.attributes, a1) where
+				(p, p.attributes, a) join
+				(p, p1.attributes, a1) join
+				(p, p2.attributes, a2) where
 				(a.name === "size" and a.value === "46'") and
 				(a1.name === "colour" and a1.value === "white") and
-				(a.name === "dimensions" and a.value === "100x100")
+				(a2.name === "dimensions" and a2.value === "100x100")
 		}
 	}
 

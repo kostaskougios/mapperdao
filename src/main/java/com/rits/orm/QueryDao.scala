@@ -39,20 +39,16 @@ class QueryDao(mapperDao: MapperDao) {
 		qe.joins.reverse.foreach { j =>
 			val column = j.column
 			if (column != null) {
-				var foreignEntity = j.entity
-				if (foreignEntity != null) aliases(foreignEntity)
-				val joinEntity = typeRegistry.entityOf(column)
+				var foreignEntity = j.foreignEntity
+				val joinEntity = j.joinEntity
 				j match {
 					case join: Query.Join[_, _, _, PC, T] =>
 						join.column match {
 							case manyToOne: ManyToOne[_] =>
-								foreignEntity = typeRegistry.entityOf(manyToOne.foreign.clz)
 								sb append driver.manyToOneJoin(aliases, joinEntity, foreignEntity, manyToOne)
 							case oneToMany: OneToMany[_] =>
-								foreignEntity = typeRegistry.entityOf(oneToMany.foreign.clz)
 								sb append driver.oneToManyJoin(aliases, joinEntity, foreignEntity, oneToMany)
 							case manyToMany: ManyToMany[_] =>
-								foreignEntity = typeRegistry.entityOf(manyToMany.foreign.clz)
 								sb append driver.manyToManyJoin(aliases, joinEntity, foreignEntity, manyToMany)
 						}
 				}

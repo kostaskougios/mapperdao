@@ -85,9 +85,9 @@ object ManyToManyQuerySpec {
 
 		import Query._
 
-		def q0 = select from p join (p.attributes, a) where a.value === "46'"
+		def q0 = select from p join (p, p.attributes, a) where a.value === "46'"
 
-		def q1 = select from p join (p.attributes, a) where a.value === "50'" or a.value === "black"
+		def q1 = select from p join (p, p.attributes, a) where a.value === "50'" or a.value === "black"
 	}
 
 	case class Product(val id: Int, val name: String, val attributes: Set[Attribute])

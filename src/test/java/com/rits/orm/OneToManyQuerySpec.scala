@@ -68,8 +68,8 @@ object OneToManyQuerySpec {
 		val p = PersonEntity
 		val h = HouseEntity
 
-		def q0 = select from p join (p.owns, h) where h.address === "London"
-		def q1 = select from p join (p.owns, h) where (h.address === "Madrid" or h.address === "Rome") and h.id >= 6
+		def q0 = select from p join (p, p.owns, h) where h.address === "London"
+		def q1 = select from p join (p, p.owns, h) where (h.address === "Madrid" or h.address === "Rome") and h.id >= 6
 	}
 
 	case class Person(val id: Int, var name: String, owns: Set[House])
