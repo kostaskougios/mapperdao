@@ -15,7 +15,7 @@ object Setup {
 	/**
 	 * sets up a mapperDao and queryDao for the dataSource and entities
 	 */
-	def postGreSql(dataSource: DataSource, entities: List[Entity[_, _]]): (MapperDao, QueryDao) =
+	def postGreSql(dataSource: DataSource, entities: List[Entity[_, _]]): (Jdbc, MapperDao, QueryDao) =
 		{
 			val typeRegistry = TypeRegistry(entities)
 			val typeManager = new DefaultTypeManager
@@ -23,6 +23,6 @@ object Setup {
 			val driver = new PostgreSql(jdbc, typeRegistry)
 			val mapperDao = new MapperDao(driver)
 			val queryDao = new QueryDao(mapperDao)
-			(mapperDao, queryDao)
+			(jdbc, mapperDao, queryDao)
 		}
 }
