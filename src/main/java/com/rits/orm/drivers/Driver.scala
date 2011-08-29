@@ -263,7 +263,7 @@ trait Driver {
 		}
 
 	// creates the join for one-to-many
-	def oneToManyJoin[PC, T, FPC, FT](aliases: QueryDao.Aliases, joinEntity: Entity[PC, T], foreignEntity: Entity[FPC, FT], oneToMany: OneToMany[FT]): String =
+	def oneToManyJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], oneToMany: OneToMany[_]): String =
 		{
 			val joinTpe = typeRegistry.typeOf(joinEntity)
 			val foreignTpe = typeRegistry.typeOf(foreignEntity)
@@ -280,7 +280,7 @@ trait Driver {
 			sb.toString
 		}
 	// creates the join for one-to-many
-	def manyToManyJoin[PC, T, FPC, FT](aliases: QueryDao.Aliases, joinEntity: Entity[PC, T], foreignEntity: Entity[FPC, FT], manyToMany: ManyToMany[FT]): String =
+	def manyToManyJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], manyToMany: ManyToMany[_]): String =
 		{
 			val joinTpe = typeRegistry.typeOf(joinEntity)
 			val foreignTpe = typeRegistry.typeOf(foreignEntity)

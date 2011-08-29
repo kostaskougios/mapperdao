@@ -67,7 +67,7 @@ object Query {
 	}
 
 	protected[orm] class Join[T, F, E <: Entity[_, _], QPC, QT](queryEntity: QueryEntity[QPC, QT]) {
-		protected[orm] var column: ColumnRelationshipBase = _
+		protected[orm] var column: ColumnRelationshipBase[F] = _
 		protected[orm] var entity: E = _
 		protected[orm] var on: JoinOn[QPC, QT] = _
 
@@ -76,7 +76,7 @@ object Query {
 				column = manyToOne.column
 				queryEntity
 			}
-		def apply(ci: ColumnInfoRelationshipBase[_, _], e: Entity[_, F]) =
+		def apply(ci: ColumnInfoRelationshipBase[_, _, F], e: Entity[_, F]) =
 			{
 				this.column = ci.column
 				this.entity = e.asInstanceOf[E]
