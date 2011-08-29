@@ -246,7 +246,7 @@ trait Driver {
 		}
 
 	// creates the join for many-to-one
-	def manyToOneJoin[PC, T, FPC, FT](aliases: QueryDao.Aliases, joinEntity: Entity[PC, T], foreignEntity: Entity[FPC, FT], manyToOne: ManyToOne[FT]): String =
+	def manyToOneJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], manyToOne: ManyToOne[_]): String =
 		{
 			val foreignTpe = typeRegistry.typeOf(foreignEntity)
 
@@ -308,7 +308,7 @@ trait Driver {
 		}
 
 	// creates the join sql and params for joins (including join on expressions, i.e. join T on j1.name<>j2.name)
-	def joinTable[JPC, JT, E <: Entity[PC, T], PC, T](aliases: QueryDao.Aliases, join: Query.Join[JPC, JT, E, PC, T]): (String, List[Any]) =
+	def joinTable(aliases: QueryDao.Aliases, join: Query.Join[_, _, Entity[_, _], _, _]): (String, List[Any]) =
 		{
 			val jEntity = join.entity
 			val jTable = typeRegistry.typeOf(jEntity).table

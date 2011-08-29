@@ -161,8 +161,13 @@ class ColumnInfoBase[T, V](val column: ColumnBase, val columnToValue: T => V) {
 }
 case class ColumnInfo[T, V](override val column: SimpleColumn, override val columnToValue: T => V) extends ColumnInfoBase[T, V](column, columnToValue)
 
-case class ColumnInfoTraversableOneToMany[T, F](override val column: OneToMany[F], override val columnToValue: (_ >: T) => Traversable[F]) extends ColumnInfoBase[T, Traversable[F]](column, columnToValue)
-case class ColumnInfoManyToOne[T, F](override val column: ManyToOne[F], override val columnToValue: (_ >: T) => F) extends ColumnInfoBase[T, F](column, columnToValue)
+/**
+ * relationship column infos
+ */
+class ColumnInfoRelationshipBase[T, V](override val column: ColumnRelationshipBase, override val columnToValue: T => V) extends ColumnInfoBase[T, V](column, columnToValue)
 
-case class ColumnInfoTraversableManyToMany[T, F](override val column: ManyToMany[F], override val columnToValue: T => Traversable[F]) extends ColumnInfoBase[T, Traversable[F]](column, columnToValue)
+case class ColumnInfoTraversableOneToMany[T, F](override val column: OneToMany[F], override val columnToValue: (_ >: T) => Traversable[F]) extends ColumnInfoRelationshipBase[T, Traversable[F]](column, columnToValue)
+case class ColumnInfoManyToOne[T, F](override val column: ManyToOne[F], override val columnToValue: (_ >: T) => F) extends ColumnInfoRelationshipBase[T, F](column, columnToValue)
+
+case class ColumnInfoTraversableManyToMany[T, F](override val column: ManyToMany[F], override val columnToValue: T => Traversable[F]) extends ColumnInfoRelationshipBase[T, Traversable[F]](column, columnToValue)
 

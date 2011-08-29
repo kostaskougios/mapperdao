@@ -103,16 +103,16 @@ object ManyToManyQuerySpec {
 
 		import Query._
 
-		def q0 = select from p join p.attributes where a.value === "46'"
+		def q0 = select from p join (p.attributes, a) where a.value === "46'"
 
-		def q1 = select from p join p.attributes where a.value === "50'" or a.value === "black"
+		def q1 = select from p join (p.attributes, a) where a.value === "50'" or a.value === "black"
 
 		def q2 = {
 			val p1 = new ProductEntityBase
 			val a1 = new AttributeEntityBase
 
 			select from p join
-				p.attributes join
+				(p.attributes, a) join
 				(p.attributes, a1) where
 				(a.name === "size" and a.value === "46'") and
 				(a1.name === "colour" and a1.value === "white") and

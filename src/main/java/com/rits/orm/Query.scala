@@ -51,7 +51,7 @@ object Query {
 
 	class QueryEntity[PC, T](protected[orm] val entity: Entity[PC, T]) {
 		protected[orm] var wheres = List[QueryExpressions[PC, T]]()
-		protected[orm] var joins = List[Join[Any, Any, Entity[PC, T], PC, T]]()
+		protected[orm] var joins = List[Join[Any, Any, Entity[_, _], PC, T]]()
 
 		def where = {
 			val qe = new QueryExpressions(this)
@@ -61,7 +61,7 @@ object Query {
 
 		def join[JPC, JT, E <: Entity[_, _]] = {
 			val j = new Join[JPC, JT, E, PC, T](this)
-			joins ::= j.asInstanceOf[Join[Any, Any, Entity[PC, T], PC, T]]
+			joins ::= j.asInstanceOf[Join[Any, Any, Entity[_, _], PC, T]]
 			j
 		}
 	}
@@ -76,26 +76,13 @@ object Query {
 				column = manyToOne.column
 				queryEntity
 			}
-		def apply(oneToMany: ColumnInfoTraversableOneToMany[T, F]) =
+		def apply(ci: ColumnInfoRelationshipBase[_, _], e: Entity[_, F]) =
 			{
-				column = oneToMany.column
+				this.column = ci.column
+				this.entity = e.asInstanceOf[E]
 				queryEntity
 			}
-		def apply(manyToMany: ColumnInfoTraversableManyToMany[T, F]) =
-			{
-				column = manyToMany.column
-				queryEntity
-			}
-		def apply(alias: (ColumnInfoTraversableManyToMany[T, F], Entity[_, F])) =
-			{
-				val ci = alias._1
-				val c = ci.column
 
-				column = c
-
-				entity = alias._2.asInstanceOf[E]
-				queryEntity
-			}
 		def apply(entity: E) =
 			{
 				this.entity = entity;
