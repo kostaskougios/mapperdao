@@ -10,7 +10,9 @@ import com.rits.jdbc.JdbcMap
  *
  * 13 Jul 2011
  */
-final class MapperDao(protected[orm] val driver: Driver, protected[orm] val typeRegistry: TypeRegistry, protected[orm] val typeManager: TypeManager) {
+final class MapperDao(val driver: Driver) {
+	val typeRegistry = driver.typeRegistry
+	val typeManager = driver.jdbc.typeManager
 	/**
 	 * ===================================================================================
 	 * Utility methods

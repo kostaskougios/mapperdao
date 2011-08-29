@@ -30,7 +30,7 @@ import org.springframework.jdbc.core.SqlTypeValue
  *
  * 11 Jul 2011
  */
-class Jdbc(dataSource: DataSource, typeManager: TypeManager) {
+class Jdbc(val dataSource: DataSource, val typeManager: TypeManager) {
 	private val j = new SimpleJdbcTemplate(dataSource)
 	private val logger: Logger = LoggerFactory.getLogger(getClass)
 	private def seq(args: Any*) = args.toSeq.asInstanceOf[Seq[AnyRef]]
