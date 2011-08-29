@@ -103,7 +103,7 @@ object QueryDao {
 			{
 				val v = aliases.get(linkTable)
 				if (v != null) v else {
-					val prefix = linkTable.name.substring(0, 2)
+					val prefix = linkTable.name.substring(0, 3)
 
 					val v = prefix.toLowerCase + getCnt(prefix)
 					aliases.put(linkTable, v)

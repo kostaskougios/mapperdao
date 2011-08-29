@@ -66,23 +66,34 @@ object Query {
 		}
 	}
 
-	protected[orm] class Join[PC, T, E <: Entity[_, _], QPC, QT](queryEntity: QueryEntity[QPC, QT]) {
+	protected[orm] class Join[T, F, E <: Entity[_, _], QPC, QT](queryEntity: QueryEntity[QPC, QT]) {
 		protected[orm] var column: ColumnRelationshipBase = _
 		protected[orm] var entity: E = _
 		protected[orm] var on: JoinOn[QPC, QT] = _
-		def apply(manyToOne: ColumnInfoManyToOne[PC, T]) =
+
+		def apply(manyToOne: ColumnInfoManyToOne[T, F]) =
 			{
 				column = manyToOne.column
 				queryEntity
 			}
-		def apply(oneToMany: ColumnInfoTraversableOneToMany[PC, T]) =
+		def apply(oneToMany: ColumnInfoTraversableOneToMany[T, F]) =
 			{
 				column = oneToMany.column
 				queryEntity
 			}
-		def apply(manyToMany: ColumnInfoTraversableManyToMany[PC, T]) =
+		def apply(manyToMany: ColumnInfoTraversableManyToMany[T, F]) =
 			{
 				column = manyToMany.column
+				queryEntity
+			}
+		def apply(alias: (ColumnInfoTraversableManyToMany[T, F], Entity[_, F])) =
+			{
+				val ci = alias._1
+				val c = ci.column
+
+				column = c
+
+				entity = alias._2.asInstanceOf[E]
 				queryEntity
 			}
 		def apply(entity: E) =
@@ -95,12 +106,11 @@ object Query {
 
 	protected[orm] class JoinOn[PC, T](protected[orm] val queryEntity: QueryEntity[PC, T]) {
 		protected[orm] var ons = List[QueryExpressions[PC, T]]()
-		def on: QueryExpressions[PC, T] =
+		def on =
 			{
 				val qe = new QueryExpressions(queryEntity)
 				ons ::= qe
 				qe
-
 			}
 	}
 
@@ -120,6 +130,12 @@ object Query {
 		def or(op: OpBase) = {
 			clauses = OrOp(clauses, op)
 			this
+		}
+
+		def where = {
+			val qe = new QueryExpressions(queryEntity)
+			queryEntity.wheres ::= qe
+			qe
 		}
 	}
 }
