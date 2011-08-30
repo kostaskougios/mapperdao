@@ -185,8 +185,13 @@ final class MapperDao(val driver: Driver) {
 	 */
 	def insert[PC, T](entity: Entity[PC, T], o: T): T with PC =
 		{
-			insertInner[PC, T, Any](entity, o, null, null, null, new UpdateEntityMap)
+			insertInner(entity, o, new UpdateEntityMap)
 		}
+	private def insertInner[PC, T](entity: Entity[PC, T], o: T, entityMap: UpdateEntityMap): T with PC =
+		{
+			insertInner[PC, T, Any](entity, o, null, null, null, entityMap)
+		}
+
 	/**
 	 * update an entity
 	 */
@@ -229,18 +234,20 @@ final class MapperDao(val driver: Driver) {
 				val fo = ci.columnToValue(o)
 				val c = ci.column
 				val fentity = typeRegistry.entityOfObject[Any, Any](fo)
-				val ftpe = typeRegistry.typeOfObject[Any, Any](c.foreign.clz)
+				val ftpe = typeRegistry.typeOf(c.foreign.clz).asInstanceOf[Type[Nothing, Any]]
 				val v = fo match {
 					case p: Persisted =>
-						val newVM = ValuesMap.fromEntity[Any, Any](typeManager, ftpe, fo)
-						updateInner(fentity, fo, p.valuesMap, newVM, entityMap)
+						entityMap.down(o, ci)
+						updateInner(fentity, fo, entityMap)
+						entityMap.up
 				}
 			}
 
 			// update one-to-many
-			table.oneToManyColumns.foreach { oneToMany =>
-				val t: Traversable[Any] = table.oneToManyToColumnInfoMap(oneToMany).columnToValue(o)
+			table.oneToManyColumnInfos.foreach { ci =>
+				val t: Traversable[Any] = ci.columnToValue(o)
 
+				val oneToMany = ci.column
 				// we'll get the 2 traversables and update the database
 				// based on their differences
 				val newValues = t.toList
@@ -250,7 +257,9 @@ final class MapperDao(val driver: Driver) {
 				val intersection = newValues.intersect(oldValues)
 				intersection.foreach { item =>
 					val fe = typeRegistry.entityOfObject[Any, Any](item)
-					val newItem = update(fe, item)
+					entityMap.down(o, ci)
+					val newItem = updateInner(fe, item, entityMap)
+					entityMap.up
 					item.asInstanceOf[Persisted].discarded = true
 					addToMap(oneToMany.alias, newItem, modifiedTraversables)
 				}
@@ -259,7 +268,9 @@ final class MapperDao(val driver: Driver) {
 				diff.foreach { item =>
 					val keysAndValues = table.primaryKeys.map(_.column) zip table.primaryKeys.map(c => modified(c.columnName))
 					val fe = typeRegistry.entityOfObject(item)
+					entityMap.down(o, ci)
 					val newItem: Any = insertInner(fe, item, o, oneToMany, keysAndValues, entityMap);
+					entityMap.up
 					addToMap(oneToMany.alias, newItem, modifiedTraversables)
 				}
 
@@ -272,8 +283,9 @@ final class MapperDao(val driver: Driver) {
 			}
 
 			// update many-to-many
-			table.manyToManyColumns.foreach { manyToMany =>
-				val t = table.manyToManyToColumnInfoMap(manyToMany).columnToValue(o)
+			table.manyToManyColumnInfos.foreach { ci =>
+				val t = ci.columnToValue(o)
+				val manyToMany = ci.column
 				val newValues = t.toList
 				val oldValues = oldValuesMap.seq[Any](manyToMany.foreign.alias)
 
@@ -285,7 +297,9 @@ final class MapperDao(val driver: Driver) {
 					val newItem = item match {
 						case p: Persisted if (!p.mock) =>
 							val fe = typeRegistry.entityOfObject[Any, Any](item)
-							update(fe, item)
+							entityMap.down(o, ci)
+							updateInner(fe, item, entityMap)
+							entityMap.up
 							p.discarded = true
 						case _ => item
 					}
@@ -297,7 +311,11 @@ final class MapperDao(val driver: Driver) {
 				diff.foreach { item =>
 					val newItem = item match {
 						case p: Persisted => p
-						case n => insert[Any, Any](typeRegistry.entityOfObject(n), n)
+						case n =>
+							entityMap.down(o, ci)
+							val inserted = insertInner[Any, Any](typeRegistry.entityOfObject(n), n, entityMap)
+							entityMap.up
+							inserted
 					}
 					val ftpe = typeRegistry.typeOfObject(newItem)
 					val fPKArgs = manyToMany.linkTable.right zip ftpe.table.toListOfPrimaryKeyValues(newItem)
@@ -333,11 +351,16 @@ final class MapperDao(val driver: Driver) {
 			if (!o.isInstanceOf[Persisted]) throw new IllegalArgumentException("can't update an object that is not persisted: " + o);
 			val persisted = o.asInstanceOf[T with PC with Persisted]
 			validatePersisted(persisted)
-			val oldValuesMap = persisted.valuesMap
-			val newValuesMap = ValuesMap.fromEntity(typeManager, typeRegistry.typeOfObject(o), o)
-			updateInner(entity, o, oldValuesMap, newValuesMap, new UpdateEntityMap)
+			updateInner(entity, o, new UpdateEntityMap)
 		}
 
+	private def updateInner[PC, T](entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T with PC =
+		{
+			val persisted = o.asInstanceOf[T with PC with Persisted]
+			val oldValuesMap = persisted.valuesMap
+			val newValuesMap = ValuesMap.fromEntity(typeManager, typeRegistry.typeOfObject(o), o)
+			updateInner(entity, o, oldValuesMap, newValuesMap, entityMap)
+		}
 	/**
 	 * update an immutable entity. The entity must have been retrieved from the database. Because immutables can't change, a new instance
 	 * of the entity must be created with the new values prior to calling this method. Values that didn't change should be copied from o.

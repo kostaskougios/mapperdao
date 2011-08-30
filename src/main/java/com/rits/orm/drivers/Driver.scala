@@ -140,12 +140,12 @@ trait Driver {
 	/**
 	 * delete many-to-many rows from link table
 	 */
-	def doDeleteManyToManyRef[PC, T, PR, R](tpe: Type[PC, T], ftpe: Type[PR, R], manyToMany: ManyToMany[R], leftKeyValues: List[(ColumnBase, Any)], rightKeyValues: List[(ColumnBase, Any)]): UpdateResult =
+	def doDeleteManyToManyRef[PC, T, PR, R](tpe: Type[PC, T], ftpe: Type[PR, R], manyToMany: ManyToMany[_], leftKeyValues: List[(ColumnBase, Any)], rightKeyValues: List[(ColumnBase, Any)]): UpdateResult =
 		{
 			val sql = deleteManyToManyRefSql(tpe, ftpe, manyToMany, leftKeyValues, rightKeyValues)
 			jdbc.update(sql, leftKeyValues.map(_._2) ::: rightKeyValues.map(_._2))
 		}
-	protected def deleteManyToManyRefSql[PC, T, PR, R](tpe: Type[PC, T], ftpe: Type[PR, R], manyToMany: ManyToMany[R], leftKeyValues: List[(ColumnBase, Any)], rightKeyValues: List[(ColumnBase, Any)]): String =
+	protected def deleteManyToManyRefSql[PC, T, PR, R](tpe: Type[PC, T], ftpe: Type[PR, R], manyToMany: ManyToMany[_], leftKeyValues: List[(ColumnBase, Any)], rightKeyValues: List[(ColumnBase, Any)]): String =
 		{
 			val sb = new StringBuilder(100, "delete from ")
 			sb append manyToMany.linkTable.name append "\nwhere "
