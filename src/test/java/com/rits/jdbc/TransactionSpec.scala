@@ -13,6 +13,8 @@ class TransactionSpec extends SpecificationWithJUnit with BeforeExample {
 	private val jdbc = Setup.setupJdbc
 
 	import Transaction._
+	val txManager = Transaction.transactionManager(jdbc)
+	val tx = Transaction.get(txManager, Propagation.Nested, Isolation.Serializable, -1)
 
 	def before = {
 		jdbc.update("drop table if exists tx")
@@ -26,8 +28,6 @@ class TransactionSpec extends SpecificationWithJUnit with BeforeExample {
 	}
 
 	"commit" in {
-		val txManager = Transaction.transactionManager(jdbc)
-		val tx = Transaction(txManager, Propagation.Nested, Isolation.Serializable, -1)
 		tx { () =>
 			for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i);
 		}
@@ -36,8 +36,6 @@ class TransactionSpec extends SpecificationWithJUnit with BeforeExample {
 	}
 
 	"rollback" in {
-		val txManager = Transaction.transactionManager(jdbc)
-		val tx = Transaction(txManager, Propagation.Nested, Isolation.Serializable, -1)
 		try {
 			tx { () =>
 				for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i);

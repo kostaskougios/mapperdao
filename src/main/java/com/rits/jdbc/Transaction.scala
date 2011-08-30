@@ -75,12 +75,23 @@ object Transaction {
 	def transactionManager(dataSource: DataSource): PlatformTransactionManager = new DataSourceTransactionManager(dataSource)
 	def transactionManager(jdbc: Jdbc): PlatformTransactionManager = transactionManager(jdbc.dataSource)
 
-	def apply(transactionManager: PlatformTransactionManager, propagation: Propagation.Level, isolation: Isolation.Level, timeOutSec: Int): Transaction =
+	def get(transactionManager: PlatformTransactionManager, propagation: Propagation.Level, isolation: Isolation.Level, timeOutSec: Int): Transaction =
 		{
-			val td = new DefaultTransactionDefinition();
+			val td = new DefaultTransactionDefinition
 			td.setPropagationBehavior(propagation.level)
 			td.setIsolationLevel(isolation.level)
 			td.setTimeout(timeOutSec)
-			new Transaction(transactionManager, td);
+			new Transaction(transactionManager, td)
+		}
+	/**
+	 * gets a Transaction with default settings:
+	 *
+	 * (PROPAGATION_REQUIRED, ISOLATION_DEFAULT, TIMEOUT_DEFAULT, readOnly=false).
+	 */
+	def default(transactionManager: PlatformTransactionManager): Transaction =
+		{
+			val td = new DefaultTransactionDefinition
+			new Transaction(transactionManager, td)
+
 		}
 }
