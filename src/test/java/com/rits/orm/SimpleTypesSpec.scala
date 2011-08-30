@@ -65,6 +65,46 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 		mapperDao.select(JobPositionEntity, 5) must_== None
 	}
 
+	"transaction, commit" in {
+		createJobPositionTable
+
+		import com.rits.jdbc.Transaction
+		import Transaction._
+		val txManager = Transaction.transactionManager(jdbc)
+		val tx = Transaction.get(txManager, Propagation.Nested, Isolation.Serializable, -1)
+
+		val inserted = tx { () =>
+			val date = DateTime.now
+			val jp = new JobPosition(5, "Developer", date, date - 2.months, 10)
+			val inserted = mapperDao.insert(JobPositionEntity, jp)
+			mapperDao.select(JobPositionEntity, inserted.id).get must_== inserted
+			inserted
+		}
+		mapperDao.select(JobPositionEntity, inserted.id).get must_== inserted
+	}
+
+	"transaction, rollback" in {
+		createJobPositionTable
+
+		import com.rits.jdbc.Transaction
+		import Transaction._
+		val txManager = Transaction.transactionManager(jdbc)
+		val tx = Transaction.get(txManager, Propagation.Nested, Isolation.Serializable, -1)
+
+		try {
+			tx { () =>
+				val date = DateTime.now
+				val jp = new JobPosition(5, "Developer", date, date - 2.months, 10)
+				val inserted = mapperDao.insert(JobPositionEntity, jp)
+				mapperDao.select(JobPositionEntity, inserted.id).get must_== inserted
+				throw new IllegalStateException
+			}
+		} catch {
+			case e: IllegalStateException => // ignore
+		}
+		mapperDao.select(JobPositionEntity, 5) must_== None
+	}
+
 	def createJobPositionTable {
 		jdbc.update("drop table if exists JobPosition cascade")
 		jdbc.update("""
