@@ -395,6 +395,14 @@ final class MapperDao(val driver: Driver) {
 			val mock = createMock
 			entities.put(tpe.clz, ids, mock)
 
+			// one to one reverse
+			table.oneToOneReverseColumns.foreach { c =>
+				val ftpe = typeRegistry.typeOf(c.foreign.clz)
+				val fom = driver.doSelect(ftpe, c.foreignColumns.zip(ids))
+				val otmL = toEntities(fom, ftpe, entities)
+				if (otmL.size != 1) throw new IllegalStateException("expected 1 row but got " + otmL);
+				mods(c.foreign.alias) = otmL.head
+			}
 			// many to one
 			table.manyToOneColumns.foreach { c =>
 				val fe = typeRegistry.entityOf[Any, Any](c.foreign.clz)

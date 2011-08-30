@@ -36,6 +36,14 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 
 	val simpleTypeColumnInfos = columnInfosPlain.filter(_.isSimpleTypeColumn)
 
+	val oneToOneColumns: List[OneToOne[Any]] = columns.collect {
+		case c: OneToOne[Any] => c
+	}
+
+	val oneToOneReverseColumns: List[OneToOneReverse[Any]] = columns.collect {
+		case c: OneToOneReverse[Any] => c
+	}
+
 	val oneToManyColumns: List[OneToMany[Any]] = columns.collect {
 		case c: OneToMany[Any] => c
 	}

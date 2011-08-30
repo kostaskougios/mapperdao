@@ -14,12 +14,27 @@ class OneToOneSpec extends SpecificationWithJUnit {
 	val (jdbc, mapperDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
 
 	import mapperDao._
+
 	"insert mutable" in {
 		createTables
 		val product = Product(1, Inventory(null, 5))
 		product.inventory.product = product
 		val inserted = insert(ProductEntity, product)
 		inserted must_== product
+		val selected = select(ProductEntity, inserted.id).get
+		selected must_== inserted
+	}
+
+	"update mutable" in {
+		createTables
+		val product = Product(1, Inventory(null, 5))
+		product.inventory.product = product
+		val inserted = insert(ProductEntity, product)
+		inserted.inventory.stock = 8
+		val updated = update(ProductEntity, inserted)
+		updated must_== inserted
+		val selected = select(ProductEntity, updated.id).get
+		selected must_== updated
 	}
 
 	def createTables =
@@ -45,8 +60,8 @@ class OneToOneSpec extends SpecificationWithJUnit {
 }
 
 object OneToOneSpec {
-	case class Inventory(var product: Product, val stock: Int) {
-		override def toString = "Inventory(%d)".format(stock)
+	case class Inventory(var product: Product, var stock: Int) {
+		override def toString = "Inventory(%d, productId:%d)".format(stock, if (product == null) null else product.id)
 	}
 	case class Product(val id: Int, inventory: Inventory)
 

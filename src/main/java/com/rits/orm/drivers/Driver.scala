@@ -158,7 +158,11 @@ trait Driver {
 	 * SELECT
 	 * =====================================================================================
 	 */
-	def selectColumns[PC, T](tpe: Type[PC, T]): List[ColumnBase] = tpe.table.simpleTypeColumns ::: tpe.table.manyToOneColumns.map(_.columns).flatten
+	def selectColumns[PC, T](tpe: Type[PC, T]): List[ColumnBase] =
+		{
+			val table = tpe.table
+			table.simpleTypeColumns ::: table.manyToOneColumns.map(_.columns).flatten ::: table.oneToOneColumns.map(_.selfColumns).flatten
+		}
 	/**
 	 * default impl of select
 	 */
