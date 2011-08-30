@@ -47,4 +47,13 @@ class TransactionSpec extends SpecificationWithJUnit with BeforeExample {
 
 		jdbc.queryForInt("select count(*) from tx") must_== 0
 	}
+
+	"manual rollback" in {
+		tx { status =>
+			for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i);
+			status.setRollbackOnly
+		}
+
+		jdbc.queryForInt("select count(*) from tx") must_== 0
+	}
 }
