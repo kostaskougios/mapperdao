@@ -75,8 +75,7 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 
 		val inserted = tx { () =>
 			val date = DateTime.now
-			val jp = new JobPosition(5, "Developer", date, date - 2.months, 10)
-			val inserted = mapperDao.insert(JobPositionEntity, jp)
+			val inserted = mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date - 2.months, 10))
 			mapperDao.select(JobPositionEntity, inserted.id).get must_== inserted
 			inserted
 		}
@@ -94,8 +93,7 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 		try {
 			tx { () =>
 				val date = DateTime.now
-				val jp = new JobPosition(5, "Developer", date, date - 2.months, 10)
-				val inserted = mapperDao.insert(JobPositionEntity, jp)
+				val inserted = mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date - 2.months, 10))
 				mapperDao.select(JobPositionEntity, inserted.id).get must_== inserted
 				throw new IllegalStateException
 			}
