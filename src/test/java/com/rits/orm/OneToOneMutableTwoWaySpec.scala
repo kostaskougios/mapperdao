@@ -9,8 +9,8 @@ import com.rits.jdbc.Setup
  *
  * 30 Aug 2011
  */
-class OneToOneSpec extends SpecificationWithJUnit {
-	import OneToOneSpec._
+class OneToOneMutableTwoWaySpec extends SpecificationWithJUnit {
+	import OneToOneMutableTwoWaySpec._
 	val (jdbc, mapperDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
 
 	import mapperDao._
@@ -59,7 +59,7 @@ class OneToOneSpec extends SpecificationWithJUnit {
 		}
 }
 
-object OneToOneSpec {
+object OneToOneMutableTwoWaySpec {
 	case class Inventory(var product: Product, var stock: Int) {
 		override def hashCode = stock
 		override def equals(v: Any) = v match {
