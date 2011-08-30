@@ -1,6 +1,7 @@
 package com.rits.orm
 
 import scala.collection.mutable.HashMap
+import java.util.IdentityHashMap
 
 /**
  * contains entities sorted via 2 keys: class and ids
@@ -9,7 +10,7 @@ import scala.collection.mutable.HashMap
  *
  * 7 Aug 2011
  */
-class EntityMap {
+protected class EntityMap {
 	type InnerMap = HashMap[List[Any], AnyRef]
 	private val m = HashMap[Class[_], InnerMap]()
 
@@ -32,4 +33,15 @@ class EntityMap {
 	}
 
 	override def toString = "EntityMap(%s)".format(m.toString)
+}
+
+protected class UpdateEntityMap {
+	private val m = new IdentityHashMap[Any, Any]
+
+	def put[PC, T](v: T, mock: PC with T): Unit = m.put(v, mock)
+	def get[PC, T](v: T): Option[PC with T] =
+		{
+			val g = m.get(v)
+			if (g == null) None else Option(g.asInstanceOf[PC with T])
+		}
 }

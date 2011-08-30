@@ -34,12 +34,20 @@ final class MapperDao(val driver: Driver) {
 	 * ===================================================================================
 	 */
 
-	private def insertInner[PC, T, P](entity: Entity[PC, T], o: T, parent: P, parentColumn: ColumnBase, parentKeysAndValues: List[(SimpleColumn, Any)]): T with PC =
+	private def insertInner[PC, T, P](entity: Entity[PC, T], o: T, parent: P, parentColumn: ColumnBase, parentKeysAndValues: List[(SimpleColumn, Any)], entityMap: UpdateEntityMap): T with PC =
 		{
-			if (o.isInstanceOf[Persisted]) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o);
+			val isOPersisted = o.isInstanceOf[Persisted]
 
 			val tpe = typeRegistry.typeOf(entity)
 			val table = tpe.table
+			// if already persisted (or a mock) and exists in the entity map, then return
+			// the existing object
+			if (isOPersisted) {
+				val pkValues = table.toListOfPrimaryKeyValues(o)
+				val mock = entityMap.get[PC, T](o)
+				if (mock.isDefined) return mock.get
+				throw new IllegalArgumentException("can't insert an object that is already persisted: " + o);
+			}
 
 			val modified = ValuesMap.fromEntity(typeManager, tpe, o).toMutableMap
 			val modifiedTraversables = new HashMap[String, List[Any]]
@@ -88,6 +96,11 @@ final class MapperDao(val driver: Driver) {
 			}
 
 			val newKeyValues = table.primaryKeys.map(c => modified(c.columnName))
+			// put a mock into the entity map
+			val mockO = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified ++ modifiedTraversables))
+			mockO.mock = true
+			entityMap.put(o, mockO)
+
 			lazy val newKeyColumnAndValues = table.primaryKeys.map(_.column) zip newKeyValues
 
 			// one-to-one
@@ -95,12 +108,12 @@ final class MapperDao(val driver: Driver) {
 				val fo = cis.columnToValue(o)
 				val v = if (fo != null) {
 					val fe = typeRegistry.entityOf[Any, Any](fo)
-					val v = fo match {
+					fo match {
 						case null => null
 						case p: Persisted =>
 							update(fe, p)
 						case x =>
-							insert(fe, x)
+							insertInner(fe, x, o, cis.column, newKeyColumnAndValues, entityMap)
 					}
 				} else null
 				modified(cis.column.alias) = v
@@ -110,12 +123,12 @@ final class MapperDao(val driver: Driver) {
 				val fo = cis.columnToValue(o)
 				val v = if (fo != null) {
 					val fe = typeRegistry.entityOf[Any, Any](fo)
-					val v = fo match {
+					fo match {
 						case null => null
 						case p: Persisted =>
 							update(fe, p)
 						case x =>
-							insertInner(fe, x, o, cis.column, newKeyColumnAndValues)
+							insertInner(fe, x, o, cis.column, newKeyColumnAndValues, entityMap)
 					}
 				} else null
 				modified(cis.column.alias) = v
@@ -135,7 +148,7 @@ final class MapperDao(val driver: Driver) {
 							nested
 						} else {
 							// insert
-							insertInner(nestedEntity, nested, o, cis.column, newKeyColumnAndValues)
+							insertInner(nestedEntity, nested, o, cis.column, newKeyColumnAndValues, entityMap)
 						}
 						val cName = cis.column.alias
 						addToMap(cName, newO, modifiedTraversables)
@@ -164,7 +177,10 @@ final class MapperDao(val driver: Driver) {
 			}
 
 			val finalMods = modified ++ modifiedTraversables
-			tpe.constructor(ValuesMap.fromMutableMap(typeManager, finalMods))
+			val newE = tpe.constructor(ValuesMap.fromMutableMap(typeManager, finalMods))
+			// re-put the actual
+			entityMap.put(o, newE)
+			newE
 		}
 
 	/**
@@ -172,13 +188,13 @@ final class MapperDao(val driver: Driver) {
 	 */
 	def insert[PC, T](entity: Entity[PC, T], o: T): T with PC =
 		{
-			insertInner[PC, T, Any](entity, o, null, null, null)
+			insertInner[PC, T, Any](entity, o, null, null, null, new UpdateEntityMap)
 		}
 	/**
 	 * update an entity
 	 */
 
-	private def updateInner[PC, T](entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap): T with PC =
+	private def updateInner[PC, T](entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap): T with PC =
 		{
 			val tpe = typeRegistry.typeOf(typeRegistry.entityOf[PC, T](o))
 			val table = tpe.table
@@ -223,7 +239,7 @@ final class MapperDao(val driver: Driver) {
 				diff.foreach { item =>
 					val keysAndValues = table.primaryKeys.map(_.column) zip table.primaryKeys.map(c => modified(c.columnName))
 					val fe = typeRegistry.entityOf(item)
-					val newItem: Any = insertInner(fe, item, o, oneToMany, keysAndValues);
+					val newItem: Any = insertInner(fe, item, o, oneToMany, keysAndValues, entityMap);
 					addToMap(oneToMany.alias, newItem, modifiedTraversables)
 				}
 
@@ -299,7 +315,7 @@ final class MapperDao(val driver: Driver) {
 			validatePersisted(persisted)
 			val oldValuesMap = persisted.valuesMap
 			val newValuesMap = ValuesMap.fromEntity(typeManager, typeRegistry.typeOf(o), o)
-			updateInner(entity, o, oldValuesMap, newValuesMap)
+			updateInner(entity, o, oldValuesMap, newValuesMap, new UpdateEntityMap)
 		}
 
 	/**
@@ -321,7 +337,7 @@ final class MapperDao(val driver: Driver) {
 			persisted.discarded = true
 			val oldValuesMap = persisted.valuesMap
 			val newValuesMap = ValuesMap.fromEntity(typeManager, typeRegistry.typeOf(newO), newO)
-			updateInner(entity, newO, oldValuesMap, newValuesMap)
+			updateInner(entity, newO, oldValuesMap, newValuesMap, new UpdateEntityMap)
 		}
 
 	private def validatePersisted(persisted: Persisted) {
