@@ -33,6 +33,26 @@ class ValuesMap(typeManager: TypeManager, protected[orm] var m: Map[String, Any]
 			apply[F](key)
 		}
 
+	def float[T, V](column: ColumnInfo[T, V]): Float =
+		{
+			val v = apply(column)
+			v match {
+				case f: Float => f
+				case b: java.math.BigDecimal => b.floatValue
+				case b: java.math.BigInteger => b.floatValue
+			}
+		}
+
+	def double[T, V](column: ColumnInfo[T, V]): Double =
+		{
+			val v = apply(column)
+			v match {
+				case d: Double => d
+				case b: java.math.BigDecimal => b.doubleValue
+				case b: java.math.BigInteger => b.doubleValue
+			}
+		}
+
 	def iset[T, V](column: ColumnInfoTraversableOneToMany[T, V]): ISet[V] =
 		{
 			val key = column.column.alias
