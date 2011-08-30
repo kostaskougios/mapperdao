@@ -50,6 +50,10 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 		case c: ManyToMany[Any] => c
 	}
 
+	val oneToOneColumnInfos: List[ColumnInfoOneToOne[T, _]] = columnInfosPlain.collect {
+		case c: ColumnInfoOneToOne[T, _] => c
+	}
+
 	val oneToManyColumnInfos: List[ColumnInfoTraversableOneToMany[T, _]] = columnInfosPlain.collect {
 		case c: ColumnInfoTraversableOneToMany[T, _] => c
 	}

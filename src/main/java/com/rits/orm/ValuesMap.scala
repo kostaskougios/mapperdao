@@ -19,12 +19,12 @@ class ValuesMap(typeManager: TypeManager, protected[orm] var m: Map[String, Any]
 		}
 	def apply[T, F](column: ColumnInfoOneToOne[T, F]): F =
 		{
-			val key = column.column.columnName
+			val key = column.column.alias
 			apply[F](key)
 		}
 	def apply[T, F](column: ColumnInfoOneToOneReverse[T, F]): F =
 		{
-			val key = column.column.columnName
+			val key = column.column.alias
 			apply[F](key)
 		}
 

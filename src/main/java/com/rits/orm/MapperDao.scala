@@ -57,6 +57,22 @@ final class MapperDao(val driver: Driver) {
 				}
 			} else Nil
 
+			// one-to-one
+			table.oneToOneColumnInfos.foreach { cis =>
+				val fo = cis.columnToValue(o)
+				val v = if (fo != null) {
+					val fe = typeRegistry.entityOf[Any, Any](fo)
+					val v = fo match {
+						case null => null
+						case p: Persisted =>
+							update(fe, p)
+						case x =>
+							insert(fe, x)
+					}
+				} else null
+				modified(cis.column.alias) = v
+			}
+
 			// many-to-one
 			table.manyToOneColumnInfos.foreach { cis =>
 				val fo = cis.columnToValue(o)
