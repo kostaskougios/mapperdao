@@ -52,7 +52,8 @@ protected class UpdateEntityMap {
 			stack = stack.push(UpdateInfo(o, ci))
 		}
 
-	def peek = stack.top
+	def peek[T, V, F] = (if (stack.isEmpty) UpdateInfo(null, null) else stack.top).asInstanceOf[UpdateInfo[T, V, F]]
+
 	def up = stack = stack.pop
 
 	def done {

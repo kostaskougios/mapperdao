@@ -34,7 +34,7 @@ final class MapperDao(val driver: Driver) {
 	 * ===================================================================================
 	 */
 
-	private def insertInner[PC, T, P](entity: Entity[PC, T], o: T, parent: P, parentColumn: ColumnBase, parentKeysAndValues: List[(SimpleColumn, Any)], entityMap: UpdateEntityMap): T with PC =
+	private def insertInner[PC, T](entity: Entity[PC, T], o: T, entityMap: UpdateEntityMap): T with PC =
 		{
 			val tpe = typeRegistry.typeOf(entity)
 			// if a mock exists in the entity map or already persisted, then return
@@ -48,21 +48,33 @@ final class MapperDao(val driver: Driver) {
 
 			val modified = ValuesMap.fromEntity(typeManager, tpe, o).toMutableMap
 			val modifiedTraversables = new HashMap[String, List[Any]]
+
+			val UpdateInfo(parent, parentColumnInfo) = entityMap.peek[Persisted, Any, T]
+
 			// extra args for foreign keys
 			var extraArgs = if (parent != null) {
-				// parent of the one-to-many
-				val pti = typeRegistry.entityOfObject[Any, P](parent)
-				val table = typeRegistry.typeOf(pti).table
+				// parent 
+				val parentEntity = typeRegistry.entityOfObject[Any, Any](parent)
+				val parentColumn = parentColumnInfo.column
+				val parentTpe = typeRegistry.typeOf(parentEntity)
+				val parentTable = parentTpe.table
+				val parentKeysAndValues = parent.valuesMap.toListOfColumnAndValueTuple(parentTable.primaryKeys)
 				parentColumn match {
 					case otm: OneToMany[_] =>
 						val foreignKeyColumns = otm.foreignColumns
 						val foreignKeys = parentKeysAndValues.map(_._2)
 						if (foreignKeys.size != foreignKeyColumns.size) throw new IllegalArgumentException("mappings of one-to-many from " + parent + " to " + o + " is invalid. Number of FK columns doesn't match primary keys. columns: " + foreignKeyColumns + " , primary key values " + foreignKeys);
-						foreignKeyColumns.zip(foreignKeys)
+						foreignKeyColumns zip foreignKeys
 					case oto: OneToOneReverse[T] =>
 						oto.foreignColumns zip parentKeysAndValues.map(_._2)
+					case _ => Nil
 				}
 			} else Nil
+
+			// create a mock
+			var mockO = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified ++ modifiedTraversables))
+			mockO.mock = true
+			entityMap.put(o, mockO)
 
 			// many-to-one
 			table.manyToOneColumnInfos.foreach { cis =>
@@ -72,12 +84,12 @@ final class MapperDao(val driver: Driver) {
 					val v = fo match {
 						case null => null
 						case p: Persisted =>
-							entityMap.down(o, cis)
+							entityMap.down(mockO, cis)
 							val updated = updateInner(fe, p, entityMap)
 							entityMap.up
 							updated
 						case x =>
-							entityMap.down(o, cis)
+							entityMap.down(mockO, cis)
 							val inserted = insertInner(fe, x, entityMap)
 							entityMap.up
 							inserted
@@ -99,12 +111,10 @@ final class MapperDao(val driver: Driver) {
 			}
 
 			val newKeyValues = table.primaryKeys.map(c => modified(c.columnName))
-			// put a mock into the entity map
-			val mockO = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified ++ modifiedTraversables))
+			// create a more up-to-date mock
+			mockO = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified ++ modifiedTraversables))
 			mockO.mock = true
 			entityMap.put(o, mockO)
-
-			lazy val newKeyColumnAndValues = table.primaryKeys.map(_.column) zip newKeyValues
 
 			// one-to-one
 			table.oneToOneColumnInfos.foreach { cis =>
@@ -119,8 +129,8 @@ final class MapperDao(val driver: Driver) {
 							entityMap.up
 							updated
 						case x =>
-							entityMap.down(o, cis)
-							val inserted = insertInner(fe, x, o, cis.column, newKeyColumnAndValues, entityMap)
+							entityMap.down(mockO, cis)
+							val inserted = insertInner(fe, x, entityMap)
 							entityMap.up
 							inserted
 					}
@@ -135,13 +145,13 @@ final class MapperDao(val driver: Driver) {
 					fo match {
 						case null => null
 						case p: Persisted =>
-							entityMap.down(o, cis)
+							entityMap.down(mockO, cis)
 							val updated = updateInner(fe, p, entityMap)
 							entityMap.up
 							updated
 						case x =>
-							entityMap.down(o, cis)
-							val inserted = insertInner(fe, x, o, cis.column, newKeyColumnAndValues, entityMap)
+							entityMap.down(mockO, cis)
+							val inserted = insertInner(fe, x, entityMap)
 							entityMap.up
 							inserted
 					}
@@ -163,8 +173,8 @@ final class MapperDao(val driver: Driver) {
 							nested
 						} else {
 							// insert
-							entityMap.down(o, cis)
-							val inserted = insertInner(nestedEntity, nested, o, cis.column, newKeyColumnAndValues, entityMap)
+							entityMap.down(mockO, cis)
+							val inserted = insertInner(nestedEntity, nested, entityMap)
 							entityMap.up
 							inserted
 						}
@@ -184,12 +194,13 @@ final class MapperDao(val driver: Driver) {
 						val newO = if (isPersisted(nested)) {
 							nested
 						} else {
-							entityMap.down(o, cis)
+							entityMap.down(mockO, cis)
 							val inserted = insertInner(nestedEntity, nested, entityMap)
 							entityMap.up
 							inserted
 						}
 						val rightKeyValues = nestedTpe.table.toListOfPrimaryKeyAndValueTuples(newO)
+						val newKeyColumnAndValues = table.primaryKeys.map(_.column) zip newKeyValues
 						driver.doInsertManyToMany(nestedTpe, cis.column, newKeyColumnAndValues, rightKeyValues)
 						val cName = cis.column.alias
 						addToMap(cName, newO, modifiedTraversables)
@@ -213,10 +224,6 @@ final class MapperDao(val driver: Driver) {
 			val v = insertInner(entity, o, entityMap)
 			entityMap.done
 			v
-		}
-	private def insertInner[PC, T](entity: Entity[PC, T], o: T, entityMap: UpdateEntityMap): T with PC =
-		{
-			insertInner[PC, T, Any](entity, o, null, null, null, entityMap)
 		}
 
 	/**
@@ -264,7 +271,7 @@ final class MapperDao(val driver: Driver) {
 				val ftpe = typeRegistry.typeOf(c.foreign.clz).asInstanceOf[Type[Nothing, Any]]
 				val v = fo match {
 					case p: Persisted =>
-						entityMap.down(o, ci)
+						entityMap.down(mockO, ci)
 						updateInner(fentity, fo, entityMap)
 						entityMap.up
 				}
@@ -284,7 +291,7 @@ final class MapperDao(val driver: Driver) {
 				val intersection = newValues.intersect(oldValues)
 				intersection.foreach { item =>
 					val fe = typeRegistry.entityOfObject[Any, Any](item)
-					entityMap.down(o, ci)
+					entityMap.down(mockO, ci)
 					val newItem = updateInner(fe, item, entityMap)
 					entityMap.up
 					item.asInstanceOf[Persisted].discarded = true
@@ -293,10 +300,10 @@ final class MapperDao(val driver: Driver) {
 				// find the added ones
 				val diff = newValues.diff(oldValues)
 				diff.foreach { item =>
-					val keysAndValues = table.primaryKeys.map(_.column) zip table.primaryKeys.map(c => modified(c.columnName))
+					//val keysAndValues = table.primaryKeys.map(_.column) zip table.primaryKeys.map(c => modified(c.columnName))
 					val fe = typeRegistry.entityOfObject(item)
-					entityMap.down(o, ci)
-					val newItem: Any = insertInner(fe, item, o, oneToMany, keysAndValues, entityMap);
+					entityMap.down(mockO, ci)
+					val newItem: Any = insertInner(fe, item, entityMap);
 					entityMap.up
 					addToMap(oneToMany.alias, newItem, modifiedTraversables)
 				}
@@ -324,7 +331,7 @@ final class MapperDao(val driver: Driver) {
 					val newItem = item match {
 						case p: Persisted if (!p.mock) =>
 							val fe = typeRegistry.entityOfObject[Any, Any](item)
-							entityMap.down(o, ci)
+							entityMap.down(mockO, ci)
 							updateInner(fe, item, entityMap)
 							entityMap.up
 							p.discarded = true
@@ -339,7 +346,7 @@ final class MapperDao(val driver: Driver) {
 					val newItem = item match {
 						case p: Persisted => p
 						case n =>
-							entityMap.down(o, ci)
+							entityMap.down(mockO, ci)
 							val inserted = insertInner[Any, Any](typeRegistry.entityOfObject(n), n, entityMap)
 							entityMap.up
 							inserted
