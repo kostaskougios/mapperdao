@@ -36,18 +36,14 @@ final class MapperDao(val driver: Driver) {
 
 	private def insertInner[PC, T, P](entity: Entity[PC, T], o: T, parent: P, parentColumn: ColumnBase, parentKeysAndValues: List[(SimpleColumn, Any)], entityMap: UpdateEntityMap): T with PC =
 		{
-			val isOPersisted = o.isInstanceOf[Persisted]
-
 			val tpe = typeRegistry.typeOf(entity)
 			val table = tpe.table
-			// if already persisted (or a mock) and exists in the entity map, then return
-			// the existing object
-			if (isOPersisted) {
-				val pkValues = table.toListOfPrimaryKeyValues(o)
-				val mock = entityMap.get[PC, T](o)
-				if (mock.isDefined) return mock.get
-				throw new IllegalArgumentException("can't insert an object that is already persisted: " + o);
-			}
+			// if a mock exists in the entity map or already persisted, then return
+			// the existing mock/persisted object
+			val mock = entityMap.get[PC, T](o)
+			if (mock.isDefined) return mock.get
+
+			if (o.isInstanceOf[Persisted]) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o);
 
 			val modified = ValuesMap.fromEntity(typeManager, tpe, o).toMutableMap
 			val modifiedTraversables = new HashMap[String, List[Any]]
