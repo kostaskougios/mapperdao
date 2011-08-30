@@ -20,26 +20,28 @@ import org.springframework.transaction.support.DefaultTransactionDefinition
  * 29 Aug 2011
  */
 final class Transaction(transactionManager: PlatformTransactionManager, transactionDef: TransactionDefinition) {
-	private val t = new TransactionTemplate(transactionManager, transactionDef)
+	private val tt = new TransactionTemplate(transactionManager, transactionDef)
 
-	def apply[V](f: => V): V =
+	def apply[V](f: () => V): V =
 		{
-			t.execute(new TransactionCallback[V]() {
+			tt.execute(new TransactionCallback[V]() {
 				override def doInTransaction(status: TransactionStatus): V =
 					{
-						f
+						f()
 					}
 			})
 		}
 	def apply[V](f: TransactionStatus => V): V =
 		{
-			t.execute(new TransactionCallback[V]() {
+			tt.execute(new TransactionCallback[V]() {
 				override def doInTransaction(status: TransactionStatus): V =
 					{
 						f(status)
 					}
 			})
 		}
+
+	override def toString = "Transaction(%s)".format(tt)
 }
 
 object Transaction {
