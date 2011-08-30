@@ -3,6 +3,7 @@ import com.rits.orm.MapperDao
 import com.rits.orm.Entity
 import com.rits.orm.QueryDao
 import com.rits.orm.Query
+import com.rits.orm.IntId
 
 /**
  * mixin to add CRUD methods to a dao
@@ -44,6 +45,8 @@ trait CRUD[PC, T, PK] {
 	def select(pk: PK): Option[T with PC] = mapperDao.select(entity, pk)
 }
 
+trait IntIdCRUD[T] extends CRUD[IntId, T, Int]
+
 trait All[PC, T] {
 	val queryDao: QueryDao
 	val entity: Entity[PC, T]
@@ -54,3 +57,5 @@ trait All[PC, T] {
 		queryDao.query(q)
 	}
 }
+
+trait IntIdAll[T] extends All[IntId, T]
