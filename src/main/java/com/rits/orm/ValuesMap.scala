@@ -17,6 +17,17 @@ class ValuesMap(typeManager: TypeManager, protected[orm] var m: Map[String, Any]
 			val key = column.column.columnName
 			apply[V](key)
 		}
+	def apply[T, F](column: ColumnInfoOneToOne[T, F]): F =
+		{
+			val key = column.column.columnName
+			apply[F](key)
+		}
+	def apply[T, F](column: ColumnInfoOneToOneReverse[T, F]): F =
+		{
+			val key = column.column.columnName
+			apply[F](key)
+		}
+
 	def apply[T, V](column: ColumnInfoTraversableOneToMany[T, V]): Traversable[V] =
 		{
 			val key = column.column.alias
