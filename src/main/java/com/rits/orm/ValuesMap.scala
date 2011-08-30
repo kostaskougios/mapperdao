@@ -52,6 +52,14 @@ class ValuesMap(typeManager: TypeManager, protected[orm] var m: Map[String, Any]
 				case b: java.math.BigInteger => b.doubleValue
 			}
 		}
+	def boolean[T, V](column: ColumnInfo[T, V]): Boolean =
+		{
+			val v = apply(column)
+			v match {
+				case b: Boolean => b
+				case i: Int => i == 1
+			}
+		}
 
 	def iset[T, V](column: ColumnInfoTraversableOneToMany[T, V]): ISet[V] =
 		{
