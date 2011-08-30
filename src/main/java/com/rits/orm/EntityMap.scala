@@ -53,8 +53,11 @@ protected class UpdateEntityMap {
 		}
 
 	def peek = stack.top
-	def up = stack.pop
+	def up = stack = stack.pop
 
+	def done {
+		if (!stack.isEmpty) throw new InternalError("stack should be empty but is " + stack)
+	}
 }
 
 protected case class UpdateInfo[T, V, F](val o: T, val ci: ColumnInfoRelationshipBase[T, V, F])

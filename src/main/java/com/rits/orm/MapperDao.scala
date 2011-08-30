@@ -72,9 +72,15 @@ final class MapperDao(val driver: Driver) {
 					val v = fo match {
 						case null => null
 						case p: Persisted =>
-							update(fe, p)
+							entityMap.down(o, cis)
+							val updated = updateInner(fe, p, entityMap)
+							entityMap.up
+							updated
 						case x =>
-							insert(fe, x)
+							entityMap.down(o, cis)
+							val inserted = insertInner(fe, x, entityMap)
+							entityMap.up
+							inserted
 					}
 					extraArgs :::= cis.column.columns zip typeRegistry.typeOf(fe).table.toListOfPrimaryKeyValues(v)
 					v
@@ -108,9 +114,15 @@ final class MapperDao(val driver: Driver) {
 					fo match {
 						case null => null
 						case p: Persisted =>
-							update(fe, p)
+							entityMap.down(o, cis)
+							val updated = update(fe, p, entityMap)
+							entityMap.up
+							updated
 						case x =>
-							insertInner(fe, x, o, cis.column, newKeyColumnAndValues, entityMap)
+							entityMap.down(o, cis)
+							val inserted = insertInner(fe, x, o, cis.column, newKeyColumnAndValues, entityMap)
+							entityMap.up
+							inserted
 					}
 				} else null
 				modified(cis.column.alias) = v
@@ -123,9 +135,15 @@ final class MapperDao(val driver: Driver) {
 					fo match {
 						case null => null
 						case p: Persisted =>
-							update(fe, p)
+							entityMap.down(o, cis)
+							val updated = updateInner(fe, p, entityMap)
+							entityMap.up
+							updated
 						case x =>
-							insertInner(fe, x, o, cis.column, newKeyColumnAndValues, entityMap)
+							entityMap.down(o, cis)
+							val inserted = insertInner(fe, x, o, cis.column, newKeyColumnAndValues, entityMap)
+							entityMap.up
+							inserted
 					}
 				} else null
 				modified(cis.column.alias) = v
@@ -145,7 +163,10 @@ final class MapperDao(val driver: Driver) {
 							nested
 						} else {
 							// insert
-							insertInner(nestedEntity, nested, o, cis.column, newKeyColumnAndValues, entityMap)
+							entityMap.down(o, cis)
+							val inserted = insertInner(nestedEntity, nested, o, cis.column, newKeyColumnAndValues, entityMap)
+							entityMap.up
+							inserted
 						}
 						val cName = cis.column.alias
 						addToMap(cName, newO, modifiedTraversables)
@@ -163,7 +184,10 @@ final class MapperDao(val driver: Driver) {
 						val newO = if (isPersisted(nested)) {
 							nested
 						} else {
-							insert(nestedEntity, nested)
+							entityMap.down(o, cis)
+							val inserted = insertInner(nestedEntity, nested, entityMap)
+							entityMap.up
+							inserted
 						}
 						val rightKeyValues = nestedTpe.table.toListOfPrimaryKeyAndValueTuples(newO)
 						driver.doInsertManyToMany(nestedTpe, cis.column, newKeyColumnAndValues, rightKeyValues)
@@ -185,7 +209,10 @@ final class MapperDao(val driver: Driver) {
 	 */
 	def insert[PC, T](entity: Entity[PC, T], o: T): T with PC =
 		{
-			insertInner(entity, o, new UpdateEntityMap)
+			val entityMap = new UpdateEntityMap
+			val v = insertInner(entity, o, entityMap)
+			entityMap.done
+			v
 		}
 	private def insertInner[PC, T](entity: Entity[PC, T], o: T, entityMap: UpdateEntityMap): T with PC =
 		{
@@ -351,7 +378,10 @@ final class MapperDao(val driver: Driver) {
 			if (!o.isInstanceOf[Persisted]) throw new IllegalArgumentException("can't update an object that is not persisted: " + o);
 			val persisted = o.asInstanceOf[T with PC with Persisted]
 			validatePersisted(persisted)
-			updateInner(entity, o, new UpdateEntityMap)
+			val entityMap = new UpdateEntityMap
+			val v = updateInner(entity, o, entityMap)
+			entityMap.done
+			v
 		}
 
 	private def updateInner[PC, T](entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T with PC =
@@ -380,7 +410,10 @@ final class MapperDao(val driver: Driver) {
 			persisted.discarded = true
 			val oldValuesMap = persisted.valuesMap
 			val newValuesMap = ValuesMap.fromEntity(typeManager, typeRegistry.typeOfObject(newO), newO)
-			updateInner(entity, newO, oldValuesMap, newValuesMap, new UpdateEntityMap)
+			val entityMap = new UpdateEntityMap
+			val v = updateInner(entity, newO, oldValuesMap, newValuesMap, entityMap)
+			entityMap.done
+			v
 		}
 
 	private def validatePersisted(persisted: Persisted) {
