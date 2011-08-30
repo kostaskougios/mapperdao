@@ -403,6 +403,18 @@ final class MapperDao(val driver: Driver) {
 				if (otmL.size != 1) throw new IllegalStateException("expected 1 row but got " + otmL);
 				mods(c.foreign.alias) = otmL.head
 			}
+
+			// one to one
+			table.oneToOneColumns.foreach { c =>
+				val ftpe = typeRegistry.typeOf(c.foreign.clz)
+				val ftable = ftpe.table
+				val foreignKeyValues = c.selfColumns.map(sc => om(sc.columnName))
+				val foreignKeys = ftable.primaryKeys zip foreignKeyValues
+				val fom = driver.doSelect(ftpe, foreignKeys)
+				val otmL = toEntities(fom, ftpe, entities)
+				if (otmL.size != 1) throw new IllegalStateException("expected 1 row but got " + otmL);
+				mods(c.foreign.alias) = otmL.head
+			}
 			// many to one
 			table.manyToOneColumns.foreach { c =>
 				val fe = typeRegistry.entityOf[Any, Any](c.foreign.clz)

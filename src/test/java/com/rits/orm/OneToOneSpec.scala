@@ -61,6 +61,11 @@ class OneToOneSpec extends SpecificationWithJUnit {
 
 object OneToOneSpec {
 	case class Inventory(var product: Product, var stock: Int) {
+		override def hashCode = stock
+		override def equals(v: Any) = v match {
+			case i: Inventory => i.stock == stock && ((i.product == null && product == null) || (i.product.id == product.id))
+			case _ => false
+		}
 		override def toString = "Inventory(%d, productId:%d)".format(stock, if (product == null) null else product.id)
 	}
 	case class Product(val id: Int, inventory: Inventory)
