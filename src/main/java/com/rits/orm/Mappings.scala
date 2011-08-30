@@ -53,6 +53,9 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 	val oneToOneColumnInfos: List[ColumnInfoOneToOne[T, _]] = columnInfosPlain.collect {
 		case c: ColumnInfoOneToOne[T, _] => c
 	}
+	val oneToOneReverseColumnInfos: List[ColumnInfoOneToOneReverse[T, _]] = columnInfosPlain.collect {
+		case c: ColumnInfoOneToOneReverse[T, _] => c
+	}
 
 	val oneToManyColumnInfos: List[ColumnInfoTraversableOneToMany[T, _]] = columnInfosPlain.collect {
 		case c: ColumnInfoTraversableOneToMany[T, _] => c
