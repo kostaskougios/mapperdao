@@ -51,7 +51,7 @@ final class MapperDao(val driver: Driver) {
 			// extra args for foreign keys
 			var extraArgs = if (parent != null) {
 				// parent of the one-to-many
-				val pti = typeRegistry.entityOf[Any, P](parent)
+				val pti = typeRegistry.entityOfObject[Any, P](parent)
 				val table = typeRegistry.typeOf(pti).table
 				parentColumn match {
 					case otm: OneToMany[_] =>
@@ -68,7 +68,7 @@ final class MapperDao(val driver: Driver) {
 			table.manyToOneColumnInfos.foreach { cis =>
 				val fo = cis.columnToValue(o)
 				val v = if (fo != null) {
-					val fe = typeRegistry.entityOf[Any, Any](fo)
+					val fe = typeRegistry.entityOfObject[Any, Any](fo)
 					val v = fo match {
 						case null => null
 						case p: Persisted =>
@@ -104,7 +104,7 @@ final class MapperDao(val driver: Driver) {
 			table.oneToOneColumnInfos.foreach { cis =>
 				val fo = cis.columnToValue(o)
 				val v = if (fo != null) {
-					val fe = typeRegistry.entityOf[Any, Any](fo)
+					val fe = typeRegistry.entityOfObject[Any, Any](fo)
 					fo match {
 						case null => null
 						case p: Persisted =>
@@ -119,7 +119,7 @@ final class MapperDao(val driver: Driver) {
 			table.oneToOneReverseColumnInfos.foreach { cis =>
 				val fo = cis.columnToValue(o)
 				val v = if (fo != null) {
-					val fe = typeRegistry.entityOf[Any, Any](fo)
+					val fe = typeRegistry.entityOfObject[Any, Any](fo)
 					fo match {
 						case null => null
 						case p: Persisted =>
@@ -135,7 +135,7 @@ final class MapperDao(val driver: Driver) {
 				val traversable = cis.columnToValue(o)
 				if (traversable != null) {
 					traversable.foreach { nested =>
-						val nestedEntity = typeRegistry.entityOf[Any, Any](nested)
+						val nestedEntity = typeRegistry.entityOfObject[Any, Any](nested)
 						val nestedTpe = typeRegistry.typeOf(nestedEntity)
 						val newO = if (isPersisted(nested)) {
 							val OneToMany(foreign: TypeRef[_], foreignColumns: List[Column]) = cis.column
@@ -158,7 +158,7 @@ final class MapperDao(val driver: Driver) {
 				val traversable = cis.columnToValue(o)
 				if (traversable != null) {
 					traversable.foreach { nested =>
-						val nestedEntity = typeRegistry.entityOf[Any, Any](nested)
+						val nestedEntity = typeRegistry.entityOfObject[Any, Any](nested)
 						val nestedTpe = typeRegistry.typeOf(nestedEntity)
 						val newO = if (isPersisted(nested)) {
 							nested
@@ -228,11 +228,12 @@ final class MapperDao(val driver: Driver) {
 			table.oneToOneReverseColumnInfos.foreach { ci =>
 				val fo = ci.columnToValue(o)
 				val c = ci.column
-				val ftpe = typeRegistry.typeOf[Any, c.foreign.clz.type](c.foreign.clz)
+				val fentity = typeRegistry.entityOfObject[Any, Any](fo)
+				val ftpe = typeRegistry.typeOfObject[Any, Any](c.foreign.clz)
 				val v = fo match {
 					case p: Persisted =>
 						val newVM = ValuesMap.fromEntity[Any, Any](typeManager, ftpe, fo)
-						updateInner(ftpe, fo, p.valuesMap, newVM, entityMap)
+						updateInner(fentity, fo, p.valuesMap, newVM, entityMap)
 				}
 			}
 
@@ -248,7 +249,7 @@ final class MapperDao(val driver: Driver) {
 				// update those that remained in the updated traversable
 				val intersection = newValues.intersect(oldValues)
 				intersection.foreach { item =>
-					val fe = typeRegistry.entityOf[Any, Any](item)
+					val fe = typeRegistry.entityOfObject[Any, Any](item)
 					val newItem = update(fe, item)
 					item.asInstanceOf[Persisted].discarded = true
 					addToMap(oneToMany.alias, newItem, modifiedTraversables)
@@ -257,7 +258,7 @@ final class MapperDao(val driver: Driver) {
 				val diff = newValues.diff(oldValues)
 				diff.foreach { item =>
 					val keysAndValues = table.primaryKeys.map(_.column) zip table.primaryKeys.map(c => modified(c.columnName))
-					val fe = typeRegistry.entityOf(item)
+					val fe = typeRegistry.entityOfObject(item)
 					val newItem: Any = insertInner(fe, item, o, oneToMany, keysAndValues, entityMap);
 					addToMap(oneToMany.alias, newItem, modifiedTraversables)
 				}
@@ -265,7 +266,7 @@ final class MapperDao(val driver: Driver) {
 				// find the removed ones
 				val odiff = oldValues.diff(newValues)
 				odiff.foreach { item =>
-					val fe = typeRegistry.entityOf[Any, Any](item)
+					val fe = typeRegistry.entityOfObject[Any, Any](item)
 					delete(fe, item)
 				}
 			}
@@ -283,7 +284,7 @@ final class MapperDao(val driver: Driver) {
 				intersection.foreach { item =>
 					val newItem = item match {
 						case p: Persisted if (!p.mock) =>
-							val fe = typeRegistry.entityOf[Any, Any](item)
+							val fe = typeRegistry.entityOfObject[Any, Any](item)
 							update(fe, item)
 							p.discarded = true
 						case _ => item
@@ -296,9 +297,9 @@ final class MapperDao(val driver: Driver) {
 				diff.foreach { item =>
 					val newItem = item match {
 						case p: Persisted => p
-						case n => insert[Any, Any](typeRegistry.entityOf(n), n)
+						case n => insert[Any, Any](typeRegistry.entityOfObject(n), n)
 					}
-					val ftpe = typeRegistry.typeOf(newItem)
+					val ftpe = typeRegistry.typeOfObject(newItem)
 					val fPKArgs = manyToMany.linkTable.right zip ftpe.table.toListOfPrimaryKeyValues(newItem)
 					driver.doInsertManyToMany(tpe, manyToMany, pkArgs, fPKArgs)
 					addToMap(manyToMany.alias, newItem, modifiedTraversables)
@@ -307,7 +308,7 @@ final class MapperDao(val driver: Driver) {
 				val odiff = oldValues.diff(newValues)
 				odiff.foreach(_ match {
 					case p: Persisted =>
-						val ftpe = typeRegistry.typeOf[Any, Any](p)
+						val ftpe = typeRegistry.typeOfObject[Any, Any](p)
 						val ftable = ftpe.table
 						val fPkArgs = manyToMany.linkTable.right zip ftable.toListOfPrimaryKeyValues(p)
 						driver.doDeleteManyToManyRef(tpe, ftpe, manyToMany, pkArgs, fPkArgs)
@@ -333,7 +334,7 @@ final class MapperDao(val driver: Driver) {
 			val persisted = o.asInstanceOf[T with PC with Persisted]
 			validatePersisted(persisted)
 			val oldValuesMap = persisted.valuesMap
-			val newValuesMap = ValuesMap.fromEntity(typeManager, typeRegistry.typeOf(o), o)
+			val newValuesMap = ValuesMap.fromEntity(typeManager, typeRegistry.typeOfObject(o), o)
 			updateInner(entity, o, oldValuesMap, newValuesMap, new UpdateEntityMap)
 		}
 
@@ -355,7 +356,7 @@ final class MapperDao(val driver: Driver) {
 			validatePersisted(persisted)
 			persisted.discarded = true
 			val oldValuesMap = persisted.valuesMap
-			val newValuesMap = ValuesMap.fromEntity(typeManager, typeRegistry.typeOf(newO), newO)
+			val newValuesMap = ValuesMap.fromEntity(typeManager, typeRegistry.typeOfObject(newO), newO)
 			updateInner(entity, newO, oldValuesMap, newValuesMap, new UpdateEntityMap)
 		}
 

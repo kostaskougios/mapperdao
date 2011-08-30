@@ -32,7 +32,7 @@ final class TypeRegistry(entities: List[Entity[_, _]]) {
 	def typeOf[PC, T](entity: Entity[PC, T]): Type[PC, T] = entityToType(entity).asInstanceOf[Type[PC, T]]
 	def typeOf[PC, T](clz: Class[T]): Type[PC, T] = entityToType(entityOf(clz)).asInstanceOf[Type[PC, T]]
 	def typeOf[PC, T](column: ColumnBase): Type[PC, T] = entityToType(entityOf(column)).asInstanceOf[Type[PC, T]]
-	def typeOf[PC, T](o: T): Type[PC, T] = entityToType(entityOf(o)).asInstanceOf[Type[PC, T]]
+	def typeOfObject[PC, T](o: T): Type[PC, T] = entityToType(entityOfObject(o)).asInstanceOf[Type[PC, T]]
 
 	def entityOf(column: ColumnBase): Entity[_, _] = {
 		val e = columnsToEntity.get(column)
@@ -48,7 +48,7 @@ final class TypeRegistry(entities: List[Entity[_, _]]) {
 			types(clz).asInstanceOf[Entity[PC, T]]
 		}
 
-	protected[orm] def entityOf[PC, T](o: T): Entity[PC, T] =
+	protected[orm] def entityOfObject[PC, T](o: T): Entity[PC, T] =
 		{
 			// there is a very weird compilation error from maven
 			// if I just do val clz = o.getClass.asInstanceOf[Class[T]]
