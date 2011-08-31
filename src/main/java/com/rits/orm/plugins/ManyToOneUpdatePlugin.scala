@@ -18,14 +18,14 @@ class ManyToOneUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate {
 
 	private def onlyChanged(column: ColumnBase, newValuesMap: ValuesMap, oldValuesMap: ValuesMap) = newValuesMap(column.alias) != oldValuesMap(column.alias)
 
-	override def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap): List[(Column, Any)] =
+	override def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap) =
 		{
 			val table = tpe.table
 			val manyToOneChanged = table.manyToOneColumns.filter(onlyChanged(_, newValuesMap, oldValuesMap))
 			val mtoArgsV = manyToOneChanged.map(mto => (mto.foreign.clz, newValuesMap[Any](mto.alias))).map { t =>
 				typeRegistry.typeOf(t._1).table.toListOfPrimaryKeyValues(t._2)
 			}.flatten
-			manyToOneChanged.map(_.columns).flatten zip mtoArgsV
+			new DuringUpdateResults(manyToOneChanged.map(_.columns).flatten zip mtoArgsV, Nil)
 		}
 
 }

@@ -38,8 +38,12 @@ trait PostInsert {
  *
  * 31 Aug 2011
  */
+private[orm] class DuringUpdateResults(val values: List[(Column, Any)], val keys: List[(Column, Any)]) {
+	def isEmpty = values.isEmpty && keys.isEmpty
+}
+
 trait DuringUpdate {
-	def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap): List[(Column, Any)]
+	def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap): DuringUpdateResults
 }
 
 /**

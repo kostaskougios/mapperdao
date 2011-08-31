@@ -16,19 +16,20 @@ import com.rits.orm.ColumnInfoOneToOneReverse
  * 31 Aug 2011
  */
 class OneToOneReverseUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate with PostUpdate {
-	val typeRegistry = mapperDao.typeRegistry
+	private val typeRegistry = mapperDao.typeRegistry
+	private val emptyDUR = new DuringUpdateResults(Nil, Nil)
 
-	override def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap): List[(Column, Any)] =
+	override def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap) =
 		{
 			val UpdateInfo(parent, parentColumnInfo) = entityMap.peek[Persisted, Any, T]
 			if (parent != null) {
 				parentColumnInfo match {
 					case otor: ColumnInfoOneToOneReverse[_, T] =>
 						val parentTpe = typeRegistry.typeOfObject(parent)
-						otor.column.foreignColumns zip parentTpe.table.toListOfPrimaryKeyValues(parent)
-					case _ => Nil
+						new DuringUpdateResults(Nil, otor.column.foreignColumns zip parentTpe.table.toListOfPrimaryKeyValues(parent))
+					case _ => emptyDUR
 				}
-			} else Nil
+			} else emptyDUR
 		}
 	def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
 		{

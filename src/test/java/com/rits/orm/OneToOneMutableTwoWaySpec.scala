@@ -15,16 +15,16 @@ class OneToOneMutableTwoWaySpec extends SpecificationWithJUnit {
 
 	import mapperDao._
 
-	//	"insert mutable" in {
-	//		createTables
-	//		val product = Product(1, Inventory(null, 5))
-	//		product.inventory.product = product
-	//		val inserted = insert(ProductEntity, product)
-	//		inserted must_== product
-	//		val selected = select(ProductEntity, inserted.id).get
-	//		selected must_== inserted
-	//	}
-	//
+	"insert mutable" in {
+		createTables
+		val product = Product(1, Inventory(null, 5))
+		product.inventory.product = product
+		val inserted = insert(ProductEntity, product)
+		inserted must_== product
+		val selected = select(ProductEntity, inserted.id).get
+		selected must_== inserted
+	}
+
 	"update mutable" in {
 		createTables
 		val product = Product(1, Inventory(null, 5))
