@@ -17,6 +17,7 @@ import com.rits.orm.ColumnInfoOneToOneReverse
  */
 class OneToOneReverseUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate with PostUpdate {
 	private val typeRegistry = mapperDao.typeRegistry
+	private val typeManager = mapperDao.typeManager
 	private val emptyDUR = new DuringUpdateResults(Nil, Nil)
 	private val driver = mapperDao.driver
 
@@ -50,7 +51,13 @@ class OneToOneReverseUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate wit
 							entityMap.up
 						case newO =>
 							entityMap.down(mockO, ci)
-							mapperDao.insertInner(fentity, fo, entityMap)
+							val oldV = oldValuesMap(ci)
+							if (oldV == null) {
+								mapperDao.insertInner(fentity, fo, entityMap)
+							} else {
+								val nVM = ValuesMap.fromEntity(typeManager, ftpe, fo)
+								mapperDao.updateInner(fentity, fo, oldV.asInstanceOf[Persisted].valuesMap, nVM, entityMap)
+							}
 							entityMap.up
 					}
 				} else {

@@ -38,7 +38,7 @@ class OneToOneMutableTwoWaySpec extends SpecificationWithJUnit {
 		selected must_== inserted
 	}
 
-	"update mutable" in {
+	"CRUD mutable" in {
 		createTables
 		val product = Product(1, Inventory(null, 5))
 		product.inventory.product = product
@@ -114,5 +114,4 @@ object OneToOneMutableTwoWaySpec {
 			val valuesMap = m
 		}
 	}
-
 }
