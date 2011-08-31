@@ -15,6 +15,19 @@ class OneToOneImmutableOneWaySpec extends SpecificationWithJUnit {
 
 	import mapperDao._
 
+	"update to null" in {
+		createTables
+		val product = new Product(1, Inventory(10))
+		val inserted = insert(ProductEntity, product)
+		val updated = update(ProductEntity, inserted, Product(1, null))
+		updated must_== Product(1, null)
+		select(ProductEntity, updated.id).get must_== updated
+
+		val reUpdated = update(ProductEntity, updated, Product(1, Inventory(8)))
+		reUpdated must_== Product(1, Inventory(8))
+		select(ProductEntity, reUpdated.id).get must_== reUpdated
+	}
+
 	"update" in {
 		createTables
 		val product = new Product(1, Inventory(10))
