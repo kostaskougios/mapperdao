@@ -19,6 +19,7 @@ import com.rits.orm.plugins.PostInsert
 import com.rits.orm.plugins.OneToOneInsertPlugin
 import com.rits.orm.plugins.OneToOneReverseInsertPlugin
 import com.rits.orm.plugins.OneToManyInsertPlugin
+import com.rits.orm.plugins.ManyToManyInsertPlugin
 
 /**
  * @author kostantinos.kougios
@@ -32,7 +33,7 @@ final class MapperDao(val driver: Driver) {
 	private val postUpdatePlugins = List[PostUpdate](new OneToOneReverseUpdatePlugin(this), new OneToManyUpdatePlugin(this), new ManyToManyUpdatePlugin(this))
 	private val duringUpdatePlugins = List[DuringUpdate](new ManyToOneUpdatePlugin(this))
 	private val beforeInsertPlugins = List[BeforeInsert](new ManyToOneInsertPlugin(this))
-	private val postInsertPlugins = List[PostInsert](new OneToOneInsertPlugin(this), new OneToOneReverseInsertPlugin(this), new OneToManyInsertPlugin(this))
+	private val postInsertPlugins = List[PostInsert](new OneToOneInsertPlugin(this), new OneToOneReverseInsertPlugin(this), new OneToManyInsertPlugin(this), new ManyToManyInsertPlugin(this))
 
 	/**
 	 * ===================================================================================
@@ -105,7 +106,6 @@ final class MapperDao(val driver: Driver) {
 				}
 			}
 
-			val newKeyValues = table.primaryKeys.map(c => modified(c.columnName))
 			// create a more up-to-date mock
 			mockO = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified ++ modifiedTraversables))
 			mockO.mock = true
@@ -113,30 +113,6 @@ final class MapperDao(val driver: Driver) {
 
 			postInsertPlugins.foreach { plugin =>
 				plugin.execute(tpe, o, mockO, entityMap, modified, modifiedTraversables)
-			}
-
-			// many to many
-			table.manyToManyColumnInfos.foreach { cis =>
-				val traversable = cis.columnToValue(o)
-				if (traversable != null) {
-					traversable.foreach { nested =>
-						val nestedEntity = typeRegistry.entityOfObject[Any, Any](nested)
-						val nestedTpe = typeRegistry.typeOf(nestedEntity)
-						val newO = if (isPersisted(nested)) {
-							nested
-						} else {
-							entityMap.down(mockO, cis)
-							val inserted = insertInner(nestedEntity, nested, entityMap)
-							entityMap.up
-							inserted
-						}
-						val rightKeyValues = nestedTpe.table.toListOfPrimaryKeyAndValueTuples(newO)
-						val newKeyColumnAndValues = table.primaryKeys.map(_.column) zip newKeyValues
-						driver.doInsertManyToMany(nestedTpe, cis.column, newKeyColumnAndValues, rightKeyValues)
-						val cName = cis.column.alias
-						modifiedTraversables(cName) = newO
-					}
-				}
 			}
 
 			val finalMods = modified ++ modifiedTraversables
