@@ -9,6 +9,8 @@ import com.rits.orm.exceptions.QueryException
 import com.rits.orm.plugins.OneToManyUpdatePlugin
 import com.rits.orm.plugins.PostUpdate
 import com.rits.orm.utils.MapOfList
+import com.rits.orm.plugins.OneToOneReverseUpdatePlugin
+import com.rits.orm.plugins.ManyToManyUpdatePlugin
 
 /**
  * @author kostantinos.kougios
@@ -19,7 +21,7 @@ final class MapperDao(val driver: Driver) {
 	val typeRegistry = driver.typeRegistry
 	val typeManager = driver.jdbc.typeManager
 
-	private val postUpdatePlugins = List[PostUpdate](new OneToManyUpdatePlugin(this))
+	private val postUpdatePlugins = List[PostUpdate](new OneToOneReverseUpdatePlugin(this), new OneToManyUpdatePlugin(this), new ManyToManyUpdatePlugin(this))
 	/**
 	 * ===================================================================================
 	 * Utility methods
@@ -270,72 +272,7 @@ final class MapperDao(val driver: Driver) {
 			postUpdatePlugins.foreach { plugin =>
 				plugin.execute(tpe, o, mockO, oldValuesMap, newValuesMap, entityMap, modifiedTraversables)
 			}
-			// one-to-one-reverse
-			table.oneToOneReverseColumnInfos.foreach { ci =>
-				val fo = ci.columnToValue(o)
-				val c = ci.column
-				val fentity = typeRegistry.entityOfObject[Any, Any](fo)
-				val ftpe = typeRegistry.typeOf(c.foreign.clz).asInstanceOf[Type[Nothing, Any]]
-				val v = fo match {
-					case p: Persisted =>
-						entityMap.down(mockO, ci)
-						updateInner(fentity, fo, entityMap)
-						entityMap.up
-				}
-			}
 
-			// update many-to-many
-			table.manyToManyColumnInfos.foreach { ci =>
-				val t = ci.columnToValue(o)
-				val manyToMany = ci.column
-				val newValues = t.toList
-				val oldValues = oldValuesMap.seq[Any](manyToMany.foreign.alias)
-
-				val pkArgs = manyToMany.linkTable.left zip oldValuesMap.toListOfColumnValue(table.primaryKeys)
-
-				// update those that remained in the updated traversable
-				val intersection = newValues.intersect(oldValues)
-				intersection.foreach { item =>
-					val newItem = item match {
-						case p: Persisted if (!p.mock) =>
-							val fe = typeRegistry.entityOfObject[Any, Any](item)
-							entityMap.down(mockO, ci)
-							updateInner(fe, item, entityMap)
-							entityMap.up
-							p.discarded = true
-						case _ => item
-					}
-					modifiedTraversables(manyToMany.alias) = newItem
-				}
-
-				// find the added ones
-				val diff = newValues.diff(oldValues)
-				diff.foreach { item =>
-					val newItem = item match {
-						case p: Persisted => p
-						case n =>
-							entityMap.down(mockO, ci)
-							val inserted = insertInner[Any, Any](typeRegistry.entityOfObject(n), n, entityMap)
-							entityMap.up
-							inserted
-					}
-					val ftpe = typeRegistry.typeOfObject(newItem)
-					val fPKArgs = manyToMany.linkTable.right zip ftpe.table.toListOfPrimaryKeyValues(newItem)
-					driver.doInsertManyToMany(tpe, manyToMany, pkArgs, fPKArgs)
-					modifiedTraversables(manyToMany.alias) = newItem
-				}
-				// find the removed ones
-				val odiff = oldValues.diff(newValues)
-				odiff.foreach(_ match {
-					case p: Persisted =>
-						val ftpe = typeRegistry.typeOfObject[Any, Any](p)
-						val ftable = ftpe.table
-						val fPkArgs = manyToMany.linkTable.right zip ftable.toListOfPrimaryKeyValues(p)
-						driver.doDeleteManyToManyRef(tpe, ftpe, manyToMany, pkArgs, fPkArgs)
-						p.discarded = true
-				})
-
-			}
 			// now update o.valuesMap
 			val finalValuesMap = ValuesMap.fromMutableMap(typeManager, modified ++ modifiedTraversables)
 			val r = tpe.constructor(finalValuesMap)
