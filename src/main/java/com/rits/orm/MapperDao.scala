@@ -20,6 +20,8 @@ import com.rits.orm.plugins.OneToOneInsertPlugin
 import com.rits.orm.plugins.OneToOneReverseInsertPlugin
 import com.rits.orm.plugins.OneToManyInsertPlugin
 import com.rits.orm.plugins.ManyToManyInsertPlugin
+import com.rits.orm.plugins.ManyToOneSelectPlugin
+import com.rits.orm.plugins.BeforeSelect
 
 /**
  * @author kostantinos.kougios
@@ -34,6 +36,7 @@ final class MapperDao(val driver: Driver) {
 	private val duringUpdatePlugins = List[DuringUpdate](new ManyToOneUpdatePlugin(this))
 	private val beforeInsertPlugins = List[BeforeInsert](new ManyToOneInsertPlugin(this), new OneToManyInsertPlugin(this), new OneToOneReverseInsertPlugin(this))
 	private val postInsertPlugins = List[PostInsert](new OneToOneInsertPlugin(this), new OneToOneReverseInsertPlugin(this), new OneToManyInsertPlugin(this), new ManyToManyInsertPlugin(this))
+	private val selectBeforePlugins: List[BeforeSelect] = List(new ManyToOneSelectPlugin(this))
 
 	/**
 	 * ===================================================================================
@@ -248,7 +251,7 @@ final class MapperDao(val driver: Driver) {
 			select(entity, ids, new EntityMap)
 		}
 
-	private def select[PC, T](entity: Entity[PC, T], ids: List[Any], entities: EntityMap): Option[T with PC] =
+	private[orm] def select[PC, T](entity: Entity[PC, T], ids: List[Any], entities: EntityMap): Option[T with PC] =
 		{
 			val clz = entity.clz
 			val tpe = typeRegistry.typeOf(entity)
@@ -312,17 +315,9 @@ final class MapperDao(val driver: Driver) {
 				if (otmL.size != 1) throw new IllegalStateException("expected 1 row but got " + otmL);
 				mods(c.foreign.alias) = otmL.head
 			}
-			// many to one
-			table.manyToOneColumns.foreach { c =>
-				val fe = typeRegistry.entityOf[Any, Any](c.foreign.clz)
-				val foreignPKValues = c.columns.map(mtoc => om(mtoc.columnName))
-				val fo = entities.get(fe.clz, foreignPKValues)
-				val v = if (fo.isDefined) {
-					fo.get
-				} else {
-					select(fe, foreignPKValues, entities).getOrElse(null)
-				}
-				mods(c.foreign.alias) = v
+
+			selectBeforePlugins.foreach { plugin =>
+				plugin.before(tpe, om, entities, mods)
 			}
 			// one to many
 			table.oneToManyColumns.foreach { c =>
