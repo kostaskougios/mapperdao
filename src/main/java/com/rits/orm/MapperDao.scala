@@ -22,6 +22,7 @@ import com.rits.orm.plugins.OneToManyInsertPlugin
 import com.rits.orm.plugins.ManyToManyInsertPlugin
 import com.rits.orm.plugins.ManyToOneSelectPlugin
 import com.rits.orm.plugins.BeforeSelect
+import com.rits.orm.plugins.OneToManySelectPlugin
 
 /**
  * @author kostantinos.kougios
@@ -36,7 +37,7 @@ final class MapperDao(val driver: Driver) {
 	private val duringUpdatePlugins = List[DuringUpdate](new ManyToOneUpdatePlugin(this))
 	private val beforeInsertPlugins = List[BeforeInsert](new ManyToOneInsertPlugin(this), new OneToManyInsertPlugin(this), new OneToOneReverseInsertPlugin(this))
 	private val postInsertPlugins = List[PostInsert](new OneToOneInsertPlugin(this), new OneToOneReverseInsertPlugin(this), new OneToManyInsertPlugin(this), new ManyToManyInsertPlugin(this))
-	private val selectBeforePlugins: List[BeforeSelect] = List(new ManyToOneSelectPlugin(this))
+	private val selectBeforePlugins: List[BeforeSelect] = List(new ManyToOneSelectPlugin(this), new OneToManySelectPlugin(this))
 
 	/**
 	 * ===================================================================================
@@ -276,7 +277,7 @@ final class MapperDao(val driver: Driver) {
 		mods ++= om.map
 		val table = tpe.table
 		// calculate the id's for this tpe
-		val ids: List[Any] = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+		val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
 		val entity = entities.get[T with PC](tpe.clz, ids)
 		if (entity.isDefined) {
 			entity.get
@@ -318,13 +319,6 @@ final class MapperDao(val driver: Driver) {
 
 			selectBeforePlugins.foreach { plugin =>
 				plugin.before(tpe, om, entities, mods)
-			}
-			// one to many
-			table.oneToManyColumns.foreach { c =>
-				val ftpe = typeRegistry.typeOf(c.foreign.clz)
-				val fom = driver.doSelect(ftpe, c.foreignColumns.zip(ids))
-				val otmL = toEntities(fom, ftpe, entities)
-				mods(c.foreign.alias) = otmL
 			}
 
 			// many to many
