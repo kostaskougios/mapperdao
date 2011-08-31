@@ -5,9 +5,29 @@ import com.rits.orm.UpdateEntityMap
 import com.rits.orm.Type
 import com.rits.orm.Column
 
+/**
+ * plugins executed before the main entity is inserted
+ *
+ * @author kostantinos.kougios
+ *
+ * 31 Aug 2011
+ */
+
 trait BeforeInsert {
 	def execute[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any]): List[(Column, Any)]
 }
+
+/**
+ * plugins executed after the main entity is inserted
+ *
+ * @author kostantinos.kougios
+ *
+ * 31 Aug 2011
+ */
+trait PostInsert {
+	def execute[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): Unit
+}
+
 /**
  * plugins executed before the main entity is updated
  *
