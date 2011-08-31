@@ -16,7 +16,7 @@ class ManyToManyUpdatePlugin(mapperDao: MapperDao) extends PostUpdate {
 	val driver = mapperDao.driver
 	val typeRegistry = mapperDao.typeRegistry
 
-	def execute[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
+	def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
 		{
 			val table = tpe.table
 			// update many-to-many

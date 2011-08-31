@@ -14,7 +14,7 @@ import com.rits.orm.utils.MapOfList
 class OneToOneReverseInsertPlugin(mapperDao: MapperDao) extends PostInsert {
 	val typeRegistry = mapperDao.typeRegistry
 
-	override def execute[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): Unit =
+	override def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): Unit =
 		{
 			val table = tpe.table
 			// one-to-one reverse

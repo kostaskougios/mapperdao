@@ -12,9 +12,19 @@ import com.rits.orm.Column
  *
  * 31 Aug 2011
  */
-
 trait BeforeInsert {
-	def execute[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any]): List[(Column, Any)]
+	def before[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any]): List[(Column, Any)]
+}
+
+/**
+ * plugins executed during the insertion of the main entity
+ *
+ * @author kostantinos.kougios
+ *
+ * 31 Aug 2011
+ */
+trait DuringInsert {
+	def during[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any]): List[(Column, Any)]
 }
 
 /**
@@ -25,7 +35,7 @@ trait BeforeInsert {
  * 31 Aug 2011
  */
 trait PostInsert {
-	def execute[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): Unit
+	def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): Unit
 }
 
 /**
@@ -36,7 +46,7 @@ trait PostInsert {
  * 31 Aug 2011
  */
 trait DuringUpdate {
-	def execute[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap): List[(Column, Any)]
+	def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap): List[(Column, Any)]
 }
 
 /**
@@ -47,5 +57,5 @@ trait DuringUpdate {
  * 31 Aug 2011
  */
 trait PostUpdate {
-	def execute[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]): Unit
+	def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]): Unit
 }

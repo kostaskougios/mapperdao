@@ -14,7 +14,7 @@ import com.rits.orm.utils.MapOfList
 class OneToManyUpdatePlugin(mapperDao: MapperDao) extends PostUpdate {
 	val typeRegistry = mapperDao.typeRegistry
 
-	def execute[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
+	def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
 		{
 			// update one-to-many
 			val table = tpe.table
