@@ -31,7 +31,7 @@ class QueryDao(mapperDao: MapperDao) {
 			} catch {
 				case e =>
 					val extra = if (sa != null) "\nThe query:%s\nThe arguments:%s".format(sa.sql, sa.args) else ""
-					val msg = "An error occured during execution of query %s.".format(qe) + extra
+					val msg = "An error occured during execution of query %s.%s\n".format(qe, extra, e.getMessage)
 					throw new QueryException(msg, e)
 			}
 		}
