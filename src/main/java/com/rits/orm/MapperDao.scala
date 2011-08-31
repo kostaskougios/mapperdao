@@ -23,6 +23,8 @@ import com.rits.orm.plugins.ManyToManyInsertPlugin
 import com.rits.orm.plugins.ManyToOneSelectPlugin
 import com.rits.orm.plugins.BeforeSelect
 import com.rits.orm.plugins.OneToManySelectPlugin
+import com.rits.orm.plugins.OneToOneReverseSelectPlugin
+import com.rits.orm.plugins.OneToOneSelectPlugin
 
 /**
  * @author kostantinos.kougios
@@ -37,7 +39,7 @@ final class MapperDao(val driver: Driver) {
 	private val duringUpdatePlugins = List[DuringUpdate](new ManyToOneUpdatePlugin(this))
 	private val beforeInsertPlugins = List[BeforeInsert](new ManyToOneInsertPlugin(this), new OneToManyInsertPlugin(this), new OneToOneReverseInsertPlugin(this))
 	private val postInsertPlugins = List[PostInsert](new OneToOneInsertPlugin(this), new OneToOneReverseInsertPlugin(this), new OneToManyInsertPlugin(this), new ManyToManyInsertPlugin(this))
-	private val selectBeforePlugins: List[BeforeSelect] = List(new ManyToOneSelectPlugin(this), new OneToManySelectPlugin(this))
+	private val selectBeforePlugins: List[BeforeSelect] = List(new ManyToOneSelectPlugin(this), new OneToManySelectPlugin(this), new OneToOneReverseSelectPlugin(this), new OneToOneSelectPlugin(this))
 
 	/**
 	 * ===================================================================================
@@ -272,7 +274,7 @@ final class MapperDao(val driver: Driver) {
 			}
 		}
 
-	protected[orm] def toEntities[PC, T](lm: List[JdbcMap], tpe: Type[PC, T], entities: EntityMap): List[T with PC] = lm.map { om =>
+	private[orm] def toEntities[PC, T](lm: List[JdbcMap], tpe: Type[PC, T], entities: EntityMap): List[T with PC] = lm.map { om =>
 		val mods = new scala.collection.mutable.HashMap[String, Any]
 		mods ++= om.map
 		val table = tpe.table
@@ -295,27 +297,6 @@ final class MapperDao(val driver: Driver) {
 			// this mock object is updated with any changes that follow
 			val mock = createMock
 			entities.put(tpe.clz, ids, mock)
-
-			// one to one reverse
-			table.oneToOneReverseColumns.foreach { c =>
-				val ftpe = typeRegistry.typeOf(c.foreign.clz)
-				val fom = driver.doSelect(ftpe, c.foreignColumns.zip(ids))
-				val otmL = toEntities(fom, ftpe, entities)
-				if (otmL.size != 1) throw new IllegalStateException("expected 1 row but got " + otmL);
-				mods(c.foreign.alias) = otmL.head
-			}
-
-			// one to one
-			table.oneToOneColumns.foreach { c =>
-				val ftpe = typeRegistry.typeOf(c.foreign.clz)
-				val ftable = ftpe.table
-				val foreignKeyValues = c.selfColumns.map(sc => om(sc.columnName))
-				val foreignKeys = ftable.primaryKeys zip foreignKeyValues
-				val fom = driver.doSelect(ftpe, foreignKeys)
-				val otmL = toEntities(fom, ftpe, entities)
-				if (otmL.size != 1) throw new IllegalStateException("expected 1 row but got " + otmL);
-				mods(c.foreign.alias) = otmL.head
-			}
 
 			selectBeforePlugins.foreach { plugin =>
 				plugin.before(tpe, om, entities, mods)
