@@ -48,6 +48,10 @@ class OneToOneReverseUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate wit
 							entityMap.down(mockO, ci)
 							mapperDao.updateInner(fentity, fo, entityMap)
 							entityMap.up
+						case newO =>
+							entityMap.down(mockO, ci)
+							mapperDao.insertInner(fentity, fo, entityMap)
+							entityMap.up
 					}
 				} else {
 					val oldV: Any = oldValuesMap(c.alias)

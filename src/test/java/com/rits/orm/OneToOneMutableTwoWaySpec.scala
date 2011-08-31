@@ -15,6 +15,16 @@ class OneToOneMutableTwoWaySpec extends SpecificationWithJUnit {
 
 	import mapperDao._
 
+	"from null to value" in {
+		createTables
+		val product = Product(1, null)
+		val inserted = insert(ProductEntity, product)
+		inserted.inventory = Inventory(inserted, 5)
+		val updated = update(ProductEntity, inserted)
+		updated.inventory must_!= null
+		select(ProductEntity, inserted.id).get must_== updated
+	}
+
 	"insert mutable" in {
 		createTables
 		val product = Product(1, Inventory(null, 5))
@@ -74,7 +84,7 @@ object OneToOneMutableTwoWaySpec {
 	case class Inventory(var product: Product, var stock: Int) {
 		override def hashCode = stock
 		override def equals(v: Any) = v match {
-			case i: Inventory => i.stock == stock && ((i.product == null && product == null) || (i.product.id == product.id))
+			case i: Inventory => i.stock == stock && ((i.product == null && product == null) || (i.product != null && product != null && i.product.id == product.id))
 			case _ => false
 		}
 		override def toString = "Inventory(%d, productId:%d)".format(stock, if (product == null) null else product.id)
