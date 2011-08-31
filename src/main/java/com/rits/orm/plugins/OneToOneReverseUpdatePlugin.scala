@@ -18,6 +18,7 @@ import com.rits.orm.ColumnInfoOneToOneReverse
 class OneToOneReverseUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate with PostUpdate {
 	private val typeRegistry = mapperDao.typeRegistry
 	private val emptyDUR = new DuringUpdateResults(Nil, Nil)
+	private val driver = mapperDao.driver
 
 	override def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap) =
 		{
@@ -31,6 +32,7 @@ class OneToOneReverseUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate wit
 				}
 			} else emptyDUR
 		}
+
 	def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
 		{
 			val table = tpe.table
@@ -38,13 +40,22 @@ class OneToOneReverseUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate wit
 			table.oneToOneReverseColumnInfos.foreach { ci =>
 				val fo = ci.columnToValue(o)
 				val c = ci.column
-				val fentity = typeRegistry.entityOfObject[Any, Any](fo)
 				val ftpe = typeRegistry.typeOf(c.foreign.clz).asInstanceOf[Type[Nothing, Any]]
-				val v = fo match {
-					case p: Persisted =>
-						entityMap.down(mockO, ci)
-						mapperDao.updateInner(fentity, fo, entityMap)
-						entityMap.up
+				if (fo != null) {
+					val fentity = typeRegistry.entityOfObject[Any, Any](fo)
+					val v = fo match {
+						case p: Persisted =>
+							entityMap.down(mockO, ci)
+							mapperDao.updateInner(fentity, fo, entityMap)
+							entityMap.up
+					}
+				} else {
+					val oldV: Any = oldValuesMap(c.alias)
+					if (oldV != null) {
+						// delete the old value from the database
+						val args = c.foreignColumns zip newValuesMap.toListOfColumnValue(tpe.table.primaryKeys)
+						driver.doDelete(ftpe, args)
+					}
 				}
 			}
 		}

@@ -329,7 +329,7 @@ final class MapperDao(val driver: Driver) {
 			val table = tpe.table
 
 			try {
-				val keyValues = table.toListOfPrimaryKeyAndValueTuples(o)
+				val keyValues = table.toListOfPrimaryKeySimpleColumnAndValueTuples(o)
 				driver.doDelete(tpe, keyValues)
 				o
 			} catch {

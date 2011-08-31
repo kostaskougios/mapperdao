@@ -37,6 +37,17 @@ class OneToOneMutableTwoWaySpec extends SpecificationWithJUnit {
 		selected must_== updated
 	}
 
+	"update to null" in {
+		createTables
+		val product = Product(1, Inventory(null, 5))
+		product.inventory.product = product
+		val inserted = insert(ProductEntity, product)
+		inserted.inventory = null
+		val updated = update(ProductEntity, inserted)
+		updated.inventory must_== null
+		select(ProductEntity, inserted.id).get must_== updated
+	}
+
 	def createTables =
 		{
 			jdbc.update("drop table if exists Product cascade")
@@ -68,7 +79,7 @@ object OneToOneMutableTwoWaySpec {
 		}
 		override def toString = "Inventory(%d, productId:%d)".format(stock, if (product == null) null else product.id)
 	}
-	case class Product(val id: Int, inventory: Inventory)
+	case class Product(val id: Int, var inventory: Inventory)
 
 	object InventoryEntity extends SimpleEntity[Inventory](classOf[Inventory]) {
 		val product = oneToOne(classOf[Product], "product_id", _.product)

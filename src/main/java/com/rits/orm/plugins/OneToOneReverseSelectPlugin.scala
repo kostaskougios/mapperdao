@@ -23,8 +23,14 @@ class OneToOneReverseSelectPlugin(mapperDao: MapperDao) extends BeforeSelect {
 				val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
 				val fom = driver.doSelect(ftpe, c.foreignColumns.zip(ids))
 				val otmL = mapperDao.toEntities(fom, ftpe, entities)
-				if (otmL.size != 1) throw new IllegalStateException("expected 1 row but got " + otmL);
-				mods(c.foreign.alias) = otmL.head
+				if (otmL.isEmpty) {
+					mods(c.foreign.alias) = null
+				} else {
+					if (otmL.size > 1) throw new IllegalStateException("expected 0 or 1 row but got " + otmL)
+					else {
+						mods(c.foreign.alias) = otmL.head
+					}
+				}
 			}
 		}
 }

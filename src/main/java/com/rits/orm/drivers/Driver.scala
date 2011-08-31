@@ -216,16 +216,16 @@ trait Driver {
 	 * DELETE
 	 * =====================================================================================
 	 */
-	def doDelete[PC, T](tpe: Type[PC, T], keyValues: List[(PK, Any)]): Unit =
+	def doDelete[PC, T](tpe: Type[PC, T], whereColumnValues: List[(SimpleColumn, Any)]): Unit =
 		{
-			val sql = deleteSql(tpe, keyValues)
-			jdbc.update(sql, keyValues.map(_._2))
+			val sql = deleteSql(tpe, whereColumnValues)
+			jdbc.update(sql, whereColumnValues.map(_._2))
 		}
 
-	protected def deleteSql[PC, T](tpe: Type[PC, T], keyValues: List[(PK, Any)]): String =
+	protected def deleteSql[PC, T](tpe: Type[PC, T], whereColumnValues: List[(SimpleColumn, Any)]): String =
 		{
 			val sb = new StringBuilder(100, "delete from ")
-			sb append tpe.table.name append " where " append generateColumnsEqualsValueString(keyValues.map(_._1))
+			sb append tpe.table.name append " where " append generateColumnsEqualsValueString(whereColumnValues.map(_._1))
 
 			sb.toString
 		}
