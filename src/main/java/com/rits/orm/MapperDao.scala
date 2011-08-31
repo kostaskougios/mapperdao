@@ -25,6 +25,7 @@ import com.rits.orm.plugins.BeforeSelect
 import com.rits.orm.plugins.OneToManySelectPlugin
 import com.rits.orm.plugins.OneToOneReverseSelectPlugin
 import com.rits.orm.plugins.OneToOneSelectPlugin
+import com.rits.orm.plugins.ManyToManySelectPlugin
 
 /**
  * @author kostantinos.kougios
@@ -39,7 +40,7 @@ final class MapperDao(val driver: Driver) {
 	private val duringUpdatePlugins = List[DuringUpdate](new ManyToOneUpdatePlugin(this))
 	private val beforeInsertPlugins = List[BeforeInsert](new ManyToOneInsertPlugin(this), new OneToManyInsertPlugin(this), new OneToOneReverseInsertPlugin(this))
 	private val postInsertPlugins = List[PostInsert](new OneToOneInsertPlugin(this), new OneToOneReverseInsertPlugin(this), new OneToManyInsertPlugin(this), new ManyToManyInsertPlugin(this))
-	private val selectBeforePlugins: List[BeforeSelect] = List(new ManyToOneSelectPlugin(this), new OneToManySelectPlugin(this), new OneToOneReverseSelectPlugin(this), new OneToOneSelectPlugin(this))
+	private val selectBeforePlugins: List[BeforeSelect] = List(new ManyToOneSelectPlugin(this), new OneToManySelectPlugin(this), new OneToOneReverseSelectPlugin(this), new OneToOneSelectPlugin(this), new ManyToManySelectPlugin(this))
 
 	/**
 	 * ===================================================================================
@@ -300,14 +301,6 @@ final class MapperDao(val driver: Driver) {
 
 			selectBeforePlugins.foreach { plugin =>
 				plugin.before(tpe, om, entities, mods)
-			}
-
-			// many to many
-			table.manyToManyColumns.foreach { c =>
-				val ftpe = typeRegistry.typeOf(c.foreign.clz)
-				val fom = driver.doSelectManyToMany(tpe, ftpe, c, c.linkTable.left zip ids)
-				val mtmR = toEntities(fom, ftpe, entities)
-				mods(c.foreign.alias) = mtmR
 			}
 
 			val vm = ValuesMap.fromMutableMap(typeManager, mods)
