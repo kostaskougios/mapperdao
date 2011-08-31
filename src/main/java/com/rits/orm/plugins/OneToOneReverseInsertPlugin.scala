@@ -5,15 +5,33 @@ import com.rits.orm.Type
 import com.rits.orm.MapperDao
 import com.rits.orm.Persisted
 import com.rits.orm.utils.MapOfList
+import com.rits.orm.Column
+import com.rits.orm.UpdateInfo
+import com.rits.orm.OneToOneReverse
 
 /**
  * @author kostantinos.kougios
  *
  * 31 Aug 2011
  */
-class OneToOneReverseInsertPlugin(mapperDao: MapperDao) extends PostInsert {
+class OneToOneReverseInsertPlugin(mapperDao: MapperDao) extends BeforeInsert with PostInsert {
 	val typeRegistry = mapperDao.typeRegistry
 
+	override def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], updateInfo: UpdateInfo[Persisted, V, T]): List[(Column, Any)] =
+		{
+			val UpdateInfo(parent, parentColumnInfo) = updateInfo
+			if (parent != null) {
+				val parentColumn = parentColumnInfo.column
+				parentColumn match {
+					case oto: OneToOneReverse[T] =>
+						val parentTpe = typeRegistry.typeOfObject(parent)
+						val parentTable = parentTpe.table
+						val parentKeysAndValues = parent.valuesMap.toListOfColumnAndValueTuple(parentTable.primaryKeys)
+						oto.foreignColumns zip parentKeysAndValues.map(_._2)
+					case _ => Nil
+				}
+			} else Nil
+		}
 	override def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): Unit =
 		{
 			val table = tpe.table
