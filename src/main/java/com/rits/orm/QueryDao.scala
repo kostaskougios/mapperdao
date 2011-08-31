@@ -1,4 +1,5 @@
 package com.rits.orm
+import com.rits.orm.exceptions.QueryException
 
 /**
  * runs the queries against the database
@@ -21,9 +22,18 @@ class QueryDao(mapperDao: MapperDao) {
 
 	def query[PC, T](qe: Query.QueryEntity[PC, T]): List[T with PC] =
 		{
-			val sa = sqlAndArgs(qe)
-			val lm = jdbc.queryForList(sa.sql, sa.args)
-			mapperDao.toEntities(lm, typeRegistry.typeOf(qe.entity), new EntityMap)
+			if (qe == null) throw new NullPointerException("qe can't be null")
+			var sa: SqlAndArgs = null
+			try {
+				sa = sqlAndArgs(qe)
+				val lm = jdbc.queryForList(sa.sql, sa.args)
+				mapperDao.toEntities(lm, typeRegistry.typeOf(qe.entity), new EntityMap)
+			} catch {
+				case e =>
+					val extra = if (sa != null) "\nThe query:%s\nThe arguments:%s".format(sa.sql, sa.args) else ""
+					val msg = "An error occured during execution of query %s.".format(qe) + extra
+					throw new QueryException(msg, e)
+			}
 		}
 
 	private def sqlAndArgs[PC, T](qe: Query.QueryEntity[PC, T]): SqlAndArgs = {

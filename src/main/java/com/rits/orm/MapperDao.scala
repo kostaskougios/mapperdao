@@ -4,6 +4,8 @@ import com.rits.jdbc.Jdbc
 import com.rits.orm.drivers.Driver
 import scala.collection.mutable.HashMap
 import com.rits.jdbc.JdbcMap
+import com.rits.orm.exceptions.PersistException
+import com.rits.orm.exceptions.QueryException
 
 /**
  * @author kostantinos.kougios
@@ -221,9 +223,13 @@ final class MapperDao(val driver: Driver) {
 	def insert[PC, T](entity: Entity[PC, T], o: T): T with PC =
 		{
 			val entityMap = new UpdateEntityMap
-			val v = insertInner(entity, o, entityMap)
-			entityMap.done
-			v
+			try {
+				val v = insertInner(entity, o, entityMap)
+				entityMap.done
+				v
+			} catch {
+				case e => throw new PersistException("An error occured during insert of entity %s with value %s".format(entity, o), e)
+			}
 		}
 
 	/**
@@ -386,9 +392,14 @@ final class MapperDao(val driver: Driver) {
 			val persisted = o.asInstanceOf[T with PC with Persisted]
 			validatePersisted(persisted)
 			val entityMap = new UpdateEntityMap
-			val v = updateInner(entity, o, entityMap)
-			entityMap.done
-			v
+			try {
+				val v = updateInner(entity, o, entityMap)
+				entityMap.done
+				v
+			} catch {
+				case e: Throwable => throw new PersistException("An error occured during update of entity %s with value %s.".format(entity, o), e)
+			}
+
 		}
 
 	private def updateInner[PC, T](entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T with PC =
@@ -418,9 +429,14 @@ final class MapperDao(val driver: Driver) {
 			val oldValuesMap = persisted.valuesMap
 			val newValuesMap = ValuesMap.fromEntity(typeManager, typeRegistry.typeOfObject(newO), newO)
 			val entityMap = new UpdateEntityMap
-			val v = updateInner(entity, newO, oldValuesMap, newValuesMap, entityMap)
-			entityMap.done
-			v
+			try {
+				val v = updateInner(entity, newO, oldValuesMap, newValuesMap, entityMap)
+				entityMap.done
+				v
+			} catch {
+				case e => throw new PersistException("An error occured during update of entity %s with old value %s and new value %s".format(entity, o, newO), e)
+			}
+
 		}
 
 	private def validatePersisted(persisted: Persisted) {
@@ -442,19 +458,24 @@ final class MapperDao(val driver: Driver) {
 		{
 			select(entity, ids, new EntityMap)
 		}
+
 	private def select[PC, T](entity: Entity[PC, T], ids: List[Any], entities: EntityMap): Option[T with PC] =
 		{
 			val clz = entity.clz
 			val tpe = typeRegistry.typeOf(entity)
 			if (tpe.table.primaryKeys.size != ids.size) throw new IllegalStateException("Primary keys number dont match the number of parameters. Primary keys: %s".format(tpe.table.primaryKeys))
 
-			val om = driver.doSelect(tpe, tpe.table.primaryKeys.map(_.column).zip(ids))
-			if (om.isEmpty) None
-			else if (om.size > 1) throw new IllegalStateException("expected 1 result for %s and ids %s, but got %d. Is the primary key column a primary key in the table?".format(clz.getSimpleName, ids, om.size))
-			else {
-				val l = toEntities(om, tpe, entities)
-				if (l.size != 1) throw new IllegalStateException("expected 1 object, but got %s".format(l))
-				Option(l.head)
+			try {
+				val om = driver.doSelect(tpe, tpe.table.primaryKeys.map(_.column).zip(ids))
+				if (om.isEmpty) None
+				else if (om.size > 1) throw new IllegalStateException("expected 1 result for %s and ids %s, but got %d. Is the primary key column a primary key in the table?".format(clz.getSimpleName, ids, om.size))
+				else {
+					val l = toEntities(om, tpe, entities)
+					if (l.size != 1) throw new IllegalStateException("expected 1 object, but got %s".format(l))
+					Option(l.head)
+				}
+			} catch {
+				case e => throw new QueryException("An error occured during select of entity %s and primary keys %s".format(entity, ids), e)
 			}
 		}
 
@@ -552,9 +573,14 @@ final class MapperDao(val driver: Driver) {
 			val tpe = typeRegistry.typeOf(entity)
 			val table = tpe.table
 
-			val keyValues = table.toListOfPrimaryKeyAndValueTuples(o)
-			driver.doDelete(tpe, keyValues)
-			o
+			try {
+				val keyValues = table.toListOfPrimaryKeyAndValueTuples(o)
+				driver.doDelete(tpe, keyValues)
+				o
+			} catch {
+				case e => throw new PersistException("An error occured during delete of entity %s with value %s".format(entity, o), e)
+			}
+
 		}
 	/**
 	 * ===================================================================================
