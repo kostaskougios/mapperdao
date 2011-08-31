@@ -3,6 +3,7 @@ import com.rits.orm.utils.MapOfList
 import com.rits.orm.ValuesMap
 import com.rits.orm.UpdateEntityMap
 import com.rits.orm.Type
+import com.rits.orm.Column
 
 /**
  * plugins executed before the main entity is updated
@@ -11,7 +12,8 @@ import com.rits.orm.Type
  *
  * 31 Aug 2011
  */
-trait PreUpdate {
+trait DuringUpdate {
+	def execute[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap): List[(Column, Any)]
 }
 
 /**
