@@ -4,6 +4,7 @@ import com.rits.orm.UpdateEntityMap
 import com.rits.orm.Type
 import com.rits.orm.Persisted
 import com.rits.orm.Column
+import com.rits.orm.UpdateInfo
 
 /**
  * @author kostantinos.kougios
@@ -13,7 +14,7 @@ import com.rits.orm.Column
 class ManyToOneInsertPlugin(mapperDao: MapperDao) extends BeforeInsert {
 	private val typeRegistry = mapperDao.typeRegistry
 
-	override def before[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any]): List[(Column, Any)] =
+	override def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], updateInfo: UpdateInfo[Persisted, V, T]): List[(Column, Any)] =
 		{
 			val table = tpe.table
 			var extraArgs = List[(Column, Any)]()

@@ -4,6 +4,8 @@ import com.rits.orm.ValuesMap
 import com.rits.orm.UpdateEntityMap
 import com.rits.orm.Type
 import com.rits.orm.Column
+import com.rits.orm.UpdateInfo
+import com.rits.orm.Persisted
 
 /**
  * plugins executed before the main entity is inserted
@@ -13,18 +15,7 @@ import com.rits.orm.Column
  * 31 Aug 2011
  */
 trait BeforeInsert {
-	def before[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any]): List[(Column, Any)]
-}
-
-/**
- * plugins executed during the insertion of the main entity
- *
- * @author kostantinos.kougios
- *
- * 31 Aug 2011
- */
-trait DuringInsert {
-	def during[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any]): List[(Column, Any)]
+	def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], updateInfo: UpdateInfo[Persisted, V, T]): List[(Column, Any)]
 }
 
 /**

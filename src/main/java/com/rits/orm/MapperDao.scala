@@ -32,7 +32,7 @@ final class MapperDao(val driver: Driver) {
 
 	private val postUpdatePlugins = List[PostUpdate](new OneToOneReverseUpdatePlugin(this), new OneToManyUpdatePlugin(this), new ManyToManyUpdatePlugin(this))
 	private val duringUpdatePlugins = List[DuringUpdate](new ManyToOneUpdatePlugin(this))
-	private val beforeInsertPlugins = List[BeforeInsert](new ManyToOneInsertPlugin(this))
+	private val beforeInsertPlugins = List[BeforeInsert](new ManyToOneInsertPlugin(this), new OneToManyInsertPlugin(this))
 	private val postInsertPlugins = List[PostInsert](new OneToOneInsertPlugin(this), new OneToOneReverseInsertPlugin(this), new OneToManyInsertPlugin(this), new ManyToManyInsertPlugin(this))
 
 	/**
@@ -64,7 +64,7 @@ final class MapperDao(val driver: Driver) {
 			val modified = ValuesMap.fromEntity(typeManager, tpe, o).toMutableMap
 			val modifiedTraversables = new MapOfList[String, Any]
 
-			val UpdateInfo(parent, parentColumnInfo) = entityMap.peek[Persisted, Any, T]
+			val updateInfo @ UpdateInfo(parent, parentColumnInfo) = entityMap.peek[Persisted, Any, T]
 
 			// create a mock
 			var mockO = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified ++ modifiedTraversables))
@@ -72,7 +72,7 @@ final class MapperDao(val driver: Driver) {
 			entityMap.put(o, mockO)
 
 			var extraArgs = beforeInsertPlugins.map { plugin =>
-				plugin.before(tpe, o, mockO, entityMap, modified)
+				plugin.before(tpe, o, mockO, entityMap, modified, updateInfo)
 			}.flatten
 
 			// extra args for foreign keys
@@ -84,11 +84,6 @@ final class MapperDao(val driver: Driver) {
 				val parentTable = parentTpe.table
 				val parentKeysAndValues = parent.valuesMap.toListOfColumnAndValueTuple(parentTable.primaryKeys)
 				parentColumn match {
-					case otm: OneToMany[_] =>
-						val foreignKeyColumns = otm.foreignColumns
-						val foreignKeys = parentKeysAndValues.map(_._2)
-						if (foreignKeys.size != foreignKeyColumns.size) throw new IllegalArgumentException("mappings of one-to-many from " + parent + " to " + o + " is invalid. Number of FK columns doesn't match primary keys. columns: " + foreignKeyColumns + " , primary key values " + foreignKeys);
-						foreignKeyColumns zip foreignKeys
 					case oto: OneToOneReverse[T] =>
 						oto.foreignColumns zip parentKeysAndValues.map(_._2)
 					case _ => Nil
