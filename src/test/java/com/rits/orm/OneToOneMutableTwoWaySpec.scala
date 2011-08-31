@@ -21,11 +21,14 @@ class OneToOneMutableTwoWaySpec extends SpecificationWithJUnit {
 		val inserted = insert(ProductEntity, product)
 		inserted.inventory = Inventory(inserted, 5)
 		val updated = update(ProductEntity, inserted)
-		updated.inventory must_!= null
+		updated.inventory must_== inserted.inventory
 		select(ProductEntity, inserted.id).get must_== updated
+
+		delete(ProductEntity, updated)
+		select(ProductEntity, updated.id) must beNone
 	}
 
-	"insert mutable" in {
+	"insert & select mutable" in {
 		createTables
 		val product = Product(1, Inventory(null, 5))
 		product.inventory.product = product
@@ -45,6 +48,9 @@ class OneToOneMutableTwoWaySpec extends SpecificationWithJUnit {
 		updated must_== inserted
 		val selected = select(ProductEntity, updated.id).get
 		selected must_== updated
+
+		delete(ProductEntity, selected)
+		select(ProductEntity, selected.id) must beNone
 	}
 
 	"update to null" in {
