@@ -5,6 +5,9 @@ import com.rits.orm.UpdateEntityMap
 import com.rits.orm.Type
 import com.rits.orm.Column
 
+trait BeforeInsert {
+	def execute[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any]): List[(Column, Any)]
+}
 /**
  * plugins executed before the main entity is updated
  *
@@ -24,5 +27,5 @@ trait DuringUpdate {
  * 31 Aug 2011
  */
 trait PostUpdate {
-	def execute[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any])
+	def execute[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]): Unit
 }
