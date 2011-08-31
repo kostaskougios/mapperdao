@@ -22,6 +22,9 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 
 		val inserted = mapperDao.insert(PersonEntity, person)
 		inserted must_== person
+
+		mapperDao.delete(PersonEntity, inserted)
+		mapperDao.select(PersonEntity, inserted.id) must beNone
 	}
 
 	"insert with existing foreign entity" in {
@@ -37,6 +40,9 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 
 		val selected = select(PersonEntity, 2).get
 		selected must_== inserted
+
+		mapperDao.delete(PersonEntity, inserted)
+		mapperDao.select(PersonEntity, inserted.id) must beNone
 	}
 
 	"select" in {
@@ -51,6 +57,9 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 
 		val selected = select(PersonEntity, 2).get
 		selected must_== inserted
+
+		mapperDao.delete(PersonEntity, inserted)
+		mapperDao.select(PersonEntity, inserted.id) must beNone
 	}
 
 	"select with null FK" in {
@@ -64,6 +73,9 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 
 		val selected = select(PersonEntity, 2).get
 		selected must_== inserted
+
+		mapperDao.delete(PersonEntity, inserted)
+		mapperDao.select(PersonEntity, inserted.id) must beNone
 	}
 
 	"update" in {
@@ -84,6 +96,9 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 
 		val selected = select(PersonEntity, 2).get
 		selected must_== updated
+
+		mapperDao.delete(PersonEntity, selected)
+		mapperDao.select(PersonEntity, selected.id) must beNone
 	}
 
 	"update to null" in {
@@ -103,6 +118,9 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 
 		val selected = select(PersonEntity, 2).get
 		selected must_== updated
+
+		mapperDao.delete(PersonEntity, selected)
+		mapperDao.select(PersonEntity, selected.id) must beNone
 	}
 
 	"update to null both FK" in {
@@ -122,6 +140,9 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 
 		val selected = select(PersonEntity, 2).get
 		selected must_== updated
+
+		mapperDao.delete(PersonEntity, selected)
+		mapperDao.select(PersonEntity, selected.id) must beNone
 	}
 
 	def createTables =

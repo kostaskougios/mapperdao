@@ -39,6 +39,9 @@ class OneToManySpec extends SpecificationWithJUnit {
 			}
 		doUpdate(updated, new Person(3, "Changed", "K", updated.owns, 18, updated.positions.filterNot(_ == jp1)))
 		doUpdate(updated, new Person(3, "Changed Again", "Surname changed too", updated.owns.filter(_.address == "London"), 18, jp5 :: updated.positions.filterNot(jp ⇒ jp == jp1 || jp == jp3)))
+
+		mapperDao.delete(PersonEntity, updated)
+		mapperDao.select(PersonEntity, updated.id) must beNone
 	}
 
 	"updating items (mutable)" in {
@@ -57,6 +60,9 @@ class OneToManySpec extends SpecificationWithJUnit {
 
 		val loaded = mapperDao.select(PersonEntity, 3).get
 		loaded must_== updated
+
+		mapperDao.delete(PersonEntity, updated)
+		mapperDao.select(PersonEntity, updated.id) must beNone
 	}
 
 	"removing items" in {
@@ -74,6 +80,9 @@ class OneToManySpec extends SpecificationWithJUnit {
 
 		val loaded = mapperDao.select(PersonEntity, 3).get
 		loaded must_== updated
+
+		mapperDao.delete(PersonEntity, updated)
+		mapperDao.select(PersonEntity, updated.id) must beNone
 	}
 
 	"adding items" in {
@@ -92,6 +101,9 @@ class OneToManySpec extends SpecificationWithJUnit {
 
 		val updatedReloaded = mapperDao.select(PersonEntity, 3).get
 		updatedReloaded must_== updatedPositions
+
+		mapperDao.delete(PersonEntity, updatedReloaded)
+		mapperDao.select(PersonEntity, updatedReloaded.id) must beNone
 	}
 
 	"CRUD (multi purpose test)" in {
@@ -136,6 +148,7 @@ class OneToManySpec extends SpecificationWithJUnit {
 		mapperDao.update(PersonEntity, removedReloaded) must_== removedReloaded
 		mapperDao.select(PersonEntity, 3).get must_== removedReloaded
 	}
+
 	def setup =
 		{
 			val typeRegistry = TypeRegistry(JobPositionEntity, HouseEntity, PersonEntity)
