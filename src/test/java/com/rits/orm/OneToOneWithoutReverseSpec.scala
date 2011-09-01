@@ -15,6 +15,37 @@ class OneToOneWithoutReverseSpec extends SpecificationWithJUnit {
 
 	import mapperDao._
 
+	"update from null to existing value " in {
+		createTables
+		val inserted = insert(InventoryEntity, Inventory(10, Product(1), 5))
+		val updated = update(InventoryEntity, inserted, Inventory(10, null, 7))
+		updated.product must beNull
+		val reUdated = update(InventoryEntity, updated, Inventory(10, select(ProductEntity, 1).get, 8))
+		reUdated.product must_== Product(1)
+		select(InventoryEntity, 10).get must_== reUdated
+	}
+
+	"update from null to new value " in {
+		createTables
+		val inserted = insert(InventoryEntity, Inventory(10, Product(1), 5))
+		val updated = update(InventoryEntity, inserted, Inventory(10, null, 7))
+		updated.product must beNull
+		val reUdated = update(InventoryEntity, updated, Inventory(10, Product(2), 8))
+		reUdated.product must_== Product(2)
+		select(InventoryEntity, 10).get must_== reUdated
+		select(ProductEntity, 1).get must_== Product(1)
+		select(ProductEntity, 2).get must_== Product(2)
+	}
+
+	"update to null" in {
+		createTables
+		val inserted = insert(InventoryEntity, Inventory(10, Product(1), 5))
+		val updated = update(InventoryEntity, inserted, Inventory(10, null, 7))
+		updated.product must beNull
+		select(InventoryEntity, 10).get must_== updated
+		select(ProductEntity, 1).get must_== Product(1)
+	}
+
 	"update" in {
 		createTables
 		val inserted = insert(InventoryEntity, Inventory(10, Product(1), 5))
@@ -51,7 +82,7 @@ class OneToOneWithoutReverseSpec extends SpecificationWithJUnit {
 			jdbc.update("""
 				create table Inventory (
 					id int not null,
-					product_id int not null,
+					product_id int,
 					stock int not null,
 					primary key (id),
 					foreign key (product_id) references Product(id) on delete cascade

@@ -23,7 +23,7 @@ class OneToOneReverseUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate wit
 
 	override def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
-			val UpdateInfo(parent, parentColumnInfo) = entityMap.peek[Persisted, Any, T]
+			val UpdateInfo(parent, parentColumnInfo) = entityMap.peek[Any, Any, T]
 			if (parent != null) {
 				parentColumnInfo match {
 					case otor: ColumnInfoOneToOneReverse[_, T] =>
