@@ -19,7 +19,7 @@ trait CRUD[PC, T, PK] {
 	/**
 	 * insert an entity into the database
 	 */
-	def insert(t: T): T with PC = mapperDao.insert(entity, t)
+	def create(t: T): T with PC = mapperDao.insert(entity, t)
 
 	/**
 	 * update an entity. The entity must have been retrieved from the database and then
@@ -42,7 +42,7 @@ trait CRUD[PC, T, PK] {
 	 * @param id		the id
 	 * @return			Option[T] or None
 	 */
-	def select(pk: PK): Option[T with PC] = mapperDao.select(entity, pk)
+	def retrieve(pk: PK): Option[T with PC] = mapperDao.select(entity, pk)
 }
 
 trait IntIdCRUD[T] extends CRUD[IntId, T, Int]
