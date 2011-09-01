@@ -27,6 +27,16 @@ class OneToOneQuerySpec extends SpecificationWithJUnit {
 		query(q0).toSet must_== Set(p2, p3)
 	}
 
+	"query with and" in {
+		createTables
+		val p0 = insert(ProductEntity, Product(0, Inventory(4, 10)))
+		val p1 = insert(ProductEntity, Product(1, Inventory(5, 11)))
+		val p2 = insert(ProductEntity, Product(2, Inventory(6, 12)))
+		val p3 = insert(ProductEntity, Product(3, Inventory(7, 13)))
+
+		query(q1).toSet must_== Set(p2)
+	}
+
 	def createTables =
 		{
 			jdbc.update("drop table if exists Product cascade")
@@ -57,12 +67,16 @@ object OneToOneQuerySpec {
 		val i = InventoryEntity
 		import Query._
 		def q0 = select from p join (p, p.inventory, i) where i.stock > 5
+		def q1 = {
+			select from p join (p, p.inventory, i) where
+				i.stock > 5 and i.sold < 13
+		}
 	}
 
 	case class Inventory(val stock: Int, val sold: Int)
 	case class Product(val id: Int, val inventory: Inventory)
 
-	object InventoryEntity extends SimpleEntity[Inventory](classOf[Inventory]) {
+	class InventoryEntityBase extends SimpleEntity[Inventory](classOf[Inventory]) {
 		val stock = int("stock", _.stock)
 		val sold = int("sold", _.sold)
 
@@ -70,8 +84,9 @@ object OneToOneQuerySpec {
 			val valuesMap = m
 		}
 	}
+	val InventoryEntity = new InventoryEntityBase
 
-	object ProductEntity extends SimpleEntity[Product](classOf[Product]) {
+	class ProductEntityBase extends SimpleEntity[Product](classOf[Product]) {
 		val id = pk("id", _.id)
 		val inventory = oneToOneReverse(classOf[Inventory], "product_id", _.inventory)
 
@@ -79,4 +94,5 @@ object OneToOneQuerySpec {
 			val valuesMap = m
 		}
 	}
+	val ProductEntity = new ProductEntityBase
 }
