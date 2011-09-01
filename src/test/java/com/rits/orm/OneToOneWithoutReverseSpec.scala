@@ -15,12 +15,28 @@ class OneToOneWithoutReverseSpec extends SpecificationWithJUnit {
 
 	import mapperDao._
 
+	"update" in {
+		createTables
+		val inserted = insert(InventoryEntity, Inventory(10, Product(1), 5))
+		val updated = update(InventoryEntity, inserted, Inventory(10, Product(2), 7))
+		select(InventoryEntity, 10).get must_== updated
+		select(ProductEntity, 1).get must_== Product(1)
+		select(ProductEntity, 2).get must_== Product(2)
+	}
+
 	"insert" in {
 		createTables
-		val inventory = Inventory(Product(1), 5)
+		val inventory = Inventory(10, Product(1), 5)
 		val inserted = insert(InventoryEntity, inventory)
 		inserted must_== inventory
 	}
+
+	"select" in {
+		createTables
+		val inserted = insert(InventoryEntity, Inventory(10, Product(1), 5))
+		select(InventoryEntity, 10).get must_== inserted
+	}
+
 	def createTables =
 		{
 			jdbc.update("drop table if exists Product cascade")
@@ -34,9 +50,10 @@ class OneToOneWithoutReverseSpec extends SpecificationWithJUnit {
 			""")
 			jdbc.update("""
 				create table Inventory (
+					id int not null,
 					product_id int not null,
 					stock int not null,
-					primary key (product_id),
+					primary key (id),
 					foreign key (product_id) references Product(id) on delete cascade
 				)
 			""")
@@ -44,14 +61,15 @@ class OneToOneWithoutReverseSpec extends SpecificationWithJUnit {
 }
 
 object OneToOneWithoutReverseSpec {
-	case class Inventory(val product: Product, val stock: Int)
+	case class Inventory(val id: Int, val product: Product, val stock: Int)
 	case class Product(val id: Int)
 
 	object InventoryEntity extends SimpleEntity[Inventory](classOf[Inventory]) {
+		val id = pk("id", _.id)
 		val product = oneToOne(classOf[Product], "product_id", _.product)
 		val stock = int("stock", _.stock)
 
-		val constructor = (m: ValuesMap) => new Inventory(m(product), m(stock)) with Persisted {
+		val constructor = (m: ValuesMap) => new Inventory(m(id), m(product), m(stock)) with Persisted {
 			val valuesMap = m
 		}
 	}

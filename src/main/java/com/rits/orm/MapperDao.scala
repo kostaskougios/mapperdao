@@ -27,6 +27,7 @@ import com.rits.orm.plugins.OneToOneReverseSelectPlugin
 import com.rits.orm.plugins.OneToOneSelectPlugin
 import com.rits.orm.plugins.ManyToManySelectPlugin
 import com.rits.orm.plugins.DuringUpdateResults
+import com.rits.orm.plugins.OneToOneUpdatePlugin
 
 /**
  * @author kostantinos.kougios
@@ -38,7 +39,7 @@ final class MapperDao(val driver: Driver) {
 	val typeManager = driver.jdbc.typeManager
 
 	private val postUpdatePlugins = List[PostUpdate](new OneToOneReverseUpdatePlugin(this), new OneToManyUpdatePlugin(this), new ManyToManyUpdatePlugin(this))
-	private val duringUpdatePlugins = List[DuringUpdate](new ManyToOneUpdatePlugin(this), new OneToOneReverseUpdatePlugin(this))
+	private val duringUpdatePlugins = List[DuringUpdate](new ManyToOneUpdatePlugin(this), new OneToOneReverseUpdatePlugin(this), new OneToOneUpdatePlugin(this))
 	private val beforeInsertPlugins = List[BeforeInsert](new ManyToOneInsertPlugin(this), new OneToManyInsertPlugin(this), new OneToOneReverseInsertPlugin(this), new OneToOneInsertPlugin(this))
 	private val postInsertPlugins = List[PostInsert](new OneToOneInsertPlugin(this), new OneToOneReverseInsertPlugin(this), new OneToManyInsertPlugin(this), new ManyToManyInsertPlugin(this))
 	private val selectBeforePlugins: List[BeforeSelect] = List(new ManyToOneSelectPlugin(this), new OneToManySelectPlugin(this), new OneToOneReverseSelectPlugin(this), new OneToOneSelectPlugin(this), new ManyToManySelectPlugin(this))
@@ -72,7 +73,7 @@ final class MapperDao(val driver: Driver) {
 			val modified = ValuesMap.fromEntity(typeManager, tpe, o).toMutableMap
 			val modifiedTraversables = new MapOfList[String, Any]
 
-			val updateInfo @ UpdateInfo(parent, parentColumnInfo) = entityMap.peek[Persisted, Any, T]
+			val updateInfo @ UpdateInfo(parent, parentColumnInfo) = entityMap.peek[Any, Any, T]
 
 			// create a mock
 			var mockO = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified ++ modifiedTraversables))
@@ -147,11 +148,16 @@ final class MapperDao(val driver: Driver) {
 
 			def onlyChanged(column: ColumnBase) = newValuesMap(column.alias) != oldValuesMap(column.alias)
 
+			// store a mock in the entity map so that we don't process the same instance twice
+			var mockO = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified ++ modifiedTraversables))
+			mockO.mock = true
+			entityMap.put(o, mockO)
+
 			// first, lets update the simple columns that changed
 
 			// run all DuringUpdate plugins
 			val pluginDUR = duringUpdatePlugins.map { plugin =>
-				plugin.during(tpe, o, oldValuesMap, newValuesMap, entityMap)
+				plugin.during(tpe, o, oldValuesMap, newValuesMap, entityMap, modified, modifiedTraversables)
 			}.reduceLeft { (dur1, dur2) =>
 				new DuringUpdateResults(dur1.values ::: dur2.values, dur1.keys ::: dur2.keys)
 			}
@@ -165,8 +171,8 @@ final class MapperDao(val driver: Driver) {
 				driver.doUpdate(tpe, args, pkArgs)
 			}
 
-			// store a mock in the entity map so that we don't process the same instance twice
-			val mockO = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified ++ modifiedTraversables))
+			// update the mock
+			mockO = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified ++ modifiedTraversables))
 			mockO.mock = true
 			entityMap.put(o, mockO)
 

@@ -17,7 +17,7 @@ import com.rits.orm.OneToOneReverse
 class OneToOneReverseInsertPlugin(mapperDao: MapperDao) extends BeforeInsert with PostInsert {
 	val typeRegistry = mapperDao.typeRegistry
 
-	override def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], updateInfo: UpdateInfo[Persisted, V, T]): List[(Column, Any)] =
+	override def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
 		{
 			val UpdateInfo(parent, parentColumnInfo) = updateInfo
 			if (parent != null) {
@@ -26,7 +26,7 @@ class OneToOneReverseInsertPlugin(mapperDao: MapperDao) extends BeforeInsert wit
 					case oto: OneToOneReverse[T] =>
 						val parentTpe = typeRegistry.typeOfObject(parent)
 						val parentTable = parentTpe.table
-						val parentKeysAndValues = parent.valuesMap.toListOfColumnAndValueTuple(parentTable.primaryKeys)
+						val parentKeysAndValues = parent.asInstanceOf[Persisted].valuesMap.toListOfColumnAndValueTuple(parentTable.primaryKeys)
 						oto.foreignColumns zip parentKeysAndValues.map(_._2)
 					case _ => Nil
 				}
