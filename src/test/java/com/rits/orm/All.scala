@@ -33,7 +33,8 @@ import com.rits.orm.utils.ISetSpec
 		classOf[OneToManyQuerySpec],
 		classOf[ManyToManyQuerySpec],
 		classOf[ManyToManyQueryWithAliasesSpec],
-		classOf[OneToOneQuerySpec]
+		classOf[OneToOneQuerySpec],
+		classOf[OneToOneWithoutReverseSpec]
 	)
 )
 class All extends SpecificationWithJUnit

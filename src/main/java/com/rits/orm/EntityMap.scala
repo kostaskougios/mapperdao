@@ -56,11 +56,11 @@ protected class UpdateEntityMap {
 	private val m = new IdentityHashMap[Any, Any]
 	private var stack = Stack[UpdateInfo[_, _, _]]()
 
-	def put[PC, T](v: T, mock: PC with T): Unit = m.put(v, mock)
-	def get[PC, T](v: T): Option[PC with T] =
+	def put[PC, T](v: T, mock: PC with T with Persisted): Unit = m.put(v, mock)
+	def get[PC, T](v: T): Option[PC with T with Persisted] =
 		{
 			val g = m.get(v)
-			if (g == null) None else Option(g.asInstanceOf[PC with T])
+			if (g == null) None else Option(g.asInstanceOf[PC with T with Persisted])
 		}
 
 	def down[T, V, F](o: T, ci: ColumnInfoRelationshipBase[T, V, F]): Unit =
