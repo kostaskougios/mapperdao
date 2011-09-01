@@ -22,6 +22,8 @@ class DefaultTypeManager extends TypeManager {
 
 	override def reverseConvert(o: Any): Any = o match {
 		case t: DateTime => t.toCalendar(null)
+		case d: BigDecimal => d.bigDecimal
+		case i: BigInt => i.bigInteger
 		case _ => o
 	}
 }

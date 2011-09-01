@@ -4,7 +4,7 @@ import com.rits.orm.Entity
 import com.rits.orm.QueryDao
 import com.rits.orm.Query
 import com.rits.orm.IntId
-
+import com.rits.orm.LongId
 /**
  * mixin to add CRUD methods to a dao
  *
@@ -46,16 +46,15 @@ trait CRUD[PC, T, PK] {
 }
 
 trait IntIdCRUD[T] extends CRUD[IntId, T, Int]
+trait LongIdCRUD[T] extends CRUD[LongId, T, Int]
 
 trait All[PC, T] {
 	val queryDao: QueryDao
 	val entity: Entity[PC, T]
 
 	import Query._
-	def all: List[T with PC] = {
-		val q = select from entity
-		queryDao.query(q)
-	}
+	def all: List[T with PC] = queryDao.query(select from entity)
 }
 
 trait IntIdAll[T] extends All[IntId, T]
+trait LongIdAll[T] extends All[LongId, T]
