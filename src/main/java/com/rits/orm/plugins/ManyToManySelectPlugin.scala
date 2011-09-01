@@ -26,7 +26,7 @@ class ManyToManySelectPlugin(mapperDao: MapperDao) extends BeforeSelect {
 				val ftpe = typeRegistry.typeOf(c.foreign.clz)
 				val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
 				val fom = driver.doSelectManyToMany(tpe, ftpe, c, c.linkTable.left zip ids)
-				entities.down(tpe, ci)
+				entities.down(tpe, ci, om)
 				val mtmR = mapperDao.toEntities(fom, ftpe, entities)
 				entities.up
 				mods(c.foreign.alias) = mtmR

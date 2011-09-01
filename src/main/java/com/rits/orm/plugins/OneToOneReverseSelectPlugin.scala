@@ -4,6 +4,7 @@ import com.rits.orm.Type
 import com.rits.orm.MapperDao
 import com.rits.jdbc.JdbcMap
 import com.rits.orm.EntityMap
+import com.rits.orm.SelectInfo
 
 /**
  * @author kostantinos.kougios
@@ -16,10 +17,10 @@ class OneToOneReverseSelectPlugin(mapperDao: MapperDao) extends BeforeSelect {
 
 	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any] =
 		{
-			val table = tpe.table
-			table.oneToOneColumnInfos.map { ci =>
-				println(ci)
-			}
+			val SelectInfo(parentTpe, parentCI, parentJdbcMap) = entities.peek
+			if (parentTpe != null) {
+				parentTpe.table.primaryKeys.map(c => parentJdbcMap(c.columnName))
+			} else Nil
 		}
 
 	override def before[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]) =
@@ -31,7 +32,7 @@ class OneToOneReverseSelectPlugin(mapperDao: MapperDao) extends BeforeSelect {
 				val ftpe = typeRegistry.typeOf(c.foreign.clz)
 				val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
 				val fom = driver.doSelect(ftpe, c.foreignColumns.zip(ids))
-				entities.down(tpe, ci)
+				entities.down(tpe, ci, om)
 				val otmL = mapperDao.toEntities(fom, ftpe, entities)
 				entities.up
 				if (otmL.isEmpty) {

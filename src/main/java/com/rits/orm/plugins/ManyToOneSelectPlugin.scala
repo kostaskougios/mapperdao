@@ -28,7 +28,7 @@ class ManyToOneSelectPlugin(mapperDao: MapperDao) extends BeforeSelect {
 				val v = if (fo.isDefined) {
 					fo.get
 				} else {
-					entities.down(tpe, ci)
+					entities.down(tpe, ci, om)
 					val v = mapperDao.select(fe, foreignPKValues, entities).getOrElse(null)
 					entities.up
 					v

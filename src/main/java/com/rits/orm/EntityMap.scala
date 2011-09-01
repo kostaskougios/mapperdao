@@ -3,6 +3,7 @@ package com.rits.orm
 import scala.collection.mutable.HashMap
 import java.util.IdentityHashMap
 import scala.collection.immutable.Stack
+import com.rits.jdbc.JdbcMap
 
 /**
  * contains entities sorted via 2 keys: class and ids
@@ -34,12 +35,12 @@ protected class EntityMap {
 		if (im.isDefined) im.get.get(ids).asInstanceOf[Option[T]] else None
 	}
 
-	def down[PC, T, V, F](o: Type[PC, T], ci: ColumnInfoRelationshipBase[T, V, F]): Unit =
+	def down[PC, T, V, F](o: Type[PC, T], ci: ColumnInfoRelationshipBase[T, V, F], jdbcMap: JdbcMap): Unit =
 		{
-			stack = stack.push(SelectInfo(o, ci))
+			stack = stack.push(SelectInfo(o, ci, jdbcMap))
 		}
 
-	def peek[PC, T, V, F] = (if (stack.isEmpty) SelectInfo(null, null) else stack.top).asInstanceOf[SelectInfo[PC, T, V, F]]
+	def peek[PC, T, V, F] = (if (stack.isEmpty) SelectInfo(null, null, null) else stack.top).asInstanceOf[SelectInfo[PC, T, V, F]]
 
 	def up = stack = stack.pop
 
@@ -49,7 +50,7 @@ protected class EntityMap {
 
 	override def toString = "EntityMap(%s)".format(m.toString)
 }
-protected case class SelectInfo[PC, T, V, F](val tpe: Type[PC, T], val ci: ColumnInfoRelationshipBase[T, V, F])
+protected case class SelectInfo[PC, T, V, F](val tpe: Type[PC, T], val ci: ColumnInfoRelationshipBase[T, V, F], val jdbcMap: JdbcMap)
 
 protected class UpdateEntityMap {
 	private val m = new IdentityHashMap[Any, Any]
