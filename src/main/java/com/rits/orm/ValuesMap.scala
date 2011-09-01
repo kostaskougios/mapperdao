@@ -63,6 +63,25 @@ class ValuesMap(typeManager: TypeManager, protected[orm] var m: Map[String, Any]
 				case b: java.math.BigInteger => b.doubleValue
 			}
 		}
+
+	def bigDecimal[T, V](column: ColumnInfo[T, V]): BigDecimal =
+		{
+			val v = apply(column)
+			v match {
+				case d: Double => BigDecimal(d)
+				case b: java.math.BigDecimal => BigDecimal(b)
+			}
+		}
+
+	def bigInt[T, V](column: ColumnInfo[T, V]): BigInt =
+		{
+			val v = apply(column)
+			v match {
+				case i: Int => BigInt(i)
+				case l: Long => BigInt(l)
+			}
+		}
+
 	def boolean[T, V](column: ColumnInfo[T, V]): Boolean =
 		{
 			val v = apply(column)

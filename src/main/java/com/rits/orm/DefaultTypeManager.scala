@@ -16,7 +16,7 @@ class DefaultTypeManager extends TypeManager {
 	}
 
 	override def convert(o: Any): Any = o match {
-		case t: java.sql.Timestamp => new DateTime(t)
+		case t: java.util.Date => new DateTime(t)
 		case _ => o
 	}
 
