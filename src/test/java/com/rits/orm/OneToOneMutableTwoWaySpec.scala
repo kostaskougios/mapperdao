@@ -15,29 +15,6 @@ class OneToOneMutableTwoWaySpec extends SpecificationWithJUnit {
 
 	import mapperDao._
 
-	"from null to value" in {
-		createTables
-		val product = Product(1, null)
-		val inserted = insert(ProductEntity, product)
-		inserted.inventory = Inventory(inserted, 5)
-		val updated = update(ProductEntity, inserted)
-		updated.inventory must_== inserted.inventory
-		select(ProductEntity, inserted.id).get must_== updated
-
-		delete(ProductEntity, updated)
-		select(ProductEntity, updated.id) must beNone
-	}
-
-	"insert & select mutable" in {
-		createTables
-		val product = Product(1, Inventory(null, 5))
-		product.inventory.product = product
-		val inserted = insert(ProductEntity, product)
-		inserted must_== product
-		val selected = select(ProductEntity, inserted.id).get
-		selected must_== inserted
-	}
-
 	"CRUD mutable" in {
 		createTables
 		val product = Product(1, Inventory(null, 5))
@@ -51,6 +28,29 @@ class OneToOneMutableTwoWaySpec extends SpecificationWithJUnit {
 
 		delete(ProductEntity, selected)
 		select(ProductEntity, selected.id) must beNone
+	}
+
+	"insert & select mutable" in {
+		createTables
+		val product = Product(1, Inventory(null, 5))
+		product.inventory.product = product
+		val inserted = insert(ProductEntity, product)
+		inserted must_== product
+		val selected = select(ProductEntity, inserted.id).get
+		selected must_== inserted
+	}
+
+	"from null to value" in {
+		createTables
+		val product = Product(1, null)
+		val inserted = insert(ProductEntity, product)
+		inserted.inventory = Inventory(inserted, 5)
+		val updated = update(ProductEntity, inserted)
+		updated.inventory must_== inserted.inventory
+		select(ProductEntity, inserted.id).get must_== updated
+
+		delete(ProductEntity, updated)
+		select(ProductEntity, updated.id) must beNone
 	}
 
 	"update to null" in {
