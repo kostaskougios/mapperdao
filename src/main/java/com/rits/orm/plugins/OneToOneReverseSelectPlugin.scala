@@ -5,6 +5,7 @@ import com.rits.orm.MapperDao
 import com.rits.jdbc.JdbcMap
 import com.rits.orm.EntityMap
 import com.rits.orm.SelectInfo
+import com.rits.orm.ColumnInfoOneToOneReverse
 
 /**
  * @author kostantinos.kougios
@@ -19,7 +20,11 @@ class OneToOneReverseSelectPlugin(mapperDao: MapperDao) extends BeforeSelect {
 		{
 			val SelectInfo(parentTpe, parentCI, parentJdbcMap) = entities.peek
 			if (parentTpe != null) {
-				parentTpe.table.primaryKeys.map(c => parentJdbcMap(c.columnName))
+				parentCI match {
+					case _: ColumnInfoOneToOneReverse[_, _] =>
+						parentTpe.table.primaryKeys.map(c => parentJdbcMap(c.columnName))
+					case _ => Nil
+				}
 			} else Nil
 		}
 

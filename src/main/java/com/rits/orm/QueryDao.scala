@@ -27,7 +27,10 @@ class QueryDao(mapperDao: MapperDao) {
 			try {
 				sa = sqlAndArgs(qe)
 				val lm = jdbc.queryForList(sa.sql, sa.args)
-				mapperDao.toEntities(lm, typeRegistry.typeOf(qe.entity), new EntityMap)
+				val entityMap = new EntityMap
+				val v = mapperDao.toEntities(lm, typeRegistry.typeOf(qe.entity), entityMap)
+				entityMap.done
+				v
 			} catch {
 				case e =>
 					val extra = if (sa != null) "\n------\nThe query:%s\nThe arguments:%s\n------\n".format(sa.sql, sa.args) else "None"

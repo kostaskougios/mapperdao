@@ -267,17 +267,22 @@ final class MapperDao(val driver: Driver) {
 			val tpe = typeRegistry.typeOf(entity)
 			if (tpe.table.primaryKeys.size != ids.size) throw new IllegalStateException("Primary keys number dont match the number of parameters. Primary keys: %s".format(tpe.table.primaryKeys))
 
-			try {
-				val om = driver.doSelect(tpe, tpe.table.primaryKeys.map(_.column).zip(ids))
-				if (om.isEmpty) None
-				else if (om.size > 1) throw new IllegalStateException("expected 1 result for %s and ids %s, but got %d. Is the primary key column a primary key in the table?".format(clz.getSimpleName, ids, om.size))
-				else {
-					val l = toEntities(om, tpe, entities)
-					if (l.size != 1) throw new IllegalStateException("expected 1 object, but got %s".format(l))
-					Option(l.head)
+			val v = entities.get[T with PC](tpe.clz, ids)
+			if (v.isDefined) {
+				v
+			} else {
+				try {
+					val om = driver.doSelect(tpe, tpe.table.primaryKeys.map(_.column).zip(ids))
+					if (om.isEmpty) None
+					else if (om.size > 1) throw new IllegalStateException("expected 1 result for %s and ids %s, but got %d. Is the primary key column a primary key in the table?".format(clz.getSimpleName, ids, om.size))
+					else {
+						val l = toEntities(om, tpe, entities)
+						if (l.size != 1) throw new IllegalStateException("expected 1 object, but got %s".format(l))
+						Option(l.head)
+					}
+				} catch {
+					case e => throw new QueryException("An error occured during select of entity %s and primary keys %s".format(entity, ids), e)
 				}
-			} catch {
-				case e => throw new QueryException("An error occured during select of entity %s and primary keys %s".format(entity, ids), e)
 			}
 		}
 
