@@ -45,7 +45,9 @@ final class TypeRegistry(entities: List[Entity[_, _]]) {
 	 */
 	protected[orm] def entityOf[PC, T](clz: Class[T]): Entity[PC, T] =
 		{
-			types(clz).asInstanceOf[Entity[PC, T]]
+			val entity = types.getOrElse(clz, null)
+			if (entity == null) throw new IllegalStateException("entity not registered for " + clz)
+			entity.asInstanceOf[Entity[PC, T]]
 		}
 
 	protected[orm] def entityOfObject[PC, T](o: T): Entity[PC, T] =
