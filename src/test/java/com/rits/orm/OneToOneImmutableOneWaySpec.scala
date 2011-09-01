@@ -15,6 +15,16 @@ class OneToOneImmutableOneWaySpec extends SpecificationWithJUnit {
 
 	import mapperDao._
 
+	"crud for many objects" in {
+		createTables
+		for (i <- 1 to 4) {
+			val p = insert(ProductEntity, Product(i, Inventory(4 + i)))
+			val selected = select(ProductEntity, i).get
+			selected must_== p
+		}
+		success
+	}
+
 	"update to null" in {
 		createTables
 		val product = new Product(1, Inventory(10))
@@ -26,6 +36,9 @@ class OneToOneImmutableOneWaySpec extends SpecificationWithJUnit {
 		val reUpdated = update(ProductEntity, updated, Product(1, Inventory(8)))
 		reUpdated must_== Product(1, Inventory(8))
 		select(ProductEntity, reUpdated.id).get must_== reUpdated
+
+		delete(ProductEntity, reUpdated)
+		select(ProductEntity, reUpdated.id) must beNone
 	}
 
 	"update" in {

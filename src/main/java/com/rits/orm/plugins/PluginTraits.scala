@@ -65,5 +65,6 @@ trait PostUpdate {
  * 31 Aug 2011
  */
 trait BeforeSelect {
+	def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any]
 	def before[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): Unit
 }

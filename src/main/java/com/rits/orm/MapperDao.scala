@@ -255,7 +255,10 @@ final class MapperDao(val driver: Driver) {
 
 	def select[PC, T](entity: Entity[PC, T], ids: List[Any]): Option[T with PC] =
 		{
-			select(entity, ids, new EntityMap)
+			val entityMap = new EntityMap
+			val v = select(entity, ids, entityMap)
+			entityMap.done
+			v
 		}
 
 	private[orm] def select[PC, T](entity: Entity[PC, T], ids: List[Any], entities: EntityMap): Option[T with PC] =
@@ -283,7 +286,9 @@ final class MapperDao(val driver: Driver) {
 		mods ++= om.map
 		val table = tpe.table
 		// calculate the id's for this tpe
-		val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+		val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) } ::: selectBeforePlugins.map { plugin =>
+			plugin.idContribution(tpe, om, entities, mods)
+		}.flatten
 		val entity = entities.get[T with PC](tpe.clz, ids)
 		if (entity.isDefined) {
 			entity.get

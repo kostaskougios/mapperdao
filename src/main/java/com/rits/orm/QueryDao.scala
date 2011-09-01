@@ -30,8 +30,8 @@ class QueryDao(mapperDao: MapperDao) {
 				mapperDao.toEntities(lm, typeRegistry.typeOf(qe.entity), new EntityMap)
 			} catch {
 				case e =>
-					val extra = if (sa != null) "\nThe query:%s\nThe arguments:%s".format(sa.sql, sa.args) else ""
-					val msg = "An error occured during execution of query %s.%s\n".format(qe, extra, e.getMessage)
+					val extra = if (sa != null) "\n------\nThe query:%s\nThe arguments:%s\n------\n".format(sa.sql, sa.args) else "None"
+					val msg = "An error occured during execution of query %s.\nQuery Information:%s\nIssue:\n%s".format(qe, extra, e.getMessage)
 					throw new QueryException(msg, e)
 			}
 		}
@@ -60,6 +60,8 @@ class QueryDao(mapperDao: MapperDao) {
 								sb append driver.oneToManyJoin(aliases, joinEntity, foreignEntity, oneToMany)
 							case manyToMany: ManyToMany[_] =>
 								sb append driver.manyToManyJoin(aliases, joinEntity, foreignEntity, manyToMany)
+							case oneToOneReverse: OneToOneReverse[_] =>
+								sb append driver.oneToOneReverseJoin(aliases, joinEntity, foreignEntity, oneToOneReverse)
 						}
 				}
 			} else {

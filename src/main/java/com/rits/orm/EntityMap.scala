@@ -14,6 +14,7 @@ import scala.collection.immutable.Stack
 protected class EntityMap {
 	type InnerMap = HashMap[List[Any], AnyRef]
 	private val m = HashMap[Class[_], InnerMap]()
+	private var stack = Stack[SelectInfo[_, _, _, _]]()
 
 	def put[T](clz: Class[_], ids: List[Any], entity: T): Unit =
 		{
@@ -33,8 +34,22 @@ protected class EntityMap {
 		if (im.isDefined) im.get.get(ids).asInstanceOf[Option[T]] else None
 	}
 
+	def down[PC, T, V, F](o: Type[PC, T], ci: ColumnInfoRelationshipBase[T, V, F]): Unit =
+		{
+			stack = stack.push(SelectInfo(o, ci))
+		}
+
+	def peek[PC, T, V, F] = (if (stack.isEmpty) SelectInfo(null, null) else stack.top).asInstanceOf[SelectInfo[PC, T, V, F]]
+
+	def up = stack = stack.pop
+
+	def done {
+		if (!stack.isEmpty) throw new InternalError("stack should be empty but is " + stack)
+	}
+
 	override def toString = "EntityMap(%s)".format(m.toString)
 }
+protected case class SelectInfo[PC, T, V, F](val tpe: Type[PC, T], val ci: ColumnInfoRelationshipBase[T, V, F])
 
 protected class UpdateEntityMap {
 	private val m = new IdentityHashMap[Any, Any]

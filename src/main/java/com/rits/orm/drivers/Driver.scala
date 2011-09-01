@@ -249,11 +249,28 @@ trait Driver {
 			sb.toString
 		}
 
+	// creates the join for one-to-one-reverse
+	def oneToOneReverseJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], oneToOneReverse: OneToOneReverse[_]): String =
+		{
+			val tpe = typeRegistry.typeOf(joinEntity)
+			val table = tpe.table
+			val foreignTpe = typeRegistry.typeOf(foreignEntity)
+			val foreignTable = foreignTpe.table
+			val fAlias = aliases(foreignEntity)
+			val jAlias = aliases(joinEntity)
+
+			val sb = new StringBuilder
+			sb append "\njoin " append foreignTable.name append " " append fAlias append " on "
+			(table.primaryKeys zip oneToOneReverse.foreignColumns).foreach { t =>
+				sb append jAlias append "." append t._1.columnName append " = " append fAlias append "." append t._2.columnName append " "
+			}
+			sb.toString
+		}
+
 	// creates the join for many-to-one
 	def manyToOneJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], manyToOne: ManyToOne[_]): String =
 		{
 			val foreignTpe = typeRegistry.typeOf(foreignEntity)
-
 			val foreignTable = foreignTpe.table
 			val fAlias = aliases(foreignEntity)
 			val jAlias = aliases(joinEntity)
