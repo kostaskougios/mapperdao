@@ -22,6 +22,7 @@ class OneToOneReverseSelectPlugin(mapperDao: MapperDao) extends BeforeSelect {
 			if (parentTpe != null) {
 				parentCI match {
 					case _: ColumnInfoOneToOneReverse[_, _] =>
+						// we need to contribute the parent's id's to the entity's id 
 						parentTpe.table.primaryKeys.map(c => parentJdbcMap(c.columnName))
 					case _ => Nil
 				}
