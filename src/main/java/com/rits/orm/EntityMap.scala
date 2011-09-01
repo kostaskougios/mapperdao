@@ -75,6 +75,14 @@ protected class UpdateEntityMap {
 	def done {
 		if (!stack.isEmpty) throw new InternalError("stack should be empty but is " + stack)
 	}
+
+	def toErrorStr = {
+		val sb = new StringBuilder
+		stack.foreach { u =>
+			sb append u.o append ('\n')
+		}
+		sb.toString
+	}
 }
 
 protected case class UpdateInfo[T, V, F](val o: T, val ci: ColumnInfoRelationshipBase[T, V, F])

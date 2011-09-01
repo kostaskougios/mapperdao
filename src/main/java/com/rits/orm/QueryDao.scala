@@ -108,6 +108,9 @@ object QueryDao {
 					entity.columns.foreach { ci =>
 						aliases.put(ci.column, v)
 					}
+					entity.persistedColumns.foreach { ci =>
+						aliases.put(ci.column, v)
+					}
 					v
 				}
 			}

@@ -122,7 +122,9 @@ final class MapperDao(val driver: Driver) {
 				entityMap.done
 				v
 			} catch {
-				case e => throw new PersistException("An error occured during insert of entity %s with value %s".format(entity, o), e)
+				case e =>
+					val stack = entityMap.toErrorStr
+					throw new PersistException("An error occured during insert of entity %s with value %s.\nUpdate stack (top is more recent):\n%s".format(entity, o, stack), e)
 			}
 		}
 

@@ -68,6 +68,7 @@ class ValuesMap(typeManager: TypeManager, protected[orm] var m: Map[String, Any]
 		{
 			val v = apply(column)
 			v match {
+				case bd: BigDecimal => bd
 				case d: Double => BigDecimal(d)
 				case b: java.math.BigDecimal => BigDecimal(b)
 			}
@@ -77,6 +78,7 @@ class ValuesMap(typeManager: TypeManager, protected[orm] var m: Map[String, Any]
 		{
 			val v = apply(column)
 			v match {
+				case i: BigInt => i
 				case i: Int => BigInt(i)
 				case l: Long => BigInt(l)
 			}
