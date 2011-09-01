@@ -64,6 +64,7 @@ object Query {
 			joins ::= j.asInstanceOf[Join[Any, Any, Entity[_, _], PC, T]]
 			j
 		}
+		override def toString = "select from %s join %s where %s".format(entity, joins, wheres)
 	}
 
 	protected[orm] class Join[T, F, E <: Entity[_, _], QPC, QT](queryEntity: QueryEntity[QPC, QT]) {
@@ -122,6 +123,8 @@ object Query {
 			queryEntity.wheres ::= qe
 			qe
 		}
+
+		override def toString = "QueryExpressions(%s)".format(clauses)
 	}
 }
 

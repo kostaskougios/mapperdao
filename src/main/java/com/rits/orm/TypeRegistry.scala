@@ -29,7 +29,12 @@ final class TypeRegistry(entities: List[Entity[_, _]]) {
 		types = typesBuilder.result
 		entityToType = entityToTypeBuilder.result
 	}
-	def typeOf[PC, T](entity: Entity[PC, T]): Type[PC, T] = entityToType(entity).asInstanceOf[Type[PC, T]]
+	def typeOf[PC, T](entity: Entity[PC, T]): Type[PC, T] =
+		{
+			val e = entityToType.getOrElse(entity, null)
+			if (e == null) throw new IllegalStateException("can't find entity's type, is entity %s registered?".format(entity))
+			e.asInstanceOf[Type[PC, T]]
+		}
 	def typeOf[PC, T](clz: Class[T]): Type[PC, T] = entityToType(entityOf(clz)).asInstanceOf[Type[PC, T]]
 	def typeOf[PC, T](column: ColumnBase): Type[PC, T] = entityToType(entityOf(column)).asInstanceOf[Type[PC, T]]
 	def typeOfObject[PC, T](o: T): Type[PC, T] = entityToType(entityOfObject(o)).asInstanceOf[Type[PC, T]]
