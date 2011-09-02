@@ -7,8 +7,10 @@ import com.rits.orm.TypeRegistry
 import com.rits.orm.DefaultTypeManager
 import com.rits.orm.QueryDao
 import com.rits.orm.drivers.Mysql
-
 import org.scala_tools.time.Imports._
+import org.slf4j.LoggerFactory
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
 
 /**
  * creates an environment for specs
@@ -18,6 +20,8 @@ import org.scala_tools.time.Imports._
  * 31 Jul 2011
  */
 object Setup {
+	private val logger: Logger = LoggerFactory.getLogger(getClass)
+
 	val typeManager = new DefaultTypeManager
 	def database = {
 		val d = System.getProperty("database")
@@ -30,6 +34,7 @@ object Setup {
 	def setupJdbc: Jdbc =
 		{
 			val properties = new Properties
+			logger.debug("connecting to %s".format(database))
 			properties.load(getClass.getResourceAsStream("/jdbc.test.%s.properties".format(database)))
 			val dataSource = BasicDataSourceFactory.createDataSource(properties)
 			new Jdbc(dataSource, typeManager)

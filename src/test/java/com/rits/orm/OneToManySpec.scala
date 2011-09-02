@@ -168,19 +168,34 @@ class OneToManySpec extends SpecificationWithJUnit {
 			)
 		""")
 
-		jdbc.update("drop table if exists JobPosition cascade")
-		jdbc.update("""
-			create table JobPosition (
-				id int not null,
-				name varchar(100) not null,
-				start timestamp with time zone,
-				"end" timestamp with time zone,
-				rank int not null,
-				person_id int not null,
-				primary key (id),
-				constraint FK_JobPosition_Person foreign key (person_id) references Person(id) on delete cascade on update cascade
-			)
-		""")
+		Setup.database match {
+			case "postgresql" =>
+				jdbc.update("drop table if exists JobPosition cascade")
+				jdbc.update("""
+					create table JobPosition (
+						id int not null,
+						name varchar(100) not null,
+						start timestamp with time zone,
+						"end" timestamp with time zone,
+						rank int not null,
+						person_id int not null,
+						primary key (id),
+						constraint FK_JobPosition_Person foreign key (person_id) references Person(id) on delete cascade on update cascade
+					)""")
+			case "mysql" =>
+				jdbc.update("drop table if exists JobPosition cascade")
+				jdbc.update("""
+					create table JobPosition (
+						id int not null,
+						name varchar(100) not null,
+						start datetime,
+						end datetime,
+						rank int not null,
+						person_id int not null,
+						primary key (id),
+						constraint FK_JobPosition_Person foreign key (person_id) references Person(id) on delete cascade on update cascade
+					)""")
+		}
 		jdbc.update("drop table if exists House cascade")
 		jdbc.update("""
 			create table House (
