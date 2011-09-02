@@ -1,7 +1,6 @@
 package com.rits.orm
 
 import org.specs2.mutable.SpecificationWithJUnit
-import com.rits.jdbc.Jdbc
 import com.rits.jdbc.Setup
 import org.scala_tools.time.Imports._
 
@@ -69,7 +68,7 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 	"transaction, commit" in {
 		createJobPositionTable
 
-		import com.rits.jdbc.Transaction
+		import com.googlecode.mapperdao.jdbc.Transaction
 		import Transaction._
 		val txManager = Transaction.transactionManager(jdbc)
 		val tx = Transaction.get(txManager, Propagation.Nested, Isolation.Serializable, -1)
@@ -86,7 +85,7 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 	"transaction, rollback" in {
 		createJobPositionTable
 
-		import com.rits.jdbc.Transaction
+		import com.googlecode.mapperdao.jdbc.Transaction
 		import Transaction._
 		val txManager = Transaction.transactionManager(jdbc)
 		val tx = Transaction.get(txManager, Propagation.Nested, Isolation.Serializable, -1)

@@ -1,6 +1,5 @@
 package com.rits.orm
 import org.specs2.mutable.SpecificationWithJUnit
-import com.rits.jdbc.Jdbc
 import com.rits.jdbc.Setup
 
 /**

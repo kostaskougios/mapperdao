@@ -2,7 +2,6 @@ package com.rits.orm
 
 import org.specs2.mutable.SpecificationWithJUnit
 import org.specs2.matcher.MatchResult
-import com.rits.jdbc.Jdbc
 import com.rits.jdbc.Setup
 /**
  * @author kostantinos.kougios

@@ -3,6 +3,8 @@ package com.rits.jdbc
 import org.specs2.mutable.SpecificationWithJUnit
 import org.specs2.specification.BeforeExample
 
+import com.googlecode.mapperdao.jdbc.Transaction
+
 /**
  * @author kostantinos.kougios
  *
