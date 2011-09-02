@@ -1,5 +1,5 @@
 package com.rits.orm.drivers
-import com.rits.jdbc.Jdbc
+import com.googlecode.mapperdao.jdbc.Jdbc
 import com.rits.orm.TypeRegistry
 
 /**

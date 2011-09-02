@@ -4,6 +4,7 @@ import com.rits.jdbc._
 import com.rits.orm._
 import com.rits.orm.drivers._
 import javax.sql.DataSource
+import com.googlecode.mapperdao.jdbc.Jdbc
 /**
  * a factory for simple configuration of mapperdao
  *

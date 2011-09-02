@@ -6,7 +6,7 @@ import com.rits.orm.Type
 import com.rits.orm.Column
 import com.rits.orm.UpdateInfo
 import com.rits.orm.Persisted
-import com.rits.jdbc.JdbcMap
+import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.rits.orm.EntityMap
 
 /**

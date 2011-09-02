@@ -3,10 +3,11 @@ package com.rits.orm
 import scala.collection.mutable.HashMap
 import java.util.IdentityHashMap
 import scala.collection.immutable.Stack
-import com.rits.jdbc.JdbcMap
+import com.googlecode.mapperdao.jdbc.JdbcMap
 
 /**
- * contains entities sorted via 2 keys: class and ids
+ * contains entities sorimport com.googlecode.mapperdao.jdbc.JdbcMap
+ * ted via 2 keys: class and ids
  *
  * @author kostantinos.kougios
  *

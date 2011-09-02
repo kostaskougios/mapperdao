@@ -1,8 +1,8 @@
 package com.rits.orm.drivers
-import com.rits.jdbc.Jdbc
 import com.rits.orm.TypeRegistry
 import com.rits.orm.ColumnBase
-import com.rits.jdbc.UpdateResultWithGeneratedKeys
+import com.googlecode.mapperdao.jdbc.UpdateResultWithGeneratedKeys
+import com.googlecode.mapperdao.jdbc.Jdbc
 
 /**
  * @author kostantinos.kougios

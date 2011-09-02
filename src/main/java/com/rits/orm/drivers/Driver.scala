@@ -1,9 +1,9 @@
 package com.rits.orm.drivers
 import com.rits.orm._
-import com.rits.jdbc.Jdbc
-import com.rits.jdbc.JdbcMap
-import com.rits.jdbc.UpdateResultWithGeneratedKeys
-import com.rits.jdbc.UpdateResult
+import com.googlecode.mapperdao.jdbc.JdbcMap
+import com.googlecode.mapperdao.jdbc.UpdateResultWithGeneratedKeys
+import com.googlecode.mapperdao.jdbc.Jdbc
+import com.googlecode.mapperdao.jdbc.UpdateResult
 /**
  * all database drivers must implement this trait
  *

@@ -1,9 +1,7 @@
 package com.rits.orm
 
-import com.rits.jdbc.Jdbc
 import com.rits.orm.drivers.Driver
 import scala.collection.mutable.HashMap
-import com.rits.jdbc.JdbcMap
 import com.rits.orm.exceptions.PersistException
 import com.rits.orm.exceptions.QueryException
 import com.rits.orm.plugins.OneToManyUpdatePlugin
@@ -28,11 +26,13 @@ import com.rits.orm.plugins.OneToOneSelectPlugin
 import com.rits.orm.plugins.ManyToManySelectPlugin
 import com.rits.orm.plugins.DuringUpdateResults
 import com.rits.orm.plugins.OneToOneUpdatePlugin
+import com.googlecode.mapperdao.jdbc.JdbcMap
 
 /**
  * @author kostantinos.kougios
  *
  * 13 Jul 2011
+ * import com.googlecode.mapperdao.jdbc.JdbcMap
  */
 final class MapperDao(val driver: Driver) {
 	val typeRegistry = driver.typeRegistry

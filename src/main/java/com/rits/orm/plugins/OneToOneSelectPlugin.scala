@@ -2,7 +2,7 @@ package com.rits.orm.plugins
 
 import com.rits.orm.Type
 import com.rits.orm.MapperDao
-import com.rits.jdbc.JdbcMap
+import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.rits.orm.EntityMap
 
 /**
