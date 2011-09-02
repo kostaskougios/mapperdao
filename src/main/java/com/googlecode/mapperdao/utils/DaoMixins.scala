@@ -1,4 +1,4 @@
-package com.rits.orm.utils
+package com.googlecode.mapperdao.utils
 import com.rits.orm.MapperDao
 import com.rits.orm.Entity
 import com.rits.orm.QueryDao

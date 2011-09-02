@@ -1,4 +1,4 @@
-package com.rits.orm.utils
+package com.googlecode.mapperdao.utils
 import org.specs2.mutable.SpecificationWithJUnit
 import com.rits.orm.ValuesMap
 import com.rits.orm.DefaultTypeManager

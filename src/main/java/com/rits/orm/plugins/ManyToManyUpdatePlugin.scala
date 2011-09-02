@@ -5,7 +5,7 @@ import com.rits.orm.MapperDao
 import com.rits.orm.ValuesMap
 import com.rits.orm.UpdateEntityMap
 import com.rits.orm.Persisted
-import com.rits.orm.utils.MapOfList
+import com.googlecode.mapperdao.utils.MapOfList
 
 /**
  * @author kostantinos.kougios

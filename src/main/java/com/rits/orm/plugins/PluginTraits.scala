@@ -1,5 +1,5 @@
 package com.rits.orm.plugins
-import com.rits.orm.utils.MapOfList
+import com.googlecode.mapperdao.utils.MapOfList
 import com.rits.orm.ValuesMap
 import com.rits.orm.UpdateEntityMap
 import com.rits.orm.Type

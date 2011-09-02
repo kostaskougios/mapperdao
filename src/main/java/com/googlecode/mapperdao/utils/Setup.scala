@@ -1,4 +1,4 @@
-package com.rits.orm.utils
+package com.googlecode.mapperdao.utils
 
 import com.rits.orm._
 import com.rits.orm.drivers._

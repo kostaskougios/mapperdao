@@ -2,7 +2,7 @@ package com.rits.orm
 import scala.collection.mutable.Buffer
 import java.util.Calendar
 import org.joda.time.DateTime
-import com.rits.orm.utils.ISet
+import com.googlecode.mapperdao.utils.ISet
 
 /**
  * @author kostantinos.kougios

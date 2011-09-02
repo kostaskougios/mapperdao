@@ -6,7 +6,7 @@ import com.rits.orm.exceptions.PersistException
 import com.rits.orm.exceptions.QueryException
 import com.rits.orm.plugins.OneToManyUpdatePlugin
 import com.rits.orm.plugins.PostUpdate
-import com.rits.orm.utils.MapOfList
+import com.googlecode.mapperdao.utils.MapOfList
 import com.rits.orm.plugins.OneToOneReverseUpdatePlugin
 import com.rits.orm.plugins.ManyToManyUpdatePlugin
 import com.rits.orm.plugins.DuringUpdate

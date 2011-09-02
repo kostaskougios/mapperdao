@@ -1,4 +1,4 @@
-package com.rits.orm.utils
+package com.googlecode.mapperdao.utils
 import scala.collection.mutable.HashMap
 
 /**

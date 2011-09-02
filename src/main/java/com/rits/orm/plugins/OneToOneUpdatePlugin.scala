@@ -5,7 +5,7 @@ import com.rits.orm.Type
 import com.rits.orm.MapperDao
 import com.rits.orm.Column
 import com.rits.orm.Persisted
-import com.rits.orm.utils.MapOfList
+import com.googlecode.mapperdao.utils.MapOfList
 
 /**
  * @author kostantinos.kougios

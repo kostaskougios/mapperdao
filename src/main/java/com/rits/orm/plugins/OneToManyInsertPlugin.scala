@@ -1,7 +1,7 @@
 package com.rits.orm.plugins
 
 import com.rits.orm.MapperDao
-import com.rits.orm.utils.MapOfList
+import com.googlecode.mapperdao.utils.MapOfList
 import com.rits.orm.UpdateEntityMap
 import com.rits.orm.Type
 import com.rits.orm.Column
