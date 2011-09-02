@@ -291,7 +291,9 @@ final class MapperDao(val driver: Driver) {
 		{
 			val clz = entity.clz
 			val tpe = typeRegistry.typeOf(entity)
-			if (tpe.table.primaryKeys.size != ids.size) throw new IllegalStateException("Primary keys number dont match the number of parameters. Primary keys: %s".format(tpe.table.primaryKeys))
+			if (tpe.table.primaryKeys.size != ids.size) {
+				throw new IllegalStateException("Primary keys number dont match the number of parameters. Primary keys: %s".format(tpe.table.primaryKeys))
+			}
 
 			val v = entities.get[T with PC](tpe.clz, ids)
 			if (v.isDefined) {

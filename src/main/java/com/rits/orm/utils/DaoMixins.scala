@@ -47,6 +47,7 @@ trait CRUD[PC, T, PK] {
 
 trait IntIdCRUD[T] extends CRUD[IntId, T, Int]
 trait LongIdCRUD[T] extends CRUD[LongId, T, Int]
+trait SimpleCRUD[T, PK] extends CRUD[AnyRef, T, PK]
 
 trait All[PC, T] {
 	val queryDao: QueryDao
@@ -58,3 +59,4 @@ trait All[PC, T] {
 
 trait IntIdAll[T] extends All[IntId, T]
 trait LongIdAll[T] extends All[LongId, T]
+trait SimpleAll[T] extends All[AnyRef, T]
