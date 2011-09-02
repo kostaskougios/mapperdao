@@ -4,6 +4,36 @@
 	<artifactId>mapperdao</artifactId>
 	<packaging>jar</packaging>
 	<version>0.5</version>
+	<name>mapperdao</name>
+	<description><![CDATA[
+	MapperDao is an ORM library for the scala language. It allows
+    * a clean domain model
+    * no references to mapperdao outside of dao classes
+    * no special rules or restrictions for entities. No reference to mapperdao within entities, no annotations necessary.
+    * promotes and encourages immutability for the domain classes
+    * the library is not based on reflection
+    * type safe
+    * DSL for queries which resembles typical select statements. Minimal learning curve.
+    * uses spring's JdbcTemplate for low level database access, taking advantage of the api but without the need for mapperdao to be used within spring framework. Connecting to databases, transactions etc can be configured without (and ofcourse within) spring. MapperDao is spring friendly and all spring's database related features can be used when creating dao's with mapperdao.
+    * postgresql & mysql support, oracle support to be available soon
+    * uses joda datetime (immutable date & time classes) to manage datetimes but java.util.Calendar is also supported 
+    ]]></description>
+	<url>https://code.google.com/p/mapperdao/</url>
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0</url>
+		</license>
+	</licenses>
+	<scm>
+		<connection>scm:svn:https://mapperdao.googlecode.com/svn/trunk/</connection>
+		<developerConnection>scm:svn:https://mapperdao.googlecode.com/svn/trunk/</developerConnection>
+		<url>https://code.google.com/p/mapperdao/source/browse/</url>
+	</scm>
+	<issueManagement>
+		<system>Google Code</system>
+		<url>https://code.google.com/p/mapperdao/issues/list</url>
+	</issueManagement>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring.version>3.0.6.RELEASE</spring.version>
