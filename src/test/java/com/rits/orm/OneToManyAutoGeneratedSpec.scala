@@ -1,7 +1,7 @@
 package com.rits.orm
 
 import org.specs2.mutable.SpecificationWithJUnit
-import com.rits.jdbc.Setup
+import com.googlecode.mapperdao.jdbc.Setup
 
 /**
  * this spec is self contained, all entities, mapping are contained in this class

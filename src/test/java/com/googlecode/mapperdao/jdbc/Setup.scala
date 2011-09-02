@@ -1,8 +1,7 @@
-package com.rits.jdbc
+package com.googlecode.mapperdao.jdbc
 import java.util.Properties
 import org.apache.commons.dbcp.BasicDataSourceFactory
 
-import com.googlecode.mapperdao.jdbc.Jdbc
 import com.rits.orm.drivers.PostgreSql
 import com.rits.orm.MapperDao
 import com.rits.orm.TypeRegistry
