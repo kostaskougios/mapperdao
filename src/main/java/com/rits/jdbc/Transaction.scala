@@ -13,7 +13,11 @@ import org.springframework.transaction.support.DefaultTransactionDefinition
  *
  * This class uses the spring-jdbc transaction capability, which is very
  * easy to use and robust. This is just a wrapper to simplify transaction
- * management for apps that don't use the spring framework
+ * management for apps that don't use the spring framework.
+ *
+ * 1 instance can be reused and it is thread safe. Typically you can
+ * create the instance using the companion object's get() or default()
+ * methods
  *
  * @author kostantinos.kougios
  *
