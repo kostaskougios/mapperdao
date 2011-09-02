@@ -20,7 +20,7 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 	"immutable update" in {
 		createJobPositionTable
 
-		val date = DateTime.now
+		val date = DateTime.now.withMillisOfSecond(0)
 		val jp = new JobPosition(5, "Developer", date, date - 2.months, 10)
 		val inserted = mapperDao.insert(JobPositionEntity, jp)
 
@@ -41,7 +41,7 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 
 		createJobPositionTable
 
-		val date = DateTime.now
+		val date = DateTime.now.withMillisOfSecond(0)
 		val jp = new JobPosition(5, "Developer", date, date, 10)
 		mapperDao.insert(JobPositionEntity, jp) must_== jp
 
@@ -74,7 +74,7 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 		val tx = Transaction.get(txManager, Propagation.Nested, Isolation.Serializable, -1)
 
 		val inserted = tx { () =>
-			val date = DateTime.now
+			val date = DateTime.now.withMillisOfSecond(0)
 			val inserted = mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date - 2.months, 10))
 			mapperDao.select(JobPositionEntity, inserted.id).get must_== inserted
 			inserted
@@ -92,7 +92,7 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 
 		try {
 			tx { () =>
-				val date = DateTime.now
+				val date = DateTime.now.withMillisOfSecond(0)
 				val inserted = mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date - 2.months, 10))
 				mapperDao.select(JobPositionEntity, inserted.id).get must_== inserted
 				throw new IllegalStateException
@@ -104,17 +104,30 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 	}
 
 	def createJobPositionTable {
-		jdbc.update("drop table if exists JobPosition cascade")
-		jdbc.update("""
-			create table JobPosition (
-				id int not null,
-				name varchar(100) not null,
-				start timestamp with time zone,
-				"end" timestamp with time zone,
-				rank int not null,
-				primary key (id)
-			)
-		""")
+		Setup.database match {
+			case "postgresql" =>
+				jdbc.update("drop table if exists JobPosition cascade")
+				jdbc.update("""
+					create table JobPosition (
+					id int not null,
+					name varchar(100) not null,
+					start timestamp with time zone,
+					"end" timestamp with time zone,
+					rank int not null,
+					primary key (id)
+				)""")
+			case "mysql" =>
+				jdbc.update("drop table if exists JobPosition cascade")
+				jdbc.update("""
+					create table JobPosition (
+					id int not null,
+					name varchar(100) not null,
+					start datetime,
+					end datetime,
+					rank int not null,
+					primary key (id)
+				) engine InnoDB""")
+		}
 	}
 }
 

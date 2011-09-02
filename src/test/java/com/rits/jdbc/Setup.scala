@@ -6,6 +6,7 @@ import com.rits.orm.MapperDao
 import com.rits.orm.TypeRegistry
 import com.rits.orm.DefaultTypeManager
 import com.rits.orm.QueryDao
+import com.rits.orm.drivers.Mysql
 
 /**
  * creates an environment for specs
@@ -16,10 +17,15 @@ import com.rits.orm.QueryDao
  */
 object Setup {
 	val typeManager = new DefaultTypeManager
+	def database = {
+		val d = System.getProperty("database")
+		if (d == null) throw new IllegalStateException("please define database via -Ddatabase=postgresql")
+		d
+	}
 	def setupJdbc: Jdbc =
 		{
 			val properties = new Properties
-			properties.load(getClass.getResourceAsStream("/jdbc.test.properties"))
+			properties.load(getClass.getResourceAsStream("/jdbc.test.%s.properties".format(database)))
 			val dataSource = BasicDataSourceFactory.createDataSource(properties)
 			new Jdbc(dataSource, typeManager)
 		}
@@ -27,7 +33,11 @@ object Setup {
 	def setupMapperDao(typeRegistry: TypeRegistry): (Jdbc, MapperDao) =
 		{
 			val jdbc = setupJdbc
-			val mapperDao = new MapperDao(new PostgreSql(jdbc, typeRegistry))
+			val driver = database match {
+				case "postgresql" => new PostgreSql(jdbc, typeRegistry)
+				case "mysql" => new Mysql(jdbc, typeRegistry)
+			}
+			val mapperDao = new MapperDao(driver)
 			(jdbc, mapperDao)
 		}
 
