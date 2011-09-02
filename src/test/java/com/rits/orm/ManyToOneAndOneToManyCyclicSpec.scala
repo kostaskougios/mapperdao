@@ -54,14 +54,14 @@ class ManyToOneAndOneToManyCyclicSpec extends SpecificationWithJUnit {
 
 			jdbc.update("""
 					create table Company (
-						id serial not null,
+						id int not null,
 						name varchar(100) not null,
 						primary key(id)
 					)
 			""")
 			jdbc.update("""
 					create table Person (
-						id serial not null,
+						id int not null,
 						name varchar(100) not null,
 						company_id int,
 						primary key(id),

@@ -89,6 +89,8 @@ class ValuesMap(typeManager: TypeManager, protected[orm] var m: scala.collection
 				case i: Int => i
 				case l: Long => l.toInt
 				case s: Short => s.toInt
+				case b: BigInt => b.toInt
+				case b: java.math.BigInteger => b.intValue
 				case null => 0
 			}
 		}
@@ -100,6 +102,8 @@ class ValuesMap(typeManager: TypeManager, protected[orm] var m: scala.collection
 				case l: Long => l
 				case i: Int => i.toLong
 				case s: Short => s.toLong
+				case b: BigInt => b.toLong
+				case b: java.math.BigInteger => b.longValue
 				case null => 0
 			}
 		}
