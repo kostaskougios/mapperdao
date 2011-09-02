@@ -1,6 +1,5 @@
 package com.rits.orm.utils
 
-import com.rits.jdbc._
 import com.rits.orm._
 import com.rits.orm.drivers._
 import javax.sql.DataSource
