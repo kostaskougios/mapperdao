@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.utils
 import org.specs2.mutable.SpecificationWithJUnit
-import com.rits.orm.ValuesMap
-import com.rits.orm.DefaultTypeManager
+import com.googlecode.mapperdao.ValuesMap
+import com.googlecode.mapperdao.DefaultTypeManager
 import scala.collection.mutable.HashMap
 /**
  * @author kostantinos.kougios

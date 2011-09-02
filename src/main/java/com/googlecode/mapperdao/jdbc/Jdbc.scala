@@ -14,7 +14,7 @@ import java.util.Calendar
 import java.util.GregorianCalendar
 import org.slf4j.LoggerFactory
 import org.slf4j.Logger
-import com.rits.orm.TypeManager
+import com.googlecode.mapperdao.TypeManager
 import org.springframework.jdbc.core.PreparedStatementCreatorFactory
 import org.springframework.jdbc.support.KeyHolder
 import org.springframework.jdbc.core.PreparedStatementCreator

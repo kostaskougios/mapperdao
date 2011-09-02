@@ -1,5 +1,6 @@
 package com.googlecode.mapperdao.utils
-import com.rits.orm.ValuesMap
+
+import com.googlecode.mapperdao.ValuesMap
 
 /**
  * immutable set that is mutable within orm package :)

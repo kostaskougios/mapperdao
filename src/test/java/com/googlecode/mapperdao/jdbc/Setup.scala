@@ -2,12 +2,12 @@ package com.googlecode.mapperdao.jdbc
 import java.util.Properties
 import org.apache.commons.dbcp.BasicDataSourceFactory
 
-import com.rits.orm.drivers.PostgreSql
-import com.rits.orm.MapperDao
-import com.rits.orm.TypeRegistry
-import com.rits.orm.DefaultTypeManager
-import com.rits.orm.QueryDao
-import com.rits.orm.drivers.Mysql
+import com.googlecode.mapperdao.drivers.PostgreSql
+import com.googlecode.mapperdao.MapperDao
+import com.googlecode.mapperdao.TypeRegistry
+import com.googlecode.mapperdao.DefaultTypeManager
+import com.googlecode.mapperdao.QueryDao
+import com.googlecode.mapperdao.drivers.Mysql
 import org.scala_tools.time.Imports._
 import org.slf4j.LoggerFactory
 import org.slf4j.LoggerFactory

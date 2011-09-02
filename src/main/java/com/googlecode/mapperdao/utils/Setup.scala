@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.utils
 
-import com.rits.orm._
-import com.rits.orm.drivers._
+import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.drivers._
 import javax.sql.DataSource
 import com.googlecode.mapperdao.jdbc.Jdbc
 /**

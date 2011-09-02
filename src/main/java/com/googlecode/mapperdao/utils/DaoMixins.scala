@@ -1,10 +1,11 @@
 package com.googlecode.mapperdao.utils
-import com.rits.orm.MapperDao
-import com.rits.orm.Entity
-import com.rits.orm.QueryDao
-import com.rits.orm.Query
-import com.rits.orm.IntId
-import com.rits.orm.LongId
+
+import com.googlecode.mapperdao.MapperDao
+import com.googlecode.mapperdao.Entity
+import com.googlecode.mapperdao.QueryDao
+import com.googlecode.mapperdao.Query
+import com.googlecode.mapperdao.IntId
+import com.googlecode.mapperdao.LongId
 /**
  * mixin to add CRUD methods to a dao
  *
