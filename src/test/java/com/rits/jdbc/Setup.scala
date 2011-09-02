@@ -8,6 +8,8 @@ import com.rits.orm.DefaultTypeManager
 import com.rits.orm.QueryDao
 import com.rits.orm.drivers.Mysql
 
+import org.scala_tools.time.Imports._
+
 /**
  * creates an environment for specs
  *
@@ -22,6 +24,9 @@ object Setup {
 		if (d == null) throw new IllegalStateException("please define database via -Ddatabase=postgresql")
 		d
 	}
+
+	def now = DateTime.now.withMillisOfSecond(0)
+
 	def setupJdbc: Jdbc =
 		{
 			val properties = new Properties

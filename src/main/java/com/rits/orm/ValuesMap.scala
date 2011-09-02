@@ -82,6 +82,28 @@ class ValuesMap(typeManager: TypeManager, protected[orm] var m: scala.collection
 			}
 		}
 
+	def int[T, V](column: ColumnInfo[T, V]): Int =
+		{
+			val v = apply(column)
+			v match {
+				case i: Int => i
+				case l: Long => l.toInt
+				case s: Short => s.toInt
+				case null => 0
+			}
+		}
+
+	def long[T, V](column: ColumnInfo[T, V]): Long =
+		{
+			val v = apply(column)
+			v match {
+				case l: Long => l
+				case i: Int => i.toLong
+				case s: Short => s.toLong
+				case null => 0
+			}
+		}
+
 	def bigDecimal[T, V](column: ColumnInfo[T, V]): BigDecimal =
 		{
 			val v = apply(column)

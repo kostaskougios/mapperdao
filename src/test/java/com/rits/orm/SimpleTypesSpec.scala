@@ -4,6 +4,7 @@ import org.specs2.mutable.SpecificationWithJUnit
 import com.rits.jdbc.Jdbc
 import com.rits.jdbc.Setup
 import org.scala_tools.time.Imports._
+
 /**
  * this is a self contained spec, all test entities, mapping are contained within this spec
  *
@@ -20,7 +21,7 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 	"immutable update" in {
 		createJobPositionTable
 
-		val date = DateTime.now.withMillisOfSecond(0)
+		val date = Setup.now
 		val jp = new JobPosition(5, "Developer", date, date - 2.months, 10)
 		val inserted = mapperDao.insert(JobPositionEntity, jp)
 
@@ -41,7 +42,7 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 
 		createJobPositionTable
 
-		val date = DateTime.now.withMillisOfSecond(0)
+		val date = Setup.now
 		val jp = new JobPosition(5, "Developer", date, date, 10)
 		mapperDao.insert(JobPositionEntity, jp) must_== jp
 
@@ -74,7 +75,7 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 		val tx = Transaction.get(txManager, Propagation.Nested, Isolation.Serializable, -1)
 
 		val inserted = tx { () =>
-			val date = DateTime.now.withMillisOfSecond(0)
+			val date = Setup.now
 			val inserted = mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date - 2.months, 10))
 			mapperDao.select(JobPositionEntity, inserted.id).get must_== inserted
 			inserted
@@ -92,7 +93,7 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 
 		try {
 			tx { () =>
-				val date = DateTime.now.withMillisOfSecond(0)
+				val date = Setup.now
 				val inserted = mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date - 2.months, 10))
 				mapperDao.select(JobPositionEntity, inserted.id).get must_== inserted
 				throw new IllegalStateException

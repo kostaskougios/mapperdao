@@ -22,25 +22,37 @@ class SimpleSelfJoinQuerySpec extends SpecificationWithJUnit {
 	"query join with alias" in {
 		createJobPositionTable
 
-		val j1 = insert(JobPositionEntity, JobPosition(1, "developer", DateTime.now))
-		val j2 = insert(JobPositionEntity, JobPosition(2, "Scala Developer", DateTime.now))
-		val j3 = insert(JobPositionEntity, JobPosition(3, "manager", DateTime.now))
-		val j4 = insert(JobPositionEntity, JobPosition(4, "Scala Developer", DateTime.now))
-		val j5 = insert(JobPositionEntity, JobPosition(5, "Scala Developer", DateTime.now))
+		val now = Setup.now
+		val j1 = insert(JobPositionEntity, JobPosition(1, "developer", now))
+		val j2 = insert(JobPositionEntity, JobPosition(2, "Scala Developer", now))
+		val j3 = insert(JobPositionEntity, JobPosition(3, "manager", now))
+		val j4 = insert(JobPositionEntity, JobPosition(4, "Scala Developer", now))
+		val j5 = insert(JobPositionEntity, JobPosition(5, "Scala Developer", now))
 		val j6 = insert(JobPositionEntity, JobPosition(6, "driver", DateTime.now))
 		query(q11).toSet must_== Set(j2, j4, j5)
 	}
 
 	def createJobPositionTable {
-		jdbc.update("drop table if exists JobPosition cascade")
-		jdbc.update("""
-			create table JobPosition (
-				id int not null,
-				name varchar(100) not null,
-				start timestamp with time zone,
-				primary key (id)
-			)
-		""")
+		Setup.database match {
+			case "postgresql" =>
+				jdbc.update("drop table if exists JobPosition cascade")
+				jdbc.update("""
+					create table JobPosition (
+					id int not null,
+					name varchar(100) not null,
+					start timestamp with time zone,
+					primary key (id)
+				)""")
+			case "mysql" =>
+				jdbc.update("drop table if exists JobPosition cascade")
+				jdbc.update("""
+					create table JobPosition (
+					id int not null,
+					name varchar(100) not null,
+					start datetime,
+					primary key (id)
+				) engine InnoDB""")
+		}
 	}
 }
 
