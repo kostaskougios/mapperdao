@@ -30,6 +30,16 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		query(qOrderBy1) must_== List(j1, j4, j3, j2)
 	}
 
+	"query with order by 2 column" in {
+		createJobPositionTable
+
+		val now = Setup.now
+		val j1 = insert(JobPositionEntity, JobPosition(5, "C developer", now))
+		val j2 = insert(JobPositionEntity, JobPosition(6, "C developer", now.minusHours(1)))
+		val j3 = insert(JobPositionEntity, JobPosition(7, "B developer", now))
+		val j4 = insert(JobPositionEntity, JobPosition(8, "B developer", now.minusHours(1)))
+		query(qOrderBy2) must_== List(j4, j3, j2, j1)
+	}
 	"query select *" in {
 		createJobPositionTable
 
@@ -219,6 +229,7 @@ object SimpleQuerySpec {
 		def q10 = select from jpe where jpe.start > DateTime.now + 0.days and jpe.start < DateTime.now + 3.days - 60.seconds
 
 		def qOrderBy1 = select from jpe order by(jpe.name)
+		def qOrderBy2 = select from jpe order by(jpe.name, jpe.start)
 	}
 
 	case class JobPosition(val id: Int, var name: String, val start: DateTime)
