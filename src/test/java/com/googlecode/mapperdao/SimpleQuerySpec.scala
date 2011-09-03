@@ -40,6 +40,7 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j4 = insert(JobPositionEntity, JobPosition(8, "B developer", now.minusHours(1)))
 		query(qOrderBy2) must_== List(j4, j3, j2, j1)
 	}
+
 	"query select *" in {
 		createJobPositionTable
 
@@ -228,8 +229,8 @@ object SimpleQuerySpec {
 		def q9 = select from jpe where ((jpe.id > 10 and jpe.id < 20) or (jpe.id > 30 and jpe.id < 40)) and jpe.name === "correct"
 		def q10 = select from jpe where jpe.start > DateTime.now + 0.days and jpe.start < DateTime.now + 3.days - 60.seconds
 
-		def qOrderBy1 = select from jpe order by(jpe.name)
-		def qOrderBy2 = select from jpe order by(jpe.name, jpe.start)
+		def qOrderBy1 = select from jpe orderBy jpe.name
+		def qOrderBy2 = select from jpe orderBy (jpe.name, jpe.start)
 	}
 
 	case class JobPosition(val id: Int, var name: String, val start: DateTime)

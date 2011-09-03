@@ -386,8 +386,10 @@ trait Driver {
 	}
 
 	// create order by clause
-	def orderBy(aliases: QueryDao.Aliases, columns: List[ColumnBase]): String = columns.map { c =>
-		aliases(c) + "." + c.columnName
+	def orderBy(aliases: QueryDao.Aliases, columns: List[(ColumnBase, Query.AscDesc)]): String = columns.map { caq =>
+		val c = caq._1
+		val ascDesc = caq._2
+		aliases(c) + "." + c.columnName + " " + ascDesc.sql
 	}.mkString(",")
 
 	/**

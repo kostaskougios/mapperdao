@@ -54,7 +54,7 @@ object Query {
 	class QueryEntity[PC, T](protected[mapperdao] val entity: Entity[PC, T]) {
 		protected[mapperdao] var wheres = List[QueryExpressions[PC, T]]()
 		protected[mapperdao] var joins = List[Join[Any, Any, Entity[_, _], PC, T]]()
-		protected[mapperdao] var orderBy: List[ColumnInfoBase[_, _]] = null
+		protected[mapperdao] var order = List[(ColumnInfoBase[_, _], AscDesc)]()
 
 		def where = {
 			val qe = new QueryExpressions(this)
@@ -68,17 +68,32 @@ object Query {
 			j
 		}
 
-		def order(orderBy: List[ColumnInfoBase[_, _]]) =
+		def orderBy[T, V](ci: ColumnInfoBase[T, V]) =
 			{
-				this.orderBy = orderBy
+				this.order ::= (ci, asc)
+				this
+			}
+
+		def orderBy[T1, V1, T2, V2](ci1: ColumnInfoBase[T1, V1], ci2: ColumnInfoBase[T2, V2]) =
+			{
+				this.order :::= List((ci1, asc), (ci2, asc))
 				this
 			}
 
 		override def toString = "select from %s join %s where %s".format(entity, joins, wheres)
-
 	}
-	def by[T, V](ci: ColumnInfoBase[T, V]) = List(ci)
-	def by[T1, V1, T2, V2](ci1: ColumnInfoBase[T1, V1], ci2: ColumnInfoBase[T2, V2]) = List(ci1, ci2)
+	sealed abstract class AscDesc {
+		val sql: String
+	}
+	object asc extends AscDesc {
+		val sql = "asc"
+	}
+	object desc extends AscDesc {
+		val sql = "desc"
+	}
+
+	//	def by[T, V](ci: ColumnInfoBase[T, V]) = List(ci)
+	//	def by[T1, V1, T2, V2](ci1: ColumnInfoBase[T1, V1], ci2: ColumnInfoBase[T2, V2]) = List(ci1, ci2)
 
 	protected[mapperdao] class Join[T, F, E <: Entity[_, _], QPC, QT](queryEntity: QueryEntity[QPC, QT]) {
 		protected[mapperdao] var column: ColumnRelationshipBase[F] = _

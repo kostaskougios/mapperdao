@@ -81,8 +81,8 @@ class QueryDao(mapperDao: MapperDao) {
 			sb append "\nwhere " append sql
 		}
 
-		if (qe.orderBy != null) {
-			val orderColumns = qe.orderBy.map(_.column)
+		if (!qe.order.isEmpty) {
+			val orderColumns = qe.order.map(t => (t._1.column, t._2))
 
 			val orderBySql = driver.orderBy(aliases, orderColumns)
 			sb append "\norder by " append orderBySql
