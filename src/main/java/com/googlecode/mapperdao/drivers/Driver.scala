@@ -384,6 +384,12 @@ trait Driver {
 			args += v
 			"?"
 	}
+
+	// create order by clause
+	def orderBy(aliases: QueryDao.Aliases, columns: List[ColumnBase]): String = columns.map { c =>
+		aliases(c) + "." + c.columnName
+	}.mkString(",")
+
 	/**
 	 * =====================================================================================
 	 * standard methods

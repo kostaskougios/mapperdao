@@ -80,6 +80,13 @@ class QueryDao(mapperDao: MapperDao) {
 			args = args ::: wargs
 			sb append "\nwhere " append sql
 		}
+
+		if (qe.orderBy != null) {
+			val orderColumns = qe.orderBy.map(_.column)
+
+			val orderBySql = driver.orderBy(aliases, orderColumns)
+			sb append "\norder by " append orderBySql
+		}
 		new SqlAndArgs(sb.toString, args)
 	}
 }

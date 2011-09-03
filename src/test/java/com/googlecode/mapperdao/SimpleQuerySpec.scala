@@ -29,6 +29,7 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j4 = insert(JobPositionEntity, JobPosition(8, "java developer", now))
 		query(qOrderBy1) must_== List(j1, j4, j3, j2)
 	}
+
 	"query select *" in {
 		createJobPositionTable
 
