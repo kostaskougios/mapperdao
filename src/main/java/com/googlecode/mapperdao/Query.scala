@@ -43,7 +43,7 @@ object Query {
 	implicit def columnInfoToOperableBigInt[T](ci: ColumnInfo[T, BigInt]) = new Convertor(ci)
 	implicit def columnInfoToOperableBigDecimal[T](ci: ColumnInfo[T, BigDecimal]) = new Convertor(ci)
 
-	// starting point of a query, syntactic sugar
+	// starting point of a query, "select" syntactic sugar
 	def select[PC, T] = new QueryFrom[PC, T]
 
 	// "from" syntactic sugar
@@ -54,6 +54,7 @@ object Query {
 	class QueryEntity[PC, T](protected[mapperdao] val entity: Entity[PC, T]) {
 		protected[mapperdao] var wheres = List[QueryExpressions[PC, T]]()
 		protected[mapperdao] var joins = List[Join[Any, Any, Entity[_, _], PC, T]]()
+		protected[mapperdao] var orderBy: List[ColumnInfoBase[_, _]] = null
 
 		def where = {
 			val qe = new QueryExpressions(this)
@@ -66,8 +67,17 @@ object Query {
 			joins ::= j.asInstanceOf[Join[Any, Any, Entity[_, _], PC, T]]
 			j
 		}
+
+		def order(orderBy: List[ColumnInfoBase[_, _]]) =
+			{
+				this.orderBy = orderBy
+				this
+			}
+
 		override def toString = "select from %s join %s where %s".format(entity, joins, wheres)
+
 	}
+	def by[T, V](ci: ColumnInfoBase[T, V]) = List(ci)
 
 	protected[mapperdao] class Join[T, F, E <: Entity[_, _], QPC, QT](queryEntity: QueryEntity[QPC, QT]) {
 		protected[mapperdao] var column: ColumnRelationshipBase[F] = _

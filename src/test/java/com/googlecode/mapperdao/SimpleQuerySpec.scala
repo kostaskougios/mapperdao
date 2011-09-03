@@ -19,6 +19,16 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 	import mapperDao._
 	import queryDao._
 
+	"query with order by 1 column" in {
+		createJobPositionTable
+
+		val now = Setup.now
+		val j1 = insert(JobPositionEntity, JobPosition(5, "developer", now))
+		val j2 = insert(JobPositionEntity, JobPosition(6, "scala developer", now))
+		val j3 = insert(JobPositionEntity, JobPosition(7, "manager", now))
+		val j4 = insert(JobPositionEntity, JobPosition(8, "java developer", now))
+		query(qOrderBy1) must_== List(j1, j4, j3, j2)
+	}
 	"query select *" in {
 		createJobPositionTable
 
@@ -195,18 +205,21 @@ object SimpleQuerySpec {
 		val jpe = JobPositionEntity
 		import Query._
 
-		def q0 = select from JobPositionEntity
-		def q1 = select from JobPositionEntity where jpe.name === "Scala Developer"
-		def q2 = select from JobPositionEntity where jpe.name === "Scala Developer" and jpe.id > 6
-		def q3 = select from JobPositionEntity where jpe.name === "Scala Developer" or jpe.id < 7
-		def q4 = select from JobPositionEntity where jpe.id <= 7
-		def q5 = select from JobPositionEntity where jpe.id >= 7
-		def q6 = select from JobPositionEntity where jpe.id === 7
-		def q7 = select from JobPositionEntity where (jpe.name like "%eveloper%")
-		def q8 = select from JobPositionEntity where (jpe.id >= 9 or jpe.id < 6) or jpe.name === "manager"
-		def q9 = select from JobPositionEntity where ((jpe.id > 10 and jpe.id < 20) or (jpe.id > 30 and jpe.id < 40)) and jpe.name === "correct"
-		def q10 = select from JobPositionEntity where jpe.start > DateTime.now + 0.days and jpe.start < DateTime.now + 3.days - 60.seconds
+		def q0 = select from jpe
+		def q1 = select from jpe where jpe.name === "Scala Developer"
+		def q2 = select from jpe where jpe.name === "Scala Developer" and jpe.id > 6
+		def q3 = select from jpe where jpe.name === "Scala Developer" or jpe.id < 7
+		def q4 = select from jpe where jpe.id <= 7
+		def q5 = select from jpe where jpe.id >= 7
+		def q6 = select from jpe where jpe.id === 7
+		def q7 = select from jpe where (jpe.name like "%eveloper%")
+		def q8 = select from jpe where (jpe.id >= 9 or jpe.id < 6) or jpe.name === "manager"
+		def q9 = select from jpe where ((jpe.id > 10 and jpe.id < 20) or (jpe.id > 30 and jpe.id < 40)) and jpe.name === "correct"
+		def q10 = select from jpe where jpe.start > DateTime.now + 0.days and jpe.start < DateTime.now + 3.days - 60.seconds
+
+		def qOrderBy1 = select from jpe order by(jpe.name)
 	}
+
 	case class JobPosition(val id: Int, var name: String, val start: DateTime)
 
 	object JobPositionEntity extends SimpleEntity(classOf[JobPosition]) {
