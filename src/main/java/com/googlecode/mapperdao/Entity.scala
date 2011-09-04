@@ -46,7 +46,11 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 	 * @foreignClz		the refered entity
 	 * @columnToValue	the function from T => Traversable[Any] that accesses the field of T to return the Traversable of E
 	 */
-	protected def oneToMany[E](foreignClz: Class[E], foreignKeyColumn: String, columnToValue: T => Traversable[E]): ColumnInfoTraversableOneToMany[T, E] = oneToMany(foreignClz.getSimpleName + "_Alias", foreignClz, foreignKeyColumn, columnToValue)
+	protected def oneToMany[E](foreignClz: Class[E], foreignKeyColumn: String, columnToValue: T => Traversable[E]): ColumnInfoTraversableOneToMany[T, E] =
+		oneToMany(foreignClz.getSimpleName + "_Alias", foreignClz, foreignKeyColumn, columnToValue)
+	protected def oneToMany[E](foreignClz: Class[E], columnToValue: T => Traversable[E]): ColumnInfoTraversableOneToMany[T, E] =
+		oneToMany(foreignClz, clz.getSimpleName.toLowerCase + "_id", columnToValue)
+
 	/**
 	 * one to many mapping from T to a traversable of an other entity E
 	 *
