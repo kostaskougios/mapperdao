@@ -68,15 +68,32 @@ object Query {
 			j
 		}
 
+		def orderBy(byList: (ColumnInfoBase[_, _], AscDesc)*) =
+			{
+				this.order :::= byList.toList
+				this
+			}
+
 		def orderBy[T, V](ci: ColumnInfoBase[T, V]) =
 			{
 				this.order ::= (ci, asc)
+				this
+			}
+		def orderBy[T, V](ci: ColumnInfoBase[T, V], ascDesc: AscDesc) =
+			{
+				this.order ::= (ci, ascDesc)
 				this
 			}
 
 		def orderBy[T1, V1, T2, V2](ci1: ColumnInfoBase[T1, V1], ci2: ColumnInfoBase[T2, V2]) =
 			{
 				this.order :::= List((ci1, asc), (ci2, asc))
+				this
+			}
+
+		def orderBy[T1, V1, T2, V2](ci1: ColumnInfoBase[T1, V1], ascDesc1: AscDesc, ci2: ColumnInfoBase[T2, V2], ascDesc2: AscDesc) =
+			{
+				this.order :::= List((ci1, ascDesc1), (ci2, ascDesc2))
 				this
 			}
 

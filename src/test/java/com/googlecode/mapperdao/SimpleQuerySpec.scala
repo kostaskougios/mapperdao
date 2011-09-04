@@ -38,7 +38,20 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j2 = insert(JobPositionEntity, JobPosition(6, "C developer", now.minusHours(1)))
 		val j3 = insert(JobPositionEntity, JobPosition(7, "B developer", now))
 		val j4 = insert(JobPositionEntity, JobPosition(8, "B developer", now.minusHours(1)))
-		query(qOrderBy2) must_== List(j4, j3, j2, j1)
+		query(qOrderBy2Alias1) must_== List(j4, j3, j2, j1)
+		query(qOrderBy2Alias2) must_== List(j4, j3, j2, j1)
+	}
+
+	"query with order by 2 column desc,asc" in {
+		createJobPositionTable
+
+		val now = Setup.now
+		val j1 = insert(JobPositionEntity, JobPosition(5, "C developer", now))
+		val j2 = insert(JobPositionEntity, JobPosition(6, "C developer", now.minusHours(1)))
+		val j3 = insert(JobPositionEntity, JobPosition(7, "B developer", now))
+		val j4 = insert(JobPositionEntity, JobPosition(8, "B developer", now.minusHours(1)))
+		query(qOrderBy3Alias1) must_== List(j2, j1, j4, j3)
+		query(qOrderBy3Alias2) must_== List(j2, j1, j4, j3)
 	}
 
 	"query select *" in {
@@ -230,7 +243,10 @@ object SimpleQuerySpec {
 		def q10 = select from jpe where jpe.start > DateTime.now + 0.days and jpe.start < DateTime.now + 3.days - 60.seconds
 
 		def qOrderBy1 = select from jpe orderBy jpe.name
-		def qOrderBy2 = select from jpe orderBy (jpe.name, jpe.start)
+		def qOrderBy2Alias1 = select from jpe orderBy ((jpe.name, asc), (jpe.start, asc))
+		def qOrderBy2Alias2 = select from jpe orderBy (jpe.name, asc, jpe.start, asc)
+		def qOrderBy3Alias1 = select from jpe orderBy ((jpe.name, desc), (jpe.start, asc))
+		def qOrderBy3Alias2 = select from jpe orderBy (jpe.name, desc, jpe.start, asc)
 	}
 
 	case class JobPosition(val id: Int, var name: String, val start: DateTime)
