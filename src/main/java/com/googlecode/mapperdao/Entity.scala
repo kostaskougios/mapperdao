@@ -65,7 +65,10 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 			ci
 		}
 
-	protected def manyToOne[F](column: String, foreignClz: Class[F], columnToValue: T => F): ColumnInfoManyToOne[T, F] = manyToOne(column + "_Alias", column, foreignClz, columnToValue)
+	protected def manyToOne[F](column: String, foreignClz: Class[F], columnToValue: T => F): ColumnInfoManyToOne[T, F] =
+		manyToOne(column + "_Alias", column, foreignClz, columnToValue)
+	protected def manyToOne[F](foreignClz: Class[F], columnToValue: T => F): ColumnInfoManyToOne[T, F] =
+		manyToOne(foreignClz.getSimpleName.toLowerCase + "_id", foreignClz, columnToValue)
 
 	/**
 	 * many to one mapping from T to F.
