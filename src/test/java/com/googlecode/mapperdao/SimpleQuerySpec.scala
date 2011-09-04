@@ -19,6 +19,14 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 	import mapperDao._
 	import queryDao._
 
+	"query builder" in {
+		createJobPositionTable
+
+		val now = Setup.now
+		val l = for (i <- 0 to 10) yield insert(JobPositionEntity, JobPosition(i, "x" + i, now))
+		query(qAsBuilder) must_== List(l(6), l(5), l(2), l(1))
+	}
+
 	"query with order by 1 column" in {
 		createJobPositionTable
 
@@ -198,6 +206,7 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j12 = insert(JobPositionEntity, JobPosition(12, "Scala Developer", now.plusDays(2)))
 		val j9 = insert(JobPositionEntity, JobPosition(9, "x", now.plusDays(3)))
 		query(q10).toSet must_== Set(j8, j12)
+		query(q10Alias).toSet must_== Set(j8, j12)
 	}
 
 	def createJobPositionTable {
@@ -241,6 +250,18 @@ object SimpleQuerySpec {
 		def q8 = select from jpe where (jpe.id >= 9 or jpe.id < 6) or jpe.name === "manager"
 		def q9 = select from jpe where ((jpe.id > 10 and jpe.id < 20) or (jpe.id > 30 and jpe.id < 40)) and jpe.name === "correct"
 		def q10 = select from jpe where jpe.start > DateTime.now + 0.days and jpe.start < DateTime.now + 3.days - 60.seconds
+		def q10Alias = {
+			val q = select from jpe
+			q where jpe.start > DateTime.now + 0.days and jpe.start < DateTime.now + 3.days - 60.seconds
+			q
+		}
+		def qAsBuilder = {
+			val q = select from jpe where jpe.id === 1
+			q or jpe.id === 2
+			q or (jpe.id === 5 or jpe.id === 6)
+			q orderBy (jpe.id, desc)
+			q
+		}
 
 		def qOrderBy1 = select from jpe orderBy jpe.name
 		def qOrderBy2Alias1 = select from jpe orderBy ((jpe.name, asc), (jpe.start, asc))

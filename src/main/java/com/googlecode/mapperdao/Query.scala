@@ -51,10 +51,47 @@ object Query {
 		def from(entity: Entity[PC, T]) = new QueryEntity(entity)
 	}
 
-	class QueryEntity[PC, T](protected[mapperdao] val entity: Entity[PC, T]) {
+	trait OrderBy[Q] { self: Q =>
+		protected def addOrderBy(l: List[(ColumnInfoBase[_, _], AscDesc)])
+
+		def orderBy(byList: (ColumnInfoBase[_, _], AscDesc)*) =
+			{
+				addOrderBy(byList.toList)
+				self
+			}
+
+		def orderBy[T, V](ci: ColumnInfoBase[T, V]) =
+			{
+				addOrderBy(List((ci, asc)))
+				self
+			}
+		def orderBy[T, V](ci: ColumnInfoBase[T, V], ascDesc: AscDesc) =
+			{
+				addOrderBy(List((ci, ascDesc)))
+				self
+			}
+
+		def orderBy[T1, V1, T2, V2](ci1: ColumnInfoBase[T1, V1], ci2: ColumnInfoBase[T2, V2]) =
+			{
+				addOrderBy(List((ci1, asc), (ci2, asc)))
+				self
+			}
+
+		def orderBy[T1, V1, T2, V2](ci1: ColumnInfoBase[T1, V1], ascDesc1: AscDesc, ci2: ColumnInfoBase[T2, V2], ascDesc2: AscDesc) =
+			{
+				addOrderBy(List((ci1, ascDesc1), (ci2, ascDesc2)))
+				self
+			}
+	}
+
+	class QueryEntity[PC, T](protected[mapperdao] val entity: Entity[PC, T]) extends OrderBy[QueryEntity[PC, T]] {
 		protected[mapperdao] var wheres = List[QueryExpressions[PC, T]]()
 		protected[mapperdao] var joins = List[Join[Any, Any, Entity[_, _], PC, T]]()
 		protected[mapperdao] var order = List[(ColumnInfoBase[_, _], AscDesc)]()
+
+		override def addOrderBy(l: List[(ColumnInfoBase[_, _], AscDesc)]) {
+			order :::= l
+		}
 
 		def where = {
 			val qe = new QueryExpressions(this)
@@ -67,35 +104,6 @@ object Query {
 			joins ::= j.asInstanceOf[Join[Any, Any, Entity[_, _], PC, T]]
 			j
 		}
-
-		def orderBy(byList: (ColumnInfoBase[_, _], AscDesc)*) =
-			{
-				this.order :::= byList.toList
-				this
-			}
-
-		def orderBy[T, V](ci: ColumnInfoBase[T, V]) =
-			{
-				this.order ::= (ci, asc)
-				this
-			}
-		def orderBy[T, V](ci: ColumnInfoBase[T, V], ascDesc: AscDesc) =
-			{
-				this.order ::= (ci, ascDesc)
-				this
-			}
-
-		def orderBy[T1, V1, T2, V2](ci1: ColumnInfoBase[T1, V1], ci2: ColumnInfoBase[T2, V2]) =
-			{
-				this.order :::= List((ci1, asc), (ci2, asc))
-				this
-			}
-
-		def orderBy[T1, V1, T2, V2](ci1: ColumnInfoBase[T1, V1], ascDesc1: AscDesc, ci2: ColumnInfoBase[T2, V2], ascDesc2: AscDesc) =
-			{
-				this.order :::= List((ci1, ascDesc1), (ci2, ascDesc2))
-				this
-			}
 
 		override def toString = "select from %s join %s where %s".format(entity, joins, wheres)
 	}
@@ -145,8 +153,12 @@ object Query {
 			}
 	}
 
-	protected[mapperdao] class QueryExpressions[PC, T](protected[mapperdao] val queryEntity: QueryEntity[PC, T]) {
+	protected[mapperdao] class QueryExpressions[PC, T](protected[mapperdao] val queryEntity: QueryEntity[PC, T]) extends OrderBy[QueryExpressions[PC, T]] {
 		var clauses: OpBase = null
+
+		override def addOrderBy(l: List[(ColumnInfoBase[_, _], AscDesc)]) {
+			queryEntity.order :::= l
+		}
 
 		def apply(op: OpBase) =
 			{
