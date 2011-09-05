@@ -130,7 +130,7 @@ object ManyToManySpec {
 	object ProductEntity extends SimpleEntity("Product", classOf[Product]) {
 		val id = pk("id", _.id)
 		val name = string("name", _.name)
-		val attributes = manyToMany("Product_Attribute", "product_id", "attribute_id", classOf[Attribute], _.attributes)
+		val attributes = manyToMany(classOf[Attribute], _.attributes)
 
 		val constructor = (m: ValuesMap) => new Product(m(id), m(name), m(attributes).toSet) with Persisted {
 			val valuesMap = m
