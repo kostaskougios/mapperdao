@@ -10,9 +10,11 @@ import com.googlecode.mapperdao.jdbc.Setup
  */
 class TwoPrimaryKeysSimpleSpec extends SpecificationWithJUnit {
 	import TwoPrimaryKeysSimpleSpec._
-	val (jdbc, mapperDao) = Setup.setupMapperDao(TypeRegistry(UserEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupQueryDao(TypeRegistry(UserEntity))
 
 	import mapperDao._
+	import queryDao._
+	import TestQueries._
 
 	"insert" in {
 		createTables
@@ -61,6 +63,17 @@ class TwoPrimaryKeysSimpleSpec extends SpecificationWithJUnit {
 		select(UserEntity, "A", "B").get must_== User("A", "B", 25)
 	}
 
+	"query" in {
+		createTables
+		val u0 = insert(UserEntity, User("Kostas", "Kougios", 20))
+		val u1 = insert(UserEntity, User("Ajax", "Perseus", 21))
+		val u2 = insert(UserEntity, User("Leonidas", "Kougios", 22))
+		val u3 = insert(UserEntity, User("Antonis", "Agnostos", 23))
+		val u4 = insert(UserEntity, User("Kostas", "Patroklos", 24))
+
+		query(q0) must_== List(u0, u4, u2)
+	}
+
 	def createTables = {
 		jdbc.update("""drop table if exists "User" cascade""")
 		jdbc.update("""
@@ -77,6 +90,7 @@ class TwoPrimaryKeysSimpleSpec extends SpecificationWithJUnit {
 object TwoPrimaryKeysSimpleSpec {
 
 	case class User(val name: String, val surname: String, val age: Int)
+
 	object UserEntity extends SimpleEntity[User](classOf[User]) {
 		val name = stringPK("name", _.name)
 		val surname = stringPK("surname", _.surname)
@@ -86,4 +100,13 @@ object TwoPrimaryKeysSimpleSpec {
 			val valuesMap = m
 		}
 	}
+
+	object TestQueries {
+		val u = UserEntity
+
+		import Query._
+		def q0 = select from u where
+			u.surname === "Kougios" or u.name === "Kostas" orderBy (u.name, u.surname)
+	}
+
 }
