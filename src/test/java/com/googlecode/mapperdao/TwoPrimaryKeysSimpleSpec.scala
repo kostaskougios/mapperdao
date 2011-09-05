@@ -75,8 +75,10 @@ class TwoPrimaryKeysSimpleSpec extends SpecificationWithJUnit {
 	}
 
 	def createTables = {
-		jdbc.update("""drop table if exists "User" cascade""")
-		jdbc.update("""
+		Setup.database match {
+			case "postgresql" =>
+				jdbc.update("""drop table if exists "User" cascade""")
+				jdbc.update("""
 			create table "User" (
 				name varchar(20) not null,
 				surname varchar(20) not null,
@@ -84,6 +86,17 @@ class TwoPrimaryKeysSimpleSpec extends SpecificationWithJUnit {
 				primary key (name,surname)
 			)
 		""")
+			case "mysql" =>
+				jdbc.update("""drop table if exists User cascade""")
+				jdbc.update("""
+			create table User (
+				name varchar(20) not null,
+				surname varchar(20) not null,
+				age int not null,
+				primary key (name,surname)
+			)
+		""")
+		}
 	}
 }
 
