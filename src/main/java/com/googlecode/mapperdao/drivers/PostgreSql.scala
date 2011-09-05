@@ -1,6 +1,8 @@
 package com.googlecode.mapperdao.drivers
 import com.googlecode.mapperdao.jdbc.Jdbc
 import com.googlecode.mapperdao.TypeRegistry
+import com.googlecode.mapperdao.ColumnBase
+import com.googlecode.mapperdao.Type
 
 /**
  * @author kostantinos.kougios
@@ -13,5 +15,12 @@ class PostgreSql(override val jdbc: Jdbc, override val typeRegistry: TypeRegistr
 
 	override def escapeColumnNames(name: String) = if (invalidColumnNames.contains(name)) '"' + name + '"'; else name
 
+	override protected def insertSql[PC, T](tpe: Type[PC, T], args: List[(ColumnBase, Any)]): String =
+		{
+			val sql = super.insertSql(tpe, args)
+			if (args.isEmpty) {
+				sql + "\ndefault values"
+			} else sql
+		}
 	override def toString = "PostgreSql"
 }

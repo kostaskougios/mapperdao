@@ -75,10 +75,12 @@ trait Driver {
 	protected def insertSql[PC, T](tpe: Type[PC, T], args: List[(ColumnBase, Any)]): String =
 		{
 			val sb = new StringBuilder(100, "insert into ")
-			sb append tpe.table.name append "(" append commaSeparatedListOfSimpleTypeColumns(",", args.map(_._1))
-			sb append ")\n"
-			sb append "values(?" append (",?" * (args.size - 1)) append ")"
-
+			sb append tpe.table.name
+			if (!args.isEmpty) {
+				sb append "(" append commaSeparatedListOfSimpleTypeColumns(",", args.map(_._1))
+				sb append ")\n"
+				sb append "values(?" append (",?" * (args.size - 1)) append ")"
+			}
 			sb.toString
 		}
 

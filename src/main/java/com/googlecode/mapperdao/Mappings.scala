@@ -103,8 +103,10 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 	}
 
 	def toColumnAndValueMap(columns: List[ColumnBase], o: T): Map[ColumnBase, Any] = columns.map { c => (c, columnToColumnInfoMap(c).columnToValue(o)) }.toMap
+	def toPCColumnAndValueMap(columns: List[ColumnBase], o: T with PC): Map[ColumnBase, Any] = columns.map { c => (c, pcColumnToColumnInfoMap(c).columnToValue(o)) }.toMap
 
 	def toColumnAliasAndValueMap(columns: List[ColumnBase], o: T): Map[String, Any] = toColumnAndValueMap(columns, o).map(e => (e._1.alias, e._2))
+	def toPCColumnAliasAndValueMap(columns: List[ColumnBase], o: T with PC): Map[String, Any] = toPCColumnAndValueMap(columns, o).map(e => (e._1.alias, e._2))
 }
 
 case class LinkTable(name: String, left: List[Column], right: List[Column])
