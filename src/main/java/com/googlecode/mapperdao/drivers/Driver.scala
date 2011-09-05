@@ -122,7 +122,7 @@ trait Driver {
 			val sb = new StringBuilder(100, "update ")
 			sb append escapeTableNames(tpe.table.name) append "\n"
 			sb append "set " append generateColumnsEqualsValueString(args.map(_._1))
-			sb append "\nwhere " append generateColumnsEqualsValueString(pkArgs.map(_._1))
+			sb append "\nwhere " append generateColumnsEqualsValueString(pkArgs.map(_._1), " and ")
 			sb.toString
 		}
 
