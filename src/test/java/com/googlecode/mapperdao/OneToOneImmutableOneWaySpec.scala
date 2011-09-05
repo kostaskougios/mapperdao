@@ -100,7 +100,7 @@ object OneToOneImmutableOneWaySpec {
 
 	object ProductEntity extends SimpleEntity[Product](classOf[Product]) {
 		val id = pk("id", _.id)
-		val inventory = oneToOneReverse(classOf[Inventory], "product_id", _.inventory)
+		val inventory = oneToOneReverse(classOf[Inventory], _.inventory)
 
 		val constructor = (m: ValuesMap) => new Product(m(id), m(inventory)) with Persisted {
 			val valuesMap = m

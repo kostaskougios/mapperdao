@@ -97,7 +97,7 @@ object OneToOneWithoutReverseSpec {
 
 	object InventoryEntity extends SimpleEntity[Inventory](classOf[Inventory]) {
 		val id = pk("id", _.id)
-		val product = oneToOne(classOf[Product], "product_id", _.product)
+		val product = oneToOne(classOf[Product], _.product)
 		val stock = int("stock", _.stock)
 
 		val constructor = (m: ValuesMap) => new Inventory(m(id), m(product), m(stock)) with Persisted {

@@ -120,7 +120,7 @@ object ManyToOneQuerySpec {
 	class HouseEntityBase extends SimpleEntity(classOf[House]) {
 		val id = pk("id", _.id)
 		val name = string("name", _.name)
-		val address = manyToOne("address_id", classOf[Address], _.address)
+		val address = manyToOne(classOf[Address], _.address)
 
 		val constructor = (m: ValuesMap) => new House(m(id), m(name), m(address)) with Persisted {
 			val valuesMap = m
