@@ -130,8 +130,8 @@
 				<version>2.3.2</version>
 				<configuration>
 					<encoding>${project.build.sourceEncoding}</encoding>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.6</source>
+					<target>1.6</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -173,10 +173,38 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.9</version>
 				<configuration>
-					<includes>
-						<include>**/*Spec.class</include>
-					</includes>
+					<skip>true</skip>
 				</configuration>
+				<executions>
+					<execution>
+						<id>mysql</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<argLine>-Ddatabase=mysql</argLine>
+							<includes>
+								<include>**/*Spec.class</include>
+							</includes>
+						</configuration>
+					</execution>
+					<execution>
+						<id>postgresql</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<argLine>-Ddatabase=postgresql</argLine>
+							<includes>
+								<include>**/*Spec.class</include>
+							</includes>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
