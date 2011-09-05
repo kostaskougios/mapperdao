@@ -97,6 +97,7 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 		} else {
 			o match {
 				case pc: T with PC => (c, pcColumnToColumnInfoMap(c).columnToValue(pc))
+				case null => (c, null)
 			}
 		}
 	}
