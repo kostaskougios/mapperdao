@@ -22,5 +22,6 @@ class PostgreSql(override val jdbc: Jdbc, override val typeRegistry: TypeRegistr
 				sql + "\ndefault values"
 			} else sql
 		}
+
 	override def toString = "PostgreSql"
 }
