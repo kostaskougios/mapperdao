@@ -96,7 +96,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.6.1</version>
+			<version>1.6.2</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
@@ -111,8 +111,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.scala-tools.time</groupId>
-			<artifactId>time_${scala.lib.version}</artifactId>
-			<version>0.4</version>
+			<artifactId>time_${scala.version}</artifactId>
+			<version>0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>
