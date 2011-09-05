@@ -22,6 +22,16 @@ class TwoPrimaryKeysSimpleSpec extends SpecificationWithJUnit {
 		inserted must_== user
 	}
 
+	"select" in {
+		createTables
+
+		val u1 = insert(UserEntity, User("Some", "Body", 20))
+		val u2 = insert(UserEntity, User("An", "Other", 25))
+
+		select(UserEntity, "Some", "Body").get must_== u1
+		select(UserEntity, "An", "Other").get must_== u2
+	}
+
 	def createTables = {
 		jdbc.update("""drop table if exists "User" cascade""")
 		jdbc.update("""

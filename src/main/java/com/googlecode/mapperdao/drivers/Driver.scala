@@ -25,12 +25,14 @@ trait Driver {
 	protected[mapperdao] def commaSeparatedListOfSimpleTypeColumns[T](separator: String, columns: List[ColumnBase]): String = columns.map(_.columnName).map(escapeColumnNames _).mkString(separator)
 	protected[mapperdao] def commaSeparatedListOfSimpleTypeColumns[T](prefix: String, separator: String, columns: List[ColumnBase]): String = columns.map(_.columnName).map(escapeColumnNames _).mkString(prefix, separator + prefix, "")
 
-	protected[mapperdao] def generateColumnsEqualsValueString(l: List[ColumnBase]): String =
+	protected[mapperdao] def generateColumnsEqualsValueString(l: List[ColumnBase]): String = generateColumnsEqualsValueString(l, ",\n")
+
+	protected[mapperdao] def generateColumnsEqualsValueString(l: List[ColumnBase], separator: String): String =
 		{
 			val sb = new StringBuilder(20)
 			var cnt = 0
 			l.foreach { ci =>
-				if (cnt > 0) sb.append(",\n") else cnt += 1
+				if (cnt > 0) sb.append(separator) else cnt += 1
 				sb append escapeColumnNames(ci.columnName) append "=?"
 			}
 			sb.toString
@@ -186,7 +188,7 @@ trait Driver {
 			val sb = new StringBuilder(100, "select ")
 			sb append commaSeparatedListOfSimpleTypeColumns(",", columns)
 			sb append " from " append escapeTableNames(tpe.table.name)
-			sb append "\nwhere " append generateColumnsEqualsValueString(where.map(_._1))
+			sb append "\nwhere " append generateColumnsEqualsValueString(where.map(_._1), " and ")
 
 			sb.toString
 		}
