@@ -97,6 +97,8 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 		manyToMany(linkTable, linkTable, leftColumn, rightColumn, referencedType, columnToValue)
 	protected def manyToMany[F](referencedType: Class[F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, F] =
 		manyToMany(clz.getSimpleName + "_" + referencedType.getSimpleName, clz.getSimpleName.toLowerCase + "_id", referencedType.getSimpleName.toLowerCase + "_id", referencedType, columnToValue)
+	protected def manyToManyReverse[F](referencedType: Class[F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, F] =
+		manyToMany(referencedType.getSimpleName + "_" + clz.getSimpleName, clz.getSimpleName.toLowerCase + "_id", referencedType.getSimpleName.toLowerCase + "_id", referencedType, columnToValue)
 
 	protected def manyToMany[F](alias: String, linkTable: String, leftColumn: String, rightColumn: String, referencedType: Class[F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, F] =
 		{
