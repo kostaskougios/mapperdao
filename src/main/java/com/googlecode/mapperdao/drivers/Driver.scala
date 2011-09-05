@@ -20,6 +20,7 @@ trait Driver {
 	 * =====================================================================================
 	 */
 	protected def escapeColumnNames(name: String): String = name
+	protected def escapeTableNames(name: String): String = name
 
 	protected[mapperdao] def commaSeparatedListOfSimpleTypeColumns[T](separator: String, columns: List[ColumnBase]): String = columns.map(_.columnName).map(escapeColumnNames _).mkString(separator)
 	protected[mapperdao] def commaSeparatedListOfSimpleTypeColumns[T](prefix: String, separator: String, columns: List[ColumnBase]): String = columns.map(_.columnName).map(escapeColumnNames _).mkString(prefix, separator + prefix, "")
@@ -75,7 +76,7 @@ trait Driver {
 	protected def insertSql[PC, T](tpe: Type[PC, T], args: List[(ColumnBase, Any)]): String =
 		{
 			val sb = new StringBuilder(100, "insert into ")
-			sb append tpe.table.name
+			sb append escapeTableNames(tpe.table.name)
 			if (!args.isEmpty) {
 				sb append "(" append commaSeparatedListOfSimpleTypeColumns(",", args.map(_._1))
 				sb append ")\n"
@@ -94,7 +95,7 @@ trait Driver {
 		{
 			val sb = new StringBuilder(100, "insert into ")
 			val linkTable = manyToMany.linkTable
-			sb append linkTable.name append "(" append commaSeparatedListOfSimpleTypeColumns(",", linkTable.left) append "," append commaSeparatedListOfSimpleTypeColumns(",", linkTable.right) append ")\n"
+			sb append escapeTableNames(linkTable.name) append "(" append commaSeparatedListOfSimpleTypeColumns(",", linkTable.left) append "," append commaSeparatedListOfSimpleTypeColumns(",", linkTable.right) append ")\n"
 			sb append "values(?" append (",?" * (linkTable.left.size - 1 + linkTable.right.size)) append ")"
 			sb.toString
 		}
@@ -117,7 +118,7 @@ trait Driver {
 	protected def updateSql[PC, T](tpe: Type[PC, T], args: List[(ColumnBase, Any)], pkArgs: List[(ColumnBase, Any)]): String =
 		{
 			val sb = new StringBuilder(100, "update ")
-			sb append tpe.table.name append "\n"
+			sb append escapeTableNames(tpe.table.name) append "\n"
 			sb append "set " append generateColumnsEqualsValueString(args.map(_._1))
 			sb append "\nwhere " append generateColumnsEqualsValueString(pkArgs.map(_._1))
 			sb.toString
@@ -135,7 +136,7 @@ trait Driver {
 	protected def updateOneToManyRefSql[PC, T](tpe: Type[PC, T], foreignKeys: List[(ColumnBase, Any)], pkArgs: List[(ColumnBase, Any)]): String =
 		{
 			val sb = new StringBuilder(100, "update ")
-			sb append tpe.table.name append "\n"
+			sb append escapeTableNames(tpe.table.name) append "\n"
 			sb append "set " append generateColumnsEqualsValueString(foreignKeys.map(_._1))
 			sb append "\nwhere " append generateColumnsEqualsValueString(pkArgs.map(_._1))
 			sb.toString
@@ -152,7 +153,7 @@ trait Driver {
 	protected def deleteManyToManyRefSql[PC, T, PR, R](tpe: Type[PC, T], ftpe: Type[PR, R], manyToMany: ManyToMany[_], leftKeyValues: List[(ColumnBase, Any)], rightKeyValues: List[(ColumnBase, Any)]): String =
 		{
 			val sb = new StringBuilder(100, "delete from ")
-			sb append manyToMany.linkTable.name append "\nwhere "
+			sb append escapeTableNames(manyToMany.linkTable.name) append "\nwhere "
 			sb append generateColumnsEqualsValueString("", " and ", leftKeyValues.map(_._1) ::: rightKeyValues.map(_._1))
 			sb.toString
 		}
@@ -184,7 +185,7 @@ trait Driver {
 			val columns = selectColumns(tpe)
 			val sb = new StringBuilder(100, "select ")
 			sb append commaSeparatedListOfSimpleTypeColumns(",", columns)
-			sb append " from " append tpe.table.name
+			sb append " from " append escapeTableNames(tpe.table.name)
 			sb append "\nwhere " append generateColumnsEqualsValueString(where.map(_._1))
 
 			sb.toString
@@ -203,7 +204,7 @@ trait Driver {
 			val linkTable = manyToMany.linkTable
 			val sb = new StringBuilder(100, "select ")
 			sb append commaSeparatedListOfSimpleTypeColumns(",", columns) append "\nfrom " append ftpe.table.name append " f\n"
-			sb append "inner join " append linkTable.name append " l on "
+			sb append "inner join " append escapeTableNames(linkTable.name) append " l on "
 			var i = 0
 			ftable.primaryKeys.zip(linkTable.right).foreach { z =>
 				val PK(left) = z._1
@@ -229,7 +230,7 @@ trait Driver {
 	protected def deleteSql[PC, T](tpe: Type[PC, T], whereColumnValues: List[(SimpleColumn, Any)]): String =
 		{
 			val sb = new StringBuilder(100, "delete from ")
-			sb append tpe.table.name append " where " append generateColumnsEqualsValueString(whereColumnValues.map(_._1))
+			sb append escapeTableNames(tpe.table.name) append " where " append generateColumnsEqualsValueString(whereColumnValues.map(_._1))
 
 			sb.toString
 		}
@@ -248,7 +249,7 @@ trait Driver {
 			val sb = new StringBuilder(100, "select ")
 			val alias = aliases(entity)
 			sb append commaSeparatedListOfSimpleTypeColumns(alias + ".", ",", columns)
-			sb append "\nfrom " append tpe.table.name append " " append alias
+			sb append "\nfrom " append escapeTableNames(tpe.table.name) append " " append alias
 
 			sb.toString
 		}
@@ -264,7 +265,7 @@ trait Driver {
 			val jAlias = aliases(joinEntity)
 
 			val sb = new StringBuilder
-			sb append "\njoin " append foreignTable.name append " " append fAlias append " on "
+			sb append "\njoin " append escapeTableNames(foreignTable.name) append " " append fAlias append " on "
 			(table.primaryKeys zip oneToOneReverse.foreignColumns).foreach { t =>
 				sb append jAlias append "." append t._1.columnName append " = " append fAlias append "." append t._2.columnName append " "
 			}
@@ -280,7 +281,7 @@ trait Driver {
 			val jAlias = aliases(joinEntity)
 
 			val sb = new StringBuilder
-			sb append "\njoin " append foreignTable.name append " " append fAlias append " on "
+			sb append "\njoin " append escapeTableNames(foreignTable.name) append " " append fAlias append " on "
 			(manyToOne.columns zip foreignTable.primaryKeys).foreach { t =>
 				sb append jAlias append "." append t._1.columnName append " = " append fAlias append "." append t._2.columnName append " "
 			}
@@ -298,7 +299,7 @@ trait Driver {
 			val jAlias = aliases(joinEntity)
 
 			val sb = new StringBuilder
-			sb append "\njoin " append foreignTable.name append " " append fAlias append " on "
+			sb append "\njoin " append escapeTableNames(foreignTable.name) append " " append fAlias append " on "
 			(joinTpe.table.primaryKeys zip oneToMany.foreignColumns).foreach { t =>
 				sb append jAlias append "." append t._1.columnName append " = " append fAlias append "." append t._2.columnName append " "
 			}
@@ -319,13 +320,13 @@ trait Driver {
 
 			val sb = new StringBuilder
 			// left part
-			sb append "\njoin " append linkTable.name append " " append linkTableAlias append " on "
+			sb append "\njoin " append escapeTableNames(linkTable.name) append " " append linkTableAlias append " on "
 			(joinTpe.table.primaryKeys zip linkTable.left).foreach { t =>
 				sb append linkTableAlias append "." append t._2.columnName append " = " append jAlias append "." append t._1.columnName append " "
 			}
 
 			// right part
-			sb append "\njoin " append foreignTable.name append " " append fAlias append " on "
+			sb append "\njoin " append escapeTableNames(foreignTable.name) append " " append fAlias append " on "
 			(foreignTable.primaryKeys zip linkTable.right).foreach { t =>
 				sb append fAlias append "." append t._1.columnName append " = " append linkTableAlias append "." append t._2.columnName append " "
 			}
@@ -339,7 +340,7 @@ trait Driver {
 			val jTable = typeRegistry.typeOf(jEntity).table
 			val qAlias = aliases(jEntity)
 			val sb = new StringBuilder
-			sb append "\njoin " append jTable.name append " " append qAlias
+			sb append "\njoin " append escapeTableNames(jTable.name) append " " append qAlias
 
 			var args = if (join.on != null) {
 				val expressions = queryExpressions(aliases, join.on.ons)

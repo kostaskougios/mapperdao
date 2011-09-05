@@ -38,7 +38,8 @@ import com.googlecode.mapperdao.utils.ISetSpec
 		classOf[ManyToOneSelfJoinQuerySpec],
 		classOf[OneToManyQuerySpec],
 		classOf[OneToOneQuerySpec],
-		classOf[OneToOneWithoutReverseSpec]
+		classOf[OneToOneWithoutReverseSpec],
+		classOf[TwoPrimaryKeysSimpleSpec]
 	)
 )
 class All extends SpecificationWithJUnit

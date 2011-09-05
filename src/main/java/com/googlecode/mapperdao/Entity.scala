@@ -155,6 +155,9 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 			this.columns ::= ci
 			ci
 		}
+	protected def intPK(idColumn: String, columnToValue: T => Int): ColumnInfo[T, Int] = pk(idColumn, columnToValue)
+	protected def longPK(idColumn: String, columnToValue: T => Long): ColumnInfo[T, Long] = pk(idColumn, columnToValue)
+	protected def stringPK(idColumn: String, columnToValue: T => String): ColumnInfo[T, String] = pk(idColumn, columnToValue)
 }
 
 abstract class SimpleEntity[T](table: String, clz: Class[T]) extends Entity[AnyRef, T](table, clz) {

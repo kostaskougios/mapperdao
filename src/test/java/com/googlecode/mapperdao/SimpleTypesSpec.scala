@@ -15,8 +15,7 @@ import org.scala_tools.time.Imports._
 class SimpleTypesSpec extends SpecificationWithJUnit {
 
 	import SimpleTypesSpec._
-	val typeRegistry = TypeRegistry(JobPositionEntity)
-	val (jdbc, mapperDao) = Setup.setupMapperDao(typeRegistry)
+	val (jdbc, mapperDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
 
 	"immutable update" in {
 		createJobPositionTable
