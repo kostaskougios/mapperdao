@@ -232,7 +232,7 @@ trait Driver {
 	protected def deleteSql[PC, T](tpe: Type[PC, T], whereColumnValues: List[(SimpleColumn, Any)]): String =
 		{
 			val sb = new StringBuilder(100, "delete from ")
-			sb append escapeTableNames(tpe.table.name) append " where " append generateColumnsEqualsValueString(whereColumnValues.map(_._1))
+			sb append escapeTableNames(tpe.table.name) append " where " append generateColumnsEqualsValueString(whereColumnValues.map(_._1), " and ")
 
 			sb.toString
 		}

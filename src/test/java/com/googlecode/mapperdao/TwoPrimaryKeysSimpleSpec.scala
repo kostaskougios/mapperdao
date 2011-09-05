@@ -52,6 +52,15 @@ class TwoPrimaryKeysSimpleSpec extends SpecificationWithJUnit {
 		select(UserEntity, "An", "Other") must beNone
 	}
 
+	"delete" in {
+		createTables
+		insert(UserEntity, User("A", "B", 25))
+		val inserted = insert(UserEntity, User("Some", "Body", 20))
+		delete(UserEntity, inserted)
+		select(UserEntity, "Some", "Body") must beNone
+		select(UserEntity, "A", "B").get must_== User("A", "B", 25)
+	}
+
 	def createTables = {
 		jdbc.update("""drop table if exists "User" cascade""")
 		jdbc.update("""
