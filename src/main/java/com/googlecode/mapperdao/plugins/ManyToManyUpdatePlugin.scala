@@ -6,6 +6,7 @@ import com.googlecode.mapperdao.ValuesMap
 import com.googlecode.mapperdao.UpdateEntityMap
 import com.googlecode.mapperdao.Persisted
 import com.googlecode.mapperdao.utils.MapOfList
+import com.googlecode.mapperdao.utils.TraversableSeparation
 
 /**
  * @author kostantinos.kougios
@@ -28,9 +29,9 @@ class ManyToManyUpdatePlugin(mapperDao: MapperDao) extends PostUpdate {
 
 				val pkArgs = manyToMany.linkTable.left zip oldValuesMap.toListOfColumnValue(table.primaryKeys)
 
-				// find the removed ones
-				val odiff = oldValues.diff(newValues)
-				odiff.foreach(_ match {
+				val (added, intersection, removed) = TraversableSeparation.separate(oldValues, newValues)
+				// delete the removed ones
+				removed.foreach(_ match {
 					case p: Persisted =>
 						val ftpe = typeRegistry.typeOfObject[Any, Any](p)
 						val ftable = ftpe.table
@@ -40,7 +41,6 @@ class ManyToManyUpdatePlugin(mapperDao: MapperDao) extends PostUpdate {
 				})
 
 				// update those that remained in the updated traversable
-				val intersection = newValues.intersect(oldValues)
 				intersection.foreach { item =>
 					val newItem = item match {
 						case p: Persisted if (!p.mock) =>
@@ -56,9 +56,8 @@ class ManyToManyUpdatePlugin(mapperDao: MapperDao) extends PostUpdate {
 					modified(manyToMany.alias) = newItem
 				}
 
-				// find the added ones
-				val diff = newValues.diff(oldValues)
-				diff.foreach { item =>
+				// update the added ones
+				added.foreach { item =>
 					val newItem = item match {
 						case p: Persisted => p
 						case n =>

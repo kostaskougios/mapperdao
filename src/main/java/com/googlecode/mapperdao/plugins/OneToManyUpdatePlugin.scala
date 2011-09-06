@@ -6,6 +6,7 @@ import com.googlecode.mapperdao.ValuesMap
 import com.googlecode.mapperdao.UpdateEntityMap
 import com.googlecode.mapperdao.Persisted
 import com.googlecode.mapperdao.utils.MapOfList
+import com.googlecode.mapperdao.utils.TraversableSeparation
 
 /**
  * @author kostantinos.kougios
@@ -29,15 +30,15 @@ class OneToManyUpdatePlugin(mapperDao: MapperDao) extends PostUpdate {
 				val newValues = t.toList
 				val oldValues = oldValuesMap.seq[Any](oneToMany.foreign.alias)
 
-				// find the removed ones
-				val odiff = oldValues.diff(newValues)
-				odiff.foreach { item =>
+				val (added, intersection, removed) = TraversableSeparation.separate(oldValues, newValues)
+
+				// update the removed ones
+				removed.foreach { item =>
 					val fe = typeRegistry.entityOfObject[Any, Any](item)
 					mapperDao.delete(fe, item)
 				}
 
 				// update those that remained in the updated traversable
-				val intersection = newValues.intersect(oldValues)
 				intersection.foreach { item =>
 					val fe = typeRegistry.entityOfObject[Any, Any](item)
 					entityMap.down(mockO, ci)
@@ -48,8 +49,7 @@ class OneToManyUpdatePlugin(mapperDao: MapperDao) extends PostUpdate {
 					//addToMap(oneToMany.alias, newItem, modifiedTraversables)
 				}
 				// find the added ones
-				val diff = newValues.diff(oldValues)
-				diff.foreach { item =>
+				added.foreach { item =>
 					//val keysAndValues = table.primaryKeys.map(_.column) zip table.primaryKeys.map(c => modified(c.columnName))
 					val fe = typeRegistry.entityOfObject(item)
 					entityMap.down(mockO, ci)
