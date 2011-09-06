@@ -39,11 +39,13 @@ class ValuesMap(typeManager: TypeManager, protected[mapperdao] var m: scala.coll
 			val key = column.column.alias
 			apply[Traversable[V]](key)
 		}
+
 	def apply[T, V](column: ColumnInfoTraversableManyToMany[T, V]): Traversable[V] =
 		{
 			val key = column.column.alias
 			apply[Traversable[V]](key)
 		}
+
 	def apply[T, F](column: ColumnInfoManyToOne[T, F]) =
 		{
 			val key = column.column.alias
@@ -165,16 +167,17 @@ class ValuesMap(typeManager: TypeManager, protected[mapperdao] var m: scala.coll
 			new ISet(this, key)
 		}
 
+	def mutableHashSet[T, V](column: ColumnInfoTraversableManyToMany[T, V]): scala.collection.mutable.HashSet[V] = new scala.collection.mutable.HashSet ++ apply(column)
+	def mutableLinkedList[T, V](column: ColumnInfoTraversableManyToMany[T, V]): scala.collection.mutable.LinkedList[V] = new scala.collection.mutable.LinkedList ++ apply(column)
+
+	def mutableHashSet[T, V](column: ColumnInfoTraversableOneToMany[T, V]): scala.collection.mutable.HashSet[V] = new scala.collection.mutable.HashSet ++ apply(column)
+	def mutableLinkedList[T, V](column: ColumnInfoTraversableOneToMany[T, V]): scala.collection.mutable.LinkedList[V] = new scala.collection.mutable.LinkedList ++ apply(column)
+
 	/**
 	 * the following methods do a conversion
 	 */
-	//	def traversable[T](column: String): Traversable[T] = apply(column).asInstanceOf[Traversable[T]]
-	//	def list[T](column: String): List[T] = apply(column).asInstanceOf[Traversable[T]].toList
 	protected[mapperdao] def set[T](column: String): Set[T] = apply(column).asInstanceOf[Traversable[T]].toSet
-	//	def iset[T](column: String): Set[T] = new ISet(this, column)
 	protected[mapperdao] def seq[T](column: String): Seq[T] = apply(column).asInstanceOf[Traversable[T]].toSeq
-	//	def indexedSeq[T](column: String): Seq[T] = apply(column).asInstanceOf[Traversable[T]].toIndexedSeq
-	//	def buffer[T](column: String): Buffer[T] = apply(column).asInstanceOf[Traversable[T]].toBuffer
 
 	override def toString = m.toString
 
