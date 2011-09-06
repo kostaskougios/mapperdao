@@ -17,7 +17,7 @@ class ManyToOneUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate {
 
 	private val typeRegistry = mapperDao.typeRegistry
 
-	private def onlyChanged(column: ColumnBase, newValuesMap: ValuesMap, oldValuesMap: ValuesMap) = newValuesMap(column.alias) != oldValuesMap(column.alias)
+	private def onlyChanged(column: ColumnBase, newValuesMap: ValuesMap, oldValuesMap: ValuesMap) = !newValuesMap[AnyRef](column.alias).eq(oldValuesMap(column.alias))
 
 	override def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
