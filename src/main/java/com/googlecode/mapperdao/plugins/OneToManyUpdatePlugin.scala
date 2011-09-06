@@ -29,6 +29,13 @@ class OneToManyUpdatePlugin(mapperDao: MapperDao) extends PostUpdate {
 				val newValues = t.toList
 				val oldValues = oldValuesMap.seq[Any](oneToMany.foreign.alias)
 
+				// find the removed ones
+				val odiff = oldValues.diff(newValues)
+				odiff.foreach { item =>
+					val fe = typeRegistry.entityOfObject[Any, Any](item)
+					mapperDao.delete(fe, item)
+				}
+
 				// update those that remained in the updated traversable
 				val intersection = newValues.intersect(oldValues)
 				intersection.foreach { item =>
@@ -50,13 +57,6 @@ class OneToManyUpdatePlugin(mapperDao: MapperDao) extends PostUpdate {
 					entityMap.up
 					modified(oneToMany.alias) = newItem
 					//addToMap(oneToMany.alias, newItem, modifiedTraversables)
-				}
-
-				// find the removed ones
-				val odiff = oldValues.diff(newValues)
-				odiff.foreach { item =>
-					val fe = typeRegistry.entityOfObject[Any, Any](item)
-					mapperDao.delete(fe, item)
 				}
 			}
 		}
