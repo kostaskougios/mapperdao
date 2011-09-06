@@ -38,7 +38,9 @@ class ManyToManyUpdatePlugin(mapperDao: MapperDao) extends PostUpdate {
 							mapperDao.updateInner(fe, item, entityMap)
 							entityMap.up
 							p.discarded = true
-						case _ => item
+							p
+						case _ =>
+							throw new IllegalStateException("Object not persisted but still exists in intersection of old and new collections. Please use the persisted entity when modifying the collection. The not persisted object is %s.".format(item))
 					}
 					modified(manyToMany.alias) = newItem
 				}

@@ -45,7 +45,7 @@ class ManyToManySpec extends SpecificationWithJUnit {
 		val product = Product(1, "blue jean", Set(Attribute(5, "colour", "blue"), Attribute(6, "size", "medium"), Attribute(7, "size", "large")))
 		val inserted = mapperDao.insert(ProductEntity, product)
 
-		val changed = Product(1, "just jean", product.attributes.filterNot(_.name == "size"));
+		val changed = Product(1, "just jean", inserted.attributes.filterNot(_.name == "size"));
 		val updated = mapperDao.update(ProductEntity, inserted, changed)
 		updated must_== changed
 
@@ -59,7 +59,7 @@ class ManyToManySpec extends SpecificationWithJUnit {
 		val product = Product(1, "blue jean", Set(Attribute(5, "colour", "blue")))
 		val inserted = mapperDao.insert(ProductEntity, product)
 
-		val changed = Product(1, "just jean", product.attributes + Attribute(6, "size", "medium") + Attribute(7, "size", "large"));
+		val changed = Product(1, "just jean", inserted.attributes + Attribute(6, "size", "medium") + Attribute(7, "size", "large"));
 		val updated = mapperDao.update(ProductEntity, inserted, changed)
 		updated must_== changed
 
@@ -75,7 +75,7 @@ class ManyToManySpec extends SpecificationWithJUnit {
 
 		val persistedA = mapperDao.insert(AttributeEntity, Attribute(6, "size", "medium"))
 
-		val changed = Product(1, "just jean", product.attributes + persistedA + Attribute(7, "size", "large"));
+		val changed = Product(1, "just jean", inserted.attributes + persistedA + Attribute(7, "size", "large"));
 		val updated = mapperDao.update(ProductEntity, inserted, changed)
 		updated must_== changed
 
