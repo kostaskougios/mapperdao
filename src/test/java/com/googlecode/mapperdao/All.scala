@@ -45,7 +45,8 @@ import com.googlecode.mapperdao.utils.ISetSpec
 		classOf[OneToManyQuerySpec],
 		classOf[OneToOneQuerySpec],
 		classOf[OneToOneWithoutReverseSpec],
-		classOf[TwoPrimaryKeysSimpleSpec]
+		classOf[TwoPrimaryKeysSimpleSpec],
+		classOf[IntermediateImmutableEntityWithStringFKsSpec]
 	)
 )
 class All extends SpecificationWithJUnit

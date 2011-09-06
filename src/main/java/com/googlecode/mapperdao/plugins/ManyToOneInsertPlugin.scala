@@ -36,7 +36,9 @@ class ManyToOneInsertPlugin(mapperDao: MapperDao) extends BeforeInsert {
 							entityMap.up
 							inserted
 					}
-					extraArgs :::= cis.column.columns zip typeRegistry.typeOf(fe).table.toListOfPrimaryKeyValues(v)
+					val columns = cis.column.columns.filterNot(table.primaryKeyColumns.contains(_))
+					if (!columns.isEmpty && columns.size != cis.column.columns.size) throw new IllegalStateException("only some of the primary keys were declared for %s, and those primary keys overlap manyToOne relationship declaration".format(tpe))
+					extraArgs :::= columns zip typeRegistry.typeOf(fe).table.toListOfPrimaryKeyValues(v)
 					v
 				} else null
 				modified(cis.column.alias) = v

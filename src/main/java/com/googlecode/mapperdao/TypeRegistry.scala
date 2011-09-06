@@ -29,6 +29,7 @@ final class TypeRegistry(entities: List[Entity[_, _]]) {
 		types = typesBuilder.result
 		entityToType = entityToTypeBuilder.result
 	}
+
 	def typeOf[PC, T](entity: Entity[PC, T]): Type[PC, T] =
 		{
 			val e = entityToType.getOrElse(entity, null)
@@ -50,7 +51,7 @@ final class TypeRegistry(entities: List[Entity[_, _]]) {
 	 */
 	protected[mapperdao] def entityOf[PC, T](clz: Class[T]): Entity[PC, T] =
 		{
-			val entity = types.getOrElse(clz, null)
+			val entity = types.getOrElse(clz, types.getOrElse(clz.getSuperclass(), null))
 			if (entity == null) throw new IllegalStateException("entity not registered for " + clz)
 			entity.asInstanceOf[Entity[PC, T]]
 		}

@@ -26,14 +26,16 @@ class OneToManyInsertPlugin(mapperDao: MapperDao) extends BeforeInsert with Post
 				val parentColumn = parentColumnInfo.column
 				parentColumn match {
 					case otm: OneToMany[_] =>
-						val foreignKeyColumns = otm.foreignColumns
-						val parentEntity = typeRegistry.entityOfObject[Any, Any](parent)
-						val parentTpe = typeRegistry.typeOf(parentEntity)
-						val parentTable = parentTpe.table
-						val parentKeysAndValues = parent.asInstanceOf[Persisted].valuesMap.toListOfColumnAndValueTuple(parentTable.primaryKeys)
-						val foreignKeys = parentKeysAndValues.map(_._2)
-						if (foreignKeys.size != foreignKeyColumns.size) throw new IllegalArgumentException("mappings of one-to-many from " + parent + " to " + o + " is invalid. Number of FK columns doesn't match primary keys. columns: " + foreignKeyColumns + " , primary key values " + foreignKeys);
-						foreignKeyColumns zip foreignKeys
+						val foreignKeyColumns = otm.foreignColumns.filterNot(tpe.table.primaryKeyColumns.contains(_))
+						if (!foreignKeyColumns.isEmpty) {
+							val parentEntity = typeRegistry.entityOfObject[Any, Any](parent)
+							val parentTpe = typeRegistry.typeOf(parentEntity)
+							val parentTable = parentTpe.table
+							val parentKeysAndValues = parent.asInstanceOf[Persisted].valuesMap.toListOfColumnAndValueTuple(parentTable.primaryKeys)
+							val foreignKeys = parentKeysAndValues.map(_._2)
+							if (foreignKeys.size != foreignKeyColumns.size) throw new IllegalArgumentException("mappings of one-to-many from " + parent + " to " + o + " is invalid. Number of FK columns doesn't match primary keys. columns: " + foreignKeyColumns + " , primary key values " + foreignKeys);
+							foreignKeyColumns zip foreignKeys
+						} else Nil
 					case _ => Nil
 				}
 			} else Nil
