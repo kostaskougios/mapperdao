@@ -37,7 +37,7 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 		doUpdate(updated, new JobPosition(5, "Developer Changed Again", date, date, 15))
 	}
 
-	"CRUD (simple type, no joins)" in {
+	"mutable CRUD (simple type, no joins)" in {
 
 		createJobPositionTable
 
@@ -59,6 +59,33 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 
 		val reloaded = mapperDao.select(JobPositionEntity, 5).get
 		reloaded must_== loaded
+
+		mapperDao.delete(JobPositionEntity, reloaded)
+
+		mapperDao.select(JobPositionEntity, 5) must_== None
+	}
+
+	"immutable CRUD (simple type, no joins)" in {
+
+		createJobPositionTable
+
+		val date = Setup.now
+		val jp = new JobPosition(5, "Developer", date, date, 10)
+		mapperDao.insert(JobPositionEntity, jp) must_== jp
+
+		// now load
+		val loaded = mapperDao.select(JobPositionEntity, 5).get
+		loaded must_== jp
+
+		// update
+		val changed = new JobPosition(5, "Scala Developer", date, date, 7)
+		val afterUpdate = mapperDao.update(JobPositionEntity, loaded, changed).asInstanceOf[Persisted]
+		afterUpdate.valuesMap(JobPositionEntity.name) must_== "Scala Developer"
+		afterUpdate.valuesMap(JobPositionEntity.rank) must_== 7
+		afterUpdate must_== changed
+
+		val reloaded = mapperDao.select(JobPositionEntity, 5).get
+		reloaded must_== afterUpdate
 
 		mapperDao.delete(JobPositionEntity, reloaded)
 
