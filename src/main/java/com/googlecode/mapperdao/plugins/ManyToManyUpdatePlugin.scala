@@ -28,6 +28,17 @@ class ManyToManyUpdatePlugin(mapperDao: MapperDao) extends PostUpdate {
 
 				val pkArgs = manyToMany.linkTable.left zip oldValuesMap.toListOfColumnValue(table.primaryKeys)
 
+				// find the removed ones
+				val odiff = oldValues.diff(newValues)
+				odiff.foreach(_ match {
+					case p: Persisted =>
+						val ftpe = typeRegistry.typeOfObject[Any, Any](p)
+						val ftable = ftpe.table
+						val fPkArgs = manyToMany.linkTable.right zip ftable.toListOfPrimaryKeyValues(p)
+						driver.doDeleteManyToManyRef(tpe, ftpe, manyToMany, pkArgs, fPkArgs)
+						p.discarded = true
+				})
+
 				// update those that remained in the updated traversable
 				val intersection = newValues.intersect(oldValues)
 				intersection.foreach { item =>
@@ -61,16 +72,6 @@ class ManyToManyUpdatePlugin(mapperDao: MapperDao) extends PostUpdate {
 					driver.doInsertManyToMany(tpe, manyToMany, pkArgs, fPKArgs)
 					modified(manyToMany.alias) = newItem
 				}
-				// find the removed ones
-				val odiff = oldValues.diff(newValues)
-				odiff.foreach(_ match {
-					case p: Persisted =>
-						val ftpe = typeRegistry.typeOfObject[Any, Any](p)
-						val ftable = ftpe.table
-						val fPkArgs = manyToMany.linkTable.right zip ftable.toListOfPrimaryKeyValues(p)
-						driver.doDeleteManyToManyRef(tpe, ftpe, manyToMany, pkArgs, fPkArgs)
-						p.discarded = true
-				})
 			}
 		}
 }
