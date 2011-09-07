@@ -26,6 +26,19 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 		inserted must_== e
 	}
 
+	"select" in {
+		createTables
+		val c1 = Company("c01", "web sites inc")
+		val c2 = Company("c02", "communications inc")
+
+		val e = new Employee("e01") {
+			val workedAt = List(WorkedAt(this, c1, 1990), WorkedAt(this, c2, 1992))
+		}
+		val inserted = insert(EmployeeEntity, e)
+		val selected = select(EmployeeEntity, inserted.no).get
+		selected must_== inserted
+	}
+
 	def createTables {
 		jdbc.update("drop table if exists Employee cascade")
 		jdbc.update("drop table if exists WorkedAt cascade")
@@ -58,6 +71,10 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 object IntermediateImmutableEntityWithStringFKsSpec {
 	abstract case class Employee(val no: String) {
 		val workedAt: List[WorkedAt]
+		override def equals(o: Any) = o match {
+			case e: Employee => super.equals(e) && workedAt.equals(e.workedAt)
+			case _ => false
+		}
 	}
 	case class WorkedAt(val employee: Employee, val company: Company, val year: Int)
 	case class Company(val no: String, val name: String)
