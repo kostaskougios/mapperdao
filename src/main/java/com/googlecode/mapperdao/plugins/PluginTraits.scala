@@ -40,6 +40,8 @@ trait PostInsert {
  */
 private[mapperdao] class DuringUpdateResults(val values: List[(Column, Any)], val keys: List[(Column, Any)]) {
 	def isEmpty = values.isEmpty && keys.isEmpty
+
+	override def toString = "DuringUpdateResults(values: %s, keys: %s)".format(values, keys)
 }
 
 trait DuringUpdate {

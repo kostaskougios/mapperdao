@@ -14,6 +14,23 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 
 	import mapperDao._
 
+	"update intermediate" in {
+		createTables
+
+		val e = new Employee("e01") {
+			val workedAt = List(WorkedAt(this, Company("c01", "web sites inc"), 1990), WorkedAt(this, Company("c02", "communications inc"), 1992))
+		}
+		val inserted = insert(EmployeeEntity, e)
+
+		val im = select(WorkedAtEntity, "e01", "c01").get
+		update(WorkedAtEntity, im, WorkedAt(im.employee, Company("c03", "company3"), 2000))
+
+		val selected = select(EmployeeEntity, inserted.no).get
+		test(selected, new Employee("e01") {
+			val workedAt = List(WorkedAt(this, Company("c03", "company3"), 2000), WorkedAt(this, Company("c02", "communications inc"), 1992))
+		})
+	}
+
 	"insert" in {
 		createTables
 		val c1 = Company("c01", "web sites inc")
@@ -159,7 +176,9 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 				employee_no varchar(20) not null,
 				company_no varchar(20) not null,
 				year int not null,
-				primary key (employee_no,company_no)
+				primary key (employee_no,company_no),
+				foreign key (employee_no) references Employee(no) on delete cascade,
+				foreign key (company_no) references Company(no) on delete cascade
 			)
 		""")
 	}

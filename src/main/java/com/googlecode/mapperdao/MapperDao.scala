@@ -228,6 +228,11 @@ final class MapperDao(val driver: Driver) {
 
 	private[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T with PC with Persisted =
 		{
+			// if a mock exists in the entity map or already persisted, then return
+			// the existing mock/persisted object
+			val mock = entityMap.get[PC, T](o)
+			if (mock.isDefined) return mock.get
+
 			val persisted = o.asInstanceOf[T with PC with Persisted]
 			val oldValuesMap = persisted.valuesMap
 			val newValuesMapPre = ValuesMap.fromEntity(typeManager, typeRegistry.typeOfObject(o), o)
