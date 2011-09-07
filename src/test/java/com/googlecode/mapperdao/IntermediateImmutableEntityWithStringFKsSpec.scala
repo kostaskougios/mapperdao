@@ -39,12 +39,103 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 		test(selected, inserted)
 	}
 
-	def test(actual: Employee, expected: Employee) = {
+	"update, add more intermediate" in {
+		createTables
 
+		val c1 = Company("c01", "web sites inc")
+		val c2 = Company("c02", "communications inc")
+		val c3 = Company("c03", "company-3")
+
+		val e = new Employee("e01") {
+			val workedAt = List(WorkedAt(this, c1, 1990), WorkedAt(this, c2, 1992))
+		}
+		val inserted = insert(EmployeeEntity, e)
+		val ue = new Employee("e01") {
+			val workedAt = inserted.workedAt ::: List(WorkedAt(this, c3, 1993))
+		}
+
+		val updated = update(EmployeeEntity, inserted, ue)
+		test(updated, ue)
+		val selected = select(EmployeeEntity, inserted.no).get
+		test(selected, updated)
+	}
+
+	"update, add more intermediate, existing entity" in {
+		createTables
+
+		val c1 = Company("c01", "web sites inc")
+		val c2 = Company("c02", "communications inc")
+		val c3 = insert(CompanyEntity, Company("c03", "company-3"))
+
+		val e = new Employee("e01") {
+			val workedAt = List(WorkedAt(this, c1, 1990), WorkedAt(this, c2, 1992))
+		}
+		val inserted = insert(EmployeeEntity, e)
+		val ue = new Employee("e01") {
+			val workedAt = inserted.workedAt ::: List(WorkedAt(this, c3, 1993))
+		}
+
+		val updated = update(EmployeeEntity, inserted, ue)
+		test(updated, ue)
+		val selected = select(EmployeeEntity, inserted.no).get
+		test(selected, updated)
+	}
+
+	"update, remove an intermediate" in {
+		createTables
+
+		val c1 = Company("c01", "web sites inc")
+		val c2 = Company("c02", "communications inc")
+		val c3 = Company("c03", "company-3")
+
+		val e = new Employee("e01") {
+			val workedAt = List(WorkedAt(this, c1, 1990), WorkedAt(this, c2, 1992), WorkedAt(this, c3, 1992))
+		}
+		val inserted = insert(EmployeeEntity, e)
+		val ue = new Employee("e01") {
+			val workedAt = inserted.workedAt.filterNot(w => w.year == 1992)
+		}
+
+		val updated = update(EmployeeEntity, inserted, ue)
+		test(updated, ue)
+		val selected = select(EmployeeEntity, inserted.no).get
+		test(selected, updated)
+	}
+
+	"update, remove an intermediate affects only correct entity" in {
+		createTables
+
+		val c1 = insert(CompanyEntity, Company("c01", "web sites inc"))
+		val c2 = insert(CompanyEntity, Company("c02", "communications inc"))
+		val c3 = insert(CompanyEntity, Company("c03", "company-3"))
+
+		val e1 = new Employee("e01") {
+			val workedAt = List(WorkedAt(this, c1, 1990), WorkedAt(this, c2, 1992), WorkedAt(this, c3, 1992))
+		}
+		val inserted = insert(EmployeeEntity, e1)
+
+		val e2 = insert(EmployeeEntity, new Employee("e02") {
+			val workedAt = List(WorkedAt(this, c1, 2000), WorkedAt(this, c2, 2001), WorkedAt(this, c3, 2002))
+		})
+
+		val ue = new Employee("e01") {
+			val workedAt = inserted.workedAt.filterNot(w => w.year == 1992)
+		}
+
+		update(EmployeeEntity, inserted, ue)
+		val selected = select(EmployeeEntity, e2.no).get
+		test(selected, e2)
+	}
+
+	// due to cyclic dependencies, we can't just compare the entites
+	// cause recursive calls will be done till an out of stack error
+	// with be thrown
+	def test(actual: Employee, expected: Employee) = {
 		def toS(w: WorkedAt) = "%s,%s,%d".format(w.employee.no, w.company, w.year)
 		expected.workedAt.map(toS _).toSet must_== actual.workedAt.map(toS _).toSet
 		expected.no must_== actual.no
 	}
+
 	def createTables {
 		jdbc.update("drop table if exists Employee cascade")
 		jdbc.update("drop table if exists WorkedAt cascade")
