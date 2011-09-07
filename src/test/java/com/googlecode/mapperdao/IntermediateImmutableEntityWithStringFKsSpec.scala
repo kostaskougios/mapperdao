@@ -14,30 +14,30 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 
 	import mapperDao._
 
-	"insert" in {
-		createTables
-		val c1 = Company("c01", "web sites inc")
-		val c2 = Company("c02", "communications inc")
+	//	"insert" in {
+	//		createTables
+	//		val c1 = Company("c01", "web sites inc")
+	//		val c2 = Company("c02", "communications inc")
+	//
+	//		val e = new Employee("e01") {
+	//			val workedAt = List(WorkedAt(this, c1, 1990), WorkedAt(this, c2, 1992))
+	//		}
+	//		val inserted = insert(EmployeeEntity, e)
+	//		inserted must_== e
+	//	}
 
-		val e = new Employee("e01") {
-			val workedAt = List(WorkedAt(this, c1, 1990), WorkedAt(this, c2, 1992))
-		}
-		val inserted = insert(EmployeeEntity, e)
-		inserted must_== e
-	}
-
-	"select" in {
-		createTables
-		val c1 = Company("c01", "web sites inc")
-		val c2 = Company("c02", "communications inc")
-
-		val e = new Employee("e01") {
-			val workedAt = List(WorkedAt(this, c1, 1990), WorkedAt(this, c2, 1992))
-		}
-		val inserted = insert(EmployeeEntity, e)
-		val selected = select(EmployeeEntity, inserted.no).get
-		selected must_== inserted
-	}
+	//	"select" in {
+	//		createTables
+	//		val c1 = Company("c01", "web sites inc")
+	//		val c2 = Company("c02", "communications inc")
+	//
+	//		val e = new Employee("e01") {
+	//			val workedAt = List(WorkedAt(this, c1, 1990), WorkedAt(this, c2, 1992))
+	//		}
+	//		val inserted = insert(EmployeeEntity, e)
+	//		val selected = select(EmployeeEntity, inserted.no).get
+	//		selected must_== inserted
+	//	}
 
 	def createTables {
 		jdbc.update("drop table if exists Employee cascade")

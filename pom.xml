@@ -206,6 +206,34 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.2.1</version>
+			</plugin>
+			<plugin>
+				<artifactId>maven-repository-plugin</artifactId>
+				<version>2.3.1</version>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2.1</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<descriptors>
+						<descriptor>src/main/assembly/dist.xml</descriptor>
+					</descriptors>
+					<descriptorRefs>
+						<descriptorRef>project</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 	<repositories>
@@ -228,4 +256,30 @@
 			<url>http://scala-tools.org/repo-releases</url>
 		</pluginRepository>
 	</pluginRepositories>
+	<profiles>
+		<profile>
+			<id>sonatype-deploy</id>
+			<build>
+				<defaultGoal>deploy</defaultGoal>
+				<plugins>
+					<plugin>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.4</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+								<configuration>
+									<useAgent>true</useAgent>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
