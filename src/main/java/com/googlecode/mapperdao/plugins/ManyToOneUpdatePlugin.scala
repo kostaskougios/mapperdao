@@ -25,15 +25,16 @@ class ManyToOneUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate {
 
 			table.manyToOneColumnInfos.foreach { ci =>
 				val v = ci.columnToValue(o)
-				val fEntity = typeRegistry.entityOfObject[Any, Any](v)
 				val newV = v match {
-					case null => throw new NullPointerException("unexpected null for primary entity on ManyToOne mapping, for entity %s.".format(o))
+					case null => null //throw new NullPointerException("unexpected null for primary entity on ManyToOne mapping, for entity %s.".format(o))
 					case p: Persisted =>
+						val fEntity = typeRegistry.entityOfObject[Any, Any](v)
 						entityMap.down(o, ci)
 						val newV = mapperDao.updateInner(fEntity, v, entityMap)
 						entityMap.up
 						newV
 					case _ =>
+						val fEntity = typeRegistry.entityOfObject[Any, Any](v)
 						entityMap.down(o, ci)
 						val newV = mapperDao.insertInner(fEntity, v, entityMap)
 						entityMap.up
