@@ -1,1 +1,3 @@
-mvn clean package source:jar gpg:sign repository:bundle-create
+# build mapperdao to target directory and gpg sign
+
+mvn clean source:jar scala:doc package gpg:sign

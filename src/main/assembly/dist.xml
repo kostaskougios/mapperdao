@@ -23,17 +23,16 @@
       </includes>
       <excludes>
         <exclude>*-javadoc.jar</exclude>
+        <exclude>*-scaladoc.jar</exclude>
       </excludes>
     </fileSet>
-    <!-- 
     <fileSet>
-      <directory>${project.build.directory}/apidocs</directory>
+      <directory>${project.build.directory}/site/scaladocs</directory>
       <outputDirectory>doc</outputDirectory>
       <includes>
         <include>**/*</include>
       </includes>
     </fileSet>
-     -->
   </fileSets>
   <dependencySets>
     <dependencySet>
