@@ -238,20 +238,24 @@ final class MapperDao(val driver: Driver) {
 	def update[PC, T](entity: Entity[PC, T], o: T with PC, newO: T): T with PC =
 		{
 			if (!o.isInstanceOf[Persisted]) throw new IllegalArgumentException("can't update an object that is not persisted: " + o);
-			val persisted = o.asInstanceOf[Persisted]
+			val persisted = o.asInstanceOf[T with PC with Persisted]
 			validatePersisted(persisted)
 			persisted.discarded = true
-			val oldValuesMap = persisted.valuesMap
-			val newValuesMap = ValuesMap.fromEntity(typeManager, typeRegistry.typeOfObject(newO), newO)
-			val entityMap = new UpdateEntityMap
 			try {
-				val v = updateInner(entity, newO, oldValuesMap, newValuesMap, entityMap)
+				val entityMap = new UpdateEntityMap
+				val v = updateInner(entity, persisted, newO, entityMap)
 				entityMap.done
 				v
 			} catch {
 				case e => throw new PersistException("An error occured during update of entity %s with old value %s and new value %s".format(entity, o, newO), e)
 			}
+		}
 
+	protected[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC with Persisted, newO: T, entityMap: UpdateEntityMap): T with PC =
+		{
+			val oldValuesMap = o.valuesMap
+			val newValuesMap = ValuesMap.fromEntity(typeManager, typeRegistry.typeOfObject(newO), newO)
+			updateInner(entity, newO, oldValuesMap, newValuesMap, entityMap)
 		}
 
 	private def validatePersisted(persisted: Persisted) {

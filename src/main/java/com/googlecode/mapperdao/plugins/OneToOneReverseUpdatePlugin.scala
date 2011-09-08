@@ -56,7 +56,7 @@ class OneToOneReverseUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate wit
 								mapperDao.insertInner(fentity, fo, entityMap)
 							} else {
 								val nVM = ValuesMap.fromEntity(typeManager, ftpe, fo)
-								mapperDao.updateInner(fentity, fo, oldV.asInstanceOf[Persisted].valuesMap, nVM, entityMap)
+								mapperDao.updateInner(fentity, oldV.asInstanceOf[Persisted], fo, entityMap)
 							}
 							entityMap.up
 					}
