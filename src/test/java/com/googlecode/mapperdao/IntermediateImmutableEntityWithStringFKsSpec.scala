@@ -201,9 +201,10 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 			val workedAt = m(EmployeeEntity.workedAt).toList
 		}
 	}
+
 	object WorkedAtEntity extends SimpleEntity[WorkedAt](classOf[WorkedAt]) {
-		val employee_no = stringPK("employee_no", _.employee.no)
-		val company_no = stringPK("company_no", _.company.no)
+		val employee_no = stringPK("employee_no", (wat: WorkedAt) => if (wat.employee == null) null else wat.employee.no)
+		val company_no = stringPK("company_no", (wat: WorkedAt) => if (wat.company == null) null else wat.company.no)
 		val year = int("year", _.year)
 
 		val employee = manyToOne("employee_no", classOf[Employee], _.employee)
@@ -213,6 +214,7 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 			val valuesMap = m
 		}
 	}
+
 	object CompanyEntity extends SimpleEntity[Company](classOf[Company]) {
 		val no = stringPK("no", _.no)
 		val name = string("name", _.name)

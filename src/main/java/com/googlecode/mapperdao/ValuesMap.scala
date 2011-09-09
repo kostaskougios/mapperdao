@@ -3,6 +3,7 @@ import scala.collection.mutable.Buffer
 import java.util.Calendar
 import org.joda.time.DateTime
 import com.googlecode.mapperdao.utils.ISet
+import com.googlecode.mapperdao.utils.Equality
 
 /**
  * @author kostantinos.kougios
@@ -185,6 +186,7 @@ class ValuesMap(typeManager: TypeManager, protected[mapperdao] var m: scala.coll
 
 	protected[mapperdao] def toListOfColumnAndValueTuple(columns: List[ColumnBase]) = columns.map(c => (c, m(c.alias)))
 	protected[mapperdao] def toListOfColumnValue(columns: List[ColumnBase]) = columns.map(c => m(c.alias))
+	protected[mapperdao] def isChanged(from: ValuesMap): Boolean = m.forall(v => Equality.isEqual(v._2, from.m(v._1)))
 }
 
 object ValuesMap {
