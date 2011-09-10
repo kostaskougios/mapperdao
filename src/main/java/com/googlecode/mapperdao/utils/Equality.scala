@@ -15,7 +15,7 @@ protected[mapperdao] object Equality {
 
 	def isEqual(o1: Any, o2: Any): Boolean = o1 match {
 		case _: String => o1 == o2
-		case _: Int | Boolean | Long | Byte | Short | Char => o1 == o2
+		case _: Int | _: Boolean | _: Long | _: Byte | _: Short | _: Char => o1 == o2
 		case _: Float => o1 == o2
 		case _: Double => o1 == o2
 		case a1: AnyRef => o2 match {

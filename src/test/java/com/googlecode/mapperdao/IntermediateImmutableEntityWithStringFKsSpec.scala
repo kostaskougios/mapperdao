@@ -186,6 +186,8 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 object IntermediateImmutableEntityWithStringFKsSpec {
 	abstract case class Employee(val no: String) {
 		val workedAt: List[WorkedAt]
+
+		override def toString = "Employee(%s,%s)".format(no, workedAt)
 	}
 	case class WorkedAt(val employee: Employee, val company: Company, val year: Int)
 	case class Company(val no: String, val name: String)

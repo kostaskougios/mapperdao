@@ -11,7 +11,7 @@ import com.googlecode.mapperdao.ManyToMany
  *
  * 31 Aug 2011
  */
-class ManyToManySelectPlugin(mapperDao: MapperDao) extends BeforeSelect {
+class ManyToManySelectPlugin(mapperDao: MapperDao) extends BeforeSelect with SelectMock {
 	private val typeRegistry = mapperDao.typeRegistry
 	private val driver = mapperDao.driver
 
@@ -32,4 +32,9 @@ class ManyToManySelectPlugin(mapperDao: MapperDao) extends BeforeSelect {
 				mods(c.foreign.alias) = mtmR
 			}
 		}
+
+	override def updateMock[PC, T](tpe: Type[PC, T], mods: scala.collection.mutable.HashMap[String, Any]) {
+		mods ++= tpe.table.manyToManyColumns.map(c => (c.alias -> List()))
+	}
+
 }

@@ -27,6 +27,7 @@ import com.googlecode.mapperdao.plugins.ManyToManySelectPlugin
 import com.googlecode.mapperdao.plugins.DuringUpdateResults
 import com.googlecode.mapperdao.plugins.OneToOneUpdatePlugin
 import com.googlecode.mapperdao.jdbc.JdbcMap
+import com.googlecode.mapperdao.plugins.SelectMock
 
 /**
  * @author kostantinos.kougios
@@ -43,6 +44,7 @@ final class MapperDao(val driver: Driver) {
 	private val beforeInsertPlugins = List[BeforeInsert](new ManyToOneInsertPlugin(this), new OneToManyInsertPlugin(this), new OneToOneReverseInsertPlugin(this), new OneToOneInsertPlugin(this))
 	private val postInsertPlugins = List[PostInsert](new OneToOneInsertPlugin(this), new OneToOneReverseInsertPlugin(this), new OneToManyInsertPlugin(this), new ManyToManyInsertPlugin(this))
 	private val selectBeforePlugins: List[BeforeSelect] = List(new ManyToOneSelectPlugin(this), new OneToManySelectPlugin(this), new OneToOneReverseSelectPlugin(this), new OneToOneSelectPlugin(this), new ManyToManySelectPlugin(this))
+	private val mockPlugins: List[SelectMock] = List(new OneToManySelectPlugin(this), new ManyToManySelectPlugin(this))
 
 	/**
 	 * ===================================================================================
@@ -76,8 +78,7 @@ final class MapperDao(val driver: Driver) {
 			val updateInfo @ UpdateInfo(parent, parentColumnInfo) = entityMap.peek[Any, Any, T]
 
 			// create a mock
-			var mockO = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified ++ modifiedTraversables))
-			mockO.mock = true
+			var mockO = createMock(tpe, modified ++ modifiedTraversables)
 			entityMap.put(o, mockO)
 
 			val extraArgs = beforeInsertPlugins.map { plugin =>
@@ -97,8 +98,7 @@ final class MapperDao(val driver: Driver) {
 			}
 
 			// create a more up-to-date mock
-			mockO = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified ++ modifiedTraversables))
-			mockO.mock = true
+			mockO = createMock(tpe, modified ++ modifiedTraversables)
 			entityMap.put(o, mockO)
 
 			postInsertPlugins.foreach { plugin =>
@@ -145,8 +145,7 @@ final class MapperDao(val driver: Driver) {
 			val modifiedTraversables = new MapOfList[String, Any]
 
 			// store a mock in the entity map so that we don't process the same instance twice
-			var mockO = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified ++ modifiedTraversables))
-			mockO.mock = true
+			var mockO = createMock(tpe, modified ++ modifiedTraversables)
 			entityMap.put(o, mockO)
 
 			// first, lets update the simple columns that changed
@@ -168,8 +167,7 @@ final class MapperDao(val driver: Driver) {
 			}
 
 			// update the mock
-			mockO = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified ++ modifiedTraversables))
-			mockO.mock = true
+			mockO = createMock(tpe, modified ++ modifiedTraversables)
 			entityMap.put(o, mockO)
 
 			postUpdatePlugins.foreach { plugin =>
@@ -221,8 +219,8 @@ final class MapperDao(val driver: Driver) {
 				case _ =>
 					// if a mock exists in the entity map or already persisted, then return
 					// the existing mock/persisted object
-					val mock = entityMap.get[PC, T](o)
-					if (mock.isDefined) return mock.get
+					val existing = entityMap.get[PC, T](o)
+					if (existing.isDefined) return existing.get
 
 					val persisted = o.asInstanceOf[T with PC with Persisted]
 					val oldValuesMap = persisted.valuesMap
@@ -327,18 +325,7 @@ final class MapperDao(val driver: Driver) {
 		if (entity.isDefined) {
 			entity.get
 		} else {
-			def createMock: T with Persisted =
-				{
-					mods ++= table.oneToManyColumns.map(c => (c.alias -> List()))
-					mods ++= table.manyToManyColumns.map(c => (c.alias -> List()))
-					// create a mock of the final entity, to avoid cyclic dependencies
-					val mock = tpe.constructor(ValuesMap.fromMutableMap(typeManager, mods))
-					// mark it as mock
-					mock.mock = true
-					mock
-				}
-			// this mock object is updated with any changes that follow
-			val mock = createMock
+			val mock = createMock(tpe, mods)
 			entities.put(tpe.clz, ids, mock)
 
 			selectBeforePlugins.foreach { plugin =>
@@ -346,12 +333,28 @@ final class MapperDao(val driver: Driver) {
 			}
 
 			val vm = ValuesMap.fromMutableMap(typeManager, mods)
-			mock.valuesMap.m = vm.m
 			val entity = tpe.constructor(vm)
 			entities.reput(tpe.clz, ids, entity)
 			entity
 		}
 	}
+
+	/**
+	 * creates a mock object
+	 */
+	private def createMock[PC, T](tpe: Type[PC, T], mods: scala.collection.mutable.Map[String, Any]): T with PC with Persisted =
+		{
+			val mockMods = new scala.collection.mutable.HashMap[String, Any]
+			mockMods ++= mods
+			mockPlugins.foreach { plugin =>
+				plugin.updateMock(tpe, mockMods)
+			}
+			// create a mock of the final entity, to avoid cyclic dependencies
+			val mock = tpe.constructor(ValuesMap.fromMutableMap(typeManager, mockMods))
+			// mark it as mock
+			mock.mock = true
+			mock
+		}
 
 	/**
 	 * deletes an entity from the database

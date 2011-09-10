@@ -2,7 +2,6 @@ package com.googlecode.mapperdao
 import scala.collection.mutable.Buffer
 import java.util.Calendar
 import org.joda.time.DateTime
-import com.googlecode.mapperdao.utils.ISet
 import com.googlecode.mapperdao.utils.Equality
 
 /**
@@ -10,7 +9,7 @@ import com.googlecode.mapperdao.utils.Equality
  *
  * 16 Jul 2011
  */
-class ValuesMap(typeManager: TypeManager, protected[mapperdao] var m: scala.collection.mutable.Map[String, Any]) {
+class ValuesMap(typeManager: TypeManager, private val m: scala.collection.mutable.Map[String, Any]) {
 	protected[mapperdao] def apply[T](column: String): T = typeManager.deepClone(m.getOrElse(column, null).asInstanceOf[T])
 
 	private def update[T, V](column: ColumnInfo[T, _], v: V): Unit =
@@ -155,19 +154,6 @@ class ValuesMap(typeManager: TypeManager, protected[mapperdao] var m: scala.coll
 			}
 		}
 
-	def iset[T, V](column: ColumnInfoTraversableOneToMany[T, V]): ISet[V] =
-		{
-			val key = column.column.alias
-			val t = apply[Traversable[V]](key)
-			new ISet(this, column.column.columnName)
-		}
-	def iset[T, V](column: ColumnInfoTraversableManyToMany[T, V]): ISet[V] =
-		{
-			val key = column.column.alias
-			val t = apply[Traversable[V]](key)
-			new ISet(this, key)
-		}
-
 	def mutableHashSet[T, V](column: ColumnInfoTraversableManyToMany[T, V]): scala.collection.mutable.HashSet[V] = new scala.collection.mutable.HashSet ++ apply(column)
 	def mutableLinkedList[T, V](column: ColumnInfoTraversableManyToMany[T, V]): scala.collection.mutable.LinkedList[V] = new scala.collection.mutable.LinkedList ++ apply(column)
 
@@ -186,7 +172,7 @@ class ValuesMap(typeManager: TypeManager, protected[mapperdao] var m: scala.coll
 
 	protected[mapperdao] def toListOfColumnAndValueTuple(columns: List[ColumnBase]) = columns.map(c => (c, m(c.alias)))
 	protected[mapperdao] def toListOfColumnValue(columns: List[ColumnBase]) = columns.map(c => m(c.alias))
-	protected[mapperdao] def isChanged(from: ValuesMap): Boolean = m.exists { v => !Equality.isEqual(v._2, from.m(v._1)) }
+	protected[mapperdao] def isChanged(from: ValuesMap): Boolean = m.size != from.m.size || m.exists { v => !Equality.isEqual(v._2, from.m(v._1)) }
 }
 
 object ValuesMap {
