@@ -186,7 +186,7 @@ class ValuesMap(typeManager: TypeManager, protected[mapperdao] var m: scala.coll
 
 	protected[mapperdao] def toListOfColumnAndValueTuple(columns: List[ColumnBase]) = columns.map(c => (c, m(c.alias)))
 	protected[mapperdao] def toListOfColumnValue(columns: List[ColumnBase]) = columns.map(c => m(c.alias))
-	protected[mapperdao] def isChanged(from: ValuesMap): Boolean = m.forall(v => Equality.isEqual(v._2, from.m(v._1)))
+	protected[mapperdao] def isChanged(from: ValuesMap): Boolean = m.exists { v => !Equality.isEqual(v._2, from.m(v._1)) }
 }
 
 object ValuesMap {

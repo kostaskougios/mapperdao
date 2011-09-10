@@ -13,7 +13,6 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 	val (jdbc, mapperDao) = Setup.setupMapperDao(TypeRegistry(EmployeeEntity, WorkedAtEntity, CompanyEntity))
 
 	import mapperDao._
-
 	"update intermediate" in {
 		createTables
 

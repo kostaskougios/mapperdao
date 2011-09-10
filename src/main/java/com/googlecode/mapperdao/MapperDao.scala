@@ -214,7 +214,9 @@ final class MapperDao(val driver: Driver) {
 					// report an error if mock was changed by the user
 					val newVM = ValuesMap.fromEntity(typeManager, typeRegistry.typeOfObject(o), o)
 					val oldVM = v.valuesMap
-					if (newVM.isChanged(oldVM)) throw new IllegalStateException("please don't modify mock objects. Object %s is mock and has been modified.".format(p))
+					if (newVM.isChanged(oldVM)) {
+						throw new IllegalStateException("please don't modify mock objects. Object %s is mock and has been modified.".format(p))
+					}
 					v
 				case _ =>
 					// if a mock exists in the entity map or already persisted, then return
