@@ -11,7 +11,21 @@ import com.googlecode.mapperdao.jdbc.Setup
 class ManyToManySpec extends SpecificationWithJUnit {
 	import ManyToManySpec._
 
-	val (jdbc, mapperDao) = setup
+	val (jdbc, mapperDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+
+	"modify leaf node values" in {
+		createTables
+		val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
+		val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
+		val product = Product(2, "blue jean", Set(a1, a2))
+		val inserted = mapperDao.insert(ProductEntity, product)
+
+		val ua1 = mapperDao.update(AttributeEntity, a1, Attribute(6, "colour", "red"))
+		ua1 must_== Attribute(6, "colour", "red")
+
+		mapperDao.select(AttributeEntity, 6).get must_== Attribute(6, "colour", "red")
+		mapperDao.select(ProductEntity, 2).get must_== Product(2, "blue jean", Set(ua1, a2))
+	}
 
 	"insert tree of entities" in {
 		createTables
@@ -19,8 +33,6 @@ class ManyToManySpec extends SpecificationWithJUnit {
 		val inserted = mapperDao.insert(ProductEntity, product)
 		inserted must_== product
 
-		// due to cyclic reference, the attributes set contains "mock" products which have empty traversables.
-		// it is not possible to create cyclic-depended immutable instances.
 		mapperDao.select(ProductEntity, 5).get must_== inserted
 
 		// attributes->product should also work
@@ -36,7 +48,6 @@ class ManyToManySpec extends SpecificationWithJUnit {
 		val inserted = mapperDao.insert(ProductEntity, product)
 		inserted must_== product
 
-		// due to cyclic reference, the attributes collection contains "mock" products which have empty traversables
 		mapperDao.select(ProductEntity, 2).get must_== inserted
 	}
 
@@ -114,12 +125,6 @@ class ManyToManySpec extends SpecificationWithJUnit {
 						foreign key (attribute_id) references Attribute(id)
 					)
 			""")
-		}
-	def setup =
-		{
-			val typeRegistry = TypeRegistry(ProductEntity, AttributeEntity)
-
-			Setup.setupMapperDao(typeRegistry)
 		}
 }
 
