@@ -43,7 +43,7 @@ class ManyToManyUpdatePlugin(mapperDao: MapperDao) extends PostUpdate {
 				// update those that remained in the updated traversable
 				intersection.foreach { item =>
 					val newItem = item match {
-						case p: Persisted if (!p.mock) =>
+						case p: Persisted =>
 							val fe = typeRegistry.entityOfObject[Any, Any](item)
 							entityMap.down(mockO, ci)
 							mapperDao.updateInner(fe, item, entityMap)
