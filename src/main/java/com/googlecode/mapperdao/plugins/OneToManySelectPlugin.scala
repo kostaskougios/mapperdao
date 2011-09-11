@@ -31,6 +31,7 @@ class OneToManySelectPlugin(mapperDao: MapperDao) extends BeforeSelect with Sele
 				mods(c.foreign.alias) = otmL
 			}
 		}
+
 	override def updateMock[PC, T](tpe: Type[PC, T], mods: scala.collection.mutable.HashMap[String, Any]) {
 		mods ++= tpe.table.oneToManyColumns.map(c => (c.alias -> List()))
 	}

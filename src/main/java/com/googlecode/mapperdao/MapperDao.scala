@@ -44,7 +44,7 @@ final class MapperDao(val driver: Driver) {
 	private val beforeInsertPlugins = List[BeforeInsert](new ManyToOneInsertPlugin(this), new OneToManyInsertPlugin(this), new OneToOneReverseInsertPlugin(this), new OneToOneInsertPlugin(this))
 	private val postInsertPlugins = List[PostInsert](new OneToOneInsertPlugin(this), new OneToOneReverseInsertPlugin(this), new OneToManyInsertPlugin(this), new ManyToManyInsertPlugin(this))
 	private val selectBeforePlugins: List[BeforeSelect] = List(new ManyToOneSelectPlugin(this), new OneToManySelectPlugin(this), new OneToOneReverseSelectPlugin(this), new OneToOneSelectPlugin(this), new ManyToManySelectPlugin(this))
-	private val mockPlugins: List[SelectMock] = List(new OneToManySelectPlugin(this), new ManyToManySelectPlugin(this))
+	private val mockPlugins: List[SelectMock] = List(new OneToManySelectPlugin(this), new ManyToManySelectPlugin(this), new ManyToOneSelectPlugin(this), new OneToOneSelectPlugin(this))
 
 	/**
 	 * ===================================================================================
@@ -350,7 +350,8 @@ final class MapperDao(val driver: Driver) {
 				plugin.updateMock(tpe, mockMods)
 			}
 			// create a mock of the final entity, to avoid cyclic dependencies
-			val mock = tpe.constructor(ValuesMap.fromMutableMap(typeManager, mockMods))
+			val preMock = tpe.constructor(ValuesMap.fromMutableMap(typeManager, mockMods))
+			val mock = tpe.constructor(ValuesMap.fromEntity(typeManager, tpe, preMock))
 			// mark it as mock
 			mock.mock = true
 			mock

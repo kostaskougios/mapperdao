@@ -10,7 +10,7 @@ import com.googlecode.mapperdao.EntityMap
  *
  * 31 Aug 2011
  */
-class OneToOneSelectPlugin(mapperDao: MapperDao) extends BeforeSelect {
+class OneToOneSelectPlugin(mapperDao: MapperDao) extends BeforeSelect with SelectMock {
 	private val typeRegistry = mapperDao.typeRegistry
 	private val driver = mapperDao.driver
 
@@ -40,4 +40,7 @@ class OneToOneSelectPlugin(mapperDao: MapperDao) extends BeforeSelect {
 			}
 		}
 
+	override def updateMock[PC, T](tpe: Type[PC, T], mods: scala.collection.mutable.HashMap[String, Any]) {
+		mods ++= tpe.table.oneToOneColumns.map(c => (c.alias -> null))
+	}
 }

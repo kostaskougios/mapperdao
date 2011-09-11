@@ -11,7 +11,7 @@ import com.googlecode.mapperdao.ManyToOne
  *
  * 31 Aug 2011
  */
-class ManyToOneSelectPlugin(mapperDao: MapperDao) extends BeforeSelect {
+class ManyToOneSelectPlugin(mapperDao: MapperDao) extends BeforeSelect with SelectMock {
 	private val typeRegistry = mapperDao.typeRegistry
 
 	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any] = Nil
@@ -36,4 +36,8 @@ class ManyToOneSelectPlugin(mapperDao: MapperDao) extends BeforeSelect {
 				mods(c.foreign.alias) = v
 			}
 		}
+
+	override def updateMock[PC, T](tpe: Type[PC, T], mods: scala.collection.mutable.HashMap[String, Any]) {
+		mods ++= tpe.table.manyToOneColumns.map(c => (c.alias -> null))
+	}
 }
