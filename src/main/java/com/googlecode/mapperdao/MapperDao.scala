@@ -210,9 +210,10 @@ final class MapperDao(val driver: Driver) {
 				case p: Persisted if (p.mock) =>
 					val v = o.asInstanceOf[T with PC with Persisted]
 					// report an error if mock was changed by the user
-					val newVM = ValuesMap.fromEntity(typeManager, typeRegistry.typeOfObject(o), o)
+					val tpe = typeRegistry.typeOfObject(o)
+					val newVM = ValuesMap.fromEntity(typeManager, tpe, o, false)
 					val oldVM = v.valuesMap
-					if (newVM.isChanged(oldVM)) {
+					if (newVM.isSimpleColumnsChanged(tpe, oldVM)) {
 						throw new IllegalStateException("please don't modify mock objects. Object %s is mock and has been modified.".format(p))
 					}
 					v
