@@ -11,7 +11,7 @@ import com.googlecode.mapperdao.jdbc.Setup
  */
 class ManyToOneAndOneToManyCyclicSpec extends SpecificationWithJUnit {
 	import ManyToOneAndOneToManyCyclicSpec._
-	val (jdbc, mapperDao) = setup
+	val (jdbc, mapperDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity))
 
 	"insert" in {
 		createTables
@@ -68,13 +68,6 @@ class ManyToOneAndOneToManyCyclicSpec extends SpecificationWithJUnit {
 						foreign key (company_id) references Company(id) on delete cascade
 					)
 			""")
-		}
-
-	def setup =
-		{
-			val typeRegistry = TypeRegistry(PersonEntity, CompanyEntity)
-
-			Setup.setupMapperDao(typeRegistry)
 		}
 }
 
