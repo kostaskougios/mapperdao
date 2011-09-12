@@ -17,6 +17,34 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 	import SimpleTypesSpec._
 	val (jdbc, mapperDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
 
+	"update id, immutable" in {
+		createJobPositionTable
+
+		val date = Setup.now
+		val jp = JobPosition(5, "Developer", date, date - 2.months, 10)
+		val inserted = mapperDao.insert(JobPositionEntity, jp)
+
+		val newV = JobPosition(7, "X", date, date - 2.months, 10)
+		val updated = mapperDao.update(JobPositionEntity, inserted, newV)
+		updated must_== newV
+		mapperDao.select(JobPositionEntity, 7).get must_== updated
+		mapperDao.select(JobPositionEntity, 5) must beNone
+	}
+
+	"update id, mutable" in {
+		createJobPositionTable
+
+		val date = Setup.now
+		val jp = JobPosition(5, "Developer", date, date - 2.months, 10)
+		val inserted = mapperDao.insert(JobPositionEntity, jp)
+
+		inserted.id = 7
+		val updated = mapperDao.update(JobPositionEntity, inserted)
+		updated must_== inserted
+		mapperDao.select(JobPositionEntity, 7).get must_== updated
+		mapperDao.select(JobPositionEntity, 5) must beNone
+	}
+
 	"immutable update" in {
 		createJobPositionTable
 
@@ -172,7 +200,7 @@ object SimpleTypesSpec {
 	 * Also the only reason for this class to be mutable is for testing. In a real application
 	 * it would better be immutable.
 	 */
-	case class JobPosition(val id: Int, var name: String, val start: DateTime, val end: DateTime, var rank: Int) {
+	case class JobPosition(var id: Int, var name: String, val start: DateTime, val end: DateTime, var rank: Int) {
 		// this can have any arbitrary methods, no problem!
 		def daysDiff = (end.getMillis - start.getMillis) / (3600 * 24)
 
