@@ -15,6 +15,15 @@ class OneToOneImmutableOneWaySpec extends SpecificationWithJUnit {
 
 	import mapperDao._
 
+	"update id" in {
+		createTables
+		val inserted = insert(ProductEntity, Product(1, Inventory(10)))
+		val updated = update(ProductEntity, inserted, Product(2, Inventory(15)))
+		updated must_== Product(2, Inventory(15))
+		select(ProductEntity, 2).get must_== updated
+		select(ProductEntity, 1) must beNone
+	}
+
 	"crud for many objects" in {
 		createTables
 		for (i <- 1 to 4) {
@@ -80,7 +89,7 @@ class OneToOneImmutableOneWaySpec extends SpecificationWithJUnit {
 					product_id int not null,
 					stock int not null,
 					primary key (product_id),
-					foreign key (product_id) references Product(id) on delete cascade
+					foreign key (product_id) references Product(id) on delete cascade on update cascade
 				)
 			""")
 		}
