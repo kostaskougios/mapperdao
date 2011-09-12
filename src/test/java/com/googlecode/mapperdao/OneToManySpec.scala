@@ -18,6 +18,33 @@ class OneToManySpec extends SpecificationWithJUnit {
 
 	val (jdbc, mapperDao) = setup
 
+	"updating id of many entity" in {
+		createTables
+
+		val jp1 = new JobPosition(3, "C++ Developer", 10)
+		val jp2 = new JobPosition(5, "Scala Developer", 10)
+		val jp3 = new JobPosition(7, "Java Developer", 10)
+		val person = new Person(3, "Kostas", "K", Set(House(1, "London"), House(2, "Rhodes")), 16, List(jp1, jp2, jp3))
+		val inserted = mapperDao.insert(PersonEntity, person)
+		val house = inserted.owns.find(_.id == 1).get
+		mapperDao.update(HouseEntity, house, House(5, "London"))
+		mapperDao.select(PersonEntity, 3).get must_== Person(3, "Kostas", "K", Set(House(5, "London"), House(2, "Rhodes")), 16, List(jp1, jp2, jp3))
+	}
+
+	"updating id of primary entity" in {
+		createTables
+
+		val jp1 = new JobPosition(3, "C++ Developer", 10)
+		val jp2 = new JobPosition(5, "Scala Developer", 10)
+		val jp3 = new JobPosition(7, "Java Developer", 10)
+		val person = new Person(3, "Kostas", "K", Set(House(1, "London"), House(2, "Rhodes")), 16, List(jp1, jp2, jp3))
+		val inserted = mapperDao.insert(PersonEntity, person)
+		val updated = mapperDao.update(PersonEntity, inserted, Person(8, "Kostas", "K", inserted.owns, 16, inserted.positions))
+		updated must_== Person(8, "Kostas", "K", person.owns, 16, person.positions)
+		mapperDao.select(PersonEntity, 8).get must_== updated
+		mapperDao.select(PersonEntity, 3) must beNone
+	}
+
 	"updating items (immutable)" in {
 		createTables
 
