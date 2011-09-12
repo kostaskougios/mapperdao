@@ -35,20 +35,22 @@ class OneToOneUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate {
 				} else {
 					val fe = typeRegistry.entityOfObject[Any, Any](fo)
 					val ftpe = typeRegistry.typeOf(fe)
-					val v = fo match {
+					val vt = fo match {
+						case p: Persisted if (p.mock) =>
+							(p, false) //mock object shouldn't contribute to column updates
 						case p: Persisted =>
 							entityMap.down(o, ci)
 							val updated = mapperDao.updateInner(fe, p, entityMap)
 							entityMap.up
-							updated
+							(updated, true)
 						case x =>
 							entityMap.down(o, ci)
 							val inserted = mapperDao.insertInner(fe, x, entityMap)
 							entityMap.up
-							inserted
+							(inserted, true)
 					}
-					values :::= c.selfColumns zip ftpe.table.toListOfPrimaryKeyValues(fo)
-					v
+					if (vt._2) values :::= c.selfColumns zip ftpe.table.toListOfPrimaryKeyValues(fo)
+					vt._1
 				}
 				modified(c.alias) = v
 			}

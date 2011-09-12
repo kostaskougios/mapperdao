@@ -14,6 +14,20 @@ class OneToOneMutableTwoWaySpec extends SpecificationWithJUnit {
 
 	import mapperDao._
 
+	"update id of primary entity" in {
+		createTables
+		val product = Product(1, Inventory(null, 5))
+		product.inventory.product = product
+		val inserted = insert(ProductEntity, product)
+		inserted.id = 2
+		val updated = update(ProductEntity, inserted)
+		updated must_== inserted
+		val recreatedProduct = Product(2, Inventory(null, 5))
+		recreatedProduct.inventory.product = recreatedProduct
+		select(ProductEntity, 2).get must_== recreatedProduct
+		select(ProductEntity, 1) must beNone
+	}
+
 	"CRUD mutable" in {
 		createTables
 		val product = Product(1, Inventory(null, 5))
@@ -79,7 +93,7 @@ class OneToOneMutableTwoWaySpec extends SpecificationWithJUnit {
 					product_id int not null,
 					stock int not null,
 					primary key (product_id),
-					foreign key (product_id) references Product(id) on delete cascade
+					foreign key (product_id) references Product(id) on delete cascade on update cascade
 				)
 			""")
 		}
@@ -94,7 +108,7 @@ object OneToOneMutableTwoWaySpec {
 		}
 		override def toString = "Inventory(%d, productId:%d)".format(stock, if (product == null) null else product.id)
 	}
-	case class Product(val id: Int, var inventory: Inventory)
+	case class Product(var id: Int, var inventory: Inventory)
 
 	object InventoryEntity extends SimpleEntity[Inventory](classOf[Inventory]) {
 		val product = oneToOne(classOf[Product], _.product)
