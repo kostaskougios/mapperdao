@@ -10,7 +10,19 @@ import com.googlecode.mapperdao.jdbc.Setup
  */
 class ManyToOneSpec extends SpecificationWithJUnit {
 	import ManyToOneSpec._
-	val (jdbc, mapperDao) = setup
+	val (jdbc, mapperDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity, HouseEntity))
+
+	"update 'one' entity id's" in {
+		createTables
+
+		val company = Company(5, "Coders limited")
+		val house = House(8, "Rhodes,Greece")
+		val person = Person(2, "Kostas", company, house)
+
+		val inserted = mapperDao.insert(PersonEntity, person)
+		mapperDao.update(HouseEntity, inserted.lives, House(7, "Rhodes,Greece"))
+		mapperDao.select(PersonEntity, 2).get must_== Person(2, "Kostas", company, House(7, "Rhodes,Greece"))
+	}
 
 	"insert" in {
 		createTables
@@ -171,17 +183,10 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 						company_id int,
 						house_id int,
 						primary key(id),
-						foreign key (company_id) references Company(id) on delete cascade,
-						foreign key (house_id) references House(id) on delete cascade
+						foreign key (company_id) references Company(id) on delete cascade on update cascade,
+						foreign key (house_id) references House(id) on delete cascade on update cascade
 					)
 			""")
-		}
-
-	def setup =
-		{
-			val typeRegistry = TypeRegistry(PersonEntity, CompanyEntity, HouseEntity)
-
-			Setup.setupMapperDao(typeRegistry)
 		}
 }
 
