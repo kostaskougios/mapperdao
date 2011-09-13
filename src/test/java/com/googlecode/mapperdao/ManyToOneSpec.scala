@@ -12,7 +12,7 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 	import ManyToOneSpec._
 	val (jdbc, mapperDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity, HouseEntity))
 
-	"update 'one' entity id's" in {
+	"update entity id's" in {
 		createTables
 
 		val company = Company(5, "Coders limited")

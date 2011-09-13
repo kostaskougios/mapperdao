@@ -50,13 +50,11 @@ class OneToManyUpdatePlugin(mapperDao: MapperDao) extends PostUpdate {
 				}
 				// find the added ones
 				added.foreach { item =>
-					//val keysAndValues = table.primaryKeys.map(_.column) zip table.primaryKeys.map(c => modified(c.columnName))
 					val fe = typeRegistry.entityOfObject(item)
 					entityMap.down(mockO, ci)
 					val newItem: Any = mapperDao.insertInner(fe, item, entityMap);
 					entityMap.up
 					modified(oneToMany.alias) = newItem
-					//addToMap(oneToMany.alias, newItem, modifiedTraversables)
 				}
 			}
 		}
