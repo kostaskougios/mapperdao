@@ -20,17 +20,20 @@ class ManyToOneQuerySpec extends SpecificationWithJUnit {
 	import queryDao._
 
 	"query 1 level join" in {
+		createTables
 		val (p0, p1, p2, p3, p4) = testData1
 
 		query(q0) must_== List(p3, p4)
 	}
 
 	"query 2 level join" in {
+		createTables
 		val (p0, p1, p2, p3, p4) = testData1
 		query(q1) must_== List(p0, p1, p2)
 	}
 
 	"query 2 level join with or" in {
+		createTables
 		val (p0, p1, p2, p3, p4) = testData1
 		query(q2) must_== List(p0, p1, p2, p3, p4)
 	}

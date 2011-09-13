@@ -124,14 +124,16 @@ class ManyToManySpec extends SpecificationWithJUnit {
 			jdbc.update("drop table if exists Product cascade")
 			jdbc.update("drop table if exists Attribute cascade")
 
-			jdbc.update("""
+			Setup.database match {
+				case "postgresql" =>
+					jdbc.update("""
 					create table Product (
 						id int not null,
 						name varchar(100) not null,
 						primary key(id)
 					)
 			""")
-			jdbc.update("""
+					jdbc.update("""
 					create table Attribute (
 						id int not null,
 						name varchar(100) not null,
@@ -139,7 +141,7 @@ class ManyToManySpec extends SpecificationWithJUnit {
 						primary key(id)
 					)
 			""")
-			jdbc.update("""
+					jdbc.update("""
 					create table Product_Attribute (
 						product_id int not null,
 						attribute_id int not null,
@@ -148,6 +150,32 @@ class ManyToManySpec extends SpecificationWithJUnit {
 						foreign key (attribute_id) references Attribute(id) on update cascade on delete cascade
 					)
 			""")
+				case "mysql" =>
+					jdbc.update("""
+					create table Product (
+						id int not null,
+						name varchar(100) not null,
+						primary key(id)
+					) engine InnoDB
+			""")
+					jdbc.update("""
+					create table Attribute (
+						id int not null,
+						name varchar(100) not null,
+						value varchar(100) not null,
+						primary key(id)
+					) engine InnoDB
+			""")
+					jdbc.update("""
+					create table Product_Attribute (
+						product_id int not null,
+						attribute_id int not null,
+						primary key(product_id,attribute_id),
+						foreign key (product_id) references Product(id) on update cascade on delete cascade,
+						foreign key (attribute_id) references Attribute(id) on update cascade on delete cascade
+					) engine InnoDB
+			""")
+			}
 		}
 }
 

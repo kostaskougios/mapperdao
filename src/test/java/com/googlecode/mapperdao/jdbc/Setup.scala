@@ -57,4 +57,20 @@ object Setup {
 			val mdao = setupMapperDao(typeRegistry)
 			(mdao._1, mdao._2, new QueryDao(mdao._2))
 		}
+
+	def dropAllTables(jdbc: Jdbc): Int =
+		{
+			var errors = 0
+			jdbc.queryForList("show tables").foreach { m =>
+				val table = m("Tables_in_testcases")
+				try {
+					jdbc.update("drop table %s".format(table))
+				} catch {
+					case e: Throwable =>
+						println(e.getMessage)
+						errors += 1
+				}
+			}
+			if (errors > 0) dropAllTables(jdbc) else 0
+		}
 }

@@ -12,7 +12,7 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 	import ManyToOneSpec._
 	val (jdbc, mapperDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity, HouseEntity))
 
-	"update entity id's" in {
+	"update id's" in {
 		createTables
 
 		val company = Company(5, "Coders limited")
@@ -162,21 +162,23 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 			jdbc.update("drop table if exists Company cascade")
 			jdbc.update("drop table if exists House cascade")
 
-			jdbc.update("""
+			Setup.database match {
+				case "postgresql" =>
+					jdbc.update("""
 					create table Company (
 						id int not null,
 						name varchar(100) not null,
 						primary key(id)
 					)
 			""")
-			jdbc.update("""
+					jdbc.update("""
 					create table House (
 						id int not null,
 						address varchar(100) not null,
 						primary key(id)
 					)
 			""")
-			jdbc.update("""
+					jdbc.update("""
 					create table Person (
 						id int not null,
 						name varchar(100) not null,
@@ -186,7 +188,33 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 						foreign key (company_id) references Company(id) on delete cascade on update cascade,
 						foreign key (house_id) references House(id) on delete cascade on update cascade
 					)
+			""") case "mysql" =>
+					jdbc.update("""
+					create table Company (
+						id int not null,
+						name varchar(100) not null,
+						primary key(id)
+					) engine InnoDB
 			""")
+					jdbc.update("""
+					create table House (
+						id int not null,
+						address varchar(100) not null,
+						primary key(id)
+					) engine InnoDB
+			""")
+					jdbc.update("""
+					create table Person (
+						id int not null,
+						name varchar(100) not null,
+						company_id int,
+						house_id int,
+						primary key(id),
+						foreign key (company_id) references Company(id) on delete cascade on update cascade,
+						foreign key (house_id) references House(id) on delete cascade on update cascade
+					) engine InnoDB
+			""")
+			}
 		}
 }
 
