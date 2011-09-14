@@ -29,6 +29,11 @@ class DaoMixinsSpec extends SpecificationWithJUnit {
 		val p2 = ProductDao.create(Product(2, "product2", Set(Attribute(11, "name11", "value11"), Attribute(12, "name12", "value12"))))
 
 		ProductDao.all.toSet must_== Set(p1, p2)
+		ProductDao.delete(p2)
+		ProductDao.all.toSet must_== Set(p1)
+
+		val p1u = ProductDao.update(p1, Product(1, "product1X", p1.attributes + Attribute(50, "name50X", "value50X")))
+		ProductDao.all.toSet must_== Set(p1u)
 	}
 
 	def createTables =

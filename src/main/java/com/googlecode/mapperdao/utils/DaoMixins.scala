@@ -44,6 +44,11 @@ trait CRUD[PC, T, PK] {
 	 * @return			Option[T] or None
 	 */
 	def retrieve(pk: PK): Option[T with PC] = mapperDao.select(entity, pk)
+
+	/**
+	 * delete a persisted entity
+	 */
+	def delete(t: T with PC): T = mapperDao.delete(entity, t)
 }
 
 trait IntIdCRUD[T] extends CRUD[IntId, T, Int]
