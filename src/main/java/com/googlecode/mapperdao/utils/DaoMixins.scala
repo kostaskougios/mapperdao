@@ -47,7 +47,7 @@ trait CRUD[PC, T, PK] {
 }
 
 trait IntIdCRUD[T] extends CRUD[IntId, T, Int]
-trait LongIdCRUD[T] extends CRUD[LongId, T, Int]
+trait LongIdCRUD[T] extends CRUD[LongId, T, Long]
 trait SimpleCRUD[T, PK] extends CRUD[AnyRef, T, PK]
 
 trait All[PC, T] {

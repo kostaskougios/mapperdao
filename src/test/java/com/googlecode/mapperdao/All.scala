@@ -49,7 +49,8 @@ import org.junit.runners.Suite
 		classOf[TwoPrimaryKeysSimpleSpec],
 		classOf[IntermediateImmutableEntityWithStringFKsSpec],
 		classOf[jdbc.JdbcSpec],
-		classOf[jdbc.TransactionSpec]
+		classOf[jdbc.TransactionSpec],
+		classOf[utils.DaoMixinsSpec]
 	)
 )
 class All extends SpecificationWithJUnit
