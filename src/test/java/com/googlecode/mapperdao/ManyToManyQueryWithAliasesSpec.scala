@@ -38,10 +38,7 @@ class ManyToManyQueryWithAliasesSpec extends SpecificationWithJUnit {
 
 	def createTables =
 		{
-			jdbc.update("drop table if exists Product_Attribute cascade")
-			jdbc.update("drop table if exists Product cascade")
-			jdbc.update("drop table if exists Attribute cascade")
-
+			Setup.dropAllTables(jdbc)
 			jdbc.update("""
 					create table Product (
 						id int not null,

@@ -36,7 +36,7 @@ class ManyToOneSelfJoinQuerySpec extends SpecificationWithJUnit {
 	}
 
 	def createTables {
-		jdbc.update("drop table if exists Address cascade")
+		Setup.dropAllTables(jdbc)
 		jdbc.update("""
 			create table Address (
 				id int not null,
@@ -44,7 +44,6 @@ class ManyToOneSelfJoinQuerySpec extends SpecificationWithJUnit {
 				primary key (id)
 			)
 		""")
-		jdbc.update("drop table if exists House cascade")
 		jdbc.update("""
 			create table House (
 				id int not null,
@@ -54,7 +53,6 @@ class ManyToOneSelfJoinQuerySpec extends SpecificationWithJUnit {
 				foreign key (address_id) references Address(id) on delete cascade
 			)
 		""")
-		jdbc.update("drop table if exists Person cascade")
 		jdbc.update("""
 			create table Person (
 				id int not null,
@@ -64,7 +62,6 @@ class ManyToOneSelfJoinQuerySpec extends SpecificationWithJUnit {
 				foreign key (lives_id) references House(id) on delete cascade
 			)
 		""")
-
 	}
 }
 

@@ -84,7 +84,7 @@ class OneToManySelfReferencedSpec extends SpecificationWithJUnit {
 		}
 
 	def createTables {
-		jdbc.update("drop table if exists Person cascade")
+		Setup.dropAllTables(jdbc)
 		jdbc.update("""
 			create table Person (
 				id serial not null,

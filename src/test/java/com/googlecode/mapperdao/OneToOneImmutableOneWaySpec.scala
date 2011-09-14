@@ -75,16 +75,16 @@ class OneToOneImmutableOneWaySpec extends SpecificationWithJUnit {
 
 	def createTables =
 		{
-			jdbc.update("drop table if exists Product cascade")
-			jdbc.update("drop table if exists Inventory cascade")
-
-			jdbc.update("""
+			Setup.dropAllTables(jdbc)
+			Setup.database match {
+				case "postgresql" =>
+					jdbc.update("""
 				create table Product (
 					id int not null,
 					primary key (id)
 				)
 			""")
-			jdbc.update("""
+					jdbc.update("""
 				create table Inventory (
 					product_id int not null,
 					stock int not null,
@@ -92,6 +92,22 @@ class OneToOneImmutableOneWaySpec extends SpecificationWithJUnit {
 					foreign key (product_id) references Product(id) on delete cascade on update cascade
 				)
 			""")
+				case "mysql" =>
+					jdbc.update("""
+				create table Product (
+					id int not null,
+					primary key (id)
+				) engine InnoDB
+			""")
+					jdbc.update("""
+				create table Inventory (
+					product_id int not null,
+					stock int not null,
+					primary key (product_id),
+					foreign key (product_id) references Product(id) on delete cascade on update cascade
+				) engine InnoDB
+			""")
+			}
 		}
 }
 

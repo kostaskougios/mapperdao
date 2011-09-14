@@ -53,7 +53,7 @@ class ManyToOneQuerySpec extends SpecificationWithJUnit {
 	}
 
 	def createTables {
-		jdbc.update("drop table if exists Address cascade")
+		Setup.dropAllTables(jdbc)
 		jdbc.update("""
 			create table Address (
 				id int not null,

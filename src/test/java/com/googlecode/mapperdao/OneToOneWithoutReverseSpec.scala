@@ -87,16 +87,16 @@ class OneToOneWithoutReverseSpec extends SpecificationWithJUnit {
 
 	def createTables =
 		{
-			jdbc.update("drop table if exists Product cascade")
-			jdbc.update("drop table if exists Inventory cascade")
-
-			jdbc.update("""
+			Setup.dropAllTables(jdbc)
+			Setup.database match {
+				case "postgresql" =>
+					jdbc.update("""
 				create table Product (
 					id int not null,
 					primary key (id)
 				)
 			""")
-			jdbc.update("""
+					jdbc.update("""
 				create table Inventory (
 					id int not null,
 					product_id int,
@@ -105,6 +105,23 @@ class OneToOneWithoutReverseSpec extends SpecificationWithJUnit {
 					foreign key (product_id) references Product(id) on delete cascade on update cascade
 				)
 			""")
+				case "mysql" =>
+					jdbc.update("""
+				create table Product (
+					id int not null,
+					primary key (id)
+				) engine InnoDB
+			""")
+					jdbc.update("""
+				create table Inventory (
+					id int not null,
+					product_id int,
+					stock int not null,
+					primary key (id),
+					foreign key (product_id) references Product(id) on delete cascade on update cascade
+				) engine InnoDB
+			""")
+			}
 		}
 }
 

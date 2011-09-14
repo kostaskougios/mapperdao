@@ -33,9 +33,9 @@ class SimpleSelfJoinQuerySpec extends SpecificationWithJUnit {
 	}
 
 	def createJobPositionTable {
+		Setup.dropAllTables(jdbc)
 		Setup.database match {
 			case "postgresql" =>
-				jdbc.update("drop table if exists JobPosition cascade")
 				jdbc.update("""
 					create table JobPosition (
 					id int not null,
@@ -44,7 +44,6 @@ class SimpleSelfJoinQuerySpec extends SpecificationWithJUnit {
 					primary key (id)
 				)""")
 			case "mysql" =>
-				jdbc.update("drop table if exists JobPosition cascade")
 				jdbc.update("""
 					create table JobPosition (
 					id int not null,

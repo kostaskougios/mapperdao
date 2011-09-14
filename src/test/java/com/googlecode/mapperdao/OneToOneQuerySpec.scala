@@ -39,9 +39,7 @@ class OneToOneQuerySpec extends SpecificationWithJUnit {
 
 	def createTables =
 		{
-			jdbc.update("drop table if exists Product cascade")
-			jdbc.update("drop table if exists Inventory cascade")
-
+			Setup.dropAllTables(jdbc)
 			jdbc.update("""
 				create table Product (
 					id int not null,

@@ -153,10 +153,7 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 	}
 
 	def createTables {
-		jdbc.update("drop table if exists Employee cascade")
-		jdbc.update("drop table if exists WorkedAt cascade")
-		jdbc.update("drop table if exists Company cascade")
-
+		Setup.dropAllTables(jdbc)
 		jdbc.update("""
 			create table Employee (
 				no varchar(20) not null,

@@ -184,8 +184,11 @@ class OneToManySpec extends SpecificationWithJUnit {
 		}
 
 	def createTables {
-		jdbc.update("drop table if exists Person cascade")
-		jdbc.update("""
+		Setup.dropAllTables(jdbc)
+
+		Setup.database match {
+			case "postgresql" =>
+				jdbc.update("""
 			create table Person (
 				id int not null,
 				name varchar(100) not null,
@@ -194,10 +197,6 @@ class OneToManySpec extends SpecificationWithJUnit {
 				primary key (id)
 			)
 		""")
-
-		Setup.database match {
-			case "postgresql" =>
-				jdbc.update("drop table if exists JobPosition cascade")
 				jdbc.update("""
 					create table JobPosition (
 						id int not null,
@@ -209,8 +208,25 @@ class OneToManySpec extends SpecificationWithJUnit {
 						primary key (id),
 						constraint FK_JobPosition_Person foreign key (person_id) references Person(id) on delete cascade on update cascade
 					)""")
+				jdbc.update("""
+			create table House (
+				id int not null,
+				address varchar(100) not null,
+				person_id int not null,
+				primary key (id),
+				constraint FK_House_Person foreign key (person_id) references Person(id) on delete cascade on update cascade
+			)
+		""")
 			case "mysql" =>
-				jdbc.update("drop table if exists JobPosition cascade")
+				jdbc.update("""
+			create table Person (
+				id int not null,
+				name varchar(100) not null,
+				surname varchar(100) not null,
+				age int not null,
+				primary key (id)
+			) engine InnoDB
+		""")
 				jdbc.update("""
 					create table JobPosition (
 						id int not null,
@@ -221,18 +237,17 @@ class OneToManySpec extends SpecificationWithJUnit {
 						person_id int not null,
 						primary key (id),
 						constraint FK_JobPosition_Person foreign key (person_id) references Person(id) on delete cascade on update cascade
-					)""")
-		}
-		jdbc.update("drop table if exists House cascade")
-		jdbc.update("""
+					) engine InnoDB""")
+				jdbc.update("""
 			create table House (
 				id int not null,
 				address varchar(100) not null,
 				person_id int not null,
 				primary key (id),
 				constraint FK_House_Person foreign key (person_id) references Person(id) on delete cascade on update cascade
-			)
+			) engine InnoDB
 		""")
+		}
 	}
 }
 

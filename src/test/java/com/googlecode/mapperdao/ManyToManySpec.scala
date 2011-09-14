@@ -120,9 +120,7 @@ class ManyToManySpec extends SpecificationWithJUnit {
 
 	def createTables =
 		{
-			jdbc.update("drop table if exists Product_Attribute cascade")
-			jdbc.update("drop table if exists Product cascade")
-			jdbc.update("drop table if exists Attribute cascade")
+			Setup.dropAllTables(jdbc)
 
 			Setup.database match {
 				case "postgresql" =>

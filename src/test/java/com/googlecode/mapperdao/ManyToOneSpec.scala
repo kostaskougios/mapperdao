@@ -158,10 +158,7 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 
 	def createTables =
 		{
-			jdbc.update("drop table if exists Person cascade")
-			jdbc.update("drop table if exists Company cascade")
-			jdbc.update("drop table if exists House cascade")
-
+			Setup.dropAllTables(jdbc)
 			Setup.database match {
 				case "postgresql" =>
 					jdbc.update("""
