@@ -6,6 +6,10 @@ import com.googlecode.mapperdao.QueryDao
 import com.googlecode.mapperdao.Query
 import com.googlecode.mapperdao.IntId
 import com.googlecode.mapperdao.LongId
+import org.springframework.transaction.PlatformTransactionManager
+import com.googlecode.mapperdao.jdbc.Transaction
+import Transaction._
+
 /**
  * mixin to add CRUD methods to a dao
  *
@@ -14,8 +18,8 @@ import com.googlecode.mapperdao.LongId
  * 30 Aug 2011
  */
 trait CRUD[PC, T, PK] {
-	val mapperDao: MapperDao
-	val entity: Entity[PC, T]
+	protected val mapperDao: MapperDao
+	protected val entity: Entity[PC, T]
 
 	/**
 	 * insert an entity into the database
@@ -55,9 +59,40 @@ trait IntIdCRUD[T] extends CRUD[IntId, T, Int]
 trait LongIdCRUD[T] extends CRUD[LongId, T, Long]
 trait SimpleCRUD[T, PK] extends CRUD[AnyRef, T, PK]
 
+/**
+ * CRUD with TransactionalCRUD will provide transactions for CRU methods
+ */
+trait TransactionalCRUD[PC, T, PK] extends CRUD[PC, T, PK] {
+	protected val txManager: PlatformTransactionManager
+	/**
+	 * override this to change type of transaction that will occur and it's timeout
+	 */
+	protected def prepareTransaction: Transaction = Transaction.get(txManager, Propagation.Nested, Isolation.Serializable, -1)
+
+	override def create(t: T): T with PC = prepareTransaction { () =>
+		super.create(t)
+	}
+
+	override def update(t: T with PC): T with PC = prepareTransaction { () =>
+		super.update(t)
+	}
+
+	override def update(oldValue: T with PC, newValue: T): T with PC = prepareTransaction { () =>
+		super.update(oldValue, newValue)
+	}
+
+	override def delete(t: T with PC): T = prepareTransaction { () =>
+		super.delete(t)
+	}
+}
+
+trait TransactionalIntIdCRUD[T] extends IntIdCRUD[T] with TransactionalCRUD[IntId, T, Int]
+trait TransactionalLongIdCRUD[T] extends LongIdCRUD[T] with TransactionalCRUD[LongId, T, Long]
+trait TransactionalSimpleCRUD[T, PK] extends SimpleCRUD[T, PK] with TransactionalCRUD[AnyRef, T, PK]
+
 trait All[PC, T] {
-	val queryDao: QueryDao
-	val entity: Entity[PC, T]
+	protected val queryDao: QueryDao
+	protected val entity: Entity[PC, T]
 
 	import Query._
 	def all: List[T with PC] = queryDao.query(select from entity)

@@ -4,6 +4,7 @@ import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.jdbc.{ Setup => TestSetup }
 import com.googlecode.mapperdao.jdbc.Transaction
 import com.googlecode.mapperdao.jdbc.Transaction._
+import com.googlecode.mapperdao.exceptions.PersistException
 /**
  * @author kostantinos.kougios
  *
@@ -15,12 +16,70 @@ class DaoMixinsSpec extends SpecificationWithJUnit {
 	val (jdbc, mapperDao, queryDao) = TestSetup.setupQueryDao(TypeRegistry(ProductEntity, AttributeEntity))
 
 	val txManager = Transaction.transactionManager(jdbc)
-	val tx = Transaction.get(txManager, Propagation.Nested, Isolation.Serializable, -1)
 
 	object ProductDao extends SimpleCRUD[Product, Long] with SimpleAll[Product] {
-		val entity = ProductEntity
-		val queryDao = DaoMixinsSpec.this.queryDao
-		val mapperDao = DaoMixinsSpec.this.mapperDao
+		protected val entity = ProductEntity
+		protected val queryDao = DaoMixinsSpec.this.queryDao
+		protected val mapperDao = DaoMixinsSpec.this.mapperDao
+	}
+	object ProductDaoTransactional extends TransactionalSimpleCRUD[Product, Long] with SimpleAll[Product] {
+		protected val entity = ProductEntity
+		protected val queryDao = DaoMixinsSpec.this.queryDao
+		protected val mapperDao = DaoMixinsSpec.this.mapperDao
+		protected val txManager = DaoMixinsSpec.this.txManager
+	}
+
+	"crud for transactional dao, positive" in {
+		createTables
+		val p1 = ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, "name10", "value10"))))
+		val p2 = ProductDaoTransactional.create(Product(2, "product2", Set(Attribute(11, "name11", "value11"), Attribute(12, "name12", "value12"))))
+
+		ProductDaoTransactional.all.toSet must_== Set(p1, p2)
+		ProductDaoTransactional.delete(p2)
+		ProductDaoTransactional.all.toSet must_== Set(p1)
+
+		val p1u = ProductDaoTransactional.update(p1, Product(1, "product1X", p1.attributes + Attribute(50, "name50X", "value50X")))
+		ProductDaoTransactional.all.toSet must_== Set(p1u)
+	}
+
+	"crud for transactional dao, create rolls back" in {
+		createTables
+		try {
+			ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, null, "value10"))))
+			failure("should throw PersistException")
+		} catch {
+			case _: PersistException =>
+		}
+		ProductDaoTransactional.all.toSet must_== Set()
+	}
+
+	"crud for transactional dao, update rolls back" in {
+		createTables
+		val p1 = ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, "name10", "value10"))))
+		val p2 = ProductDaoTransactional.create(Product(2, "product2", Set(Attribute(11, "name11", "value11"), Attribute(12, "name12", "value12"))))
+
+		try {
+			ProductDaoTransactional.update(p1, Product(1, "product1X", p1.attributes + Attribute(50, null, "value50X")))
+			failure("should throw PersistException")
+		} catch {
+			case _: PersistException =>
+		}
+
+		ProductDaoTransactional.all.toSet must_== Set(p1, p2)
+	}
+
+	"crud for transactional dao, delete rolls back" in {
+		createTables
+		val p1 = ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, "name10", "value10"))))
+		val p2 = ProductDaoTransactional.create(Product(2, "product2", Set(Attribute(11, "name11", "value11"), Attribute(12, "name12", "value12"))))
+
+		Transaction.get(txManager, Propagation.Nested, Isolation.Serializable, -1) { status =>
+			ProductDaoTransactional.delete(p1)
+			ProductDaoTransactional.delete(p2)
+			status.setRollbackOnly
+		}
+
+		ProductDaoTransactional.all.toSet must_== Set(p1, p2)
 	}
 
 	"crud for non-transactional dao" in {
@@ -59,7 +118,7 @@ class DaoMixinsSpec extends SpecificationWithJUnit {
 			""")
 					jdbc.update("""
 					create table Product_Attribute (
-						product_id int not null,
+						product_id bigint not null,
 						attribute_id int not null,
 						primary key(product_id,attribute_id),
 						foreign key (product_id) references Product(id) on update cascade on delete cascade,
@@ -84,7 +143,7 @@ class DaoMixinsSpec extends SpecificationWithJUnit {
 			""")
 					jdbc.update("""
 					create table Product_Attribute (
-						product_id int not null,
+						product_id bigint not null,
 						attribute_id int not null,
 						primary key(product_id,attribute_id),
 						foreign key (product_id) references Product(id) on update cascade on delete cascade,
