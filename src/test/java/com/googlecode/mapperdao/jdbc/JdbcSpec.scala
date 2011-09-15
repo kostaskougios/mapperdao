@@ -15,8 +15,7 @@ class JdbcSpec extends SpecificationWithJUnit {
 		Setup.database match {
 			case "postgresql" =>
 				Setup.dropAllTables(jdbc)
-				jdbc.update("drop sequence if exists myseq")
-				jdbc.update("create sequence myseq")
+				Setup.createMySeq(jdbc)
 				jdbc.update("""
 					create table test_insert (
 						id int not null default nextval('myseq'),

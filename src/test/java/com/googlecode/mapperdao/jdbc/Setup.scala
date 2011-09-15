@@ -87,4 +87,9 @@ object Setup {
 			}
 			if (errors > 0) dropAllTables(jdbc) else 0
 		}
+
+	def createMySeq(jdbc: Jdbc) {
+		jdbc.update("drop sequence if exists myseq")
+		jdbc.update("create sequence myseq")
+	}
 }
