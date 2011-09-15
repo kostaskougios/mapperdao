@@ -158,8 +158,8 @@ object DaoMixinsSpec {
 	case class Product(val id: Long, val name: String, val attributes: Set[Attribute])
 	case class Attribute(val id: Int, val name: String, val value: String)
 
-	object ProductEntity extends SimpleEntity("Product", classOf[Product]) {
-		val id = pk("id", _.id)
+	object ProductEntity extends SimpleEntity(classOf[Product]) {
+		val id = longPK("id", _.id)
 		val name = string("name", _.name)
 		val attributes = manyToMany(classOf[Attribute], _.attributes)
 
@@ -168,8 +168,8 @@ object DaoMixinsSpec {
 		}
 	}
 
-	object AttributeEntity extends SimpleEntity("Attribute", classOf[Attribute]) {
-		val id = pk("id", _.id)
+	object AttributeEntity extends SimpleEntity(classOf[Attribute]) {
+		val id = intPK("id", _.id)
 		val name = string("name", _.name)
 		val value = string("value", _.value)
 
