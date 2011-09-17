@@ -19,6 +19,12 @@ class ManyToOneQuerySpec extends SpecificationWithJUnit {
 	import mapperDao._
 	import queryDao._
 
+	"query, find entity" in {
+		createTables
+		val (p0, p1, p2, p3, p4) = testData1
+		query(q3(p4.lives)) must_== List(p3, p4)
+	}
+
 	"query 1 level join" in {
 		createTables
 		val (p0, p1, p2, p3, p4) = testData1
@@ -105,6 +111,11 @@ object ManyToOneQuerySpec {
 			(he, he.address, ad) where
 			ad.postCode === "SE1 1AA" or
 			ad.postCode === "SE2 2BB"
+
+		def q3(h: House) = (
+			select from pe
+			where pe.lives === h
+		)
 	}
 
 	case class Person(val id: Int, var name: String, lives: House)

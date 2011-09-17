@@ -43,6 +43,11 @@ object Query {
 	implicit def columnInfoToOperableBigInt[T](ci: ColumnInfo[T, BigInt]) = new Convertor(ci)
 	implicit def columnInfoToOperableBigDecimal[T](ci: ColumnInfo[T, BigDecimal]) = new Convertor(ci)
 
+	protected class ConvertorManyToOne[T, F](ci: ColumnInfoManyToOne[T, F]) {
+		def ===(v: F) = new ManyToOneOperation(ci.column, EQ(), v)
+	}
+	implicit def columnInfoManyToOneOperation[T, F](ci: ColumnInfoManyToOne[T, F]) = new ConvertorManyToOne(ci)
+
 	// starting point of a query, "select" syntactic sugar
 	def select[PC, T] = new QueryFrom[PC, T]
 
@@ -204,6 +209,9 @@ class OpBase {
 	def or(op: OpBase) = OrOp(this, op)
 }
 case class Operation[V](left: SimpleColumn, operand: Operand, right: V) extends OpBase {
+	override def toString = "%s %s %s".format(left, operand, right)
+}
+case class ManyToOneOperation[F, V](left: ManyToOne[F], operand: Operand, right: V) extends OpBase {
 	override def toString = "%s %s %s".format(left, operand, right)
 }
 case class AndOp(left: OpBase, right: OpBase) extends OpBase {

@@ -375,6 +375,9 @@ trait Driver {
 						sb append " or "
 						inner(and.right)
 						sb append " )"
+					case ManyToOneOperation(left: ManyToOne[_], operand: Operand, right: Persisted) =>
+						sb append resolveWhereExpression(aliases, args, left)
+						sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, right)
 				}
 
 				inner(op)
