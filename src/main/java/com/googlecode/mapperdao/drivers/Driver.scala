@@ -345,7 +345,7 @@ trait Driver {
 			sb append "\njoin " append escapeTableNames(jTable.name) append " " append qAlias
 
 			var args = if (join.on != null) {
-				val expressions = queryExpressions(aliases, join.on.ons)
+				val expressions = queryExpressions(aliases, join.on.ons, sb)
 				sb append " on " append expressions._1
 				expressions._2
 			} else List[Any]()
@@ -354,7 +354,7 @@ trait Driver {
 		}
 
 	// creates the sql and params for expressions (i.e. id=5 and name='x')
-	def queryExpressions[PC, T](aliases: QueryDao.Aliases, wheres: List[Query.QueryExpressions[PC, T]]): (String, List[Any]) =
+	def queryExpressions[PC, T](aliases: QueryDao.Aliases, wheres: List[Query.QueryExpressions[PC, T]], joinsSb: StringBuilder): (String, List[Any]) =
 		{
 			val sb = new StringBuilder(100)
 			var args = List.newBuilder[Any]
@@ -375,11 +375,21 @@ trait Driver {
 						sb append " or "
 						inner(and.right)
 						sb append " )"
-					case ManyToOneOperation(left: ManyToOne[_], operand: Operand, right: Persisted) =>
+					case ManyToOneOperation(left: ManyToOne[_], operand: Operand, right: Any) =>
 						val fTpe = typeRegistry.typeOfObject(right)
 						val fPKs = fTpe.table.toListOfPrimaryKeyValues(right)
 						if (left.columns.size != fPKs.size) throw new IllegalStateException("foreign keys %s don't match foreign key columns %s".format(fPKs, left.columns))
 						left.columns zip fPKs foreach { t =>
+							sb append resolveWhereExpression(aliases, args, t._1)
+							sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
+						}
+					case OneToManyOperation(left: OneToMany[_], operand: Operand, right: Any) =>
+						val entity = typeRegistry.entityOf(left)
+						val foreignEntity = typeRegistry.entityOfObject(right)
+						joinsSb append oneToManyJoin(aliases, entity, foreignEntity, left)
+						val fTpe = typeRegistry.typeOfObject(right)
+						val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
+						fPKColumnAndValues.foreach { t =>
 							sb append resolveWhereExpression(aliases, args, t._1)
 							sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
 						}

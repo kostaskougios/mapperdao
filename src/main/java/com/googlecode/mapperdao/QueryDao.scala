@@ -46,7 +46,10 @@ class QueryDao(mapperDao: MapperDao) {
 
 		val aliases = new Aliases(typeRegistry)
 
-		val sb = new StringBuilder(200, driver.startQuery(aliases, qe, columns))
+		val sb = new StringBuilder(driver.startQuery(aliases, qe, columns))
+		val joinsSb = new StringBuilder
+		val whereSb = new StringBuilder
+
 		var args = List[Any]()
 		// iterate through the joins in the correct order
 		qe.joins.reverse.foreach { j =>
@@ -58,29 +61,30 @@ class QueryDao(mapperDao: MapperDao) {
 					case join: Query.Join[_, _, _, PC, T] =>
 						join.column match {
 							case manyToOne: ManyToOne[_] =>
-								sb append driver.manyToOneJoin(aliases, joinEntity, foreignEntity, manyToOne)
+								joinsSb append driver.manyToOneJoin(aliases, joinEntity, foreignEntity, manyToOne)
 							case oneToMany: OneToMany[_] =>
-								sb append driver.oneToManyJoin(aliases, joinEntity, foreignEntity, oneToMany)
+								joinsSb append driver.oneToManyJoin(aliases, joinEntity, foreignEntity, oneToMany)
 							case manyToMany: ManyToMany[_] =>
-								sb append driver.manyToManyJoin(aliases, joinEntity, foreignEntity, manyToMany)
+								joinsSb append driver.manyToManyJoin(aliases, joinEntity, foreignEntity, manyToMany)
 							case oneToOneReverse: OneToOneReverse[_] =>
-								sb append driver.oneToOneReverseJoin(aliases, joinEntity, foreignEntity, oneToOneReverse)
+								joinsSb append driver.oneToOneReverseJoin(aliases, joinEntity, foreignEntity, oneToOneReverse)
 						}
 				}
 			} else {
 				val joined = driver.joinTable(aliases, j)
-				sb append joined._1
+				joinsSb append joined._1
 				args = args ::: joined._2
 			}
 		}
 
 		// append the where clause and get the list of arguments
 		if (!qe.wheres.isEmpty) {
-			val (sql, wargs) = driver.queryExpressions(aliases, qe.wheres)
+			val (sql, wargs) = driver.queryExpressions(aliases, qe.wheres, joinsSb)
 			args = args ::: wargs
-			sb append "\nwhere " append sql
+			whereSb append "\nwhere " append sql
 		}
 
+		sb append joinsSb append whereSb
 		if (!qe.order.isEmpty) {
 			val orderColumns = qe.order.map(t => (t._1.column, t._2))
 
@@ -119,6 +123,9 @@ object QueryDao {
 								column.columns.foreach { c =>
 									aliases.put(c, v)
 								}
+							//							case ColumnInfoTraversableOneToMany(column: OneToMany[_], _) =>
+							//								val fTpe=typeRegistry.typeOf(column.foreign.clz)
+
 							case _ =>
 						}
 					}

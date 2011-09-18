@@ -9,6 +9,9 @@ import org.scala_tools.time.Imports.DateTime
  * 15 Aug 2011
  */
 object Query {
+	/**
+	 * manages simple type expressions
+	 */
 	protected class Convertor[T, V](t: ColumnInfo[T, V]) {
 		def >(v: V) = new Operation(t.column, GT(), v)
 		def >(v: ColumnInfo[_, V]) = new Operation(t.column, GT(), v.column)
@@ -43,10 +46,21 @@ object Query {
 	implicit def columnInfoToOperableBigInt[T](ci: ColumnInfo[T, BigInt]) = new Convertor(ci)
 	implicit def columnInfoToOperableBigDecimal[T](ci: ColumnInfo[T, BigDecimal]) = new Convertor(ci)
 
+	/**
+	 * manages many-to-one expressions
+	 */
 	protected class ConvertorManyToOne[T, F](ci: ColumnInfoManyToOne[T, F]) {
 		def ===(v: F) = new ManyToOneOperation(ci.column, EQ(), v)
 	}
 	implicit def columnInfoManyToOneOperation[T, F](ci: ColumnInfoManyToOne[T, F]) = new ConvertorManyToOne(ci)
+
+	/**
+	 * manages one-to-many expressions
+	 */
+	protected class ConvertorOneToMany[T, F](ci: ColumnInfoTraversableOneToMany[T, F]) {
+		def ===(v: F) = new OneToManyOperation(ci.column, EQ(), v)
+	}
+	implicit def columnInfoOneToManyOperation[T, F](ci: ColumnInfoTraversableOneToMany[T, F]) = new ConvertorOneToMany[T, F](ci)
 
 	// starting point of a query, "select" syntactic sugar
 	def select[PC, T] = new QueryFrom[PC, T]
@@ -212,6 +226,9 @@ case class Operation[V](left: SimpleColumn, operand: Operand, right: V) extends 
 	override def toString = "%s %s %s".format(left, operand, right)
 }
 case class ManyToOneOperation[F, V](left: ManyToOne[F], operand: Operand, right: V) extends OpBase {
+	override def toString = "%s %s %s".format(left, operand, right)
+}
+case class OneToManyOperation[F, V](left: OneToMany[F], operand: Operand, right: V) extends OpBase {
 	override def toString = "%s %s %s".format(left, operand, right)
 }
 case class AndOp(left: OpBase, right: OpBase) extends OpBase {

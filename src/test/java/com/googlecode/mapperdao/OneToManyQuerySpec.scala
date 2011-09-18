@@ -18,6 +18,15 @@ class OneToManyQuerySpec extends SpecificationWithJUnit {
 	import queryDao._
 	import TestQueries._
 
+	"based on FK" in {
+		createTables
+		val p0 = insert(PersonEntity, Person(5, "person0", Set(House(1, "London"), House(2, "Paris"))))
+		val p1 = insert(PersonEntity, Person(6, "person1", Set(House(3, "London"), House(4, "Athens"))))
+
+		query(q2(p0.owns.head)) must_== List(p0)
+		query(q2(p1.owns.head)) must_== List(p1)
+	}
+
 	"join 1 level" in {
 		createTables
 		val p0 = insert(PersonEntity, Person(5, "person0", Set(House(1, "London"), House(2, "Paris"))))
@@ -68,7 +77,14 @@ object OneToManyQuerySpec {
 		val h = HouseEntity
 
 		def q0 = select from p join (p, p.owns, h) where h.address === "London"
-		def q1 = select from p join (p, p.owns, h) where (h.address === "Madrid" or h.address === "Rome") and h.id >= 6
+		def q1 = (
+			select from p
+			join (p, p.owns, h)
+			where (h.address === "Madrid" or h.address === "Rome")
+			and h.id >= 6
+		)
+
+		def q2(house: House) = select from p where p.owns === house
 	}
 
 	case class Person(val id: Int, var name: String, owns: Set[House])
