@@ -393,6 +393,16 @@ trait Driver {
 							sb append resolveWhereExpression(aliases, args, t._1)
 							sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
 						}
+					case ManyToManyOperation(left: ManyToMany[_], operand: Operand, right: Any) =>
+						val entity = typeRegistry.entityOf(left)
+						val foreignEntity = typeRegistry.entityOfObject(right)
+						joinsSb append manyToManyJoin(aliases, entity, foreignEntity, left)
+						val fTpe = typeRegistry.typeOfObject(right)
+						val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
+						fPKColumnAndValues.foreach { t =>
+							sb append resolveWhereExpression(aliases, args, t._1)
+							sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
+						}
 				}
 
 				inner(op)

@@ -18,6 +18,24 @@ class ManyToManyQuerySpec extends SpecificationWithJUnit {
 	import queryDao._
 	import TestQueries._
 
+	"match on FK" in {
+		createTables
+		val a = insert(AttributeEntity, Attribute(100, "size", "A"))
+		val b = insert(AttributeEntity, Attribute(101, "size", "B"))
+		val c = insert(AttributeEntity, Attribute(102, "size", "C"))
+		val d = insert(AttributeEntity, Attribute(103, "size", "D"))
+
+		val p1 = insert(ProductEntity, Product(1, "TV 1", Set(a, b)))
+		val p2 = insert(ProductEntity, Product(2, "TV 2", Set(c, d)))
+		val p3 = insert(ProductEntity, Product(3, "TV 3", Set(a, c)))
+		val p4 = insert(ProductEntity, Product(4, "TV 4", Set(d)))
+
+		query(q2(a)).toSet must_== Set(p1, p3)
+		query(q2(d)).toSet must_== Set(p2, p4)
+		query(q2(c)).toSet must_== Set(p2, p3)
+		query(q2(d)).toSet must_== Set(p2, p4)
+	}
+
 	"order by" in {
 		createTables
 		val a = insert(AttributeEntity, Attribute(100, "size", "A"))
@@ -104,12 +122,17 @@ object ManyToManyQuerySpec {
 		def q1 = select from p join (p, p.attributes, a) where a.value === "50'" or a.value === "black"
 
 		def q0OrderBy = select from p join (p, p.attributes, a) orderBy (a.value, asc, p.id, desc)
+
+		def q2(attr: Attribute) = (
+			select from p
+			where p.attributes === attr
+		)
 	}
 
 	case class Product(val id: Int, val name: String, val attributes: Set[Attribute])
 	case class Attribute(val id: Int, val name: String, val value: String)
 
-	object ProductEntity extends SimpleEntity("Product", classOf[Product]) {
+	object ProductEntity extends SimpleEntity(classOf[Product]) {
 		val id = pk("id", _.id)
 		val name = string("name", _.name)
 		val attributes = manyToMany(classOf[Attribute], _.attributes)
@@ -119,7 +142,7 @@ object ManyToManyQuerySpec {
 		}
 	}
 
-	object AttributeEntity extends SimpleEntity("Attribute", classOf[Attribute]) {
+	object AttributeEntity extends SimpleEntity(classOf[Attribute]) {
 		val id = pk("id", _.id)
 		val name = string("name", _.name)
 		val value = string("value", _.value)
