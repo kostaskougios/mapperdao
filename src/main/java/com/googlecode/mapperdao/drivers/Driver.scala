@@ -376,8 +376,13 @@ trait Driver {
 						inner(and.right)
 						sb append " )"
 					case ManyToOneOperation(left: ManyToOne[_], operand: Operand, right: Persisted) =>
-						sb append resolveWhereExpression(aliases, args, left)
-						sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, right)
+						val fTpe = typeRegistry.typeOfObject(right)
+						val fPKs = fTpe.table.toListOfPrimaryKeyValues(right)
+						if (left.columns.size != fPKs.size) throw new IllegalStateException("foreign keys %s don't match foreign key columns %s".format(fPKs, left.columns))
+						left.columns zip fPKs foreach { t =>
+							sb append resolveWhereExpression(aliases, args, t._1)
+							sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
+						}
 				}
 
 				inner(op)
