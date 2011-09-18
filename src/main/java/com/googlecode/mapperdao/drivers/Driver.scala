@@ -403,6 +403,7 @@ trait Driver {
 							sb append resolveWhereExpression(aliases, args, t._1)
 							sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
 						}
+					//					case OneToOneReverseOperation(left: OneToOneReverse[_], operand: Operand, right: Any) =>
 				}
 
 				inner(op)

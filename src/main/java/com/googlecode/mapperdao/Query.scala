@@ -70,6 +70,14 @@ object Query {
 	}
 	implicit def columnInfoManyToManyOperation[T, F](ci: ColumnInfoTraversableManyToMany[T, F]) = new ConvertorManyToMany[T, F](ci)
 
+	/**
+	 * manages one-to-one expressions
+	 */
+	//	protected class ConvertorOneToOneReverse[T, F](ci: ColumnInfoOneToOneReverse[T, F]) {
+	//		def ===(v: F) = new OneToOneReverseOperation(ci.column, EQ(), v)
+	//	}
+	//	implicit def columnInfoOneToOneReverseOperation[T, F](ci: ColumnInfoOneToOneReverse[T, F]) = new ConvertorOneToOneReverse[T, F](ci)
+
 	// starting point of a query, "select" syntactic sugar
 	def select[PC, T] = new QueryFrom[PC, T]
 
@@ -242,6 +250,9 @@ case class OneToManyOperation[F, V](left: OneToMany[F], operand: Operand, right:
 case class ManyToManyOperation[F, V](left: ManyToMany[F], operand: Operand, right: V) extends OpBase {
 	override def toString = "%s %s %s".format(left, operand, right)
 }
+//case class OneToOneReverseOperation[F, V](left: OneToOneReverse[F], operand: Operand, right: V) extends OpBase {
+//	override def toString = "%s %s %s".format(left, operand, right)
+//}
 case class AndOp(left: OpBase, right: OpBase) extends OpBase {
 	override def toString = "(%s and %s)".format(left, right)
 }

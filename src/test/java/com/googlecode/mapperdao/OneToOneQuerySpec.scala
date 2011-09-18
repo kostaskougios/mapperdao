@@ -17,6 +17,19 @@ class OneToOneQuerySpec extends SpecificationWithJUnit {
 	import queryDao._
 	import TestQueries._
 
+	//	"by FK" in {
+	//		createTables
+	//		val p0 = insert(ProductEntity, Product(0, Inventory(4, 10)))
+	//		val p1 = insert(ProductEntity, Product(1, Inventory(5, 11)))
+	//		val p2 = insert(ProductEntity, Product(2, Inventory(6, 12)))
+	//		val p3 = insert(ProductEntity, Product(3, Inventory(7, 13)))
+	//
+	//		query(q2(p0.inventory)).toSet must_== Set(p0)
+	//		query(q2(p1.inventory)).toSet must_== Set(p1)
+	//		query(q2(p2.inventory)).toSet must_== Set(p2)
+	//		query(q2(p3.inventory)).toSet must_== Set(p3)
+	//	}
+
 	"query by inventory.stock" in {
 		createTables
 		val p0 = insert(ProductEntity, Product(0, Inventory(4, 10)))
@@ -65,10 +78,14 @@ object OneToOneQuerySpec {
 		val i = InventoryEntity
 		import Query._
 		def q0 = select from p join (p, p.inventory, i) where i.stock > 5
-		def q1 = {
-			select from p join (p, p.inventory, i) where
-				i.stock > 5 and i.sold < 13
-		}
+		def q1 = (
+			select from p
+			join (p, p.inventory, i)
+			where
+			i.stock > 5
+			and i.sold < 13
+		)
+		//def q2(inventory: Inventory) = select from p where p.inventory === inventory
 	}
 
 	case class Inventory(val stock: Int, val sold: Int)
