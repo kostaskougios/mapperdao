@@ -205,7 +205,7 @@ trait Driver {
 			val columns = ftable.simpleTypeColumns
 			val linkTable = manyToMany.linkTable
 			val sb = new StringBuilder(100, "select ")
-			sb append commaSeparatedListOfSimpleTypeColumns(",", columns) append "\nfrom " append ftpe.table.name append " f\n"
+			sb append commaSeparatedListOfSimpleTypeColumns(",", columns) append "\nfrom " append escapeTableNames(ftpe.table.name) append " f\n"
 			sb append "inner join " append escapeTableNames(linkTable.name) append " l on "
 			var i = 0
 			ftable.primaryKeys.zip(linkTable.right).foreach { z =>
