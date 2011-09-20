@@ -38,7 +38,10 @@ final class TypeRegistry(entities: List[Entity[_, _]]) {
 		}
 	def typeOf[PC, T](clz: Class[T]): Type[PC, T] = entityToType(entityOf(clz)).asInstanceOf[Type[PC, T]]
 	def typeOf[PC, T](column: ColumnBase): Type[PC, T] = entityToType(entityOf(column)).asInstanceOf[Type[PC, T]]
-	def typeOfObject[PC, T](o: T): Type[PC, T] = entityToType(entityOfObject(o)).asInstanceOf[Type[PC, T]]
+	def typeOfObject[PC, T](o: T): Type[PC, T] = {
+		if (o == null) throw new NullPointerException("can't find type of null object")
+		entityToType(entityOfObject(o)).asInstanceOf[Type[PC, T]]
+	}
 
 	def entityOf(column: ColumnBase): Entity[_, _] = {
 		val e = columnsToEntity.get(column)
@@ -58,6 +61,7 @@ final class TypeRegistry(entities: List[Entity[_, _]]) {
 
 	protected[mapperdao] def entityOfObject[PC, T](o: T): Entity[PC, T] =
 		{
+			if (o == null) throw new NullPointerException("can't locate the entity of a null object")
 			// there is a very weird compilation error from maven
 			// if I just do val clz = o.getClass.asInstanceOf[Class[T]]
 			val clz = o.asInstanceOf[Object].getClass.asInstanceOf[Class[T]]

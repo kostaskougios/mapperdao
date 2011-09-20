@@ -19,7 +19,16 @@ class ManyToOneQuerySpec extends SpecificationWithJUnit {
 	import mapperDao._
 	import queryDao._
 
-	"query, find entity" in {
+	"query on FK for null" in {
+		createTables
+		val (p0, p1, p2, p3, p4) = testData1
+		val p5 = insert(PersonEntity, Person(5, "p5", null))
+		val p6 = insert(PersonEntity, Person(6, "p6", null))
+		query(q3(null)) must_== List(p5, p6)
+		query(q3n(null)) must_== List(p0, p1, p2, p3, p4)
+	}
+
+	"query on FK" in {
 		createTables
 		val (p0, p1, p2, p3, p4) = testData1
 		query(q3(p4.lives)) must_== List(p3, p4)
@@ -83,7 +92,7 @@ class ManyToOneQuerySpec extends SpecificationWithJUnit {
 			create table Person (
 				id int not null,
 				name varchar(30) not null,
-				lives_id int not null,
+				lives_id int,
 				primary key (id),
 				foreign key (lives_id) references House(id) on delete cascade
 			)
@@ -116,6 +125,10 @@ object ManyToOneQuerySpec {
 		def q3(h: House) = (
 			select from pe
 			where pe.lives === h
+		)
+		def q3n(h: House) = (
+			select from pe
+			where pe.lives <> h
 		)
 	}
 

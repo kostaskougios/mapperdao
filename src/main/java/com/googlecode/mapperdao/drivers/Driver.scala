@@ -375,13 +375,25 @@ trait Driver {
 						sb append " or "
 						inner(and.right)
 						sb append " )"
-					case ManyToOneOperation(left: ManyToOne[_], operand: Operand, right: Any) =>
-						val fTpe = typeRegistry.typeOfObject(right)
-						val fPKs = fTpe.table.toListOfPrimaryKeyValues(right)
-						if (left.columns.size != fPKs.size) throw new IllegalStateException("foreign keys %s don't match foreign key columns %s".format(fPKs, left.columns))
-						left.columns zip fPKs foreach { t =>
-							sb append resolveWhereExpression(aliases, args, t._1)
-							sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
+					case mto: ManyToOneOperation[_, Any] =>
+						val ManyToOneOperation(left, operand, right) = mto
+						if (right == null) {
+							left.columns foreach { c =>
+								sb append resolveWhereExpression(aliases, args, c)
+								operand match {
+									case EQ() => sb append " is null"
+									case NE() => sb append " is not null"
+									case _ => throw new IllegalArgumentException("operand %s not valid when right hand parameter is null.".format(operand))
+								}
+							}
+						} else {
+							val fTpe = typeRegistry.typeOfObject(right)
+							val fPKs = fTpe.table.toListOfPrimaryKeyValues(right)
+							if (left.columns.size != fPKs.size) throw new IllegalStateException("foreign keys %s don't match foreign key columns %s".format(fPKs, left.columns))
+							left.columns zip fPKs foreach { t =>
+								sb append resolveWhereExpression(aliases, args, t._1)
+								sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
+							}
 						}
 					case OneToManyOperation(left: OneToMany[_], operand: Operand, right: Any) =>
 						val entity = typeRegistry.entityOf(left)

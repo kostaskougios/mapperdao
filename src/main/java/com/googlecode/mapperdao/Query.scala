@@ -51,6 +51,7 @@ object Query {
 	 */
 	protected class ConvertorManyToOne[T, F](ci: ColumnInfoManyToOne[T, F]) {
 		def ===(v: F) = new ManyToOneOperation(ci.column, EQ(), v)
+		def <>(v: F) = new ManyToOneOperation(ci.column, NE(), v)
 	}
 	implicit def columnInfoManyToOneOperation[T, F](ci: ColumnInfoManyToOne[T, F]) = new ConvertorManyToOne(ci)
 
@@ -245,9 +246,11 @@ case class ManyToOneOperation[F, V](left: ManyToOne[F], operand: Operand, right:
 	override def toString = "%s %s %s".format(left, operand, right)
 }
 case class OneToManyOperation[F, V](left: OneToMany[F], operand: Operand, right: V) extends OpBase {
+	if (right == null) throw new NullPointerException("Value can't be null in one-to-many FK queries. Expression was on %s.".format(left))
 	override def toString = "%s %s %s".format(left, operand, right)
 }
 case class ManyToManyOperation[F, V](left: ManyToMany[F], operand: Operand, right: V) extends OpBase {
+	if (right == null) throw new NullPointerException("Value can't be null in many-to-many FK queries. Expression was on %s.".format(left))
 	override def toString = "%s %s %s".format(left, operand, right)
 }
 //case class OneToOneReverseOperation[F, V](left: OneToOneReverse[F], operand: Operand, right: V) extends OpBase {
