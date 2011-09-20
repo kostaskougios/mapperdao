@@ -306,7 +306,7 @@ final class MapperDao(val driver: Driver) {
 					else {
 						val l = toEntities(om, tpe, entities)
 						if (l.size != 1) throw new IllegalStateException("expected 1 object, but got %s".format(l))
-						Option(l.head)
+						Some(l.head)
 					}
 				} catch {
 					case e => throw new QueryException("An error occured during select of entity %s and primary keys %s".format(entity, ids), e)

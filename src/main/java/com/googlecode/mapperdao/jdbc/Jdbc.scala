@@ -122,7 +122,7 @@ class Jdbc(val dataSource: DataSource, val typeManager: TypeManager) {
 	def queryForMap(sql: String, args: Any*): Option[JdbcMap] =
 		{
 			val l = queryForList(sql, args: _*)
-			if (l.isEmpty) None; else if (l.size != 1) throw new IllegalStateException("more than one results found for " + sql) else Option(l.get(0))
+			if (l.isEmpty) None; else if (l.size != 1) throw new IllegalStateException("more than one results found for " + sql) else Some(l.get(0))
 		}
 
 	def update(sql: String, args: List[Any]): UpdateResult = update(sql, args: _*)
