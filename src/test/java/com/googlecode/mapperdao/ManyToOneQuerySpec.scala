@@ -33,6 +33,7 @@ class ManyToOneQuerySpec extends SpecificationWithJUnit {
 		val (p0, p1, p2, p3, p4) = testData1
 		query(q3(p4.lives)) must_== List(p3, p4)
 		query(q3(p0.lives)) must_== List(p0, p1, p2)
+		query(q3n(p0.lives)) must_== List(p3, p4)
 	}
 
 	"query 1 level join" in {
