@@ -34,6 +34,7 @@ class ManyToManyQuerySpec extends SpecificationWithJUnit {
 		query(q2(d)).toSet must_== Set(p2, p4)
 		query(q2(c)).toSet must_== Set(p2, p3)
 		query(q2(d)).toSet must_== Set(p2, p4)
+		query(q2n(d)).toSet must_== Set(p1, p2, p3)
 	}
 
 	"order by" in {
@@ -126,6 +127,10 @@ object ManyToManyQuerySpec {
 		def q2(attr: Attribute) = (
 			select from p
 			where p.attributes === attr
+		)
+		def q2n(attr: Attribute) = (
+			select from p
+			where p.attributes <> attr
 		)
 	}
 

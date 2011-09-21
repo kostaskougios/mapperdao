@@ -60,6 +60,7 @@ object Query {
 	 */
 	protected class ConvertorOneToMany[T, F](ci: ColumnInfoTraversableOneToMany[T, F]) {
 		def ===(v: F) = new OneToManyOperation(ci.column, EQ(), v)
+		def <>(v: F) = new OneToManyOperation(ci.column, NE(), v)
 	}
 	implicit def columnInfoOneToManyOperation[T, F](ci: ColumnInfoTraversableOneToMany[T, F]) = new ConvertorOneToMany[T, F](ci)
 
@@ -68,6 +69,7 @@ object Query {
 	 */
 	protected class ConvertorManyToMany[T, F](ci: ColumnInfoTraversableManyToMany[T, F]) {
 		def ===(v: F) = new ManyToManyOperation(ci.column, EQ(), v)
+		def <>(v: F) = new ManyToManyOperation(ci.column, NE(), v)
 	}
 	implicit def columnInfoManyToManyOperation[T, F](ci: ColumnInfoTraversableManyToMany[T, F]) = new ConvertorManyToMany[T, F](ci)
 
