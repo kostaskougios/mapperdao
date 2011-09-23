@@ -66,7 +66,7 @@ final class TypeRegistry(entities: List[Entity[_, _]]) {
 			// if I just do val clz = o.getClass.asInstanceOf[Class[T]]
 			val clz = o.asInstanceOf[Object].getClass.asInstanceOf[Class[T]]
 			o match {
-				case p: Persisted => types.get(clz.getSuperclass).get.asInstanceOf[Entity[PC, T]]
+				case p: Persisted => entityOf(clz.getSuperclass).asInstanceOf[Entity[PC, T]]
 				case _ => entityOf(clz)
 			}
 		}
