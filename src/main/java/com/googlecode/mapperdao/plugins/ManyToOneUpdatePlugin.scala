@@ -46,7 +46,7 @@ class ManyToOneUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate {
 			}
 
 			val manyToOneChanged = table.manyToOneColumns.filter(Equality.onlyChanged(_, newValuesMap, oldValuesMap))
-			val mtoArgsV = manyToOneChanged.map(mto => (mto.foreign.clz, newValuesMap[Any](mto.alias))).map { t =>
+			val mtoArgsV = manyToOneChanged.map(mto => (mto.foreign.clz, newValuesMap.valueOf[Any](mto.alias))).map { t =>
 				typeRegistry.typeOf(t._1).table.toListOfPrimaryKeyValues(t._2)
 			}.flatten
 			val cv = (manyToOneChanged.map(_.columns).flatten zip mtoArgsV) filterNot (cav => table.primaryKeyColumns.contains(cav._1))

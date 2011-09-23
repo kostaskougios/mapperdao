@@ -25,5 +25,5 @@ protected[mapperdao] object Equality {
 		case null => o2 == null
 	}
 
-	def onlyChanged(column: ColumnBase, newValuesMap: ValuesMap, oldValuesMap: ValuesMap) = !isEqual(newValuesMap[AnyRef](column.alias), oldValuesMap(column.alias))
+	def onlyChanged(column: ColumnBase, newValuesMap: ValuesMap, oldValuesMap: ValuesMap) = !isEqual(newValuesMap.valueOf[AnyRef](column.alias), oldValuesMap.valueOf(column.alias))
 }

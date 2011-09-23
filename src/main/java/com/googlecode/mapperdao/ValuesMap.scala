@@ -13,7 +13,7 @@ import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 class ValuesMap(typeManager: TypeManager, mOrig: scala.collection.mutable.Map[String, Any]) {
 	private val m = new LowerCaseMutableMap(mOrig)
 
-	protected[mapperdao] def apply[T](column: String): T = typeManager.deepClone(m.getOrElse(column.toLowerCase, null).asInstanceOf[T])
+	protected[mapperdao] def valueOf[T](column: String): T = typeManager.deepClone(m.getOrElse(column.toLowerCase, null).asInstanceOf[T])
 
 	private def update[T, V](column: ColumnInfo[T, _], v: V): Unit =
 		{
@@ -24,40 +24,40 @@ class ValuesMap(typeManager: TypeManager, mOrig: scala.collection.mutable.Map[St
 	def apply[T, V](column: ColumnInfo[T, V]): V =
 		{
 			val key = column.column.columnName
-			apply[V](key)
+			valueOf[V](key)
 		}
 	def apply[T, F](column: ColumnInfoOneToOne[T, F]): F =
 		{
 			val key = column.column.alias
-			apply[F](key)
+			valueOf[F](key)
 		}
 	def apply[T, F](column: ColumnInfoOneToOneReverse[T, F]): F =
 		{
 			val key = column.column.alias
-			apply[F](key)
+			valueOf[F](key)
 		}
 
 	def apply[T, V](column: ColumnInfoTraversableOneToMany[T, V]): Traversable[V] =
 		{
 			val key = column.column.alias
-			apply[Traversable[V]](key)
+			valueOf[Traversable[V]](key)
 		}
 
 	def apply[T, V](column: ColumnInfoTraversableManyToMany[T, V]): Traversable[V] =
 		{
 			val key = column.column.alias
-			apply[Traversable[V]](key)
+			valueOf[Traversable[V]](key)
 		}
 
 	def apply[T, F](column: ColumnInfoManyToOne[T, F]) =
 		{
 			val key = column.column.alias
-			apply[F](key)
+			valueOf[F](key)
 		}
 
 	def float[T, V](column: ColumnInfo[T, V]): Float =
 		{
-			val v = apply(column)
+			val v = valueOf[V](column.column.columnName)
 			v match {
 				case f: Float => f
 				case b: java.math.BigDecimal =>
@@ -73,7 +73,7 @@ class ValuesMap(typeManager: TypeManager, mOrig: scala.collection.mutable.Map[St
 
 	def double[T, V](column: ColumnInfo[T, V]): Double =
 		{
-			val v = apply(column)
+			val v = valueOf[V](column.column.columnName)
 			v match {
 				case d: Double => d
 				case b: java.math.BigDecimal =>
@@ -89,7 +89,7 @@ class ValuesMap(typeManager: TypeManager, mOrig: scala.collection.mutable.Map[St
 
 	def int[T, V](column: ColumnInfo[T, V]): Int =
 		{
-			val v = apply(column)
+			val v = valueOf[V](column.column.columnName)
 			v match {
 				case i: Int => i
 				case l: Long => l.toInt
@@ -103,7 +103,7 @@ class ValuesMap(typeManager: TypeManager, mOrig: scala.collection.mutable.Map[St
 
 	def long[T, V](column: ColumnInfo[T, V]): Long =
 		{
-			val v = apply(column)
+			val v = valueOf[V](column.column.columnName)
 			v match {
 				case l: Long => l
 				case i: Int => i.toLong
@@ -117,7 +117,7 @@ class ValuesMap(typeManager: TypeManager, mOrig: scala.collection.mutable.Map[St
 
 	def bigDecimal[T, V](column: ColumnInfo[T, V]): BigDecimal =
 		{
-			val v = apply(column)
+			val v = valueOf[V](column.column.columnName)
 			v match {
 				case bd: BigDecimal => bd
 				case d: Double =>
@@ -133,7 +133,7 @@ class ValuesMap(typeManager: TypeManager, mOrig: scala.collection.mutable.Map[St
 
 	def bigInt[T, V](column: ColumnInfo[T, V]): BigInt =
 		{
-			val v = apply(column)
+			val v = valueOf[V](column.column.columnName)
 			v match {
 				case i: BigInt => i
 				case i: Int =>
@@ -149,7 +149,7 @@ class ValuesMap(typeManager: TypeManager, mOrig: scala.collection.mutable.Map[St
 
 	def boolean[T, V](column: ColumnInfo[T, V]): Boolean =
 		{
-			val v = apply(column)
+			val v = valueOf[V](column.column.columnName)
 			v match {
 				case b: Boolean => b
 				case i: Int =>
@@ -168,8 +168,8 @@ class ValuesMap(typeManager: TypeManager, mOrig: scala.collection.mutable.Map[St
 	/**
 	 * the following methods do a conversion
 	 */
-	protected[mapperdao] def set[T](column: String): Set[T] = apply(column).asInstanceOf[Traversable[T]].toSet
-	protected[mapperdao] def seq[T](column: String): Seq[T] = apply(column).asInstanceOf[Traversable[T]].toSeq
+	protected[mapperdao] def set[T](column: String): Set[T] = valueOf(column).asInstanceOf[Traversable[T]].toSet
+	protected[mapperdao] def seq[T](column: String): Seq[T] = valueOf(column).asInstanceOf[Traversable[T]].toSeq
 
 	override def toString = m.toString
 

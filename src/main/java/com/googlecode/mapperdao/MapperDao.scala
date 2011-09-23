@@ -137,7 +137,7 @@ final class MapperDao(val driver: Driver) {
 		{
 			val tpe = typeRegistry.typeOf(entity)
 
-			def changed(column: ColumnBase) = newValuesMap(column.alias) != oldValuesMap(column.alias)
+			def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
 
 			val table = tpe.table
 

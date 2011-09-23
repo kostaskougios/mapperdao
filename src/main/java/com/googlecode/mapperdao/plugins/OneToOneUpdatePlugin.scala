@@ -29,7 +29,7 @@ class OneToOneUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate {
 			table.oneToOneColumnInfos.foreach { ci =>
 				val fo = ci.columnToValue(o)
 				val c = ci.column
-				val oldV: Persisted = oldValuesMap(c.alias)
+				val oldV: Persisted = oldValuesMap.valueOf(c.alias)
 				val v = if (fo == null) {
 					values :::= c.selfColumns zip nullList
 					null
