@@ -9,12 +9,14 @@ import com.googlecode.mapperdao.utils.Equality
  *
  * 16 Jul 2011
  */
-class ValuesMap(typeManager: TypeManager, private val m: scala.collection.mutable.Map[String, Any]) {
-	protected[mapperdao] def apply[T](column: String): T = typeManager.deepClone(m.getOrElse(column, null).asInstanceOf[T])
+class ValuesMap(typeManager: TypeManager, mOrig: scala.collection.mutable.Map[String, Any]) {
+	private val m = mOrig.map(t => (t._1.toLowerCase, t._2))
+
+	protected[mapperdao] def apply[T](column: String): T = typeManager.deepClone(m.getOrElse(column.toLowerCase, null).asInstanceOf[T])
 
 	private def update[T, V](column: ColumnInfo[T, _], v: V): Unit =
 		{
-			val key = column.column.columnName
+			val key = column.column.columnName.toLowerCase
 			m(key) = v
 		}
 
@@ -93,6 +95,7 @@ class ValuesMap(typeManager: TypeManager, private val m: scala.collection.mutabl
 				case s: Short => s.toInt
 				case b: BigInt => b.toInt
 				case b: java.math.BigInteger => b.intValue
+				case b: java.math.BigDecimal => b.intValue
 				case null => 0
 			}
 		}
@@ -106,6 +109,7 @@ class ValuesMap(typeManager: TypeManager, private val m: scala.collection.mutabl
 				case s: Short => s.toLong
 				case b: BigInt => b.toLong
 				case b: java.math.BigInteger => b.longValue
+				case b: java.math.BigDecimal => b.longValue
 				case null => 0
 			}
 		}
@@ -170,8 +174,8 @@ class ValuesMap(typeManager: TypeManager, private val m: scala.collection.mutabl
 
 	protected[mapperdao] def toMutableMap: scala.collection.mutable.Map[String, Any] = new scala.collection.mutable.HashMap() ++ m
 
-	protected[mapperdao] def toListOfColumnAndValueTuple(columns: List[ColumnBase]) = columns.map(c => (c, m(c.alias)))
-	protected[mapperdao] def toListOfColumnValue(columns: List[ColumnBase]) = columns.map(c => m(c.alias))
+	protected[mapperdao] def toListOfColumnAndValueTuple(columns: List[ColumnBase]) = columns.map(c => (c, m(c.alias.toLowerCase)))
+	protected[mapperdao] def toListOfColumnValue(columns: List[ColumnBase]) = columns.map(c => m(c.alias.toLowerCase))
 	protected[mapperdao] def isSimpleColumnsChanged[PC, T](tpe: Type[PC, T], from: ValuesMap): Boolean =
 		tpe.table.simpleTypeColumnInfos.exists { ci =>
 			!Equality.isEqual(apply(ci), from.apply(ci))

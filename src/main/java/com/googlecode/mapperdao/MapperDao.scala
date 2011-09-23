@@ -73,7 +73,7 @@ final class MapperDao(val driver: Driver) {
 			val table = tpe.table
 
 			val modified = ValuesMap.fromEntity(typeManager, tpe, o).toMutableMap
-			val modifiedTraversables = new MapOfList[String, Any]
+			val modifiedTraversables = new MapOfList[String, Any](MapOfList.stringToLowerCaseModifier)
 
 			val updateInfo @ UpdateInfo(parent, parentColumnInfo) = entityMap.peek[Any, Any, T]
 
@@ -142,7 +142,7 @@ final class MapperDao(val driver: Driver) {
 			val table = tpe.table
 
 			val modified = oldValuesMap.toMutableMap ++ newValuesMap.toMutableMap
-			val modifiedTraversables = new MapOfList[String, Any]
+			val modifiedTraversables = new MapOfList[String, Any](MapOfList.stringToLowerCaseModifier)
 
 			// store a mock in the entity map so that we don't process the same instance twice
 			var mockO = createMock(tpe, modified ++ modifiedTraversables)
