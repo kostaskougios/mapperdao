@@ -78,7 +78,8 @@ class JdbcSpec extends SpecificationWithJUnit {
 		// verify
 		val m = jdbc.queryForList("select * from test_insert")(0)
 		m.size must_== 3
-		m("id") must_== 5
+		val id = m.int("id")
+		id must_== 5
 		m("name") must_== "kostas"
 		m("dt") must_== now
 	}
@@ -93,7 +94,7 @@ class JdbcSpec extends SpecificationWithJUnit {
 		// verify
 		val m = jdbc.queryForList("select * from test_insert")(0)
 		m.size must_== 3
-		m("id") must_== 5
+		m.int("id") must_== 5
 		m("name") must_== "kostas"
 	}
 
@@ -107,7 +108,7 @@ class JdbcSpec extends SpecificationWithJUnit {
 		// verify
 		val m = jdbc.queryForList("select * from test_insert where id=? and name=?", 5, "kostas")(0)
 		m.size must_== 3
-		m("id") must_== 5
+		m.int("id") must_== 5
 		m("name") must_== "kostas"
 	}
 
@@ -158,11 +159,12 @@ class JdbcSpec extends SpecificationWithJUnit {
 			)
 		""")
 			case "oracle" =>
+				Setup.createMySeq(jdbc)
 				jdbc.update("""
 			create table test_insert (
-				id int not null,
+				id integer not null,
 				name varchar(100) not null,
-				dt timestamp with time zone,
+				dt timestamp,
 				primary key (id)
 			)
 		""")
@@ -170,9 +172,9 @@ class JdbcSpec extends SpecificationWithJUnit {
 				jdbc.update("""
 			CREATE TABLE test_generatedkeys
 			(
-				id serial NOT NULL,
-				name character varying,
-				dt timestamp with time zone,
+				id number NOT NULL,
+				name varchar(100),
+				dt timestamp,
 				primary key (id)
 			)
 		""")

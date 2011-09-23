@@ -137,7 +137,7 @@ final class MapperDao(val driver: Driver) {
 		{
 			val tpe = typeRegistry.typeOf(entity)
 
-			def changed(column: ColumnBase) = newValuesMap(column.alias) != oldValuesMap(column.alias)
+				def changed(column: ColumnBase) = newValuesMap(column.alias) != oldValuesMap(column.alias)
 
 			val table = tpe.table
 
@@ -316,7 +316,8 @@ final class MapperDao(val driver: Driver) {
 
 	private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], tpe: Type[PC, T], entities: EntityMap): List[T with PC] = lm.map { om =>
 		val mods = new scala.collection.mutable.HashMap[String, Any]
-		mods ++= om.map
+		import scala.collection.JavaConversions._
+		mods ++= om.map.toMap
 		val table = tpe.table
 		// calculate the id's for this tpe
 		val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) } ::: selectBeforePlugins.map { plugin =>

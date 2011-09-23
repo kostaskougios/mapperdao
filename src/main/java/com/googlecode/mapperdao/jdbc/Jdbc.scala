@@ -59,7 +59,7 @@ class Jdbc(val dataSource: DataSource, val typeManager: TypeManager) {
 			}.mkString
 		}
 
-	def query(sql: String, mapper: Map[String, _] => Boolean, args: Array[_], maxResults: Int = Int.MaxValue) {
+	def query(sql: String, mapper: java.util.Map[String, _] => Boolean, args: Array[_], maxResults: Int = Int.MaxValue) {
 		if (logger.isDebugEnabled) {
 			logger.debug("sql:\n" + toString(sql, args))
 		}
@@ -76,7 +76,7 @@ class Jdbc(val dataSource: DataSource, val typeManager: TypeManager) {
 						val e = it.next
 						e.setValue(typeManager.convert(e.getValue).asInstanceOf[Object])
 					}
-					if (mapper(m.toMap)) i += 1; else i = maxResults // exit if false
+					if (mapper(m)) i += 1; else i = maxResults // exit if false
 				}
 			}
 		}
