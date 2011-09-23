@@ -198,6 +198,20 @@
 						</goals>
 						<configuration>
 							<skip>false</skip>
+							<argLine>-Ddatabase=oracle</argLine>
+							<includes>
+								<include>**/*Spec.class</include>
+							</includes>
+						</configuration>
+					</execution>
+					<execution>
+						<id>mysql</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
 							<argLine>-Ddatabase=mysql</argLine>
 							<includes>
 								<include>**/*Spec.class</include>
