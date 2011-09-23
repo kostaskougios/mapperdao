@@ -9,6 +9,7 @@ import com.googlecode.mapperdao.OneToMany
 import com.googlecode.mapperdao.TypeRef
 import com.googlecode.mapperdao.UpdateInfo
 import com.googlecode.mapperdao.Persisted
+import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 
 /**
  * @author kostantinos.kougios
@@ -19,7 +20,7 @@ class OneToManyInsertPlugin(mapperDao: MapperDao) extends BeforeInsert with Post
 	val typeRegistry = mapperDao.typeRegistry
 	val driver = mapperDao.driver
 
-	override def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
+	override def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
 		{
 			val UpdateInfo(parent, parentColumnInfo) = updateInfo
 			if (parent != null) {
@@ -41,7 +42,7 @@ class OneToManyInsertPlugin(mapperDao: MapperDao) extends BeforeInsert with Post
 			} else Nil
 		}
 
-	override def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): Unit =
+	override def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): Unit =
 		{
 			val table = tpe.table
 			// one to many

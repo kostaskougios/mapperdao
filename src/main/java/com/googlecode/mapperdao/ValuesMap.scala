@@ -3,6 +3,7 @@ import scala.collection.mutable.Buffer
 import java.util.Calendar
 import org.joda.time.DateTime
 import com.googlecode.mapperdao.utils.Equality
+import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 
 /**
  * @author kostantinos.kougios
@@ -10,7 +11,7 @@ import com.googlecode.mapperdao.utils.Equality
  * 16 Jul 2011
  */
 class ValuesMap(typeManager: TypeManager, mOrig: scala.collection.mutable.Map[String, Any]) {
-	private val m = mOrig.map(t => (t._1.toLowerCase, t._2))
+	private val m = new LowerCaseMutableMap(mOrig)
 
 	protected[mapperdao] def apply[T](column: String): T = typeManager.deepClone(m.getOrElse(column.toLowerCase, null).asInstanceOf[T])
 
@@ -172,7 +173,8 @@ class ValuesMap(typeManager: TypeManager, mOrig: scala.collection.mutable.Map[St
 
 	override def toString = m.toString
 
-	protected[mapperdao] def toMutableMap: scala.collection.mutable.Map[String, Any] = new scala.collection.mutable.HashMap() ++ m
+	protected[mapperdao] def toLowerCaseMutableMap: LowerCaseMutableMap[Any] = m.clone
+	protected[mapperdao] def toMutableMap = m.cloneMap
 
 	protected[mapperdao] def toListOfColumnAndValueTuple(columns: List[ColumnBase]) = columns.map(c => (c, m(c.alias.toLowerCase)))
 	protected[mapperdao] def toListOfColumnValue(columns: List[ColumnBase]) = columns.map(c => m(c.alias.toLowerCase))

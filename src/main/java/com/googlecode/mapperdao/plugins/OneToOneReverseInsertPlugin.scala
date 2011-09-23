@@ -8,6 +8,7 @@ import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao.Column
 import com.googlecode.mapperdao.UpdateInfo
 import com.googlecode.mapperdao.OneToOneReverse
+import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 
 /**
  * @author kostantinos.kougios
@@ -17,7 +18,7 @@ import com.googlecode.mapperdao.OneToOneReverse
 class OneToOneReverseInsertPlugin(mapperDao: MapperDao) extends BeforeInsert with PostInsert {
 	val typeRegistry = mapperDao.typeRegistry
 
-	override def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
+	override def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
 		{
 			val UpdateInfo(parent, parentColumnInfo) = updateInfo
 			if (parent != null) {
@@ -33,7 +34,7 @@ class OneToOneReverseInsertPlugin(mapperDao: MapperDao) extends BeforeInsert wit
 			} else Nil
 		}
 
-	override def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): Unit =
+	override def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): Unit =
 		{
 			val table = tpe.table
 			// one-to-one reverse

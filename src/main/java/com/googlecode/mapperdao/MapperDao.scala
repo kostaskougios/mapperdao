@@ -28,7 +28,7 @@ import com.googlecode.mapperdao.plugins.DuringUpdateResults
 import com.googlecode.mapperdao.plugins.OneToOneUpdatePlugin
 import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.plugins.SelectMock
-
+import utils.LowerCaseMutableMap
 /**
  * @author kostantinos.kougios
  *
@@ -42,7 +42,7 @@ final class MapperDao(val driver: Driver) {
 	private val postUpdatePlugins = List[PostUpdate](new OneToOneReverseUpdatePlugin(this), new OneToManyUpdatePlugin(this), new ManyToManyUpdatePlugin(this))
 	private val duringUpdatePlugins = List[DuringUpdate](new ManyToOneUpdatePlugin(this), new OneToOneReverseUpdatePlugin(this), new OneToOneUpdatePlugin(this))
 	private val beforeInsertPlugins = List[BeforeInsert](new ManyToOneInsertPlugin(this), new OneToManyInsertPlugin(this), new OneToOneReverseInsertPlugin(this), new OneToOneInsertPlugin(this))
-	private val postInsertPlugins = List[PostInsert](new OneToOneInsertPlugin(this), new OneToOneReverseInsertPlugin(this), new OneToManyInsertPlugin(this), new ManyToManyInsertPlugin(this))
+	private val postInsertPlugins = List[PostInsert](new OneToOneReverseInsertPlugin(this), new OneToManyInsertPlugin(this), new ManyToManyInsertPlugin(this))
 	private val selectBeforePlugins: List[BeforeSelect] = List(new ManyToOneSelectPlugin(this), new OneToManySelectPlugin(this), new OneToOneReverseSelectPlugin(this), new OneToOneSelectPlugin(this), new ManyToManySelectPlugin(this))
 	private val mockPlugins: List[SelectMock] = List(new OneToManySelectPlugin(this), new ManyToManySelectPlugin(this), new ManyToOneSelectPlugin(this), new OneToOneSelectPlugin(this))
 
@@ -72,7 +72,7 @@ final class MapperDao(val driver: Driver) {
 			val tpe = typeRegistry.typeOf(entity)
 			val table = tpe.table
 
-			val modified = ValuesMap.fromEntity(typeManager, tpe, o).toMutableMap
+			val modified = ValuesMap.fromEntity(typeManager, tpe, o).toLowerCaseMutableMap
 			val modifiedTraversables = new MapOfList[String, Any](MapOfList.stringToLowerCaseModifier)
 
 			val updateInfo @ UpdateInfo(parent, parentColumnInfo) = entityMap.peek[Any, Any, T]
@@ -137,11 +137,11 @@ final class MapperDao(val driver: Driver) {
 		{
 			val tpe = typeRegistry.typeOf(entity)
 
-				def changed(column: ColumnBase) = newValuesMap(column.alias) != oldValuesMap(column.alias)
+			def changed(column: ColumnBase) = newValuesMap(column.alias) != oldValuesMap(column.alias)
 
 			val table = tpe.table
 
-			val modified = oldValuesMap.toMutableMap ++ newValuesMap.toMutableMap
+			val modified = new LowerCaseMutableMap[Any](oldValuesMap.toMutableMap ++ newValuesMap.toMutableMap)
 			val modifiedTraversables = new MapOfList[String, Any](MapOfList.stringToLowerCaseModifier)
 
 			// store a mock in the entity map so that we don't process the same instance twice

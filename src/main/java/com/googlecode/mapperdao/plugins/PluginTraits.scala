@@ -8,6 +8,7 @@ import com.googlecode.mapperdao.UpdateInfo
 import com.googlecode.mapperdao.Persisted
 import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.EntityMap
+import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 
 /**
  * plugins executed before the main entity is inserted
@@ -17,7 +18,7 @@ import com.googlecode.mapperdao.EntityMap
  * 31 Aug 2011
  */
 trait BeforeInsert {
-	def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)]
+	def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)]
 }
 
 /**
@@ -28,7 +29,7 @@ trait BeforeInsert {
  * 31 Aug 2011
  */
 trait PostInsert {
-	def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): Unit
+	def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): Unit
 }
 
 /**
@@ -45,7 +46,7 @@ private[mapperdao] class DuringUpdateResults(val values: List[(Column, Any)], va
 }
 
 trait DuringUpdate {
-	def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults
+	def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults
 }
 
 /**

@@ -9,6 +9,8 @@ import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao.UpdateEntityMap
 import com.googlecode.mapperdao.utils.Equality
 import com.googlecode.mapperdao.Persisted
+import com.googlecode.mapperdao.utils.LowerCaseMutableMap
+import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 
 /**
  * @author kostantinos.kougios
@@ -19,7 +21,7 @@ class ManyToOneUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate {
 
 	private val typeRegistry = mapperDao.typeRegistry
 
-	override def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
+	override def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
 			val table = tpe.table
 

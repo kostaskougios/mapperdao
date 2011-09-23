@@ -9,6 +9,7 @@ import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao.Column
 import com.googlecode.mapperdao.UpdateInfo
 import com.googlecode.mapperdao.ColumnInfoOneToOneReverse
+import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 
 /**
  * @author kostantinos.kougios
@@ -21,7 +22,7 @@ class OneToOneReverseUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate wit
 	private val emptyDUR = new DuringUpdateResults(Nil, Nil)
 	private val driver = mapperDao.driver
 
-	override def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
+	override def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
 			val UpdateInfo(parent, parentColumnInfo) = entityMap.peek[Any, Any, T]
 			if (parent != null) {

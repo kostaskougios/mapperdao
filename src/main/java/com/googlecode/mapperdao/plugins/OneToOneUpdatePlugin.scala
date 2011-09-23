@@ -7,6 +7,7 @@ import com.googlecode.mapperdao.MapperDao
 import com.googlecode.mapperdao.Column
 import com.googlecode.mapperdao.Persisted
 import com.googlecode.mapperdao.utils.MapOfList
+import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 
 /**
  * @author kostantinos.kougios
@@ -19,7 +20,7 @@ class OneToOneUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate {
 
 	private val nullList = List(null, null, null, null, null)
 
-	def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
+	def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
 			val table = tpe.table
 

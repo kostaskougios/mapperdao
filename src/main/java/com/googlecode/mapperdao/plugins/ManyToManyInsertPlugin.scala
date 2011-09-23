@@ -3,6 +3,7 @@ import com.googlecode.mapperdao.MapperDao
 import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao.UpdateEntityMap
 import com.googlecode.mapperdao.Type
+import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 
 /**
  * @author kostantinos.kougios
@@ -13,7 +14,7 @@ class ManyToManyInsertPlugin(mapperDao: MapperDao) extends PostInsert {
 	val typeRegistry = mapperDao.typeRegistry
 	val driver = mapperDao.driver
 
-	override def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): Unit =
+	override def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): Unit =
 		{
 			val table = tpe.table
 			// many to many
