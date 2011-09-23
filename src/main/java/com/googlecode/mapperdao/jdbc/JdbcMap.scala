@@ -10,7 +10,6 @@ class JdbcMap(val map: java.util.Map[String, _]) {
 	private def get(key: String) =
 		{
 			val v = map.get(key)
-			if (v == null) throw new NullPointerException("key doesn't exist in JdbcMap: %s.".format(key))
 			v
 		}
 	def apply(key: String): Any = get(key)
