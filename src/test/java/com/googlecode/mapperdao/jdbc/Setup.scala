@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory
 import org.slf4j.LoggerFactory
 import org.slf4j.Logger
 import com.googlecode.mapperdao.drivers.Oracle
+import java.sql.SQLSyntaxErrorException
 
 /**
  * creates an environment for specs
@@ -101,7 +102,11 @@ object Setup {
 		}
 
 	def createMySeq(jdbc: Jdbc) {
-		jdbc.update("drop sequence if exists myseq")
+		try {
+			jdbc.update("drop sequence myseq")
+		} catch {
+			case _: Exception => // ignore
+		}
 		jdbc.update("create sequence myseq")
 	}
 }
