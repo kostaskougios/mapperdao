@@ -24,7 +24,15 @@ class ValuesMap(typeManager: TypeManager, mOrig: scala.collection.mutable.Map[St
 	def apply[T, V](column: ColumnInfo[T, V]): V =
 		{
 			val key = column.column.columnName
-			valueOf[V](key)
+			val v = valueOf[V](key)
+			val dt = column.dataType
+			if (dt == classOf[Int])
+				int(column).asInstanceOf[V]
+			else if (dt == classOf[Long])
+				long(column).asInstanceOf[V]
+			else if (dt == classOf[Boolean])
+				boolean(column).asInstanceOf[V]
+			else v
 		}
 	def apply[T, F](column: ColumnInfoOneToOne[T, F]): F =
 		{
