@@ -53,13 +53,13 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 		val inserted = mapperDao.insert(JobPositionEntity, jp)
 
 		var updated: JobPosition = inserted
-		def doUpdate(from: JobPosition, to: JobPosition) =
-			{
-				updated = mapperDao.update(JobPositionEntity, from, to)
-				updated must_== to
-				mapperDao.select(JobPositionEntity, 5).get must_== to
-				mapperDao.select(JobPositionEntity, 5).get must_== updated
-			}
+			def doUpdate(from: JobPosition, to: JobPosition) =
+				{
+					updated = mapperDao.update(JobPositionEntity, from, to)
+					updated must_== to
+					mapperDao.select(JobPositionEntity, 5).get must_== to
+					mapperDao.select(JobPositionEntity, 5).get must_== updated
+				}
 
 		doUpdate(updated, new JobPosition(5, "Developer Changed", date, date, 5))
 		doUpdate(updated, new JobPosition(5, "Developer Changed Again", date, date, 15))
@@ -181,6 +181,16 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 					rank int not null,
 					primary key (id)
 				) engine InnoDB""")
+			case "oracle" =>
+				jdbc.update(""" 
+					create table JobPosition (
+					id int not null,
+					name varchar(100) not null,
+					"start" timestamp,
+					end timestamp,
+					rank int not null,
+					primary key (id)
+        )""")
 		}
 	}
 }

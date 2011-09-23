@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao.jdbc
 import java.util.Properties
 import org.apache.commons.dbcp.BasicDataSourceFactory
-
 import com.googlecode.mapperdao.drivers.PostgreSql
 import com.googlecode.mapperdao.MapperDao
 import com.googlecode.mapperdao.TypeRegistry
@@ -12,6 +11,7 @@ import org.scala_tools.time.Imports._
 import org.slf4j.LoggerFactory
 import org.slf4j.LoggerFactory
 import org.slf4j.Logger
+import com.googlecode.mapperdao.drivers.Oracle
 
 /**
  * creates an environment for specs
@@ -47,6 +47,7 @@ object Setup {
 			val driver = database match {
 				case "postgresql" => new PostgreSql(jdbc, typeRegistry)
 				case "mysql" => new Mysql(jdbc, typeRegistry)
+				case "oracle" => new Oracle(jdbc, typeRegistry)
 			}
 			val mapperDao = new MapperDao(driver)
 			(jdbc, mapperDao)
@@ -76,6 +77,17 @@ object Setup {
 				case "mysql" =>
 					jdbc.queryForList("show tables").foreach { m =>
 						val table = m("Tables_in_testcases")
+						try {
+							jdbc.update("drop table %s".format(table))
+						} catch {
+							case e: Throwable =>
+								println(e.getMessage)
+								errors += 1
+						}
+					}
+				case "oracle" =>
+					jdbc.queryForList("select table_name from user_tables").foreach { m =>
+						val table = m("TABLE_NAME")
 						try {
 							jdbc.update("drop table %s".format(table))
 						} catch {
