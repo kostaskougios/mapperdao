@@ -17,19 +17,6 @@ class OneToOneQuerySpec extends SpecificationWithJUnit {
 	import queryDao._
 	import TestQueries._
 
-	//	"by FK" in {
-	//		createTables
-	//		val p0 = insert(ProductEntity, Product(0, Inventory(4, 10)))
-	//		val p1 = insert(ProductEntity, Product(1, Inventory(5, 11)))
-	//		val p2 = insert(ProductEntity, Product(2, Inventory(6, 12)))
-	//		val p3 = insert(ProductEntity, Product(3, Inventory(7, 13)))
-	//
-	//		query(q2(p0.inventory)).toSet must_== Set(p0)
-	//		query(q2(p1.inventory)).toSet must_== Set(p1)
-	//		query(q2(p2.inventory)).toSet must_== Set(p2)
-	//		query(q2(p3.inventory)).toSet must_== Set(p3)
-	//	}
-
 	"query by inventory.stock" in {
 		createTables
 		val p0 = insert(ProductEntity, Product(0, Inventory(4, 10)))
@@ -102,7 +89,7 @@ object OneToOneQuerySpec {
 	val InventoryEntity = new InventoryEntityBase
 
 	class ProductEntityBase extends SimpleEntity[Product](classOf[Product]) {
-		val id = pk("id", _.id)
+		val id = intPK("id", _.id)
 		val inventory = oneToOneReverse(classOf[Inventory], _.inventory)
 
 		val constructor = (m: ValuesMap) => new Product(m(id), m(inventory)) with Persisted {

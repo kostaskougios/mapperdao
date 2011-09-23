@@ -182,7 +182,7 @@ object ManyToManySpec {
 	case class Attribute(val id: Int, val name: String, val value: String)
 
 	object ProductEntity extends SimpleEntity("Product", classOf[Product]) {
-		val id = pk("id", _.id)
+		val id = intPK("id", _.id)
 		val name = string("name", _.name)
 		val attributes = manyToMany(classOf[Attribute], _.attributes)
 
@@ -192,7 +192,7 @@ object ManyToManySpec {
 	}
 
 	object AttributeEntity extends SimpleEntity("Attribute", classOf[Attribute]) {
-		val id = pk("id", _.id)
+		val id = intPK("id", _.id)
 		val name = string("name", _.name)
 		val value = string("value", _.value)
 

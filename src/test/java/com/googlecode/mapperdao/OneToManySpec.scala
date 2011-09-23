@@ -292,7 +292,7 @@ object OneToManySpec {
 		// now a description of the table and it's columns follows.
 		// each column is followed by a function JobPosition=>T, that
 		// returns the value of the property for that column.
-		val id = pk("id", _.id) // this is the primary key
+		val id = intPK("id", _.id) // this is the primary key
 		val name = string("name", _.name) // _.name : JobPosition => Any . Function that maps the column to the value of the object
 		val rank = int("rank", _.rank)
 
@@ -304,7 +304,7 @@ object OneToManySpec {
 	}
 
 	object HouseEntity extends SimpleEntity(classOf[House]) {
-		val id = pk("id", _.id)
+		val id = intPK("id", _.id)
 		val address = string("address", _.address)
 
 		val constructor = (m: ValuesMap) ⇒ new House(m(id), m(address)) with Persisted {
@@ -313,7 +313,7 @@ object OneToManySpec {
 	}
 
 	object PersonEntity extends SimpleEntity(classOf[Person]) {
-		val id = pk("id", _.id)
+		val id = intPK("id", _.id)
 		val name = string("name", _.name)
 		val surname = string("surname", _.surname)
 		val houses = oneToMany(classOf[House], _.owns)

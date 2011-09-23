@@ -130,7 +130,7 @@ object OneToOneWithoutReverseSpec {
 	case class Product(val id: Int)
 
 	object InventoryEntity extends SimpleEntity[Inventory](classOf[Inventory]) {
-		val id = pk("id", _.id)
+		val id = intPK("id", _.id)
 		val product = oneToOne(classOf[Product], _.product)
 		val stock = int("stock", _.stock)
 
@@ -140,7 +140,7 @@ object OneToOneWithoutReverseSpec {
 	}
 
 	object ProductEntity extends SimpleEntity[Product](classOf[Product]) {
-		val id = pk("id", _.id)
+		val id = intPK("id", _.id)
 
 		val constructor = (m: ValuesMap) => new Product(m(id)) with Persisted {
 			val valuesMap = m

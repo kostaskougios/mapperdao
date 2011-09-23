@@ -54,13 +54,13 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 		val inserted = mapperDao.insert(JobPositionEntity, jp)
 
 		var updated: JobPosition = inserted
-			def doUpdate(from: JobPosition, to: JobPosition) =
-				{
-					updated = mapperDao.update(JobPositionEntity, from, to)
-					updated must_== to
-					mapperDao.select(JobPositionEntity, 5).get must_== to
-					mapperDao.select(JobPositionEntity, 5).get must_== updated
-				}
+		def doUpdate(from: JobPosition, to: JobPosition) =
+			{
+				updated = mapperDao.update(JobPositionEntity, from, to)
+				updated must_== to
+				mapperDao.select(JobPositionEntity, 5).get must_== to
+				mapperDao.select(JobPositionEntity, 5).get must_== updated
+			}
 
 		doUpdate(updated, new JobPosition(5, "Developer Changed", date, date, 5))
 		doUpdate(updated, new JobPosition(5, "Developer Changed Again", date, date, 15))
@@ -226,7 +226,7 @@ object SimpleTypesSpec {
 		// now a description of the table and it's columns follows.
 		// each column is followed by a function JobPosition=>Any, that
 		// returns the value of the property for that column.
-		val id = pk("id", _.id) // this is the primary key and maps to JobPosition.id
+		val id = intPK("id", _.id) // this is the primary key and maps to JobPosition.id
 		val name = string("name", _.name) // _.name : JobPosition => Any . Function that maps the column to the value of the object
 		val start = datetime("start", _.start)
 		val end = datetime("end", _.end)
@@ -234,7 +234,7 @@ object SimpleTypesSpec {
 
 		// a function from ValuesMap=>JobPosition that constructs the object.
 		// This means that immutability is possible and even desirable for entities!
-		val constructor = (m: ValuesMap) => new JobPosition(m.int(id), m(name), m(start), m(end), m.int(rank)) with Persisted {
+		val constructor = (m: ValuesMap) => new JobPosition(m.int(id), m(name), m(start), m(end), m(rank)) with Persisted {
 			// this holds the original values of the object as retrieved from the database.
 			// later on it is used to compare what changed in this object.
 			val valuesMap = m

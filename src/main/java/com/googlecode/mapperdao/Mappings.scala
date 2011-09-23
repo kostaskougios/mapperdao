@@ -187,7 +187,7 @@ case class TypeRef[F](alias: String, clz: Class[F])
  */
 class ColumnInfoBase[T, V](val column: ColumnBase, val columnToValue: T => V)
 
-case class ColumnInfo[T, V](override val column: SimpleColumn, override val columnToValue: T => V) extends ColumnInfoBase[T, V](column, columnToValue)
+case class ColumnInfo[T, V](override val column: SimpleColumn, override val columnToValue: T => V, val dataType: Class[V]) extends ColumnInfoBase[T, V](column, columnToValue)
 
 /**
  * relationship column infos

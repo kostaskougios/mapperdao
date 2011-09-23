@@ -221,7 +221,7 @@ object ManyToOneSpec {
 	case class House(val id: Int, val address: String)
 
 	object PersonEntity extends SimpleEntity(classOf[Person]) {
-		val id = pk("id", _.id)
+		val id = intPK("id", _.id)
 		val name = string("name", _.name)
 		val company = manyToOne(classOf[Company], _.company)
 		val lives = manyToOne(classOf[House], _.lives)
@@ -232,7 +232,7 @@ object ManyToOneSpec {
 	}
 
 	object CompanyEntity extends SimpleEntity(classOf[Company]) {
-		val id = pk("id", _.id)
+		val id = intPK("id", _.id)
 		val name = string("name", _.name)
 
 		val constructor = (m: ValuesMap) => new Company(m(id), m(name)) with Persisted {
@@ -241,7 +241,7 @@ object ManyToOneSpec {
 	}
 
 	object HouseEntity extends SimpleEntity(classOf[House]) {
-		val id = pk("id", _.id)
+		val id = intPK("id", _.id)
 		val address = string("address", _.address)
 		val constructor = (m: ValuesMap) => new House(m(id), m(address)) with Persisted {
 			val valuesMap = m

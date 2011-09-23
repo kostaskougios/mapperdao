@@ -116,7 +116,7 @@ object ManyToOneAndOneToManyCyclicSpec {
 	case class Company(val id: Int, val name: String, employees: List[Person])
 
 	object PersonEntity extends SimpleEntity(classOf[Person]) {
-		val id = pk("id", _.id)
+		val id = intPK("id", _.id)
 		val name = string("name", _.name)
 		val company = manyToOne(classOf[Company], _.company)
 
@@ -126,7 +126,7 @@ object ManyToOneAndOneToManyCyclicSpec {
 	}
 
 	object CompanyEntity extends SimpleEntity(classOf[Company]) {
-		val id = pk("id", _.id)
+		val id = intPK("id", _.id)
 		val name = string("name", _.name)
 		val employees = oneToMany(classOf[Person], _.employees)
 		val constructor = (m: ValuesMap) => new Company(m(id), m(name), m(employees).toList) with Persisted {

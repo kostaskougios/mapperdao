@@ -76,7 +76,7 @@ object SimpleSelfJoinQuerySpec {
 	case class JobPosition(val id: Int, var name: String, val start: DateTime)
 
 	class JobPositionEntityBase extends SimpleEntity(classOf[JobPosition]) {
-		val id = pk("id", _.id)
+		val id = intPK("id", _.id)
 		val name = string("name", _.name)
 		val start = datetime("start", _.start)
 

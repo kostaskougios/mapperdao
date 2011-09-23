@@ -85,7 +85,7 @@ object ManyToOneSelfJoinQuerySpec {
 	case class Address(val id: Int, val postCode: String)
 
 	object PersonEntity extends SimpleEntity(classOf[Person]) {
-		val id = pk("id", _.id)
+		val id = intPK("id", _.id)
 		val name = string("name", _.name)
 		val lives = manyToOne("lives_id", classOf[House], _.lives)
 		val constructor = (m: ValuesMap) => new Person(m(id), m(name), m(lives)) with Persisted {
@@ -94,7 +94,7 @@ object ManyToOneSelfJoinQuerySpec {
 	}
 
 	class HouseEntityBase extends SimpleEntity(classOf[House]) {
-		val id = pk("id", _.id)
+		val id = intPK("id", _.id)
 		val name = string("name", _.name)
 		val address = manyToOne(classOf[Address], _.address)
 
@@ -106,7 +106,7 @@ object ManyToOneSelfJoinQuerySpec {
 	val HouseEntity = new HouseEntityBase
 
 	object AddressEntity extends SimpleEntity(classOf[Address]) {
-		val id = pk("id", _.id)
+		val id = intPK("id", _.id)
 		val postCode = string("postcode", _.postCode)
 		val constructor = (m: ValuesMap) =>
 			new Address(m(id), m(postCode)) with Persisted {

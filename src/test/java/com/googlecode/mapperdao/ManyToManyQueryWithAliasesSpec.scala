@@ -91,7 +91,7 @@ object ManyToManyQueryWithAliasesSpec {
 	case class Attribute(val id: Int, val name: String, val value: String)
 
 	class ProductEntityBase extends SimpleEntity("Product", classOf[Product]) {
-		val id = pk("id", _.id)
+		val id = intPK("id", _.id)
 		val name = string("name", _.name)
 		val attributes = manyToMany(classOf[Attribute], _.attributes)
 
@@ -102,7 +102,7 @@ object ManyToManyQueryWithAliasesSpec {
 	val ProductEntity = new ProductEntityBase
 
 	class AttributeEntityBase extends SimpleEntity("Attribute", classOf[Attribute]) {
-		val id = pk("id", _.id)
+		val id = intPK("id", _.id)
 		val name = string("name", _.name)
 		val value = string("value", _.value)
 
