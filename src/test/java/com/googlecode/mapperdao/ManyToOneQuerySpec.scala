@@ -78,7 +78,6 @@ class ManyToOneQuerySpec extends SpecificationWithJUnit {
 				primary key (id)
 			)
 		""")
-		jdbc.update("drop table if exists House cascade")
 		jdbc.update("""
 			create table House (
 				id int not null,
@@ -88,7 +87,6 @@ class ManyToOneQuerySpec extends SpecificationWithJUnit {
 				foreign key (address_id) references Address(id) on delete cascade
 			)
 		""")
-		jdbc.update("drop table if exists Person cascade")
 		jdbc.update("""
 			create table Person (
 				id int not null,
