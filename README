@@ -5,6 +5,16 @@ This is the main directory of the source code of the mapperdao library.
 
 --- Only for maintainers ---
 
+To install the oracle driver to the local maven repository, please
+download ojdbc6.jar from
+ 
+http://www.oracle.com/technetwork/database/enterprise-edition/jdbc-112010-090769.html
+
+and then run
+
+mvn install:install-file -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=11.2.0.2.0 -Dpackaging=jar -Dfile=ojdbc6.jar -DgeneratePom=true 
+
+
 If you want to generate a signed bundle so it can be uploaded to the OSS
 Sonatype repository, you will need to run:
 
