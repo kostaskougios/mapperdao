@@ -90,7 +90,7 @@ object Setup {
 					jdbc.queryForList("select table_name from user_tables").foreach { m =>
 						val table = m("TABLE_NAME")
 						try {
-							jdbc.update("drop table %s".format(table))
+							jdbc.update("""drop table "%s"""".format(table))
 						} catch {
 							case e: Throwable =>
 								println(e.getMessage)
@@ -101,13 +101,15 @@ object Setup {
 			if (errors > 0) dropAllTables(jdbc) else 0
 		}
 
-	def createMySeq(jdbc: Jdbc) {
+	def createMySeq(jdbc: Jdbc) = createSeq(jdbc, "myseq")
+
+	def createSeq(jdbc: Jdbc, name: String) {
 		try {
-			jdbc.update("drop sequence myseq")
+			jdbc.update("drop sequence %s".format(name))
 		} catch {
 			case _: Exception => // ignore
 		}
-		jdbc.update("create sequence myseq")
+		jdbc.update("create sequence %s".format(name))
 	}
 
 	def oracleTrigger(jdbc: Jdbc, table: String) {

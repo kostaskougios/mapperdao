@@ -86,6 +86,15 @@ class TwoPrimaryKeysSimpleSpec extends SpecificationWithJUnit {
 				primary key (name,surname)
 			)
 		""")
+			case "oracle" =>
+				jdbc.update("""
+			create table "User" (
+				name varchar(20) not null,
+				surname varchar(20) not null,
+				age int not null,
+				primary key (name,surname)
+			)
+		""")
 			case "mysql" =>
 				jdbc.update("""
 			create table User (

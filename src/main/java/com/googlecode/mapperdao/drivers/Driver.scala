@@ -86,13 +86,15 @@ trait Driver {
 			if (!args.isEmpty || !sequenceColumns.isEmpty) {
 				sb append "("
 				// append sequences
-				if (!sequenceColumns.isEmpty) sb append commaSeparatedListOfSimpleTypeColumns(",", sequenceColumns)
 				// and normal columns
-				if (!args.isEmpty) sb append commaSeparatedListOfSimpleTypeColumns(",", args.map(_._1))
+				if (!args.isEmpty || !sequenceColumns.isEmpty) sb append commaSeparatedListOfSimpleTypeColumns(",", sequenceColumns ::: args.map(_._1))
 				sb append ")\n"
 				sb append "values("
 				// sequence values
-				if (!sequenceColumns.isEmpty) sb append sequenceColumns.map { sequenceSelectNextSql _ }.mkString(",")
+				if (!sequenceColumns.isEmpty) {
+					sb append sequenceColumns.map { sequenceSelectNextSql _ }.mkString(",")
+					if (!args.isEmpty) sb append ","
+				}
 				// column values
 				if (!args.isEmpty) sb append "?" append (",?" * (args.size - 1))
 				sb append ")"
