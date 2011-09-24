@@ -127,7 +127,7 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 		import com.googlecode.mapperdao.jdbc.Transaction
 		import Transaction._
 		val txManager = Transaction.transactionManager(jdbc)
-		val tx = Transaction.get(txManager, Propagation.Nested, Isolation.Serializable, -1)
+		val tx = Transaction.get(txManager, Propagation.Nested, Isolation.ReadCommited, -1)
 
 		val inserted = tx { () =>
 			val date = Setup.now
@@ -144,7 +144,7 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 		import com.googlecode.mapperdao.jdbc.Transaction
 		import Transaction._
 		val txManager = Transaction.transactionManager(jdbc)
-		val tx = Transaction.get(txManager, Propagation.Nested, Isolation.Serializable, -1)
+		val tx = Transaction.get(txManager, Propagation.Nested, Isolation.ReadCommited, -1)
 
 		try {
 			tx { () =>

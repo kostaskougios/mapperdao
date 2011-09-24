@@ -67,7 +67,7 @@ trait TransactionalCRUD[PC, T, PK] extends CRUD[PC, T, PK] {
 	/**
 	 * override this to change type of transaction that will occur and it's timeout
 	 */
-	protected def prepareTransaction: Transaction = Transaction.get(txManager, Propagation.Nested, Isolation.Serializable, -1)
+	protected def prepareTransaction: Transaction = Transaction.get(txManager, Propagation.Nested, Isolation.ReadCommited, -1)
 
 	override def create(t: T): T with PC = prepareTransaction { () =>
 		super.create(t)

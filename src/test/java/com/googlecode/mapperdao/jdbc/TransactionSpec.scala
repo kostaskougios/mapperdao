@@ -14,12 +14,12 @@ class TransactionSpec extends SpecificationWithJUnit with BeforeExample {
 
 	import Transaction._
 	val txManager = Transaction.transactionManager(jdbc)
-	val tx = Transaction.get(txManager, Propagation.Nested, Isolation.Serializable, -1)
+	val tx = Transaction.get(txManager, Propagation.Nested, Isolation.ReadCommited, -1)
 
 	def before = {
+		Setup.dropAllTables(jdbc)
 		Setup.database match {
-			case "postgresql" =>
-				jdbc.update("drop table if exists tx")
+			case "postgresql" | "oracle" =>
 				jdbc.update("""
 			create table tx (
 				id int not null,
@@ -28,7 +28,6 @@ class TransactionSpec extends SpecificationWithJUnit with BeforeExample {
 			)
 		""")
 			case "mysql" =>
-				jdbc.update("drop table if exists tx")
 				jdbc.update("""
 			create table tx (
 				id int not null,
