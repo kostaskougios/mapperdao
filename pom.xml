@@ -191,7 +191,7 @@
 				</configuration>
 				<executions>
 					<execution>
-						<id>mysql</id>
+						<id>oracle</id>
 						<phase>test</phase>
 						<goals>
 							<goal>test</goal>
