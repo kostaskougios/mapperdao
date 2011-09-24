@@ -12,6 +12,8 @@ import com.googlecode.mapperdao.Type
  */
 class Mysql(override val jdbc: Jdbc, override val typeRegistry: TypeRegistry) extends Driver {
 
+	override protected def sequenceSelectNextSql(sequenceColumn: ColumnBase): String = throw new IllegalStateException("MySql doesn't support sequences")
+
 	override protected def insertSql[PC, T](tpe: Type[PC, T], args: List[(ColumnBase, Any)]): String =
 		{
 			val sql = super.insertSql(tpe, args)
