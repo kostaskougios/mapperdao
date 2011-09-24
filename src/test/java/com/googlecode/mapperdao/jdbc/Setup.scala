@@ -109,4 +109,15 @@ object Setup {
 		}
 		jdbc.update("create sequence myseq")
 	}
+
+	def oracleTrigger(jdbc: Jdbc, table: String) {
+		jdbc.update("""
+					create or replace trigger ti_autonumber
+					before insert on %s for each row
+					begin
+						select myseq.nextval into :new.id from dual;
+					end;
+				""".format(table))
+
+	}
 }
