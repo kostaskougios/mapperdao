@@ -105,6 +105,22 @@ class OneToOneWithoutReverseSpec extends SpecificationWithJUnit {
 					foreign key (product_id) references Product(id) on delete cascade on update cascade
 				)
 			""")
+				case "oracle" =>
+					jdbc.update("""
+				create table Product (
+					id int not null,
+					primary key (id)
+				)
+			""")
+					jdbc.update("""
+				create table Inventory (
+					id int not null,
+					product_id int,
+					stock int not null,
+					primary key (id),
+					foreign key (product_id) references Product(id) on delete cascade
+				)
+			""")
 				case "mysql" =>
 					jdbc.update("""
 				create table Product (

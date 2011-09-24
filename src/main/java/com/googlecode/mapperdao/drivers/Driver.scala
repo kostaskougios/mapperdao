@@ -433,7 +433,7 @@ trait Driver {
 
 	protected def resolveWhereExpression(aliases: QueryDao.Aliases, args: scala.collection.mutable.Builder[Any, List[Any]], v: Any): String = v match {
 		case c: ColumnBase =>
-			aliases(c) + "." + c.columnName
+			aliases(c) + "." + escapeColumnNames(c.columnName)
 		case _ =>
 			args += v
 			"?"
@@ -443,7 +443,7 @@ trait Driver {
 	def orderBy(aliases: QueryDao.Aliases, columns: List[(ColumnBase, Query.AscDesc)]): String = columns.map { caq =>
 		val c = caq._1
 		val ascDesc = caq._2
-		aliases(c) + "." + c.columnName + " " + ascDesc.sql
+		aliases(c) + "." + escapeColumnNames(c.columnName) + " " + ascDesc.sql
 	}.mkString(",")
 
 	/**
