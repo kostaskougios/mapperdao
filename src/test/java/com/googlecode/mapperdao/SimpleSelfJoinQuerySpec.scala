@@ -43,6 +43,14 @@ class SimpleSelfJoinQuerySpec extends SpecificationWithJUnit {
 					start timestamp with time zone,
 					primary key (id)
 				)""")
+			case "oracle" =>
+				jdbc.update("""
+					create table JobPosition (
+					id int not null,
+					name varchar(100) not null,
+					"start" date,
+					primary key (id)
+				)""")
 			case "mysql" =>
 				jdbc.update("""
 					create table JobPosition (
