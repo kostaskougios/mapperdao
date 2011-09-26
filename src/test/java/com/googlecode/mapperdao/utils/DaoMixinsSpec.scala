@@ -188,7 +188,7 @@ object DaoMixinsSpec {
 		val name = string("name", _.name)
 		val attributes = manyToMany(classOf[Attribute], _.attributes)
 
-		val constructor = (m: ValuesMap) => new Product(m(id), m(name), m(attributes).toSet) with Persisted {
+		def constructor(implicit m: ValuesMap) = new Product(id, name, attributes) with Persisted {
 			val valuesMap = m
 		}
 	}
@@ -198,7 +198,7 @@ object DaoMixinsSpec {
 		val name = string("name", _.name)
 		val value = string("value", _.value)
 
-		val constructor = (m: ValuesMap) => new Attribute(m(id), m(name), m(value)) with Persisted {
+		def constructor(implicit m: ValuesMap) = new Attribute(id, name, value) with Persisted {
 			val valuesMap = m
 		}
 	}

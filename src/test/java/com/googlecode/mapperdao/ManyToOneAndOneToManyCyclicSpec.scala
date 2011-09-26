@@ -147,7 +147,7 @@ object ManyToOneAndOneToManyCyclicSpec {
 		val name = string("name", _.name)
 		val company = manyToOne(classOf[Company], _.company)
 
-		val constructor = (m: ValuesMap) => new Person(m(id), m(name), m(company)) with Persisted {
+		def constructor(implicit m: ValuesMap) = new Person(id, name, company) with Persisted {
 			val valuesMap = m
 		}
 	}
@@ -156,7 +156,7 @@ object ManyToOneAndOneToManyCyclicSpec {
 		val id = intPK("id", _.id)
 		val name = string("name", _.name)
 		val employees = oneToMany(classOf[Person], _.employees)
-		val constructor = (m: ValuesMap) => new Company(m(id), m(name), m(employees).toList) with Persisted {
+		def constructor(implicit m: ValuesMap) = new Company(id, name, employees) with Persisted {
 			val valuesMap = m
 		}
 	}

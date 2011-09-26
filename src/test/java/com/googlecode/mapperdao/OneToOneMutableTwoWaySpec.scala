@@ -157,7 +157,7 @@ object OneToOneMutableTwoWaySpec {
 		val product = oneToOne(classOf[Product], _.product)
 		val stock = int("stock", _.stock)
 
-		val constructor = (m: ValuesMap) => new Inventory(m(product), m(stock)) with Persisted {
+		def constructor(implicit m: ValuesMap) = new Inventory(product, stock) with Persisted {
 			val valuesMap = m
 		}
 	}
@@ -166,7 +166,7 @@ object OneToOneMutableTwoWaySpec {
 		val id = intPK("id", _.id)
 		val inventory = oneToOneReverse(classOf[Inventory], _.inventory)
 
-		val constructor = (m: ValuesMap) => new Product(m(id), m(inventory)) with Persisted {
+		def constructor(implicit m: ValuesMap) = new Product(id, inventory) with Persisted {
 			val valuesMap = m
 		}
 	}

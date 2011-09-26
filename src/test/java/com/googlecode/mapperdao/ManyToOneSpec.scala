@@ -263,7 +263,7 @@ object ManyToOneSpec {
 		val company = manyToOne(classOf[Company], _.company)
 		val lives = manyToOne(classOf[House], _.lives)
 
-		val constructor = (m: ValuesMap) => new Person(m(id), m(name), m(company), m(lives)) with Persisted {
+		def constructor(implicit m: ValuesMap) = new Person(id, name, company, lives) with Persisted {
 			val valuesMap = m
 		}
 	}
@@ -272,7 +272,7 @@ object ManyToOneSpec {
 		val id = intPK("id", _.id)
 		val name = string("name", _.name)
 
-		val constructor = (m: ValuesMap) => new Company(m(id), m(name)) with Persisted {
+		def constructor(implicit m: ValuesMap) = new Company(id, name) with Persisted {
 			val valuesMap = m
 		}
 	}
@@ -280,7 +280,7 @@ object ManyToOneSpec {
 	object HouseEntity extends SimpleEntity(classOf[House]) {
 		val id = intPK("id", _.id)
 		val address = string("address", _.address)
-		val constructor = (m: ValuesMap) => new House(m(id), m(address)) with Persisted {
+		def constructor(implicit m: ValuesMap) = new House(id, address) with Persisted {
 			val valuesMap = m
 		}
 	}

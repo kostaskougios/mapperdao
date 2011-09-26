@@ -341,7 +341,7 @@ object OneToManySpec {
 		val name = string("name", _.name) // _.name : JobPosition => Any . Function that maps the column to the value of the object
 		val rank = int("rank", _.rank)
 
-		val constructor = (m: ValuesMap) ⇒ new JobPosition(m(id), m(name), m(rank)) with Persisted {
+		def constructor(implicit m: ValuesMap) = new JobPosition(id, name, rank) with Persisted {
 			// this holds the original values of the object as retrieved from the database.
 			// later on it is used to compare what changed in this object.
 			val valuesMap = m
@@ -352,7 +352,7 @@ object OneToManySpec {
 		val id = intPK("id", _.id)
 		val address = string("address", _.address)
 
-		val constructor = (m: ValuesMap) ⇒ new House(m(id), m(address)) with Persisted {
+		def constructor(implicit m: ValuesMap) = new House(id, address) with Persisted {
 			val valuesMap = m
 		}
 	}
@@ -372,7 +372,7 @@ object OneToManySpec {
 		 */
 		val jobPositions = oneToMany(classOf[JobPosition], _.positions)
 
-		val constructor = (m: ValuesMap) ⇒ new Person(m(id), m(name), m(surname), m(houses).toSet, m(age), m(jobPositions).toList.sortWith(_.id < _.id)) with Persisted {
+		def constructor(implicit m: ValuesMap) = new Person(id, name, surname, houses, age, m(jobPositions).toList.sortWith(_.id < _.id)) with Persisted {
 			val valuesMap = m
 		}
 	}

@@ -117,7 +117,7 @@ object TwoPrimaryKeysSimpleSpec {
 		val surname = stringPK("surname", _.surname)
 		val age = int("age", _.age)
 
-		val constructor = (m: ValuesMap) => new User(m(name), m(surname), m(age)) with Persisted {
+		def constructor(implicit m: ValuesMap) = new User(name, surname, age) with Persisted {
 			val valuesMap = m
 		}
 	}

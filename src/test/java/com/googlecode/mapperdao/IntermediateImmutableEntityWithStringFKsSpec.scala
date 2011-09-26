@@ -193,10 +193,10 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 		val no = stringPK("no", _.no)
 		val workedAt = oneToMany(classOf[WorkedAt], "employee_no", _.workedAt)
 
-		val constructor = (m: ValuesMap) => new Employee(m(no)) with Persisted {
+		def constructor(implicit m: ValuesMap) = new Employee(no) with Persisted {
 			val valuesMap = m
 
-			val workedAt = m(EmployeeEntity.workedAt).toList
+			val workedAt: List[WorkedAt] = EmployeeEntity.workedAt
 		}
 	}
 
@@ -208,7 +208,7 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 		val employee = manyToOne("employee_no", classOf[Employee], _.employee)
 		val company = manyToOne("company_no", classOf[Company], _.company)
 
-		val constructor = (m: ValuesMap) => new WorkedAt(m(employee), m(company), m(year)) with Persisted {
+		def constructor(implicit m: ValuesMap) = new WorkedAt(employee, company, year) with Persisted {
 			val valuesMap = m
 		}
 	}
@@ -217,7 +217,7 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 		val no = stringPK("no", _.no)
 		val name = string("name", _.name)
 
-		val constructor = (m: ValuesMap) => new Company(m(no), m(name)) with Persisted {
+		def constructor(implicit m: ValuesMap) = new Company(no, name) with Persisted {
 			val valuesMap = m
 		}
 	}

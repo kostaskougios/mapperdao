@@ -1,5 +1,6 @@
 package com.googlecode.mapperdao
 import java.util.Calendar
+import org.joda.time.DateTime
 
 /**
  * @author kostantinos.kougios
@@ -10,7 +11,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 
 	def this(clz: Class[T]) = this(clz.getSimpleName, clz)
 
-	val constructor: ValuesMap => T with PC with Persisted
+	def constructor(implicit m: ValuesMap): T with PC with Persisted
 
 	protected[mapperdao] var persistedColumns = List[ColumnInfoBase[T with PC, _]]()
 	protected[mapperdao] var columns = List[ColumnInfoBase[T, _]]();
@@ -162,6 +163,28 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 	protected def intPK(idColumn: String, columnToValue: T => Int): ColumnInfo[T, Int] = pk(idColumn, columnToValue, classOf[Int])
 	protected def longPK(idColumn: String, columnToValue: T => Long): ColumnInfo[T, Long] = pk(idColumn, columnToValue, classOf[Long])
 	protected def stringPK(idColumn: String, columnToValue: T => String): ColumnInfo[T, String] = pk(idColumn, columnToValue, classOf[String])
+
+	// implicit conversions
+	protected implicit def columnToBoolean(ci: ColumnInfo[T, Boolean])(implicit m: ValuesMap): Boolean = m(ci)
+	protected implicit def columnToByte(ci: ColumnInfo[T, Byte])(implicit m: ValuesMap): Byte = m(ci)
+	protected implicit def columnToShort(ci: ColumnInfo[T, Short])(implicit m: ValuesMap): Short = m(ci)
+	protected implicit def columnToInt(ci: ColumnInfo[T, Int])(implicit m: ValuesMap): Int = m(ci)
+	protected implicit def columnToIntIntId(ci: ColumnInfo[T with IntId, Int])(implicit m: ValuesMap): Int = m(ci)
+	protected implicit def columnToLong(ci: ColumnInfo[T, Long])(implicit m: ValuesMap): Long = m(ci)
+	protected implicit def columnToLongLongId(ci: ColumnInfo[T with LongId, Long])(implicit m: ValuesMap): Long = m(ci)
+	protected implicit def columnToDateTime(ci: ColumnInfo[T, DateTime])(implicit m: ValuesMap): DateTime = m(ci)
+	protected implicit def columnToString(ci: ColumnInfo[T, String])(implicit m: ValuesMap): String = m(ci)
+
+	protected implicit def columnTraversableManyToManyToSet[T, F](ci: ColumnInfoTraversableManyToMany[T, F])(implicit m: ValuesMap): Set[F] = m(ci).toSet
+	protected implicit def columnTraversableManyToManyToList[T, F](ci: ColumnInfoTraversableManyToMany[T, F])(implicit m: ValuesMap): List[F] = m(ci).toList
+
+	protected implicit def columnManyToOneToValue[T, F](ci: ColumnInfoManyToOne[T, F])(implicit m: ValuesMap): F = m(ci)
+
+	protected implicit def columnTraversableOneToManyList[T, E](ci: ColumnInfoTraversableOneToMany[T, E])(implicit m: ValuesMap): List[E] = m(ci).toList
+	protected implicit def columnTraversableOneToManySet[T, E](ci: ColumnInfoTraversableOneToMany[T, E])(implicit m: ValuesMap): Set[E] = m(ci).toSet
+
+	protected implicit def columnOneToOne[F](ci: ColumnInfoOneToOne[_, F])(implicit m: ValuesMap): F = m(ci)
+	protected implicit def columnOneToOneReverse[F](ci: ColumnInfoOneToOneReverse[_, F])(implicit m: ValuesMap): F = m(ci)
 }
 
 abstract class SimpleEntity[T](table: String, clz: Class[T]) extends Entity[AnyRef, T](table, clz) {

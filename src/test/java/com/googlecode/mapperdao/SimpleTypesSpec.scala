@@ -234,7 +234,7 @@ object SimpleTypesSpec {
 
 		// a function from ValuesMap=>JobPosition that constructs the object.
 		// This means that immutability is possible and even desirable for entities!
-		val constructor = (m: ValuesMap) => new JobPosition(m(id), m(name), m(start), m(end), m(rank)) with Persisted {
+		def constructor(implicit m: ValuesMap) = new JobPosition(id, name, start, end, rank) with Persisted {
 			// this holds the original values of the object as retrieved from the database.
 			// later on it is used to compare what changed in this object.
 			val valuesMap = m

@@ -103,7 +103,7 @@ object OneToManyQuerySpec {
 		val id = intPK("id", _.id)
 		val address = string("address", _.address)
 
-		val constructor = (m: ValuesMap) ⇒ new House(m(id), m(address)) with Persisted {
+		def constructor(implicit m: ValuesMap) = new House(id, address) with Persisted {
 			val valuesMap = m
 		}
 	}
@@ -113,7 +113,7 @@ object OneToManyQuerySpec {
 		val name = string("name", _.name)
 		val owns = oneToMany(classOf[House], _.owns)
 
-		val constructor = (m: ValuesMap) => new Person(m(id), m(name), m(owns).toSet) with Persisted {
+		def constructor(implicit m: ValuesMap) = new Person(id, name, owns) with Persisted {
 			val valuesMap = m
 		}
 	}

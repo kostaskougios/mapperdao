@@ -116,9 +116,9 @@ object ManyToManyNonRecursiveSpec {
 		val name = string("name", _.name)
 		val attributes = manyToMany(classOf[Attribute], _.attributes)
 
-		val constructor = (m: ValuesMap) => new Product(m(name), m(attributes).toSet) with Persisted with IntId {
+		def constructor(implicit m: ValuesMap) = new Product(name, attributes) with Persisted with IntId {
 			val valuesMap = m
-			val id = m.int(ProductEntity.id) // we explicitly convert this to an int because mysql serial values are always BigInteger (a bug maybe?)
+			val id: Int = ProductEntity.id // we explicitly convert this to an int because mysql serial values are always BigInteger (a bug maybe?)
 		}
 	}
 	object AttributeEntity extends Entity[IntId, Attribute]("Attribute", classOf[Attribute]) {
@@ -129,9 +129,9 @@ object ManyToManyNonRecursiveSpec {
 		val name = string("name", _.name)
 		val value = string("value", _.value)
 
-		val constructor = (m: ValuesMap) => new Attribute(m(name), m(value)) with Persisted with IntId {
+		def constructor(implicit m: ValuesMap) = new Attribute(name, value) with Persisted with IntId {
 			val valuesMap = m
-			val id = m.int(AttributeEntity.id) // we explicitly convert this to an int because mysql serial values are always BigInteger (a bug maybe?)
+			val id: Int = AttributeEntity.id // we explicitly convert this to an int because mysql serial values are always BigInteger (a bug maybe?)
 		}
 	}
 }
