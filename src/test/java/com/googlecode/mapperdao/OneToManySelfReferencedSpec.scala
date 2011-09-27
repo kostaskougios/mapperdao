@@ -124,7 +124,6 @@ object OneToManySelfReferencedSpec {
 		val friends = oneToMany(classOf[Person], "friend_id", _.friends)
 
 		def constructor(implicit m: ValuesMap) = new Person(name, friends) with Persisted with IntId {
-			val valuesMap = m
 			val id: Int = aid
 		}
 	}

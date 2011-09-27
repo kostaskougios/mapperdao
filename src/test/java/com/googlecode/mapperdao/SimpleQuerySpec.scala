@@ -284,8 +284,6 @@ object SimpleQuerySpec {
 		val name = string("name", _.name)
 		val start = datetime("start", _.start)
 
-		def constructor(implicit m: ValuesMap) = new JobPosition(id, name, start) with Persisted {
-			val valuesMap = m
-		}
+		def constructor(implicit m: ValuesMap) = new JobPosition(id, name, start) with Persisted
 	}
 }

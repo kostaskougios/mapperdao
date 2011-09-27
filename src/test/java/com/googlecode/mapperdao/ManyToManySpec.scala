@@ -231,9 +231,7 @@ object ManyToManySpec {
 		val name = string("name", _.name)
 		val attributes = manyToMany(classOf[Attribute], _.attributes)
 
-		def constructor(implicit m: ValuesMap) = new Product(id, name, attributes) with Persisted {
-			val valuesMap = m
-		}
+		def constructor(implicit m: ValuesMap) = new Product(id, name, attributes) with Persisted
 	}
 
 	object AttributeEntity extends SimpleEntity(classOf[Attribute]) {
@@ -241,8 +239,6 @@ object ManyToManySpec {
 		val name = string("name", _.name)
 		val value = string("value", _.value)
 
-		def constructor(implicit m: ValuesMap) = new Attribute(id, name, value) with Persisted {
-			val valuesMap = m
-		}
+		def constructor(implicit m: ValuesMap) = new Attribute(id, name, value) with Persisted
 	}
 }

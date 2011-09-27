@@ -57,13 +57,13 @@ class OneToManySpec extends SpecificationWithJUnit {
 		val inserted = mapperDao.insert(PersonEntity, person)
 
 		var updated: Person = inserted
-		def doUpdate(from: Person, to: Person) =
-			{
-				updated = mapperDao.update(PersonEntity, from, to)
-				updated must_== to
-				mapperDao.select(PersonEntity, 3).get must_== updated
-				mapperDao.select(PersonEntity, 3).get must_== to
-			}
+			def doUpdate(from: Person, to: Person) =
+				{
+					updated = mapperDao.update(PersonEntity, from, to)
+					updated must_== to
+					mapperDao.select(PersonEntity, 3).get must_== updated
+					mapperDao.select(PersonEntity, 3).get must_== to
+				}
 		doUpdate(updated, new Person(3, "Changed", "K", updated.owns, 18, updated.positions.filterNot(_ == jp1)))
 		doUpdate(updated, new Person(3, "Changed Again", "Surname changed too", updated.owns.filter(_.address == "London"), 18, jp5 :: updated.positions.filterNot(jp ⇒ jp == jp1 || jp == jp3)))
 
@@ -341,20 +341,14 @@ object OneToManySpec {
 		val name = string("name", _.name) // _.name : JobPosition => Any . Function that maps the column to the value of the object
 		val rank = int("rank", _.rank)
 
-		def constructor(implicit m: ValuesMap) = new JobPosition(id, name, rank) with Persisted {
-			// this holds the original values of the object as retrieved from the database.
-			// later on it is used to compare what changed in this object.
-			val valuesMap = m
-		}
+		def constructor(implicit m: ValuesMap) = new JobPosition(id, name, rank) with Persisted
 	}
 
 	object HouseEntity extends SimpleEntity(classOf[House]) {
 		val id = intPK("id", _.id)
 		val address = string("address", _.address)
 
-		def constructor(implicit m: ValuesMap) = new House(id, address) with Persisted {
-			val valuesMap = m
-		}
+		def constructor(implicit m: ValuesMap) = new House(id, address) with Persisted
 	}
 
 	object PersonEntity extends SimpleEntity(classOf[Person]) {
@@ -372,8 +366,6 @@ object OneToManySpec {
 		 */
 		val jobPositions = oneToMany(classOf[JobPosition], _.positions)
 
-		def constructor(implicit m: ValuesMap) = new Person(id, name, surname, houses, age, m(jobPositions).toList.sortWith(_.id < _.id)) with Persisted {
-			val valuesMap = m
-		}
+		def constructor(implicit m: ValuesMap) = new Person(id, name, surname, houses, age, m(jobPositions).toList.sortWith(_.id < _.id)) with Persisted
 	}
 }

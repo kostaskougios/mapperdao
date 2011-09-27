@@ -147,7 +147,7 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 	// cause recursive calls will be done till an out of stack error
 	// with be thrown
 	def test(actual: Employee, expected: Employee) = {
-		def toS(w: WorkedAt) = "%s,%s,%d".format(w.employee.no, w.company, w.year)
+			def toS(w: WorkedAt) = "%s,%s,%d".format(w.employee.no, w.company, w.year)
 		expected.workedAt.map(toS _).toSet must_== actual.workedAt.map(toS _).toSet
 		expected.no must_== actual.no
 	}
@@ -194,8 +194,6 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 		val workedAt = oneToMany(classOf[WorkedAt], "employee_no", _.workedAt)
 
 		def constructor(implicit m: ValuesMap) = new Employee(no) with Persisted {
-			val valuesMap = m
-
 			val workedAt: List[WorkedAt] = EmployeeEntity.workedAt
 		}
 	}
@@ -208,17 +206,13 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 		val employee = manyToOne("employee_no", classOf[Employee], _.employee)
 		val company = manyToOne("company_no", classOf[Company], _.company)
 
-		def constructor(implicit m: ValuesMap) = new WorkedAt(employee, company, year) with Persisted {
-			val valuesMap = m
-		}
+		def constructor(implicit m: ValuesMap) = new WorkedAt(employee, company, year) with Persisted
 	}
 
 	object CompanyEntity extends SimpleEntity[Company](classOf[Company]) {
 		val no = stringPK("no", _.no)
 		val name = string("name", _.name)
 
-		def constructor(implicit m: ValuesMap) = new Company(no, name) with Persisted {
-			val valuesMap = m
-		}
+		def constructor(implicit m: ValuesMap) = new Company(no, name) with Persisted
 	}
 }

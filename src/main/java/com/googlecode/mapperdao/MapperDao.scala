@@ -137,7 +137,7 @@ final class MapperDao(val driver: Driver) {
 		{
 			val tpe = typeRegistry.typeOf(entity)
 
-			def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
+				def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
 
 			val table = tpe.table
 
@@ -225,8 +225,9 @@ final class MapperDao(val driver: Driver) {
 
 					val persisted = o.asInstanceOf[T with PC with Persisted]
 					val oldValuesMap = persisted.valuesMap
-					val newValuesMapPre = ValuesMap.fromEntity(typeManager, typeRegistry.typeOfObject(o), o)
-					val reConstructed = entity.constructor(newValuesMapPre)
+					val tpe = typeRegistry.typeOf(entity)
+					val newValuesMapPre = ValuesMap.fromEntity(typeManager, tpe, o)
+					val reConstructed = tpe.constructor(newValuesMapPre)
 					updateInner(entity, o, oldValuesMap, reConstructed.valuesMap, entityMap)
 			}
 		}

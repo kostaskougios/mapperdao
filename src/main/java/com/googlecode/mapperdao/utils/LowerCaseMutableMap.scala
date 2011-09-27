@@ -22,4 +22,6 @@ class LowerCaseMutableMap[V] {
 
 	override def clone = new LowerCaseMutableMap(m)
 	def cloneMap = m.clone
+
+	override def toString = "LowerCaseMutableMap(%s)".format(m)
 }
