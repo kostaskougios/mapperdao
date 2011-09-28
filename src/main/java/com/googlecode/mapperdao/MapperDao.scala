@@ -280,10 +280,12 @@ final class MapperDao(val driver: Driver) {
 	def select[PC, T](entity: Entity[PC, T], id1: Any, id2: Any): Option[T with PC] = select(entity, List(id1, id2))
 	def select[PC, T](entity: Entity[PC, T], id1: Any, id2: Any, id3: Any): Option[T with PC] = select(entity, List(id1, id2, id3))
 
-	def select[PC, T](entity: Entity[PC, T], ids: List[Any]): Option[T with PC] =
+	def select[PC, T](entity: Entity[PC, T], ids: List[Any]): Option[T with PC] = select(defaultSelectConfig, entity, ids)
+
+	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], ids: List[Any]): Option[T with PC] =
 		{
 			val entityMap = new EntityMap
-			val v = selectInner(entity, defaultSelectConfig, ids, entityMap)
+			val v = selectInner(entity, selectConfig, ids, entityMap)
 			entityMap.done
 			v
 		}
