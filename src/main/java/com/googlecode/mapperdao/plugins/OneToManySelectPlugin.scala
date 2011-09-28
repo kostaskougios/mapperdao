@@ -23,12 +23,17 @@ class OneToManySelectPlugin(mapperDao: MapperDao) extends BeforeSelect with Sele
 			// one to many
 			table.oneToManyColumnInfos.foreach { ci =>
 				val c = ci.column
-				val ftpe = typeRegistry.typeOf(c.foreign.clz)
-				val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
-				val fom = driver.doSelect(ftpe, c.foreignColumns.zip(ids))
-				entities.down(tpe, ci, om)
-				val otmL = mapperDao.toEntities(fom, ftpe, selectConfig, entities)
-				entities.up
+				val otmL = if (selectConfig.skip(ci)) {
+					Nil
+				} else {
+					val ftpe = typeRegistry.typeOf(c.foreign.clz)
+					val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+					val fom = driver.doSelect(ftpe, c.foreignColumns.zip(ids))
+					entities.down(tpe, ci, om)
+					val v = mapperDao.toEntities(fom, ftpe, selectConfig, entities)
+					entities.up
+					v
+				}
 				mods(c.foreign.alias) = otmL
 			}
 		}
