@@ -21,7 +21,7 @@ class ManyToOneSelectPlugin(mapperDao: MapperDao) extends BeforeSelect with Sele
 		{
 			val table = tpe.table
 			// many to one
-			table.manyToOneColumnInfos.foreach { ci =>
+			table.manyToOneColumnInfos.filterNot(selectConfig.skip(_)).foreach { ci =>
 				val c = ci.column.asInstanceOf[ManyToOne[Any]]
 				val fe = typeRegistry.entityOf[Any, Any](c.foreign.clz)
 				val foreignPKValues = c.columns.map(mtoc => om(mtoc.columnName))
