@@ -24,12 +24,17 @@ class ManyToManySelectPlugin(mapperDao: MapperDao) extends BeforeSelect with Sel
 			// many to many
 			table.manyToManyColumnInfos.foreach { ci =>
 				val c = ci.column.asInstanceOf[ManyToMany[Any]]
-				val ftpe = typeRegistry.typeOf(c.foreign.clz)
-				val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
-				val fom = driver.doSelectManyToMany(tpe, ftpe, c, c.linkTable.left zip ids)
-				entities.down(tpe, ci, om)
-				val mtmR = mapperDao.toEntities(fom, ftpe, selectConfig, entities)
-				entities.up
+				val mtmR = if (selectConfig.skip(ci)) {
+					Nil
+				} else {
+					val ftpe = typeRegistry.typeOf(c.foreign.clz)
+					val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+					val fom = driver.doSelectManyToMany(tpe, ftpe, c, c.linkTable.left zip ids)
+					entities.down(tpe, ci, om)
+					val mtmR = mapperDao.toEntities(fom, ftpe, selectConfig, entities)
+					entities.up
+					mtmR
+				}
 				mods(c.foreign.alias) = mtmR
 			}
 		}
