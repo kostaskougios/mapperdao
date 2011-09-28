@@ -28,7 +28,7 @@ class QueryDao(mapperDao: MapperDao) {
 				sa = sqlAndArgs(qe)
 				val lm = jdbc.queryForList(sa.sql, sa.args)
 				val entityMap = new EntityMap
-				val v = mapperDao.toEntities(lm, typeRegistry.typeOf(qe.entity), entityMap)
+				val v = mapperDao.toEntities(lm, typeRegistry.typeOf(qe.entity), mapperDao.defaultSelectConfig, entityMap)
 				entityMap.done
 				v
 			} catch {

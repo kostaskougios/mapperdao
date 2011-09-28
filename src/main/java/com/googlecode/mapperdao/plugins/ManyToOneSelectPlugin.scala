@@ -5,6 +5,7 @@ import com.googlecode.mapperdao.MapperDao
 import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.EntityMap
 import com.googlecode.mapperdao.ManyToOne
+import com.googlecode.mapperdao.SelectConfig
 
 /**
  * @author kostantinos.kougios
@@ -16,7 +17,7 @@ class ManyToOneSelectPlugin(mapperDao: MapperDao) extends BeforeSelect with Sele
 
 	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any] = Nil
 
-	override def before[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]) =
+	override def before[PC, T](tpe: Type[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]) =
 		{
 			val table = tpe.table
 			// many to one
@@ -29,7 +30,7 @@ class ManyToOneSelectPlugin(mapperDao: MapperDao) extends BeforeSelect with Sele
 					fo.get
 				} else {
 					entities.down(tpe, ci, om)
-					val v = mapperDao.select(fe, foreignPKValues, entities).getOrElse(null)
+					val v = mapperDao.selectInner(fe, selectConfig, foreignPKValues, entities).getOrElse(null)
 					entities.up
 					v
 				}

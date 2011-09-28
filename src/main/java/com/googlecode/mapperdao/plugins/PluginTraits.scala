@@ -9,6 +9,7 @@ import com.googlecode.mapperdao.Persisted
 import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.EntityMap
 import com.googlecode.mapperdao.utils.LowerCaseMutableMap
+import com.googlecode.mapperdao.SelectConfig
 
 /**
  * plugins executed before the main entity is inserted
@@ -69,7 +70,7 @@ trait PostUpdate {
  */
 trait BeforeSelect {
 	def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any]
-	def before[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): Unit
+	def before[PC, T](tpe: Type[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): Unit
 }
 
 trait SelectMock {

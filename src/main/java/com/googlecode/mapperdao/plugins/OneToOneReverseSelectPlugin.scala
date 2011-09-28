@@ -6,6 +6,7 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.EntityMap
 import com.googlecode.mapperdao.SelectInfo
 import com.googlecode.mapperdao.ColumnInfoOneToOneReverse
+import com.googlecode.mapperdao.SelectConfig
 
 /**
  * @author kostantinos.kougios
@@ -29,7 +30,7 @@ class OneToOneReverseSelectPlugin(mapperDao: MapperDao) extends BeforeSelect {
 			} else Nil
 		}
 
-	override def before[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]) =
+	override def before[PC, T](tpe: Type[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]) =
 		{
 			val table = tpe.table
 			// one to one reverse
@@ -39,7 +40,7 @@ class OneToOneReverseSelectPlugin(mapperDao: MapperDao) extends BeforeSelect {
 				val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
 				val fom = driver.doSelect(ftpe, c.foreignColumns.zip(ids))
 				entities.down(tpe, ci, om)
-				val otmL = mapperDao.toEntities(fom, ftpe, entities)
+				val otmL = mapperDao.toEntities(fom, ftpe, selectConfig, entities)
 				entities.up
 				if (otmL.isEmpty) {
 					mods(c.foreign.alias) = null

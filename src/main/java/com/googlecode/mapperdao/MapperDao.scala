@@ -137,7 +137,7 @@ final class MapperDao(val driver: Driver) {
 		{
 			val tpe = typeRegistry.typeOf(entity)
 
-			def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
+				def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
 
 			val table = tpe.table
 
@@ -280,16 +280,16 @@ final class MapperDao(val driver: Driver) {
 	def select[PC, T](entity: Entity[PC, T], id1: Any, id2: Any): Option[T with PC] = select(entity, List(id1, id2))
 	def select[PC, T](entity: Entity[PC, T], id1: Any, id2: Any, id3: Any): Option[T with PC] = select(entity, List(id1, id2, id3))
 
-	private val defaultSelectConfig = SelectConfig()
-	def select[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, ids: List[Any]): Option[T with PC] =
+	def select[PC, T](entity: Entity[PC, T], ids: List[Any]): Option[T with PC] =
 		{
 			val entityMap = new EntityMap
-			val v = select(entity, ids, entityMap)
+			val v = selectInner(entity, defaultSelectConfig, ids, entityMap)
 			entityMap.done
 			v
 		}
 
-	private[mapperdao] def select[PC, T](entity: Entity[PC, T], ids: List[Any], entities: EntityMap): Option[T with PC] =
+	val defaultSelectConfig = SelectConfig()
+	private[mapperdao] def selectInner[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, ids: List[Any], entities: EntityMap): Option[T with PC] =
 		{
 			val clz = entity.clz
 			val tpe = typeRegistry.typeOf(entity)
@@ -306,7 +306,7 @@ final class MapperDao(val driver: Driver) {
 					if (om.isEmpty) None
 					else if (om.size > 1) throw new IllegalStateException("expected 1 result for %s and ids %s, but got %d. Is the primary key column a primary key in the table?".format(clz.getSimpleName, ids, om.size))
 					else {
-						val l = toEntities(om, tpe, entities)
+						val l = toEntities(om, tpe, selectConfig, entities)
 						if (l.size != 1) throw new IllegalStateException("expected 1 object, but got %s".format(l))
 						Some(l.head)
 					}
@@ -316,7 +316,7 @@ final class MapperDao(val driver: Driver) {
 			}
 		}
 
-	private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], tpe: Type[PC, T], entities: EntityMap): List[T with PC] = lm.map { om =>
+	private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], tpe: Type[PC, T], selectConfig: SelectConfig, entities: EntityMap): List[T with PC] = lm.map { om =>
 		val mods = new scala.collection.mutable.HashMap[String, Any]
 		import scala.collection.JavaConversions._
 		mods ++= om.map.toMap
@@ -333,7 +333,7 @@ final class MapperDao(val driver: Driver) {
 			entities.put(tpe.clz, ids, mock)
 
 			selectBeforePlugins.foreach { plugin =>
-				plugin.before(tpe, om, entities, mods)
+				plugin.before(tpe, selectConfig, om, entities, mods)
 			}
 
 			val vm = ValuesMap.fromMutableMap(typeManager, mods)
