@@ -137,7 +137,7 @@ final class MapperDao(val driver: Driver) {
 		{
 			val tpe = typeRegistry.typeOf(entity)
 
-				def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
+			def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
 
 			val table = tpe.table
 
@@ -280,7 +280,8 @@ final class MapperDao(val driver: Driver) {
 	def select[PC, T](entity: Entity[PC, T], id1: Any, id2: Any): Option[T with PC] = select(entity, List(id1, id2))
 	def select[PC, T](entity: Entity[PC, T], id1: Any, id2: Any, id3: Any): Option[T with PC] = select(entity, List(id1, id2, id3))
 
-	def select[PC, T](entity: Entity[PC, T], ids: List[Any]): Option[T with PC] =
+	private val defaultSelectConfig = SelectConfig()
+	def select[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, ids: List[Any]): Option[T with PC] =
 		{
 			val entityMap = new EntityMap
 			val v = select(entity, ids, entityMap)
