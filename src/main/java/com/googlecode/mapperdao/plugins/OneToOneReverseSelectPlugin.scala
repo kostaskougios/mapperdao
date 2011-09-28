@@ -34,7 +34,7 @@ class OneToOneReverseSelectPlugin(mapperDao: MapperDao) extends BeforeSelect {
 		{
 			val table = tpe.table
 			// one to one reverse
-			table.oneToOneReverseColumnInfos.foreach { ci =>
+			table.oneToOneReverseColumnInfos.filterNot(selectConfig.skip(_)).foreach { ci =>
 				val c = ci.column
 				val ftpe = typeRegistry.typeOf(c.foreign.clz)
 				val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }

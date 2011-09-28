@@ -5,6 +5,4 @@ package com.googlecode.mapperdao
  *
  * 28 Sep 2011
  */
-case class SelectConfig(
-	skipOneToOne: Set[ColumnInfoOneToOne[_, _]] = Set(),
-	skipOneToOneReverse: Set[ColumnInfoOneToOneReverse[_, _]] = Set())
+case class SelectConfig(skip: Set[ColumnInfoRelationshipBase[_, _, _]] = Set())

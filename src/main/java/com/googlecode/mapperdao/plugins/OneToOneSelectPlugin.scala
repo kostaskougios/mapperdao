@@ -21,7 +21,7 @@ class OneToOneSelectPlugin(mapperDao: MapperDao) extends BeforeSelect with Selec
 		{
 			val table = tpe.table
 			// one to one
-			table.oneToOneColumnInfos.filterNot(selectConfig.skipOneToOne(_)).foreach { ci =>
+			table.oneToOneColumnInfos.filterNot(selectConfig.skip(_)).foreach { ci =>
 				val c = ci.column
 				val ftpe = typeRegistry.typeOf(c.foreign.clz)
 				val ftable = ftpe.table
