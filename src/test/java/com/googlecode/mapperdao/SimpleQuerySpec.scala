@@ -40,7 +40,7 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 
 		val now = Setup.now
 		val l = for (i <- 0 to 10) yield insert(JobPositionEntity, JobPosition(i, "x" + i, now))
-		query(QueryConfig(offset = Some(5), limit = Some(3)), qWithLimit) must_== List(l(5), l(6), l(7))
+		query(QueryConfig.limits(5, 3), qWithLimit) must_== List(l(5), l(6), l(7))
 	}
 
 	"query with limits (both with orderby)" in {
