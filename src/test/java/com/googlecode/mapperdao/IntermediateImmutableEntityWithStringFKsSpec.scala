@@ -147,27 +147,53 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 	// cause recursive calls will be done till an out of stack error
 	// with be thrown
 	def test(actual: Employee, expected: Employee) = {
-			def toS(w: WorkedAt) = "%s,%s,%d".format(w.employee.no, w.company, w.year)
+		def toS(w: WorkedAt) = "%s,%s,%d".format(w.employee.no, w.company, w.year)
 		expected.workedAt.map(toS _).toSet must_== actual.workedAt.map(toS _).toSet
 		expected.no must_== actual.no
 	}
 
 	def createTables {
 		Setup.dropAllTables(jdbc)
-		jdbc.update("""
+		Setup.database match {
+			case "derby" =>
+				jdbc.update("""
+			create table Employee (
+				"no" varchar(20) not null,
+				primary key ("no")
+			)
+		""")
+				jdbc.update("""
+			create table Company (
+				"no" varchar(20) not null,
+				name varchar(20) not null,
+				primary key ("no")
+			)
+		""")
+				jdbc.update("""
+			create table WorkedAt (
+				employee_no varchar(20) not null,
+				company_no varchar(20) not null,
+				"year" int not null,
+				primary key (employee_no,company_no),
+				foreign key (employee_no) references Employee("no") on delete cascade,
+				foreign key (company_no) references Company("no") on delete cascade
+			)
+		""")
+			case _ =>
+				jdbc.update("""
 			create table Employee (
 				no varchar(20) not null,
 				primary key (no)
 			)
 		""")
-		jdbc.update("""
+				jdbc.update("""
 			create table Company (
 				no varchar(20) not null,
 				name varchar(20) not null,
 				primary key (no)
 			)
 		""")
-		jdbc.update("""
+				jdbc.update("""
 			create table WorkedAt (
 				employee_no varchar(20) not null,
 				company_no varchar(20) not null,
@@ -177,6 +203,7 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 				foreign key (company_no) references Company(no) on delete cascade
 			)
 		""")
+		}
 	}
 }
 
@@ -186,7 +213,9 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 
 		override def toString = "Employee(%s,%s)".format(no, workedAt)
 	}
-	case class WorkedAt(val employee: Employee, val company: Company, val year: Int)
+	case class WorkedAt(val employee: Employee, val company: Company, val year: Int) {
+		override def toString = "WorkedAt(%s,%s,%d)".format(employee.no, company, year)
+	}
 	case class Company(val no: String, val name: String)
 
 	object EmployeeEntity extends SimpleEntity[Employee](classOf[Employee]) {

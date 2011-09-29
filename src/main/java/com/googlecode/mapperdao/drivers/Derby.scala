@@ -16,7 +16,7 @@ import com.googlecode.mapperdao.jdbc.UpdateResultWithGeneratedKeys
  */
 class Derby(override val jdbc: Jdbc, override val typeRegistry: TypeRegistry) extends Driver {
 
-	private val invalidColumnNames = Set("end", "select", "where", "group")
+	private val invalidColumnNames = Set("end", "select", "where", "group", "year", "no")
 	private val invalidTableNames = Set("end", "select", "where", "group")
 
 	override def escapeColumnNames(name: String) = if (invalidColumnNames.contains(name)) '"' + name + '"'; else name

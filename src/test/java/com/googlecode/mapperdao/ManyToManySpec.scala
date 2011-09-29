@@ -13,27 +13,29 @@ class ManyToManySpec extends SpecificationWithJUnit {
 
 	val (jdbc, mapperDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
-	"update id of main entity" in {
-		createTables
-		val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
-		val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
-		val inserted = mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2)))
+	if (Setup.database != "derby") {
+		"update id of main entity" in {
+			createTables
+			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
+			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
+			val inserted = mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2)))
 
-		val updated = mapperDao.update(ProductEntity, inserted, Product(5, "blue jean", inserted.attributes))
-		updated must_== Product(5, "blue jean", inserted.attributes)
+			val updated = mapperDao.update(ProductEntity, inserted, Product(5, "blue jean", inserted.attributes))
+			updated must_== Product(5, "blue jean", inserted.attributes)
 
-		mapperDao.select(ProductEntity, 5).get must_== Product(5, "blue jean", inserted.attributes)
-		mapperDao.select(ProductEntity, 2) must beNone
-	}
+			mapperDao.select(ProductEntity, 5).get must_== Product(5, "blue jean", inserted.attributes)
+			mapperDao.select(ProductEntity, 2) must beNone
+		}
 
-	"update id of secondary entity" in {
-		createTables
-		val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
-		val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
-		val inserted = mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2)))
+		"update id of secondary entity" in {
+			createTables
+			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
+			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
+			val inserted = mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2)))
 
-		val updated = mapperDao.update(AttributeEntity, a1, Attribute(8, "colour", "blue"))
-		mapperDao.select(ProductEntity, 2).get must_== Product(2, "blue jean", Set(updated, a2))
+			val updated = mapperDao.update(AttributeEntity, a1, Attribute(8, "colour", "blue"))
+			mapperDao.select(ProductEntity, 2).get must_== Product(2, "blue jean", Set(updated, a2))
+		}
 	}
 
 	"modify leaf node values" in {
@@ -217,6 +219,31 @@ class ManyToManySpec extends SpecificationWithJUnit {
 						foreign key (product_id) references Product(id) on update cascade on delete cascade,
 						foreign key (attribute_id) references Attribute(id) on update cascade on delete cascade
 					) engine InnoDB
+			""")
+				case "derby" =>
+					jdbc.update("""
+					create table Product (
+						id int not null,
+						name varchar(100) not null,
+						primary key(id)
+					)
+			""")
+					jdbc.update("""
+					create table Attribute (
+						id int not null,
+						name varchar(100) not null,
+						value varchar(100) not null,
+						primary key(id)
+					)
+			""")
+					jdbc.update("""
+					create table Product_Attribute (
+						product_id int not null,
+						attribute_id int not null,
+						primary key(product_id,attribute_id),
+						foreign key (product_id) references Product(id) on update restrict on delete cascade,
+						foreign key (attribute_id) references Attribute(id) on update restrict on delete cascade
+					)
 			""")
 			}
 		}
