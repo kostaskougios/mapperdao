@@ -268,6 +268,14 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 						start datetime,
 						primary key (id)
 					)""")
+			case "derby" =>
+				jdbc.update("""
+					create table JobPosition (
+						id int not null,
+						name varchar(100) not null,
+						start timestamp,
+						primary key (id)
+					)""")
 		}
 	}
 }

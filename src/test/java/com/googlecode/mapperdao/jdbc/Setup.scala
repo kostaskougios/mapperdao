@@ -119,9 +119,12 @@ object Setup {
 
 	def createSeq(jdbc: Jdbc, name: String) {
 		try {
-			jdbc.update("drop sequence %s".format(name))
+			database match {
+				case "derby" => jdbc.update("drop sequence %s RESTRICT".format(name))
+				case _ => jdbc.update("drop sequence %s".format(name))
+			}
 		} catch {
-			case _: Exception => // ignore
+			case e: Exception => println(e)
 		}
 		jdbc.update("create sequence %s".format(name))
 	}
