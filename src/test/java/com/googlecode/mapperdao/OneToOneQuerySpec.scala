@@ -17,6 +17,24 @@ class OneToOneQuerySpec extends SpecificationWithJUnit {
 	import queryDao._
 	import TestQueries._
 
+	"query with limits (offset only)" in {
+		createTables
+		val products = for (i <- 0 to 10) yield insert(ProductEntity, Product(i, Inventory(10 + i, 15 + i)))
+		query(QueryConfig(offset = Some(7)), q0Limits).toSet must_== Set(products(7), products(8), products(9), products(10))
+	}
+
+	"query with limits (limit only)" in {
+		createTables
+		val products = for (i <- 0 to 10) yield insert(ProductEntity, Product(i, Inventory(10 + i, 15 + i)))
+		query(QueryConfig(limit = Some(2)), q0Limits).toSet must_== Set(products(0), products(1))
+	}
+
+	"query with limits" in {
+		createTables
+		val products = for (i <- 0 to 10) yield insert(ProductEntity, Product(i, Inventory(10 + i, 15 + i)))
+		query(QueryConfig(offset = Some(3), limit = Some(4)), q0Limits).toSet must_== Set(products(3), products(4), products(5), products(6))
+	}
+
 	"query with skip" in {
 		createTables
 		val p0 = insert(ProductEntity, Product(0, Inventory(4, 10)))
@@ -75,6 +93,7 @@ object OneToOneQuerySpec {
 		val i = InventoryEntity
 		import Query._
 		def q0 = select from p join (p, p.inventory, i) where i.stock > 5
+		def q0Limits = select from p
 		def q0WithSkip = select from p join (p, p.inventory, i) where i.stock > 5
 		def q1 = (
 			select from p
