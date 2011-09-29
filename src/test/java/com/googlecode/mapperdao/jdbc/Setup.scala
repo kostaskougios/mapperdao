@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory
 import org.slf4j.Logger
 import com.googlecode.mapperdao.drivers.Oracle
 import java.sql.SQLSyntaxErrorException
+import com.googlecode.mapperdao.drivers.Derby
+import org.apache.commons.dbcp.BasicDataSource
 
 /**
  * creates an environment for specs
@@ -38,7 +40,7 @@ object Setup {
 			val properties = new Properties
 			logger.debug("connecting to %s".format(database))
 			properties.load(getClass.getResourceAsStream("/jdbc.test.%s.properties".format(database)))
-			val dataSource = BasicDataSourceFactory.createDataSource(properties)
+			val dataSource = BasicDataSourceFactory.createDataSource(properties).asInstanceOf[BasicDataSource]
 			new Jdbc(dataSource, typeManager)
 		}
 
@@ -49,6 +51,7 @@ object Setup {
 				case "postgresql" => new PostgreSql(jdbc, typeRegistry)
 				case "mysql" => new Mysql(jdbc, typeRegistry)
 				case "oracle" => new Oracle(jdbc, typeRegistry)
+				case "derby" => new Derby(jdbc, typeRegistry)
 			}
 			val mapperDao = new MapperDao(driver)
 			(jdbc, mapperDao)
@@ -91,6 +94,17 @@ object Setup {
 						val table = m("TABLE_NAME")
 						try {
 							jdbc.update("""drop table "%s"""".format(table))
+						} catch {
+							case e: Throwable =>
+								println(e.getMessage)
+								errors += 1
+						}
+					}
+				case "derby" =>
+					jdbc.queryForList("select tablename from sys.SYSTABLES where tabletype='T'").foreach { m =>
+						val table = m("tablename")
+						try {
+							jdbc.update("drop table %s".format(table))
 						} catch {
 							case e: Throwable =>
 								println(e.getMessage)

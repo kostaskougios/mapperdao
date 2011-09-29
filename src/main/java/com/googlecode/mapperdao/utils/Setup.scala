@@ -51,4 +51,17 @@ object Setup {
 			val queryDao = new QueryDao(mapperDao)
 			(jdbc, mapperDao, queryDao)
 		}
+	/**
+	 * sets up a mapperDao and queryDao for the dataSource and entities using derby driver
+	 */
+	def derby(dataSource: DataSource, entities: List[Entity[_, _]]): (Jdbc, MapperDao, QueryDao) =
+		{
+			val typeRegistry = TypeRegistry(entities)
+			val typeManager = new DefaultTypeManager
+			val jdbc = new Jdbc(dataSource, typeManager)
+			val driver = new Derby(jdbc, typeRegistry)
+			val mapperDao = new MapperDao(driver)
+			val queryDao = new QueryDao(mapperDao)
+			(jdbc, mapperDao, queryDao)
+		}
 }

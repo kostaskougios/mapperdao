@@ -39,4 +39,6 @@ class Oracle(override val jdbc: Jdbc, override val typeRegistry: TypeRegistry) e
 			sql append "\n) where rownum<=" append (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset else Long.MaxValue)
 			sql append "\n) where rn$>" append offset
 		}
+
+	override def toString = "Oracle"
 }

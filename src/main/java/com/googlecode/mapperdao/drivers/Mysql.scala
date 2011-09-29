@@ -32,4 +32,6 @@ class Mysql(override val jdbc: Jdbc, override val typeRegistry: TypeRegistry) ex
 			val limit = queryConfig.limit.getOrElse(Long.MaxValue)
 			sql append "\nLIMIT " append offset append "," append limit
 		}
+
+	override def toString = "MySql"
 }
