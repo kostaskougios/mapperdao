@@ -453,6 +453,10 @@ trait Driver {
 		aliases(c) + "." + escapeColumnNames(c.columnName) + " " + ascDesc.sql
 	}.mkString(",")
 
+	// called at the start of each query sql generation, sql is empty at this point
+	def beforeStartOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T], columns: List[ColumnBase], sql: StringBuilder): Unit =
+		{
+		}
 	// called at the end of each query sql generation
 	def endOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T], sql: StringBuilder): Unit =
 		{

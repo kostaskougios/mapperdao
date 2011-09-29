@@ -50,7 +50,10 @@ class QueryDao(mapperDao: MapperDao) {
 
 		val aliases = new Aliases(typeRegistry)
 
-		val sb = new StringBuilder(driver.startQuery(aliases, qe, columns))
+		val sb = new StringBuilder
+		driver.beforeStartOfQuery(queryConfig, qe, columns, sb)
+		sb append driver.startQuery(aliases, qe, columns)
+
 		val joinsSb = new StringBuilder
 		val whereSb = new StringBuilder
 

@@ -43,6 +43,14 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		query(QueryConfig(offset = Some(5), limit = Some(3)), qWithLimit) must_== List(l(5), l(6), l(7))
 	}
 
+	"query with limits (both with orderby)" in {
+		createJobPositionTable
+
+		val now = Setup.now
+		val l = for (i <- 0 to 10) yield insert(JobPositionEntity, JobPosition(i, "x" + i, now))
+		query(QueryConfig(offset = Some(5), limit = Some(3)), qWithLimitAndOrderBy) must_== List(l(5), l(4), l(3))
+	}
+
 	"query builder" in {
 		createJobPositionTable
 
@@ -272,6 +280,7 @@ object SimpleQuerySpec {
 
 		def q0 = select from jpe
 		def qWithLimit = select from jpe
+		def qWithLimitAndOrderBy = select from jpe orderBy (jpe.id, desc)
 		def q1 = select from jpe where jpe.name === "Scala Developer"
 		def q2 = select from jpe where jpe.name === "Scala Developer" and jpe.id > 6
 		def q3 = select from jpe where jpe.name === "Scala Developer" or jpe.id < 7
