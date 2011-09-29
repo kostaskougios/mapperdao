@@ -132,12 +132,11 @@ final class MapperDao(val driver: Driver) {
 	/**
 	 * update an entity
 	 */
-
 	private def updateInner[PC, T](entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap): T with PC with Persisted =
 		{
 			val tpe = typeRegistry.typeOf(entity)
 
-			def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
+				def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
 
 			val table = tpe.table
 
@@ -185,7 +184,6 @@ final class MapperDao(val driver: Driver) {
 	 * update an entity. The entity must have been retrieved from the database and then
 	 * changed prior to calling this method.
 	 * The whole tree will be updated (if necessary).
-	 * The method heavily relies on object equality to assess which entities will be updated.
 	 */
 	def update[PC, T](entity: Entity[PC, T], o: T with PC): T with PC =
 		{
@@ -234,7 +232,9 @@ final class MapperDao(val driver: Driver) {
 	/**
 	 * update an immutable entity. The entity must have been retrieved from the database. Because immutables can't change, a new instance
 	 * of the entity must be created with the new values prior to calling this method. Values that didn't change should be copied from o.
-	 * The method heavily relies on object equality to assess which entities will be updated.
+	 * For traversables, the method heavily relies on object equality to assess which entities will be updated. So please copy over
+	 * traversable entities from the old collections to the new ones (but you can instantiate a new collection).
+	 *
 	 * The whole tree will be updated (if necessary).
 	 *
 	 * @param	o		the entity, as retrieved from the database
@@ -282,7 +282,20 @@ final class MapperDao(val driver: Driver) {
 
 	def select[PC, T](entity: Entity[PC, T], ids: List[Any]): Option[T with PC] = select(defaultSelectConfig, entity, ids)
 
+	/**
+	 * select an entity but load only part of the entity's graph. SelectConfig contains configuration regarding which relationships
+	 * won't be loaded, i.e.
+	 *
+	 * SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
+	 */
 	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], id: Any): Option[T with PC] = select(selectConfig, entity, List(id))
+
+	/**
+	 * select an entity but load only part of the entity's graph. SelectConfig contains configuration regarding which relationships
+	 * won't be loaded, i.e.
+	 *
+	 * SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
+	 */
 	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], ids: List[Any]): Option[T with PC] =
 		{
 			val entityMap = new EntityMap
