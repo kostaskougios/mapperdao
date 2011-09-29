@@ -17,6 +17,16 @@ class OneToOneQuerySpec extends SpecificationWithJUnit {
 	import queryDao._
 	import TestQueries._
 
+	"query with skip" in {
+		createTables
+		val p0 = insert(ProductEntity, Product(0, Inventory(4, 10)))
+		val p1 = insert(ProductEntity, Product(1, Inventory(5, 11)))
+		val p2 = insert(ProductEntity, Product(2, Inventory(6, 12)))
+		val p3 = insert(ProductEntity, Product(3, Inventory(7, 13)))
+
+		query(QueryConfig(skip = Set(ProductEntity.inventory)), q0WithSkip).toSet must_== Set(Product(2, null), Product(3, null))
+	}
+
 	"query by inventory.stock" in {
 		createTables
 		val p0 = insert(ProductEntity, Product(0, Inventory(4, 10)))
@@ -65,6 +75,7 @@ object OneToOneQuerySpec {
 		val i = InventoryEntity
 		import Query._
 		def q0 = select from p join (p, p.inventory, i) where i.stock > 5
+		def q0WithSkip = select from p join (p, p.inventory, i) where i.stock > 5
 		def q1 = (
 			select from p
 			join (p, p.inventory, i)

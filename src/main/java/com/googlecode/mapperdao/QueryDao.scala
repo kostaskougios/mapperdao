@@ -19,8 +19,11 @@ class QueryDao(mapperDao: MapperDao) {
 	private class SqlAndArgs(val sql: String, val args: List[Any])
 
 	def query[PC, T](qe: Query.QueryExpressions[PC, T]): List[T with PC] = query(qe.queryEntity)
+	def query[PC, T](queryConfig: QueryConfig, qe: Query.QueryExpressions[PC, T]): List[T with PC] = query(queryConfig, qe.queryEntity)
 
-	def query[PC, T](qe: Query.QueryEntity[PC, T]): List[T with PC] =
+	val defaultQueryConfig = QueryConfig()
+	def query[PC, T](qe: Query.QueryEntity[PC, T]): List[T with PC] = query(defaultQueryConfig, qe)
+	def query[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T]): List[T with PC] =
 		{
 			if (qe == null) throw new NullPointerException("qe can't be null")
 			var sa: SqlAndArgs = null
@@ -28,7 +31,8 @@ class QueryDao(mapperDao: MapperDao) {
 				sa = sqlAndArgs(qe)
 				val lm = jdbc.queryForList(sa.sql, sa.args)
 				val entityMap = new EntityMap
-				val v = mapperDao.toEntities(lm, typeRegistry.typeOf(qe.entity), mapperDao.defaultSelectConfig, entityMap)
+				val selectConfig = SelectConfig(skip = queryConfig.skip)
+				val v = mapperDao.toEntities(lm, typeRegistry.typeOf(qe.entity), selectConfig, entityMap)
 				entityMap.done
 				v
 			} catch {

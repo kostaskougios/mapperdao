@@ -19,6 +19,13 @@ class ManyToOneQuerySpec extends SpecificationWithJUnit {
 	import mapperDao._
 	import queryDao._
 
+	"query with skip" in {
+		createTables
+		val (p0, p1, p2, p3, p4) = testData1
+
+		query(QueryConfig(skip = Set(PersonEntity.lives)), q0ForSkip) must_== List(Person(3, "p3", null), Person(4, "p4", null))
+	}
+
 	"query on FK for null" in {
 		createTables
 		val (p0, p1, p2, p3, p4) = testData1
@@ -109,6 +116,7 @@ object ManyToOneQuerySpec {
 		val ad = AddressEntity
 
 		val q0 = select from pe join (pe, pe.lives, he) where he.name === "Block B"
+		val q0ForSkip = select from pe join (pe, pe.lives, he) where he.name === "Block B"
 
 		val q1 = select from pe join
 			(pe, pe.lives, he) join

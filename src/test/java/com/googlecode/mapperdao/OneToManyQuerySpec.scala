@@ -18,6 +18,15 @@ class OneToManyQuerySpec extends SpecificationWithJUnit {
 	import queryDao._
 	import TestQueries._
 
+	"query with skip" in {
+		createTables
+		val p0 = insert(PersonEntity, Person(5, "person0", Set(House(1, "London"), House(2, "Paris"))))
+		val p1 = insert(PersonEntity, Person(6, "person1", Set(House(3, "London"), House(4, "Athens"))))
+		val p2 = insert(PersonEntity, Person(7, "person2", Set(House(5, "Rome"), House(6, "Athens"))))
+
+		query(QueryConfig(skip = Set(PersonEntity.owns)), q0WithSkip).toSet must_== Set(Person(5, "person0", Set()), Person(6, "person1", Set()))
+	}
+
 	"based on FK" in {
 		createTables
 		val p0 = insert(PersonEntity, Person(5, "person0", Set(House(1, "London"), House(2, "Paris"))))
@@ -85,6 +94,7 @@ object OneToManyQuerySpec {
 		val h = HouseEntity
 
 		def q0 = select from p join (p, p.owns, h) where h.address === "London"
+		def q0WithSkip = select from p join (p, p.owns, h) where h.address === "London"
 		def q1 = (
 			select from p
 			join (p, p.owns, h)

@@ -18,6 +18,21 @@ class ManyToManyQuerySpec extends SpecificationWithJUnit {
 	import queryDao._
 	import TestQueries._
 
+	"query with skip" in {
+		createTables
+		val a0 = insert(AttributeEntity, Attribute(100, "size", "46'"))
+		val a1 = insert(AttributeEntity, Attribute(101, "size", "50'"))
+		val a2 = insert(AttributeEntity, Attribute(102, "colour", "black"))
+		val a3 = insert(AttributeEntity, Attribute(103, "colour", "white"))
+
+		val p0 = insert(ProductEntity, Product(1, "TV 1", Set(a0, a2)))
+		val p1 = insert(ProductEntity, Product(2, "TV 2", Set(a1, a2)))
+		val p2 = insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
+		val p3 = insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
+
+		query(QueryConfig(skip = Set(ProductEntity.attributes)), q0).toSet must_== Set(Product(1, "TV 1", Set()), Product(3, "TV 3", Set()))
+	}
+
 	"match on FK" in {
 		createTables
 		val a = insert(AttributeEntity, Attribute(100, "size", "A"))
@@ -119,6 +134,7 @@ object ManyToManyQuerySpec {
 		import Query._
 
 		def q0 = select from p join (p, p.attributes, a) where a.value === "46'"
+		def q0WithSkip = select from p join (p, p.attributes, a) where a.value === "46'"
 
 		def q1 = select from p join (p, p.attributes, a) where a.value === "50'" or a.value === "black"
 
