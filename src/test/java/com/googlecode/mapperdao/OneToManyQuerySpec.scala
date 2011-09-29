@@ -18,6 +18,24 @@ class OneToManyQuerySpec extends SpecificationWithJUnit {
 	import queryDao._
 	import TestQueries._
 
+	"query with limits (offset only)" in {
+		createTables
+		val persons = for (i <- 0 to 10) yield insert(PersonEntity, Person(i, "person%d".format(i), Set(House(i * 2, "London"), House(i * 2 + 1, "Paris"))))
+		query(QueryConfig(offset = Some(7)), q0Limits).toSet must_== Set(persons(7), persons(8), persons(9), persons(10))
+	}
+
+	"query with limits (limit only)" in {
+		createTables
+		val persons = for (i <- 0 to 10) yield insert(PersonEntity, Person(i, "person%d".format(i), Set(House(i * 2, "London"), House(i * 2 + 1, "Paris"))))
+		query(QueryConfig(limit = Some(2)), q0Limits).toSet must_== Set(persons(0), persons(1))
+	}
+
+	"query with limits" in {
+		createTables
+		val persons = for (i <- 0 to 10) yield insert(PersonEntity, Person(i, "person%d".format(i), Set(House(i * 2, "London"), House(i * 2 + 1, "Paris"))))
+		query(QueryConfig(offset = Some(5), limit = Some(2)), q0Limits).toSet must_== Set(persons(5), persons(6))
+	}
+
 	"query with skip" in {
 		createTables
 		val p0 = insert(PersonEntity, Person(5, "person0", Set(House(1, "London"), House(2, "Paris"))))
@@ -94,6 +112,7 @@ object OneToManyQuerySpec {
 		val h = HouseEntity
 
 		def q0 = select from p join (p, p.owns, h) where h.address === "London"
+		def q0Limits = select from p
 		def q0WithSkip = select from p join (p, p.owns, h) where h.address === "London"
 		def q1 = (
 			select from p

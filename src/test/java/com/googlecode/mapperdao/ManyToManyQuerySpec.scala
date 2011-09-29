@@ -18,6 +18,51 @@ class ManyToManyQuerySpec extends SpecificationWithJUnit {
 	import queryDao._
 	import TestQueries._
 
+	"query with limits (offset only)" in {
+		createTables
+		val a0 = insert(AttributeEntity, Attribute(100, "size", "46'"))
+		val a1 = insert(AttributeEntity, Attribute(101, "size", "50'"))
+		val a2 = insert(AttributeEntity, Attribute(102, "colour", "black"))
+		val a3 = insert(AttributeEntity, Attribute(103, "colour", "white"))
+
+		val p0 = insert(ProductEntity, Product(1, "TV 1", Set(a0, a2)))
+		val p1 = insert(ProductEntity, Product(2, "TV 2", Set(a1, a2)))
+		val p2 = insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
+		val p3 = insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
+
+		query(QueryConfig(offset = Some(2)), q0Limits).toSet must_== Set(p2, p3)
+	}
+
+	"query with limits (limit only)" in {
+		createTables
+		val a0 = insert(AttributeEntity, Attribute(100, "size", "46'"))
+		val a1 = insert(AttributeEntity, Attribute(101, "size", "50'"))
+		val a2 = insert(AttributeEntity, Attribute(102, "colour", "black"))
+		val a3 = insert(AttributeEntity, Attribute(103, "colour", "white"))
+
+		val p0 = insert(ProductEntity, Product(1, "TV 1", Set(a0, a2)))
+		val p1 = insert(ProductEntity, Product(2, "TV 2", Set(a1, a2)))
+		val p2 = insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
+		val p3 = insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
+
+		query(QueryConfig(limit = Some(2)), q0Limits).toSet must_== Set(p0, p1)
+	}
+
+	"query with limits" in {
+		createTables
+		val a0 = insert(AttributeEntity, Attribute(100, "size", "46'"))
+		val a1 = insert(AttributeEntity, Attribute(101, "size", "50'"))
+		val a2 = insert(AttributeEntity, Attribute(102, "colour", "black"))
+		val a3 = insert(AttributeEntity, Attribute(103, "colour", "white"))
+
+		val p0 = insert(ProductEntity, Product(1, "TV 1", Set(a0, a2)))
+		val p1 = insert(ProductEntity, Product(2, "TV 2", Set(a1, a2)))
+		val p2 = insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
+		val p3 = insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
+
+		query(QueryConfig(offset = Some(1), limit = Some(2)), q0Limits).toSet must_== Set(p1, p2)
+	}
+
 	"query with skip" in {
 		createTables
 		val a0 = insert(AttributeEntity, Attribute(100, "size", "46'"))
@@ -135,6 +180,7 @@ object ManyToManyQuerySpec {
 
 		def q0 = select from p join (p, p.attributes, a) where a.value === "46'"
 		def q0WithSkip = select from p join (p, p.attributes, a) where a.value === "46'"
+		def q0Limits = select from p
 
 		def q1 = select from p join (p, p.attributes, a) where a.value === "50'" or a.value === "black"
 

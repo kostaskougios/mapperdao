@@ -19,6 +19,27 @@ class ManyToOneQuerySpec extends SpecificationWithJUnit {
 	import mapperDao._
 	import queryDao._
 
+	"query with limits (offset only)" in {
+		createTables
+		val (p0, p1, p2, p3, p4) = testData1
+
+		query(QueryConfig(offset = Some(2)), q0Limits).toSet must_== Set(p2, p3, p4)
+	}
+
+	"query with limits (limit only)" in {
+		createTables
+		val (p0, p1, p2, p3, p4) = testData1
+
+		query(QueryConfig(limit = Some(2)), q0Limits).toSet must_== Set(p0, p1)
+	}
+
+	"query with limits" in {
+		createTables
+		val (p0, p1, p2, p3, p4) = testData1
+
+		query(QueryConfig(offset = Some(2), limit = Some(1)), q0Limits).toSet must_== Set(p2)
+	}
+
 	"query with skip" in {
 		createTables
 		val (p0, p1, p2, p3, p4) = testData1
@@ -116,6 +137,7 @@ object ManyToOneQuerySpec {
 		val ad = AddressEntity
 
 		val q0 = select from pe join (pe, pe.lives, he) where he.name === "Block B"
+		val q0Limits = select from pe
 		val q0ForSkip = select from pe join (pe, pe.lives, he) where he.name === "Block B"
 
 		val q1 = select from pe join
