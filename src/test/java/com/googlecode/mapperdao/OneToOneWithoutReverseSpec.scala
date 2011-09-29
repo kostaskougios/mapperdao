@@ -15,12 +15,14 @@ class OneToOneWithoutReverseSpec extends SpecificationWithJUnit {
 
 	import mapperDao._
 
-	"update id of related" in {
-		createTables
-		val inserted = insert(InventoryEntity, Inventory(10, Product(1), 5))
-		val updatedProduct = update(ProductEntity, inserted.product, Product(7))
-		updatedProduct must_== Product(7)
-		select(InventoryEntity, 10).get must_== Inventory(10, Product(7), 5)
+	if (Setup.database != "derby") {
+		"update id of related" in {
+			createTables
+			val inserted = insert(InventoryEntity, Inventory(10, Product(1), 5))
+			val updatedProduct = update(ProductEntity, inserted.product, Product(7))
+			updatedProduct must_== Product(7)
+			select(InventoryEntity, 10).get must_== Inventory(10, Product(7), 5)
+		}
 	}
 
 	"update id" in {
@@ -147,6 +149,22 @@ class OneToOneWithoutReverseSpec extends SpecificationWithJUnit {
 					primary key (id),
 					foreign key (product_id) references Product(id) on delete cascade on update cascade
 				) engine InnoDB
+			""")
+				case "derby" =>
+					jdbc.update("""
+				create table Product (
+					id int not null,
+					primary key (id)
+				)
+			""")
+					jdbc.update("""
+				create table Inventory (
+					id int not null,
+					product_id int,
+					stock int not null,
+					primary key (id),
+					foreign key (product_id) references Product(id) on delete cascade on update restrict
+				)
 			""")
 			}
 		}

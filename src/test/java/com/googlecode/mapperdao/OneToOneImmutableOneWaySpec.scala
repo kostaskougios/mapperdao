@@ -15,13 +15,15 @@ class OneToOneImmutableOneWaySpec extends SpecificationWithJUnit {
 
 	import mapperDao._
 
-	"update id" in {
-		createTables
-		val inserted = insert(ProductEntity, Product(1, Inventory(10)))
-		val updated = update(ProductEntity, inserted, Product(2, Inventory(15)))
-		updated must_== Product(2, Inventory(15))
-		select(ProductEntity, 2).get must_== updated
-		select(ProductEntity, 1) must beNone
+	if (Setup.database != "derby") {
+		"update id" in {
+			createTables
+			val inserted = insert(ProductEntity, Product(1, Inventory(10)))
+			val updated = update(ProductEntity, inserted, Product(2, Inventory(15)))
+			updated must_== Product(2, Inventory(15))
+			select(ProductEntity, 2).get must_== updated
+			select(ProductEntity, 1) must beNone
+		}
 	}
 
 	"crud for many objects" in {
@@ -132,6 +134,21 @@ class OneToOneImmutableOneWaySpec extends SpecificationWithJUnit {
 					primary key (product_id),
 					foreign key (product_id) references Product(id) on delete cascade on update cascade
 				) engine InnoDB
+			""")
+				case "derby" =>
+					jdbc.update("""
+				create table Product (
+					id int not null,
+					primary key (id)
+				)
+			""")
+					jdbc.update("""
+				create table Inventory (
+					product_id int not null,
+					stock int not null,
+					primary key (product_id),
+					foreign key (product_id) references Product(id) on delete cascade on update restrict
+				)
 			""")
 			}
 		}

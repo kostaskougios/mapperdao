@@ -14,18 +14,20 @@ class OneToOneMutableTwoWaySpec extends SpecificationWithJUnit {
 
 	import mapperDao._
 
-	"update id of primary entity" in {
-		createTables
-		val product = Product(1, Inventory(null, 5))
-		product.inventory.product = product
-		val inserted = insert(ProductEntity, product)
-		inserted.id = 2
-		val updated = update(ProductEntity, inserted)
-		updated must_== inserted
-		val recreatedProduct = Product(2, Inventory(null, 5))
-		recreatedProduct.inventory.product = recreatedProduct
-		select(ProductEntity, 2).get must_== recreatedProduct
-		select(ProductEntity, 1) must beNone
+	if (Setup.database != "derby") {
+		"update id of primary entity" in {
+			createTables
+			val product = Product(1, Inventory(null, 5))
+			product.inventory.product = product
+			val inserted = insert(ProductEntity, product)
+			inserted.id = 2
+			val updated = update(ProductEntity, inserted)
+			updated must_== inserted
+			val recreatedProduct = Product(2, Inventory(null, 5))
+			recreatedProduct.inventory.product = recreatedProduct
+			select(ProductEntity, 2).get must_== recreatedProduct
+			select(ProductEntity, 1) must beNone
+		}
 	}
 
 	"CRUD mutable" in {
@@ -137,6 +139,21 @@ class OneToOneMutableTwoWaySpec extends SpecificationWithJUnit {
 					primary key (product_id),
 					foreign key (product_id) references Product(id) on delete cascade on update cascade
 				) engine InnoDB
+			""")
+				case "derby" =>
+					jdbc.update("""
+				create table Product (
+					id int not null,
+					primary key (id)
+				)
+			""")
+					jdbc.update("""
+				create table Inventory (
+					product_id int not null,
+					stock int not null,
+					primary key (product_id),
+					foreign key (product_id) references Product(id) on delete cascade on update restrict
+				)
 			""")
 			}
 		}

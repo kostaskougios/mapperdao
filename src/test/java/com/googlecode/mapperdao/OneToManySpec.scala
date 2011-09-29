@@ -31,18 +31,20 @@ class OneToManySpec extends SpecificationWithJUnit {
 		mapperDao.select(PersonEntity, 3).get must_== Person(3, "Kostas", "K", Set(House(5, "London"), House(2, "Rhodes")), 16, List(jp1, jp2, jp3))
 	}
 
-	"updating id of primary entity" in {
-		createTables
+	if (Setup.database != "derby") {
+		"updating id of primary entity" in {
+			createTables
 
-		val jp1 = new JobPosition(3, "C++ Developer", 10)
-		val jp2 = new JobPosition(5, "Scala Developer", 10)
-		val jp3 = new JobPosition(7, "Java Developer", 10)
-		val person = new Person(3, "Kostas", "K", Set(House(1, "London"), House(2, "Rhodes")), 16, List(jp1, jp2, jp3))
-		val inserted = mapperDao.insert(PersonEntity, person)
-		val updated = mapperDao.update(PersonEntity, inserted, Person(8, "Kostas", "K", inserted.owns, 16, inserted.positions))
-		updated must_== Person(8, "Kostas", "K", person.owns, 16, person.positions)
-		mapperDao.select(PersonEntity, 8).get must_== updated
-		mapperDao.select(PersonEntity, 3) must beNone
+			val jp1 = new JobPosition(3, "C++ Developer", 10)
+			val jp2 = new JobPosition(5, "Scala Developer", 10)
+			val jp3 = new JobPosition(7, "Java Developer", 10)
+			val person = new Person(3, "Kostas", "K", Set(House(1, "London"), House(2, "Rhodes")), 16, List(jp1, jp2, jp3))
+			val inserted = mapperDao.insert(PersonEntity, person)
+			val updated = mapperDao.update(PersonEntity, inserted, Person(8, "Kostas", "K", inserted.owns, 16, inserted.positions))
+			updated must_== Person(8, "Kostas", "K", person.owns, 16, person.positions)
+			mapperDao.select(PersonEntity, 8).get must_== updated
+			mapperDao.select(PersonEntity, 3) must beNone
+		}
 	}
 
 	"updating items (immutable)" in {
@@ -291,6 +293,36 @@ class OneToManySpec extends SpecificationWithJUnit {
 				primary key (id),
 				constraint FK_House_Person foreign key (person_id) references Person(id) on delete cascade on update cascade
 			) engine InnoDB
+		""")
+			case "derby" =>
+				jdbc.update("""
+			create table Person (
+				id int not null,
+				name varchar(100) not null,
+				surname varchar(100) not null,
+				age int not null,
+				primary key (id)
+			)
+		""")
+				jdbc.update("""
+					create table JobPosition (
+						id int not null,
+						name varchar(100) not null,
+						start timestamp,
+						"end" timestamp,
+						rank int not null,
+						person_id int not null,
+						primary key (id),
+						constraint FK_JobPosition_Person foreign key (person_id) references Person(id) on delete cascade on update restrict
+					)""")
+				jdbc.update("""
+			create table House (
+				id int not null,
+				address varchar(100) not null,
+				person_id int not null,
+				primary key (id),
+				constraint FK_House_Person foreign key (person_id) references Person(id) on delete cascade on update restrict
+			)
 		""")
 		}
 	}
