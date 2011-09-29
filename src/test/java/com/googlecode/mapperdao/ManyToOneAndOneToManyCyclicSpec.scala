@@ -15,17 +15,19 @@ class ManyToOneAndOneToManyCyclicSpec extends SpecificationWithJUnit {
 
 	import mapperDao._
 
-	"update id of one-to-many" in {
-		createTables
-		val company = insert(CompanyEntity, Company(1, "Coders Ltd", List()))
-		val inserted = insert(PersonEntity, Person(10, "Coder1", company))
+	if (Setup.database != "derby") {
+		"update id of one-to-many" in {
+			createTables
+			val company = insert(CompanyEntity, Company(1, "Coders Ltd", List()))
+			val inserted = insert(PersonEntity, Person(10, "Coder1", company))
 
-		// reload company to get the actual state of the entity
-		val companyReloaded = select(CompanyEntity, 1).get
-		val updated = update(CompanyEntity, companyReloaded, Company(5, "Coders Ltd", companyReloaded.employees))
-		updated must_== Company(5, "Coders Ltd", List(inserted))
-		select(CompanyEntity, 5).get must_== Company(5, "Coders Ltd", List(Person(10, "Coder1", Company(5, "Coders Ltd", List())))) // Company(5, "Coders Ltd", List() is a mock object due to the cyclic dependencies
-		select(CompanyEntity, 1) must beNone
+			// reload company to get the actual state of the entity
+			val companyReloaded = select(CompanyEntity, 1).get
+			val updated = update(CompanyEntity, companyReloaded, Company(5, "Coders Ltd", companyReloaded.employees))
+			updated must_== Company(5, "Coders Ltd", List(inserted))
+			select(CompanyEntity, 5).get must_== Company(5, "Coders Ltd", List(Person(10, "Coder1", Company(5, "Coders Ltd", List())))) // Company(5, "Coders Ltd", List() is a mock object due to the cyclic dependencies
+			select(CompanyEntity, 1) must beNone
+		}
 	}
 
 	"update id of many-to-one" in {
@@ -133,6 +135,23 @@ class ManyToOneAndOneToManyCyclicSpec extends SpecificationWithJUnit {
 						primary key(id),
 						foreign key (company_id) references Company(id) on delete cascade on update cascade
 					) engine InnoDB
+			""")
+				case "derby" =>
+					jdbc.update("""
+					create table Company (
+						id int not null,
+						name varchar(100) not null,
+						primary key(id)
+					)
+			""")
+					jdbc.update("""
+					create table Person (
+						id int not null,
+						name varchar(100) not null,
+						company_id int,
+						primary key(id),
+						foreign key (company_id) references Company(id) on delete cascade on update restrict
+					)
 			""")
 			}
 		}
