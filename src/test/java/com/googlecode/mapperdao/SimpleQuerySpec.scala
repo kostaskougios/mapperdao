@@ -19,6 +19,30 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 	import mapperDao._
 	import queryDao._
 
+	"query with limits (limit only)" in {
+		createJobPositionTable
+
+		val now = Setup.now
+		val l = for (i <- 0 to 10) yield insert(JobPositionEntity, JobPosition(i, "x" + i, now))
+		query(QueryConfig(limit = Some(3)), qWithLimit) must_== List(l(0), l(1), l(2))
+	}
+
+	"query with limits (offset only)" in {
+		createJobPositionTable
+
+		val now = Setup.now
+		val l = for (i <- 0 to 10) yield insert(JobPositionEntity, JobPosition(i, "x" + i, now))
+		query(QueryConfig(offset = Some(5)), qWithLimit) must_== List(l(5), l(6), l(7), l(8), l(9), l(10))
+	}
+
+	"query with limits (both)" in {
+		createJobPositionTable
+
+		val now = Setup.now
+		val l = for (i <- 0 to 10) yield insert(JobPositionEntity, JobPosition(i, "x" + i, now))
+		query(QueryConfig(offset = Some(5), limit = Some(3)), qWithLimit) must_== List(l(5), l(6), l(7))
+	}
+
 	"query builder" in {
 		createJobPositionTable
 
@@ -247,6 +271,7 @@ object SimpleQuerySpec {
 		import Query._
 
 		def q0 = select from jpe
+		def qWithLimit = select from jpe
 		def q1 = select from jpe where jpe.name === "Scala Developer"
 		def q2 = select from jpe where jpe.name === "Scala Developer" and jpe.id > 6
 		def q3 = select from jpe where jpe.name === "Scala Developer" or jpe.id < 7

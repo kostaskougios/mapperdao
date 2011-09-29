@@ -374,64 +374,64 @@ trait Driver {
 			val sb = new StringBuilder(100)
 			var args = List.newBuilder[Any]
 			wheres.map(_.clauses).foreach { op =>
-				def inner(op: OpBase): Unit = op match {
-					case o: Operation[_] =>
-						sb append resolveWhereExpression(aliases, args, o.left)
-						sb append ' ' append o.operand.sql append ' ' append resolveWhereExpression(aliases, args, o.right)
-					case and: AndOp =>
-						sb append "( "
-						inner(and.left)
-						sb append " and "
-						inner(and.right)
-						sb append " )"
-					case and: OrOp =>
-						sb append "( "
-						inner(and.left)
-						sb append " or "
-						inner(and.right)
-						sb append " )"
-					case mto: ManyToOneOperation[_, Any] =>
-						val ManyToOneOperation(left, operand, right) = mto
-						if (right == null) {
-							left.columns foreach { c =>
-								sb append resolveWhereExpression(aliases, args, c)
-								operand match {
-									case EQ() => sb append " is null"
-									case NE() => sb append " is not null"
-									case _ => throw new IllegalArgumentException("operand %s not valid when right hand parameter is null.".format(operand))
+					def inner(op: OpBase): Unit = op match {
+						case o: Operation[_] =>
+							sb append resolveWhereExpression(aliases, args, o.left)
+							sb append ' ' append o.operand.sql append ' ' append resolveWhereExpression(aliases, args, o.right)
+						case and: AndOp =>
+							sb append "( "
+							inner(and.left)
+							sb append " and "
+							inner(and.right)
+							sb append " )"
+						case and: OrOp =>
+							sb append "( "
+							inner(and.left)
+							sb append " or "
+							inner(and.right)
+							sb append " )"
+						case mto: ManyToOneOperation[_, Any] =>
+							val ManyToOneOperation(left, operand, right) = mto
+							if (right == null) {
+								left.columns foreach { c =>
+									sb append resolveWhereExpression(aliases, args, c)
+									operand match {
+										case EQ() => sb append " is null"
+										case NE() => sb append " is not null"
+										case _ => throw new IllegalArgumentException("operand %s not valid when right hand parameter is null.".format(operand))
+									}
+								}
+							} else {
+								val fTpe = typeRegistry.typeOfObject(right)
+								val fPKs = fTpe.table.toListOfPrimaryKeyValues(right)
+								if (left.columns.size != fPKs.size) throw new IllegalStateException("foreign keys %s don't match foreign key columns %s".format(fPKs, left.columns))
+								left.columns zip fPKs foreach { t =>
+									sb append resolveWhereExpression(aliases, args, t._1)
+									sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
 								}
 							}
-						} else {
+						case OneToManyOperation(left: OneToMany[_], operand: Operand, right: Any) =>
+							val entity = typeRegistry.entityOf(left)
+							val foreignEntity = typeRegistry.entityOfObject(right)
+							joinsSb append oneToManyJoin(aliases, entity, foreignEntity, left)
 							val fTpe = typeRegistry.typeOfObject(right)
-							val fPKs = fTpe.table.toListOfPrimaryKeyValues(right)
-							if (left.columns.size != fPKs.size) throw new IllegalStateException("foreign keys %s don't match foreign key columns %s".format(fPKs, left.columns))
-							left.columns zip fPKs foreach { t =>
+							val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
+							fPKColumnAndValues.foreach { t =>
 								sb append resolveWhereExpression(aliases, args, t._1)
 								sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
 							}
-						}
-					case OneToManyOperation(left: OneToMany[_], operand: Operand, right: Any) =>
-						val entity = typeRegistry.entityOf(left)
-						val foreignEntity = typeRegistry.entityOfObject(right)
-						joinsSb append oneToManyJoin(aliases, entity, foreignEntity, left)
-						val fTpe = typeRegistry.typeOfObject(right)
-						val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
-						fPKColumnAndValues.foreach { t =>
-							sb append resolveWhereExpression(aliases, args, t._1)
-							sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
-						}
-					case ManyToManyOperation(left: ManyToMany[_], operand: Operand, right: Any) =>
-						val entity = typeRegistry.entityOf(left)
-						val foreignEntity = typeRegistry.entityOfObject(right)
-						joinsSb append manyToManyJoin(aliases, entity, foreignEntity, left)
-						val fTpe = typeRegistry.typeOfObject(right)
-						val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
-						fPKColumnAndValues.foreach { t =>
-							sb append resolveWhereExpression(aliases, args, t._1)
-							sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
-						}
-					//					case OneToOneReverseOperation(left: OneToOneReverse[_], operand: Operand, right: Any) =>
-				}
+						case ManyToManyOperation(left: ManyToMany[_], operand: Operand, right: Any) =>
+							val entity = typeRegistry.entityOf(left)
+							val foreignEntity = typeRegistry.entityOfObject(right)
+							joinsSb append manyToManyJoin(aliases, entity, foreignEntity, left)
+							val fTpe = typeRegistry.typeOfObject(right)
+							val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
+							fPKColumnAndValues.foreach { t =>
+								sb append resolveWhereExpression(aliases, args, t._1)
+								sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
+							}
+						//					case OneToOneReverseOperation(left: OneToOneReverse[_], operand: Operand, right: Any) =>
+					}
 
 				inner(op)
 			}
@@ -453,6 +453,10 @@ trait Driver {
 		aliases(c) + "." + escapeColumnNames(c.columnName) + " " + ascDesc.sql
 	}.mkString(",")
 
+	// called at the end of each query sql generation
+	def endOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T], sql: StringBuilder): Unit =
+		{
+		}
 	/**
 	 * =====================================================================================
 	 * standard methods

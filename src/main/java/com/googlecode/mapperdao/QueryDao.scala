@@ -28,7 +28,7 @@ class QueryDao(mapperDao: MapperDao) {
 			if (qe == null) throw new NullPointerException("qe can't be null")
 			var sa: SqlAndArgs = null
 			try {
-				sa = sqlAndArgs(qe)
+				sa = sqlAndArgs(queryConfig, qe)
 				val lm = jdbc.queryForList(sa.sql, sa.args)
 				val entityMap = new EntityMap
 				val selectConfig = SelectConfig(skip = queryConfig.skip)
@@ -43,7 +43,7 @@ class QueryDao(mapperDao: MapperDao) {
 			}
 		}
 
-	private def sqlAndArgs[PC, T](qe: Query.QueryEntity[PC, T]): SqlAndArgs = {
+	private def sqlAndArgs[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T]): SqlAndArgs = {
 		val e = qe.entity
 		val tpe = typeRegistry.typeOf(e)
 		val columns = driver.selectColumns(tpe)
@@ -95,6 +95,7 @@ class QueryDao(mapperDao: MapperDao) {
 			val orderBySql = driver.orderBy(aliases, orderColumns)
 			sb append "\norder by " append orderBySql
 		}
+		driver.endOfQuery(queryConfig, qe, sb)
 		new SqlAndArgs(sb.toString, args)
 	}
 }
