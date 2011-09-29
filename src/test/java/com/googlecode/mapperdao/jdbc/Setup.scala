@@ -102,7 +102,10 @@ object Setup {
 					}
 				case "derby" =>
 					jdbc.queryForList("select tablename from sys.SYSTABLES where tabletype='T'").foreach { m =>
-						val table = m("tablename")
+						val table = m("tablename") match {
+							case "User" => """"User""""
+							case t => t
+						}
 						try {
 							jdbc.update("drop table %s".format(table))
 						} catch {

@@ -19,7 +19,7 @@ class TransactionSpec extends SpecificationWithJUnit with BeforeExample {
 	def before = {
 		Setup.dropAllTables(jdbc)
 		Setup.database match {
-			case "postgresql" | "oracle" =>
+			case "postgresql" | "oracle" | "derby" =>
 				jdbc.update("""
 			create table tx (
 				id int not null,
