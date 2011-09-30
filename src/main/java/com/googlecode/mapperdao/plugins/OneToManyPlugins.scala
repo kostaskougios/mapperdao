@@ -10,6 +10,11 @@ import com.googlecode.mapperdao.TypeRef
 import com.googlecode.mapperdao.UpdateInfo
 import com.googlecode.mapperdao.Persisted
 import com.googlecode.mapperdao.utils.LowerCaseMutableMap
+import com.googlecode.mapperdao.SelectConfig
+import com.googlecode.mapperdao.jdbc.JdbcMap
+import com.googlecode.mapperdao.EntityMap
+import com.googlecode.mapperdao.ValuesMap
+import com.googlecode.mapperdao.utils.TraversableSeparation
 
 /**
  * @author kostantinos.kougios
@@ -69,6 +74,95 @@ class OneToManyInsertPlugin(mapperDao: MapperDao) extends BeforeInsert with Post
 						val cName = cis.column.alias
 						modifiedTraversables(cName) = newO
 					}
+				}
+			}
+		}
+}
+
+/**
+ * @author kostantinos.kougios
+ *
+ * 31 Aug 2011
+ */
+class OneToManySelectPlugin(mapperDao: MapperDao) extends BeforeSelect with SelectMock {
+	private val typeRegistry = mapperDao.typeRegistry
+	private val driver = mapperDao.driver
+
+	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any] = Nil
+
+	override def before[PC, T](tpe: Type[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]) =
+		{
+			val table = tpe.table
+			// one to many
+			table.oneToManyColumnInfos.foreach { ci =>
+				val c = ci.column
+				val otmL = if (selectConfig.skip(ci)) {
+					Nil
+				} else {
+					val ftpe = typeRegistry.typeOf(c.foreign.clz)
+					val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+					val fom = driver.doSelect(ftpe, c.foreignColumns.zip(ids))
+					entities.down(tpe, ci, om)
+					val v = mapperDao.toEntities(fom, ftpe, selectConfig, entities)
+					entities.up
+					v
+				}
+				mods(c.foreign.alias) = otmL
+			}
+		}
+
+	override def updateMock[PC, T](tpe: Type[PC, T], mods: scala.collection.mutable.HashMap[String, Any]) {
+		mods ++= tpe.table.oneToManyColumns.map(c => (c.alias -> List()))
+	}
+}
+
+/**
+ * @author kostantinos.kougios
+ *
+ * 31 Aug 2011
+ */
+class OneToManyUpdatePlugin(mapperDao: MapperDao) extends PostUpdate {
+	val typeRegistry = mapperDao.typeRegistry
+
+	def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
+		{
+			// update one-to-many
+			val table = tpe.table
+
+			table.oneToManyColumnInfos.foreach { ci =>
+				val t: Traversable[Any] = ci.columnToValue(o)
+
+				val oneToMany = ci.column
+				// we'll get the 2 traversables and update the database
+				// based on their differences
+				val newValues = t.toList
+				val oldValues = oldValuesMap.seq[Any](oneToMany.foreign.alias)
+
+				val (added, intersection, removed) = TraversableSeparation.separate(oldValues, newValues)
+
+				// update the removed ones
+				removed.foreach { item =>
+					val fe = typeRegistry.entityOfObject[Any, Any](item)
+					mapperDao.delete(fe, item)
+				}
+
+				// update those that remained in the updated traversable
+				intersection.foreach { item =>
+					val fe = typeRegistry.entityOfObject[Any, Any](item)
+					entityMap.down(mockO, ci)
+					val newItem = mapperDao.updateInner(fe, item, entityMap)
+					entityMap.up
+					item.asInstanceOf[Persisted].discarded = true
+					modified(oneToMany.alias) = newItem
+					//addToMap(oneToMany.alias, newItem, modifiedTraversables)
+				}
+				// find the added ones
+				added.foreach { item =>
+					val fe = typeRegistry.entityOfObject(item)
+					entityMap.down(mockO, ci)
+					val newItem: Any = mapperDao.insertInner(fe, item, entityMap);
+					entityMap.up
+					modified(oneToMany.alias) = newItem
 				}
 			}
 		}

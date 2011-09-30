@@ -377,10 +377,16 @@ final class MapperDao(val driver: Driver) {
 			mock
 		}
 
+	val defaultDeleteConfig = DeleteConfig()
+	/**
+	 * deletes an entity from the database. By default, related entities won't be deleted, please use
+	 * delete(deleteConfig, entity, o) to fine tune the operation
+	 */
+	def delete[PC, T](entity: Entity[PC, T], o: T with PC): T = delete(defaultDeleteConfig, entity, o)
 	/**
 	 * deletes an entity from the database
 	 */
-	def delete[PC, T](entity: Entity[PC, T], o: T with PC): T =
+	def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T =
 		{
 			if (!o.isInstanceOf[Persisted]) throw new IllegalArgumentException("can't delete an object that is not persisted: " + o);
 
