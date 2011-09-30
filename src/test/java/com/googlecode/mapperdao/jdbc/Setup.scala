@@ -1,20 +1,21 @@
 package com.googlecode.mapperdao.jdbc
 import java.util.Properties
-import org.apache.commons.dbcp.BasicDataSourceFactory
-import com.googlecode.mapperdao.drivers.PostgreSql
-import com.googlecode.mapperdao.MapperDao
-import com.googlecode.mapperdao.TypeRegistry
-import com.googlecode.mapperdao.DefaultTypeManager
-import com.googlecode.mapperdao.QueryDao
-import com.googlecode.mapperdao.drivers.Mysql
-import org.scala_tools.time.Imports._
-import org.slf4j.LoggerFactory
-import org.slf4j.LoggerFactory
-import org.slf4j.Logger
-import com.googlecode.mapperdao.drivers.Oracle
-import java.sql.SQLSyntaxErrorException
-import com.googlecode.mapperdao.drivers.Derby
+
 import org.apache.commons.dbcp.BasicDataSource
+import org.apache.commons.dbcp.BasicDataSourceFactory
+import org.scala_tools.time.Imports._
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.slf4j.LoggerFactory
+
+import com.googlecode.mapperdao.drivers.Derby
+import com.googlecode.mapperdao.drivers.Mysql
+import com.googlecode.mapperdao.drivers.Oracle
+import com.googlecode.mapperdao.drivers.PostgreSql
+import com.googlecode.mapperdao.DefaultTypeManager
+import com.googlecode.mapperdao.MapperDao
+import com.googlecode.mapperdao.QueryDao
+import com.googlecode.mapperdao.TypeRegistry
 
 /**
  * creates an environment for specs
@@ -142,4 +143,6 @@ object Setup {
 				""".format(table))
 
 	}
+
+	def queries(o: AnyRef, jdbc: Jdbc) = Queries.fromClassPath(o.getClass, jdbc, "/sql/%s.%s.sql".format(o.getClass.getSimpleName, database))
 }
