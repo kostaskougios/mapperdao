@@ -10,6 +10,8 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.EntityMap
 import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.SelectConfig
+import com.googlecode.mapperdao.DeleteConfig
+import com.googlecode.mapperdao.SimpleColumn
 
 /**
  * plugins executed before the main entity is inserted
@@ -75,4 +77,11 @@ trait BeforeSelect {
 
 trait SelectMock {
 	def updateMock[PC, T](tpe: Type[PC, T], mods: scala.collection.mutable.HashMap[String, Any])
+}
+
+/**
+ * plugins executed before deleting an entity
+ */
+trait BeforeDelete {
+	def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, keyValues: List[(SimpleColumn, Any)]): Unit
 }

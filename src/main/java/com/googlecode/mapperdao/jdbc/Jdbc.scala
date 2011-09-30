@@ -191,5 +191,11 @@ class Jdbc(val dataSource: DataSource, val typeManager: TypeManager) {
 			new UpdateResultWithGeneratedKeys(rowsAffected, keys)
 		}
 
+	def updateConcatSqls(sql: List[(String, Boolean)], args: Any*) =
+		{
+			val s = sql.filter(_._2).map(_._1).mkString
+			if (args.length == 0) update(s) else update(s, args)
+		}
+
 	override def toString = "Jdbc(%s)".format(dataSource)
 }

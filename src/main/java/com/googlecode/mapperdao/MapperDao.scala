@@ -29,6 +29,8 @@ import com.googlecode.mapperdao.plugins.OneToOneUpdatePlugin
 import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.plugins.SelectMock
 import utils.LowerCaseMutableMap
+import com.googlecode.mapperdao.plugins.BeforeDelete
+import com.googlecode.mapperdao.plugins.ManyToManyDeletePlugin
 /**
  * @author kostantinos.kougios
  *
@@ -45,7 +47,7 @@ final class MapperDao(val driver: Driver) {
 	private val postInsertPlugins = List[PostInsert](new OneToOneReverseInsertPlugin(this), new OneToManyInsertPlugin(this), new ManyToManyInsertPlugin(this))
 	private val selectBeforePlugins: List[BeforeSelect] = List(new ManyToOneSelectPlugin(this), new OneToManySelectPlugin(this), new OneToOneReverseSelectPlugin(this), new OneToOneSelectPlugin(this), new ManyToManySelectPlugin(this))
 	private val mockPlugins: List[SelectMock] = List(new OneToManySelectPlugin(this), new ManyToManySelectPlugin(this), new ManyToOneSelectPlugin(this), new OneToOneSelectPlugin(this))
-
+	private val beforeDeletePlugins: List[BeforeDelete] = List(new ManyToManyDeletePlugin(this))
 	/**
 	 * ===================================================================================
 	 * Utility methods
@@ -399,6 +401,11 @@ final class MapperDao(val driver: Driver) {
 
 			try {
 				val keyValues = table.toListOfPrimaryKeySimpleColumnAndValueTuples(o)
+
+				beforeDeletePlugins.foreach { plugin =>
+					plugin.before(tpe, deleteConfig, keyValues)
+				}
+
 				driver.doDelete(tpe, keyValues)
 				o
 			} catch {

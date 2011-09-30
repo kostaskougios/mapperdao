@@ -175,6 +175,16 @@ trait Driver {
 			sb.toString
 		}
 
+	def doDeleteAllManyToManyRef[PC, T](tpe: Type[PC, T], manyToMany: ManyToMany[_], fkKeyValues: List[Any]): UpdateResult = {
+		val sql = deleteAllManyToManyRef(tpe, manyToMany, fkKeyValues)
+		jdbc.update(sql, fkKeyValues)
+	}
+	protected def deleteAllManyToManyRef[PC, T](tpe: Type[PC, T], manyToMany: ManyToMany[_], fkKeyValues: List[Any]): String = {
+		val sb = new StringBuilder(50, "delete from ")
+		sb append escapeTableNames(manyToMany.linkTable.name) append "\nwhere "
+		sb append generateColumnsEqualsValueString("", " and ", manyToMany.linkTable.left)
+		sb.toString
+	}
 	/**
 	 * =====================================================================================
 	 * SELECT
