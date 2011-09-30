@@ -32,6 +32,7 @@ import utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.plugins.BeforeDelete
 import com.googlecode.mapperdao.plugins.ManyToManyDeletePlugin
 import com.googlecode.mapperdao.plugins.OneToManyDeletePlugin
+import com.googlecode.mapperdao.plugins.OneToOneReverseDeletePlugin
 /**
  * @author kostantinos.kougios
  *
@@ -48,7 +49,7 @@ final class MapperDao(val driver: Driver) {
 	private val postInsertPlugins = List[PostInsert](new OneToOneReverseInsertPlugin(this), new OneToManyInsertPlugin(this), new ManyToManyInsertPlugin(this))
 	private val selectBeforePlugins: List[BeforeSelect] = List(new ManyToOneSelectPlugin(this), new OneToManySelectPlugin(this), new OneToOneReverseSelectPlugin(this), new OneToOneSelectPlugin(this), new ManyToManySelectPlugin(this))
 	private val mockPlugins: List[SelectMock] = List(new OneToManySelectPlugin(this), new ManyToManySelectPlugin(this), new ManyToOneSelectPlugin(this), new OneToOneSelectPlugin(this))
-	private val beforeDeletePlugins: List[BeforeDelete] = List(new ManyToManyDeletePlugin(this), new OneToManyDeletePlugin(this))
+	private val beforeDeletePlugins: List[BeforeDelete] = List(new ManyToManyDeletePlugin(this), new OneToManyDeletePlugin(this), new OneToOneReverseDeletePlugin(this))
 	/**
 	 * ===================================================================================
 	 * Utility methods
@@ -139,7 +140,7 @@ final class MapperDao(val driver: Driver) {
 		{
 			val tpe = typeRegistry.typeOf(entity)
 
-				def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
+			def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
 
 			val table = tpe.table
 

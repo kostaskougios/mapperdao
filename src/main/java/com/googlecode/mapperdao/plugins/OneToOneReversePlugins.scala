@@ -1,20 +1,23 @@
 package com.googlecode.mapperdao.plugins
 
-import com.googlecode.mapperdao.UpdateEntityMap
-import com.googlecode.mapperdao.Type
+import java.lang.IllegalStateException
+import com.googlecode.mapperdao.jdbc.JdbcMap
+import com.googlecode.mapperdao.utils.LowerCaseMutableMap
+import com.googlecode.mapperdao.utils.MapOfList
+import com.googlecode.mapperdao.OneToOneReverse
+import com.googlecode.mapperdao.Column
+import com.googlecode.mapperdao.ColumnInfoOneToOneReverse
+import com.googlecode.mapperdao.EntityMap
 import com.googlecode.mapperdao.MapperDao
 import com.googlecode.mapperdao.Persisted
-import com.googlecode.mapperdao.utils.MapOfList
-import com.googlecode.mapperdao.Column
-import com.googlecode.mapperdao.UpdateInfo
-import com.googlecode.mapperdao.OneToOneReverse
-import com.googlecode.mapperdao.utils.LowerCaseMutableMap
-import com.googlecode.mapperdao.SelectInfo
-import com.googlecode.mapperdao.jdbc.JdbcMap
-import com.googlecode.mapperdao.EntityMap
-import com.googlecode.mapperdao.ColumnInfoOneToOneReverse
 import com.googlecode.mapperdao.SelectConfig
+import com.googlecode.mapperdao.SelectInfo
+import com.googlecode.mapperdao.Type
+import com.googlecode.mapperdao.UpdateEntityMap
+import com.googlecode.mapperdao.UpdateInfo
 import com.googlecode.mapperdao.ValuesMap
+import com.googlecode.mapperdao.DeleteConfig
+import com.googlecode.mapperdao.SimpleColumn
 
 /**
  * @author kostantinos.kougios
@@ -173,4 +176,16 @@ class OneToOneReverseUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate wit
 				}
 			}
 		}
+}
+
+class OneToOneReverseDeletePlugin(mapperDao: MapperDao) extends BeforeDelete {
+	private val driver = mapperDao.driver
+	private val typeRegistry = mapperDao.typeRegistry
+
+	override def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)]) = if (deleteConfig.propagate) {
+		tpe.table.oneToOneReverseColumnInfos.foreach { ci =>
+			val ftpe = typeRegistry.typeOf(ci.column.foreign.clz).asInstanceOf[Type[Nothing, Any]]
+			driver.doDeleteOneToOneReverse(tpe, ftpe, ci.column.asInstanceOf[OneToOneReverse[Any]], keyValues.map(_._2))
+		}
+	}
 }
