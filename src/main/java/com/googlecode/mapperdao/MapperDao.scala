@@ -31,6 +31,7 @@ import com.googlecode.mapperdao.plugins.SelectMock
 import utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.plugins.BeforeDelete
 import com.googlecode.mapperdao.plugins.ManyToManyDeletePlugin
+import com.googlecode.mapperdao.plugins.OneToManyDeletePlugin
 /**
  * @author kostantinos.kougios
  *
@@ -47,7 +48,7 @@ final class MapperDao(val driver: Driver) {
 	private val postInsertPlugins = List[PostInsert](new OneToOneReverseInsertPlugin(this), new OneToManyInsertPlugin(this), new ManyToManyInsertPlugin(this))
 	private val selectBeforePlugins: List[BeforeSelect] = List(new ManyToOneSelectPlugin(this), new OneToManySelectPlugin(this), new OneToOneReverseSelectPlugin(this), new OneToOneSelectPlugin(this), new ManyToManySelectPlugin(this))
 	private val mockPlugins: List[SelectMock] = List(new OneToManySelectPlugin(this), new ManyToManySelectPlugin(this), new ManyToOneSelectPlugin(this), new OneToOneSelectPlugin(this))
-	private val beforeDeletePlugins: List[BeforeDelete] = List(new ManyToManyDeletePlugin(this))
+	private val beforeDeletePlugins: List[BeforeDelete] = List(new ManyToManyDeletePlugin(this), new OneToManyDeletePlugin(this))
 	/**
 	 * ===================================================================================
 	 * Utility methods
@@ -392,7 +393,7 @@ final class MapperDao(val driver: Driver) {
 		{
 			if (!o.isInstanceOf[Persisted]) throw new IllegalArgumentException("can't delete an object that is not persisted: " + o);
 
-			val persisted = o.asInstanceOf[Persisted]
+			val persisted = o.asInstanceOf[T with PC with Persisted]
 			if (persisted.discarded) throw new IllegalArgumentException("can't operate on an object twice. An object that was updated/deleted must be discarded and replaced by the return value of update(), i.e. onew=update(o) or just be disposed if it was deleted. The offending object was : " + o);
 			persisted.discarded = true
 
@@ -403,7 +404,7 @@ final class MapperDao(val driver: Driver) {
 				val keyValues = table.toListOfPrimaryKeySimpleColumnAndValueTuples(o)
 
 				beforeDeletePlugins.foreach { plugin =>
-					plugin.before(tpe, deleteConfig, keyValues)
+					plugin.before(tpe, deleteConfig, persisted, keyValues)
 				}
 
 				driver.doDelete(tpe, keyValues)
