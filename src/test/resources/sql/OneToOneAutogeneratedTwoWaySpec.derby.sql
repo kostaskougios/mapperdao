@@ -1,6 +1,6 @@
 [cascade]
 create table Product (
-	id int not null,
+	id int not null GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
 	x int not null,
 	primary key (id)
 )
@@ -14,13 +14,13 @@ create table Inventory (
 
 [nocascade]
 create table Product (
-	id int not null,
+	id int not null GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
 	x int not null,
 	primary key (id)
 )
 ;
 create table Inventory (
-	product_id int null,
+	product_id int,
 	stock int not null,
 	foreign key (product_id) references Product(id) on delete set null
 )

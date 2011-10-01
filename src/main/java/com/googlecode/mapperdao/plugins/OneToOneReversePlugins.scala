@@ -183,7 +183,7 @@ class OneToOneReverseDeletePlugin(mapperDao: MapperDao) extends BeforeDelete {
 	private val typeRegistry = mapperDao.typeRegistry
 
 	override def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)]) = if (deleteConfig.propagate) {
-		tpe.table.oneToOneReverseColumnInfos.foreach { ci =>
+		tpe.table.oneToOneReverseColumnInfos.filterNot(deleteConfig.skip(_)).foreach { ci =>
 			val ftpe = typeRegistry.typeOf(ci.column.foreign.clz).asInstanceOf[Type[Nothing, Any]]
 			driver.doDeleteOneToOneReverse(tpe, ftpe, ci.column.asInstanceOf[OneToOneReverse[Any]], keyValues.map(_._2))
 		}

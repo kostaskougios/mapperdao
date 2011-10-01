@@ -1,6 +1,6 @@
 [cascade]
 create table Product (
-	id int not null,
+	id serial not null,
 	x int not null,
 	primary key (id)
 )
@@ -14,7 +14,7 @@ create table Inventory (
 
 [nocascade]
 create table Product (
-	id int not null,
+	id serial not null,
 	x int not null,
 	primary key (id)
 )
