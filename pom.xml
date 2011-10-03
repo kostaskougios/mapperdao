@@ -197,6 +197,20 @@
 				</configuration>
 				<executions>
 					<execution>
+						<id>postgresql</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<argLine>-Ddatabase=postgresql</argLine>
+							<includes>
+								<include>**/*Spec.class</include>
+							</includes>
+						</configuration>
+					</execution>
+					<execution>
 						<id>oracle</id>
 						<phase>test</phase>
 						<goals>
@@ -233,20 +247,6 @@
 						<configuration>
 							<skip>false</skip>
 							<argLine>-Ddatabase=mysql</argLine>
-							<includes>
-								<include>**/*Spec.class</include>
-							</includes>
-						</configuration>
-					</execution>
-					<execution>
-						<id>postgresql</id>
-						<phase>test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-						<configuration>
-							<skip>false</skip>
-							<argLine>-Ddatabase=postgresql</argLine>
 							<includes>
 								<include>**/*Spec.class</include>
 							</includes>

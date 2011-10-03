@@ -36,14 +36,15 @@ object Setup {
 
 	def now = DateTime.now.withMillisOfSecond(0)
 
-	def setupJdbc: Jdbc =
-		{
-			val properties = new Properties
-			logger.debug("connecting to %s".format(database))
-			properties.load(getClass.getResourceAsStream("/jdbc.test.%s.properties".format(database)))
-			val dataSource = BasicDataSourceFactory.createDataSource(properties).asInstanceOf[BasicDataSource]
-			new Jdbc(dataSource, typeManager)
-		}
+	private var jdbc: Jdbc = null
+	def setupJdbc: Jdbc = if (jdbc == null) {
+		val properties = new Properties
+		logger.debug("connecting to %s".format(database))
+		properties.load(getClass.getResourceAsStream("/jdbc.test.%s.properties".format(database)))
+		val dataSource = BasicDataSourceFactory.createDataSource(properties).asInstanceOf[BasicDataSource]
+		jdbc = new Jdbc(dataSource, typeManager)
+		jdbc
+	} else jdbc
 
 	def setupMapperDao(typeRegistry: TypeRegistry): (Jdbc, MapperDao) =
 		{
