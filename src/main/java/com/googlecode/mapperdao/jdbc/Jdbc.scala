@@ -32,6 +32,9 @@ import org.springframework.jdbc.core.SqlTypeValue
  * 11 Jul 2011
  */
 class Jdbc(val dataSource: DataSource, val typeManager: TypeManager) {
+	if (dataSource == null) throw new NullPointerException("dataSource shouldn't be null")
+	if (typeManager == null) throw new NullPointerException("typeManager shouldn't be null")
+
 	private val j = new SimpleJdbcTemplate(dataSource)
 	private val logger: Logger = LoggerFactory.getLogger(getClass)
 	private def seq(args: Any*) = args.toSeq.asInstanceOf[Seq[AnyRef]]
