@@ -1,9 +1,4 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<parent>
-		<groupId>org.sonatype.oss</groupId>
-		<artifactId>oss-parent</artifactId>
-		<version>7</version>
-	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.googlecode.mapperdao</groupId>
 	<artifactId>mapperdao</artifactId>
@@ -16,11 +11,12 @@
     * no references to mapperdao outside of dao classes
     * no special rules or restrictions for entities. No reference to mapperdao within entities, no annotations necessary.
     * promotes and encourages immutability for the domain classes
+    * map in one database, run in all supported databases
+    * oracle, postgresql, mysql, derby drivers
     * the library is not based on reflection
     * type safe
     * DSL for queries which resembles typical select statements. Minimal learning curve.
     * uses spring's JdbcTemplate for low level database access, taking advantage of the api but without the need for mapperdao to be used within spring framework. Connecting to databases, transactions etc can be configured without (and ofcourse within) spring. MapperDao is spring friendly and all spring's database related features can be used when creating dao's with mapperdao.
-    * postgresql & mysql support, oracle support to be available soon
     * uses joda datetime (immutable date & time classes) to manage datetimes but java.util.Calendar is also supported 
     ]]></description>
 	<url>https://code.google.com/p/mapperdao/</url>
@@ -73,6 +69,7 @@
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-library</artifactId>
 			<version>${scala.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-dbcp</groupId>
@@ -191,7 +188,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.9</version>
+				<version>2.10</version>
 				<configuration>
 					<skip>true</skip>
 				</configuration>
