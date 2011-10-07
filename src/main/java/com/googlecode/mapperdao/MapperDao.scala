@@ -410,17 +410,13 @@ final class MapperDao(val driver: Driver, events: Events) {
 				}
 
 				// execute the before-delete events
-				events.deleteEvents.foreach { event =>
-					event.beforeDeleteEntity(tpe, keyValues)
-				}
+				events.executeBeforeDeleteEvents(tpe, keyValues, o)
 
 				// do the actual delete database op
 				driver.doDelete(tpe, keyValues)
 
 				// execute the after-delete events
-				events.deleteEvents.foreach { event =>
-					event.afterDeleteEntity(tpe, keyValues)
-				}
+				events.executeAfterDeleteEvents(tpe, keyValues, o)
 
 				// return the object
 				o

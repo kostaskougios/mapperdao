@@ -175,6 +175,10 @@ class OneToManyDeletePlugin(mapperDao: MapperDao) extends BeforeDelete {
 	val typeRegistry = mapperDao.typeRegistry
 	override def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)]) = if (deleteConfig.propagate) {
 		tpe.table.oneToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach { ci =>
+
+			// execute before-delete-relationship events
+			events.executeBeforeDeleteRelationshipEvents(tpe, ci, o)
+
 			val fOTraversable = ci.columnToValue(o)
 			if (fOTraversable != null) fOTraversable.foreach { fO =>
 				val fOPersisted = fO.asInstanceOf[Persisted]
@@ -183,6 +187,9 @@ class OneToManyDeletePlugin(mapperDao: MapperDao) extends BeforeDelete {
 					mapperDao.delete(deleteConfig, fEntity, fOPersisted)
 				}
 			}
+
+			// execute after-delete-relationship events
+			events.executeAfterDeleteRelationshipEvents(tpe, ci, o)
 		}
 	}
 }

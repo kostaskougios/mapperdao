@@ -163,7 +163,13 @@ class ManyToManyDeletePlugin(mapperDao: MapperDao) extends BeforeDelete {
 	val driver = mapperDao.driver
 	override def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)]) = if (deleteConfig.propagate) {
 		tpe.table.manyToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach { ci =>
+			// execute before-delete-relationship events
+			events.executeBeforeDeleteRelationshipEvents(tpe, ci, o)
+
 			driver.doDeleteAllManyToManyRef(tpe, ci.column, keyValues.map(_._2))
+
+			// execute after-delete-relationship events
+			events.executeAfterDeleteRelationshipEvents(tpe, ci, o)
 		}
 	}
 }

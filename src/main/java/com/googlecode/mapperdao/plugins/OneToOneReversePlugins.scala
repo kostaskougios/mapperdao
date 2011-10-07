@@ -185,8 +185,15 @@ class OneToOneReverseDeletePlugin(mapperDao: MapperDao) extends BeforeDelete {
 
 	override def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)]) = if (deleteConfig.propagate) {
 		tpe.table.oneToOneReverseColumnInfos.filterNot(deleteConfig.skip(_)).foreach { ci =>
+
+			// execute before-delete-relationship events
+			events.executeBeforeDeleteRelationshipEvents(tpe, ci, o)
+
 			val ftpe = typeRegistry.typeOf(ci.column.foreign.clz).asInstanceOf[Type[Nothing, Any]]
 			driver.doDeleteOneToOneReverse(tpe, ftpe, ci.column.asInstanceOf[OneToOneReverse[Any]], keyValues.map(_._2))
+
+			// execute after-delete-relationship events
+			events.executeAfterDeleteRelationshipEvents(tpe, ci, o)
 		}
 	}
 }
