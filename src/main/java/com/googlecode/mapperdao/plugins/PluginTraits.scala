@@ -12,6 +12,7 @@ import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.SelectConfig
 import com.googlecode.mapperdao.DeleteConfig
 import com.googlecode.mapperdao.SimpleColumn
+import com.googlecode.mapperdao.Events
 
 /**
  * plugins executed before the main entity is inserted
@@ -83,5 +84,5 @@ trait SelectMock {
  * plugins executed before deleting an entity
  */
 trait BeforeDelete {
-	def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)]): Unit
+	def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)]): Unit
 }

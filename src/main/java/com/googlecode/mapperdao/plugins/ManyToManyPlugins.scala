@@ -14,6 +14,7 @@ import com.googlecode.mapperdao.utils.TraversableSeparation
 import com.googlecode.mapperdao.Persisted
 import com.googlecode.mapperdao.DeleteConfig
 import com.googlecode.mapperdao.SimpleColumn
+import com.googlecode.mapperdao.Events
 
 /**
  * @author kostantinos.kougios
@@ -160,7 +161,7 @@ class ManyToManyUpdatePlugin(mapperDao: MapperDao) extends PostUpdate {
 
 class ManyToManyDeletePlugin(mapperDao: MapperDao) extends BeforeDelete {
 	val driver = mapperDao.driver
-	override def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)]) = if (deleteConfig.propagate) {
+	override def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)]) = if (deleteConfig.propagate) {
 		tpe.table.manyToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach { ci =>
 			driver.doDeleteAllManyToManyRef(tpe, ci.column, keyValues.map(_._2))
 		}

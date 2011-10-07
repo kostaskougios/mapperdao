@@ -10,5 +10,5 @@ trait DeleteRelationshipEvent {
 }
 
 class Events(
-	deleteEvents: List[DeleteEvent] = List(),
-	deleteRelationshipEvents: List[DeleteRelationshipEvent] = List())
+	val deleteEvents: List[DeleteEvent] = List(),
+	val deleteRelationshipEvents: List[DeleteRelationshipEvent] = List())

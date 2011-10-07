@@ -37,7 +37,6 @@ import com.googlecode.mapperdao.plugins.OneToOneReverseDeletePlugin
  * @author kostantinos.kougios
  *
  * 13 Jul 2011
- * import com.googlecode.mapperdao.jdbc.JdbcMap
  */
 final class MapperDao(val driver: Driver, events: Events) {
 	val typeRegistry = driver.typeRegistry
@@ -404,11 +403,25 @@ final class MapperDao(val driver: Driver, events: Events) {
 			try {
 				val keyValues = table.toListOfPrimaryKeySimpleColumnAndValueTuples(o)
 
+				// call all the before-delete plugins
 				beforeDeletePlugins.foreach { plugin =>
-					plugin.before(tpe, deleteConfig, persisted, keyValues)
+					plugin.before(tpe, deleteConfig, events, persisted, keyValues)
 				}
 
+				// execute the before-delete events
+				events.deleteEvents.foreach { event =>
+					event.beforeDeleteEntity(tpe, keyValues)
+				}
+
+				// do the actual delete database op
 				driver.doDelete(tpe, keyValues)
+
+				// execute the after-delete events
+				events.deleteEvents.foreach { event =>
+					event.afterDeleteEntity(tpe, keyValues)
+				}
+
+				// return the object
 				o
 			} catch {
 				case e => throw new PersistException("An error occured during delete of entity %s with value %s".format(entity, o), e)

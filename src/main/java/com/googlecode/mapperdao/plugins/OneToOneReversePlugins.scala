@@ -18,6 +18,7 @@ import com.googlecode.mapperdao.UpdateInfo
 import com.googlecode.mapperdao.ValuesMap
 import com.googlecode.mapperdao.DeleteConfig
 import com.googlecode.mapperdao.SimpleColumn
+import com.googlecode.mapperdao.Events
 
 /**
  * @author kostantinos.kougios
@@ -182,7 +183,7 @@ class OneToOneReverseDeletePlugin(mapperDao: MapperDao) extends BeforeDelete {
 	private val driver = mapperDao.driver
 	private val typeRegistry = mapperDao.typeRegistry
 
-	override def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)]) = if (deleteConfig.propagate) {
+	override def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)]) = if (deleteConfig.propagate) {
 		tpe.table.oneToOneReverseColumnInfos.filterNot(deleteConfig.skip(_)).foreach { ci =>
 			val ftpe = typeRegistry.typeOf(ci.column.foreign.clz).asInstanceOf[Type[Nothing, Any]]
 			driver.doDeleteOneToOneReverse(tpe, ftpe, ci.column.asInstanceOf[OneToOneReverse[Any]], keyValues.map(_._2))

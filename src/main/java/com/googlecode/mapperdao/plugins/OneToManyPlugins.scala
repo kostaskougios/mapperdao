@@ -17,6 +17,7 @@ import com.googlecode.mapperdao.ValuesMap
 import com.googlecode.mapperdao.utils.TraversableSeparation
 import com.googlecode.mapperdao.DeleteConfig
 import com.googlecode.mapperdao.SimpleColumn
+import com.googlecode.mapperdao.Events
 
 /**
  * @author kostantinos.kougios
@@ -172,7 +173,7 @@ class OneToManyUpdatePlugin(mapperDao: MapperDao) extends PostUpdate {
 
 class OneToManyDeletePlugin(mapperDao: MapperDao) extends BeforeDelete {
 	val typeRegistry = mapperDao.typeRegistry
-	override def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)]) = if (deleteConfig.propagate) {
+	override def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)]) = if (deleteConfig.propagate) {
 		tpe.table.oneToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach { ci =>
 			val fOTraversable = ci.columnToValue(o)
 			if (fOTraversable != null) fOTraversable.foreach { fO =>
