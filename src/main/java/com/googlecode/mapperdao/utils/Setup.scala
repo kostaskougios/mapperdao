@@ -21,7 +21,7 @@ object Setup {
 			val typeManager = new DefaultTypeManager
 			val jdbc = new Jdbc(dataSource, typeManager)
 			val driver = new PostgreSql(jdbc, typeRegistry)
-			val mapperDao = new MapperDao(driver)
+			val mapperDao = new MapperDao(driver, standardEvents)
 			val queryDao = new QueryDao(mapperDao)
 			(jdbc, mapperDao, queryDao)
 		}
@@ -34,7 +34,7 @@ object Setup {
 			val typeManager = new DefaultTypeManager
 			val jdbc = new Jdbc(dataSource, typeManager)
 			val driver = new Mysql(jdbc, typeRegistry)
-			val mapperDao = new MapperDao(driver)
+			val mapperDao = new MapperDao(driver, standardEvents)
 			val queryDao = new QueryDao(mapperDao)
 			(jdbc, mapperDao, queryDao)
 		}
@@ -47,7 +47,7 @@ object Setup {
 			val typeManager = new DefaultTypeManager
 			val jdbc = new Jdbc(dataSource, typeManager)
 			val driver = new Oracle(jdbc, typeRegistry)
-			val mapperDao = new MapperDao(driver)
+			val mapperDao = new MapperDao(driver, standardEvents)
 			val queryDao = new QueryDao(mapperDao)
 			(jdbc, mapperDao, queryDao)
 		}
@@ -60,8 +60,10 @@ object Setup {
 			val typeManager = new DefaultTypeManager
 			val jdbc = new Jdbc(dataSource, typeManager)
 			val driver = new Derby(jdbc, typeRegistry)
-			val mapperDao = new MapperDao(driver)
+			val mapperDao = new MapperDao(driver, standardEvents)
 			val queryDao = new QueryDao(mapperDao)
 			(jdbc, mapperDao, queryDao)
 		}
+
+	def standardEvents = new Events
 }

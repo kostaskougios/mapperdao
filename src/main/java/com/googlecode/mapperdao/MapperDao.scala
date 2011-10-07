@@ -39,7 +39,7 @@ import com.googlecode.mapperdao.plugins.OneToOneReverseDeletePlugin
  * 13 Jul 2011
  * import com.googlecode.mapperdao.jdbc.JdbcMap
  */
-final class MapperDao(val driver: Driver) {
+final class MapperDao(val driver: Driver, events: Events) {
 	val typeRegistry = driver.typeRegistry
 	val typeManager = driver.jdbc.typeManager
 

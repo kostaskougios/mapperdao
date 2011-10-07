@@ -1,13 +1,11 @@
 package com.googlecode.mapperdao.jdbc
 import java.util.Properties
-
 import org.apache.commons.dbcp.BasicDataSource
 import org.apache.commons.dbcp.BasicDataSourceFactory
 import org.scala_tools.time.Imports._
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.LoggerFactory
-
 import com.googlecode.mapperdao.drivers.Derby
 import com.googlecode.mapperdao.drivers.Mysql
 import com.googlecode.mapperdao.drivers.Oracle
@@ -16,6 +14,7 @@ import com.googlecode.mapperdao.DefaultTypeManager
 import com.googlecode.mapperdao.MapperDao
 import com.googlecode.mapperdao.QueryDao
 import com.googlecode.mapperdao.TypeRegistry
+import com.googlecode.mapperdao.Events
 
 /**
  * creates an environment for specs
@@ -46,7 +45,7 @@ object Setup {
 		jdbc
 	} else jdbc
 
-	def setupMapperDao(typeRegistry: TypeRegistry): (Jdbc, MapperDao) =
+	def setupMapperDao(typeRegistry: TypeRegistry, events: Events = new Events): (Jdbc, MapperDao) =
 		{
 			val jdbc = setupJdbc
 			val driver = database match {
@@ -55,7 +54,7 @@ object Setup {
 				case "oracle" => new Oracle(jdbc, typeRegistry)
 				case "derby" => new Derby(jdbc, typeRegistry)
 			}
-			val mapperDao = new MapperDao(driver)
+			val mapperDao = new MapperDao(driver, events)
 			(jdbc, mapperDao)
 		}
 
