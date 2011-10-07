@@ -12,7 +12,7 @@ import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.SelectConfig
 import com.googlecode.mapperdao.DeleteConfig
 import com.googlecode.mapperdao.SimpleColumn
-import com.googlecode.mapperdao.Events
+import com.googlecode.mapperdao.events.Events
 
 /**
  * plugins executed before the main entity is inserted

@@ -4,6 +4,7 @@ import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.drivers._
 import javax.sql.DataSource
 import com.googlecode.mapperdao.jdbc.Jdbc
+import com.googlecode.mapperdao.events.Events
 /**
  * a factory for simple configuration of mapperdao
  *

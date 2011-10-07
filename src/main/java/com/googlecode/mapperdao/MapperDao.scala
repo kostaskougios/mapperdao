@@ -33,6 +33,7 @@ import com.googlecode.mapperdao.plugins.BeforeDelete
 import com.googlecode.mapperdao.plugins.ManyToManyDeletePlugin
 import com.googlecode.mapperdao.plugins.OneToManyDeletePlugin
 import com.googlecode.mapperdao.plugins.OneToOneReverseDeletePlugin
+import com.googlecode.mapperdao.events.Events
 /**
  * @author kostantinos.kougios
  *

@@ -14,7 +14,7 @@ import com.googlecode.mapperdao.DefaultTypeManager
 import com.googlecode.mapperdao.MapperDao
 import com.googlecode.mapperdao.QueryDao
 import com.googlecode.mapperdao.TypeRegistry
-import com.googlecode.mapperdao.Events
+import com.googlecode.mapperdao.events.Events
 
 /**
  * creates an environment for specs

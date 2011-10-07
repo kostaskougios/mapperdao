@@ -17,7 +17,7 @@ import com.googlecode.mapperdao.ValuesMap
 import com.googlecode.mapperdao.utils.TraversableSeparation
 import com.googlecode.mapperdao.DeleteConfig
 import com.googlecode.mapperdao.SimpleColumn
-import com.googlecode.mapperdao.Events
+import com.googlecode.mapperdao.events.Events
 
 /**
  * @author kostantinos.kougios

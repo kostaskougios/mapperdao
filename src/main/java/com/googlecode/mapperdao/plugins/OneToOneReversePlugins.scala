@@ -18,7 +18,7 @@ import com.googlecode.mapperdao.UpdateInfo
 import com.googlecode.mapperdao.ValuesMap
 import com.googlecode.mapperdao.DeleteConfig
 import com.googlecode.mapperdao.SimpleColumn
-import com.googlecode.mapperdao.Events
+import com.googlecode.mapperdao.events.Events
 
 /**
  * @author kostantinos.kougios

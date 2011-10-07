@@ -1,4 +1,8 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.events
+
+import com.googlecode.mapperdao.SimpleColumn
+import com.googlecode.mapperdao.ColumnInfoRelationshipBase
+import com.googlecode.mapperdao.Type
 
 trait DeleteEvent {
 	def beforeDeleteEntity[PC, T](tpe: Type[PC, T], keyValues: List[(SimpleColumn, Any)]) = {}
