@@ -11,22 +11,64 @@ import utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.events.Events
 
 trait MapperDao {
+
+	// insert
 	def insert[PC, T](entity: Entity[PC, T], o: T): T with PC
+
+	// update
 	def update[PC, T](entity: Entity[PC, T], o: T with PC): T with PC
 	def update[PC, T](entity: Entity[PC, T], o: T with PC, newO: T): T with PC
-	def select[PC, T](entity: Entity[PC, T], id: Any): Option[T with PC]
-	def select[PC, T](entity: Entity[PC, T], id1: Any, id2: Any): Option[T with PC]
-	def select[PC, T](entity: Entity[PC, T], id1: Any, id2: Any, id3: Any): Option[T with PC]
 
-	def select[PC, T](entity: Entity[PC, T], ids: List[Any]): Option[T with PC]
-	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], id: Any): Option[T with PC]
+	// select
+	/**
+	 * select an entity by it's ID
+	 *
+	 * @param clz		Class[T], classOf[Entity]
+	 * @param id		the id
+	 * @return			Option[T] or None
+	 */
+	def select[PC, T](entity: Entity[PC, T], id: Any): Option[T with PC] = select(entity, List(id))
+	def select[PC, T](entity: Entity[PC, T], id1: Any, id2: Any): Option[T with PC] = select(entity, List(id1, id2))
+	def select[PC, T](entity: Entity[PC, T], id1: Any, id2: Any, id3: Any): Option[T with PC] = select(entity, List(id1, id2, id3))
+
+	def select[PC, T](entity: Entity[PC, T], ids: List[Any]): Option[T with PC] = select(defaultSelectConfig, entity, ids)
+
+	/**
+	 * select an entity but load only part of the entity's graph. SelectConfig contains configuration regarding which relationships
+	 * won't be loaded, i.e.
+	 *
+	 * SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
+	 */
+	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], id: Any): Option[T with PC] = select(selectConfig, entity, List(id))
+
 	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], ids: List[Any]): Option[T with PC]
+
+	// default configurations
 	val defaultSelectConfig = SelectConfig()
 	val defaultDeleteConfig = DeleteConfig()
+
+	// delete
 	def delete[PC, T](entity: Entity[PC, T], o: T with PC): T
 	def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T
-	def intIdOf(o: AnyRef): Int
-	def longIdOf(o: AnyRef): Long
+
+	/**
+	 * ===================================================================================
+	 * ID helper methods
+	 * ===================================================================================
+	 */
+	/**
+	 * retrieve the id of an entity
+	 */
+	def intIdOf(o: AnyRef): Int = o match {
+		case iid: IntId => iid.id
+	}
+
+	/**
+	 * retrieve the id of an entity
+	 */
+	def longIdOf(o: AnyRef): Long = o match {
+		case iid: LongId => iid.id
+	}
 
 	// used internally
 	private[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC with Persisted, newO: T, entityMap: UpdateEntityMap): T with PC
@@ -284,26 +326,6 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		if (persisted.discarded) throw new IllegalArgumentException("can't operate on an object twice. An object that was updated/deleted must be discarded and replaced by the return value of update(), i.e. onew=update(o) or just be disposed if it was deleted. The offending object was : " + persisted);
 		if (persisted.mock) throw new IllegalArgumentException("can't operate on a 'mock' object. Mock objects are created when there are cyclic dependencies of entities, i.e. entity A depends on B and B on A on a many-to-many relationship.  The offending object was : " + persisted);
 	}
-	/**
-	 * select an entity by it's ID
-	 *
-	 * @param clz		Class[T], classOf[Entity]
-	 * @param id		the id
-	 * @return			Option[T] or None
-	 */
-	def select[PC, T](entity: Entity[PC, T], id: Any): Option[T with PC] = select(entity, List(id))
-	def select[PC, T](entity: Entity[PC, T], id1: Any, id2: Any): Option[T with PC] = select(entity, List(id1, id2))
-	def select[PC, T](entity: Entity[PC, T], id1: Any, id2: Any, id3: Any): Option[T with PC] = select(entity, List(id1, id2, id3))
-
-	def select[PC, T](entity: Entity[PC, T], ids: List[Any]): Option[T with PC] = select(defaultSelectConfig, entity, ids)
-
-	/**
-	 * select an entity but load only part of the entity's graph. SelectConfig contains configuration regarding which relationships
-	 * won't be loaded, i.e.
-	 *
-	 * SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
-	 */
-	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], id: Any): Option[T with PC] = select(selectConfig, entity, List(id))
 
 	/**
 	 * select an entity but load only part of the entity's graph. SelectConfig contains configuration regarding which relationships
@@ -439,25 +461,6 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		}
 	/**
 	 * ===================================================================================
-	 * ID helper methods
-	 * ===================================================================================
-	 */
-	/**
-	 * retrieve the id of an entity
-	 */
-	def intIdOf(o: AnyRef): Int = o match {
-		case iid: IntId => iid.id
-	}
-
-	/**
-	 * retrieve the id of an entity
-	 */
-	def longIdOf(o: AnyRef): Long = o match {
-		case iid: LongId => iid.id
-	}
-
-	/**
-	 * ===================================================================================
 	 * common methods
 	 * ===================================================================================
 	 */
@@ -467,4 +470,29 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 object MapperDao {
 	def apply(driver: Driver): MapperDao = new MapperDaoImpl(driver, new Events)
 	def apply(driver: Driver, events: Events): MapperDao = new MapperDaoImpl(driver, events)
+}
+
+class MockMapperDao extends MapperDao {
+	// insert
+	def insert[PC, T](entity: Entity[PC, T], o: T): T with PC = null.asInstanceOf[T with PC]
+
+	// update
+	def update[PC, T](entity: Entity[PC, T], o: T with PC): T with PC = null.asInstanceOf[T with PC]
+	def update[PC, T](entity: Entity[PC, T], o: T with PC, newO: T): T with PC = null.asInstanceOf[T with PC]
+
+	// select
+	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], ids: List[Any]): Option[T with PC] = None
+
+	// delete
+	def delete[PC, T](entity: Entity[PC, T], o: T with PC): T = null.asInstanceOf[T]
+	def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T = null.asInstanceOf[T]
+
+	// used internally
+	private[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC with Persisted, newO: T, entityMap: UpdateEntityMap): T with PC = throw new RuntimeException()
+	private[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T with PC with Persisted = throw new RuntimeException()
+	private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], tpe: Type[PC, T], selectConfig: SelectConfig, entities: EntityMap): List[T with PC] = throw new RuntimeException()
+	private[mapperdao] def isPersisted(o: Any): Boolean = throw new RuntimeException()
+	private[mapperdao] def insertInner[PC, T](entity: Entity[PC, T], o: T, entityMap: UpdateEntityMap): T with PC with Persisted = throw new RuntimeException()
+	private[mapperdao] def selectInner[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, ids: List[Any], entities: EntityMap): Option[T with PC] = throw new RuntimeException()
+
 }
