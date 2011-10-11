@@ -48,7 +48,12 @@ trait MapperDao {
 	val defaultDeleteConfig = DeleteConfig()
 
 	// delete
-	def delete[PC, T](entity: Entity[PC, T], o: T with PC): T
+
+	/**
+	 * deletes an entity from the database. By default, related entities won't be deleted, please use
+	 * delete(deleteConfig, entity, o) to fine tune the operation
+	 */
+	def delete[PC, T](entity: Entity[PC, T], o: T with PC): T = delete(defaultDeleteConfig, entity, o)
 	def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T
 
 	/**
@@ -417,11 +422,6 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		}
 
 	/**
-	 * deletes an entity from the database. By default, related entities won't be deleted, please use
-	 * delete(deleteConfig, entity, o) to fine tune the operation
-	 */
-	def delete[PC, T](entity: Entity[PC, T], o: T with PC): T = delete(defaultDeleteConfig, entity, o)
-	/**
 	 * deletes an entity from the database
 	 */
 	def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T =
@@ -478,13 +478,13 @@ class MockMapperDao extends MapperDao {
 
 	// update
 	def update[PC, T](entity: Entity[PC, T], o: T with PC): T with PC = null.asInstanceOf[T with PC]
+	// update immutable
 	def update[PC, T](entity: Entity[PC, T], o: T with PC, newO: T): T with PC = null.asInstanceOf[T with PC]
 
 	// select
 	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], ids: List[Any]): Option[T with PC] = None
 
 	// delete
-	def delete[PC, T](entity: Entity[PC, T], o: T with PC): T = null.asInstanceOf[T]
 	def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T = null.asInstanceOf[T]
 
 	// used internally
