@@ -16,7 +16,7 @@ class OneToManySpec extends SpecificationWithJUnit {
 
 	import OneToManySpec._
 
-	val (jdbc, mapperDao) = setup
+	val (jdbc, driver, mapperDao) = setup
 
 	"updating id of many entity" in {
 		createTables

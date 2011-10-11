@@ -12,14 +12,15 @@ import com.googlecode.mapperdao.SelectConfig
 import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.EntityMap
 import com.googlecode.mapperdao.ValuesMap
+import com.googlecode.mapperdao.TypeRegistry
+import com.googlecode.mapperdao.drivers.Driver
 
 /**
  * @author kostantinos.kougios
  *
  * 31 Aug 2011
  */
-class OneToOneInsertPlugin(mapperDao: MapperDao) extends BeforeInsert {
-	val typeRegistry = mapperDao.typeRegistry
+class OneToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDao) extends BeforeInsert {
 
 	override def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
 		{
@@ -61,9 +62,7 @@ class OneToOneInsertPlugin(mapperDao: MapperDao) extends BeforeInsert {
  *
  * 31 Aug 2011
  */
-class OneToOneSelectPlugin(mapperDao: MapperDao) extends BeforeSelect with SelectMock {
-	private val typeRegistry = mapperDao.typeRegistry
-	private val driver = mapperDao.driver
+class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDao) extends BeforeSelect with SelectMock {
 
 	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any] = Nil
 
@@ -101,10 +100,7 @@ class OneToOneSelectPlugin(mapperDao: MapperDao) extends BeforeSelect with Selec
  *
  * 1 Sep 2011
  */
-class OneToOneUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate {
-
-	private val typeRegistry = mapperDao.typeRegistry
-
+class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDao) extends DuringUpdate {
 	private val nullList = List(null, null, null, null, null)
 
 	def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =

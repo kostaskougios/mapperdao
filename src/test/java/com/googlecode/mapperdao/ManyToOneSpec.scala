@@ -10,7 +10,7 @@ import com.googlecode.mapperdao.jdbc.Setup
  */
 class ManyToOneSpec extends SpecificationWithJUnit {
 	import ManyToOneSpec._
-	val (jdbc, mapperDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity, HouseEntity))
+	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity, HouseEntity))
 
 	if (Setup.database != "derby") {
 		"update id's" in {

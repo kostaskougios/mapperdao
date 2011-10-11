@@ -11,7 +11,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 class ManyToManySpec extends SpecificationWithJUnit {
 	import ManyToManySpec._
 
-	val (jdbc, mapperDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
 	if (Setup.database != "derby") {
 		"update id of main entity" in {

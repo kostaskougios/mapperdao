@@ -11,7 +11,7 @@ import com.googlecode.mapperdao.jdbc.Setup
  */
 class OneToOneWithoutReverseSpec extends SpecificationWithJUnit {
 	import OneToOneWithoutReverseSpec._
-	val (jdbc, mapperDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
+	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
 
 	import mapperDao._
 

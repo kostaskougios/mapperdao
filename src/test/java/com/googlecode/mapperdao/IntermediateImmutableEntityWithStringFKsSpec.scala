@@ -10,7 +10,7 @@ import com.googlecode.mapperdao.jdbc.Setup
  */
 class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUnit {
 	import IntermediateImmutableEntityWithStringFKsSpec._
-	val (jdbc, mapperDao) = Setup.setupMapperDao(TypeRegistry(EmployeeEntity, WorkedAtEntity, CompanyEntity))
+	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(EmployeeEntity, WorkedAtEntity, CompanyEntity))
 
 	import mapperDao._
 	"update intermediate" in {
@@ -147,7 +147,7 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 	// cause recursive calls will be done till an out of stack error
 	// with be thrown
 	def test(actual: Employee, expected: Employee) = {
-		def toS(w: WorkedAt) = "%s,%s,%d".format(w.employee.no, w.company, w.year)
+			def toS(w: WorkedAt) = "%s,%s,%d".format(w.employee.no, w.company, w.year)
 		expected.workedAt.map(toS _).toSet must_== actual.workedAt.map(toS _).toSet
 		expected.no must_== actual.no
 	}

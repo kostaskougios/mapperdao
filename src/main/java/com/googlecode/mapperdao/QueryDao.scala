@@ -1,5 +1,6 @@
 package com.googlecode.mapperdao
 import com.googlecode.mapperdao.exceptions.QueryException
+import com.googlecode.mapperdao.drivers.Driver
 
 /**
  * runs the queries against the database
@@ -8,12 +9,10 @@ import com.googlecode.mapperdao.exceptions.QueryException
  *
  * 18 Aug 2011
  */
-final class QueryDao private (mapperDao: MapperDao) {
+final class QueryDao private (typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDao) {
 
 	import QueryDao._
 
-	private val driver = mapperDao.driver
-	private val typeRegistry = mapperDao.typeRegistry
 	private val jdbc = driver.jdbc
 
 	private class SqlAndArgs(val sql: String, val args: List[Any])
@@ -105,7 +104,7 @@ final class QueryDao private (mapperDao: MapperDao) {
 
 object QueryDao {
 
-	def apply(mapperDao: MapperDao) = new QueryDao(mapperDao)
+	def apply(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDao) = new QueryDao(typeRegistry, driver, mapperDao)
 
 	// creates aliases for tables
 	class Aliases(typeRegistry: TypeRegistry) {

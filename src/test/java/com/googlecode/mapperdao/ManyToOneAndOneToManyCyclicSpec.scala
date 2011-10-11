@@ -11,7 +11,7 @@ import com.googlecode.mapperdao.jdbc.Setup
  */
 class ManyToOneAndOneToManyCyclicSpec extends SpecificationWithJUnit {
 	import ManyToOneAndOneToManyCyclicSpec._
-	val (jdbc, mapperDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity))
+	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity))
 
 	import mapperDao._
 

@@ -14,14 +14,14 @@ import com.googlecode.mapperdao.EntityMap
 import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao.ValuesMap
 import com.googlecode.mapperdao.utils.Equality
+import com.googlecode.mapperdao.TypeRegistry
 
 /**
  * @author kostantinos.kougios
  *
  * 31 Aug 2011
  */
-class ManyToOneInsertPlugin(mapperDao: MapperDao) extends BeforeInsert {
-	private val typeRegistry = mapperDao.typeRegistry
+class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDao) extends BeforeInsert {
 
 	override def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
 		{
@@ -61,8 +61,7 @@ class ManyToOneInsertPlugin(mapperDao: MapperDao) extends BeforeInsert {
  *
  * 31 Aug 2011
  */
-class ManyToOneSelectPlugin(mapperDao: MapperDao) extends BeforeSelect with SelectMock {
-	private val typeRegistry = mapperDao.typeRegistry
+class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDao) extends BeforeSelect with SelectMock {
 
 	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any] = Nil
 
@@ -97,9 +96,7 @@ class ManyToOneSelectPlugin(mapperDao: MapperDao) extends BeforeSelect with Sele
  *
  * 31 Aug 2011
  */
-class ManyToOneUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate {
-
-	private val typeRegistry = mapperDao.typeRegistry
+class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDao) extends DuringUpdate {
 
 	override def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{

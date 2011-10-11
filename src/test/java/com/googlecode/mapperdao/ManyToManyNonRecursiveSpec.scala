@@ -12,7 +12,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 class ManyToManyNonRecursiveSpec extends SpecificationWithJUnit {
 	import ManyToManyNonRecursiveSpec._
 
-	val (jdbc, mapperDao) = setup
+	val (jdbc, driver, mapperDao) = setup
 
 	"insert tree of entities" in {
 		createTables

@@ -19,14 +19,16 @@ import com.googlecode.mapperdao.ValuesMap
 import com.googlecode.mapperdao.DeleteConfig
 import com.googlecode.mapperdao.SimpleColumn
 import com.googlecode.mapperdao.events.Events
+import com.googlecode.mapperdao.TypeRegistry
+import com.googlecode.mapperdao.drivers.Driver
+import com.googlecode.mapperdao.TypeManager
 
 /**
  * @author kostantinos.kougios
  *
  * 31 Aug 2011
  */
-class OneToOneReverseInsertPlugin(mapperDao: MapperDao) extends BeforeInsert with PostInsert {
-	val typeRegistry = mapperDao.typeRegistry
+class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDao) extends BeforeInsert with PostInsert {
 
 	override def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
 		{
@@ -76,9 +78,7 @@ class OneToOneReverseInsertPlugin(mapperDao: MapperDao) extends BeforeInsert wit
  *
  * 31 Aug 2011
  */
-class OneToOneReverseSelectPlugin(mapperDao: MapperDao) extends BeforeSelect {
-	private val typeRegistry = mapperDao.typeRegistry
-	private val driver = mapperDao.driver
+class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDao) extends BeforeSelect {
 
 	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any] =
 		{
@@ -122,11 +122,8 @@ class OneToOneReverseSelectPlugin(mapperDao: MapperDao) extends BeforeSelect {
  *
  * 31 Aug 2011
  */
-class OneToOneReverseUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate with PostUpdate {
-	private val typeRegistry = mapperDao.typeRegistry
-	private val typeManager = mapperDao.typeManager
+class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeManager, driver: Driver, mapperDao: MapperDao) extends DuringUpdate with PostUpdate {
 	private val emptyDUR = new DuringUpdateResults(Nil, Nil)
-	private val driver = mapperDao.driver
 
 	override def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
@@ -179,9 +176,7 @@ class OneToOneReverseUpdatePlugin(mapperDao: MapperDao) extends DuringUpdate wit
 		}
 }
 
-class OneToOneReverseDeletePlugin(mapperDao: MapperDao) extends BeforeDelete {
-	private val driver = mapperDao.driver
-	private val typeRegistry = mapperDao.typeRegistry
+class OneToOneReverseDeletePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDao) extends BeforeDelete {
 
 	override def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)]) = if (deleteConfig.propagate) {
 		tpe.table.oneToOneReverseColumnInfos.filterNot(deleteConfig.skip(_)).foreach { ci =>

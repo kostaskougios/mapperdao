@@ -15,6 +15,7 @@ import com.googlecode.mapperdao.MapperDao
 import com.googlecode.mapperdao.QueryDao
 import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.events.Events
+import com.googlecode.mapperdao.drivers.Driver
 
 /**
  * creates an environment for specs
@@ -45,7 +46,7 @@ object Setup {
 		jdbc
 	} else jdbc
 
-	def setupMapperDao(typeRegistry: TypeRegistry, events: Events = new Events): (Jdbc, MapperDao) =
+	def setupMapperDao(typeRegistry: TypeRegistry, events: Events = new Events): (Jdbc, Driver, MapperDao) =
 		{
 			val jdbc = setupJdbc
 			val driver = database match {
@@ -55,13 +56,13 @@ object Setup {
 				case "derby" => new Derby(jdbc, typeRegistry)
 			}
 			val mapperDao = MapperDao(driver, events)
-			(jdbc, mapperDao)
+			(jdbc, driver, mapperDao)
 		}
 
 	def setupQueryDao(typeRegistry: TypeRegistry): (Jdbc, MapperDao, QueryDao) =
 		{
-			val (jdbc, mapperDao) = setupMapperDao(typeRegistry)
-			(jdbc, mapperDao, QueryDao(mapperDao))
+			val (jdbc, driver, mapperDao) = setupMapperDao(typeRegistry)
+			(jdbc, mapperDao, QueryDao(typeRegistry, driver, mapperDao))
 		}
 
 	def dropAllTables(jdbc: Jdbc): Int =

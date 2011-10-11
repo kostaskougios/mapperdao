@@ -14,7 +14,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 class OneToManySelfReferencedSpec extends SpecificationWithJUnit {
 	import OneToManySelfReferencedSpec._
 
-	val (jdbc, mapperDao) = setup
+	val (jdbc, driver, mapperDao) = setup
 
 	"insert" in {
 		createTables

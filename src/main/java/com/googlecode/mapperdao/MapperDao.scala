@@ -9,22 +9,50 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.plugins.SelectMock
 import utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.events.Events
+
+trait MapperDao {
+	def insert[PC, T](entity: Entity[PC, T], o: T): T with PC
+	def update[PC, T](entity: Entity[PC, T], o: T with PC): T with PC
+	def update[PC, T](entity: Entity[PC, T], o: T with PC, newO: T): T with PC
+	def select[PC, T](entity: Entity[PC, T], id: Any): Option[T with PC]
+	def select[PC, T](entity: Entity[PC, T], id1: Any, id2: Any): Option[T with PC]
+	def select[PC, T](entity: Entity[PC, T], id1: Any, id2: Any, id3: Any): Option[T with PC]
+
+	def select[PC, T](entity: Entity[PC, T], ids: List[Any]): Option[T with PC]
+	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], id: Any): Option[T with PC]
+	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], ids: List[Any]): Option[T with PC]
+	val defaultSelectConfig = SelectConfig()
+	val defaultDeleteConfig = DeleteConfig()
+	def delete[PC, T](entity: Entity[PC, T], o: T with PC): T
+	def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T
+	def intIdOf(o: AnyRef): Int
+	def longIdOf(o: AnyRef): Long
+
+	// used internally
+	private[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC with Persisted, newO: T, entityMap: UpdateEntityMap): T with PC
+	private[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T with PC with Persisted
+	private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], tpe: Type[PC, T], selectConfig: SelectConfig, entities: EntityMap): List[T with PC]
+	private[mapperdao] def isPersisted(o: Any): Boolean
+	private[mapperdao] def insertInner[PC, T](entity: Entity[PC, T], o: T, entityMap: UpdateEntityMap): T with PC with Persisted
+	private[mapperdao] def selectInner[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, ids: List[Any], entities: EntityMap): Option[T with PC]
+}
+
 /**
  * @author kostantinos.kougios
  *
  * 13 Jul 2011
  */
-final class MapperDao private (val driver: Driver, events: Events) {
+protected final class MapperDaoImpl(val driver: Driver, events: Events) extends MapperDao {
 	val typeRegistry = driver.typeRegistry
 	val typeManager = driver.jdbc.typeManager
 
-	private val postUpdatePlugins = List[PostUpdate](new OneToOneReverseUpdatePlugin(this), new OneToManyUpdatePlugin(this), new ManyToManyUpdatePlugin(this))
-	private val duringUpdatePlugins = List[DuringUpdate](new ManyToOneUpdatePlugin(this), new OneToOneReverseUpdatePlugin(this), new OneToOneUpdatePlugin(this))
-	private val beforeInsertPlugins = List[BeforeInsert](new ManyToOneInsertPlugin(this), new OneToManyInsertPlugin(this), new OneToOneReverseInsertPlugin(this), new OneToOneInsertPlugin(this))
-	private val postInsertPlugins = List[PostInsert](new OneToOneReverseInsertPlugin(this), new OneToManyInsertPlugin(this), new ManyToManyInsertPlugin(this))
-	private val selectBeforePlugins: List[BeforeSelect] = List(new ManyToOneSelectPlugin(this), new OneToManySelectPlugin(this), new OneToOneReverseSelectPlugin(this), new OneToOneSelectPlugin(this), new ManyToManySelectPlugin(this))
-	private val mockPlugins: List[SelectMock] = List(new OneToManySelectPlugin(this), new ManyToManySelectPlugin(this), new ManyToOneSelectPlugin(this), new OneToOneSelectPlugin(this))
-	private val beforeDeletePlugins: List[BeforeDelete] = List(new ManyToManyDeletePlugin(this), new OneToManyDeletePlugin(this), new OneToOneReverseDeletePlugin(this))
+	private val postUpdatePlugins = List[PostUpdate](new OneToOneReverseUpdatePlugin(typeRegistry, typeManager, driver, this), new OneToManyUpdatePlugin(typeRegistry, this), new ManyToManyUpdatePlugin(typeRegistry, driver, this))
+	private val duringUpdatePlugins = List[DuringUpdate](new ManyToOneUpdatePlugin(typeRegistry, this), new OneToOneReverseUpdatePlugin(typeRegistry, typeManager, driver, this), new OneToOneUpdatePlugin(typeRegistry, this))
+	private val beforeInsertPlugins = List[BeforeInsert](new ManyToOneInsertPlugin(typeRegistry, this), new OneToManyInsertPlugin(typeRegistry, driver, this), new OneToOneReverseInsertPlugin(typeRegistry, this), new OneToOneInsertPlugin(typeRegistry, this))
+	private val postInsertPlugins = List[PostInsert](new OneToOneReverseInsertPlugin(typeRegistry, this), new OneToManyInsertPlugin(typeRegistry, driver, this), new ManyToManyInsertPlugin(typeRegistry, driver, this))
+	private val selectBeforePlugins: List[BeforeSelect] = List(new ManyToOneSelectPlugin(typeRegistry, this), new OneToManySelectPlugin(typeRegistry, driver, this), new OneToOneReverseSelectPlugin(typeRegistry, driver, this), new OneToOneSelectPlugin(typeRegistry, driver, this), new ManyToManySelectPlugin(typeRegistry, driver, this))
+	private val mockPlugins: List[SelectMock] = List(new OneToManySelectPlugin(typeRegistry, driver, this), new ManyToManySelectPlugin(typeRegistry, driver, this), new ManyToOneSelectPlugin(typeRegistry, this), new OneToOneSelectPlugin(typeRegistry, driver, this))
+	private val beforeDeletePlugins: List[BeforeDelete] = List(new ManyToManyDeletePlugin(driver, this), new OneToManyDeletePlugin(typeRegistry, this), new OneToOneReverseDeletePlugin(typeRegistry, driver, this))
 	/**
 	 * ===================================================================================
 	 * Utility methods
@@ -245,7 +273,7 @@ final class MapperDao private (val driver: Driver, events: Events) {
 			}
 		}
 
-	protected[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC with Persisted, newO: T, entityMap: UpdateEntityMap): T with PC =
+	private[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC with Persisted, newO: T, entityMap: UpdateEntityMap): T with PC =
 		{
 			val oldValuesMap = o.valuesMap
 			val newValuesMap = ValuesMap.fromEntity(typeManager, typeRegistry.typeOfObject(newO), newO)
@@ -291,7 +319,6 @@ final class MapperDao private (val driver: Driver, events: Events) {
 			v
 		}
 
-	val defaultSelectConfig = SelectConfig()
 	private[mapperdao] def selectInner[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, ids: List[Any], entities: EntityMap): Option[T with PC] =
 		{
 			val clz = entity.clz
@@ -367,7 +394,6 @@ final class MapperDao private (val driver: Driver, events: Events) {
 			mock
 		}
 
-	val defaultDeleteConfig = DeleteConfig()
 	/**
 	 * deletes an entity from the database. By default, related entities won't be deleted, please use
 	 * delete(deleteConfig, entity, o) to fine tune the operation
@@ -419,14 +445,14 @@ final class MapperDao private (val driver: Driver, events: Events) {
 	/**
 	 * retrieve the id of an entity
 	 */
-	def intIdOf(o: AnyRef) = o match {
+	def intIdOf(o: AnyRef): Int = o match {
 		case iid: IntId => iid.id
 	}
 
 	/**
 	 * retrieve the id of an entity
 	 */
-	def longIdOf(o: AnyRef) = o match {
+	def longIdOf(o: AnyRef): Long = o match {
 		case iid: LongId => iid.id
 	}
 
@@ -439,6 +465,6 @@ final class MapperDao private (val driver: Driver, events: Events) {
 }
 
 object MapperDao {
-	def apply(driver: Driver) = new MapperDao(driver, new Events)
-	def apply(driver: Driver, events: Events) = new MapperDao(driver, events)
+	def apply(driver: Driver): MapperDao = new MapperDaoImpl(driver, new Events)
+	def apply(driver: Driver, events: Events): MapperDao = new MapperDaoImpl(driver, events)
 }
