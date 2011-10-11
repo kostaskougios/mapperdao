@@ -1,27 +1,17 @@
 package com.googlecode.mapperdao.plugins
 
-import com.googlecode.mapperdao.MapperDao
-import com.googlecode.mapperdao.UpdateEntityMap
-import com.googlecode.mapperdao.Type
-import com.googlecode.mapperdao.Persisted
-import com.googlecode.mapperdao.Column
-import com.googlecode.mapperdao.UpdateInfo
-import com.googlecode.mapperdao.utils.LowerCaseMutableMap
-import com.googlecode.mapperdao.SelectConfig
 import com.googlecode.mapperdao.jdbc.JdbcMap
-import com.googlecode.mapperdao.ManyToOne
-import com.googlecode.mapperdao.EntityMap
-import com.googlecode.mapperdao.utils.MapOfList
-import com.googlecode.mapperdao.ValuesMap
 import com.googlecode.mapperdao.utils.Equality
-import com.googlecode.mapperdao.TypeRegistry
+import com.googlecode.mapperdao.utils.LowerCaseMutableMap
+import com.googlecode.mapperdao.utils.MapOfList
+import com.googlecode.mapperdao._
 
 /**
  * @author kostantinos.kougios
  *
  * 31 Aug 2011
  */
-class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDao) extends BeforeInsert {
+class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeInsert {
 
 	override def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
 		{
@@ -61,7 +51,7 @@ class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDao) ex
  *
  * 31 Aug 2011
  */
-class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDao) extends BeforeSelect with SelectMock {
+class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeSelect with SelectMock {
 
 	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any] = Nil
 
@@ -96,7 +86,7 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDao) ex
  *
  * 31 Aug 2011
  */
-class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDao) extends DuringUpdate {
+class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends DuringUpdate {
 
 	override def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{

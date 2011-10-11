@@ -17,13 +17,14 @@ import com.googlecode.mapperdao.SimpleColumn
 import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.drivers.Driver
+import com.googlecode.mapperdao.MapperDaoImpl
 
 /**
  * @author kostantinos.kougios
  *
  * 31 Aug 2011
  */
-class ManyToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDao) extends PostInsert {
+class ManyToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends PostInsert {
 
 	override def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): Unit =
 		{
@@ -60,7 +61,7 @@ class ManyToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
  *
  * 31 Aug 2011
  */
-class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDao) extends BeforeSelect with SelectMock {
+class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect with SelectMock {
 
 	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any] = Nil
 
@@ -95,7 +96,7 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
  *
  * 31 Aug 2011
  */
-class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDao) extends PostUpdate {
+class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends PostUpdate {
 
 	def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
 		{
@@ -155,7 +156,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 		}
 }
 
-class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDao) extends BeforeDelete {
+class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDaoImpl) extends BeforeDelete {
 
 	override def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)]) = if (deleteConfig.propagate) {
 		tpe.table.manyToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach { ci =>

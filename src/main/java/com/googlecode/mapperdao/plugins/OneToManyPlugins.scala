@@ -1,32 +1,19 @@
 package com.googlecode.mapperdao.plugins
 
-import com.googlecode.mapperdao.MapperDao
-import com.googlecode.mapperdao.utils.MapOfList
-import com.googlecode.mapperdao.UpdateEntityMap
-import com.googlecode.mapperdao.Type
-import com.googlecode.mapperdao.Column
-import com.googlecode.mapperdao.OneToMany
-import com.googlecode.mapperdao.TypeRef
-import com.googlecode.mapperdao.UpdateInfo
-import com.googlecode.mapperdao.Persisted
-import com.googlecode.mapperdao.utils.LowerCaseMutableMap
-import com.googlecode.mapperdao.SelectConfig
-import com.googlecode.mapperdao.jdbc.JdbcMap
-import com.googlecode.mapperdao.EntityMap
-import com.googlecode.mapperdao.ValuesMap
-import com.googlecode.mapperdao.utils.TraversableSeparation
-import com.googlecode.mapperdao.DeleteConfig
-import com.googlecode.mapperdao.SimpleColumn
-import com.googlecode.mapperdao.events.Events
-import com.googlecode.mapperdao.TypeRegistry
+import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.drivers.Driver
+import com.googlecode.mapperdao.utils.TraversableSeparation
+import com.googlecode.mapperdao.utils.LowerCaseMutableMap
+import com.googlecode.mapperdao.utils.MapOfList
+import com.googlecode.mapperdao.jdbc.JdbcMap
+import com.googlecode.mapperdao.events.Events
 
 /**
  * @author kostantinos.kougios
  *
  * 31 Aug 2011
  */
-class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDao) extends BeforeInsert with PostInsert {
+class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeInsert with PostInsert {
 
 	override def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
 		{
@@ -87,7 +74,7 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
  *
  * 31 Aug 2011
  */
-class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDao) extends BeforeSelect with SelectMock {
+class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect with SelectMock {
 
 	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any] = Nil
 
@@ -122,7 +109,7 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
  *
  * 31 Aug 2011
  */
-class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDao) extends PostUpdate {
+class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends PostUpdate {
 
 	def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
 		{
@@ -168,7 +155,7 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDao) ex
 		}
 }
 
-class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDao) extends BeforeDelete {
+class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeDelete {
 	override def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)]) = if (deleteConfig.propagate) {
 		tpe.table.oneToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach { ci =>
 

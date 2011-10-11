@@ -76,12 +76,13 @@ trait MapperDao {
 	}
 
 	// used internally
-	private[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC with Persisted, newO: T, entityMap: UpdateEntityMap): T with PC
-	private[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T with PC with Persisted
 	private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], tpe: Type[PC, T], selectConfig: SelectConfig, entities: EntityMap): List[T with PC]
-	private[mapperdao] def isPersisted(o: Any): Boolean
-	private[mapperdao] def insertInner[PC, T](entity: Entity[PC, T], o: T, entityMap: UpdateEntityMap): T with PC with Persisted
-	private[mapperdao] def selectInner[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, ids: List[Any], entities: EntityMap): Option[T with PC]
+
+	//	private[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC with Persisted, newO: T, entityMap: UpdateEntityMap): T with PC
+	//	private[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T with PC with Persisted
+	//	private[mapperdao] def isPersisted(o: Any): Boolean
+	//	private[mapperdao] def insertInner[PC, T](entity: Entity[PC, T], o: T, entityMap: UpdateEntityMap): T with PC with Persisted
+	//	private[mapperdao] def selectInner[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, ids: List[Any], entities: EntityMap): Option[T with PC]
 }
 
 /**
@@ -192,7 +193,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		{
 			val tpe = typeRegistry.typeOf(entity)
 
-				def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
+			def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
 
 			val table = tpe.table
 
@@ -470,29 +471,4 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 object MapperDao {
 	def apply(driver: Driver): MapperDao = new MapperDaoImpl(driver, new Events)
 	def apply(driver: Driver, events: Events): MapperDao = new MapperDaoImpl(driver, events)
-}
-
-class MockMapperDao extends MapperDao {
-	// insert
-	def insert[PC, T](entity: Entity[PC, T], o: T): T with PC = null.asInstanceOf[T with PC]
-
-	// update
-	def update[PC, T](entity: Entity[PC, T], o: T with PC): T with PC = null.asInstanceOf[T with PC]
-	// update immutable
-	def update[PC, T](entity: Entity[PC, T], o: T with PC, newO: T): T with PC = null.asInstanceOf[T with PC]
-
-	// select
-	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], ids: List[Any]): Option[T with PC] = None
-
-	// delete
-	def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T = null.asInstanceOf[T]
-
-	// used internally
-	private[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC with Persisted, newO: T, entityMap: UpdateEntityMap): T with PC = throw new RuntimeException()
-	private[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T with PC with Persisted = throw new RuntimeException()
-	private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], tpe: Type[PC, T], selectConfig: SelectConfig, entities: EntityMap): List[T with PC] = throw new RuntimeException()
-	private[mapperdao] def isPersisted(o: Any): Boolean = throw new RuntimeException()
-	private[mapperdao] def insertInner[PC, T](entity: Entity[PC, T], o: T, entityMap: UpdateEntityMap): T with PC with Persisted = throw new RuntimeException()
-	private[mapperdao] def selectInner[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, ids: List[Any], entities: EntityMap): Option[T with PC] = throw new RuntimeException()
-
 }
