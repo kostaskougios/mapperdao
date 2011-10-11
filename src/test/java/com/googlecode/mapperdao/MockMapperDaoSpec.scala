@@ -14,7 +14,7 @@ class MockMapperDaoSpec extends SpecificationWithJUnit {
 
 	"mock insert" in {
 		var r: Any = null
-		val mock = new MemoryMapperDao {
+		val mock = new MockMapperDao {
 			override def insert[PC, T](entity: Entity[PC, T], o: T): T with PC = {
 				r = o
 				null.asInstanceOf[T with PC]
@@ -26,7 +26,7 @@ class MockMapperDaoSpec extends SpecificationWithJUnit {
 
 	"mock update" in {
 		var r: Any = null
-		val mock = new MemoryMapperDao {
+		val mock = new MockMapperDao {
 			override def update[PC, T](entity: Entity[PC, T], o: T with PC, newO: T): T with PC = {
 				r = o
 				null.asInstanceOf[T with PC]
@@ -37,7 +37,7 @@ class MockMapperDaoSpec extends SpecificationWithJUnit {
 	}
 
 	"mock select" in {
-		val mock = new MemoryMapperDao {
+		val mock = new MockMapperDao {
 			override def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], ids: List[Any]): Option[T with PC] = {
 				Some(JobPosition("y").asInstanceOf[T with PC])
 			}

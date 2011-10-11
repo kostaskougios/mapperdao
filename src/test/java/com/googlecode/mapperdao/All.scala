@@ -52,7 +52,7 @@ import org.junit.runners.Suite
 		classOf[jdbc.TransactionSpec],
 		classOf[utils.DaoMixinsSpec],
 		classOf[CRUDConfigsSpec],
-		classOf[MockMapperDaoSpec]
+		classOf[MemoryMapperDaoSpec]
 
 	)
 )
