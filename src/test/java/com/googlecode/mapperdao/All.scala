@@ -52,8 +52,8 @@ import org.junit.runners.Suite
 		classOf[jdbc.TransactionSpec],
 		classOf[utils.DaoMixinsSpec],
 		classOf[CRUDConfigsSpec],
-		classOf[MemoryMapperDaoSpec]
-
+		classOf[MemoryMapperDaoSpec],
+		classOf[MockMapperDaoSpec]
 	)
 )
 class All extends SpecificationWithJUnit
