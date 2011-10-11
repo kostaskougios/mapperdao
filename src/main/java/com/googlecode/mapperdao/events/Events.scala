@@ -31,10 +31,11 @@ trait SelectEvent {
 }
 
 class Events(
-		deleteEvents: List[DeleteEvent] = List(),
-		deleteRelationshipEvents: List[DeleteRelationshipEvent] = List(),
-		insertEvents: List[InsertEvent] = List(),
-		updateEvents: List[UpdateEvent] = List()) {
+	deleteEvents: List[DeleteEvent] = List(),
+	deleteRelationshipEvents: List[DeleteRelationshipEvent] = List(),
+	insertEvents: List[InsertEvent] = List(),
+	updateEvents: List[UpdateEvent] = List(),
+	selectEvents: List[SelectEvent] = List()) {
 	def executeBeforeDeleteEvents[PC, T](tpe: Type[PC, T], keyValues: List[(SimpleColumn, Any)], entityValue: T with PC): Unit = deleteEvents.foreach { _.beforeDeleteEntity(tpe, keyValues, entityValue) }
 	def executeAfterDeleteEvents[PC, T](tpe: Type[PC, T], keyValues: List[(SimpleColumn, Any)], entityValue: T with PC): Unit = deleteEvents.foreach { _.afterDeleteEntity(tpe, keyValues, entityValue) }
 	def executeBeforeDeleteRelationshipEvents[PC, T, V, F](tpe: Type[PC, T], columnInfo: ColumnInfoRelationshipBase[T, V, F], entityValue: T with PC) = deleteRelationshipEvents.foreach { _.before(tpe, columnInfo, entityValue) }
@@ -43,6 +44,6 @@ class Events(
 	def executeAfterInsertEvents[PC, T](tpe: Type[PC, T], args: List[(ColumnBase, Any)]): Unit = insertEvents.foreach { _.after(tpe, args) }
 	def executeBeforeUpdateEvents[PC, T](tpe: Type[PC, T], args: List[(ColumnBase, Any)], pkArgs: List[(ColumnBase, Any)]): Unit = updateEvents.foreach { _.before(tpe, args, pkArgs) }
 	def executeAfterUpdateEvents[PC, T](tpe: Type[PC, T], args: List[(ColumnBase, Any)], pkArgs: List[(ColumnBase, Any)]): Unit = updateEvents.foreach { _.after(tpe, args, pkArgs) }
-	def executeBeforeSelectEvents[PC, T](tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): Unit
-	def executeAfterSelectEvents[PC, T](tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): Unit
+	def executeBeforeSelectEvents[PC, T](tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): Unit = selectEvents.foreach { _.before(tpe, where) }
+	def executeAfterSelectEvents[PC, T](tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): Unit = selectEvents.foreach { _.after(tpe, where) }
 }
