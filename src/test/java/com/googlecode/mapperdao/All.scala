@@ -53,6 +53,7 @@ import org.junit.runners.Suite
 		classOf[utils.DaoMixinsSpec],
 		classOf[CRUDConfigsSpec],
 		classOf[MockMapperDaoSpec]
+
 	)
 )
 class All extends SpecificationWithJUnit
