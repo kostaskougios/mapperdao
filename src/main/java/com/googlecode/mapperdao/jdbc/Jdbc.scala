@@ -31,7 +31,7 @@ import org.springframework.jdbc.core.SqlTypeValue
  *
  * 11 Jul 2011
  */
-class Jdbc(val dataSource: DataSource, val typeManager: TypeManager) {
+class Jdbc private (val dataSource: DataSource, val typeManager: TypeManager) {
 	if (dataSource == null) throw new NullPointerException("dataSource shouldn't be null")
 	if (typeManager == null) throw new NullPointerException("typeManager shouldn't be null")
 
@@ -201,4 +201,8 @@ class Jdbc(val dataSource: DataSource, val typeManager: TypeManager) {
 		}
 
 	override def toString = "Jdbc(%s)".format(dataSource)
+}
+
+object Jdbc {
+	def apply(dataSource: DataSource, typeManager: TypeManager) = new Jdbc(dataSource, typeManager)
 }

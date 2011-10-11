@@ -10,7 +10,7 @@ import com.googlecode.mapperdao.utils.LowerCaseMutableMap
  *
  * 16 Jul 2011
  */
-class ValuesMap(typeManager: TypeManager, mOrig: scala.collection.mutable.Map[String, Any]) {
+class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.mutable.Map[String, Any]) {
 	private val m = new LowerCaseMutableMap(mOrig)
 
 	protected[mapperdao] def valueOf[T](column: String): T = typeManager.deepClone(m.getOrElse(column.toLowerCase, null).asInstanceOf[T])

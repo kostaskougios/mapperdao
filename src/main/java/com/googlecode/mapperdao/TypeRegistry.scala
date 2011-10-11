@@ -8,7 +8,7 @@ import java.util.IdentityHashMap
  *
  * 25 Jul 2011
  */
-final class TypeRegistry(entities: List[Entity[_, _]]) {
+final class TypeRegistry private (entities: List[Entity[_, _]]) {
 	private var types: Map[Class[_], Entity[_, _]] = _
 	private val columnsToEntity = new IdentityHashMap[ColumnBase, Entity[_, _]]
 	private var entityToType: Map[Entity[_, _], Type[_, _]] = _

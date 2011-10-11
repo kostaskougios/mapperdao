@@ -41,7 +41,7 @@ object Setup {
 		logger.debug("connecting to %s".format(database))
 		properties.load(getClass.getResourceAsStream("/jdbc.test.%s.properties".format(database)))
 		val dataSource = BasicDataSourceFactory.createDataSource(properties).asInstanceOf[BasicDataSource]
-		jdbc = new Jdbc(dataSource, typeManager)
+		jdbc = Jdbc(dataSource, typeManager)
 		jdbc
 	} else jdbc
 
@@ -54,14 +54,14 @@ object Setup {
 				case "oracle" => new Oracle(jdbc, typeRegistry)
 				case "derby" => new Derby(jdbc, typeRegistry)
 			}
-			val mapperDao = new MapperDao(driver, events)
+			val mapperDao = MapperDao(driver, events)
 			(jdbc, mapperDao)
 		}
 
 	def setupQueryDao(typeRegistry: TypeRegistry): (Jdbc, MapperDao, QueryDao) =
 		{
-			val mdao = setupMapperDao(typeRegistry)
-			(mdao._1, mdao._2, new QueryDao(mdao._2))
+			val (jdbc, mapperDao) = setupMapperDao(typeRegistry)
+			(jdbc, mapperDao, QueryDao(mapperDao))
 		}
 
 	def dropAllTables(jdbc: Jdbc): Int =

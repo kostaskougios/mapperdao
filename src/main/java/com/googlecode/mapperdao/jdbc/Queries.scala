@@ -9,7 +9,7 @@ import scala.io.Source
  *
  * 30 Sep 2011
  */
-class Queries(jdbc: Jdbc, in: InputStream) {
+class Queries private (jdbc: Jdbc, in: InputStream) {
 
 	if (in == null) throw new IllegalArgumentException("in parameter is null")
 

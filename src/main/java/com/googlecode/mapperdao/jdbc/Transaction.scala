@@ -23,7 +23,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition
  *
  * 29 Aug 2011
  */
-final class Transaction(transactionManager: PlatformTransactionManager, transactionDef: TransactionDefinition) {
+final class Transaction private (transactionManager: PlatformTransactionManager, transactionDef: TransactionDefinition) {
 	private val tt = new TransactionTemplate(transactionManager, transactionDef)
 
 	def apply[V](f: () => V): V =

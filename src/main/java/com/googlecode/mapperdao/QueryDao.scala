@@ -8,7 +8,7 @@ import com.googlecode.mapperdao.exceptions.QueryException
  *
  * 18 Aug 2011
  */
-class QueryDao(mapperDao: MapperDao) {
+final class QueryDao private (mapperDao: MapperDao) {
 
 	import QueryDao._
 
@@ -104,6 +104,8 @@ class QueryDao(mapperDao: MapperDao) {
 }
 
 object QueryDao {
+
+	def apply(mapperDao: MapperDao) = new QueryDao(mapperDao)
 
 	// creates aliases for tables
 	class Aliases(typeRegistry: TypeRegistry) {

@@ -14,7 +14,7 @@ import com.googlecode.mapperdao.events.Events
  *
  * 13 Jul 2011
  */
-final class MapperDao(val driver: Driver, events: Events) {
+final class MapperDao private (val driver: Driver, events: Events) {
 	val typeRegistry = driver.typeRegistry
 	val typeManager = driver.jdbc.typeManager
 
@@ -117,7 +117,7 @@ final class MapperDao(val driver: Driver, events: Events) {
 		{
 			val tpe = typeRegistry.typeOf(entity)
 
-			def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
+				def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
 
 			val table = tpe.table
 
@@ -424,7 +424,7 @@ final class MapperDao(val driver: Driver, events: Events) {
 	}
 
 	/**
-	 * retrive the id of an entity
+	 * retrieve the id of an entity
 	 */
 	def longIdOf(o: AnyRef) = o match {
 		case iid: LongId => iid.id
@@ -436,4 +436,9 @@ final class MapperDao(val driver: Driver, events: Events) {
 	 * ===================================================================================
 	 */
 	override def toString = "MapperDao(%s)".format(driver)
+}
+
+object MapperDao {
+	def apply(driver: Driver) = new MapperDao(driver, new Events)
+	def apply(driver: Driver, events: Events) = new MapperDao(driver, events)
 }
