@@ -44,4 +44,15 @@ class MockMapperDaoSpec extends SpecificationWithJUnit {
 		}
 		mock.select(JobPositionEntity, 5) must_== Some(JobPosition("y"))
 	}
+
+	"mock delete" in {
+		val mock = new MockMapperDao {
+			override def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T = {
+				JobPosition("y").asInstanceOf[T]
+			}
+		}
+		mock.delete(JobPositionEntity, new JobPosition("x") with IntId with Persisted {
+			val id = 5
+		}) must_== JobPosition("y")
+	}
 }
