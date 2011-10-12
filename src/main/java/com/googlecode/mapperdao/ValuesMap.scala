@@ -42,7 +42,15 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.mutab
 				val r = toShort(v).asInstanceOf[V]
 				update(column, r)
 				r
-			} else v
+			} else if (dt == classOf[Double]) {
+				val r = toDouble(v).asInstanceOf[V]
+				update(column, r)
+				r
+			} else if (dt == classOf[Float]) {
+				val r = toFloat(v).asInstanceOf[V]
+				update(column, r)
+				r
+			} else v;
 		}
 
 	def apply[T, F](column: ColumnInfoOneToOne[T, F]): F =
