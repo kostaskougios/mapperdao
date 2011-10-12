@@ -2,14 +2,25 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.exceptions.QueryException
 import com.googlecode.mapperdao.drivers.Driver
 
+trait QueryDao {
+	val defaultQueryConfig = QueryConfig()
+
+	def query[PC, T](qe: Query.QueryExpressions[PC, T]): List[T with PC] = query(qe.queryEntity)
+	def query[PC, T](queryConfig: QueryConfig, qe: Query.QueryExpressions[PC, T]): List[T with PC] = query(queryConfig, qe.queryEntity)
+	def query[PC, T](qe: Query.QueryEntity[PC, T]): List[T with PC] = query(defaultQueryConfig, qe)
+
+	def query[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T]): List[T with PC]
+}
 /**
+ * the actual implementation of the trait.
+ *
  * runs the queries against the database
  *
  * @author kostantinos.kougios
  *
  * 18 Aug 2011
  */
-final class QueryDao private (typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDao) {
+final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDao) extends QueryDao {
 
 	import QueryDao._
 
@@ -17,11 +28,6 @@ final class QueryDao private (typeRegistry: TypeRegistry, driver: Driver, mapper
 
 	private class SqlAndArgs(val sql: String, val args: List[Any])
 
-	def query[PC, T](qe: Query.QueryExpressions[PC, T]): List[T with PC] = query(qe.queryEntity)
-	def query[PC, T](queryConfig: QueryConfig, qe: Query.QueryExpressions[PC, T]): List[T with PC] = query(queryConfig, qe.queryEntity)
-
-	val defaultQueryConfig = QueryConfig()
-	def query[PC, T](qe: Query.QueryEntity[PC, T]): List[T with PC] = query(defaultQueryConfig, qe)
 	def query[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T]): List[T with PC] =
 		{
 			if (qe == null) throw new NullPointerException("qe can't be null")
@@ -104,7 +110,7 @@ final class QueryDao private (typeRegistry: TypeRegistry, driver: Driver, mapper
 
 object QueryDao {
 
-	def apply(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDao) = new QueryDao(typeRegistry, driver, mapperDao)
+	def apply(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDao): QueryDao = new QueryDaoImpl(typeRegistry, driver, mapperDao)
 
 	// creates aliases for tables
 	class Aliases(typeRegistry: TypeRegistry) {
@@ -166,3 +172,8 @@ object QueryDao {
 			}
 	}
 }
+
+/**
+ * a mock class of the query dao, useful for testing
+ */
+abstract class MockQueryDao extends QueryDao
