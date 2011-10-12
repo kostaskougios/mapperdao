@@ -9,6 +9,9 @@ import com.googlecode.mapperdao.LongId
 import org.springframework.transaction.PlatformTransactionManager
 import com.googlecode.mapperdao.jdbc.Transaction
 import Transaction._
+import com.googlecode.mapperdao.MemoryMapperDao
+import com.googlecode.mapperdao.TypeRegistry
+import com.googlecode.mapperdao.jdbc.MockTransaction
 
 /**
  * mixin to add CRUD methods to a dao
@@ -89,6 +92,27 @@ trait TransactionalCRUD[PC, T, PK] extends CRUD[PC, T, PK] {
 trait TransactionalIntIdCRUD[T] extends IntIdCRUD[T] with TransactionalCRUD[IntId, T, Int]
 trait TransactionalLongIdCRUD[T] extends LongIdCRUD[T] with TransactionalCRUD[LongId, T, Long]
 trait TransactionalSimpleCRUD[T, PK] extends SimpleCRUD[T, PK] with TransactionalCRUD[AnyRef, T, PK]
+
+trait MockTransactionalIntIdCRUD[T] { this: TransactionalIntIdCRUD[T] =>
+	val txManager = null
+	val mapperDao: MapperDao
+
+	override protected def prepareTransaction: Transaction = new MockTransaction
+}
+
+trait MockTransactionalLongIdCRUD[T] { this: TransactionalLongIdCRUD[T] =>
+	val txManager = null
+	val mapperDao: MapperDao
+
+	override protected def prepareTransaction: Transaction = new MockTransaction
+}
+
+trait MockTransactionalSimpleCRUD[T, PK] { this: TransactionalSimpleCRUD[T, PK] =>
+	val txManager = null
+	val mapperDao: MapperDao
+
+	override protected def prepareTransaction: Transaction = new MockTransaction
+}
 
 trait All[PC, T] {
 	protected val queryDao: QueryDao

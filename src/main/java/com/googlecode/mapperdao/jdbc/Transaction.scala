@@ -7,7 +7,12 @@ import org.springframework.transaction.TransactionStatus
 import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import javax.sql.DataSource
 import org.springframework.transaction.support.DefaultTransactionDefinition
+import org.springframework.transaction.support.SimpleTransactionStatus
 
+trait Transaction {
+	def apply[V](f: () => V): V
+	def apply[V](f: TransactionStatus => V): V
+}
 /**
  * manages transactions
  *
@@ -23,7 +28,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition
  *
  * 29 Aug 2011
  */
-final class Transaction private (transactionManager: PlatformTransactionManager, transactionDef: TransactionDefinition) {
+final class TransactionImpl private[mapperdao] (transactionManager: PlatformTransactionManager, transactionDef: TransactionDefinition) extends Transaction {
 	private val tt = new TransactionTemplate(transactionManager, transactionDef)
 
 	def apply[V](f: () => V): V =
@@ -45,7 +50,7 @@ final class Transaction private (transactionManager: PlatformTransactionManager,
 			})
 		}
 
-	override def toString = "Transaction(%s)".format(tt)
+	override def toString = "TransactionImpl(%s)".format(tt)
 }
 
 object Transaction {
@@ -85,7 +90,7 @@ object Transaction {
 			td.setPropagationBehavior(propagation.level)
 			td.setIsolationLevel(isolation.level)
 			td.setTimeout(timeOutSec)
-			new Transaction(transactionManager, td)
+			new TransactionImpl(transactionManager, td)
 		}
 	/**
 	 * gets a Transaction with default settings:
@@ -95,7 +100,11 @@ object Transaction {
 	def default(transactionManager: PlatformTransactionManager): Transaction =
 		{
 			val td = new DefaultTransactionDefinition
-			new Transaction(transactionManager, td)
-
+			new TransactionImpl(transactionManager, td)
 		}
+}
+
+class MockTransaction extends Transaction {
+	def apply[V](f: () => V): V = f()
+	def apply[V](f: TransactionStatus => V): V = f(new SimpleTransactionStatus)
 }

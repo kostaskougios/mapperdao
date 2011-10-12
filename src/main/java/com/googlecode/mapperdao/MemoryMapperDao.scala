@@ -22,6 +22,9 @@ import exceptions.PersistException
  */
 class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) extends MapperDao {
 
+	if (typeRegistry == null) throw new NullPointerException("typeRegistry is null")
+	if (typeManager == null) throw new NullPointerException("typeManager is null")
+
 	private val idGen = new AtomicLong
 	private val m = new ConcurrentHashMap[List[Any], Persisted]
 
@@ -65,12 +68,12 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 		if (o == null) throw new NullPointerException("o must not be null")
 		if (entity == null) throw new NullPointerException("entity must not be null")
 		val tpe = typeRegistry.typeOf(entity)
-		val modified = ValuesMap.fromEntity(typeManager, tpe, newO).toLowerCaseMutableMap
+		val modified = ValuesMap.fromEntity(typeManager, tpe, o).toLowerCaseMutableMap.cloneMap ++ ValuesMap.fromEntity(typeManager, tpe, newO).toLowerCaseMutableMap.cloneMap
 		val table = tpe.table
 		val pks = table.toListOfPrimaryKeyValues(o)
 		val key = entity.clz :: pks
 		if (!m.containsKey(key)) throw new PersistException("entity with key %s not persisted: %s".format(key, o))
-		val e = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified.cloneMap))
+		val e = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified))
 		m.put(key, e)
 		e
 	}
@@ -98,6 +101,8 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 
 	// used internally
 	private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], tpe: Type[PC, T], selectConfig: SelectConfig, entities: EntityMap): List[T with PC] = throw new RuntimeException()
+
+	override def toString = "MemoryMapperDao(%s)".format(m)
 }
 
 object MemoryMapperDao {

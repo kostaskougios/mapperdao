@@ -79,6 +79,8 @@ final class TypeRegistry private (entities: List[Entity[_, _]]) {
 				case _ => entityOf(clz)
 			}
 		}
+
+	override def toString = "TypeRegistry(%s)".format(types)
 }
 
 object TypeRegistry {
