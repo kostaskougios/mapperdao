@@ -41,26 +41,60 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 			}
 			val e = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified.cloneMap))
 			val pks = table.toListOfPrimaryKeyValues(e)
-			val key = o.getClass :: pks
+			val key = entity.clz :: pks
 			if (m.containsKey(key)) throw new PersistException("Primary Key violation: key %s already persisted".format(key))
 			m.put(key, e)
 			e
 		}
 
 	// update
-	def update[PC, T](entity: Entity[PC, T], o: T with PC): T with PC = null.asInstanceOf[T with PC]
+	def update[PC, T](entity: Entity[PC, T], o: T with PC): T with PC = {
+		if (o == null) throw new NullPointerException("o must not be null")
+		if (entity == null) throw new NullPointerException("entity must not be null")
+		val tpe = typeRegistry.typeOf(entity)
+		val modified = ValuesMap.fromEntity(typeManager, tpe, o).toLowerCaseMutableMap
+		val table = tpe.table
+		val pks = table.toListOfPrimaryKeyValues(o)
+		val key = entity.clz :: pks
+		if (!m.containsKey(key)) throw new PersistException("entity with key %s not persisted: %s".format(key, o))
+		val e = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified.cloneMap))
+		e
+	}
 	// update immutable
-	def update[PC, T](entity: Entity[PC, T], o: T with PC, newO: T): T with PC = null.asInstanceOf[T with PC]
+	def update[PC, T](entity: Entity[PC, T], o: T with PC, newO: T): T with PC = {
+		if (o == null) throw new NullPointerException("o must not be null")
+		if (entity == null) throw new NullPointerException("entity must not be null")
+		val tpe = typeRegistry.typeOf(entity)
+		val modified = ValuesMap.fromEntity(typeManager, tpe, newO).toLowerCaseMutableMap
+		val table = tpe.table
+		val pks = table.toListOfPrimaryKeyValues(o)
+		val key = entity.clz :: pks
+		if (!m.containsKey(key)) throw new PersistException("entity with key %s not persisted: %s".format(key, o))
+		val e = tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified.cloneMap))
+		m.put(key, e)
+		e
+	}
 
 	// select
 	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], ids: List[Any]): Option[T with PC] = {
 		val key = entity.clz :: ids
 		val e = m.get(key)
-		if (e == null) None else Some(e.asInstanceOf[T with PC])
+		if (e == null) None else {
+			val tpe = typeRegistry.typeOf(entity)
+			val modified = ValuesMap.fromEntity(typeManager, tpe, e.asInstanceOf[T]).toLowerCaseMutableMap
+			Some(tpe.constructor(ValuesMap.fromMutableMap(typeManager, modified.cloneMap)))
+		}
 	}
 
 	// delete
-	def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T = null.asInstanceOf[T]
+	def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T = {
+		val tpe = typeRegistry.typeOf(entity)
+		val table = tpe.table
+		val pks = table.toListOfPrimaryKeyValues(o)
+		val key = entity.clz :: pks
+		m.remove(key)
+		o
+	}
 
 	// used internally
 	private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], tpe: Type[PC, T], selectConfig: SelectConfig, entities: EntityMap): List[T with PC] = throw new RuntimeException()
