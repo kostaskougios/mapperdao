@@ -16,7 +16,7 @@ protected abstract class ColumnBase {
 	def isSequence: Boolean
 }
 
-case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _]], extraColumnInfosPersisted: List[ColumnInfoBase[T with PC, _]]) {
+case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _]], extraColumnInfosPersisted: List[ColumnInfoBase[T with PC, _]], val unusedPKs: List[SimpleColumn]) {
 
 	val columns: List[ColumnBase] = columnInfosPlain.map(_.column) ::: extraColumnInfosPersisted.map(_.column)
 	// the primary keys for this table

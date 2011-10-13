@@ -13,7 +13,7 @@ class DeclarePrimaryKeysSpec extends SpecificationWithJUnit {
 
 	"entity without PK's loaded correctly" in {
 		createTables
-		val product = mapperDao.insert(ProductEntity, Product("x", Set(Price("GBP", 5, 7), Price("EUR", 7, 8), Price("USD", 9, 10))))
+		val product = mapperDao.insert(ProductEntity, Product("x", Set(Price("GBP", 5, 7), Price("EUR", 5, 6), Price("EUR", 7, 8), Price("USD", 9, 10))))
 		val loaded = mapperDao.select(ProductEntity, product.id).get
 		loaded must_== product
 	}

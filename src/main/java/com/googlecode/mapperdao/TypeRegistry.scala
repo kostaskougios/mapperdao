@@ -18,16 +18,16 @@ final class TypeRegistry private (entities: List[Entity[_, _]]) {
 		var entityToTypeBuilder = Map.newBuilder[Entity[_, _], Type[_, _]]
 
 		entities.foreach { entity =>
-				def create[PC, T]: Type[PC, T] = {
-					val constructor: (ValuesMap) => T with PC with Persisted = m => {
-						// construct the object
-						val o = entity.constructor(m).asInstanceOf[T with PC with Persisted]
-						// set the values map
-						o.valuesMap = m
-						o
-					}
-					Type(entity.clz.asInstanceOf[Class[T]], constructor, Table[PC, T](entity.table, entity.columns.reverse.asInstanceOf[List[ColumnInfoBase[T, _]]], entity.persistedColumns.asInstanceOf[List[ColumnInfoBase[T with PC, _]]]))
+			def create[PC, T]: Type[PC, T] = {
+				val constructor: (ValuesMap) => T with PC with Persisted = m => {
+					// construct the object
+					val o = entity.constructor(m).asInstanceOf[T with PC with Persisted]
+					// set the values map
+					o.valuesMap = m
+					o
 				}
+				Type(entity.clz.asInstanceOf[Class[T]], constructor, Table[PC, T](entity.table, entity.columns.reverse.asInstanceOf[List[ColumnInfoBase[T, _]]], entity.persistedColumns.asInstanceOf[List[ColumnInfoBase[T with PC, _]]], entity.unusedPKs))
+			}
 			val tpe = create[Any, Any]
 			tpe.table.columns.foreach { c =>
 				columnsToEntity.put(c, entity)

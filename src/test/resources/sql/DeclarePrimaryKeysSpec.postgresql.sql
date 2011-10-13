@@ -10,7 +10,7 @@ create table Price (
 	unitprice decimal(6,3),
 	saleprice decimal(6,3),
 	product_id int not null,
-	primary key (product_id,currency),
+	primary key (product_id,currency,unitprice),
 	foreign key (product_id) references Product(id)
 )
 ;

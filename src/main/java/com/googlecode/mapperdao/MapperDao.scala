@@ -193,7 +193,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		{
 			val tpe = typeRegistry.typeOf(entity)
 
-				def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
+			def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
 
 			val table = tpe.table
 
@@ -383,18 +383,22 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		mods ++= om.map.toMap
 		val table = tpe.table
 		// calculate the id's for this tpe
-		val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) } ::: selectBeforePlugins.map { plugin =>
+		val ids = table.primaryKeys.map { pk => om(pk.column.columnName) } ::: selectBeforePlugins.map { plugin =>
 			plugin.idContribution(tpe, om, entities, mods)
 		}.flatten
 		val cacheKey = if (ids.isEmpty) {
-
+			if (table.unusedPKs.isEmpty) {
+				throw new IllegalStateException("entity %s without primary key, should use declarePrimaryKeys() to declare the primary key columns of tables")
+			} else {
+				table.unusedPKs.map { pk => om(pk.columnName) }
+			}
 		} else ids
-		val entity = entities.get[T with PC](tpe.clz, ids)
+		val entity = entities.get[T with PC](tpe.clz, cacheKey)
 		if (entity.isDefined) {
 			entity.get
 		} else {
 			val mock = createMock(tpe, mods)
-			entities.put(tpe.clz, ids, mock)
+			entities.put(tpe.clz, cacheKey, mock)
 
 			selectBeforePlugins.foreach { plugin =>
 				plugin.before(tpe, selectConfig, om, entities, mods)
@@ -402,7 +406,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 
 			val vm = ValuesMap.fromMutableMap(typeManager, mods)
 			val entity = tpe.constructor(vm)
-			entities.reput(tpe.clz, ids, entity)
+			entities.reput(tpe.clz, cacheKey, entity)
 			entity
 		}
 	}
