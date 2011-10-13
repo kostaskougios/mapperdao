@@ -15,6 +15,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 
 	protected[mapperdao] var persistedColumns = List[ColumnInfoBase[T with PC, _]]()
 	protected[mapperdao] var columns = List[ColumnInfoBase[T, _]]();
+	protected[mapperdao] var unusedPKs = List[SimpleColumn]()
 
 	override def hashCode = table.hashCode
 	override def equals(o: Any) = o match {
@@ -164,6 +165,9 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 	protected def longPK(idColumn: String, columnToValue: T => Long): ColumnInfo[T, Long] = pk(idColumn, columnToValue, classOf[Long])
 	protected def stringPK(idColumn: String, columnToValue: T => String): ColumnInfo[T, String] = pk(idColumn, columnToValue, classOf[String])
 
+	protected def declarePrimaryKeys(pks: SimpleColumn*) = pks.foreach { pk =>
+		unusedPKs ::= pk
+	}
 	// implicit conversions
 	protected implicit def columnToBoolean(ci: ColumnInfo[T, Boolean])(implicit m: ValuesMap): Boolean = m(ci)
 	protected implicit def columnToByte(ci: ColumnInfo[T, Byte])(implicit m: ValuesMap): Byte = m(ci)

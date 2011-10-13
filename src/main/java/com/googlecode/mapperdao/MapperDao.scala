@@ -193,7 +193,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		{
 			val tpe = typeRegistry.typeOf(entity)
 
-			def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
+				def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
 
 			val table = tpe.table
 
@@ -386,6 +386,9 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) } ::: selectBeforePlugins.map { plugin =>
 			plugin.idContribution(tpe, om, entities, mods)
 		}.flatten
+		val cacheKey = if (ids.isEmpty) {
+
+		} else ids
 		val entity = entities.get[T with PC](tpe.clz, ids)
 		if (entity.isDefined) {
 			entity.get
