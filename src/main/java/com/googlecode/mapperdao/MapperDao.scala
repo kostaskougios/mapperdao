@@ -388,7 +388,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		}.flatten
 		val cacheKey = if (ids.isEmpty) {
 			if (table.unusedPKs.isEmpty) {
-				throw new IllegalStateException("entity %s without primary key, should use declarePrimaryKeys() to declare the primary key columns of tables")
+				throw new IllegalStateException("entity %s without primary key, please use declarePrimaryKeys() to declare the primary key columns of tables into your entity declaration")
 			} else {
 				table.unusedPKs.map { pk => om(pk.columnName) }
 			}

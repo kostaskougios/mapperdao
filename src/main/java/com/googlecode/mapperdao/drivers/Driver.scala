@@ -22,7 +22,7 @@ trait Driver {
 	protected def escapeColumnNames(name: String): String = name
 	protected def escapeTableNames(name: String): String = name
 
-	protected[mapperdao] def commaSeparatedListOfSimpleTypeColumns[T](separator: String, columns: List[ColumnBase]): String = columns.map(_.columnName).map(escapeColumnNames _).mkString(separator)
+	protected[mapperdao] def commaSeparatedListOfSimpleTypeColumns[T](separator: String, columns: Traversable[ColumnBase]): String = columns.map(_.columnName).map(escapeColumnNames _).mkString(separator)
 	protected[mapperdao] def commaSeparatedListOfSimpleTypeColumns[T](prefix: String, separator: String, columns: List[ColumnBase]): String = columns.map(_.columnName).map(escapeColumnNames _).mkString(prefix, separator + prefix, "")
 
 	protected[mapperdao] def generateColumnsEqualsValueString(l: List[ColumnBase]): String = generateColumnsEqualsValueString(l, ",\n")
@@ -211,7 +211,7 @@ trait Driver {
 		{
 			val columns = selectColumns(tpe)
 			val sb = new StringBuilder(100, "select ")
-			sb append commaSeparatedListOfSimpleTypeColumns(",", columns)
+			sb append commaSeparatedListOfSimpleTypeColumns(",", (columns ::: tpe.table.unusedPKs).toSet)
 			sb append " from " append escapeTableNames(tpe.table.name)
 			sb append "\nwhere " append generateColumnsEqualsValueString(where.map(_._1), " and ")
 
@@ -397,64 +397,64 @@ trait Driver {
 			val sb = new StringBuilder(100)
 			var args = List.newBuilder[Any]
 			wheres.map(_.clauses).foreach { op =>
-					def inner(op: OpBase): Unit = op match {
-						case o: Operation[_] =>
-							sb append resolveWhereExpression(aliases, args, o.left)
-							sb append ' ' append o.operand.sql append ' ' append resolveWhereExpression(aliases, args, o.right)
-						case and: AndOp =>
-							sb append "( "
-							inner(and.left)
-							sb append " and "
-							inner(and.right)
-							sb append " )"
-						case and: OrOp =>
-							sb append "( "
-							inner(and.left)
-							sb append " or "
-							inner(and.right)
-							sb append " )"
-						case mto: ManyToOneOperation[_, Any] =>
-							val ManyToOneOperation(left, operand, right) = mto
-							if (right == null) {
-								left.columns foreach { c =>
-									sb append resolveWhereExpression(aliases, args, c)
-									operand match {
-										case EQ() => sb append " is null"
-										case NE() => sb append " is not null"
-										case _ => throw new IllegalArgumentException("operand %s not valid when right hand parameter is null.".format(operand))
-									}
-								}
-							} else {
-								val fTpe = typeRegistry.typeOfObject(right)
-								val fPKs = fTpe.table.toListOfPrimaryKeyValues(right)
-								if (left.columns.size != fPKs.size) throw new IllegalStateException("foreign keys %s don't match foreign key columns %s".format(fPKs, left.columns))
-								left.columns zip fPKs foreach { t =>
-									sb append resolveWhereExpression(aliases, args, t._1)
-									sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
+				def inner(op: OpBase): Unit = op match {
+					case o: Operation[_] =>
+						sb append resolveWhereExpression(aliases, args, o.left)
+						sb append ' ' append o.operand.sql append ' ' append resolveWhereExpression(aliases, args, o.right)
+					case and: AndOp =>
+						sb append "( "
+						inner(and.left)
+						sb append " and "
+						inner(and.right)
+						sb append " )"
+					case and: OrOp =>
+						sb append "( "
+						inner(and.left)
+						sb append " or "
+						inner(and.right)
+						sb append " )"
+					case mto: ManyToOneOperation[_, Any] =>
+						val ManyToOneOperation(left, operand, right) = mto
+						if (right == null) {
+							left.columns foreach { c =>
+								sb append resolveWhereExpression(aliases, args, c)
+								operand match {
+									case EQ() => sb append " is null"
+									case NE() => sb append " is not null"
+									case _ => throw new IllegalArgumentException("operand %s not valid when right hand parameter is null.".format(operand))
 								}
 							}
-						case OneToManyOperation(left: OneToMany[_], operand: Operand, right: Any) =>
-							val entity = typeRegistry.entityOf(left)
-							val foreignEntity = typeRegistry.entityOfObject(right)
-							joinsSb append oneToManyJoin(aliases, entity, foreignEntity, left)
+						} else {
 							val fTpe = typeRegistry.typeOfObject(right)
-							val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
-							fPKColumnAndValues.foreach { t =>
+							val fPKs = fTpe.table.toListOfPrimaryKeyValues(right)
+							if (left.columns.size != fPKs.size) throw new IllegalStateException("foreign keys %s don't match foreign key columns %s".format(fPKs, left.columns))
+							left.columns zip fPKs foreach { t =>
 								sb append resolveWhereExpression(aliases, args, t._1)
 								sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
 							}
-						case ManyToManyOperation(left: ManyToMany[_], operand: Operand, right: Any) =>
-							val entity = typeRegistry.entityOf(left)
-							val foreignEntity = typeRegistry.entityOfObject(right)
-							joinsSb append manyToManyJoin(aliases, entity, foreignEntity, left)
-							val fTpe = typeRegistry.typeOfObject(right)
-							val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
-							fPKColumnAndValues.foreach { t =>
-								sb append resolveWhereExpression(aliases, args, t._1)
-								sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
-							}
-						//					case OneToOneReverseOperation(left: OneToOneReverse[_], operand: Operand, right: Any) =>
-					}
+						}
+					case OneToManyOperation(left: OneToMany[_], operand: Operand, right: Any) =>
+						val entity = typeRegistry.entityOf(left)
+						val foreignEntity = typeRegistry.entityOfObject(right)
+						joinsSb append oneToManyJoin(aliases, entity, foreignEntity, left)
+						val fTpe = typeRegistry.typeOfObject(right)
+						val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
+						fPKColumnAndValues.foreach { t =>
+							sb append resolveWhereExpression(aliases, args, t._1)
+							sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
+						}
+					case ManyToManyOperation(left: ManyToMany[_], operand: Operand, right: Any) =>
+						val entity = typeRegistry.entityOf(left)
+						val foreignEntity = typeRegistry.entityOfObject(right)
+						joinsSb append manyToManyJoin(aliases, entity, foreignEntity, left)
+						val fTpe = typeRegistry.typeOfObject(right)
+						val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
+						fPKColumnAndValues.foreach { t =>
+							sb append resolveWhereExpression(aliases, args, t._1)
+							sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
+						}
+					//					case OneToOneReverseOperation(left: OneToOneReverse[_], operand: Operand, right: Any) =>
+				}
 
 				inner(op)
 			}

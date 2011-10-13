@@ -89,7 +89,8 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 				} else {
 					val ftpe = typeRegistry.typeOf(c.foreign.clz)
 					val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
-					val fom = driver.doSelect(ftpe, c.foreignColumns.zip(ids))
+					val where = c.foreignColumns.zip(ids)
+					val fom = driver.doSelect(ftpe, where)
 					entities.down(tpe, ci, om)
 					val v = mapperDao.toEntities(fom, ftpe, selectConfig, entities)
 					entities.up

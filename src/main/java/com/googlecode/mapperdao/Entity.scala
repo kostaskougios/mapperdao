@@ -165,8 +165,11 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 	protected def longPK(idColumn: String, columnToValue: T => Long): ColumnInfo[T, Long] = pk(idColumn, columnToValue, classOf[Long])
 	protected def stringPK(idColumn: String, columnToValue: T => String): ColumnInfo[T, String] = pk(idColumn, columnToValue, classOf[String])
 
-	protected def declarePrimaryKeys(pks: SimpleColumn*) = pks.foreach { pk =>
-		unusedPKs ::= pk
+	/**
+	 * declare any primary keys that are not used for any mappings
+	 */
+	protected def declarePrimaryKeys(pks: String*): Unit = pks.foreach { pk =>
+		unusedPKs ::= Column(pk)
 	}
 	// implicit conversions
 	protected implicit def columnToBoolean(ci: ColumnInfo[T, Boolean])(implicit m: ValuesMap): Boolean = m(ci)
