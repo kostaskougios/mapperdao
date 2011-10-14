@@ -84,5 +84,5 @@ trait SelectMock {
  * plugins executed before deleting an entity
  */
 trait BeforeDelete {
-	def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)]): Unit
+	def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)], entityMap: UpdateEntityMap): Unit
 }

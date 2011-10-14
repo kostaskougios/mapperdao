@@ -63,6 +63,7 @@ object DeclarePrimaryKeysSpec {
 		val currency = string("currency", _.currency)
 		val unitPrice = double("unitprice", _.unitPrice)
 		val salePrice = double("saleprice", _.salePrice)
+		// the unitprice doesn't make sense to be a PK, but we have it so that we can do extra tests
 		val pks = declarePrimaryKeys("currency", "product_id", "unitprice")
 
 		def constructor(implicit m: ValuesMap) = new Price(currency, unitPrice, salePrice) with Persisted

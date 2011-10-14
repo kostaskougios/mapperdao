@@ -131,7 +131,9 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				// update the removed ones
 				removed.foreach { item =>
 					val fe = typeRegistry.entityOfObject[Any, Any](item)
-					mapperDao.delete(fe, item)
+					entityMap.down(mockO, ci)
+					mapperDao.deleteInner(mapperDao.defaultDeleteConfig, fe, item, entityMap)
+					entityMap.up
 				}
 
 				// update those that remained in the updated traversable
@@ -142,7 +144,6 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 					entityMap.up
 					item.asInstanceOf[Persisted].discarded = true
 					modified(oneToMany.alias) = newItem
-					//addToMap(oneToMany.alias, newItem, modifiedTraversables)
 				}
 				// find the added ones
 				added.foreach { item =>
@@ -157,7 +158,7 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 }
 
 class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeDelete {
-	override def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)]) = if (deleteConfig.propagate) {
+	override def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)], entityMap: UpdateEntityMap) = if (deleteConfig.propagate) {
 		tpe.table.oneToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach { ci =>
 
 			// execute before-delete-relationship events

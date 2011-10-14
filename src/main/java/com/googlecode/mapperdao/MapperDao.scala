@@ -432,7 +432,14 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 	/**
 	 * deletes an entity from the database
 	 */
-	def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T =
+	def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T = {
+		val entityMap = new UpdateEntityMap
+		val deleted = deleteInner(deleteConfig, entity, o, entityMap)
+		entityMap.done
+		deleted
+	}
+
+	private[mapperdao] def deleteInner[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T =
 		{
 			if (!o.isInstanceOf[Persisted]) throw new IllegalArgumentException("can't delete an object that is not persisted: " + o);
 
@@ -448,7 +455,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 
 				// call all the before-delete plugins
 				beforeDeletePlugins.foreach { plugin =>
-					plugin.before(tpe, deleteConfig, events, persisted, keyValues)
+					plugin.before(tpe, deleteConfig, events, persisted, keyValues, entityMap)
 				}
 
 				// execute the before-delete events
