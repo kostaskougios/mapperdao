@@ -11,6 +11,16 @@ class DeclarePrimaryKeysSpec extends SpecificationWithJUnit {
 	import DeclarePrimaryKeysSpec._
 	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, PriceEntity))
 
+	"entity without PK's removed from collection" in {
+		createTables
+		val p = mapperDao.insert(ProductEntity, Product("x", Set(Price("GBP", 5, 7), Price("EUR", 5, 6), Price("EUR", 7, 8), Price("USD", 9, 10))))
+		val newP = new Product(p.title, p.prices.filterNot(_.currency == "GBP"))
+		val updated = mapperDao.update(ProductEntity, p, newP)
+		updated must_== newP
+		val loaded = mapperDao.select(ProductEntity, updated.id).get
+		loaded must_== updated
+	}
+
 	"entity without PK's loaded correctly" in {
 		createTables
 		val product = mapperDao.insert(ProductEntity, Product("x", Set(Price("GBP", 5, 7), Price("EUR", 5, 6), Price("EUR", 7, 8), Price("USD", 9, 10))))
