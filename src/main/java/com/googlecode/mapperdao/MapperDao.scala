@@ -451,8 +451,12 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			val table = tpe.table
 
 			try {
-				val keyValues = table.toListOfPrimaryKeySimpleColumnAndValueTuples(o)
+				val keyValues0 = table.toListOfPrimaryKeySimpleColumnAndValueTuples(o) ::: beforeDeletePlugins.flatMap(plugin =>
+					plugin.idColumnValueContribution(tpe, deleteConfig, events, persisted, entityMap)
+				)
 
+				val unusedPKColumns = table.unusedPKs.filterNot(unusedColumn => keyValues0.map(_._1).contains(unusedColumn))
+				val keyValues = keyValues0 ::: table.toListOfColumnAndValueTuples(unusedPKColumns, o)
 				// call all the before-delete plugins
 				beforeDeletePlugins.foreach { plugin =>
 					plugin.before(tpe, deleteConfig, events, persisted, keyValues, entityMap)
