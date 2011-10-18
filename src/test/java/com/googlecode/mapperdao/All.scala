@@ -56,7 +56,8 @@ import org.junit.runners.Suite
 		classOf[MockMapperDaoSpec],
 		classOf[MockQueryDaoSpec],
 		classOf[MockDaosSpec],
-		classOf[DeclarePrimaryKeysSpec]
+		classOf[DeclarePrimaryKeysSpec],
+		classOf[UpdateConfigSpec]
 	)
 )
 class All extends SpecificationWithJUnit

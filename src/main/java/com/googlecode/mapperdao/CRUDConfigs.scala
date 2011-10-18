@@ -19,12 +19,12 @@ package com.googlecode.mapperdao
 case class SelectConfig(skip: Set[ColumnInfoRelationshipBase[_, _, _]] = Set())
 
 case class QueryConfig(
-	// skip relationship from loading? i.e. SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
-	skip: Set[ColumnInfoRelationshipBase[_, _, _]] = Set(),
-	// start index of first row, useful for paginating
-	offset: Option[Long] = None,
-	// limit the number of returned rows, useful for paginating
-	limit: Option[Long] = None) {
+		// skip relationship from loading? i.e. SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
+		skip: Set[ColumnInfoRelationshipBase[_, _, _]] = Set(),
+		// start index of first row, useful for paginating
+		offset: Option[Long] = None,
+		// limit the number of returned rows, useful for paginating
+		limit: Option[Long] = None) {
 
 	// check parameter validity
 	if (offset.isDefined && offset.get < 0) throw new IllegalArgumentException("offset is " + offset)
@@ -62,3 +62,5 @@ object QueryConfig {
  * example: DeleteConfig(true,Set(Product.attributes)) // propagate deletes but not for attributes
  */
 case class DeleteConfig(propagate: Boolean = false, skip: Set[ColumnInfoRelationshipBase[_, _, _]] = Set())
+
+case class UpdateConfig(deleteConfig: DeleteConfig)
