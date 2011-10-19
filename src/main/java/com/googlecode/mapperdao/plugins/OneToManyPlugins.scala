@@ -132,7 +132,7 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				removed.foreach { item =>
 					val fe = typeRegistry.entityOfObject[Any, Any](item)
 					entityMap.down(mockO, ci)
-					mapperDao.deleteInner(mapperDao.defaultDeleteConfig, fe, item, entityMap)
+					mapperDao.deleteInner(updateConfig.deleteConfig, fe, item, entityMap)
 					entityMap.up
 				}
 

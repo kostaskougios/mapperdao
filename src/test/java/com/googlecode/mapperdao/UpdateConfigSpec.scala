@@ -17,7 +17,8 @@ class UpdateConfigSpec extends SpecificationWithJUnit {
 		prepareDb(jdbc, "OneToManyDecl")
 
 		val inserted = mapperDao.insert(PersonEntity, Person(1, "kostas", Set(House(10, Set(Floor(5, "nice floor"), Floor(6, "top floor"))))))
-		mapperDao.update(PersonEntity, inserted, Person(1, inserted.name, inserted.owns.map(h => House(10, h.floors.filterNot(_.id == 5)))))
+		val houses = inserted.owns.map(h => House(10, h.floors.filterNot(_.id == 5)))
+		mapperDao.update(UpdateConfig(deleteConfig = DeleteConfig(propagate = true)), PersonEntity, inserted, Person(1, inserted.name, houses))
 
 		jdbc.queryForInt("select count(*) from Floor") must_== 1
 	}
