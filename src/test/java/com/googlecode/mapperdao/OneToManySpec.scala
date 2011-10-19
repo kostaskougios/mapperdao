@@ -16,7 +16,7 @@ class OneToManySpec extends SpecificationWithJUnit {
 
 	import OneToManySpec._
 
-	val (jdbc, driver, mapperDao) = setup
+	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity, HouseEntity, PersonEntity))
 
 	"updating id of many entity" in {
 		createTables
@@ -59,13 +59,13 @@ class OneToManySpec extends SpecificationWithJUnit {
 		val inserted = mapperDao.insert(PersonEntity, person)
 
 		var updated: Person = inserted
-			def doUpdate(from: Person, to: Person) =
-				{
-					updated = mapperDao.update(PersonEntity, from, to)
-					updated must_== to
-					mapperDao.select(PersonEntity, 3).get must_== updated
-					mapperDao.select(PersonEntity, 3).get must_== to
-				}
+		def doUpdate(from: Person, to: Person) =
+			{
+				updated = mapperDao.update(PersonEntity, from, to)
+				updated must_== to
+				mapperDao.select(PersonEntity, 3).get must_== updated
+				mapperDao.select(PersonEntity, 3).get must_== to
+			}
 		doUpdate(updated, new Person(3, "Changed", "K", updated.owns, 18, updated.positions.filterNot(_ == jp1)))
 		doUpdate(updated, new Person(3, "Changed Again", "Surname changed too", updated.owns.filter(_.address == "London"), 18, jp5 :: updated.positions.filterNot(jp ⇒ jp == jp1 || jp == jp3)))
 
@@ -177,13 +177,6 @@ class OneToManySpec extends SpecificationWithJUnit {
 		mapperDao.update(PersonEntity, removedReloaded) must_== removedReloaded
 		mapperDao.select(PersonEntity, 3).get must_== removedReloaded
 	}
-
-	def setup =
-		{
-			val typeRegistry = TypeRegistry(JobPositionEntity, HouseEntity, PersonEntity)
-
-			Setup.setupMapperDao(typeRegistry)
-		}
 
 	def createTables {
 		Setup.dropAllTables(jdbc)
