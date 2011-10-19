@@ -29,7 +29,7 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 	private val m = new ConcurrentHashMap[List[Any], Persisted]
 
 	// insert
-	def insert[PC, T](entity: Entity[PC, T], o: T): T with PC =
+	def insert[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T): T with PC =
 		{
 			if (o == null) throw new NullPointerException("o must not be null")
 			if (entity == null) throw new NullPointerException("entity must not be null")
@@ -51,7 +51,7 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 		}
 
 	// update
-	def update[PC, T](entity: Entity[PC, T], o: T with PC): T with PC = {
+	def update[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC): T with PC = {
 		if (o == null) throw new NullPointerException("o must not be null")
 		if (entity == null) throw new NullPointerException("entity must not be null")
 		val tpe = typeRegistry.typeOf(entity)
@@ -64,7 +64,7 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 		e
 	}
 	// update immutable
-	def update[PC, T](entity: Entity[PC, T], o: T with PC, newO: T): T with PC = {
+	def update[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC, newO: T): T with PC = {
 		if (o == null) throw new NullPointerException("o must not be null")
 		if (entity == null) throw new NullPointerException("entity must not be null")
 		val tpe = typeRegistry.typeOf(entity)

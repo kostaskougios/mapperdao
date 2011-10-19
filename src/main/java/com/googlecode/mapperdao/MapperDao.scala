@@ -13,11 +13,15 @@ import com.googlecode.mapperdao.events.Events
 trait MapperDao {
 
 	// insert
-	def insert[PC, T](entity: Entity[PC, T], o: T): T with PC
+	def insert[PC, T](entity: Entity[PC, T], o: T): T with PC = insert(defaultUpdateConfig, entity, o)
+	def insert[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T): T with PC
 
 	// update
-	def update[PC, T](entity: Entity[PC, T], o: T with PC): T with PC
-	def update[PC, T](entity: Entity[PC, T], o: T with PC, newO: T): T with PC
+	def update[PC, T](entity: Entity[PC, T], o: T with PC): T with PC = update(defaultUpdateConfig, entity, o)
+	def update[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC): T with PC
+
+	def update[PC, T](entity: Entity[PC, T], o: T with PC, newO: T): T with PC = update(defaultUpdateConfig, entity, o, newO)
+	def update[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC, newO: T): T with PC
 
 	// select
 	/**
@@ -46,6 +50,7 @@ trait MapperDao {
 	// default configurations
 	val defaultSelectConfig = SelectConfig()
 	val defaultDeleteConfig = DeleteConfig()
+	val defaultUpdateConfig = UpdateConfig(defaultDeleteConfig)
 
 	// delete
 
@@ -115,7 +120,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 	 * ===================================================================================
 	 */
 
-	private[mapperdao] def insertInner[PC, T](entity: Entity[PC, T], o: T, entityMap: UpdateEntityMap): T with PC with Persisted =
+	private[mapperdao] def insertInner[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, entityMap: UpdateEntityMap): T with PC with Persisted =
 		{
 			// if a mock exists in the entity map or already persisted, then return
 			// the existing mock/persisted object
@@ -137,7 +142,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			entityMap.put(o, mockO)
 
 			val extraArgs = beforeInsertPlugins.map { plugin =>
-				plugin.before(tpe, o, mockO, entityMap, modified, updateInfo)
+				plugin.before(updateConfig, tpe, o, mockO, entityMap, modified, updateInfo)
 			}.flatten.distinct
 
 			// arguments
@@ -159,7 +164,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			entityMap.put(o, mockO)
 
 			postInsertPlugins.foreach { plugin =>
-				plugin.after(tpe, o, mockO, entityMap, modified, modifiedTraversables)
+				plugin.after(updateConfig, tpe, o, mockO, entityMap, modified, modifiedTraversables)
 			}
 
 			val finalMods = modified ++ modifiedTraversables
@@ -172,11 +177,11 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 	/**
 	 * insert an entity into the database
 	 */
-	def insert[PC, T](entity: Entity[PC, T], o: T): T with PC =
+	def insert[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T): T with PC =
 		{
 			val entityMap = new UpdateEntityMap
 			try {
-				val v = insertInner(entity, o, entityMap)
+				val v = insertInner(updateConfig, entity, o, entityMap)
 				entityMap.done
 				v
 			} catch {
@@ -189,7 +194,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 	/**
 	 * update an entity
 	 */
-	private def updateInner[PC, T](entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap): T with PC with Persisted =
+	private def updateInner[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap): T with PC with Persisted =
 		{
 			val tpe = typeRegistry.typeOf(entity)
 
@@ -208,7 +213,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 
 			// run all DuringUpdate plugins
 			val pluginDUR = duringUpdatePlugins.map { plugin =>
-				plugin.during(tpe, o, oldValuesMap, newValuesMap, entityMap, modified, modifiedTraversables)
+				plugin.during(updateConfig, tpe, o, oldValuesMap, newValuesMap, entityMap, modified, modifiedTraversables)
 			}.reduceLeft { (dur1, dur2) =>
 				new DuringUpdateResults(dur1.values ::: dur2.values, dur1.keys ::: dur2.keys)
 			}
@@ -233,7 +238,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			entityMap.put(o, mockO)
 
 			postUpdatePlugins.foreach { plugin =>
-				plugin.after(tpe, o, mockO, oldValuesMap, newValuesMap, entityMap, modifiedTraversables)
+				plugin.after(updateConfig, tpe, o, mockO, oldValuesMap, newValuesMap, entityMap, modifiedTraversables)
 			}
 
 			// done, construct the updated entity
@@ -248,14 +253,14 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 	 * changed prior to calling this method.
 	 * The whole tree will be updated (if necessary).
 	 */
-	def update[PC, T](entity: Entity[PC, T], o: T with PC): T with PC =
+	def update[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC): T with PC =
 		{
 			if (!o.isInstanceOf[Persisted]) throw new IllegalArgumentException("can't update an object that is not persisted: " + o);
 			val persisted = o.asInstanceOf[T with PC with Persisted]
 			validatePersisted(persisted)
 			val entityMap = new UpdateEntityMap
 			try {
-				val v = updateInner(entity, o, entityMap)
+				val v = updateInner(updateConfig, entity, o, entityMap)
 				entityMap.done
 				v
 			} catch {
@@ -264,7 +269,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 
 		}
 
-	private[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T with PC with Persisted =
+	private[mapperdao] def updateInner[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T with PC with Persisted =
 		{
 			// do a check if a mock is been updated
 			return o match {
@@ -289,7 +294,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 					val tpe = typeRegistry.typeOf(entity)
 					val newValuesMapPre = ValuesMap.fromEntity(typeManager, tpe, o)
 					val reConstructed = tpe.constructor(newValuesMapPre)
-					updateInner(entity, o, oldValuesMap, reConstructed.valuesMap, entityMap)
+					updateInner(updateConfig, entity, o, oldValuesMap, reConstructed.valuesMap, entityMap)
 			}
 		}
 	/**
@@ -305,7 +310,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 	 * 					based on differences between newO and o
 	 * @return			The updated entity. Both o and newO should be disposed (not used) after the call.
 	 */
-	def update[PC, T](entity: Entity[PC, T], o: T with PC, newO: T): T with PC =
+	def update[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC, newO: T): T with PC =
 		{
 			if (!o.isInstanceOf[Persisted]) throw new IllegalArgumentException("can't update an object that is not persisted: " + o);
 			val persisted = o.asInstanceOf[T with PC with Persisted]
@@ -313,7 +318,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			persisted.discarded = true
 			try {
 				val entityMap = new UpdateEntityMap
-				val v = updateInner(entity, persisted, newO, entityMap)
+				val v = updateInner(updateConfig, entity, persisted, newO, entityMap)
 				entityMap.done
 				v
 			} catch {
@@ -321,11 +326,11 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			}
 		}
 
-	private[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC with Persisted, newO: T, entityMap: UpdateEntityMap): T with PC =
+	private[mapperdao] def updateInner[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC with Persisted, newO: T, entityMap: UpdateEntityMap): T with PC =
 		{
 			val oldValuesMap = o.valuesMap
 			val newValuesMap = ValuesMap.fromEntity(typeManager, typeRegistry.typeOfObject(newO), newO)
-			updateInner(entity, newO, oldValuesMap, newValuesMap, entityMap)
+			updateInner(updateConfig, entity, newO, oldValuesMap, newValuesMap, entityMap)
 		}
 
 	private def validatePersisted(persisted: Persisted) {
@@ -493,12 +498,12 @@ object MapperDao {
 
 class MockMapperDao extends MapperDao {
 	// insert
-	def insert[PC, T](entity: Entity[PC, T], o: T): T with PC = null.asInstanceOf[T with PC]
+	def insert[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T): T with PC = null.asInstanceOf[T with PC]
 
 	// update
-	def update[PC, T](entity: Entity[PC, T], o: T with PC): T with PC = null.asInstanceOf[T with PC]
+	def update[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC): T with PC = null.asInstanceOf[T with PC]
 	// update immutable
-	def update[PC, T](entity: Entity[PC, T], o: T with PC, newO: T): T with PC = null.asInstanceOf[T with PC]
+	def update[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC, newO: T): T with PC = null.asInstanceOf[T with PC]
 
 	// select
 	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], ids: List[Any]): Option[T with PC] = None

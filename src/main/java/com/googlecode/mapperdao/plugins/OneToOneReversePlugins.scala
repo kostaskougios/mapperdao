@@ -23,6 +23,7 @@ import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.TypeManager
+import com.googlecode.mapperdao.UpdateConfig
 
 /**
  * @author kostantinos.kougios
@@ -31,7 +32,7 @@ import com.googlecode.mapperdao.TypeManager
  */
 class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeInsert with PostInsert {
 
-	override def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
+	override def before[PC, T, V, F](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
 		{
 			val UpdateInfo(parent, parentColumnInfo) = updateInfo
 			if (parent != null) {
@@ -47,7 +48,7 @@ class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperD
 			} else Nil
 		}
 
-	override def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): Unit =
+	override def after[PC, T](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): Unit =
 		{
 			val table = tpe.table
 			// one-to-one reverse
@@ -59,12 +60,12 @@ class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperD
 						case null => null
 						case p: Persisted =>
 							entityMap.down(mockO, cis)
-							val updated = mapperDao.updateInner(fe, p, entityMap)
+							val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
 							entityMap.up
 							updated
 						case x =>
 							entityMap.down(mockO, cis)
-							val inserted = mapperDao.insertInner(fe, x, entityMap)
+							val inserted = mapperDao.insertInner(updateConfig, fe, x, entityMap)
 							entityMap.up
 							inserted
 					}
@@ -126,7 +127,7 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeManager, driver: Driver, mapperDao: MapperDaoImpl) extends DuringUpdate with PostUpdate {
 	private val emptyDUR = new DuringUpdateResults(Nil, Nil)
 
-	override def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
+	override def during[PC, T](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
 			val UpdateInfo(parent, parentColumnInfo) = entityMap.peek[Any, Any, T]
 			if (parent != null) {
@@ -139,7 +140,7 @@ class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeM
 			} else emptyDUR
 		}
 
-	def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
+	def after[PC, T](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
 		{
 			val table = tpe.table
 			// one-to-one-reverse
@@ -152,16 +153,16 @@ class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeM
 					val v = fo match {
 						case p: Persisted =>
 							entityMap.down(mockO, ci)
-							mapperDao.updateInner(fentity, fo, entityMap)
+							mapperDao.updateInner(updateConfig, fentity, fo, entityMap)
 							entityMap.up
 						case newO =>
 							entityMap.down(mockO, ci)
 							val oldV = oldValuesMap(ci)
 							if (oldV == null) {
-								mapperDao.insertInner(fentity, fo, entityMap)
+								mapperDao.insertInner(updateConfig, fentity, fo, entityMap)
 							} else {
 								val nVM = ValuesMap.fromEntity(typeManager, ftpe, fo)
-								mapperDao.updateInner(fentity, oldV.asInstanceOf[Persisted], fo, entityMap)
+								mapperDao.updateInner(updateConfig, fentity, oldV.asInstanceOf[Persisted], fo, entityMap)
 							}
 							entityMap.up
 					}

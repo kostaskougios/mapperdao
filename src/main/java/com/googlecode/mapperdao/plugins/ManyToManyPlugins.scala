@@ -18,6 +18,7 @@ import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.MapperDaoImpl
+import com.googlecode.mapperdao.UpdateConfig
 
 /**
  * @author kostantinos.kougios
@@ -26,7 +27,7 @@ import com.googlecode.mapperdao.MapperDaoImpl
  */
 class ManyToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends PostInsert {
 
-	override def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): Unit =
+	override def after[PC, T](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): Unit =
 		{
 			val table = tpe.table
 			// many to many
@@ -41,7 +42,7 @@ class ManyToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 							nested
 						} else {
 							entityMap.down(mockO, cis)
-							val inserted = mapperDao.insertInner(nestedEntity, nested, entityMap)
+							val inserted = mapperDao.insertInner(updateConfig, nestedEntity, nested, entityMap)
 							entityMap.up
 							inserted
 						}
@@ -98,7 +99,7 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
  */
 class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends PostUpdate {
 
-	def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
+	def after[PC, T](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
 		{
 			val table = tpe.table
 			// update many-to-many
@@ -127,7 +128,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 						case p: Persisted =>
 							val fe = typeRegistry.entityOfObject[Any, Any](item)
 							entityMap.down(mockO, ci)
-							mapperDao.updateInner(fe, item, entityMap)
+							mapperDao.updateInner(updateConfig, fe, item, entityMap)
 							entityMap.up
 							p.discarded = true
 							p
@@ -143,7 +144,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 						case p: Persisted => p
 						case n =>
 							entityMap.down(mockO, ci)
-							val inserted = mapperDao.insertInner[Any, Any](typeRegistry.entityOfObject(n), n, entityMap)
+							val inserted = mapperDao.insertInner[Any, Any](updateConfig, typeRegistry.entityOfObject(n), n, entityMap)
 							entityMap.up
 							inserted
 					}

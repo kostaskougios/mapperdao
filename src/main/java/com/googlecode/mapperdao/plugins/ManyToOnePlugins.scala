@@ -13,7 +13,7 @@ import com.googlecode.mapperdao._
  */
 class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeInsert {
 
-	override def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
+	override def before[PC, T, V, F](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
 		{
 			val table = tpe.table
 			var extraArgs = List[(Column, Any)]()
@@ -26,12 +26,12 @@ class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 						case null => null
 						case p: Persisted =>
 							entityMap.down(mockO, cis)
-							val updated = mapperDao.updateInner(fe, p, entityMap)
+							val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
 							entityMap.up
 							updated
 						case x =>
 							entityMap.down(mockO, cis)
-							val inserted = mapperDao.insertInner(fe, x, entityMap)
+							val inserted = mapperDao.insertInner(updateConfig, fe, x, entityMap)
 							entityMap.up
 							inserted
 					}
@@ -88,7 +88,7 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
  */
 class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends DuringUpdate {
 
-	override def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
+	override def during[PC, T](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
 			val table = tpe.table
 
@@ -99,13 +99,13 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 					case p: Persisted =>
 						val fEntity = typeRegistry.entityOfObject[Any, Any](v)
 						entityMap.down(o, ci)
-						val newV = mapperDao.updateInner(fEntity, v, entityMap)
+						val newV = mapperDao.updateInner(updateConfig, fEntity, v, entityMap)
 						entityMap.up
 						newV
 					case _ =>
 						val fEntity = typeRegistry.entityOfObject[Any, Any](v)
 						entityMap.down(o, ci)
-						val newV = mapperDao.insertInner(fEntity, v, entityMap)
+						val newV = mapperDao.insertInner(updateConfig, fEntity, v, entityMap)
 						entityMap.up
 						newV
 				}

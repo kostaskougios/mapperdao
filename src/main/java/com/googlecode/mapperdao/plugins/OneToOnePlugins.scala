@@ -15,6 +15,7 @@ import com.googlecode.mapperdao.EntityMap
 import com.googlecode.mapperdao.ValuesMap
 import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.drivers.Driver
+import com.googlecode.mapperdao.UpdateConfig
 
 /**
  * @author kostantinos.kougios
@@ -23,7 +24,7 @@ import com.googlecode.mapperdao.drivers.Driver
  */
 class OneToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeInsert {
 
-	override def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
+	override def before[PC, T, V, F](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
 		{
 			val table = tpe.table
 			// one-to-one
@@ -37,12 +38,12 @@ class OneToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 						case null => null
 						case p: Persisted =>
 							entityMap.down(o, cis)
-							val updated = mapperDao.updateInner(fe, p, entityMap)
+							val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
 							entityMap.up
 							updated
 						case x =>
 							entityMap.down(mockO, cis)
-							val inserted = mapperDao.insertInner(fe, x, entityMap)
+							val inserted = mapperDao.insertInner(updateConfig, fe, x, entityMap)
 							entityMap.up
 							inserted
 					}
@@ -104,7 +105,7 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends DuringUpdate {
 	private val nullList = List(null, null, null, null, null)
 
-	def during[PC, T](tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
+	def during[PC, T](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
 			val table = tpe.table
 
@@ -125,12 +126,12 @@ class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 							(p, false) //mock object shouldn't contribute to column updates
 						case p: Persisted =>
 							entityMap.down(o, ci)
-							val updated = mapperDao.updateInner(fe, p, entityMap)
+							val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
 							entityMap.up
 							(updated, true)
 						case x =>
 							entityMap.down(o, ci)
-							val inserted = mapperDao.insertInner(fe, x, entityMap)
+							val inserted = mapperDao.insertInner(updateConfig, fe, x, entityMap)
 							entityMap.up
 							(inserted, true)
 					}

@@ -63,4 +63,4 @@ object QueryConfig {
  */
 case class DeleteConfig(propagate: Boolean = false, skip: Set[ColumnInfoRelationshipBase[_, _, _]] = Set())
 
-case class UpdateConfig(deleteConfig: DeleteConfig)
+case class UpdateConfig(deleteConfig: DeleteConfig = DeleteConfig())

@@ -15,7 +15,7 @@ import com.googlecode.mapperdao.events.Events
  */
 class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeInsert with PostInsert {
 
-	override def before[PC, T, V, F](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
+	override def before[PC, T, V, F](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
 		{
 			val UpdateInfo(parent, parentColumnInfo) = updateInfo
 			if (parent != null) {
@@ -37,7 +37,7 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 			} else Nil
 		}
 
-	override def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): Unit =
+	override def after[PC, T](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): Unit =
 		{
 			val table = tpe.table
 			// one to many
@@ -57,7 +57,7 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 						} else {
 							// insert
 							entityMap.down(mockO, cis)
-							val inserted = mapperDao.insertInner(nestedEntity, nested, entityMap)
+							val inserted = mapperDao.insertInner(updateConfig, nestedEntity, nested, entityMap)
 							entityMap.up
 							inserted
 						}
@@ -112,7 +112,7 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
  */
 class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends PostUpdate {
 
-	def after[PC, T](tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
+	def after[PC, T](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
 		{
 			// update one-to-many
 			val table = tpe.table
@@ -140,7 +140,7 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				intersection.foreach { item =>
 					val fe = typeRegistry.entityOfObject[Any, Any](item)
 					entityMap.down(mockO, ci)
-					val newItem = mapperDao.updateInner(fe, item, entityMap)
+					val newItem = mapperDao.updateInner(updateConfig, fe, item, entityMap)
 					entityMap.up
 					item.asInstanceOf[Persisted].discarded = true
 					modified(oneToMany.alias) = newItem
@@ -149,7 +149,7 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				added.foreach { item =>
 					val fe = typeRegistry.entityOfObject(item)
 					entityMap.down(mockO, ci)
-					val newItem: Any = mapperDao.insertInner(fe, item, entityMap);
+					val newItem: Any = mapperDao.insertInner(updateConfig, fe, item, entityMap);
 					entityMap.up
 					modified(oneToMany.alias) = newItem
 				}
