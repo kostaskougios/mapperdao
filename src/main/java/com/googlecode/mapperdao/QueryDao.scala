@@ -5,11 +5,28 @@ import com.googlecode.mapperdao.drivers.Driver
 trait QueryDao {
 	val defaultQueryConfig = QueryConfig()
 
+	/**
+	 * runs a query and retuns a list of entities
+	 */
 	def query[PC, T](qe: Query.QueryExpressions[PC, T]): List[T with PC] = query(qe.queryEntity)
 	def query[PC, T](queryConfig: QueryConfig, qe: Query.QueryExpressions[PC, T]): List[T with PC] = query(queryConfig, qe.queryEntity)
 	def query[PC, T](qe: Query.QueryEntity[PC, T]): List[T with PC] = query(defaultQueryConfig, qe)
 
 	def query[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T]): List[T with PC]
+
+	/**
+	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
+	 * an IllegalStateException is thrown.
+	 */
+	def querySingleResult[PC, T](qe: Query.QueryExpressions[PC, T]): Option[T with PC] = querySingleResult(qe.queryEntity)
+	def querySingleResult[PC, T](qe: Query.QueryEntity[PC, T]): Option[T with PC] = {
+		val l = query(defaultQueryConfig, qe)
+		// l.size might be costly, so we'll test if l is empty first
+		if (l.isEmpty) None
+		else if (l.size > 1) throw new IllegalStateException("expected 0 or 1 result but got %s.".format(l))
+		else l.headOption
+	}
+
 }
 /**
  * the actual implementation of the trait.
