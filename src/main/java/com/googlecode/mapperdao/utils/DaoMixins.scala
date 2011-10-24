@@ -64,7 +64,7 @@ trait LongIdCRUD[T] extends CRUD[LongId, T, Long]
 trait SimpleCRUD[T, PK] extends CRUD[AnyRef, T, PK]
 
 /**
- * CRUD with TransactionalCRUD will provide transactions for CRU methods
+ * CRUD with TransactionalCRUD will run CRUD methods within transactions
  */
 trait TransactionalCRUD[PC, T, PK] extends CRUD[PC, T, PK] {
 	protected val txManager: PlatformTransactionManager
@@ -116,6 +116,7 @@ trait MockTransactionalSimpleCRUD[T, PK] { this: TransactionalSimpleCRUD[T, PK] 
 }
 
 trait All[PC, T] {
+	// the following must be populated by classes extending this trait
 	protected val queryDao: QueryDao
 	protected val entity: Entity[PC, T]
 
@@ -124,7 +125,7 @@ trait All[PC, T] {
 	private lazy val allQuery = select from entity
 
 	/**
-	 * returns all T's
+	 * returns all T's, use page() to get a specific page of rows
 	 */
 	def all: List[T with PC] = queryDao.query(allQuery)
 	/**
