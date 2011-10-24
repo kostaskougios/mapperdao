@@ -12,6 +12,7 @@ import Transaction._
 import com.googlecode.mapperdao.MemoryMapperDao
 import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.jdbc.MockTransaction
+import com.googlecode.mapperdao.QueryConfig
 
 /**
  * mixin to add CRUD methods to a dao
@@ -119,7 +120,17 @@ trait All[PC, T] {
 	protected val entity: Entity[PC, T]
 
 	import Query._
-	def all: List[T with PC] = queryDao.query(select from entity)
+
+	private lazy val allQuery = select from entity
+
+	/**
+	 * returns all T's
+	 */
+	def all: List[T with PC] = queryDao.query(allQuery)
+	/**
+	 * returns a page of T's
+	 */
+	def page(pageNumber: Long, rowsPerPage: Long): List[T with PC] = queryDao.query(QueryConfig.pagination(pageNumber, rowsPerPage), allQuery)
 }
 
 trait IntIdAll[T] extends All[IntId, T]
