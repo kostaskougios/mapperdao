@@ -128,10 +128,16 @@ trait All[PC, T] {
 	 * returns all T's, use page() to get a specific page of rows
 	 */
 	def all: List[T with PC] = queryDao.query(allQuery)
+
+	/**
+	 * counts all rows for this entity
+	 */
+	def countAll: Long = queryDao.count(allQuery)
 	/**
 	 * returns a page of T's
 	 */
 	def page(pageNumber: Long, rowsPerPage: Long): List[T with PC] = queryDao.query(QueryConfig.pagination(pageNumber, rowsPerPage), allQuery)
+	def countPages(rowsPerPage: Long) = 1 + countAll / rowsPerPage: Long
 }
 
 trait IntIdAll[T] extends All[IntId, T]
