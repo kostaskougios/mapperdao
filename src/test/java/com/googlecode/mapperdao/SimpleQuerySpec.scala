@@ -19,6 +19,25 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 	import mapperDao._
 	import queryDao._
 
+	"count with where clause" in {
+		createJobPositionTable
+
+		val now = Setup.now
+		val j1 = insert(JobPositionEntity, JobPosition(5, "developer", now))
+		val j2 = insert(JobPositionEntity, JobPosition(6, "Scala Developer", now))
+		val j3 = insert(JobPositionEntity, JobPosition(7, "manager", now))
+		val j4 = insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
+		count(q1) must_== 2
+	}
+
+	"count of rows" in {
+		createJobPositionTable
+
+		val now = Setup.now
+		for (i <- 0 to 7) insert(JobPositionEntity, JobPosition(i, "x" + i, now))
+		queryDao.count(q0) must_== 8
+	}
+
 	"query with limits (limit only)" in {
 		createJobPositionTable
 

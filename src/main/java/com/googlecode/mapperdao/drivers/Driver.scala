@@ -484,6 +484,20 @@ trait Driver {
 	def endOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T], sql: StringBuilder): Unit =
 		{
 		}
+
+	/**
+	 * =====================================================================================
+	 * aggregate methods
+	 * =====================================================================================
+	 */
+	def countSql[PC, T](aliases: QueryDao.Aliases, entity: Entity[PC, T]): String =
+		{
+			val tpe = typeRegistry.typeOf(entity)
+			val sb = new StringBuilder(50, "select count(*)")
+			val alias = aliases(entity)
+			sb append "\nfrom " append escapeTableNames(tpe.table.name) append " " append alias
+			sb.toString
+		}
 	/**
 	 * =====================================================================================
 	 * standard methods
