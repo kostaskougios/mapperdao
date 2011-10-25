@@ -137,7 +137,7 @@ trait All[PC, T] {
 	 * returns a page of T's
 	 */
 	def page(pageNumber: Long, rowsPerPage: Long): List[T with PC] = queryDao.query(QueryConfig.pagination(pageNumber, rowsPerPage), allQuery)
-	def countPages(rowsPerPage: Long) = 1 + countAll / rowsPerPage: Long
+	def countPages(rowsPerPage: Long): Long = 1 + countAll / rowsPerPage
 }
 
 trait IntIdAll[T] extends All[IntId, T]

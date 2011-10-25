@@ -45,6 +45,7 @@ object QueryConfig {
 	 */
 	def pagination(skip: Set[ColumnInfoRelationshipBase[_, _, _]], pageNumber: Long, rowsPerPage: Long): QueryConfig = {
 		if (pageNumber < 1) throw new IllegalArgumentException("pageNumber must be >=1")
+		if (rowsPerPage < 1) throw new IllegalArgumentException("rowsPerPage must be >=1")
 		QueryConfig(skip, Some((pageNumber - 1) * rowsPerPage), Some(rowsPerPage))
 	}
 
