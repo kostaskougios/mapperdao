@@ -11,6 +11,21 @@ package com.googlecode.mapperdao.utils
 object Helpers {
 	def modified[T](oldSet: Set[T], newSet: Set[T]): Set[T] =
 		{
-			val removed = oldSet.filterNot(newSet.contains(_))
+			val intersection = oldSet.intersect(newSet)
+			val added = newSet.filterNot(oldSet.contains(_))
+			intersection ++ added
+		}
+
+	def modified[T](oldList: List[T], newList: List[T]): List[T] =
+		{
+			val ml = new collection.mutable.ArrayBuffer ++ oldList
+			newList.map { item =>
+				ml.find(_ == item) match {
+					case Some(ni) =>
+						ml -= ni
+						ni
+					case None => item
+				}
+			}
 		}
 }
