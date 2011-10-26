@@ -82,12 +82,6 @@ trait MapperDao {
 
 	// used internally
 	private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], tpe: Type[PC, T], selectConfig: SelectConfig, entities: EntityMap): List[T with PC]
-
-	//	private[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC with Persisted, newO: T, entityMap: UpdateEntityMap): T with PC
-	//	private[mapperdao] def updateInner[PC, T](entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T with PC with Persisted
-	//	private[mapperdao] def isPersisted(o: Any): Boolean
-	//	private[mapperdao] def insertInner[PC, T](entity: Entity[PC, T], o: T, entityMap: UpdateEntityMap): T with PC with Persisted
-	//	private[mapperdao] def selectInner[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, ids: List[Any], entities: EntityMap): Option[T with PC]
 }
 
 /**
@@ -96,8 +90,8 @@ trait MapperDao {
  * 13 Jul 2011
  */
 protected final class MapperDaoImpl(val driver: Driver, events: Events) extends MapperDao {
-	val typeRegistry = driver.typeRegistry
-	val typeManager = driver.jdbc.typeManager
+	private val typeRegistry = driver.typeRegistry
+	private val typeManager = driver.jdbc.typeManager
 
 	private val postUpdatePlugins = List[PostUpdate](new OneToOneReverseUpdatePlugin(typeRegistry, typeManager, driver, this), new OneToManyUpdatePlugin(typeRegistry, this), new ManyToManyUpdatePlugin(typeRegistry, driver, this))
 	private val duringUpdatePlugins = List[DuringUpdate](new ManyToOneUpdatePlugin(typeRegistry, this), new OneToOneReverseUpdatePlugin(typeRegistry, typeManager, driver, this), new OneToOneUpdatePlugin(typeRegistry, this))
@@ -496,6 +490,9 @@ object MapperDao {
 	def apply(driver: Driver, events: Events): MapperDao = new MapperDaoImpl(driver, events)
 }
 
+/**
+ * a mock impl of the mapperdao trait, to be used for testing
+ */
 class MockMapperDao extends MapperDao {
 	// insert
 	def insert[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T): T with PC = null.asInstanceOf[T with PC]
