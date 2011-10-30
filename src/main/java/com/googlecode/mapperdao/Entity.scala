@@ -76,8 +76,12 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 
 	protected def manyToOne[F](column: String, foreignClz: Class[F], columnToValue: T => F): ColumnInfoManyToOne[T, F] =
 		manyToOne(column + "_Alias", column, foreignClz, columnToValue)
+	protected def manyToOneOption[F](column: String, foreignClz: Class[F], columnToValue: T => Option[F]): ColumnInfoManyToOne[T, F] =
+		manyToOne(column + "_Alias", column, foreignClz, optionToValue(columnToValue))
 	protected def manyToOne[F](foreignClz: Class[F], columnToValue: T => F): ColumnInfoManyToOne[T, F] =
 		manyToOne(foreignClz.getSimpleName.toLowerCase + "_id", foreignClz, columnToValue)
+	protected def manyToOneOption[F](foreignClz: Class[F], columnToValue: T => Option[F]): ColumnInfoManyToOne[T, F] =
+		manyToOne(foreignClz.getSimpleName.toLowerCase + "_id", foreignClz, optionToValue(columnToValue))
 
 	/**
 	 * many to one mapping from T to F.
@@ -87,6 +91,16 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 			require(alias != column)
 			manyToOne(alias, List(column), foreignClz, columnToValue)
 		}
+	/**
+	 * many to one with Option support
+	 */
+	protected def manyToOneOption[F](alias: String, column: String, foreignClz: Class[F], columnToValue: T => Option[F]): ColumnInfoManyToOne[T, F] =
+		manyToOne(alias, column, foreignClz, optionToValue(columnToValue))
+
+	/**
+	 * converts a function T=>Option[F] to T=>F
+	 */
+	private def optionToValue[T, F](columnToValue: T => Option[F]): T => F = (t: T) => columnToValue(t).getOrElse(null.asInstanceOf[F])
 
 	protected def manyToOne[F](alias: String, columns: List[String], foreignClz: Class[F], columnToValue: T => F): ColumnInfoManyToOne[T, F] =
 		{
@@ -190,6 +204,14 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 	protected implicit def columnTraversableManyToManyToList[T, F](ci: ColumnInfoTraversableManyToMany[T, F])(implicit m: ValuesMap): List[F] = m(ci).toList
 
 	protected implicit def columnManyToOneToValue[T, F](ci: ColumnInfoManyToOne[T, F])(implicit m: ValuesMap): F = m(ci)
+	protected implicit def columnManyToOneToOptionValue[T, F](ci: ColumnInfoManyToOne[T, F])(implicit m: ValuesMap): Option[F] =
+		{
+			val v = m(ci)
+			v match {
+				case null => None
+				case _ => Some(v)
+			}
+		}
 
 	protected implicit def columnTraversableOneToManyList[T, E](ci: ColumnInfoTraversableOneToMany[T, E])(implicit m: ValuesMap): List[E] = m(ci).toList
 	protected implicit def columnTraversableOneToManySet[T, E](ci: ColumnInfoTraversableOneToMany[T, E])(implicit m: ValuesMap): Set[E] = m(ci).toSet
