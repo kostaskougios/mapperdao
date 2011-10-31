@@ -59,7 +59,8 @@ import org.junit.runners.Suite
 		classOf[DeclarePrimaryKeysSpec],
 		classOf[UpdateConfigSpec],
 		classOf[utils.HelpersSpec],
-		classOf[OptionSpec]
+		classOf[OptionSpec],
+		classOf[OneToManySimpleTypesSpec]
 	)
 )
 class All extends SpecificationWithJUnit
