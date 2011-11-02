@@ -13,31 +13,33 @@ import com.googlecode.mapperdao._
  */
 class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeInsert {
 
-	override def before[PC, T, V, F](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
+	override def before[PPC, PT, PC, T, V, FPC, F](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[PPC, PT, V, FPC, F]): List[(Column, Any)] =
 		{
+			val tpe = entity.tpe
 			val table = tpe.table
 			var extraArgs = List[(Column, Any)]()
 			// many-to-one
 			table.manyToOneColumnInfos.foreach { cis =>
 				val fo = cis.columnToValue(o)
+				val fe = cis.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
+				val ftpe = fe.tpe
 				val v = if (fo != null) {
-					val fe = typeRegistry.entityOfObject[Any, Any](fo)
 					val v = fo match {
 						case null => null
 						case p: Persisted =>
-							entityMap.down(mockO, cis)
+							entityMap.down(mockO, cis, entity)
 							val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
 							entityMap.up
 							updated
 						case x =>
-							entityMap.down(mockO, cis)
+							entityMap.down(mockO, cis, entity)
 							val inserted = mapperDao.insertInner(updateConfig, fe, x, entityMap)
 							entityMap.up
 							inserted
 					}
 					val columns = cis.column.columns.filterNot(table.primaryKeyColumns.contains(_))
 					if (!columns.isEmpty && columns.size != cis.column.columns.size) throw new IllegalStateException("only some of the primary keys were declared for %s, and those primary keys overlap manyToOne relationship declaration".format(tpe))
-					extraArgs :::= columns zip typeRegistry.typeOf(fe).table.toListOfPrimaryKeyValues(v)
+					extraArgs :::= columns zip ftpe.table.toListOfPrimaryKeyValues(v)
 					v
 				} else null
 				modified(cis.column.alias) = v
@@ -55,13 +57,14 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 
 	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any] = Nil
 
-	override def before[PC, T](tpe: Type[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]) =
+	override def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]) =
 		{
+			val tpe = entity.tpe
 			val table = tpe.table
 			// many to one
 			table.manyToOneColumnInfos.filterNot(selectConfig.skip(_)).foreach { ci =>
-				val c = ci.column.asInstanceOf[ManyToOne[Any]]
-				val fe = typeRegistry.entityOf[Any, Any](c.foreign.clz)
+				val c = ci.column.asInstanceOf[ManyToOne[Any, Any]]
+				val fe = c.foreign.entity
 				val foreignPKValues = c.columns.map(mtoc => om(mtoc.columnName))
 				val fo = entities.get(fe.clz, foreignPKValues)
 				val v = if (fo.isDefined) {
@@ -76,8 +79,8 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			}
 		}
 
-	override def updateMock[PC, T](tpe: Type[PC, T], mods: scala.collection.mutable.HashMap[String, Any]) {
-		mods ++= tpe.table.manyToOneColumns.map(c => (c.alias -> null))
+	override def updateMock[PC, T](entity: Entity[PC, T], mods: scala.collection.mutable.HashMap[String, Any]) {
+		mods ++= entity.tpe.table.manyToOneColumns.map(c => (c.alias -> null))
 	}
 }
 
@@ -88,24 +91,24 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
  */
 class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends DuringUpdate {
 
-	override def during[PC, T](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
+	override def during[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
+			val tpe = entity.tpe
 			val table = tpe.table
 
 			table.manyToOneColumnInfos.foreach { ci =>
 				val v = ci.columnToValue(o)
+				val fe = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
 				val newV = v match {
 					case null => null //throw new NullPointerException("unexpected null for primary entity on ManyToOne mapping, for entity %s.".format(o))
 					case p: Persisted =>
-						val fEntity = typeRegistry.entityOfObject[Any, Any](v)
-						entityMap.down(o, ci)
-						val newV = mapperDao.updateInner(updateConfig, fEntity, v, entityMap)
+						entityMap.down(o, ci, entity)
+						val newV = mapperDao.updateInner(updateConfig, fe, v, entityMap)
 						entityMap.up
 						newV
 					case _ =>
-						val fEntity = typeRegistry.entityOfObject[Any, Any](v)
-						entityMap.down(o, ci)
-						val newV = mapperDao.insertInner(updateConfig, fEntity, v, entityMap)
+						entityMap.down(o, ci, entity)
+						val newV = mapperDao.insertInner(updateConfig, fe, v, entityMap)
 						entityMap.up
 						newV
 				}
@@ -113,8 +116,8 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			}
 
 			val manyToOneChanged = table.manyToOneColumns.filter(Equality.onlyChanged(_, newValuesMap, oldValuesMap))
-			val mtoArgsV = manyToOneChanged.map(mto => (mto.foreign.clz, newValuesMap.valueOf[Any](mto.alias))).map { t =>
-				typeRegistry.typeOf(t._1).table.toListOfPrimaryKeyValues(t._2)
+			val mtoArgsV = manyToOneChanged.map(mto => (mto.foreign.entity, newValuesMap.valueOf[Any](mto.alias))).map { t =>
+				t._1.tpe.table.toListOfPrimaryKeyValues(t._2)
 			}.flatten
 			val cv = (manyToOneChanged.map(_.columns).flatten zip mtoArgsV) filterNot (cav => table.primaryKeyColumns.contains(cav._1))
 			new DuringUpdateResults(cv, Nil)

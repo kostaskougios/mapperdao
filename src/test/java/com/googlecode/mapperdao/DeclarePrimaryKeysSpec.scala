@@ -83,7 +83,7 @@ object DeclarePrimaryKeysSpec {
 			case _ => null
 		}, _.id)
 		val title = string("title", _.title)
-		val prices = oneToMany(classOf[Price], _.prices)
+		val prices = oneToMany(PriceEntity, _.prices)
 
 		def constructor(implicit m: ValuesMap) = new Product(title, prices) with IntId with Persisted {
 			val id: Int = ProductEntity.id

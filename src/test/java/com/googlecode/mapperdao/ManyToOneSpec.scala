@@ -288,8 +288,8 @@ object ManyToOneSpec {
 	object PersonEntity extends SimpleEntity(classOf[Person]) {
 		val id = intPK("id", _.id)
 		val name = string("name", _.name)
-		val company = manyToOne(classOf[Company], _.company)
-		val lives = manyToOne(classOf[House], _.lives)
+		val company = manyToOne(CompanyEntity, _.company)
+		val lives = manyToOne(HouseEntity, _.lives)
 
 		def constructor(implicit m: ValuesMap) = new Person(id, name, company, lives) with Persisted
 	}

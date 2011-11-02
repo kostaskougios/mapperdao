@@ -102,13 +102,13 @@ trait Driver {
 			sb.toString
 		}
 
-	def doInsertManyToMany[PC, T, F](tpe: Type[PC, T], manyToMany: ManyToMany[F], left: List[(ColumnBase, Any)], right: List[(ColumnBase, Any)]): Unit =
+	def doInsertManyToMany[PC, T, FPC, F](tpe: Type[PC, T], manyToMany: ManyToMany[FPC, F], left: List[(ColumnBase, Any)], right: List[(ColumnBase, Any)]): Unit =
 		{
 			val sql = insertManyToManySql(tpe, manyToMany, left, right)
 			jdbc.update(sql, left.map(_._2) ::: right.map(_._2))
 		}
 
-	protected def insertManyToManySql[PC, T, F](tpe: Type[PC, T], manyToMany: ManyToMany[F], left: List[(ColumnBase, Any)], right: List[(ColumnBase, Any)]): String =
+	protected def insertManyToManySql[PC, T, FPC, F](tpe: Type[PC, T], manyToMany: ManyToMany[FPC, F], left: List[(ColumnBase, Any)], right: List[(ColumnBase, Any)]): String =
 		{
 			val sb = new StringBuilder(100, "insert into ")
 			val linkTable = manyToMany.linkTable
@@ -162,12 +162,12 @@ trait Driver {
 	/**
 	 * delete many-to-many rows from link table
 	 */
-	def doDeleteManyToManyRef[PC, T, PR, R](tpe: Type[PC, T], ftpe: Type[PR, R], manyToMany: ManyToMany[_], leftKeyValues: List[(ColumnBase, Any)], rightKeyValues: List[(ColumnBase, Any)]): UpdateResult =
+	def doDeleteManyToManyRef[PC, T, PR, R](tpe: Type[PC, T], ftpe: Type[PR, R], manyToMany: ManyToMany[_, _], leftKeyValues: List[(ColumnBase, Any)], rightKeyValues: List[(ColumnBase, Any)]): UpdateResult =
 		{
 			val sql = deleteManyToManyRefSql(tpe, ftpe, manyToMany, leftKeyValues, rightKeyValues)
 			jdbc.update(sql, leftKeyValues.map(_._2) ::: rightKeyValues.map(_._2))
 		}
-	protected def deleteManyToManyRefSql[PC, T, PR, R](tpe: Type[PC, T], ftpe: Type[PR, R], manyToMany: ManyToMany[_], leftKeyValues: List[(ColumnBase, Any)], rightKeyValues: List[(ColumnBase, Any)]): String =
+	protected def deleteManyToManyRefSql[PC, T, PR, R](tpe: Type[PC, T], ftpe: Type[PR, R], manyToMany: ManyToMany[_, _], leftKeyValues: List[(ColumnBase, Any)], rightKeyValues: List[(ColumnBase, Any)]): String =
 		{
 			val sb = new StringBuilder(100, "delete from ")
 			sb append escapeTableNames(manyToMany.linkTable.name) append "\nwhere "
@@ -175,11 +175,11 @@ trait Driver {
 			sb.toString
 		}
 
-	def doDeleteAllManyToManyRef[PC, T](tpe: Type[PC, T], manyToMany: ManyToMany[_], fkKeyValues: List[Any]): UpdateResult = {
+	def doDeleteAllManyToManyRef[PC, T](tpe: Type[PC, T], manyToMany: ManyToMany[_, _], fkKeyValues: List[Any]): UpdateResult = {
 		val sql = deleteAllManyToManyRef(tpe, manyToMany, fkKeyValues)
 		jdbc.update(sql, fkKeyValues)
 	}
-	protected def deleteAllManyToManyRef[PC, T](tpe: Type[PC, T], manyToMany: ManyToMany[_], fkKeyValues: List[Any]): String = {
+	protected def deleteAllManyToManyRef[PC, T](tpe: Type[PC, T], manyToMany: ManyToMany[_, _], fkKeyValues: List[Any]): String = {
 		val sb = new StringBuilder(50, "delete from ")
 		sb append escapeTableNames(manyToMany.linkTable.name) append "\nwhere "
 		sb append generateColumnsEqualsValueString("", " and ", manyToMany.linkTable.left)
@@ -218,13 +218,13 @@ trait Driver {
 			sb.toString
 		}
 
-	def doSelectManyToMany[PC, T, PF, F](tpe: Type[PC, T], ftpe: Type[PF, F], manyToMany: ManyToMany[F], leftKeyValues: List[(SimpleColumn, Any)]): List[JdbcMap] =
+	def doSelectManyToMany[PC, T, FPC, F](tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): List[JdbcMap] =
 		{
 			val sql = selectManyToManySql(tpe, ftpe, manyToMany, leftKeyValues)
 			jdbc.queryForList(sql, leftKeyValues.map(_._2))
 		}
 
-	protected def selectManyToManySql[PC, T, PF, F](tpe: Type[PC, T], ftpe: Type[PF, F], manyToMany: ManyToMany[F], leftKeyValues: List[(SimpleColumn, Any)]): String =
+	protected def selectManyToManySql[PC, T, FPC, F](tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): String =
 		{
 			val ftable = ftpe.table
 			val linkTable = manyToMany.linkTable
@@ -262,13 +262,13 @@ trait Driver {
 			sb.toString
 		}
 
-	def doDeleteOneToOneReverse[PC, T, FPC, FT](tpe: Type[PC, T], ftpe: Type[FPC, FT], oneToOneReverse: OneToOneReverse[FT], keyValues: List[Any]): Unit =
+	def doDeleteOneToOneReverse[PC, T, FPC, FT](tpe: Type[PC, T], ftpe: Type[FPC, FT], oneToOneReverse: OneToOneReverse[FPC, FT], keyValues: List[Any]): Unit =
 		{
 			val sql = deleteOneToOneReverseSql(tpe, ftpe, oneToOneReverse)
 			jdbc.update(sql, keyValues)
 		}
 
-	def deleteOneToOneReverseSql[PC, T, FPC, FT](tpe: Type[PC, T], ftpe: Type[FPC, FT], oneToOneReverse: OneToOneReverse[FT]): String =
+	def deleteOneToOneReverseSql[PC, T, FPC, FT](tpe: Type[PC, T], ftpe: Type[FPC, FT], oneToOneReverse: OneToOneReverse[FPC, FT]): String =
 		{
 			val sb = new StringBuilder(100, "delete from ")
 			sb append escapeTableNames(ftpe.table.name) append " where " append generateColumnsEqualsValueString(oneToOneReverse.foreignColumns, " and ")
@@ -285,7 +285,7 @@ trait Driver {
 	def startQuery[PC, T](aliases: QueryDao.Aliases, qe: Query.QueryEntity[PC, T], columns: List[ColumnBase]): String =
 		{
 			val entity = qe.entity
-			val tpe = typeRegistry.typeOf(entity)
+			val tpe = entity.tpe
 			val sb = new StringBuilder(100, "select ")
 			val alias = aliases(entity)
 			sb append commaSeparatedListOfSimpleTypeColumns(alias + ".", ",", columns)
@@ -295,11 +295,11 @@ trait Driver {
 		}
 
 	// creates the join for one-to-one-reverse
-	def oneToOneReverseJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], oneToOneReverse: OneToOneReverse[_]): String =
+	def oneToOneReverseJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], oneToOneReverse: OneToOneReverse[_, _]): String =
 		{
-			val tpe = typeRegistry.typeOf(joinEntity)
+			val tpe = joinEntity.tpe
 			val table = tpe.table
-			val foreignTpe = typeRegistry.typeOf(foreignEntity)
+			val foreignTpe = foreignEntity.tpe
 			val foreignTable = foreignTpe.table
 			val fAlias = aliases(foreignEntity)
 			val jAlias = aliases(joinEntity)
@@ -313,9 +313,9 @@ trait Driver {
 		}
 
 	// creates the join for many-to-one
-	def manyToOneJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], manyToOne: ManyToOne[_]): String =
+	def manyToOneJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], manyToOne: ManyToOne[_, _]): String =
 		{
-			val foreignTpe = typeRegistry.typeOf(foreignEntity)
+			val foreignTpe = foreignEntity.tpe
 			val foreignTable = foreignTpe.table
 			val fAlias = aliases(foreignEntity)
 			val jAlias = aliases(joinEntity)
@@ -329,10 +329,10 @@ trait Driver {
 		}
 
 	// creates the join for one-to-many
-	def oneToManyJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], oneToMany: OneToMany[_]): String =
+	def oneToManyJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], oneToMany: OneToMany[_, _]): String =
 		{
-			val joinTpe = typeRegistry.typeOf(joinEntity)
-			val foreignTpe = typeRegistry.typeOf(foreignEntity)
+			val joinTpe = joinEntity.tpe
+			val foreignTpe = foreignEntity.tpe
 
 			val foreignTable = foreignTpe.table
 			val fAlias = aliases(foreignEntity)
@@ -346,10 +346,10 @@ trait Driver {
 			sb.toString
 		}
 	// creates the join for one-to-many
-	def manyToManyJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], manyToMany: ManyToMany[_]): String =
+	def manyToManyJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], manyToMany: ManyToMany[_, _]): String =
 		{
-			val joinTpe = typeRegistry.typeOf(joinEntity)
-			val foreignTpe = typeRegistry.typeOf(foreignEntity)
+			val joinTpe = joinEntity.tpe
+			val foreignTpe = foreignEntity.tpe
 
 			val foreignTable = foreignTpe.table
 			val fAlias = aliases(foreignEntity)
@@ -377,7 +377,7 @@ trait Driver {
 	def joinTable(aliases: QueryDao.Aliases, join: Query.Join[_, _, Entity[_, _], _, _]): (String, List[Any]) =
 		{
 			val jEntity = join.entity
-			val jTable = typeRegistry.typeOf(jEntity).table
+			val jTable = jEntity.tpe.table
 			val qAlias = aliases(jEntity)
 			val sb = new StringBuilder
 			sb append "\njoin " append escapeTableNames(jTable.name) append " " append qAlias
@@ -413,7 +413,7 @@ trait Driver {
 						sb append " or "
 						inner(and.right)
 						sb append " )"
-					case mto: ManyToOneOperation[_, Any] =>
+					case mto: ManyToOneOperation[Any, Any, Any] =>
 						val ManyToOneOperation(left, operand, right) = mto
 						if (right == null) {
 							left.columns foreach { c =>
@@ -425,7 +425,7 @@ trait Driver {
 								}
 							}
 						} else {
-							val fTpe = typeRegistry.typeOfObject(right)
+							val fTpe = left.foreign.entity.tpe
 							val fPKs = fTpe.table.toListOfPrimaryKeyValues(right)
 							if (left.columns.size != fPKs.size) throw new IllegalStateException("foreign keys %s don't match foreign key columns %s".format(fPKs, left.columns))
 							left.columns zip fPKs foreach { t =>
@@ -433,21 +433,21 @@ trait Driver {
 								sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
 							}
 						}
-					case OneToManyOperation(left: OneToMany[_], operand: Operand, right: Any) =>
+					case OneToManyOperation(left: OneToMany[_, _], operand: Operand, right: Any) =>
 						val entity = typeRegistry.entityOf(left)
-						val foreignEntity = typeRegistry.entityOfObject(right)
+						val foreignEntity = left.foreign.entity
 						joinsSb append oneToManyJoin(aliases, entity, foreignEntity, left)
-						val fTpe = typeRegistry.typeOfObject(right)
+						val fTpe = foreignEntity.tpe
 						val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
 						fPKColumnAndValues.foreach { t =>
 							sb append resolveWhereExpression(aliases, args, t._1)
 							sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
 						}
-					case ManyToManyOperation(left: ManyToMany[_], operand: Operand, right: Any) =>
+					case ManyToManyOperation(left: ManyToMany[_, _], operand: Operand, right: Any) =>
 						val entity = typeRegistry.entityOf(left)
-						val foreignEntity = typeRegistry.entityOfObject(right)
+						val foreignEntity = left.foreign.entity
 						joinsSb append manyToManyJoin(aliases, entity, foreignEntity, left)
-						val fTpe = typeRegistry.typeOfObject(right)
+						val fTpe = foreignEntity.tpe
 						val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
 						fPKColumnAndValues.foreach { t =>
 							sb append resolveWhereExpression(aliases, args, t._1)
@@ -492,7 +492,7 @@ trait Driver {
 	 */
 	def countSql[PC, T](aliases: QueryDao.Aliases, entity: Entity[PC, T]): String =
 		{
-			val tpe = typeRegistry.typeOf(entity)
+			val tpe = entity.tpe
 			val sb = new StringBuilder(50, "select count(*)")
 			val alias = aliases(entity)
 			sb append "\nfrom " append escapeTableNames(tpe.table.name) append " " append alias

@@ -16,7 +16,7 @@ import com.googlecode.mapperdao.ValuesMap
 import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.UpdateConfig
-
+import com.googlecode.mapperdao.Entity
 /**
  * @author kostantinos.kougios
  *
@@ -24,25 +24,26 @@ import com.googlecode.mapperdao.UpdateConfig
  */
 class OneToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeInsert {
 
-	override def before[PC, T, V, F](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[Any, V, T]): List[(Column, Any)] =
+	override def before[PPC, PT, PC, T, V, FPC, F](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[PPC, PT, V, FPC, F]): List[(Column, Any)] =
 		{
+			val tpe = entity.tpe
 			val table = tpe.table
 			// one-to-one
 			table.oneToOneColumnInfos.map { cis =>
+				val fe = cis.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
+				val ftpe = fe.tpe
 				val fo = cis.columnToValue(o)
 				var l: List[(Column, Any)] = null
 				val v = if (fo != null) {
-					val fe = typeRegistry.entityOfObject[Any, Any](fo)
-					val ftpe = typeRegistry.typeOfObject(fo)
 					val r = fo match {
 						case null => null
 						case p: Persisted =>
-							entityMap.down(o, cis)
+							entityMap.down(o, cis, entity)
 							val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
 							entityMap.up
 							updated
 						case x =>
-							entityMap.down(mockO, cis)
+							entityMap.down(mockO, cis, entity)
 							val inserted = mapperDao.insertInner(updateConfig, fe, x, entityMap)
 							entityMap.up
 							inserted
@@ -68,13 +69,15 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 
 	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any] = Nil
 
-	override def before[PC, T](tpe: Type[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]) =
+	override def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]) =
 		{
+			val tpe = entity.tpe
 			val table = tpe.table
 			// one to one
 			table.oneToOneColumnInfos.filterNot(selectConfig.skip(_)).foreach { ci =>
 				val c = ci.column
-				val ftpe = typeRegistry.typeOf(c.foreign.clz)
+				val fe = c.foreign.entity
+				val ftpe = fe.tpe
 				val ftable = ftpe.table
 				val foreignKeyValues = c.selfColumns.map(sc => om(sc.columnName))
 				if (foreignKeyValues.contains(null)) {
@@ -84,7 +87,7 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 					val foreignKeys = ftable.primaryKeys zip foreignKeyValues
 					val fom = driver.doSelect(ftpe, foreignKeys)
 					entities.down(tpe, ci, om)
-					val otmL = mapperDao.toEntities(fom, ftpe, selectConfig, entities)
+					val otmL = mapperDao.toEntities(fom, fe, selectConfig, entities)
 					entities.up
 					if (otmL.size != 1) throw new IllegalStateException("expected 1 row but got " + otmL);
 					mods(c.foreign.alias) = otmL.head
@@ -92,8 +95,8 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 			}
 		}
 
-	override def updateMock[PC, T](tpe: Type[PC, T], mods: scala.collection.mutable.HashMap[String, Any]) {
-		mods ++= tpe.table.oneToOneColumns.map(c => (c.alias -> null))
+	override def updateMock[PC, T](entity: Entity[PC, T], mods: scala.collection.mutable.HashMap[String, Any]) {
+		mods ++= entity.tpe.table.oneToOneColumns.map(c => (c.alias -> null))
 	}
 }
 
@@ -105,13 +108,16 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends DuringUpdate {
 	private val nullList = List(null, null, null, null, null)
 
-	def during[PC, T](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
+	def during[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
+			val tpe = entity.tpe
 			val table = tpe.table
 
 			var values = List[(Column, Any)]()
 			var keys = List[(Column, Any)]()
 			table.oneToOneColumnInfos.foreach { ci =>
+				val fe = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
+				val ftpe = fe.tpe
 				val fo = ci.columnToValue(o)
 				val c = ci.column
 				val oldV: Persisted = oldValuesMap.valueOf(c.alias)
@@ -119,18 +125,16 @@ class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 					values :::= c.selfColumns zip nullList
 					null
 				} else {
-					val fe = typeRegistry.entityOfObject[Any, Any](fo)
-					val ftpe = typeRegistry.typeOf(fe)
 					val vt = fo match {
 						case p: Persisted if (p.mock) =>
 							(p, false) //mock object shouldn't contribute to column updates
 						case p: Persisted =>
-							entityMap.down(o, ci)
+							entityMap.down(o, ci, entity)
 							val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
 							entityMap.up
 							(updated, true)
 						case x =>
-							entityMap.down(o, ci)
+							entityMap.down(o, ci, entity)
 							val inserted = mapperDao.insertInner(updateConfig, fe, x, entityMap)
 							entityMap.up
 							(inserted, true)

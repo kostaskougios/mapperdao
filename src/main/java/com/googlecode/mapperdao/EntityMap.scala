@@ -16,7 +16,7 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
 protected class EntityMap {
 	type InnerMap = HashMap[List[Any], AnyRef]
 	private val m = HashMap[Class[_], InnerMap]()
-	private var stack = Stack[SelectInfo[_, _, _, _]]()
+	private var stack = Stack[SelectInfo[_, _, _, _, _]]()
 
 	def put[T](clz: Class[_], ids: List[Any], entity: T): Unit =
 		{
@@ -36,12 +36,12 @@ protected class EntityMap {
 		if (im.isDefined) im.get.get(ids).asInstanceOf[Option[T]] else None
 	}
 
-	def down[PC, T, V, F](o: Type[PC, T], ci: ColumnInfoRelationshipBase[T, V, F], jdbcMap: JdbcMap): Unit =
+	def down[PC, T, V, FPC, F](o: Type[PC, T], ci: ColumnInfoRelationshipBase[T, V, FPC, F], jdbcMap: JdbcMap): Unit =
 		{
 			stack = stack.push(SelectInfo(o, ci, jdbcMap))
 		}
 
-	def peek[PC, T, V, F] = (if (stack.isEmpty) SelectInfo(null, null, null) else stack.top).asInstanceOf[SelectInfo[PC, T, V, F]]
+	def peek[PC, T, V, FPC, F] = (if (stack.isEmpty) SelectInfo(null, null, null) else stack.top).asInstanceOf[SelectInfo[PC, T, V, FPC, F]]
 
 	def up = stack = stack.pop
 
@@ -51,11 +51,11 @@ protected class EntityMap {
 
 	override def toString = "EntityMap(%s)".format(m.toString)
 }
-protected case class SelectInfo[PC, T, V, F](val tpe: Type[PC, T], val ci: ColumnInfoRelationshipBase[T, V, F], val jdbcMap: JdbcMap)
+protected case class SelectInfo[PC, T, V, FPC, F](val tpe: Type[PC, T], val ci: ColumnInfoRelationshipBase[T, V, FPC, F], val jdbcMap: JdbcMap)
 
 protected class UpdateEntityMap {
 	private val m = new IdentityHashMap[Any, Any]
-	private var stack = Stack[UpdateInfo[_, _, _]]()
+	private var stack = Stack[UpdateInfo[_, _, _, _, _]]()
 
 	def put[PC, T](v: T, mock: PC with T with Persisted): Unit = m.put(v, mock)
 	def get[PC, T](v: T): Option[PC with T with Persisted] =
@@ -64,12 +64,12 @@ protected class UpdateEntityMap {
 			if (g == null) None else Option(g.asInstanceOf[PC with T with Persisted])
 		}
 
-	def down[T, V, F](o: T, ci: ColumnInfoRelationshipBase[T, V, F]): Unit =
+	def down[PPC, PT, V, FPC, F](o: PT, ci: ColumnInfoRelationshipBase[PT, V, FPC, F], parentEntity: Entity[PPC, PT]): Unit =
 		{
-			stack = stack.push(UpdateInfo(o, ci))
+			stack = stack.push(UpdateInfo(o, ci, parentEntity))
 		}
 
-	def peek[T, V, F] = (if (stack.isEmpty) UpdateInfo(null, null) else stack.top).asInstanceOf[UpdateInfo[T, V, F]]
+	def peek[PPC, PT, V, FPC, F] = (if (stack.isEmpty) UpdateInfo(null, null, null) else stack.top).asInstanceOf[UpdateInfo[PPC, PT, V, FPC, F]]
 
 	def up = stack = stack.pop
 
@@ -86,4 +86,4 @@ protected class UpdateEntityMap {
 	}
 }
 
-protected case class UpdateInfo[T, V, F](val o: T, val ci: ColumnInfoRelationshipBase[T, V, F])
+protected case class UpdateInfo[PPC, PT, V, FPC, F](val o: PT, val ci: ColumnInfoRelationshipBase[PT, V, FPC, F], parentEntity: Entity[PPC, PT])

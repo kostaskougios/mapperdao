@@ -49,29 +49,29 @@ object Query {
 	/**
 	 * manages many-to-one expressions
 	 */
-	protected class ConvertorManyToOne[T, F](ci: ColumnInfoManyToOne[T, F]) {
+	protected class ConvertorManyToOne[T, FPC, F](ci: ColumnInfoManyToOne[T, FPC, F]) {
 		def ===(v: F) = new ManyToOneOperation(ci.column, EQ(), v)
 		def <>(v: F) = new ManyToOneOperation(ci.column, NE(), v)
 	}
-	implicit def columnInfoManyToOneOperation[T, F](ci: ColumnInfoManyToOne[T, F]) = new ConvertorManyToOne(ci)
+	implicit def columnInfoManyToOneOperation[T, FPC, F](ci: ColumnInfoManyToOne[T, FPC, F]) = new ConvertorManyToOne(ci)
 
 	/**
 	 * manages one-to-many expressions
 	 */
-	protected class ConvertorOneToMany[T, F](ci: ColumnInfoTraversableOneToMany[T, F]) {
+	protected class ConvertorOneToMany[T, FPC, F](ci: ColumnInfoTraversableOneToMany[T, FPC, F]) {
 		def ===(v: F) = new OneToManyOperation(ci.column, EQ(), v)
 		def <>(v: F) = new OneToManyOperation(ci.column, NE(), v)
 	}
-	implicit def columnInfoOneToManyOperation[T, F](ci: ColumnInfoTraversableOneToMany[T, F]) = new ConvertorOneToMany[T, F](ci)
+	implicit def columnInfoOneToManyOperation[T, FPC, F](ci: ColumnInfoTraversableOneToMany[T, FPC, F]) = new ConvertorOneToMany[T, FPC, F](ci)
 
 	/**
 	 * manages many-to-many expressions
 	 */
-	protected class ConvertorManyToMany[T, F](ci: ColumnInfoTraversableManyToMany[T, F]) {
+	protected class ConvertorManyToMany[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F]) {
 		def ===(v: F) = new ManyToManyOperation(ci.column, EQ(), v)
 		def <>(v: F) = new ManyToManyOperation(ci.column, NE(), v)
 	}
-	implicit def columnInfoManyToManyOperation[T, F](ci: ColumnInfoTraversableManyToMany[T, F]) = new ConvertorManyToMany[T, F](ci)
+	implicit def columnInfoManyToManyOperation[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F]) = new ConvertorManyToMany[T, FPC, F](ci)
 
 	/**
 	 * manages one-to-one expressions
@@ -159,13 +159,13 @@ object Query {
 	//	def by[T1, V1, T2, V2](ci1: ColumnInfoBase[T1, V1], ci2: ColumnInfoBase[T2, V2]) = List(ci1, ci2)
 
 	protected[mapperdao] class Join[T, F, E <: Entity[_, _], QPC, QT](queryEntity: QueryEntity[QPC, QT]) {
-		protected[mapperdao] var column: ColumnRelationshipBase[F] = _
+		protected[mapperdao] var column: ColumnRelationshipBase[_, F] = _
 		protected[mapperdao] var entity: E = _
 		protected[mapperdao] var foreignEntity: E = _
 		protected[mapperdao] var joinEntity: E = _
 		protected[mapperdao] var on: JoinOn[QPC, QT] = _
 
-		def apply(joinEntity: Entity[_, T], ci: ColumnInfoRelationshipBase[T, _, F], foreignEntity: Entity[_, F]) =
+		def apply(joinEntity: Entity[_, T], ci: ColumnInfoRelationshipBase[T, _, _, F], foreignEntity: Entity[_, F]) =
 			{
 				this.column = ci.column
 				this.foreignEntity = foreignEntity.asInstanceOf[E]
@@ -244,14 +244,14 @@ class OpBase {
 case class Operation[V](left: SimpleColumn, operand: Operand, right: V) extends OpBase {
 	override def toString = "%s %s %s".format(left, operand, right)
 }
-case class ManyToOneOperation[F, V](left: ManyToOne[F], operand: Operand, right: V) extends OpBase {
+case class ManyToOneOperation[FPC, F, V](left: ManyToOne[FPC, F], operand: Operand, right: V) extends OpBase {
 	override def toString = "%s %s %s".format(left, operand, right)
 }
-case class OneToManyOperation[F, V](left: OneToMany[F], operand: Operand, right: V) extends OpBase {
+case class OneToManyOperation[FPC, F, V](left: OneToMany[FPC, F], operand: Operand, right: V) extends OpBase {
 	if (right == null) throw new NullPointerException("Value can't be null in one-to-many FK queries. Expression was on %s.".format(left))
 	override def toString = "%s %s %s".format(left, operand, right)
 }
-case class ManyToManyOperation[F, V](left: ManyToMany[F], operand: Operand, right: V) extends OpBase {
+case class ManyToManyOperation[FPC, F, V](left: ManyToMany[FPC, F], operand: Operand, right: V) extends OpBase {
 	if (right == null) throw new NullPointerException("Value can't be null in many-to-many FK queries. Expression was on %s.".format(left))
 	override def toString = "%s %s %s".format(left, operand, right)
 }

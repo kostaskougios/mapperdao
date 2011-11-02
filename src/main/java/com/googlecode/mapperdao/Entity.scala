@@ -16,7 +16,12 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 	protected[mapperdao] var persistedColumns = List[ColumnInfoBase[T with PC, _]]()
 	protected[mapperdao] var columns = List[ColumnInfoBase[T, _]]();
 	protected[mapperdao] var unusedPKs = List[SimpleColumn]()
+	private var mTpe: Type[PC, T] = null
 
+	protected[mapperdao] def tpe = mTpe
+	protected[mapperdao] def init(tpe: Type[_, _]) {
+		this.mTpe = tpe.asInstanceOf[Type[PC, T]]
+	}
 	override def hashCode = table.hashCode
 	override def equals(o: Any) = o match {
 		case e: Entity[PC, T] => table == e.table && clz == e.clz
@@ -25,41 +30,41 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 
 	override def toString = "%s(%s,%s)".format(getClass.getSimpleName, table, clz.getName)
 
-	protected def oneToOne[F](alias: String, foreignClz: Class[F], columns: List[String], columnToValue: T => F): ColumnInfoOneToOne[T, F] =
+	protected def oneToOne[FPC, F](alias: String, foreign: Entity[FPC, F], columns: List[String], columnToValue: T => F): ColumnInfoOneToOne[T, FPC, F] =
 		{
-			val ci = ColumnInfoOneToOne(OneToOne(TypeRef(alias, foreignClz), columns.map(Column(_))), columnToValue)
+			val ci = ColumnInfoOneToOne(OneToOne(TypeRef(alias, foreign), columns.map(Column(_))), columnToValue)
 			this.columns ::= ci
 			ci
 		}
-	protected def oneToOneOption[F](alias: String, foreignClz: Class[F], columns: List[String], columnToValue: T => Option[F]): ColumnInfoOneToOne[T, F] =
+	protected def oneToOneOption[FPC, F](alias: String, foreignClz: Entity[FPC, F], columns: List[String], columnToValue: T => Option[F]): ColumnInfoOneToOne[T, FPC, F] =
 		oneToOne(alias, foreignClz, columns, optionToValue(columnToValue))
 
-	protected def oneToOne[F](foreignClz: Class[F], column: String, columnToValue: T => F): ColumnInfoOneToOne[T, F] =
-		oneToOne(foreignClz.getSimpleName + "_Alias", foreignClz, List(column), columnToValue)
-	protected def oneToOneOption[F](foreignClz: Class[F], column: String, columnToValue: T => Option[F]): ColumnInfoOneToOne[T, F] =
-		oneToOne(foreignClz, column, optionToValue(columnToValue))
-	protected def oneToOne[F](foreignClz: Class[F], columnToValue: T => F): ColumnInfoOneToOne[T, F] =
-		oneToOne(foreignClz, foreignClz.getSimpleName.toLowerCase + "_id", columnToValue)
-	protected def oneToOneOption[F](foreignClz: Class[F], columnToValue: T => Option[F]): ColumnInfoOneToOne[T, F] =
-		oneToOne(foreignClz, optionToValue(columnToValue))
+	protected def oneToOne[FPC, F](foreign: Entity[FPC, F], column: String, columnToValue: T => F): ColumnInfoOneToOne[T, FPC, F] =
+		oneToOne(foreign.clz.getSimpleName + "_Alias", foreign, List(column), columnToValue)
+	protected def oneToOneOption[FPC, F](foreign: Entity[FPC, F], column: String, columnToValue: T => Option[F]): ColumnInfoOneToOne[T, FPC, F] =
+		oneToOne(foreign, column, optionToValue(columnToValue))
+	protected def oneToOne[FPC, F](foreign: Entity[FPC, F], columnToValue: T => F): ColumnInfoOneToOne[T, FPC, F] =
+		oneToOne(foreign, foreign.clz.getSimpleName.toLowerCase + "_id", columnToValue)
+	protected def oneToOneOption[FPC, F](foreign: Entity[FPC, F], columnToValue: T => Option[F]): ColumnInfoOneToOne[T, FPC, F] =
+		oneToOne(foreign, optionToValue(columnToValue))
 
-	protected def oneToOneReverse[F](alias: String, foreignClz: Class[F], foreignColumns: List[String], columnToValue: T => F): ColumnInfoOneToOneReverse[T, F] =
+	protected def oneToOneReverse[FPC, F](alias: String, foreign: Entity[FPC, F], foreignColumns: List[String], columnToValue: T => F): ColumnInfoOneToOneReverse[T, FPC, F] =
 		{
-			val ci = ColumnInfoOneToOneReverse(OneToOneReverse(TypeRef(alias, foreignClz), foreignColumns.map(Column(_))), columnToValue)
+			val ci = ColumnInfoOneToOneReverse(OneToOneReverse(TypeRef(alias, foreign), foreignColumns.map(Column(_))), columnToValue)
 			this.columns ::= ci
 			ci
 		}
-	protected def oneToOneReverseOption[F](alias: String, foreignClz: Class[F], foreignColumns: List[String], columnToValue: T => Option[F]): ColumnInfoOneToOneReverse[T, F] =
-		oneToOneReverse(alias, foreignClz, foreignColumns, optionToValue(columnToValue))
+	protected def oneToOneReverseOption[FPC, F](alias: String, foreign: Entity[FPC, F], foreignColumns: List[String], columnToValue: T => Option[F]): ColumnInfoOneToOneReverse[T, FPC, F] =
+		oneToOneReverse(alias, foreign, foreignColumns, optionToValue(columnToValue))
 
-	protected def oneToOneReverse[F](foreignClz: Class[F], foreignColumn: String, columnToValue: T => F): ColumnInfoOneToOneReverse[T, F] =
-		oneToOneReverse(foreignClz.getSimpleName + "_Alias", foreignClz, List(foreignColumn), columnToValue)
-	protected def oneToOneReverseOption[F](foreignClz: Class[F], foreignColumn: String, columnToValue: T => Option[F]): ColumnInfoOneToOneReverse[T, F] =
-		oneToOneReverse(foreignClz, foreignColumn, optionToValue(columnToValue))
-	protected def oneToOneReverse[F](foreignClz: Class[F], columnToValue: T => F): ColumnInfoOneToOneReverse[T, F] =
-		oneToOneReverse(foreignClz, clz.getSimpleName.toLowerCase + "_id", columnToValue)
-	protected def oneToOneReverseOption[F](foreignClz: Class[F], columnToValue: T => Option[F]): ColumnInfoOneToOneReverse[T, F] =
-		oneToOneReverse(foreignClz, optionToValue(columnToValue))
+	protected def oneToOneReverse[FPC, F](foreign: Entity[FPC, F], foreignColumn: String, columnToValue: T => F): ColumnInfoOneToOneReverse[T, FPC, F] =
+		oneToOneReverse(foreign.clz.getSimpleName + "_Alias", foreign, List(foreignColumn), columnToValue)
+	protected def oneToOneReverseOption[FPC, F](foreign: Entity[FPC, F], foreignColumn: String, columnToValue: T => Option[F]): ColumnInfoOneToOneReverse[T, FPC, F] =
+		oneToOneReverse(foreign, foreignColumn, optionToValue(columnToValue))
+	protected def oneToOneReverse[FPC, F](foreign: Entity[FPC, F], columnToValue: T => F): ColumnInfoOneToOneReverse[T, FPC, F] =
+		oneToOneReverse(foreign, clz.getSimpleName.toLowerCase + "_id", columnToValue)
+	protected def oneToOneReverseOption[FPC, F](foreign: Entity[FPC, F], columnToValue: T => Option[F]): ColumnInfoOneToOneReverse[T, FPC, F] =
+		oneToOneReverse(foreign, optionToValue(columnToValue))
 	/**
 	 * one to many mapping from T to a traversable of an other entity E. The mapping alias is generated by the class name +"Alias".
 	 * If more than 1 oneToMany for the same E exist in a class, the alias should be provided manually using the
@@ -69,10 +74,10 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 	 * @foreignClz		the refered entity
 	 * @columnToValue	the function from T => Traversable[Any] that accesses the field of T to return the Traversable of E
 	 */
-	protected def oneToMany[E](foreignClz: Class[E], foreignKeyColumn: String, columnToValue: T => Traversable[E]): ColumnInfoTraversableOneToMany[T, E] =
-		oneToMany(foreignClz.getSimpleName + "_Alias", foreignClz, foreignKeyColumn, columnToValue)
-	protected def oneToMany[E](foreignClz: Class[E], columnToValue: T => Traversable[E]): ColumnInfoTraversableOneToMany[T, E] =
-		oneToMany(foreignClz, clz.getSimpleName.toLowerCase + "_id", columnToValue)
+	protected def oneToMany[EPC, E](foreign: Entity[EPC, E], foreignKeyColumn: String, columnToValue: T => Traversable[E]): ColumnInfoTraversableOneToMany[T, EPC, E] =
+		oneToMany(foreign.clz.getSimpleName + "_Alias", foreign, foreignKeyColumn, columnToValue)
+	protected def oneToMany[EPC, E](foreign: Entity[EPC, E], columnToValue: T => Traversable[E]): ColumnInfoTraversableOneToMany[T, EPC, E] =
+		oneToMany(foreign, clz.getSimpleName.toLowerCase + "_id", columnToValue)
 
 	/**
 	 * one to many mapping from T to a traversable of an other entity E
@@ -81,61 +86,61 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 	 * @foreignClz		the refered entity
 	 * @columnToValue	the function from T => Traversable[Any] that accesses the field of T to return the Traversable of E
 	 */
-	protected def oneToMany[E](alias: String, foreignClz: Class[E], foreignKeyColumn: String, columnToValue: T => Traversable[E]): ColumnInfoTraversableOneToMany[T, E] =
+	protected def oneToMany[EPC, E](alias: String, foreign: Entity[EPC, E], foreignKeyColumn: String, columnToValue: T => Traversable[E]): ColumnInfoTraversableOneToMany[T, EPC, E] =
 		{
-			val ci = ColumnInfoTraversableOneToMany[T, E](OneToMany(TypeRef(alias, foreignClz), Column.many(foreignKeyColumn)), columnToValue)
+			val ci = ColumnInfoTraversableOneToMany[T, EPC, E](OneToMany(TypeRef(alias, foreign), Column.many(foreignKeyColumn)), columnToValue)
 			this.columns ::= ci
 			ci
 		}
 
-	protected def manyToOne[F](column: String, foreignClz: Class[F], columnToValue: T => F): ColumnInfoManyToOne[T, F] =
-		manyToOne(column + "_Alias", column, foreignClz, columnToValue)
-	protected def manyToOneOption[F](column: String, foreignClz: Class[F], columnToValue: T => Option[F]): ColumnInfoManyToOne[T, F] =
-		manyToOne(column + "_Alias", column, foreignClz, optionToValue(columnToValue))
-	protected def manyToOne[F](foreignClz: Class[F], columnToValue: T => F): ColumnInfoManyToOne[T, F] =
-		manyToOne(foreignClz.getSimpleName.toLowerCase + "_id", foreignClz, columnToValue)
-	protected def manyToOneOption[F](foreignClz: Class[F], columnToValue: T => Option[F]): ColumnInfoManyToOne[T, F] =
-		manyToOne(foreignClz.getSimpleName.toLowerCase + "_id", foreignClz, optionToValue(columnToValue))
+	protected def manyToOne[FPC, F](column: String, foreign: Entity[FPC, F], columnToValue: T => F): ColumnInfoManyToOne[T, FPC, F] =
+		manyToOne(column + "_Alias", column, foreign, columnToValue)
+	protected def manyToOneOption[FPC, F](column: String, foreign: Entity[FPC, F], columnToValue: T => Option[F]): ColumnInfoManyToOne[T, FPC, F] =
+		manyToOne(column + "_Alias", column, foreign, optionToValue(columnToValue))
+	protected def manyToOne[FPC, F](foreign: Entity[FPC, F], columnToValue: T => F): ColumnInfoManyToOne[T, FPC, F] =
+		manyToOne(foreign.clz.getSimpleName.toLowerCase + "_id", foreign, columnToValue)
+	protected def manyToOneOption[FPC, F](foreign: Entity[FPC, F], columnToValue: T => Option[F]): ColumnInfoManyToOne[T, FPC, F] =
+		manyToOne(foreign.clz.getSimpleName.toLowerCase + "_id", foreign, optionToValue(columnToValue))
 
 	/**
 	 * many to one mapping from T to F.
 	 */
-	protected def manyToOne[F](alias: String, column: String, foreignClz: Class[F], columnToValue: T => F): ColumnInfoManyToOne[T, F] =
+	protected def manyToOne[FPC, F](alias: String, column: String, foreign: Entity[FPC, F], columnToValue: T => F): ColumnInfoManyToOne[T, FPC, F] =
 		{
 			require(alias != column)
-			manyToOne(alias, List(column), foreignClz, columnToValue)
+			manyToOne(alias, List(column), foreign, columnToValue)
 		}
 	/**
 	 * many to one with Option support
 	 */
-	protected def manyToOneOption[F](alias: String, column: String, foreignClz: Class[F], columnToValue: T => Option[F]): ColumnInfoManyToOne[T, F] =
-		manyToOne(alias, column, foreignClz, optionToValue(columnToValue))
+	protected def manyToOneOption[FPC, F](alias: String, column: String, foreign: Entity[FPC, F], columnToValue: T => Option[F]): ColumnInfoManyToOne[T, FPC, F] =
+		manyToOne(alias, column, foreign, optionToValue(columnToValue))
 
 	/**
 	 * converts a function T=>Option[F] to T=>F
 	 */
 	private def optionToValue[T, F](columnToValue: T => Option[F]): T => F = (t: T) => columnToValue(t).getOrElse(null.asInstanceOf[F])
 
-	protected def manyToOne[F](alias: String, columns: List[String], foreignClz: Class[F], columnToValue: T => F): ColumnInfoManyToOne[T, F] =
+	protected def manyToOne[FPC, F](alias: String, columns: List[String], foreign: Entity[FPC, F], columnToValue: T => F): ColumnInfoManyToOne[T, FPC, F] =
 		{
-			val ci = ColumnInfoManyToOne(ManyToOne(columns.map(c => Column(c)), TypeRef(alias, foreignClz)), columnToValue)
+			val ci = ColumnInfoManyToOne(ManyToOne(columns.map(c => Column(c)), TypeRef(alias, foreign)), columnToValue)
 			this.columns ::= ci
 			ci
 		}
 
-	protected def manyToMany[F](linkTable: String, leftColumn: String, rightColumn: String, referencedType: Class[F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, F] =
-		manyToMany(linkTable, linkTable, leftColumn, rightColumn, referencedType, columnToValue)
-	protected def manyToMany[F](referencedType: Class[F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, F] =
-		manyToMany(clz.getSimpleName + "_" + referencedType.getSimpleName, clz.getSimpleName.toLowerCase + "_id", referencedType.getSimpleName.toLowerCase + "_id", referencedType, columnToValue)
-	protected def manyToManyReverse[F](referencedType: Class[F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, F] =
-		manyToMany(referencedType.getSimpleName + "_" + clz.getSimpleName, clz.getSimpleName.toLowerCase + "_id", referencedType.getSimpleName.toLowerCase + "_id", referencedType, columnToValue)
+	protected def manyToMany[FPC, F](linkTable: String, leftColumn: String, rightColumn: String, referenced: Entity[FPC, F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, FPC, F] =
+		manyToMany(linkTable, linkTable, leftColumn, rightColumn, referenced, columnToValue)
+	protected def manyToMany[FPC, F](referenced: Entity[FPC, F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, FPC, F] =
+		manyToMany(clz.getSimpleName + "_" + referenced.clz.getSimpleName, clz.getSimpleName.toLowerCase + "_id", referenced.clz.getSimpleName.toLowerCase + "_id", referenced, columnToValue)
+	protected def manyToManyReverse[FPC, F](referenced: Entity[FPC, F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, FPC, F] =
+		manyToMany(referenced.clz.getSimpleName + "_" + clz.getSimpleName, clz.getSimpleName.toLowerCase + "_id", referenced.clz.getSimpleName.toLowerCase + "_id", referenced, columnToValue)
 
-	protected def manyToMany[F](alias: String, linkTable: String, leftColumn: String, rightColumn: String, referencedType: Class[F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, F] =
+	protected def manyToMany[FPC, F](alias: String, linkTable: String, leftColumn: String, rightColumn: String, referenced: Entity[FPC, F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, FPC, F] =
 		{
-			val ci = ColumnInfoTraversableManyToMany[T, F](
+			val ci = ColumnInfoTraversableManyToMany[T, FPC, F](
 				ManyToMany(
 					LinkTable(linkTable, List(Column(leftColumn)), List(Column(rightColumn))),
-					TypeRef(alias, referencedType)
+					TypeRef(alias, referenced)
 				),
 				columnToValue
 			)
@@ -252,25 +257,25 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 	protected implicit def columnToDouble(ci: ColumnInfo[T, Double])(implicit m: ValuesMap): Double = m(ci)
 	protected implicit def columnToOptionDouble(ci: ColumnInfo[T, Double])(implicit m: ValuesMap): Option[Double] = Some(m(ci))
 
-	protected implicit def columnTraversableManyToManyToSet[T, F](ci: ColumnInfoTraversableManyToMany[T, F])(implicit m: ValuesMap): Set[F] = m(ci).toSet
-	protected implicit def columnTraversableManyToManyToList[T, F](ci: ColumnInfoTraversableManyToMany[T, F])(implicit m: ValuesMap): List[F] = m(ci).toList
+	protected implicit def columnTraversableManyToManyToSet[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F])(implicit m: ValuesMap): Set[F] = m(ci).toSet
+	protected implicit def columnTraversableManyToManyToList[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F])(implicit m: ValuesMap): List[F] = m(ci).toList
 
-	protected implicit def columnManyToOneToValue[T, F](ci: ColumnInfoManyToOne[T, F])(implicit m: ValuesMap): F = m(ci)
-	protected implicit def columnManyToOneToOptionValue[T, F](ci: ColumnInfoManyToOne[T, F])(implicit m: ValuesMap): Option[F] = m(ci) match {
+	protected implicit def columnManyToOneToValue[T, FPC, F](ci: ColumnInfoManyToOne[T, FPC, F])(implicit m: ValuesMap): F = m(ci)
+	protected implicit def columnManyToOneToOptionValue[T, FPC, F](ci: ColumnInfoManyToOne[T, FPC, F])(implicit m: ValuesMap): Option[F] = m(ci) match {
 		case null => None
 		case v => Some(v)
 	}
 
-	protected implicit def columnTraversableOneToManyList[T, E](ci: ColumnInfoTraversableOneToMany[T, E])(implicit m: ValuesMap): List[E] = m(ci).toList
-	protected implicit def columnTraversableOneToManySet[T, E](ci: ColumnInfoTraversableOneToMany[T, E])(implicit m: ValuesMap): Set[E] = m(ci).toSet
+	protected implicit def columnTraversableOneToManyList[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap): List[E] = m(ci).toList
+	protected implicit def columnTraversableOneToManySet[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap): Set[E] = m(ci).toSet
 
-	protected implicit def columnOneToOne[F](ci: ColumnInfoOneToOne[_, F])(implicit m: ValuesMap): F = m(ci)
-	protected implicit def columnOneToOneOption[F](ci: ColumnInfoOneToOne[_, F])(implicit m: ValuesMap): Option[F] = m(ci) match {
+	protected implicit def columnOneToOne[FPC, F](ci: ColumnInfoOneToOne[_, FPC, F])(implicit m: ValuesMap): F = m(ci)
+	protected implicit def columnOneToOneOption[FPC, F](ci: ColumnInfoOneToOne[_, FPC, F])(implicit m: ValuesMap): Option[F] = m(ci) match {
 		case null => None
 		case v => Some(v)
 	}
-	protected implicit def columnOneToOneReverse[F](ci: ColumnInfoOneToOneReverse[_, F])(implicit m: ValuesMap): F = m(ci)
-	protected implicit def columnOneToOneReverseOption[F](ci: ColumnInfoOneToOneReverse[_, F])(implicit m: ValuesMap): Option[F] = m(ci) match {
+	protected implicit def columnOneToOneReverse[FPC, F](ci: ColumnInfoOneToOneReverse[_, FPC, F])(implicit m: ValuesMap): F = m(ci)
+	protected implicit def columnOneToOneReverseOption[FPC, F](ci: ColumnInfoOneToOneReverse[_, FPC, F])(implicit m: ValuesMap): Option[F] = m(ci) match {
 		case null => None
 		case v => Some(v)
 	}

@@ -380,7 +380,7 @@ object OneToManySpec {
 		val id = intPK("id", _.id)
 		val name = string("name", _.name)
 		val surname = string("surname", _.surname)
-		val houses = oneToMany(classOf[House], _.owns)
+		val houses = oneToMany(HouseEntity, _.owns)
 		val age = int("age", _.age)
 		/**
 		 * a traversable one-to-many relationship with JobPositions.
@@ -389,7 +389,7 @@ object OneToManySpec {
 		 * creating Person: new Person(....,m.toList("jobPositionsAlias")) .
 		 * JobPositions table has a person_id foreign key which references Person table.
 		 */
-		val jobPositions = oneToMany(classOf[JobPosition], _.positions)
+		val jobPositions = oneToMany(JobPositionEntity, _.positions)
 
 		def constructor(implicit m: ValuesMap) = new Person(id, name, surname, houses, age, m(jobPositions).toList.sortWith(_.id < _.id)) with Persisted
 	}

@@ -202,7 +202,7 @@ object ManyToManyQuerySpec {
 	object ProductEntity extends SimpleEntity(classOf[Product]) {
 		val id = intPK("id", _.id)
 		val name = string("name", _.name)
-		val attributes = manyToMany(classOf[Attribute], _.attributes)
+		val attributes = manyToMany(AttributeEntity, _.attributes)
 
 		def constructor(implicit m: ValuesMap) = new Product(id, name, attributes) with Persisted
 	}

@@ -60,7 +60,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 				val lm = jdbc.queryForList(sa.sql, sa.args)
 				val entityMap = new EntityMap
 				val selectConfig = SelectConfig(skip = queryConfig.skip)
-				val v = mapperDao.toEntities(lm, typeRegistry.typeOf(qe.entity), selectConfig, entityMap)
+				val v = mapperDao.toEntities(lm, qe.entity, selectConfig, entityMap)
 				entityMap.done
 				v
 			} catch {
@@ -76,7 +76,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			if (qe == null) throw new NullPointerException("qe can't be null")
 			val aliases = new Aliases(typeRegistry)
 			val e = qe.entity
-			val tpe = typeRegistry.typeOf(e)
+			val tpe = e.tpe
 			val sql = driver.countSql(aliases, e)
 			val s = whereAndArgs(defaultQueryConfig, qe, aliases)
 			val args = s.args
@@ -86,7 +86,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 	private def sqlAndArgs[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T]): SqlAndArgs =
 		{
 			val e = qe.entity
-			val tpe = typeRegistry.typeOf(e)
+			val tpe = e.tpe
 			val columns = driver.selectColumns(tpe)
 
 			val aliases = new Aliases(typeRegistry)
@@ -114,13 +114,13 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					j match {
 						case join: Query.Join[_, _, _, PC, T] =>
 							join.column match {
-								case manyToOne: ManyToOne[_] =>
+								case manyToOne: ManyToOne[_, _] =>
 									joinsSb append driver.manyToOneJoin(aliases, joinEntity, foreignEntity, manyToOne)
-								case oneToMany: OneToMany[_] =>
+								case oneToMany: OneToMany[_, _] =>
 									joinsSb append driver.oneToManyJoin(aliases, joinEntity, foreignEntity, oneToMany)
-								case manyToMany: ManyToMany[_] =>
+								case manyToMany: ManyToMany[_, _] =>
 									joinsSb append driver.manyToManyJoin(aliases, joinEntity, foreignEntity, manyToMany)
-								case oneToOneReverse: OneToOneReverse[_] =>
+								case oneToOneReverse: OneToOneReverse[_, _] =>
 									joinsSb append driver.oneToOneReverseJoin(aliases, joinEntity, foreignEntity, oneToOneReverse)
 							}
 					}
@@ -177,7 +177,7 @@ object QueryDao {
 					entity.columns.foreach { ci =>
 						aliases.put(ci.column, v)
 						ci match {
-							case ColumnInfoManyToOne(column: ManyToOne[_], _) =>
+							case ColumnInfoManyToOne(column: ManyToOne[_, _], _) =>
 								column.columns.foreach { c =>
 									aliases.put(c, v)
 								}

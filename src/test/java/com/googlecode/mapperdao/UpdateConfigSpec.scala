@@ -43,7 +43,7 @@ object UpdateConfigSpecOneToManyDecl {
 
 	object HouseEntity extends SimpleEntity(classOf[House]) {
 		val id = intPK("id", _.id)
-		val floors = oneToMany(classOf[Floor], _.floors)
+		val floors = oneToMany(FloorEntity, _.floors)
 
 		def constructor(implicit m: ValuesMap) = new House(id, floors) with Persisted
 	}
@@ -51,7 +51,7 @@ object UpdateConfigSpecOneToManyDecl {
 	object PersonEntity extends SimpleEntity(classOf[Person]) {
 		val id = intPK("id", _.id)
 		val name = string("name", _.name)
-		val houses = oneToMany(classOf[House], _.owns)
+		val houses = oneToMany(HouseEntity, _.owns)
 		def constructor(implicit m: ValuesMap) = new Person(id, name, houses) with Persisted
 	}
 }

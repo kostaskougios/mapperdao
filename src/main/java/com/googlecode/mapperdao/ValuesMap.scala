@@ -53,30 +53,30 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.mutab
 			} else v;
 		}
 
-	def apply[T, F](column: ColumnInfoOneToOne[T, F]): F =
+	def apply[T, FPC, F](column: ColumnInfoOneToOne[T, FPC, F]): F =
 		{
 			val key = column.column.alias
 			valueOf[F](key)
 		}
-	def apply[T, F](column: ColumnInfoOneToOneReverse[T, F]): F =
+	def apply[T, FPC, F](column: ColumnInfoOneToOneReverse[T, FPC, F]): F =
 		{
 			val key = column.column.alias
 			valueOf[F](key)
 		}
 
-	def apply[T, V](column: ColumnInfoTraversableOneToMany[T, V]): Traversable[V] =
+	def apply[T, FPC, F](column: ColumnInfoTraversableOneToMany[T, FPC, F]): Traversable[F] =
 		{
 			val key = column.column.alias
-			valueOf[Traversable[V]](key)
+			valueOf[Traversable[F]](key)
 		}
 
-	def apply[T, V](column: ColumnInfoTraversableManyToMany[T, V]): Traversable[V] =
+	def apply[T, FPC, F](column: ColumnInfoTraversableManyToMany[T, FPC, F]): Traversable[F] =
 		{
 			val key = column.column.alias
-			valueOf[Traversable[V]](key)
+			valueOf[Traversable[F]](key)
 		}
 
-	def apply[T, F](column: ColumnInfoManyToOne[T, F]) =
+	def apply[T, FPC, F](column: ColumnInfoManyToOne[T, FPC, F]) =
 		{
 			val key = column.column.alias
 			valueOf[F](key)
@@ -200,11 +200,11 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.mutab
 			v
 	}
 
-	def mutableHashSet[T, V](column: ColumnInfoTraversableManyToMany[T, V]): scala.collection.mutable.HashSet[V] = new scala.collection.mutable.HashSet ++ apply(column)
-	def mutableLinkedList[T, V](column: ColumnInfoTraversableManyToMany[T, V]): scala.collection.mutable.LinkedList[V] = new scala.collection.mutable.LinkedList ++ apply(column)
+	def mutableHashSet[T, FPC, F](column: ColumnInfoTraversableManyToMany[T, FPC, F]): scala.collection.mutable.HashSet[F] = new scala.collection.mutable.HashSet ++ apply(column)
+	def mutableLinkedList[T, FPC, F](column: ColumnInfoTraversableManyToMany[T, FPC, F]): scala.collection.mutable.LinkedList[F] = new scala.collection.mutable.LinkedList ++ apply(column)
 
-	def mutableHashSet[T, V](column: ColumnInfoTraversableOneToMany[T, V]): scala.collection.mutable.HashSet[V] = new scala.collection.mutable.HashSet ++ apply(column)
-	def mutableLinkedList[T, V](column: ColumnInfoTraversableOneToMany[T, V]): scala.collection.mutable.LinkedList[V] = new scala.collection.mutable.LinkedList ++ apply(column)
+	def mutableHashSet[T, FPC, F](column: ColumnInfoTraversableOneToMany[T, FPC, F]): scala.collection.mutable.HashSet[F] = new scala.collection.mutable.HashSet ++ apply(column)
+	def mutableLinkedList[T, FPC, F](column: ColumnInfoTraversableOneToMany[T, FPC, F]): scala.collection.mutable.LinkedList[F] = new scala.collection.mutable.LinkedList ++ apply(column)
 
 	/**
 	 * the following methods do a conversion

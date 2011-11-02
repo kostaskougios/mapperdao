@@ -19,7 +19,7 @@ import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.MapperDaoImpl
 import com.googlecode.mapperdao.UpdateConfig
-
+import com.googlecode.mapperdao.Entity
 /**
  * @author kostantinos.kougios
  *
@@ -27,21 +27,21 @@ import com.googlecode.mapperdao.UpdateConfig
  */
 class ManyToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends PostInsert {
 
-	override def after[PC, T](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): Unit =
+	override def after[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): Unit =
 		{
-			val table = tpe.table
+			val table = entity.tpe.table
 			// many to many
 			table.manyToManyColumnInfos.foreach { cis =>
 				val newKeyValues = table.primaryKeys.map(c => modified(c.columnName))
 				val traversable = cis.columnToValue(o)
 				if (traversable != null) {
+					val nestedEntity = cis.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
+					val nestedTpe = nestedEntity.tpe
 					traversable.foreach { nested =>
-						val nestedEntity = typeRegistry.entityOfObject[Any, Any](nested)
-						val nestedTpe = typeRegistry.typeOf(nestedEntity)
 						val newO = if (mapperDao.isPersisted(nested)) {
 							nested
 						} else {
-							entityMap.down(mockO, cis)
+							entityMap.down(mockO, cis, entity)
 							val inserted = mapperDao.insertInner(updateConfig, nestedEntity, nested, entityMap)
 							entityMap.up
 							inserted
@@ -66,20 +66,22 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 
 	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any] = Nil
 
-	override def before[PC, T](tpe: Type[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]) =
+	override def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]) =
 		{
+			val tpe = entity.tpe
 			val table = tpe.table
 			// many to many
 			table.manyToManyColumnInfos.foreach { ci =>
-				val c = ci.column.asInstanceOf[ManyToMany[Any]]
+				val c = ci.column.asInstanceOf[ManyToMany[Any, Any]]
+				val fe = c.foreign.entity
+				val ftpe = fe.tpe
 				val mtmR = if (selectConfig.skip(ci)) {
 					Nil
 				} else {
-					val ftpe = typeRegistry.typeOf(c.foreign.clz)
 					val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
 					val fom = driver.doSelectManyToMany(tpe, ftpe, c, c.linkTable.left zip ids)
 					entities.down(tpe, ci, om)
-					val mtmR = mapperDao.toEntities(fom, ftpe, selectConfig, entities)
+					val mtmR = mapperDao.toEntities(fom, fe, selectConfig, entities)
 					entities.up
 					mtmR
 				}
@@ -87,8 +89,8 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 			}
 		}
 
-	override def updateMock[PC, T](tpe: Type[PC, T], mods: scala.collection.mutable.HashMap[String, Any]) {
-		mods ++= tpe.table.manyToManyColumns.map(c => (c.alias -> List()))
+	override def updateMock[PC, T](entity: Entity[PC, T], mods: scala.collection.mutable.HashMap[String, Any]) {
+		mods ++= entity.tpe.table.manyToManyColumns.map(c => (c.alias -> List()))
 	}
 }
 
@@ -99,8 +101,9 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
  */
 class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends PostUpdate {
 
-	def after[PC, T](updateConfig: UpdateConfig, tpe: Type[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
+	override def after[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
 		{
+			val tpe = entity.tpe
 			val table = tpe.table
 			// update many-to-many
 			table.manyToManyColumnInfos.foreach { ci =>
@@ -112,10 +115,12 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 				val pkArgs = manyToMany.linkTable.left zip oldValuesMap.toListOfColumnValue(table.primaryKeys)
 
 				val (added, intersection, removed) = TraversableSeparation.separate(oldValues, newValues)
+
+				val fe = manyToMany.foreign.entity.asInstanceOf[Entity[Any, Any]]
+				val ftpe = fe.tpe
 				// delete the removed ones
 				removed.foreach(_ match {
 					case p: Persisted =>
-						val ftpe = typeRegistry.typeOfObject[Any, Any](p)
 						val ftable = ftpe.table
 						val fPkArgs = manyToMany.linkTable.right zip ftable.toListOfPrimaryKeyValues(p)
 						driver.doDeleteManyToManyRef(tpe, ftpe, manyToMany, pkArgs, fPkArgs)
@@ -126,8 +131,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 				intersection.foreach { item =>
 					val newItem = item match {
 						case p: Persisted =>
-							val fe = typeRegistry.entityOfObject[Any, Any](item)
-							entityMap.down(mockO, ci)
+							entityMap.down(mockO, ci, entity)
 							mapperDao.updateInner(updateConfig, fe, item, entityMap)
 							entityMap.up
 							p.discarded = true
@@ -143,12 +147,11 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 					val newItem = item match {
 						case p: Persisted => p
 						case n =>
-							entityMap.down(mockO, ci)
-							val inserted = mapperDao.insertInner[Any, Any](updateConfig, typeRegistry.entityOfObject(n), n, entityMap)
+							entityMap.down(mockO, ci, entity)
+							val inserted = mapperDao.insertInner[Any, Any](updateConfig, fe, n, entityMap)
 							entityMap.up
 							inserted
 					}
-					val ftpe = typeRegistry.typeOfObject(newItem)
 					val fPKArgs = manyToMany.linkTable.right zip ftpe.table.toListOfPrimaryKeyValues(newItem)
 					driver.doInsertManyToMany(tpe, manyToMany, pkArgs, fPKArgs)
 					modified(manyToMany.alias) = newItem
@@ -161,7 +164,8 @@ class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDaoImpl) extends B
 
 	override def idColumnValueContribution[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, entityMap: UpdateEntityMap): List[(SimpleColumn, Any)] = Nil
 
-	override def before[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)], entityMap: UpdateEntityMap) = if (deleteConfig.propagate) {
+	override def before[PC, T](entity: Entity[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)], entityMap: UpdateEntityMap) = if (deleteConfig.propagate) {
+		val tpe = entity.tpe
 		tpe.table.manyToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach { ci =>
 			// execute before-delete-relationship events
 			events.executeBeforeDeleteRelationshipEvents(tpe, ci, o)
