@@ -30,4 +30,13 @@ object OneToManySimpleTypesSpec {
 			val id: Int = ProductEntity.id
 		}
 	}
+
+	def stringProxyClass(column: String) = {
+		case class Proxy(val t: String)
+		object TagEntity extends SimpleEntity[Proxy](classOf[Proxy]) {
+			val value = string(column, _.t)
+			def constructor(implicit m: ValuesMap) = new Proxy(value) with Persisted
+		}
+		TagEntity
+	}
 }
