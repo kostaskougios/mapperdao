@@ -19,9 +19,9 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 		{
 			val tpe = entity.tpe
 			val UpdateInfo(parent, parentColumnInfo, parentEntity) = updateInfo
-			val parentTpe = parentEntity.tpe
 
 			if (parent != null) {
+				val parentTpe = parentEntity.tpe
 				val parentColumn = parentColumnInfo.column
 				parentColumn match {
 					case otm: OneToMany[_, _] =>
@@ -164,9 +164,9 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 
 	override def idColumnValueContribution[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, entityMap: UpdateEntityMap): List[(SimpleColumn, Any)] = {
 		val UpdateInfo(parentO, ci, parentEntity) = entityMap.peek[Any, Any, Traversable[T], Any, T]
-		val parentTpe = parentEntity.tpe
 		ci match {
 			case oneToMany: ColumnInfoTraversableOneToMany[_, _, T] =>
+				val parentTpe = parentEntity.tpe
 				oneToMany.column.foreignColumns zip parentTpe.table.toListOfPrimaryKeyValues(parentO)
 			case _ => Nil
 		}

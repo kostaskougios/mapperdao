@@ -90,15 +90,6 @@ object ManyToManyQueryWithAliasesSpec {
 	case class Product(val id: Int, val name: String, val attributes: Set[Attribute])
 	case class Attribute(val id: Int, val name: String, val value: String)
 
-	class ProductEntityBase extends SimpleEntity("Product", classOf[Product]) {
-		val id = intPK("id", _.id)
-		val name = string("name", _.name)
-		val attributes = manyToMany(AttributeEntity, _.attributes)
-
-		def constructor(implicit m: ValuesMap) = new Product(id, name, attributes) with Persisted
-	}
-	val ProductEntity = new ProductEntityBase
-
 	class AttributeEntityBase extends SimpleEntity("Attribute", classOf[Attribute]) {
 		val id = intPK("id", _.id)
 		val name = string("name", _.name)
@@ -108,4 +99,13 @@ object ManyToManyQueryWithAliasesSpec {
 	}
 
 	val AttributeEntity = new AttributeEntityBase
+
+	class ProductEntityBase extends SimpleEntity("Product", classOf[Product]) {
+		val id = intPK("id", _.id)
+		val name = string("name", _.name)
+		val attributes = manyToMany(AttributeEntity, _.attributes)
+
+		def constructor(implicit m: ValuesMap) = new Product(id, name, attributes) with Persisted
+	}
+	val ProductEntity = new ProductEntityBase
 }
