@@ -18,7 +18,10 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 	protected[mapperdao] var unusedPKs = List[SimpleColumn]()
 	private var mTpe: Type[PC, T] = null
 
-	protected[mapperdao] def tpe = mTpe
+	protected[mapperdao] def tpe = {
+		if (mTpe == null) throw new IllegalStateException("Entity %s not initialized properly.".format(this))
+		mTpe
+	}
 	protected[mapperdao] def init(tpe: Type[_, _]) {
 		this.mTpe = tpe.asInstanceOf[Type[PC, T]]
 	}

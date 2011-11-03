@@ -13,7 +13,7 @@ class ManyToManyQueryWithAliasesSpec extends SpecificationWithJUnit {
 
 	import ManyToManyQueryWithAliasesSpec._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupQueryDao(TypeRegistry(ProductEntity, AttributeEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupQueryDao(TypeRegistry(AttributeEntity, ProductEntity))
 
 	import mapperDao._
 	import queryDao._
@@ -98,8 +98,6 @@ object ManyToManyQueryWithAliasesSpec {
 		def constructor(implicit m: ValuesMap) = new Attribute(id, name, value) with Persisted
 	}
 
-	val AttributeEntity = new AttributeEntityBase
-
 	class ProductEntityBase extends SimpleEntity("Product", classOf[Product]) {
 		val id = intPK("id", _.id)
 		val name = string("name", _.name)
@@ -107,5 +105,6 @@ object ManyToManyQueryWithAliasesSpec {
 
 		def constructor(implicit m: ValuesMap) = new Product(id, name, attributes) with Persisted
 	}
+	val AttributeEntity = new AttributeEntityBase
 	val ProductEntity = new ProductEntityBase
 }
