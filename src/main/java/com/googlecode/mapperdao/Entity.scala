@@ -16,15 +16,17 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 	protected[mapperdao] var persistedColumns = List[ColumnInfoBase[T with PC, _]]()
 	protected[mapperdao] var columns = List[ColumnInfoBase[T, _]]();
 	protected[mapperdao] var unusedPKs = List[SimpleColumn]()
-	private var mTpe: Type[PC, T] = null
+	protected[mapperdao] lazy val tpe = {
+		val con: (ValuesMap) => T with PC with Persisted = m => {
+			// construct the object
+			val o = constructor(m).asInstanceOf[T with PC with Persisted]
+			// set the values map
+			o.valuesMap = m
+			o
+		}
+		Type(clz.asInstanceOf[Class[T]], con, Table[PC, T](table, columns.reverse.asInstanceOf[List[ColumnInfoBase[T, _]]], persistedColumns.asInstanceOf[List[ColumnInfoBase[T with PC, _]]], unusedPKs))
+	}
 
-	protected[mapperdao] def tpe = {
-		if (mTpe == null) throw new IllegalStateException("Entity %s not initialized properly.".format(this))
-		mTpe
-	}
-	protected[mapperdao] def init(tpe: Type[_, _]) {
-		this.mTpe = tpe.asInstanceOf[Type[PC, T]]
-	}
 	override def hashCode = table.hashCode
 	override def equals(o: Any) = o match {
 		case e: Entity[PC, T] => table == e.table && clz == e.clz
