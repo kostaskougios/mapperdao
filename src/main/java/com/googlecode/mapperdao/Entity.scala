@@ -24,7 +24,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 			o.valuesMap = m
 			o
 		}
-		Type(clz.asInstanceOf[Class[T]], con, Table[PC, T](table, columns.reverse.asInstanceOf[List[ColumnInfoBase[T, _]]], persistedColumns.asInstanceOf[List[ColumnInfoBase[T with PC, _]]], unusedPKs))
+		Type(clz, con, Table(table, columns.reverse, persistedColumns, unusedPKs))
 	}
 
 	override def hashCode = table.hashCode
@@ -247,12 +247,12 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Cl
 		case null => None
 		case v => Some(v)
 	}
-	protected implicit def columnToBigDecimal(ci: ColumnInfo[T, BigDecimal])(implicit m: ValuesMap): BigDecimal = m(ci)
+	protected implicit def columnToBigDecimal(ci: ColumnInfo[T, BigDecimal])(implicit m: ValuesMap): BigDecimal = m.bigDecimal(ci)
 	protected implicit def columnToOptionBigDecimal(ci: ColumnInfo[T, BigDecimal])(implicit m: ValuesMap): Option[BigDecimal] = m(ci) match {
 		case null => None
 		case v => Some(v)
 	}
-	protected implicit def columnToBigInteger(ci: ColumnInfo[T, BigInt])(implicit m: ValuesMap): BigInt = m(ci)
+	protected implicit def columnToBigInteger(ci: ColumnInfo[T, BigInt])(implicit m: ValuesMap): BigInt = m.bigInt(ci)
 	protected implicit def columnToOptionBigInteger(ci: ColumnInfo[T, BigInt])(implicit m: ValuesMap): Option[BigInt] = m(ci) match {
 		case null => None
 		case v => Some(v)

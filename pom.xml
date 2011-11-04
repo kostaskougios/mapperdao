@@ -3,7 +3,7 @@
 	<groupId>com.googlecode.mapperdao</groupId>
 	<artifactId>mapperdao</artifactId>
 	<packaging>jar</packaging>
-	<version>0.8.2</version>
+	<version>0.8.3</version>
 	<name>mapperdao</name>
 	<description><![CDATA[
 	MapperDao is an ORM library for the scala language. It allows
