@@ -36,7 +36,7 @@ protected[mapperdao] object TraversableSeparation {
 				}
 
 				val added = newT.filterNot(oldM.containsKey(_))
-				val intersect = newT.filter(oldM.containsKey(_))
+				val intersect = oldT.filter(newM.containsKey(_))
 				val removed = oldT.filterNot(newM.containsKey(_))
 
 				(added, intersect, removed)

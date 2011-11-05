@@ -23,8 +23,10 @@ class TraversableSeparationSpec extends SpecificationWithJUnit {
 
 	"intersect" in {
 		val left = List(X(1), X(2), X(3))
-		val air = TraversableSeparation.separate(left, List(X(0)) ::: left.filterNot(_ == X(2)) ::: List(X(4), X(5)))
-		air._2 must_== List(X(1), X(3))
+		val (added, intersect, removed) = TraversableSeparation.separate(left, List(X(0)) ::: left.filterNot(_ == X(2)) ::: List(X(4), X(5)))
+		intersect must_== List(X(1), X(3))
+		intersect.head must beTheSameAs(left.head)
+		intersect.tail.head must beTheSameAs(left.tail.tail.head)
 	}
 
 	"intersect, left is empty" in {
@@ -54,10 +56,12 @@ class TraversableSeparationSpec extends SpecificationWithJUnit {
 	}
 
 	"SimpleTypeValue separation, addition" in {
-		val (added, intersect, removed) = TraversableSeparation.separate(List(StringValue("kostas"), StringValue("kougios")), List(StringValue("kostas"), StringValue("kougios"), StringValue("X")))
+		val old = List(StringValue("kostas"), StringValue("kougios"))
+		val (added, intersect, removed) = TraversableSeparation.separate(old, List(StringValue("kostas"), StringValue("kougios"), StringValue("X")))
 		added must_== List(StringValue("X"))
 		intersect must_== List(StringValue("kostas"), StringValue("kougios"))
-
+		intersect.head must beTheSameAs(old.head)
+		intersect.tail.head must beTheSameAs(old.tail.head)
 	}
 
 	case class X(id: Int)
