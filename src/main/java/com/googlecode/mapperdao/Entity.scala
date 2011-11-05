@@ -83,6 +83,30 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	protected def oneToMany[EPC, E](foreign: Entity[EPC, E], columnToValue: T => Traversable[E]): ColumnInfoTraversableOneToMany[T, EPC, E] =
 		oneToMany(foreign, clz.getSimpleName.toLowerCase + "_id", columnToValue)
 
+	protected def oneToManySimpleTypeString[EPC](foreign: Entity[EPC, StringValue], foreignKeyColumn: String, columnToValue: T => Traversable[String]): ColumnInfoTraversableOneToMany[T, EPC, StringValue] =
+		oneToMany(foreign, foreignKeyColumn, (t: T) => { columnToValue(t).map(StringValue(_)) })
+	protected def oneToManySimpleTypeString[EPC](foreign: Entity[EPC, StringValue], columnToValue: T => Traversable[String]): ColumnInfoTraversableOneToMany[T, EPC, StringValue] =
+		oneToManySimpleTypeString(foreign, clz.getSimpleName.toLowerCase + "_id", columnToValue)
+
+	protected def oneToManySimpleTypeInt[EPC](foreign: Entity[EPC, IntValue], foreignKeyColumn: String, columnToValue: T => Traversable[Int]): ColumnInfoTraversableOneToMany[T, EPC, IntValue] =
+		oneToMany(foreign, foreignKeyColumn, (t: T) => { columnToValue(t).map(IntValue(_)) })
+	protected def oneToManySimpleTypeInt[EPC](foreign: Entity[EPC, IntValue], columnToValue: T => Traversable[Int]): ColumnInfoTraversableOneToMany[T, EPC, IntValue] =
+		oneToManySimpleTypeInt(foreign, clz.getSimpleName.toLowerCase + "_id", columnToValue)
+
+	protected def oneToManySimpleTypeLong[EPC](foreign: Entity[EPC, LongValue], foreignKeyColumn: String, columnToValue: T => Traversable[Long]): ColumnInfoTraversableOneToMany[T, EPC, LongValue] =
+		oneToMany(foreign, foreignKeyColumn, (t: T) => { columnToValue(t).map(LongValue(_)) })
+	protected def oneToManySimpleTypeLong[EPC](foreign: Entity[EPC, LongValue], columnToValue: T => Traversable[Long]): ColumnInfoTraversableOneToMany[T, EPC, LongValue] =
+		oneToManySimpleTypeLong(foreign, clz.getSimpleName.toLowerCase + "_id", columnToValue)
+
+	protected def oneToManySimpleTypeFloat[EPC](foreign: Entity[EPC, FloatValue], foreignKeyColumn: String, columnToValue: T => Traversable[Float]): ColumnInfoTraversableOneToMany[T, EPC, FloatValue] =
+		oneToMany(foreign, foreignKeyColumn, (t: T) => { columnToValue(t).map(FloatValue(_)) })
+	protected def oneToManySimpleTypeFloat[EPC](foreign: Entity[EPC, FloatValue], columnToValue: T => Traversable[Float]): ColumnInfoTraversableOneToMany[T, EPC, FloatValue] =
+		oneToManySimpleTypeFloat(foreign, clz.getSimpleName.toLowerCase + "_id", columnToValue)
+
+	protected def oneToManySimpleTypeDouble[EPC](foreign: Entity[EPC, DoubleValue], foreignKeyColumn: String, columnToValue: T => Traversable[Double]): ColumnInfoTraversableOneToMany[T, EPC, DoubleValue] =
+		oneToMany(foreign, foreignKeyColumn, (t: T) => { columnToValue(t).map(DoubleValue(_)) })
+	protected def oneToManySimpleTypeDouble[EPC](foreign: Entity[EPC, DoubleValue], columnToValue: T => Traversable[Double]): ColumnInfoTraversableOneToMany[T, EPC, DoubleValue] =
+		oneToManySimpleTypeDouble(foreign, clz.getSimpleName.toLowerCase + "_id", columnToValue)
 	/**
 	 * one to many mapping from T to a traversable of an other entity E
 	 *
@@ -272,6 +296,31 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 
 	protected implicit def columnTraversableOneToManyList[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap): List[E] = m(ci).toList
 	protected implicit def columnTraversableOneToManySet[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap): Set[E] = m(ci).toSet
+
+	protected implicit def columnTraversableOneToManyListStringEntity[T, EPC](ci: ColumnInfoTraversableOneToMany[T, EPC, StringValue])(implicit m: ValuesMap): List[String] =
+		m(ci).map(_.value).toList
+	protected implicit def columnTraversableOneToManySetStringEntity[T, EPC](ci: ColumnInfoTraversableOneToMany[T, EPC, StringValue])(implicit m: ValuesMap): Set[String] =
+		m(ci).map(_.value).toSet
+
+	protected implicit def columnTraversableOneToManyListIntEntity[T, EPC](ci: ColumnInfoTraversableOneToMany[T, EPC, IntValue])(implicit m: ValuesMap): List[Int] =
+		m(ci).map(_.value).toList
+	protected implicit def columnTraversableOneToManySetIntEntity[T, EPC](ci: ColumnInfoTraversableOneToMany[T, EPC, IntValue])(implicit m: ValuesMap): Set[Int] =
+		m(ci).map(_.value).toSet
+
+	protected implicit def columnTraversableOneToManyListLongEntity[T, EPC](ci: ColumnInfoTraversableOneToMany[T, EPC, LongValue])(implicit m: ValuesMap): List[Long] =
+		m(ci).map(_.value).toList
+	protected implicit def columnTraversableOneToManySetLongEntity[T, EPC](ci: ColumnInfoTraversableOneToMany[T, EPC, LongValue])(implicit m: ValuesMap): Set[Long] =
+		m(ci).map(_.value).toSet
+
+	protected implicit def columnTraversableOneToManyListFloatEntity[T, EPC](ci: ColumnInfoTraversableOneToMany[T, EPC, FloatValue])(implicit m: ValuesMap): List[Float] =
+		m(ci).map(_.value).toList
+	protected implicit def columnTraversableOneToManySetFloatEntity[T, EPC](ci: ColumnInfoTraversableOneToMany[T, EPC, FloatValue])(implicit m: ValuesMap): Set[Float] =
+		m(ci).map(_.value).toSet
+
+	protected implicit def columnTraversableOneToManyListDoubleEntity[T, EPC](ci: ColumnInfoTraversableOneToMany[T, EPC, DoubleValue])(implicit m: ValuesMap): List[Double] =
+		m(ci).map(_.value).toList
+	protected implicit def columnTraversableOneToManySetDoubleEntity[T, EPC](ci: ColumnInfoTraversableOneToMany[T, EPC, DoubleValue])(implicit m: ValuesMap): Set[Double] =
+		m(ci).map(_.value).toSet
 
 	protected implicit def columnOneToOne[FPC, F](ci: ColumnInfoOneToOne[_, FPC, F])(implicit m: ValuesMap): F = m(ci)
 	protected implicit def columnOneToOneOption[FPC, F](ci: ColumnInfoOneToOne[_, FPC, F])(implicit m: ValuesMap): Option[F] = m(ci) match {
