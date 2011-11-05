@@ -1,5 +1,6 @@
 package com.googlecode.mapperdao.utils
 import org.specs2.mutable.SpecificationWithJUnit
+import com.googlecode.mapperdao.StringValue
 
 /**
  * @author kostantinos.kougios
@@ -51,5 +52,13 @@ class TraversableSeparationSpec extends SpecificationWithJUnit {
 		air._2 must_== Nil
 		air._3 must_== List(X(1), X(2))
 	}
+
+	"SimpleTypeValue separation, addition" in {
+		val (added, intersect, removed) = TraversableSeparation.separate(List(StringValue("kostas"), StringValue("kougios")), List(StringValue("kostas"), StringValue("kougios"), StringValue("X")))
+		added must_== List(StringValue("X"))
+		intersect must_== List(StringValue("kostas"), StringValue("kougios"))
+
+	}
+
 	case class X(id: Int)
 }

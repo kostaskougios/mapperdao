@@ -1,5 +1,7 @@
 package com.googlecode.mapperdao.utils
 import java.util.IdentityHashMap
+import com.googlecode.mapperdao.SimpleTypeValue
+import java.util.TreeMap
 
 /**
  * compares 2 traversables via object reference equality and returns (added,intersect,removed)
@@ -16,9 +18,15 @@ protected[mapperdao] object TraversableSeparation {
 			else if (newT.isEmpty)
 				(Nil, Nil, oldT)
 			else {
-				val oldM = new IdentityHashMap[T, T]
-				val newM = new IdentityHashMap[T, T]
+				val (oldM, newM) = oldT.head match {
+					case _: SimpleTypeValue[T, _] =>
+						// do an equals comparison
+						(new TreeMap[T, T], new TreeMap[T, T])
+					case _ =>
+						// do an identity comparison
+						(new IdentityHashMap[T, T], new IdentityHashMap[T, T])
 
+				}
 				oldT.foreach { item =>
 					oldM.put(item, item)
 				}
