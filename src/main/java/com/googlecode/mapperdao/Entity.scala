@@ -7,10 +7,9 @@ import org.joda.time.DateTime
  *
  * 13 Aug 2011
  */
-abstract class Entity[PC, T](protected[mapperdao] val table: String, val clz: Class[T]) {
+abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[mapperdao] val clz: Class[T]) {
 
 	def this(clz: Class[T]) = this(clz.getSimpleName, clz)
-
 	def constructor(implicit m: ValuesMap): T with PC with Persisted
 
 	protected[mapperdao] var persistedColumns = List[ColumnInfoBase[T with PC, _]]()
