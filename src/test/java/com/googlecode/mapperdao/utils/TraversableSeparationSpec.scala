@@ -14,10 +14,22 @@ class TraversableSeparationSpec extends SpecificationWithJUnit {
 		air._1 must_== List(X(3), X(4))
 	}
 
+	"added, left is empty" in {
+		val left = List()
+		val air = TraversableSeparation.separate(left, left ::: List(X(3), X(4)))
+		air._1 must_== List(X(3), X(4))
+	}
+
 	"intersect" in {
 		val left = List(X(1), X(2), X(3))
 		val air = TraversableSeparation.separate(left, List(X(0)) ::: left.filterNot(_ == X(2)) ::: List(X(4), X(5)))
 		air._2 must_== List(X(1), X(3))
+	}
+
+	"intersect, left is empty" in {
+		val left = List()
+		val air = TraversableSeparation.separate(left, List(X(0), X(4), X(5)))
+		air._2 must_== List()
 	}
 
 	"removed" in {
@@ -26,5 +38,18 @@ class TraversableSeparationSpec extends SpecificationWithJUnit {
 		air._3 must_== List(X(2), X(3))
 	}
 
+	"removed, left is empty" in {
+		val left = List()
+		val air = TraversableSeparation.separate(left, List(X(4), X(5)))
+		air._3 must_== List()
+	}
+
+	"right is empty" in {
+		val left = List(X(1), X(2))
+		val air = TraversableSeparation.separate(left, Nil)
+		air._1 must_== Nil
+		air._2 must_== Nil
+		air._3 must_== List(X(1), X(2))
+	}
 	case class X(id: Int)
 }

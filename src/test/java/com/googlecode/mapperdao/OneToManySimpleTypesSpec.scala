@@ -10,7 +10,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 class OneToManySimpleTypesSpec extends SpecificationWithJUnit {
 	import OneToManySimpleTypesSpec._
 	val typeRegistry = TypeRegistry(ProductEntity)
-	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(typeRegistry)
+	val (jdbc, mapperDao, queryDao) = Setup.setupQueryDao(typeRegistry)
 
 	"insert" in {
 		createTables
@@ -46,6 +46,15 @@ class OneToManySimpleTypesSpec extends SpecificationWithJUnit {
 		mapperDao.select(ProductEntity, inserted.id).get must_== updated
 	}
 
+	"query" in {
+		createTables
+		val p1 = mapperDao.insert(ProductEntity, Product("test1", Set("tag1", "tag2", "tag3")))
+		val p2 = mapperDao.insert(ProductEntity, Product("test2", Set("tag10", "tag20", "tag3")))
+		val p3 = mapperDao.insert(ProductEntity, Product("test3", Set("tag10", "tag20", "tag30")))
+
+		queryDao.query(q0).toSet must_== Set(p1, p2)
+	}
+
 	def createTables {
 		Setup.dropAllTables(jdbc)
 		val queries = Setup.queries(this, jdbc)
@@ -64,12 +73,16 @@ object OneToManySimpleTypesSpec {
 			val id: Int = ProductEntity.id
 		}
 	}
-
-	case class StringValue(val value: String)
-	class StringEntity(table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[StringValue](table, classOf[StringValue]) {
-		val value = string(soleColumn, _.value)
-		declarePrimaryKeys(fkColumn, soleColumn)
-		def constructor(implicit m: ValuesMap) = new StringValue(value) with Persisted
-	}
 	object TagsEntity extends StringEntity("ProductTags", "product_id", "tag")
+
+	// queries
+
+	import Query._
+	val pe = ProductEntity
+	val te = TagsEntity
+	def q0 = (
+		select from pe
+		join (pe, pe.tags, te)
+		where te.value === "tag3"
+	)
 }

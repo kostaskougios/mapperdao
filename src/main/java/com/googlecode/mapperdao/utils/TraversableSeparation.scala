@@ -11,22 +11,27 @@ import java.util.IdentityHashMap
 protected[mapperdao] object TraversableSeparation {
 	def separate[T](oldT: Traversable[T], newT: Traversable[T]) =
 		{
-			val oldM = new IdentityHashMap[T, T]
-			val newM = new IdentityHashMap[T, T]
+			if (oldT.isEmpty)
+				(newT, Nil, Nil)
+			else if (newT.isEmpty)
+				(Nil, Nil, oldT)
+			else {
+				val oldM = new IdentityHashMap[T, T]
+				val newM = new IdentityHashMap[T, T]
 
-			oldT.foreach { item =>
-				oldM.put(item, item)
+				oldT.foreach { item =>
+					oldM.put(item, item)
+				}
+
+				newT.foreach { item =>
+					newM.put(item, item)
+				}
+
+				val added = newT.filterNot(oldM.containsKey(_))
+				val intersect = newT.filter(oldM.containsKey(_))
+				val removed = oldT.filterNot(newM.containsKey(_))
+
+				(added, intersect, removed)
 			}
-
-			newT.foreach { item =>
-				newM.put(item, item)
-			}
-
-			val added = newT.filterNot(oldM.containsKey(_))
-			val intersect = newT.filter(oldM.containsKey(_))
-
-			val removed = oldT.filterNot(newM.containsKey(_))
-
-			(added, intersect, removed)
 		}
 }
