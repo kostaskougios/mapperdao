@@ -1,6 +1,9 @@
 package com.googlecode.mapperdao
 
 /**
+ * mapping simple type values to tables. These classes provide easy integration with
+ * tables holding 1 simple type.
+ *
  * @author kostantinos.kougios
  *
  * 5 Nov 2011
@@ -17,14 +20,14 @@ case class StringValue(val value: String) extends SimpleTypeValue[String, String
 	def compareTo(o: StringValue): Int = value.compareTo(o.value)
 }
 
-class StringEntity private (table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[StringValue](table, classOf[StringValue]) {
+protected class StringEntityOTM(table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[StringValue](table, classOf[StringValue]) {
 	val value = string(soleColumn, _.value)
 	declarePrimaryKeys(fkColumn, soleColumn)
 	def constructor(implicit m: ValuesMap) = new StringValue(value) with Persisted
 }
 
 object StringEntity {
-	def oneToMany(table: String, fkColumn: String, soleColumn: String) = new StringEntity(table, fkColumn, soleColumn)
+	def oneToMany(table: String, fkColumn: String, soleColumn: String) = new StringEntityOTM(table, fkColumn, soleColumn)
 }
 
 /**
@@ -34,14 +37,14 @@ case class IntValue(val value: Int) extends SimpleTypeValue[Int, IntValue] {
 	def compareTo(o: IntValue): Int = value.compareTo(o.value)
 }
 
-class IntEntity private (table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[IntValue](table, classOf[IntValue]) {
+protected class IntEntityOTM(table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[IntValue](table, classOf[IntValue]) {
 	val value = int(soleColumn, _.value)
 	declarePrimaryKeys(fkColumn, soleColumn)
 	def constructor(implicit m: ValuesMap) = new IntValue(value) with Persisted
 }
 
 object IntEntity {
-	def oneToMany(table: String, fkColumn: String, soleColumn: String) = new IntEntity(table, fkColumn, soleColumn)
+	def oneToMany(table: String, fkColumn: String, soleColumn: String) = new IntEntityOTM(table, fkColumn, soleColumn)
 }
 /**
  * long simple type
@@ -50,14 +53,14 @@ case class LongValue(val value: Long) extends SimpleTypeValue[Long, LongValue] {
 	def compareTo(o: LongValue): Int = value.compare(o.value)
 }
 
-class LongEntity private (table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[LongValue](table, classOf[LongValue]) {
+protected class LongEntityOTM(table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[LongValue](table, classOf[LongValue]) {
 	val value = long(soleColumn, _.value)
 	declarePrimaryKeys(fkColumn, soleColumn)
 	def constructor(implicit m: ValuesMap) = new LongValue(value) with Persisted
 }
 
 object LongEntity {
-	def oneToMany(table: String, fkColumn: String, soleColumn: String) = new LongEntity(table, fkColumn, soleColumn)
+	def oneToMany(table: String, fkColumn: String, soleColumn: String) = new LongEntityOTM(table, fkColumn, soleColumn)
 }
 
 /**
@@ -67,14 +70,14 @@ case class FloatValue(val value: Float) extends SimpleTypeValue[Float, FloatValu
 	def compareTo(o: FloatValue): Int = value.compare(o.value)
 }
 
-class FloatEntity private (table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[FloatValue](table, classOf[FloatValue]) {
+protected class FloatEntityOTM(table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[FloatValue](table, classOf[FloatValue]) {
 	val value = float(soleColumn, _.value)
 	declarePrimaryKeys(fkColumn, soleColumn)
 	def constructor(implicit m: ValuesMap) = new FloatValue(value) with Persisted
 }
 
 object FloatEntity {
-	def oneToMany(table: String, fkColumn: String, soleColumn: String) = new FloatEntity(table, fkColumn, soleColumn)
+	def oneToMany(table: String, fkColumn: String, soleColumn: String) = new FloatEntityOTM(table, fkColumn, soleColumn)
 }
 
 /**
@@ -84,12 +87,12 @@ case class DoubleValue(val value: Double) extends SimpleTypeValue[Double, Double
 	def compareTo(o: DoubleValue): Int = value.compare(o.value)
 }
 
-class DoubleEntity private (table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[DoubleValue](table, classOf[DoubleValue]) {
+protected class DoubleEntityOTM(table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[DoubleValue](table, classOf[DoubleValue]) {
 	val value = double(soleColumn, _.value)
 	declarePrimaryKeys(fkColumn, soleColumn)
 	def constructor(implicit m: ValuesMap) = new DoubleValue(value) with Persisted
 }
 
 object DoubleEntity {
-	def oneToMany(table: String, fkColumn: String, soleColumn: String) = new DoubleEntity(table, fkColumn, soleColumn)
+	def oneToMany(table: String, fkColumn: String, soleColumn: String) = new DoubleEntityOTM(table, fkColumn, soleColumn)
 }
