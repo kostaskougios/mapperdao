@@ -20,14 +20,14 @@ case class StringValue(val value: String) extends SimpleTypeValue[String, String
 	def compareTo(o: StringValue): Int = value.compareTo(o.value)
 }
 
-protected class StringEntityOTM(table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[StringValue](table, classOf[StringValue]) {
+protected class StringEntityOneToMany(table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[StringValue](table, classOf[StringValue]) {
 	val value = string(soleColumn, _.value)
 	declarePrimaryKeys(fkColumn, soleColumn)
 	def constructor(implicit m: ValuesMap) = new StringValue(value) with Persisted
 }
 
 object StringEntity {
-	def oneToMany(table: String, fkColumn: String, soleColumn: String) = new StringEntityOTM(table, fkColumn, soleColumn)
+	def oneToMany(table: String, fkColumn: String, soleColumn: String) = new StringEntityOneToMany(table, fkColumn, soleColumn)
 }
 
 /**

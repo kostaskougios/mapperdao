@@ -158,8 +158,10 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 
 	protected def manyToMany[FPC, F](linkTable: String, leftColumn: String, rightColumn: String, referenced: Entity[FPC, F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, FPC, F] =
 		manyToMany(linkTable, linkTable, leftColumn, rightColumn, referenced, columnToValue)
+	protected def manyToMany[FPC, F](linkTable: String, referenced: Entity[FPC, F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, FPC, F] =
+		manyToMany(linkTable, clz.getSimpleName.toLowerCase + "_id", referenced.clz.getSimpleName.toLowerCase + "_id", referenced, columnToValue)
 	protected def manyToMany[FPC, F](referenced: Entity[FPC, F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, FPC, F] =
-		manyToMany(clz.getSimpleName + "_" + referenced.clz.getSimpleName, clz.getSimpleName.toLowerCase + "_id", referenced.clz.getSimpleName.toLowerCase + "_id", referenced, columnToValue)
+		manyToMany(clz.getSimpleName + "_" + referenced.clz.getSimpleName, referenced, columnToValue)
 	protected def manyToManyReverse[FPC, F](referenced: Entity[FPC, F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, FPC, F] =
 		manyToMany(referenced.clz.getSimpleName + "_" + clz.getSimpleName, clz.getSimpleName.toLowerCase + "_id", referenced.clz.getSimpleName.toLowerCase + "_id", referenced, columnToValue)
 
