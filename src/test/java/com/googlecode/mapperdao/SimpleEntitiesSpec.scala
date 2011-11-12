@@ -12,9 +12,9 @@ import org.scala_tools.time.Imports._
  *
  * 12 Jul 2011
  */
-class SimpleTypesSpec extends SpecificationWithJUnit {
+class SimpleEntitiesSpec extends SpecificationWithJUnit {
 
-	import SimpleTypesSpec._
+	import SimpleEntitiesSpec._
 	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
 
 	"update id, immutable" in {
@@ -54,13 +54,13 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 		val inserted = mapperDao.insert(JobPositionEntity, jp)
 
 		var updated: JobPosition = inserted
-			def doUpdate(from: JobPosition, to: JobPosition) =
-				{
-					updated = mapperDao.update(JobPositionEntity, from, to)
-					updated must_== to
-					mapperDao.select(JobPositionEntity, 5).get must_== to
-					mapperDao.select(JobPositionEntity, 5).get must_== updated
-				}
+		def doUpdate(from: JobPosition, to: JobPosition) =
+			{
+				updated = mapperDao.update(JobPositionEntity, from, to)
+				updated must_== to
+				mapperDao.select(JobPositionEntity, 5).get must_== to
+				mapperDao.select(JobPositionEntity, 5).get must_== updated
+			}
 
 		doUpdate(updated, new JobPosition(5, "Developer Changed", date, date, 5))
 		doUpdate(updated, new JobPosition(5, "Developer Changed Again", date, date, 15))
@@ -206,7 +206,7 @@ class SimpleTypesSpec extends SpecificationWithJUnit {
 	}
 }
 
-object SimpleTypesSpec {
+object SimpleEntitiesSpec {
 
 	/**
 	 * ============================================================================================================
