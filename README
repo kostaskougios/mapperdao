@@ -14,6 +14,15 @@ and then run
 
 mvn install:install-file -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=11.2.0.2.0 -Dpackaging=jar -Dfile=ojdbc6.jar -DgeneratePom=true 
 
+To install the sql server driver, please download it from 
+
+http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=11774
+
+and then run
+
+mvn install:install-file -DgroupId=com.microsoft -DartifactId=sqljdbc4 -Dversion=4.0.0 -Dpackaging=jar -Dfile=sqljdbc4.jar -DgeneratePom=true 
+
+
 
 If you want to generate a signed bundle so it can be uploaded to the OSS
 Sonatype repository, you will need to run:
