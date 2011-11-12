@@ -60,7 +60,8 @@ import org.junit.runners.Suite
 		classOf[UpdateConfigSpec],
 		classOf[utils.HelpersSpec],
 		classOf[OptionSpec],
-		classOf[OneToManySimpleTypesSpec]
+		classOf[OneToManySimpleTypesSpec],
+		classOf[ManyToManySimpleTypesSpec]
 	)
 )
 class All extends SpecificationWithJUnit
