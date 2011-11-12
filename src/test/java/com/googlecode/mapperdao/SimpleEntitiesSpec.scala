@@ -161,48 +161,8 @@ class SimpleEntitiesSpec extends SpecificationWithJUnit {
 
 	def createJobPositionTable {
 		Setup.dropAllTables(jdbc)
-		Setup.database match {
-			case "postgresql" =>
-				jdbc.update("""
-					create table JobPosition (
-					id int not null,
-					name varchar(100) not null,
-					start timestamp with time zone,
-					"end" timestamp with time zone,
-					rank int not null,
-					primary key (id)
-				)""")
-			case "mysql" =>
-				jdbc.update("""
-					create table JobPosition (
-					id int not null,
-					name varchar(100) not null,
-					start datetime,
-					end datetime,
-					rank int not null,
-					primary key (id)
-				) engine InnoDB""")
-			case "oracle" =>
-				jdbc.update(""" 
-					create table JobPosition (
-					id int not null,
-					name varchar(100) not null,
-					"start" timestamp,
-					end timestamp,
-					rank int not null,
-					primary key (id)
-        )""")
-			case "derby" =>
-				jdbc.update("""
-					create table JobPosition (
-					id int not null,
-					name varchar(100) not null,
-					start timestamp,
-					"end" timestamp,
-					rank int not null,
-					primary key (id)
-				)""")
-		}
+		val queries = Setup.queries(this, jdbc)
+		queries.update("ddl")
 	}
 }
 
