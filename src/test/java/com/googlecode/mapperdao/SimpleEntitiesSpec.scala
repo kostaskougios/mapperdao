@@ -161,8 +161,7 @@ class SimpleEntitiesSpec extends SpecificationWithJUnit {
 
 	def createJobPositionTable {
 		Setup.dropAllTables(jdbc)
-		val queries = Setup.queries(this, jdbc)
-		queries.update("ddl")
+		Setup.queries(this, jdbc).update("ddl")
 	}
 }
 
