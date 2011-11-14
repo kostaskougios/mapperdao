@@ -16,7 +16,7 @@ mvn install:install-file -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=11.2
 
 To install the sql server driver, please download it from 
 
-http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=11774
+http://www.microsoft.com/download/en/details.aspx?id=21599
 
 and then run
 

@@ -16,6 +16,7 @@ import com.googlecode.mapperdao.QueryDao
 import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.drivers.Driver
+import com.googlecode.mapperdao.drivers.SqlServer
 
 /**
  * creates an environment for specs
@@ -54,6 +55,7 @@ object Setup {
 				case "mysql" => new Mysql(jdbc, typeRegistry)
 				case "oracle" => new Oracle(jdbc, typeRegistry)
 				case "derby" => new Derby(jdbc, typeRegistry)
+				case "sqlserver" => new SqlServer(jdbc, typeRegistry)
 			}
 			val mapperDao = MapperDao(driver, events)
 			(jdbc, driver, mapperDao)
@@ -108,6 +110,17 @@ object Setup {
 							case "User" => """"User""""
 							case t => t
 						}
+						try {
+							jdbc.update("drop table %s".format(table))
+						} catch {
+							case e: Throwable =>
+								println(e.getMessage)
+								errors += 1
+						}
+					}
+				case "sqlserver" =>
+					jdbc.queryForList("select name from sysobjects where xtype='U'").foreach { m =>
+						val table = m("name")
 						try {
 							jdbc.update("drop table %s".format(table))
 						} catch {
