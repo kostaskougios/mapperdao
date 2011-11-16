@@ -1,14 +1,16 @@
 package com.googlecode.mapperdao
 
 import org.specs2.mutable.SpecificationWithJUnit
-
 import com.googlecode.mapperdao.jdbc.Setup
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 1 Sep 2011
  */
+@RunWith(classOf[JUnitRunner])
 class OneToOneQuerySpec extends SpecificationWithJUnit {
 	import OneToOneQuerySpec._
 	val (jdbc, mapperDao, queryDao) = Setup.setupQueryDao(TypeRegistry(ProductEntity, InventoryEntity))

@@ -93,7 +93,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 
 			val sb = new StringBuilder
 			driver.beforeStartOfQuery(queryConfig, qe, columns, sb)
-			sb append driver.startQuery(aliases, qe, columns)
+			sb append driver.startQuery(queryConfig, aliases, qe, columns)
 			val s = whereAndArgs(queryConfig, qe, aliases)
 			sb.append(s.sql)
 			SqlAndArgs(sb.toString, s.args)

@@ -133,7 +133,8 @@
 			<artifactId>sqljdbc4</artifactId>
 			<version>4.0.0</version>
 			<scope>test</scope>
-		</dependency>		<dependency>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derbyclient</artifactId>
 			<version>10.8.1.2</version>
@@ -249,6 +250,20 @@
 						<configuration>
 							<skip>false</skip>
 							<argLine>-Ddatabase=mysql</argLine>
+							<includes>
+								<include>**/*Spec.class</include>
+							</includes>
+						</configuration>
+					</execution>
+					<execution>
+						<id>sqlserver</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<argLine>-Ddatabase=sqlserver</argLine>
 							<includes>
 								<include>**/*Spec.class</include>
 							</includes>

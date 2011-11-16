@@ -282,17 +282,23 @@ trait Driver {
 	 */
 
 	// select ... from 
-	def startQuery[PC, T](aliases: QueryDao.Aliases, qe: Query.QueryEntity[PC, T], columns: List[ColumnBase]): String =
+	def startQuery[PC, T](queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.QueryEntity[PC, T], columns: List[ColumnBase]): String =
 		{
 			val entity = qe.entity
 			val tpe = entity.tpe
 			val sb = new StringBuilder(100, "select ")
+			val qAS = queryAfterSelect(queryConfig, aliases, qe, columns)
+			if (!qAS.isEmpty) {
+				sb.append(qAS).append(',')
+			}
 			val alias = aliases(entity)
 			sb append commaSeparatedListOfSimpleTypeColumns(alias + ".", ",", columns)
 			sb append "\nfrom " append escapeTableNames(tpe.table.name) append " " append alias
 
 			sb.toString
 		}
+
+	def queryAfterSelect[PC, T](queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.QueryEntity[PC, T], columns: List[ColumnBase]): String = ""
 
 	// creates the join for one-to-one-reverse
 	def oneToOneReverseJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], oneToOneReverse: OneToOneReverse[_, _]): String =

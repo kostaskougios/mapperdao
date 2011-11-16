@@ -29,6 +29,8 @@ case class QueryConfig(
 	// check parameter validity
 	if (offset.isDefined && offset.get < 0) throw new IllegalArgumentException("offset is " + offset)
 	if (limit.isDefined && limit.get < 0) throw new IllegalArgumentException("limit is " + offset)
+
+	def hasRange = offset.isDefined || limit.isDefined
 }
 
 object QueryConfig {
