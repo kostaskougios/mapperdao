@@ -57,9 +57,9 @@ class SqlServer(override val jdbc: Jdbc, override val typeRegistry: TypeRegistry
 
 	override def endOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T], sql: StringBuilder): Unit =
 		if (queryConfig.hasRange) {
-			val offset = queryConfig.offset.getOrElse(0l)
-			sql append "\n) where Row between " append offset append " and "
-			sql append (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset else Long.MaxValue)
+			val offset = queryConfig.offset.getOrElse(0l) + 1
+			sql append "\n) as t\nwhere Row between " append offset append " and "
+			sql append (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue)
 		}
 	override def toString = "SqlServer"
 }
