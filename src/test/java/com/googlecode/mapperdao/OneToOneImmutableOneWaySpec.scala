@@ -1,14 +1,16 @@
 package com.googlecode.mapperdao
 
 import org.specs2.mutable.SpecificationWithJUnit
-
 import com.googlecode.mapperdao.jdbc.Setup
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 31 Aug 2011
  */
+@RunWith(classOf[JUnitRunner])
 class OneToOneImmutableOneWaySpec extends SpecificationWithJUnit {
 	import OneToOneImmutableOneWaySpec._
 	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
@@ -78,79 +80,7 @@ class OneToOneImmutableOneWaySpec extends SpecificationWithJUnit {
 	def createTables =
 		{
 			Setup.dropAllTables(jdbc)
-			Setup.database match {
-				case "postgresql" =>
-					jdbc.update("""
-				create table Product (
-					id int not null,
-					primary key (id)
-				)
-			""")
-					jdbc.update("""
-				create table Inventory (
-					product_id int not null,
-					stock int not null,
-					primary key (product_id),
-					foreign key (product_id) references Product(id) on delete cascade on update cascade
-				)
-			""")
-				case "oracle" =>
-					jdbc.update("""
-				create table Product (
-					id int not null,
-					primary key (id)
-				)
-			""")
-					jdbc.update("""
-				create table Inventory (
-					product_id int not null,
-					stock int not null,
-					primary key (product_id),
-					foreign key (product_id) references Product(id) on delete cascade 
-				)
-			""")
-					// no "on update cascade" for oracle???
-					jdbc.update(""" 
-						create or replace trigger cascade_update
-						after update of id on Product
-						for each row
-						begin
-							update Inventory
-							set product_id = :new.id
-							where product_id = :old.id;
-						end;
-					""")
-				case "mysql" =>
-					jdbc.update("""
-				create table Product (
-					id int not null,
-					primary key (id)
-				) engine InnoDB
-			""")
-					jdbc.update("""
-				create table Inventory (
-					product_id int not null,
-					stock int not null,
-					primary key (product_id),
-					foreign key (product_id) references Product(id) on delete cascade on update cascade
-				) engine InnoDB
-			""")
-				case "derby" =>
-					jdbc.update("""
-				create table Product (
-					id int not null,
-					primary key (id)
-				)
-			""")
-					jdbc.update("""
-				create table Inventory (
-					product_id int not null,
-					stock int not null,
-					primary key (product_id),
-					foreign key (product_id) references Product(id) on delete cascade on update restrict
-				)
-			""")
-			}
+			Setup.queries(this, jdbc).update("ddl")
 		}
 }
 
