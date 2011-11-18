@@ -2,12 +2,15 @@ package com.googlecode.mapperdao
 
 import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 6 Sep 2011
  */
+@RunWith(classOf[JUnitRunner])
 class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUnit {
 	import IntermediateImmutableEntityWithStringFKsSpec._
 	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(EmployeeEntity, WorkedAtEntity, CompanyEntity))
@@ -154,56 +157,7 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 
 	def createTables {
 		Setup.dropAllTables(jdbc)
-		Setup.database match {
-			case "derby" =>
-				jdbc.update("""
-			create table Employee (
-				"no" varchar(20) not null,
-				primary key ("no")
-			)
-		""")
-				jdbc.update("""
-			create table Company (
-				"no" varchar(20) not null,
-				name varchar(20) not null,
-				primary key ("no")
-			)
-		""")
-				jdbc.update("""
-			create table WorkedAt (
-				employee_no varchar(20) not null,
-				company_no varchar(20) not null,
-				"year" int not null,
-				primary key (employee_no,company_no),
-				foreign key (employee_no) references Employee("no") on delete cascade,
-				foreign key (company_no) references Company("no") on delete cascade
-			)
-		""")
-			case _ =>
-				jdbc.update("""
-			create table Employee (
-				no varchar(20) not null,
-				primary key (no)
-			)
-		""")
-				jdbc.update("""
-			create table Company (
-				no varchar(20) not null,
-				name varchar(20) not null,
-				primary key (no)
-			)
-		""")
-				jdbc.update("""
-			create table WorkedAt (
-				employee_no varchar(20) not null,
-				company_no varchar(20) not null,
-				year int not null,
-				primary key (employee_no,company_no),
-				foreign key (employee_no) references Employee(no) on delete cascade,
-				foreign key (company_no) references Company(no) on delete cascade
-			)
-		""")
-		}
+		Setup.queries(this, jdbc).update("ddl")
 	}
 }
 
