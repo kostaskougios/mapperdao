@@ -1,11 +1,14 @@
 package com.googlecode.mapperdao
 import org.specs2.mutable.SpecificationWithJUnit
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 29 Sep 2011
  */
+@RunWith(classOf[JUnitRunner])
 class CRUDConfigsSpec extends SpecificationWithJUnit {
 	"limits" in {
 		QueryConfig.limits(5, 10) must_== QueryConfig(Set(), Some(5), Some(10))

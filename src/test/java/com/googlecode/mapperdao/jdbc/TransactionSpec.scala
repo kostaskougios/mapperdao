@@ -2,12 +2,15 @@ package com.googlecode.mapperdao.jdbc
 
 import org.specs2.mutable.SpecificationWithJUnit
 import org.specs2.specification.BeforeExample
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 30 Aug 2011
  */
+@RunWith(classOf[JUnitRunner])
 class TransactionSpec extends SpecificationWithJUnit with BeforeExample {
 
 	private val jdbc = Setup.setupJdbc
@@ -18,24 +21,7 @@ class TransactionSpec extends SpecificationWithJUnit with BeforeExample {
 
 	def before = {
 		Setup.dropAllTables(jdbc)
-		Setup.database match {
-			case "postgresql" | "oracle" | "derby" =>
-				jdbc.update("""
-			create table tx (
-				id int not null,
-				name varchar(100) not null,
-				primary key (id)
-			)
-		""")
-			case "mysql" =>
-				jdbc.update("""
-			create table tx (
-				id int not null,
-				name varchar(100) not null,
-				primary key (id)
-			) engine InnoDB
-		""")
-		}
+		Setup.queries(this, jdbc).update("ddl")
 	}
 
 	"commit" in {
