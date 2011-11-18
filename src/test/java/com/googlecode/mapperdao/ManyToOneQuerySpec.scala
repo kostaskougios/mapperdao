@@ -1,15 +1,17 @@
 package com.googlecode.mapperdao
 
 import org.specs2.mutable.SpecificationWithJUnit
-
 import com.googlecode.mapperdao.jdbc.Setup
 import org.scala_tools.time.Imports._
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 20 Aug 2011
  */
+@RunWith(classOf[JUnitRunner])
 class ManyToOneQuerySpec extends SpecificationWithJUnit {
 	import ManyToOneQuerySpec._
 
