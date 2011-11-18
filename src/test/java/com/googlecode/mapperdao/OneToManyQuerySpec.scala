@@ -2,13 +2,15 @@ package com.googlecode.mapperdao
 
 import org.specs2.mutable.SpecificationWithJUnit
 import org.specs2.matcher.MatchResult
-
 import com.googlecode.mapperdao.jdbc.Setup
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 /**
  * @author kostantinos.kougios
  *
  * 28 Aug 2011
  */
+@RunWith(classOf[JUnitRunner])
 class OneToManyQuerySpec extends SpecificationWithJUnit {
 	import OneToManyQuerySpec._
 
