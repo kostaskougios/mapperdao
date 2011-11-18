@@ -1,12 +1,15 @@
 package com.googlecode.mapperdao
 import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 8 Nov 2011
  */
+@RunWith(classOf[JUnitRunner])
 class ManyToManySimpleTypesSpec extends SpecificationWithJUnit {
 	import ManyToManySimpleTypesSpec._
 	val typeRegistry = TypeRegistry(ProductEntity)
