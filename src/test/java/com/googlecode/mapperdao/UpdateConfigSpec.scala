@@ -3,12 +3,15 @@ import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.mapperdao.jdbc.Jdbc
 import com.googlecode.mapperdao.jdbc.Queries
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 18 Oct 2011
  */
+@RunWith(classOf[JUnitRunner])
 class UpdateConfigSpec extends SpecificationWithJUnit {
 
 	"one-to-many update.deleteConfig" in {
