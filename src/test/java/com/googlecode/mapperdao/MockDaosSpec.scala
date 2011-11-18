@@ -2,12 +2,15 @@ package com.googlecode.mapperdao
 import org.specs2.mutable.SpecificationWithJUnit
 import utils.TransactionalIntIdCRUD
 import com.googlecode.mapperdao.utils.MockTransactionalIntIdCRUD
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 12 Oct 2011
  */
+@RunWith(classOf[JUnitRunner])
 class MockDaosSpec extends SpecificationWithJUnit {
 	case class JobPosition(var name: String)
 	object JobPositionEntity extends Entity[IntId, JobPosition](classOf[JobPosition]) {
