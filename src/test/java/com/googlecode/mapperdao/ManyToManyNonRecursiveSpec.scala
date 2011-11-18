@@ -1,18 +1,21 @@
 package com.googlecode.mapperdao
 
 import org.specs2.mutable.SpecificationWithJUnit
-
 import com.googlecode.mapperdao.jdbc.Setup
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 8 Aug 2011
  */
+@RunWith(classOf[JUnitRunner])
 class ManyToManyNonRecursiveSpec extends SpecificationWithJUnit {
 	import ManyToManyNonRecursiveSpec._
+	val typeRegistry = TypeRegistry(ProductEntity, AttributeEntity)
 
-	val (jdbc, driver, mapperDao) = setup
+	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(typeRegistry)
 
 	"insert tree of entities" in {
 		createTables
@@ -45,85 +48,13 @@ class ManyToManyNonRecursiveSpec extends SpecificationWithJUnit {
 	def createTables =
 		{
 			Setup.dropAllTables(jdbc)
+			Setup.queries(this, jdbc).update("ddl")
 			Setup.database match {
-				case "postgresql" | "mysql" =>
-					jdbc.update("""
-					create table Product (
-						id serial not null,
-						name varchar(100) not null,
-						primary key(id)
-					)
-			""")
-					jdbc.update("""
-					create table Attribute (
-						id serial not null,
-						name varchar(100) not null,
-						value varchar(100) not null,
-						primary key(id)
-					)
-			""")
-					jdbc.update("""
-					create table Product_Attribute (
-						product_id int not null,
-						attribute_id int not null,
-						primary key(product_id,attribute_id)
-					)
-			""")
 				case "oracle" =>
-					jdbc.update("""
-					create table Product (
-						id int not null,
-						name varchar(100) not null,
-						primary key(id)
-					)
-			""")
-					jdbc.update("""
-					create table Attribute (
-						id int not null,
-						name varchar(100) not null,
-						value varchar(100) not null,
-						primary key(id)
-					)
-			""")
-					jdbc.update("""
-					create table Product_Attribute (
-						product_id int not null,
-						attribute_id int not null,
-						primary key(product_id,attribute_id)
-					)
-			""")
 					Setup.createSeq(jdbc, "ProductSeq")
 					Setup.createSeq(jdbc, "AttributeSeq")
-				case "derby" =>
-					jdbc.update("""
-					create table Product (
-						id int not null GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
-						name varchar(100) not null,
-						primary key(id)
-					)
-			""")
-					jdbc.update("""
-					create table Attribute (
-						id int not null GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
-						name varchar(100) not null,
-						value varchar(100) not null,
-						primary key(id)
-					)
-			""")
-					jdbc.update("""
-					create table Product_Attribute (
-						product_id int not null,
-						attribute_id int not null,
-						primary key(product_id,attribute_id)
-					)
-			""")
+				case _ =>
 			}
-		}
-	def setup =
-		{
-			val typeRegistry = TypeRegistry(ProductEntity, AttributeEntity)
-
-			Setup.setupMapperDao(typeRegistry)
 		}
 }
 
