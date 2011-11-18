@@ -1,11 +1,14 @@
 package com.googlecode.mapperdao.utils
 import org.specs2.mutable.SpecificationWithJUnit
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 26 Oct 2011
  */
+@RunWith(classOf[JUnitRunner])
 class HelpersSpec extends SpecificationWithJUnit {
 
 	import Helpers._

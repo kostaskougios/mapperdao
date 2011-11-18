@@ -1,11 +1,14 @@
 package com.googlecode.mapperdao.utils
 import org.specs2.mutable.SpecificationWithJUnit
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 10 Sep 2011
  */
+@RunWith(classOf[JUnitRunner])
 class EqualitySpec extends SpecificationWithJUnit {
 
 	import Equality._
