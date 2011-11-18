@@ -11,7 +11,7 @@ import com.googlecode.mapperdao.jdbc.UpdateResult
  *
  * 14 Jul 2011
  */
-trait Driver {
+abstract class Driver {
 	val jdbc: Jdbc
 	val typeRegistry: TypeRegistry
 	/**
