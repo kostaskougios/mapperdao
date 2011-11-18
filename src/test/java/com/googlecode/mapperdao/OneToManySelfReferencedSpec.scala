@@ -1,8 +1,9 @@
 package com.googlecode.mapperdao
 
 import org.specs2.mutable.SpecificationWithJUnit
-
 import com.googlecode.mapperdao.jdbc.Setup
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * tests one-to-many references to self
@@ -11,6 +12,7 @@ import com.googlecode.mapperdao.jdbc.Setup
  *
  * 5 Aug 2011
  */
+@RunWith(classOf[JUnitRunner])
 class OneToManySelfReferencedSpec extends SpecificationWithJUnit {
 	import OneToManySelfReferencedSpec._
 
@@ -85,38 +87,11 @@ class OneToManySelfReferencedSpec extends SpecificationWithJUnit {
 
 	def createTables {
 		Setup.dropAllTables(jdbc)
+		Setup.queries(this, jdbc).update("ddl")
 		Setup.database match {
-			case "postgresql" | "mysql" =>
-				jdbc.update("""
-			create table Person (
-				id serial not null,
-				name varchar(100) not null,
-				friend_id int,
-				primary key (id),
-				foreign key (friend_id) references Person(id) on delete cascade
-			)
-		""")
-			case "derby" =>
-				jdbc.update("""
-			create table Person (
-				id int not null GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
-				name varchar(100) not null,
-				friend_id int,
-				primary key (id),
-				foreign key (friend_id) references Person(id) on delete cascade
-			)
-		""")
 			case "oracle" =>
 				Setup.createMySeq(jdbc)
-				jdbc.update("""
-			create table Person (
-				id int not null,
-				name varchar(100) not null,
-				friend_id int,
-				primary key (id),
-				foreign key (friend_id) references Person(id) on delete cascade
-			)
-		""")
+			case _ =>
 		}
 	}
 }
