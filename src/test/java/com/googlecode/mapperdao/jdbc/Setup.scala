@@ -158,5 +158,5 @@ object Setup {
 
 	}
 
-	def queries(o: AnyRef, jdbc: Jdbc) = Queries.fromClassPath(o.getClass, jdbc, "/sql/%s.%s.sql".format(o.getClass.getSimpleName, database))
+	def queries(that: AnyRef, jdbc: Jdbc) = Queries.fromClassPath(that.getClass, jdbc, "/sql/%s.%s.sql".format(that.getClass.getSimpleName, database))
 }

@@ -476,11 +476,15 @@ trait Driver {
 	}
 
 	// create order by clause
-	def orderBy(aliases: QueryDao.Aliases, columns: List[(ColumnBase, Query.AscDesc)]): String = columns.map { caq =>
-		val c = caq._1
-		val ascDesc = caq._2
-		aliases(c) + "." + escapeColumnNames(c.columnName) + " " + ascDesc.sql
-	}.mkString(",")
+	def orderBy(queryConfig: QueryConfig, aliases: QueryDao.Aliases, columns: List[(ColumnBase, Query.AscDesc)]): String = if (shouldCreateOrderByClause(queryConfig)) {
+		"\norder by " + columns.map { caq =>
+			val c = caq._1
+			val ascDesc = caq._2
+			aliases(c) + "." + escapeColumnNames(c.columnName) + " " + ascDesc.sql
+		}.mkString(",")
+	} else ""
+
+	def shouldCreateOrderByClause(queryConfig: QueryConfig): Boolean = true
 
 	// called at the start of each query sql generation, sql is empty at this point
 	def beforeStartOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T], columns: List[ColumnBase], sql: StringBuilder): Unit =

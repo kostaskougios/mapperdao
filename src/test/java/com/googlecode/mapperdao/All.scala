@@ -14,7 +14,6 @@ import org.junit.runners.Suite
  *
  * 6 Aug 2011
  */
-@RunWith(classOf[Suite])
 @SuiteClasses(
 	Array(
 		classOf[utils.EqualitySpec],
@@ -64,4 +63,5 @@ import org.junit.runners.Suite
 		classOf[ManyToManySimpleTypesSpec]
 	)
 )
+@RunWith(classOf[Suite])
 class All extends SpecificationWithJUnit

@@ -143,8 +143,8 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			if (!qe.order.isEmpty) {
 				val orderColumns = qe.order.map(t => (t._1.column, t._2))
 
-				val orderBySql = driver.orderBy(aliases, orderColumns)
-				sb append "\norder by " append orderBySql
+				val orderBySql = driver.orderBy(queryConfig, aliases, orderColumns)
+				sb append orderBySql
 			}
 			driver.endOfQuery(queryConfig, qe, sb)
 			SqlAndArgs(sb.toString, args)

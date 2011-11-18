@@ -1,9 +1,10 @@
 package com.googlecode.mapperdao
 
 import org.specs2.mutable.SpecificationWithJUnit
-
 import com.googlecode.mapperdao.jdbc.Setup
 import org.scala_tools.time.Imports._
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * this is a self contained spec, all test entities, mapping are contained within this spec
@@ -12,6 +13,7 @@ import org.scala_tools.time.Imports._
  *
  * 12 Jul 2011
  */
+@RunWith(classOf[JUnitRunner])
 class SimpleEntitiesSpec extends SpecificationWithJUnit {
 
 	import SimpleEntitiesSpec._

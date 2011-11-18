@@ -40,9 +40,11 @@ class SqlServer(override val jdbc: Jdbc, override val typeRegistry: TypeRegistry
 	override def queryAfterSelect[PC, T](queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.QueryEntity[PC, T], columns: List[ColumnBase]): String = {
 		if (queryConfig.hasRange) {
 			val sb = new StringBuilder("ROW_NUMBER() over (order by ")
-			val orderBySql = qe.order.map(t => t._1.column.columnName + " " + t._2.sql).mkString(",")
+			val entity = qe.entity
+			val alias = aliases(qe.entity)
+			val orderBySql = qe.order.map(t => alias + "." + t._1.column.columnName + " " + t._2.sql).mkString(",")
 			if (orderBySql.isEmpty) {
-				sb append qe.entity.tpe.table.primaryKeysAsCommaSeparatedList
+				sb append entity.tpe.table.primaryKeyColumns.map(alias + "." + _.columnName).mkString(",")
 			} else sb append orderBySql
 
 			sb append ") as Row"
@@ -61,5 +63,8 @@ class SqlServer(override val jdbc: Jdbc, override val typeRegistry: TypeRegistry
 			sql append "\n) as t\nwhere Row between " append offset append " and "
 			sql append (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue)
 		}
+
+	override def shouldCreateOrderByClause(queryConfig: QueryConfig): Boolean = !queryConfig.hasRange
+
 	override def toString = "SqlServer"
 }
