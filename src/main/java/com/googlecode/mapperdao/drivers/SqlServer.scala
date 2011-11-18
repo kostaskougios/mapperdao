@@ -6,7 +6,6 @@ import com.googlecode.mapperdao.ColumnBase
 import com.googlecode.mapperdao.jdbc.UpdateResultWithGeneratedKeys
 import com.googlecode.mapperdao.QueryDao
 import com.googlecode.mapperdao.Query
-import oracle.net.aso.h
 import com.googlecode.mapperdao.QueryConfig
 
 /**
