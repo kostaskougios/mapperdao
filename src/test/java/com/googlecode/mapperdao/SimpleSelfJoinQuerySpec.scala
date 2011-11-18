@@ -1,15 +1,17 @@
 package com.googlecode.mapperdao
 
 import org.specs2.mutable.SpecificationWithJUnit
-
 import com.googlecode.mapperdao.jdbc.Setup
 import org.scala_tools.time.Imports._
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 28 Aug 2011
  */
+@RunWith(classOf[JUnitRunner])
 class SimpleSelfJoinQuerySpec extends SpecificationWithJUnit {
 
 	import SimpleSelfJoinQuerySpec._
@@ -34,40 +36,7 @@ class SimpleSelfJoinQuerySpec extends SpecificationWithJUnit {
 
 	def createJobPositionTable {
 		Setup.dropAllTables(jdbc)
-		Setup.database match {
-			case "postgresql" =>
-				jdbc.update("""
-					create table JobPosition (
-					id int not null,
-					name varchar(100) not null,
-					start timestamp with time zone,
-					primary key (id)
-				)""")
-			case "oracle" =>
-				jdbc.update("""
-					create table JobPosition (
-					id int not null,
-					name varchar(100) not null,
-					"start" date,
-					primary key (id)
-				)""")
-			case "mysql" =>
-				jdbc.update("""
-					create table JobPosition (
-					id int not null,
-					name varchar(100) not null,
-					start datetime,
-					primary key (id)
-				) engine InnoDB""")
-			case "derby" =>
-				jdbc.update("""
-					create table JobPosition (
-					id int not null,
-					name varchar(100) not null,
-					start timestamp,
-					primary key (id)
-				)""")
-		}
+		Setup.queries(this, jdbc).update("ddl")
 	}
 }
 
