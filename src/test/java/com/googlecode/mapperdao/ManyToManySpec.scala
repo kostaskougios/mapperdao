@@ -1,13 +1,15 @@
 package com.googlecode.mapperdao
 import org.specs2.mutable.SpecificationWithJUnit
-
 import com.googlecode.mapperdao.jdbc.Setup
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 8 Aug 2011
  */
+@RunWith(classOf[JUnitRunner])
 class ManyToManySpec extends SpecificationWithJUnit {
 	import ManyToManySpec._
 
@@ -123,129 +125,7 @@ class ManyToManySpec extends SpecificationWithJUnit {
 	def createTables =
 		{
 			Setup.dropAllTables(jdbc)
-
-			Setup.database match {
-				case "postgresql" =>
-					jdbc.update("""
-					create table Product (
-						id int not null,
-						name varchar(100) not null,
-						primary key(id)
-					)
-			""")
-					jdbc.update("""
-					create table Attribute (
-						id int not null,
-						name varchar(100) not null,
-						value varchar(100) not null,
-						primary key(id)
-					)
-			""")
-					jdbc.update("""
-					create table Product_Attribute (
-						product_id int not null,
-						attribute_id int not null,
-						primary key(product_id,attribute_id),
-						foreign key (product_id) references Product(id) on update cascade on delete cascade,
-						foreign key (attribute_id) references Attribute(id) on update cascade on delete cascade
-					)
-			""")
-				case "oracle" =>
-					jdbc.update("""
-					create table Product (
-						id int not null,
-						name varchar(100) not null,
-						primary key(id)
-					)
-			""")
-					jdbc.update("""
-					create table Attribute (
-						id int not null,
-						name varchar(100) not null,
-						value varchar(100) not null,
-						primary key(id)
-					)
-			""")
-					jdbc.update("""
-					create table Product_Attribute (
-						product_id int not null,
-						attribute_id int not null,
-						primary key(product_id,attribute_id),
-						foreign key (product_id) references Product(id) on delete cascade,
-						foreign key (attribute_id) references Attribute(id) on delete cascade
-					)
-			""")
-					jdbc.update(""" 
-				create or replace trigger cascade_update_Product
-				after update of id on Product
-				for each row
-				begin
-					update Product_Attribute
-					set product_id = :new.id
-					where product_id = :old.id;
-				end;
-				""")
-					jdbc.update(""" 
-				create or replace trigger cascade_update_Attribute
-				after update of id on Attribute
-				for each row
-				begin
-					update Product_Attribute
-					set attribute_id = :new.id
-					where attribute_id = :old.id;
-				end;
-				""")
-				case "mysql" =>
-					jdbc.update("""
-					create table Product (
-						id int not null,
-						name varchar(100) not null,
-						primary key(id)
-					) engine InnoDB
-			""")
-					jdbc.update("""
-					create table Attribute (
-						id int not null,
-						name varchar(100) not null,
-						value varchar(100) not null,
-						primary key(id)
-					) engine InnoDB
-			""")
-					jdbc.update("""
-					create table Product_Attribute (
-						product_id int not null,
-						attribute_id int not null,
-						primary key(product_id,attribute_id),
-						foreign key (product_id) references Product(id) on update cascade on delete cascade,
-						foreign key (attribute_id) references Attribute(id) on update cascade on delete cascade
-					) engine InnoDB
-			""")
-				case "derby" =>
-					jdbc.update("""
-					create table Product (
-						id int not null,
-						name varchar(100) not null,
-						primary key(id)
-					)
-			""")
-					jdbc.update("""
-					create table Attribute (
-						id int not null,
-						name varchar(100) not null,
-						value varchar(100) not null,
-						primary key(id)
-					)
-			""")
-					jdbc.update("""
-					create table Product_Attribute (
-						product_id int not null,
-						attribute_id int not null,
-						primary key(product_id,attribute_id),
-						foreign key (product_id) references Product(id) on update restrict on delete cascade,
-						foreign key (attribute_id) references Attribute(id) on update restrict on delete cascade
-					)
-			""")
-			}
+			Setup.queries(this, jdbc).update("ddl")
 		}
 }
 
