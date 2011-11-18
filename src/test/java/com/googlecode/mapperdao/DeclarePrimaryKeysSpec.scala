@@ -1,12 +1,15 @@
 package com.googlecode.mapperdao
 import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 13 Oct 2011
  */
+@RunWith(classOf[JUnitRunner])
 class DeclarePrimaryKeysSpec extends SpecificationWithJUnit {
 	import DeclarePrimaryKeysSpec._
 	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, PriceEntity))

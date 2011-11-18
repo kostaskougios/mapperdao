@@ -1,11 +1,14 @@
 package com.googlecode.mapperdao
 import org.specs2.mutable.SpecificationWithJUnit
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 7 Aug 2011
  */
+@RunWith(classOf[JUnitRunner])
 class EntityMapSpec extends SpecificationWithJUnit {
 
 	case class E1(n: String)
