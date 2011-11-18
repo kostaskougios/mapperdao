@@ -2,12 +2,15 @@ package com.googlecode.mapperdao
 
 import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 5 Sep 2011
  */
+@RunWith(classOf[JUnitRunner])
 class TwoPrimaryKeysSimpleSpec extends SpecificationWithJUnit {
 	import TwoPrimaryKeysSimpleSpec._
 	val (jdbc, mapperDao, queryDao) = Setup.setupQueryDao(TypeRegistry(UserEntity))
@@ -76,45 +79,7 @@ class TwoPrimaryKeysSimpleSpec extends SpecificationWithJUnit {
 
 	def createTables = {
 		Setup.dropAllTables(jdbc)
-		Setup.database match {
-			case "postgresql" =>
-				jdbc.update("""
-			create table "User" (
-				name varchar(20) not null,
-				surname varchar(20) not null,
-				age int not null,
-				primary key (name,surname)
-			)
-		""")
-			case "oracle" =>
-				jdbc.update("""
-			create table "User" (
-				name varchar(20) not null,
-				surname varchar(20) not null,
-				age int not null,
-				primary key (name,surname)
-			)
-		""")
-			case "mysql" =>
-				jdbc.update("""
-			create table User (
-				name varchar(20) not null,
-				surname varchar(20) not null,
-				age int not null,
-				primary key (name,surname)
-			)
-		""")
-			case "derby" =>
-				jdbc.update("""
-			create table "User" (
-				name varchar(20) not null,
-				surname varchar(20) not null,
-				age int not null,
-				primary key (name,surname)
-			)
-		""")
-
-		}
+		Setup.queries(this, jdbc).update("ddl")
 	}
 }
 

@@ -122,7 +122,7 @@ object Setup {
 					jdbc.queryForList("select name from sysobjects where xtype='U'").foreach { m =>
 						val table = m("name")
 						try {
-							jdbc.update("drop table %s".format(table))
+							jdbc.update("drop table [%s]".format(table))
 						} catch {
 							case e: Throwable =>
 								println(e.getMessage)

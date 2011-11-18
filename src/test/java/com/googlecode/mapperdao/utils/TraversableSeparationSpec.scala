@@ -1,12 +1,15 @@
 package com.googlecode.mapperdao.utils
 import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.StringValue
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 6 Sep 2011
  */
+@RunWith(classOf[JUnitRunner])
 class TraversableSeparationSpec extends SpecificationWithJUnit {
 
 	"added" in {
