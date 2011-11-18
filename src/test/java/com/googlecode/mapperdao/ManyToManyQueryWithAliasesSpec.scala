@@ -1,14 +1,16 @@
 package com.googlecode.mapperdao
 
 import org.specs2.mutable.SpecificationWithJUnit
-
 import com.googlecode.mapperdao.jdbc.Setup
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 29 Aug 2011
  */
+@RunWith(classOf[JUnitRunner])
 class ManyToManyQueryWithAliasesSpec extends SpecificationWithJUnit {
 
 	import ManyToManyQueryWithAliasesSpec._
