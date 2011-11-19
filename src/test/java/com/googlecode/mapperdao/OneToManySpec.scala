@@ -227,26 +227,25 @@ object OneToManySpec {
 		// now a description of the table and it's columns follows.
 		// each column is followed by a function JobPosition=>T, that
 		// returns the value of the property for that column.
-		val id = intPK("id", _.id) // this is the primary key
-		val name = string("name", _.name) // _.name : JobPosition => Any . Function that maps the column to the value of the object
-		val rank = int("rank", _.rank)
+		val id = key("id") to (_.id) // this is the primary key
+		val name = column("name") to (_.name) // _.name : JobPosition => Any . Function that maps the column to the value of the object
+		val rank = column("rank") to (_.rank)
 
 		def constructor(implicit m: ValuesMap) = new JobPosition(id, name, rank) with Persisted
 	}
 
 	object HouseEntity extends SimpleEntity(classOf[House]) {
-		val id = intPK("id", _.id)
-		val address = string("address", _.address)
+		val id = key("id") to (_.id)
+		val address = column("address") to (_.address)
 
 		def constructor(implicit m: ValuesMap) = new House(id, address) with Persisted
 	}
-
 	object PersonEntity extends SimpleEntity(classOf[Person]) {
-		val id = intPK("id", _.id)
-		val name = string("name", _.name)
-		val surname = string("surname", _.surname)
-		val houses = oneToMany(HouseEntity, _.owns)
-		val age = int("age", _.age)
+		val id = key("id") to (_.id)
+		val name = column("name") to (_.name)
+		val surname = column("surname") to (_.surname)
+		val houses = onetomany(HouseEntity) to (_.owns)
+		val age = column("age") to (_.age)
 		/**
 		 * a traversable one-to-many relationship with JobPositions.
 		 * The type of the relationship is classOf[JobPosition] and the alias
@@ -254,7 +253,7 @@ object OneToManySpec {
 		 * creating Person: new Person(....,m.toList("jobPositionsAlias")) .
 		 * JobPositions table has a person_id foreign key which references Person table.
 		 */
-		val jobPositions = oneToMany(JobPositionEntity, _.positions)
+		val jobPositions = onetomany(JobPositionEntity) to (_.positions)
 
 		def constructor(implicit m: ValuesMap) = new Person(id, name, surname, houses, age, m(jobPositions).toList.sortWith(_.id < _.id)) with Persisted
 	}

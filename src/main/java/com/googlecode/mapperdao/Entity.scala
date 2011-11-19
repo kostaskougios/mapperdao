@@ -469,15 +469,40 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	def onetoonereverse[FPC, FT](referenced: Entity[FPC, FT]) = new OneToOneReverseBuilder(referenced)
 
 	class OneToOneReverseBuilder[FPC, FT](referenced: Entity[FPC, FT]) {
-		private var cols = List(clz.getSimpleName.toLowerCase + "_id")
+		private var fkcols = List(clz.getSimpleName.toLowerCase + "_id")
 
 		def foreignkeys(cs: List[String]) = {
-			cols = cs
+			fkcols = cs
 			this
 		}
 		def to(columnToValue: T => FT): ColumnInfoOneToOneReverse[T, FPC, FT] =
 			{
-				val ci = ColumnInfoOneToOneReverse(OneToOneReverse(TypeRef(createAlias, referenced), cols.map(Column(_))), columnToValue)
+				val ci = ColumnInfoOneToOneReverse(OneToOneReverse(TypeRef(createAlias, referenced), fkcols.map(Column(_))), columnToValue)
+				columns ::= ci
+				ci
+			}
+	}
+
+	/**
+	 * one-to-many
+	 */
+
+	def onetomany[FPC, FT](referenced: Entity[FPC, FT]) = new OneToManyBuilder(referenced)
+
+	class OneToManyBuilder[FPC, FT](referenced: Entity[FPC, FT]) {
+		private var fkcols = List(clz.getSimpleName.toLowerCase + "_id")
+
+		def foreignkey(fk: String) = {
+			fkcols = List(fk)
+			this
+		}
+		def foreignkeys(cs: List[String]) = {
+			fkcols = cs
+			this
+		}
+		def to(columnToValue: T => Traversable[FT]): ColumnInfoTraversableOneToMany[T, FPC, FT] =
+			{
+				val ci = ColumnInfoTraversableOneToMany[T, FPC, FT](OneToMany(TypeRef(createAlias, referenced), fkcols.map(Column(_))), columnToValue)
 				columns ::= ci
 				ci
 			}
