@@ -413,6 +413,31 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 				ci
 			}
 	}
+
+	/**
+	 * many-to-many
+	 */
+	def manytomany[FPC, FT](referenced: Entity[FPC, FT]) = new ManyToManyBuilder(referenced, false)
+	def manytomanyreverse[FPC, FT](referenced: Entity[FPC, FT]) = new ManyToManyBuilder(referenced, true)
+
+	class ManyToManyBuilder[FPC, FT](referenced: Entity[FPC, FT], reverse: Boolean) {
+		private var linkTable = if (reverse) referenced.clz.getSimpleName + "_" + clz.getSimpleName else clz.getSimpleName + "_" + referenced.clz.getSimpleName
+		private var leftColumn = clz.getSimpleName.toLowerCase + "_id"
+		private var rightColumn = referenced.clz.getSimpleName.toLowerCase + "_id"
+
+		def to(columnToValue: T => Traversable[FT]): ColumnInfoTraversableManyToMany[T, FPC, FT] =
+			{
+				val ci = ColumnInfoTraversableManyToMany[T, FPC, FT](
+					ManyToMany(
+						LinkTable(linkTable, List(Column(leftColumn)), List(Column(rightColumn))),
+						TypeRef(linkTable, referenced)
+					),
+					columnToValue
+				)
+				columns ::= ci
+				ci
+			}
+	}
 }
 
 abstract class SimpleEntity[T](table: String, clz: Class[T]) extends Entity[AnyRef, T](table, clz) {
