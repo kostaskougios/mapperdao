@@ -507,6 +507,29 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 				ci
 			}
 	}
+
+	/**
+	 * many-to-one
+	 */
+	def manytoone[FPC, FT](referenced: Entity[FPC, FT]) = new ManyToOneBuilder(referenced)
+
+	class ManyToOneBuilder[FPC, FT](referenced: Entity[FPC, FT]) {
+		private var fkcols = List(referenced.clz.getSimpleName.toLowerCase + "_id")
+		def foreignkey(fk: String) = {
+			fkcols = List(fk)
+			this
+		}
+		def foreignkeys(cs: List[String]) = {
+			fkcols = cs
+			this
+		}
+		def to(columnToValue: T => FT): ColumnInfoManyToOne[T, FPC, FT] =
+			{
+				val ci = ColumnInfoManyToOne(ManyToOne(fkcols.map(Column(_)), TypeRef(createAlias, referenced)), columnToValue)
+				columns ::= ci
+				ci
+			}
+	}
 }
 
 abstract class SimpleEntity[T](table: String, clz: Class[T]) extends Entity[AnyRef, T](table, clz) {
