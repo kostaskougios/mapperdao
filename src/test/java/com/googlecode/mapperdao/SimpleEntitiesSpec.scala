@@ -197,11 +197,11 @@ object SimpleEntitiesSpec {
 		// now a description of the table and it's columns follows.
 		// each column is followed by a function JobPosition=>Any, that
 		// returns the value of the property for that column.
-		val id = intPK("id", _.id) // this is the primary key and maps to JobPosition.id
-		val name = string("name", _.name) // _.name : JobPosition => Any . Function that maps the column to the value of the object
-		val start = datetime("start", _.start)
-		val end = datetime("end", _.end)
-		val rank = int("rank", _.rank)
+		val id = key("id") to (_.id) // this is the primary key and maps to JobPosition.id
+		val name = column("name") to (_.name) // _.name : JobPosition => Any . Function that maps the column to the value of the object
+		val start = column("start") to (_.start)
+		val end = column("end") to (_.end)
+		val rank = column("rank") to (_.rank)
 
 		// a function from ValuesMap=>JobPosition that constructs the object.
 		// This means that immutability is possible and even desirable for entities!

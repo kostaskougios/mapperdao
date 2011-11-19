@@ -61,9 +61,9 @@ object SimpleSelfJoinQuerySpec {
 	case class JobPosition(val id: Int, var name: String, val start: DateTime)
 
 	class JobPositionEntityBase extends SimpleEntity(classOf[JobPosition]) {
-		val id = intPK("id", _.id)
-		val name = string("name", _.name)
-		val start = datetime("start", _.start)
+		val id = key("id") to (_.id)
+		val name = column("name") to (_.name)
+		val start = column("start") to (_.start)
 
 		def constructor(implicit m: ValuesMap) = new JobPosition(id, name, start) with Persisted
 	}

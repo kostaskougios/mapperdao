@@ -102,13 +102,13 @@ object OneToOneMutableTwoWaySpec {
 
 	object InventoryEntity extends SimpleEntity[Inventory](classOf[Inventory]) {
 		val product = onetoone(ProductEntity) to (_.product)
-		val stock = int("stock", _.stock)
+		val stock = column("stock") to (_.stock)
 
 		def constructor(implicit m: ValuesMap) = new Inventory(product, stock) with Persisted
 	}
 
 	object ProductEntity extends SimpleEntity[Product](classOf[Product]) {
-		val id = intPK("id", _.id)
+		val id = key("id") to (_.id)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 
 		def constructor(implicit m: ValuesMap) = new Product(id, inventory) with Persisted

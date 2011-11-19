@@ -88,9 +88,9 @@ object TwoPrimaryKeysSimpleSpec {
 	case class User(val name: String, val surname: String, val age: Int)
 
 	object UserEntity extends SimpleEntity[User](classOf[User]) {
-		val name = stringPK("name", _.name)
-		val surname = stringPK("surname", _.surname)
-		val age = int("age", _.age)
+		val name = key("name") to (_.name)
+		val surname = key("surname") to (_.surname)
+		val age = column("age") to (_.age)
 
 		def constructor(implicit m: ValuesMap) = new User(name, surname, age) with Persisted
 	}
