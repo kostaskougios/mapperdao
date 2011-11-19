@@ -262,6 +262,10 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	class OneToOneBuilder[FPC, FT](referenced: Entity[FPC, FT]) {
 		private var cols = List(referenced.clz.getSimpleName.toLowerCase + "_id")
 
+		def foreignkey(fk: String) = {
+			cols = List(fk)
+			this
+		}
 		def foreignkeys(cs: List[String]) = {
 			cols = cs
 			this
@@ -281,6 +285,11 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 
 	class OneToOneReverseBuilder[FPC, FT](referenced: Entity[FPC, FT]) {
 		private var fkcols = List(clz.getSimpleName.toLowerCase + "_id")
+
+		def foreignkey(fk: String) = {
+			fkcols = List(fk)
+			this
+		}
 
 		def foreignkeys(cs: List[String]) = {
 			fkcols = cs
