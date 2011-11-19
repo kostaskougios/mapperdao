@@ -20,7 +20,7 @@ class OptionSpec extends SpecificationWithJUnit {
 		val name = column("name") to (_.name)
 		// self reference 
 		val parent = manyToOneOption("parent_id", this, _.parent)
-		val linked = oneToOneOption(this, _.linked)
+		val linked = onetoone(this) option (_.linked)
 
 		def constructor(implicit m: ValuesMap) =
 			new Category(name, parent, linked) with Persisted with IntId {

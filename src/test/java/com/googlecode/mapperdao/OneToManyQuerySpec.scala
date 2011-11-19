@@ -131,16 +131,16 @@ object OneToManyQuerySpec {
 	case class House(val id: Int, val address: String)
 
 	object HouseEntity extends SimpleEntity(classOf[House]) {
-		val id = intPK("id", _.id)
-		val address = string("address", _.address)
+		val id = key("id") to (_.id)
+		val address = column("address") to (_.address)
 
 		def constructor(implicit m: ValuesMap) = new House(id, address) with Persisted
 	}
 
 	object PersonEntity extends SimpleEntity(classOf[Person]) {
-		val id = intPK("id", _.id)
-		val name = string("name", _.name)
-		val owns = oneToMany(HouseEntity, _.owns)
+		val id = key("id") to (_.id)
+		val name = column("name") to (_.name)
+		val owns = onetomany(HouseEntity) to (_.owns)
 
 		def constructor(implicit m: ValuesMap) = new Person(id, name, owns) with Persisted
 	}

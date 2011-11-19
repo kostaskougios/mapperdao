@@ -173,8 +173,8 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 	case class Company(val no: String, val name: String)
 
 	object EmployeeEntity extends SimpleEntity[Employee](classOf[Employee]) {
-		val no = stringPK("no", _.no)
-		val workedAt = oneToMany(WorkedAtEntity, "employee_no", _.workedAt)
+		val no = key("no") to (_.no)
+		val workedAt = onetomany(WorkedAtEntity) foreignkey "employee_no" to (_.workedAt)
 
 		def constructor(implicit m: ValuesMap) = new Employee(no) with Persisted {
 			val workedAt: List[WorkedAt] = EmployeeEntity.workedAt
@@ -182,19 +182,19 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 	}
 
 	object WorkedAtEntity extends SimpleEntity[WorkedAt](classOf[WorkedAt]) {
-		val employee_no = stringPK("employee_no", (wat: WorkedAt) => if (wat.employee == null) null else wat.employee.no)
-		val company_no = stringPK("company_no", (wat: WorkedAt) => if (wat.company == null) null else wat.company.no)
-		val year = int("year", _.year)
+		val employee_no = key("employee_no") to ((wat: WorkedAt) => if (wat.employee == null) null else wat.employee.no)
+		val company_no = key("company_no") to ((wat: WorkedAt) => if (wat.company == null) null else wat.company.no)
+		val year = column("year") to (_.year)
 
-		val employee = manyToOne("employee_no", EmployeeEntity, _.employee)
-		val company = manyToOne("company_no", CompanyEntity, _.company)
+		val employee = manytoone(EmployeeEntity) foreignkey "employee_no" to (_.employee)
+		val company = manytoone(CompanyEntity) foreignkey "company_no" to (_.company)
 
 		def constructor(implicit m: ValuesMap) = new WorkedAt(employee, company, year) with Persisted
 	}
 
 	object CompanyEntity extends SimpleEntity[Company](classOf[Company]) {
-		val no = stringPK("no", _.no)
-		val name = string("name", _.name)
+		val no = key("no") to (_.no)
+		val name = column("name") to (_.name)
 
 		def constructor(implicit m: ValuesMap) = new Company(no, name) with Persisted
 	}
