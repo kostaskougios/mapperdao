@@ -39,31 +39,6 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	 */
 	private def optionToValue[T, F](columnToValue: T => Option[F]): T => F = (t: T) => columnToValue(t).getOrElse(null.asInstanceOf[F])
 
-	protected def manyToMany[FPC, F](linkTable: String, leftColumn: String, rightColumn: String, referenced: Entity[FPC, F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, FPC, F] =
-		manyToMany(linkTable, linkTable, leftColumn, rightColumn, referenced, columnToValue)
-	protected def manyToMany[FPC, F](linkTable: String, referenced: Entity[FPC, F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, FPC, F] =
-		manyToMany(linkTable, clz.getSimpleName.toLowerCase + "_id", referenced.clz.getSimpleName.toLowerCase + "_id", referenced, columnToValue)
-	protected def manyToMany[FPC, F](referenced: Entity[FPC, F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, FPC, F] =
-		manyToMany(clz.getSimpleName + "_" + referenced.clz.getSimpleName, referenced, columnToValue)
-	protected def manyToManyReverse[FPC, F](referenced: Entity[FPC, F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, FPC, F] =
-		manyToMany(referenced.clz.getSimpleName + "_" + clz.getSimpleName, clz.getSimpleName.toLowerCase + "_id", referenced.clz.getSimpleName.toLowerCase + "_id", referenced, columnToValue)
-
-	protected def manyToManySimpleTypeString[FPC](linkTable: String, leftColumn: String, rightColumn: String, referenced: Entity[FPC, StringValue], columnToValue: T => Traversable[String]): ColumnInfoTraversableManyToMany[T, FPC, StringValue] =
-		manyToMany(linkTable, leftColumn, rightColumn, referenced, (t: T) => columnToValue(t).map(StringValue(_)))
-
-	protected def manyToMany[FPC, F](alias: String, linkTable: String, leftColumn: String, rightColumn: String, referenced: Entity[FPC, F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, FPC, F] =
-		{
-			val ci = ColumnInfoTraversableManyToMany[T, FPC, F](
-				ManyToMany(
-					LinkTable(linkTable, List(Column(leftColumn)), List(Column(rightColumn))),
-					TypeRef(alias, referenced)
-				),
-				columnToValue
-			)
-			this.columns ::= ci
-			ci
-		}
-
 	private def basic[V](column: String, columnToValue: T => V, dataType: Class[V]): ColumnInfo[T, V] =
 		{
 			val ci = ColumnInfo[T, V](Column(column), columnToValue, dataType)
@@ -314,6 +289,12 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 		private var leftColumn = clz.getSimpleName.toLowerCase + "_id"
 		private var rightColumn = referenced.clz.getSimpleName.toLowerCase + "_id"
 
+		def join(linkTable: String, leftColumn: String, rightColumn: String) = {
+			this.linkTable = linkTable
+			this.leftColumn = leftColumn
+			this.rightColumn = rightColumn
+			this
+		}
 		def to(columnToValue: T => Traversable[FT]): ColumnInfoTraversableManyToMany[T, FPC, FT] =
 			{
 				val ci = ColumnInfoTraversableManyToMany[T, FPC, FT](
@@ -326,6 +307,17 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 				columns ::= ci
 				ci
 			}
+
+		def tostring(columnToValue: T => Traversable[String]): ColumnInfoTraversableManyToMany[T, FPC, FT] =
+			to((t: T) => { columnToValue(t).map(StringValue(_)).asInstanceOf[Traversable[FT]] })
+		def toint(columnToValue: T => Traversable[Int]): ColumnInfoTraversableManyToMany[T, FPC, FT] =
+			to((t: T) => { columnToValue(t).map(IntValue(_)).asInstanceOf[Traversable[FT]] })
+		def tofloat(columnToValue: T => Traversable[Float]): ColumnInfoTraversableManyToMany[T, FPC, FT] =
+			to((t: T) => { columnToValue(t).map(FloatValue(_)).asInstanceOf[Traversable[FT]] })
+		def todouble(columnToValue: T => Traversable[Double]): ColumnInfoTraversableManyToMany[T, FPC, FT] =
+			to((t: T) => { columnToValue(t).map(DoubleValue(_)).asInstanceOf[Traversable[FT]] })
+		def tolong(columnToValue: T => Traversable[Long]): ColumnInfoTraversableManyToMany[T, FPC, FT] =
+			to((t: T) => { columnToValue(t).map(LongValue(_)).asInstanceOf[Traversable[FT]] })
 	}
 	/**
 	 * one-to-one
