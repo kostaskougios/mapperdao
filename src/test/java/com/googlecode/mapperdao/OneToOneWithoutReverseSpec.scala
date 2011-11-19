@@ -1,14 +1,16 @@
 package com.googlecode.mapperdao
 
 import org.specs2.mutable.SpecificationWithJUnit
-
 import com.googlecode.mapperdao.jdbc.Setup
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * @author kostantinos.kougios
  *
  * 1 Sep 2011
  */
+@RunWith(classOf[JUnitRunner])
 class OneToOneWithoutReverseSpec extends SpecificationWithJUnit {
 	import OneToOneWithoutReverseSpec._
 	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
@@ -99,15 +101,15 @@ object OneToOneWithoutReverseSpec {
 	case class Product(val id: Int)
 
 	object InventoryEntity extends SimpleEntity[Inventory](classOf[Inventory]) {
-		val id = intPK("id", _.id)
-		val product = oneToOne(ProductEntity, _.product)
-		val stock = int("stock", _.stock)
+		val id = key("id") to (_.id)
+		val product = onetoone(ProductEntity) to (_.product)
+		val stock = column("stock") to (_.stock)
 
 		def constructor(implicit m: ValuesMap) = new Inventory(id, product, stock) with Persisted
 	}
 
 	object ProductEntity extends SimpleEntity[Product](classOf[Product]) {
-		val id = intPK("id", _.id)
+		val id = key("id") to (_.id)
 
 		def constructor(implicit m: ValuesMap) = new Product(id) with Persisted
 	}

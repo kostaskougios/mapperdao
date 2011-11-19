@@ -110,16 +110,16 @@ object OneToOneQuerySpec {
 	case class Product(val id: Int, val inventory: Inventory)
 
 	class InventoryEntityBase extends SimpleEntity[Inventory](classOf[Inventory]) {
-		val stock = int("stock", _.stock)
-		val sold = int("sold", _.sold)
+		val stock = column("stock") to (_.stock)
+		val sold = column("sold") to (_.sold)
 
 		def constructor(implicit m: ValuesMap) = new Inventory(stock, sold) with Persisted
 	}
 	val InventoryEntity = new InventoryEntityBase
 
 	class ProductEntityBase extends SimpleEntity[Product](classOf[Product]) {
-		val id = intPK("id", _.id)
-		val inventory = oneToOneReverse(InventoryEntity, _.inventory)
+		val id = key("id") to (_.id)
+		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 
 		def constructor(implicit m: ValuesMap) = new Product(id, inventory) with Persisted
 	}

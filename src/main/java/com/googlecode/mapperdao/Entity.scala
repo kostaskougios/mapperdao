@@ -369,7 +369,11 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	/**
 	 * dsl for declaring columns
 	 */
-
+	private var aliasCnt = 0
+	private def createAlias = {
+		aliasCnt += 1
+		"alias" + aliasCnt
+	}
 	/**
 	 * primary key declarations
 	 */
@@ -412,6 +416,8 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 				columns ::= ci
 				ci
 			}
+
+		def option[V](columnToValue: T => Option[V])(implicit m: Manifest[V]): ColumnInfo[T, V] = to((t: T) => columnToValue(t).getOrElse(null.asInstanceOf[V]))
 	}
 
 	/**
@@ -430,10 +436,48 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 				val ci = ColumnInfoTraversableManyToMany[T, FPC, FT](
 					ManyToMany(
 						LinkTable(linkTable, List(Column(leftColumn)), List(Column(rightColumn))),
-						TypeRef(linkTable, referenced)
+						TypeRef(createAlias, referenced)
 					),
 					columnToValue
 				)
+				columns ::= ci
+				ci
+			}
+	}
+	/**
+	 * one-to-one
+	 */
+	def onetoone[FPC, FT](referenced: Entity[FPC, FT]) = new OneToOneBuilder(referenced)
+
+	class OneToOneBuilder[FPC, FT](referenced: Entity[FPC, FT]) {
+		private var cols = List(referenced.clz.getSimpleName.toLowerCase + "_id")
+
+		def foreignkeys(cs: List[String]) = {
+			cols = cs
+			this
+		}
+		def to(columnToValue: T => FT): ColumnInfoOneToOne[T, FPC, FT] =
+			{
+				val ci = ColumnInfoOneToOne(OneToOne(TypeRef(createAlias, referenced), cols.map(Column(_))), columnToValue)
+				columns ::= ci
+				ci
+			}
+	}
+	/**
+	 * one-to-one reverse
+	 */
+	def onetoonereverse[FPC, FT](referenced: Entity[FPC, FT]) = new OneToOneReverseBuilder(referenced)
+
+	class OneToOneReverseBuilder[FPC, FT](referenced: Entity[FPC, FT]) {
+		private var cols = List(clz.getSimpleName.toLowerCase + "_id")
+
+		def foreignkeys(cs: List[String]) = {
+			cols = cs
+			this
+		}
+		def to(columnToValue: T => FT): ColumnInfoOneToOneReverse[T, FPC, FT] =
+			{
+				val ci = ColumnInfoOneToOneReverse(OneToOneReverse(TypeRef(createAlias, referenced), cols.map(Column(_))), columnToValue)
 				columns ::= ci
 				ci
 			}
