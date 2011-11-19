@@ -34,40 +34,10 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 
 	override def toString = "%s(%s,%s)".format(getClass.getSimpleName, table, clz.getName)
 
-	protected def manyToOne[FPC, F](column: String, foreign: Entity[FPC, F], columnToValue: T => F): ColumnInfoManyToOne[T, FPC, F] =
-		manyToOne(column + "_Alias", column, foreign, columnToValue)
-	protected def manyToOneOption[FPC, F](column: String, foreign: Entity[FPC, F], columnToValue: T => Option[F]): ColumnInfoManyToOne[T, FPC, F] =
-		manyToOne(column + "_Alias", column, foreign, optionToValue(columnToValue))
-	protected def manyToOne[FPC, F](foreign: Entity[FPC, F], columnToValue: T => F): ColumnInfoManyToOne[T, FPC, F] =
-		manyToOne(foreign.clz.getSimpleName.toLowerCase + "_id", foreign, columnToValue)
-	protected def manyToOneOption[FPC, F](foreign: Entity[FPC, F], columnToValue: T => Option[F]): ColumnInfoManyToOne[T, FPC, F] =
-		manyToOne(foreign.clz.getSimpleName.toLowerCase + "_id", foreign, optionToValue(columnToValue))
-
-	/**
-	 * many to one mapping from T to F.
-	 */
-	protected def manyToOne[FPC, F](alias: String, column: String, foreign: Entity[FPC, F], columnToValue: T => F): ColumnInfoManyToOne[T, FPC, F] =
-		{
-			require(alias != column)
-			manyToOne(alias, List(column), foreign, columnToValue)
-		}
-	/**
-	 * many to one with Option support
-	 */
-	protected def manyToOneOption[FPC, F](alias: String, column: String, foreign: Entity[FPC, F], columnToValue: T => Option[F]): ColumnInfoManyToOne[T, FPC, F] =
-		manyToOne(alias, column, foreign, optionToValue(columnToValue))
-
 	/**
 	 * converts a function T=>Option[F] to T=>F
 	 */
 	private def optionToValue[T, F](columnToValue: T => Option[F]): T => F = (t: T) => columnToValue(t).getOrElse(null.asInstanceOf[F])
-
-	protected def manyToOne[FPC, F](alias: String, columns: List[String], foreign: Entity[FPC, F], columnToValue: T => F): ColumnInfoManyToOne[T, FPC, F] =
-		{
-			val ci = ColumnInfoManyToOne(ManyToOne(columns.map(c => Column(c)), TypeRef(alias, foreign)), columnToValue)
-			this.columns ::= ci
-			ci
-		}
 
 	protected def manyToMany[FPC, F](linkTable: String, leftColumn: String, rightColumn: String, referenced: Entity[FPC, F], columnToValue: T => Traversable[F]): ColumnInfoTraversableManyToMany[T, FPC, F] =
 		manyToMany(linkTable, linkTable, leftColumn, rightColumn, referenced, columnToValue)
@@ -453,6 +423,8 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 				columns ::= ci
 				ci
 			}
+		def option(columnToValue: T => Option[FT]): ColumnInfoManyToOne[T, FPC, FT] =
+			to(optionToValue(columnToValue))
 	}
 }
 
