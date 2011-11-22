@@ -89,7 +89,7 @@ object DeclarePrimaryKeysSpec {
 		val title = column("title") to (_.title)
 		val prices = onetomany(PriceEntity) to (_.prices)
 
-		def constructor(implicit m: ValuesMap) = new Product(title, prices) with IntId with Persisted {
+		def constructor(implicit m) = new Product(title, prices) with IntId with Persisted {
 			val id: Int = ProductEntity.id
 		}
 	}
@@ -100,6 +100,6 @@ object DeclarePrimaryKeysSpec {
 		// the unitprice doesn't make sense to be a PK, but we have it so that we can do extra tests
 		val pks = declarePrimaryKeys("currency", "product_id", "unitprice")
 
-		def constructor(implicit m: ValuesMap) = new Price(currency, unitPrice, salePrice) with Persisted
+		def constructor(implicit m) = new Price(currency, unitPrice, salePrice) with Persisted
 	}
 }

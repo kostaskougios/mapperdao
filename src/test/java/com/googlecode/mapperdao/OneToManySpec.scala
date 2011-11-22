@@ -231,14 +231,14 @@ object OneToManySpec {
 		val name = column("name") to (_.name) // _.name : JobPosition => Any . Function that maps the column to the value of the object
 		val rank = column("rank") to (_.rank)
 
-		def constructor(implicit m: ValuesMap) = new JobPosition(id, name, rank) with Persisted
+		def constructor(implicit m) = new JobPosition(id, name, rank) with Persisted
 	}
 
 	object HouseEntity extends SimpleEntity(classOf[House]) {
 		val id = key("id") to (_.id)
 		val address = column("address") to (_.address)
 
-		def constructor(implicit m: ValuesMap) = new House(id, address) with Persisted
+		def constructor(implicit m) = new House(id, address) with Persisted
 	}
 	object PersonEntity extends SimpleEntity(classOf[Person]) {
 		val id = key("id") to (_.id)
@@ -255,6 +255,6 @@ object OneToManySpec {
 		 */
 		val jobPositions = onetomany(JobPositionEntity) to (_.positions)
 
-		def constructor(implicit m: ValuesMap) = new Person(id, name, surname, houses, age, m(jobPositions).toList.sortWith(_.id < _.id)) with Persisted
+		def constructor(implicit m) = new Person(id, name, surname, houses, age, m(jobPositions).toList.sortWith(_.id < _.id)) with Persisted
 	}
 }

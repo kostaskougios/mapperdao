@@ -314,6 +314,6 @@ object SimpleQuerySpec {
 		val name = column("name") to (_.name)
 		val start = column("start") to (_.start)
 
-		def constructor(implicit m: ValuesMap) = new JobPosition(id, name, start) with Persisted
+		def constructor(implicit m) = new JobPosition(id, name, start) with Persisted
 	}
 }

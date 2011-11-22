@@ -97,7 +97,7 @@ object ManyToManyQueryWithAliasesSpec {
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m: ValuesMap) = new Attribute(id, name, value) with Persisted
+		def constructor(implicit m) = new Attribute(id, name, value) with Persisted
 	}
 
 	class ProductEntityBase extends SimpleEntity("Product", classOf[Product]) {
@@ -105,7 +105,7 @@ object ManyToManyQueryWithAliasesSpec {
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
 
-		def constructor(implicit m: ValuesMap) = new Product(id, name, attributes) with Persisted
+		def constructor(implicit m) = new Product(id, name, attributes) with Persisted
 	}
 	val AttributeEntity = new AttributeEntityBase
 	val ProductEntity = new ProductEntityBase

@@ -171,7 +171,7 @@ object ManyToOneQuerySpec {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val lives = manytoone(HouseEntity) foreignkey "lives_id" to (_.lives)
-		def constructor(implicit m: ValuesMap) = new Person(id, name, lives) with Persisted
+		def constructor(implicit m) = new Person(id, name, lives) with Persisted
 	}
 
 	class HouseEntityBase extends SimpleEntity(classOf[House]) {
@@ -179,7 +179,7 @@ object ManyToOneQuerySpec {
 		val name = column("name") to (_.name)
 		val address = manytoone(AddressEntity) to (_.address)
 
-		def constructor(implicit m: ValuesMap) = new House(id, name, address) with Persisted
+		def constructor(implicit m) = new House(id, name, address) with Persisted
 	}
 
 	val HouseEntity = new HouseEntityBase
@@ -187,7 +187,7 @@ object ManyToOneQuerySpec {
 	object AddressEntity extends SimpleEntity(classOf[Address]) {
 		val id = key("id") to (_.id)
 		val postCode = column("postcode") to (_.postCode)
-		def constructor(implicit m: ValuesMap) =
+		def constructor(implicit m) =
 			new Address(id, postCode) with Persisted
 	}
 }

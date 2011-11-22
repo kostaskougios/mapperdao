@@ -176,7 +176,7 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 		val no = key("no") to (_.no)
 		val workedAt = onetomany(WorkedAtEntity) foreignkey "employee_no" to (_.workedAt)
 
-		def constructor(implicit m: ValuesMap) = new Employee(no) with Persisted {
+		def constructor(implicit m) = new Employee(no) with Persisted {
 			val workedAt: List[WorkedAt] = EmployeeEntity.workedAt
 		}
 	}
@@ -189,13 +189,13 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 		val employee = manytoone(EmployeeEntity) foreignkey "employee_no" to (_.employee)
 		val company = manytoone(CompanyEntity) foreignkey "company_no" to (_.company)
 
-		def constructor(implicit m: ValuesMap) = new WorkedAt(employee, company, year) with Persisted
+		def constructor(implicit m) = new WorkedAt(employee, company, year) with Persisted
 	}
 
 	object CompanyEntity extends SimpleEntity[Company](classOf[Company]) {
 		val no = key("no") to (_.no)
 		val name = column("name") to (_.name)
 
-		def constructor(implicit m: ValuesMap) = new Company(no, name) with Persisted
+		def constructor(implicit m) = new Company(no, name) with Persisted
 	}
 }

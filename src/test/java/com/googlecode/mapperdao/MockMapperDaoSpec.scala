@@ -12,7 +12,7 @@ import org.specs2.runner.JUnitRunner
 class MockMapperDaoSpec extends SpecificationWithJUnit {
 	case class JobPosition(var name: String)
 	object JobPositionEntity extends Entity[IntId, JobPosition](classOf[JobPosition]) {
-		def constructor(implicit m: ValuesMap) = null
+		def constructor(implicit m) = null
 	}
 
 	"mock insert" in {

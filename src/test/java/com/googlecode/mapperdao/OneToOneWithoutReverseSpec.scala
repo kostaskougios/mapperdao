@@ -105,13 +105,13 @@ object OneToOneWithoutReverseSpec {
 		val product = onetoone(ProductEntity) to (_.product)
 		val stock = column("stock") to (_.stock)
 
-		def constructor(implicit m: ValuesMap) = new Inventory(id, product, stock) with Persisted
+		def constructor(implicit m) = new Inventory(id, product, stock) with Persisted
 	}
 
 	object ProductEntity extends SimpleEntity[Product](classOf[Product]) {
 		val id = key("id") to (_.id)
 
-		def constructor(implicit m: ValuesMap) = new Product(id) with Persisted
+		def constructor(implicit m) = new Product(id) with Persisted
 	}
 
 }

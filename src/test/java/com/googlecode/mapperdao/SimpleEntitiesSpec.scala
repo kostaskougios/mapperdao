@@ -205,6 +205,6 @@ object SimpleEntitiesSpec {
 
 		// a function from ValuesMap=>JobPosition that constructs the object.
 		// This means that immutability is possible and even desirable for entities!
-		def constructor(implicit m: ValuesMap) = new JobPosition(id, name, start, end, rank) with Persisted
+		def constructor(implicit m) = new JobPosition(id, name, start, end, rank) with Persisted
 	}
 }

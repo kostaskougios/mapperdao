@@ -113,7 +113,7 @@ object OneToOneQuerySpec {
 		val stock = column("stock") to (_.stock)
 		val sold = column("sold") to (_.sold)
 
-		def constructor(implicit m: ValuesMap) = new Inventory(stock, sold) with Persisted
+		def constructor(implicit m) = new Inventory(stock, sold) with Persisted
 	}
 	val InventoryEntity = new InventoryEntityBase
 
@@ -121,7 +121,7 @@ object OneToOneQuerySpec {
 		val id = key("id") to (_.id)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 
-		def constructor(implicit m: ValuesMap) = new Product(id, inventory) with Persisted
+		def constructor(implicit m) = new Product(id, inventory) with Persisted
 	}
 	val ProductEntity = new ProductEntityBase
 }

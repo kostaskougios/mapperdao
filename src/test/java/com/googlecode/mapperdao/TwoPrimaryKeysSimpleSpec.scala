@@ -92,7 +92,7 @@ object TwoPrimaryKeysSimpleSpec {
 		val surname = key("surname") to (_.surname)
 		val age = column("age") to (_.age)
 
-		def constructor(implicit m: ValuesMap) = new User(name, surname, age) with Persisted
+		def constructor(implicit m) = new User(name, surname, age) with Persisted
 	}
 
 	object TestQueries {
