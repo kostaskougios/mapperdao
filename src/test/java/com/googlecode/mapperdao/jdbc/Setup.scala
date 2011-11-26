@@ -17,6 +17,7 @@ import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.drivers.SqlServer
+import com.googlecode.mapperdao.drivers.H2Driver
 
 /**
  * creates an environment for specs
@@ -56,6 +57,7 @@ object Setup {
 				case "oracle" => new Oracle(jdbc, typeRegistry)
 				case "derby" => new Derby(jdbc, typeRegistry)
 				case "sqlserver" => new SqlServer(jdbc, typeRegistry)
+				case "h2" => new H2Driver(jdbc, typeRegistry)
 			}
 			val mapperDao = MapperDao(driver, events)
 			(jdbc, driver, mapperDao)
@@ -76,6 +78,17 @@ object Setup {
 						val table = m("table_name")
 						try {
 							jdbc.update("""drop table "%s" cascade""".format(table))
+						} catch {
+							case e: Throwable =>
+								println(e.getMessage)
+								errors += 1
+						}
+					}
+				case "h2" =>
+					jdbc.queryForList("show tables").foreach { m =>
+						val table = m("TABLE_NAME")
+						try {
+							jdbc.update("drop table %s".format(table))
 						} catch {
 							case e: Throwable =>
 								println(e.getMessage)
