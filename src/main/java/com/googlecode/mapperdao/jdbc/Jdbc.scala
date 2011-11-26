@@ -106,7 +106,12 @@ class Jdbc private (val dataSource: DataSource, val typeManager: TypeManager) {
 	def queryForInt(sql: String, args: List[Any]): Int = queryForInt(sql, args: _*)
 	def queryForInt(sql: String, args: Any*): Int = j.queryForInt(sql, args.toArray)
 	def queryForLong(sql: String, args: List[Any]): Long = queryForLong(sql, args: _*)
-	def queryForLong(sql: String, args: Any*): Long = j.queryForLong(sql, args.toArray)
+	def queryForLong(sql: String, args: Any*): Long = {
+		if (logger.isDebugEnabled) {
+			logger.debug("sql:\n" + toString(sql, args))
+		}
+		j.queryForLong(sql, args.toArray)
+	}
 
 	/**
 	 * query that expect 0 or 1 row to be returned.

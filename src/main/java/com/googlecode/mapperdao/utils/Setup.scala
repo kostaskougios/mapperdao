@@ -5,7 +5,7 @@ import com.googlecode.mapperdao.drivers._
 import javax.sql.DataSource
 import com.googlecode.mapperdao.jdbc.Jdbc
 import com.googlecode.mapperdao.events.Events
-import com.googlecode.mapperdao.drivers.H2Driver
+import com.googlecode.mapperdao.drivers.H2
 /**
  * a factory for simple configuration of mapperdao
  *
@@ -87,7 +87,7 @@ object Setup {
 			val typeRegistry = TypeRegistry(entities)
 			val typeManager = new DefaultTypeManager
 			val jdbc = Jdbc(dataSource, typeManager)
-			val driver = new H2Driver(jdbc, typeRegistry)
+			val driver = new H2(jdbc, typeRegistry)
 			val mapperDao = MapperDao(driver, standardEvents)
 			val queryDao = QueryDao(typeRegistry, driver, mapperDao)
 			(jdbc, mapperDao, queryDao)

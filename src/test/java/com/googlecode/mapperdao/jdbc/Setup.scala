@@ -17,7 +17,7 @@ import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.drivers.SqlServer
-import com.googlecode.mapperdao.drivers.H2Driver
+import com.googlecode.mapperdao.drivers.H2
 
 /**
  * creates an environment for specs
@@ -57,7 +57,7 @@ object Setup {
 				case "oracle" => new Oracle(jdbc, typeRegistry)
 				case "derby" => new Derby(jdbc, typeRegistry)
 				case "sqlserver" => new SqlServer(jdbc, typeRegistry)
-				case "h2" => new H2Driver(jdbc, typeRegistry)
+				case "h2" => new H2(jdbc, typeRegistry)
 			}
 			val mapperDao = MapperDao(driver, events)
 			(jdbc, driver, mapperDao)

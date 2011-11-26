@@ -15,21 +15,19 @@ class OneToOneMutableTwoWaySpec extends SpecificationWithJUnit {
 	import OneToOneMutableTwoWaySpec._
 	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
 
-	import mapperDao._
-
 	if (Setup.database != "derby") {
 		"update id of primary entity" in {
 			createTables
 			val product = Product(1, Inventory(null, 5))
 			product.inventory.product = product
-			val inserted = insert(ProductEntity, product)
+			val inserted = mapperDao.insert(ProductEntity, product)
 			inserted.id = 2
-			val updated = update(ProductEntity, inserted)
+			val updated = mapperDao.update(ProductEntity, inserted)
 			updated must_== inserted
 			val recreatedProduct = Product(2, Inventory(null, 5))
 			recreatedProduct.inventory.product = recreatedProduct
-			select(ProductEntity, 2).get must_== recreatedProduct
-			select(ProductEntity, 1) must beNone
+			mapperDao.select(ProductEntity, 2).get must_== recreatedProduct
+			mapperDao.select(ProductEntity, 1) must beNone
 		}
 	}
 
@@ -37,49 +35,49 @@ class OneToOneMutableTwoWaySpec extends SpecificationWithJUnit {
 		createTables
 		val product = Product(1, Inventory(null, 5))
 		product.inventory.product = product
-		val inserted = insert(ProductEntity, product)
+		val inserted = mapperDao.insert(ProductEntity, product)
 		inserted.inventory.stock = 8
-		val updated = update(ProductEntity, inserted)
+		val updated = mapperDao.update(ProductEntity, inserted)
 		updated must_== inserted
-		val selected = select(ProductEntity, updated.id).get
+		val selected = mapperDao.select(ProductEntity, updated.id).get
 		selected must_== updated
 
-		delete(ProductEntity, selected)
-		select(ProductEntity, selected.id) must beNone
+		mapperDao.delete(ProductEntity, selected)
+		mapperDao.select(ProductEntity, selected.id) must beNone
 	}
 
 	"insert & select mutable" in {
 		createTables
 		val product = Product(1, Inventory(null, 5))
 		product.inventory.product = product
-		val inserted = insert(ProductEntity, product)
+		val inserted = mapperDao.insert(ProductEntity, product)
 		inserted must_== product
-		val selected = select(ProductEntity, inserted.id).get
+		val selected = mapperDao.select(ProductEntity, inserted.id).get
 		selected must_== inserted
 	}
 
 	"from null to value" in {
 		createTables
 		val product = Product(1, null)
-		val inserted = insert(ProductEntity, product)
+		val inserted = mapperDao.insert(ProductEntity, product)
 		inserted.inventory = Inventory(inserted, 5)
-		val updated = update(ProductEntity, inserted)
+		val updated = mapperDao.update(ProductEntity, inserted)
 		updated.inventory must_== inserted.inventory
-		select(ProductEntity, inserted.id).get must_== updated
+		mapperDao.select(ProductEntity, inserted.id).get must_== updated
 
-		delete(ProductEntity, updated)
-		select(ProductEntity, updated.id) must beNone
+		mapperDao.delete(ProductEntity, updated)
+		mapperDao.select(ProductEntity, updated.id) must beNone
 	}
 
 	"update to null" in {
 		createTables
 		val product = Product(1, Inventory(null, 5))
 		product.inventory.product = product
-		val inserted = insert(ProductEntity, product)
+		val inserted = mapperDao.insert(ProductEntity, product)
 		inserted.inventory = null
-		val updated = update(ProductEntity, inserted)
+		val updated = mapperDao.update(ProductEntity, inserted)
 		updated.inventory must_== null
-		select(ProductEntity, inserted.id).get must_== updated
+		mapperDao.select(ProductEntity, inserted.id).get must_== updated
 	}
 
 	def createTables =
