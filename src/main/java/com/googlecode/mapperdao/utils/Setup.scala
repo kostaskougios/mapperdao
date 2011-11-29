@@ -95,3 +95,13 @@ object Setup {
 
 	def standardEvents = new Events
 }
+
+object Database {
+	trait DriverInstantiator {
+		def driver(jdbc: Jdbc, typeRegistry: TypeRegistry): Driver
+	}
+
+	object PostgreSql extends DriverInstantiator {
+		def driver(jdbc: Jdbc, typeRegistry: TypeRegistry) = new PostgreSql(jdbc, typeRegistry)
+	}
+}
