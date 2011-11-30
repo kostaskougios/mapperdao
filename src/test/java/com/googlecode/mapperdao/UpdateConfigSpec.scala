@@ -16,7 +16,7 @@ class UpdateConfigSpec extends SpecificationWithJUnit {
 
 	"one-to-many update.deleteConfig" in {
 		import UpdateConfigSpecOneToManyDecl._
-		val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(FloorEntity, HouseEntity, PersonEntity))
+		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(FloorEntity, HouseEntity, PersonEntity))
 		prepareDb(jdbc, "OneToManyDecl")
 
 		val inserted = mapperDao.insert(PersonEntity, Person(1, "kostas", Set(House(10, Set(Floor(5, "nice floor"), Floor(6, "top floor"))), House(11, Set(Floor(7, "nice floor"), Floor(8, "top floor"))))))

@@ -12,7 +12,7 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class DeclarePrimaryKeysSpec extends SpecificationWithJUnit {
 	import DeclarePrimaryKeysSpec._
-	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, PriceEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, PriceEntity))
 
 	"entity without PK's remove all items from collection" in {
 		createTables

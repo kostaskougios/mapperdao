@@ -16,7 +16,7 @@ import org.specs2.runner.JUnitRunner
 class DaoMixinsSpec extends SpecificationWithJUnit {
 	import DaoMixinsSpec._
 
-	val (jdbc, mapperDao, queryDao) = TestSetup.setupQueryDao(TypeRegistry(ProductEntity, AttributeEntity))
+	val (jdbc, mapperDao, queryDao) = TestSetup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
 	val txManager = Transaction.transactionManager(jdbc)
 

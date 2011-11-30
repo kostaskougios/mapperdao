@@ -16,7 +16,7 @@ class ManyToOneSelfJoinQuerySpec extends SpecificationWithJUnit {
 
 	import ManyToOneSelfJoinQuerySpec._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupQueryDao(TypeRegistry(PersonEntity, HouseEntity, AddressEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, HouseEntity, AddressEntity))
 
 	import TestQueries._
 	import mapperDao._

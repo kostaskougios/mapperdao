@@ -13,7 +13,7 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class OneToOneQuerySpec extends SpecificationWithJUnit {
 	import OneToOneQuerySpec._
-	val (jdbc, mapperDao, queryDao) = Setup.setupQueryDao(TypeRegistry(ProductEntity, InventoryEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
 	import mapperDao._
 	import queryDao._
 	import TestQueries._

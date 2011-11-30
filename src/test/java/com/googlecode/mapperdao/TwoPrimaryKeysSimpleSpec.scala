@@ -13,7 +13,7 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class TwoPrimaryKeysSimpleSpec extends SpecificationWithJUnit {
 	import TwoPrimaryKeysSimpleSpec._
-	val (jdbc, mapperDao, queryDao) = Setup.setupQueryDao(TypeRegistry(UserEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(UserEntity))
 
 	import queryDao._
 	import TestQueries._

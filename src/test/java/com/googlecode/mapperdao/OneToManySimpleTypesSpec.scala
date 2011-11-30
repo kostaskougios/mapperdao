@@ -14,7 +14,7 @@ class OneToManySimpleTypesSpec extends SpecificationWithJUnit {
 	import OneToManySimpleTypesSpecString._
 	import OneToManySimpleTypesSpecInt._
 	val typeRegistry = TypeRegistry(ProductEntity, ProductEntityI)
-	val (jdbc, mapperDao, queryDao) = Setup.setupQueryDao(typeRegistry)
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(typeRegistry)
 
 	"insert" in {
 		createTables("create-tables-string")

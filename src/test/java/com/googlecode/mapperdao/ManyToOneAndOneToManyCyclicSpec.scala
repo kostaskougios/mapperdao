@@ -13,7 +13,7 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class ManyToOneAndOneToManyCyclicSpec extends SpecificationWithJUnit {
 	import ManyToOneAndOneToManyCyclicSpec._
-	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity))
 
 	import mapperDao._
 

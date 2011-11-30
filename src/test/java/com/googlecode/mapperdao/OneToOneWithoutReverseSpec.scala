@@ -13,7 +13,7 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class OneToOneWithoutReverseSpec extends SpecificationWithJUnit {
 	import OneToOneWithoutReverseSpec._
-	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
 
 	import mapperDao._
 

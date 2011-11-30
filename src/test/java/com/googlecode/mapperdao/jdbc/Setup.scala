@@ -18,7 +18,8 @@ import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.drivers.SqlServer
 import com.googlecode.mapperdao.drivers.H2
-
+import com.googlecode.mapperdao.utils.{ Setup => S }
+import com.googlecode.mapperdao.utils.Database
 /**
  * creates an environment for specs
  *
@@ -48,25 +49,13 @@ object Setup {
 		jdbc
 	} else jdbc
 
-	def setupMapperDao(typeRegistry: TypeRegistry, events: Events = new Events): (Jdbc, Driver, MapperDao) =
+	def setupMapperDao(typeRegistry: TypeRegistry, events: Events = new Events) =
 		{
-			val jdbc = setupJdbc
-			val driver = database match {
-				case "postgresql" => new PostgreSql(jdbc, typeRegistry)
-				case "mysql" => new Mysql(jdbc, typeRegistry)
-				case "oracle" => new Oracle(jdbc, typeRegistry)
-				case "derby" => new Derby(jdbc, typeRegistry)
-				case "sqlserver" => new SqlServer(jdbc, typeRegistry)
-				case "h2" => new H2(jdbc, typeRegistry)
-			}
-			val mapperDao = MapperDao(driver, events)
-			(jdbc, driver, mapperDao)
-		}
-
-	def setupQueryDao(typeRegistry: TypeRegistry): (Jdbc, MapperDao, QueryDao) =
-		{
-			val (jdbc, driver, mapperDao) = setupMapperDao(typeRegistry)
-			(jdbc, mapperDao, QueryDao(typeRegistry, driver, mapperDao))
+			val properties = new Properties
+			logger.debug("connecting to %s".format(database))
+			properties.load(getClass.getResourceAsStream("/jdbc.test.%s.properties".format(database)))
+			val dataSource = BasicDataSourceFactory.createDataSource(properties)
+			S(Database.byName(database), dataSource, typeRegistry)
 		}
 
 	def dropAllTables(jdbc: Jdbc): Int =

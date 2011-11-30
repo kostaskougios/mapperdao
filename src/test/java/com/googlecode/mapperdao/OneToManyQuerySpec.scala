@@ -14,7 +14,7 @@ import org.specs2.runner.JUnitRunner
 class OneToManyQuerySpec extends SpecificationWithJUnit {
 	import OneToManyQuerySpec._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupQueryDao(TypeRegistry(HouseEntity, PersonEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(HouseEntity, PersonEntity))
 
 	import mapperDao._
 	import queryDao._

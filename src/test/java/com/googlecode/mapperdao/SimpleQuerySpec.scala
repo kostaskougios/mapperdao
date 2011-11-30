@@ -15,7 +15,7 @@ import org.specs2.runner.JUnitRunner
 class SimpleQuerySpec extends SpecificationWithJUnit {
 
 	import SimpleQuerySpec._
-	val (jdbc, mapperDao, queryDao) = Setup.setupQueryDao(TypeRegistry(JobPositionEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
 
 	import SQSQueries._
 	import mapperDao._

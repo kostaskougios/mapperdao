@@ -16,7 +16,7 @@ import org.specs2.runner.JUnitRunner
 class OneToManySelfReferencedSpec extends SpecificationWithJUnit {
 	import OneToManySelfReferencedSpec._
 
-	val (jdbc, driver, mapperDao) = setup
+	val (jdbc, mapperDao, queryDao) = setup
 
 	"insert" in {
 		createTables

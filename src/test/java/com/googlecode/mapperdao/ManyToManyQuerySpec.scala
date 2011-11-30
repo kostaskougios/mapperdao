@@ -14,7 +14,7 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class ManyToManyQuerySpec extends SpecificationWithJUnit {
 	import ManyToManyQuerySpec._
-	val (jdbc, mapperDao, queryDao) = Setup.setupQueryDao(TypeRegistry(ProductEntity, AttributeEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
 	import mapperDao._
 	import queryDao._

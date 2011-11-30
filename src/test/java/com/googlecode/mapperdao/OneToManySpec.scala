@@ -18,7 +18,7 @@ class OneToManySpec extends SpecificationWithJUnit {
 
 	import OneToManySpec._
 
-	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity, HouseEntity, PersonEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity, HouseEntity, PersonEntity))
 
 	"updating id of many entity" in {
 		createTables

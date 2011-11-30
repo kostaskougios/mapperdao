@@ -15,7 +15,7 @@ class ManyToManyNonRecursiveSpec extends SpecificationWithJUnit {
 	import ManyToManyNonRecursiveSpec._
 	val typeRegistry = TypeRegistry(ProductEntity, AttributeEntity)
 
-	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(typeRegistry)
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(typeRegistry)
 
 	"insert tree of entities" in {
 		createTables

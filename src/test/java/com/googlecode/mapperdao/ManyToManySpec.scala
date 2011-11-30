@@ -13,7 +13,7 @@ import org.specs2.runner.JUnitRunner
 class ManyToManySpec extends SpecificationWithJUnit {
 	import ManyToManySpec._
 
-	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
 	if (Setup.database != "derby") {
 		"update id of main entity" in {

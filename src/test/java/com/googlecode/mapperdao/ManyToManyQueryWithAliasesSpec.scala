@@ -15,7 +15,7 @@ class ManyToManyQueryWithAliasesSpec extends SpecificationWithJUnit {
 
 	import ManyToManyQueryWithAliasesSpec._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupQueryDao(TypeRegistry(AttributeEntity, ProductEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(AttributeEntity, ProductEntity))
 
 	import mapperDao._
 	import queryDao._

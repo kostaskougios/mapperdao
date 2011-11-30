@@ -13,7 +13,7 @@ import org.specs2.runner.JUnitRunner
 class ManyToManySimpleTypesSpec extends SpecificationWithJUnit {
 	import ManyToManySimpleTypesSpec._
 	val typeRegistry = TypeRegistry(ProductEntity)
-	val (jdbc, mapperDao, queryDao) = Setup.setupQueryDao(typeRegistry)
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(typeRegistry)
 
 	"insert, string based" in {
 		createTables("string-based")

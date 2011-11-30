@@ -16,7 +16,7 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class SimpleEntitiesSpec extends SpecificationWithJUnit {
 	import SimpleEntitiesSpec._
-	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
 
 	"update id, immutable" in {
 		createJobPositionTable

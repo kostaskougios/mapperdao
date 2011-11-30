@@ -13,7 +13,7 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUnit {
 	import IntermediateImmutableEntityWithStringFKsSpec._
-	val (jdbc, driver, mapperDao) = Setup.setupMapperDao(TypeRegistry(EmployeeEntity, WorkedAtEntity, CompanyEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(EmployeeEntity, WorkedAtEntity, CompanyEntity))
 
 	import mapperDao._
 	"update intermediate" in {
