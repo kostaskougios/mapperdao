@@ -81,7 +81,7 @@ trait MapperDao {
 	}
 
 	// used internally
-	private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], entity: Entity[PC, T], selectConfig: SelectConfig, entities: EntityMap): List[T with PC]
+	//private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], entity: Entity[PC, T], selectConfig: SelectConfig, entities: EntityMap): List[T with PC]
 }
 
 /**
@@ -376,7 +376,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			}
 		}
 
-	override private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], entity: Entity[PC, T], selectConfig: SelectConfig, entities: EntityMap): List[T with PC] = lm.map { om =>
+	private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], entity: Entity[PC, T], selectConfig: SelectConfig, entities: EntityMap): List[T with PC] = lm.map { om =>
 		val mods = new scala.collection.mutable.HashMap[String, Any]
 		import scala.collection.JavaConversions._
 		mods ++= om.map.toMap
@@ -488,8 +488,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 }
 
 object MapperDao {
-	def apply(driver: Driver): MapperDao = new MapperDaoImpl(driver, new Events)
-	def apply(driver: Driver, events: Events): MapperDao = new MapperDaoImpl(driver, events)
+	def apply(driver: Driver): MapperDaoImpl = new MapperDaoImpl(driver, new Events)
+	def apply(driver: Driver, events: Events): MapperDaoImpl = new MapperDaoImpl(driver, events)
 }
 
 /**
@@ -509,7 +509,4 @@ class MockMapperDao extends MapperDao {
 
 	// delete
 	override def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T = null.asInstanceOf[T]
-
-	// used internally
-	override private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], entity: Entity[PC, T], selectConfig: SelectConfig, entities: EntityMap): List[T with PC] = throw new RuntimeException()
 }

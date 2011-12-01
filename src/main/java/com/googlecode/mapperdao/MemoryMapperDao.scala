@@ -99,9 +99,6 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 		o
 	}
 
-	// used internally
-	override private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], entity: Entity[PC, T], selectConfig: SelectConfig, entities: EntityMap): List[T with PC] = throw new RuntimeException()
-
 	override def toString = "MemoryMapperDao(%s)".format(m)
 }
 

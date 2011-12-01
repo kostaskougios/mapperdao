@@ -43,7 +43,7 @@ trait QueryDao {
  *
  * 18 Aug 2011
  */
-final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDao) extends QueryDao {
+final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends QueryDao {
 
 	import QueryDao._
 
@@ -153,7 +153,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 
 object QueryDao {
 
-	def apply(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDao): QueryDao = new QueryDaoImpl(typeRegistry, driver, mapperDao)
+	def apply(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl): QueryDao = new QueryDaoImpl(typeRegistry, driver, mapperDao)
 
 	// creates aliases for tables
 	class Aliases(typeRegistry: TypeRegistry) {

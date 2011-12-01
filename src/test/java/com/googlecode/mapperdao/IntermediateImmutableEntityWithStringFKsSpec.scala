@@ -182,8 +182,8 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 	}
 
 	object WorkedAtEntity extends SimpleEntity[WorkedAt](classOf[WorkedAt]) {
-		val employee_no = key("employee_no") to ((wat: WorkedAt) => if (wat.employee == null) null else wat.employee.no)
-		val company_no = key("company_no") to ((wat: WorkedAt) => if (wat.company == null) null else wat.company.no)
+		val employee_no = key("employee_no") to (wat => if (wat.employee == null) null else wat.employee.no)
+		val company_no = key("company_no") to (wat => if (wat.company == null) null else wat.company.no)
 		val year = column("year") to (_.year)
 
 		val employee = manytoone(EmployeeEntity) foreignkey "employee_no" to (_.employee)

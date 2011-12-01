@@ -74,10 +74,7 @@ class DeclarePrimaryKeysSpec extends SpecificationWithJUnit {
 }
 
 object DeclarePrimaryKeysSpec {
-	case class Product(
-		val title: String,
-		val prices: Set[Price])
-
+	case class Product(val title: String, val prices: Set[Price])
 	case class Price(val currency: String, val unitPrice: Double, val salePrice: Double)
 
 	object ProductEntity extends Entity[IntId, Product](classOf[Product]) {
