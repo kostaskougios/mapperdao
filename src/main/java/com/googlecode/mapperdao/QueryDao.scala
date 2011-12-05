@@ -181,9 +181,6 @@ object QueryDao {
 								column.columns.foreach { c =>
 									aliases.put(c, v)
 								}
-							//							case ColumnInfoTraversableOneToMany(column: OneToMany[_], _) =>
-							//								val fTpe=typeRegistry.typeOf(column.foreign.clz)
-
 							case _ =>
 						}
 					}

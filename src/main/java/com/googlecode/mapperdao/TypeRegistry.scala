@@ -11,11 +11,9 @@ import java.util.IdentityHashMap
 final class TypeRegistry private (entities: List[Entity[_, _]]) {
 	private val columnsToEntity = new IdentityHashMap[ColumnBase, Entity[_, _]]
 
-	{
-		entities.foreach { entity =>
-			entity.tpe.table.columns.foreach { c =>
-				columnsToEntity.put(c, entity)
-			}
+	entities.foreach { entity =>
+		entity.tpe.table.columns.foreach { c =>
+			columnsToEntity.put(c, entity)
 		}
 	}
 

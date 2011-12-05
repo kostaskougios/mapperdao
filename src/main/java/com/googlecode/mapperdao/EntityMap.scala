@@ -37,9 +37,7 @@ protected class EntityMap {
 	}
 
 	def down[PC, T, V, FPC, F](o: Type[PC, T], ci: ColumnInfoRelationshipBase[T, V, FPC, F], jdbcMap: JdbcMap): Unit =
-		{
-			stack = stack.push(SelectInfo(o, ci, jdbcMap))
-		}
+		stack = stack.push(SelectInfo(o, ci, jdbcMap))
 
 	def peek[PC, T, V, FPC, F] = (if (stack.isEmpty) SelectInfo(null, null, null) else stack.top).asInstanceOf[SelectInfo[PC, T, V, FPC, F]]
 
@@ -65,9 +63,7 @@ protected class UpdateEntityMap {
 		}
 
 	def down[PPC, PT, V, FPC, F](o: PT, ci: ColumnInfoRelationshipBase[PT, V, FPC, F], parentEntity: Entity[PPC, PT]): Unit =
-		{
-			stack = stack.push(UpdateInfo(o, ci, parentEntity))
-		}
+		stack = stack.push(UpdateInfo(o, ci, parentEntity))
 
 	def peek[PPC, PT, V, FPC, F] = (if (stack.isEmpty) UpdateInfo(null, null, null) else stack.top).asInstanceOf[UpdateInfo[PPC, PT, V, FPC, F]]
 

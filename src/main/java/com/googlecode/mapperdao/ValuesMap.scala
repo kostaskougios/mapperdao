@@ -58,6 +58,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.mutab
 			val key = column.column.alias
 			valueOf[F](key)
 		}
+
 	def apply[T, FPC, F](column: ColumnInfoOneToOneReverse[T, FPC, F]): F =
 		{
 			val key = column.column.alias
@@ -89,6 +90,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.mutab
 			update(column, f)
 			f
 		}
+
 	private def toFloat[V](v: V) = v match {
 		case f: Float => f
 		case d: Double => d.toFloat
@@ -103,6 +105,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.mutab
 			update(column, v)
 			d
 		}
+
 	private def toDouble[V](v: V) = v match {
 		case d: Double => d
 		case b: java.math.BigDecimal => b.doubleValue
@@ -114,6 +117,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.mutab
 			val v = valueOf[V](column.column.columnName)
 			toShort(v)
 		}
+
 	private def toShort[V](v: V): Short = v match {
 		case s: Short => s
 		case i: Int => i.toShort
@@ -129,6 +133,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.mutab
 			val v = valueOf[V](column.column.columnName)
 			toInt(v)
 		}
+
 	private def toInt[V](v: V) = v match {
 		case i: Int => i
 		case l: Long => l.toInt
@@ -144,6 +149,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.mutab
 			val v = valueOf[V](column.column.columnName)
 			toLong(v)
 		}
+
 	private def toLong[V](v: V) = v match {
 		case l: Long => l
 		case i: Int => i.toLong
@@ -193,6 +199,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.mutab
 			update(column, b)
 			b
 		}
+
 	private def toBoolean[V](v: V) = v match {
 		case b: Boolean => b
 		case i: Int =>

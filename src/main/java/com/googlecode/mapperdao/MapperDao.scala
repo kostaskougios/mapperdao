@@ -115,11 +115,9 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 	 */
 
 	private[mapperdao] def insertInner[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, entityMap: UpdateEntityMap): T with PC with Persisted =
-		{
-			// if a mock exists in the entity map or already persisted, then return
-			// the existing mock/persisted object
-			val mock = entityMap.get[PC, T](o)
-			if (mock.isDefined) return mock.get
+		// if a mock exists in the entity map or already persisted, then return
+		// the existing mock/persisted object
+		entityMap.get[PC, T](o).getOrElse {
 
 			if (isPersisted(o)) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o);
 
@@ -191,11 +189,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 	private def updateInner[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap): T with PC with Persisted =
 		{
 			val tpe = entity.tpe
-
 			def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
-
 			val table = tpe.table
-
 			val modified = new LowerCaseMutableMap[Any](oldValuesMap.toMutableMap ++ newValuesMap.toMutableMap)
 			val modifiedTraversables = new MapOfList[String, Any](MapOfList.stringToLowerCaseModifier)
 
@@ -245,7 +240,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 	/**
 	 * update an entity. The entity must have been retrieved from the database and then
 	 * changed prior to calling this method.
-	 * The whole tree will be updated (if necessary).
+	 * The whole object graph will be updated (if necessary).
 	 */
 	def update[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC): T with PC =
 		{
@@ -264,32 +259,27 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		}
 
 	private[mapperdao] def updateInner[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T with PC with Persisted =
-		{
-			// do a check if a mock is been updated
-			return o match {
-				case p: Persisted if (p.mock) =>
-					val v = o.asInstanceOf[T with PC with Persisted]
-					// report an error if mock was changed by the user
-					val tpe = entity.tpe
-					val newVM = ValuesMap.fromEntity(typeManager, tpe, o, false)
-					val oldVM = v.valuesMap
-					if (newVM.isSimpleColumnsChanged(tpe, oldVM)) {
-						throw new IllegalStateException("please don't modify mock objects. Object %s is mock and has been modified.".format(p))
-					}
-					v
-				case _ =>
-					// if a mock exists in the entity map or already persisted, then return
-					// the existing mock/persisted object
-					val existing = entityMap.get[PC, T](o)
-					if (existing.isDefined) return existing.get
-
+		// do a check if a mock is been updated
+		o match {
+			case p: Persisted if (p.mock) =>
+				val v = o.asInstanceOf[T with PC with Persisted]
+				// report an error if mock was changed by the user
+				val tpe = entity.tpe
+				val newVM = ValuesMap.fromEntity(typeManager, tpe, o, false)
+				val oldVM = v.valuesMap
+				if (newVM.isSimpleColumnsChanged(tpe, oldVM)) throw new IllegalStateException("please don't modify mock objects. Object %s is mock and has been modified.".format(p))
+				v
+			case _ =>
+				// if a mock exists in the entity map or already persisted, then return
+				// the existing mock/persisted object
+				entityMap.get[PC, T](o).getOrElse {
 					val persisted = o.asInstanceOf[T with PC with Persisted]
 					val oldValuesMap = persisted.valuesMap
 					val tpe = entity.tpe
 					val newValuesMapPre = ValuesMap.fromEntity(typeManager, tpe, o)
 					val reConstructed = tpe.constructor(newValuesMapPre)
 					updateInner(updateConfig, entity, o, oldValuesMap, reConstructed.valuesMap, entityMap)
-			}
+				}
 		}
 	/**
 	 * update an immutable entity. The entity must have been retrieved from the database. Because immutables can't change, a new instance
@@ -350,14 +340,9 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		{
 			val clz = entity.clz
 			val tpe = entity.tpe
-			if (tpe.table.primaryKeys.size != ids.size) {
-				throw new IllegalStateException("Primary keys number dont match the number of parameters. Primary keys: %s".format(tpe.table.primaryKeys))
-			}
+			if (tpe.table.primaryKeys.size != ids.size) throw new IllegalStateException("Primary keys number dont match the number of parameters. Primary keys: %s".format(tpe.table.primaryKeys))
 
-			val v = entities.get[T with PC](tpe.clz, ids)
-			if (v.isDefined) {
-				v
-			} else {
+			entities.get[T with PC](tpe.clz, ids).headOption.orElse(
 				try {
 					val args = tpe.table.primaryKeys.map(_.column).zip(ids)
 					events.executeBeforeSelectEvents(tpe, args)
@@ -373,7 +358,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 				} catch {
 					case e => throw new QueryException("An error occured during select of entity %s and primary keys %s".format(entity, ids), e)
 				}
-			}
+			)
 		}
 
 	private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], entity: Entity[PC, T], selectConfig: SelectConfig, entities: EntityMap): List[T with PC] = lm.map { om =>
@@ -393,10 +378,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 				table.unusedPKs.map { pk => om(pk.columnName) }
 			}
 		} else ids
-		val entityV = entities.get[T with PC](tpe.clz, cacheKey)
-		if (entityV.isDefined) {
-			entityV.get
-		} else {
+
+		entities.get[T with PC](tpe.clz, cacheKey).getOrElse {
 			val mock = createMock(entity, mods)
 			entities.put(tpe.clz, cacheKey, mock)
 
