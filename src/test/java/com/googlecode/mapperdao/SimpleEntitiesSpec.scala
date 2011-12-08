@@ -18,6 +18,17 @@ class SimpleEntitiesSpec extends SpecificationWithJUnit {
 	import SimpleEntitiesSpec._
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
 
+	"delete by id" in {
+
+		createJobPositionTable
+
+		val date = Setup.now
+		mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date, 10))
+		mapperDao.delete(JobPositionEntity, 5)
+
+		mapperDao.select(JobPositionEntity, 5) must_== None
+	}
+
 	"update id, immutable" in {
 		createJobPositionTable
 

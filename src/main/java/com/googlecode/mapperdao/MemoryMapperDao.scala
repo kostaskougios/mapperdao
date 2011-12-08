@@ -99,6 +99,15 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 		o
 	}
 
+	def delete[PC, T](entity: Entity[PC, T], ids: List[AnyVal]): Unit = {
+		val tpe = entity.tpe
+		val table = tpe.table
+		val pks = table.primaryKeyColumns
+		if (pks.size != ids.size) throw new IllegalArgumentException("number of primary key values don't match number of primary keys : %s != %s".format(pks, ids))
+		val key = entity.clz :: pks
+		m.remove(key)
+	}
+
 	override def toString = "MemoryMapperDao(%s)".format(m)
 }
 

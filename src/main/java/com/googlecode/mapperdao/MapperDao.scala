@@ -59,6 +59,17 @@ trait MapperDao {
 	 * delete(deleteConfig, entity, o) to fine tune the operation
 	 */
 	def delete[PC, T](entity: Entity[PC, T], o: T with PC): T = delete(defaultDeleteConfig, entity, o)
+
+	/**
+	 * this will delete an entity based on it's id.
+	 *
+	 * The delete will cascade to related entities only if there are cascade constraints
+	 * on the foreign keys in the database. In order to configure mapperdao to delete
+	 * related entities, select() the entity first and then delete it using
+	 * delete(deleteConfig, entity, o)
+	 */
+	def delete[PC, T](entity: Entity[PC, T], id: AnyVal): Unit = delete(entity, List(id))
+	def delete[PC, T](entity: Entity[PC, T], ids: List[AnyVal]): Unit
 	def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T
 
 	/**
@@ -413,6 +424,16 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			mock
 		}
 
+	override def delete[PC, T](entity: Entity[PC, T], ids: List[AnyVal]): Unit =
+		{
+			val tpe = entity.tpe
+			val table = tpe.table
+			val pks = table.primaryKeyColumns
+			if (pks.size != ids.size) throw new IllegalArgumentException("number of primary key values don't match number of primary keys : %s != %s".format(pks, ids))
+			val keyValues = pks zip ids
+			// do the actual delete database op
+			driver.doDelete(tpe, keyValues)
+		}
 	/**
 	 * deletes an entity from the database
 	 */
@@ -460,7 +481,6 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			} catch {
 				case e => throw new PersistException("An error occured during delete of entity %s with value %s".format(entity, o), e)
 			}
-
 		}
 	/**
 	 * ===================================================================================
@@ -492,4 +512,6 @@ class MockMapperDao extends MapperDao {
 
 	// delete
 	override def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T = null.asInstanceOf[T]
+
+	def delete[PC, T](entity: Entity[PC, T], ids: List[AnyVal]): Unit = {}
 }
