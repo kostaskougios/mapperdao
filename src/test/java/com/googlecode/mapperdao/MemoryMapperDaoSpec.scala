@@ -107,4 +107,12 @@ class MemoryMapperDaoSpec extends SpecificationWithJUnit {
 		m.delete(JobPositionEntity, inserted)
 		m.select(JobPositionEntity, inserted.id) must beNone
 	}
+
+	"remove by id" in {
+		val m = MemoryMapperDao(typeRegistry)
+
+		val inserted = m.insert(JobPositionEntity, JobPosition("x"))
+		m.delete(JobPositionEntity, inserted.id)
+		m.select(JobPositionEntity, inserted.id) must beNone
+	}
 }

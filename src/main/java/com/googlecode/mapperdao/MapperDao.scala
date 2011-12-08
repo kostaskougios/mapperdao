@@ -59,6 +59,7 @@ trait MapperDao {
 	 * delete(deleteConfig, entity, o) to fine tune the operation
 	 */
 	def delete[PC, T](entity: Entity[PC, T], o: T with PC): T = delete(defaultDeleteConfig, entity, o)
+	def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T
 
 	/**
 	 * this will delete an entity based on it's id.
@@ -66,11 +67,11 @@ trait MapperDao {
 	 * The delete will cascade to related entities only if there are cascade constraints
 	 * on the foreign keys in the database. In order to configure mapperdao to delete
 	 * related entities, select() the entity first and then delete it using
-	 * delete(deleteConfig, entity, o)
+	 * delete(deleteConfig, entity, o). (In any case to do the same at the database level,
+	 * queries would be required in order to delete the related data)
 	 */
 	def delete[PC, T](entity: Entity[PC, T], id: AnyVal): Unit = delete(entity, List(id))
 	def delete[PC, T](entity: Entity[PC, T], ids: List[AnyVal]): Unit
-	def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T
 
 	/**
 	 * ===================================================================================

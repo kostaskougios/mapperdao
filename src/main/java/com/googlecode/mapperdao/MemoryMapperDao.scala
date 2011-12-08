@@ -104,7 +104,7 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 		val table = tpe.table
 		val pks = table.primaryKeyColumns
 		if (pks.size != ids.size) throw new IllegalArgumentException("number of primary key values don't match number of primary keys : %s != %s".format(pks, ids))
-		val key = entity.clz :: pks
+		val key = entity.clz :: ids
 		m.remove(key)
 	}
 
