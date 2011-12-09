@@ -57,6 +57,14 @@ trait CRUD[PC, T, PK] {
 	 * delete a persisted entity
 	 */
 	def delete(t: T with PC): T = mapperDao.delete(entity, t)
+
+	/**
+	 * this will delete an entity based on it's id.
+	 *
+	 * The delete will cascade to related entities only if there are cascade constraints
+	 * on the foreign keys in the database.
+	 */
+	def delete(id: PK): Unit = mapperDao.delete(entity, id.asInstanceOf[AnyVal])
 }
 
 trait IntIdCRUD[T] extends CRUD[IntId, T, Int]
@@ -87,6 +95,10 @@ trait TransactionalCRUD[PC, T, PK] extends CRUD[PC, T, PK] {
 
 	override def delete(t: T with PC): T = prepareTransaction { () =>
 		super.delete(t)
+	}
+
+	override def delete(id: PK): Unit = prepareTransaction { () =>
+		super.delete(id)
 	}
 }
 

@@ -32,6 +32,15 @@ class DaoMixinsSpec extends SpecificationWithJUnit {
 		protected val txManager = DaoMixinsSpec.this.txManager
 	}
 
+	"delete by id" in {
+		createTables
+		val p1 = ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, "name10", "value10"))))
+		val p2 = ProductDaoTransactional.create(Product(2, "product2", Set(Attribute(11, "name11", "value11"), Attribute(12, "name12", "value12"))))
+
+		ProductDaoTransactional.delete(2)
+		ProductDaoTransactional.all.toSet must_== Set(p1)
+	}
+
 	"crud for transactional dao, positive" in {
 		createTables
 		val p1 = ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, "name10", "value10"))))
@@ -47,12 +56,7 @@ class DaoMixinsSpec extends SpecificationWithJUnit {
 
 	"crud for transactional dao, create rolls back" in {
 		createTables
-		try {
-			ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, null, "value10"))))
-			failure("should throw PersistException")
-		} catch {
-			case _: PersistException =>
-		}
+		ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, null, "value10")))) must throwA[PersistException]
 		ProductDaoTransactional.all.toSet must_== Set()
 	}
 
@@ -61,12 +65,7 @@ class DaoMixinsSpec extends SpecificationWithJUnit {
 		val p1 = ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, "name10", "value10"))))
 		val p2 = ProductDaoTransactional.create(Product(2, "product2", Set(Attribute(11, "name11", "value11"), Attribute(12, "name12", "value12"))))
 
-		try {
-			ProductDaoTransactional.update(p1, Product(1, "product1X", p1.attributes + Attribute(50, null, "value50X")))
-			failure("should throw PersistException")
-		} catch {
-			case _: PersistException =>
-		}
+		ProductDaoTransactional.update(p1, Product(1, "product1X", p1.attributes + Attribute(50, null, "value50X"))) must throwA[PersistException]
 
 		ProductDaoTransactional.all.toSet must_== Set(p1, p2)
 	}
