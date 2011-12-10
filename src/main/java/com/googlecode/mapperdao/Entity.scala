@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao
 import java.util.Calendar
 import org.joda.time.DateTime
+import java.util.Date
 
 /**
  * @author kostantinos.kougios
@@ -63,6 +64,17 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 		case null => None
 		case v => Some(v)
 	}
+	protected implicit def columnToDate(ci: ColumnInfo[T, Date])(implicit m: ValuesMap): Date = m(ci)
+	protected implicit def columnToOptionDate(ci: ColumnInfo[T, Date])(implicit m: ValuesMap): Option[Date] = m(ci) match {
+		case null => None
+		case v => Some(v)
+	}
+	protected implicit def columnToCalendar(ci: ColumnInfo[T, Calendar])(implicit m: ValuesMap): Calendar = m(ci)
+	protected implicit def columnToOptionCalendar(ci: ColumnInfo[T, Calendar])(implicit m: ValuesMap): Option[Calendar] = m(ci) match {
+		case null => None
+		case v => Some(v)
+	}
+
 	protected implicit def columnToString(ci: ColumnInfo[T, String])(implicit m: ValuesMap): String = m(ci)
 	protected implicit def columnToOptionString(ci: ColumnInfo[T, String])(implicit m: ValuesMap): Option[String] = m(ci) match {
 		case null => None

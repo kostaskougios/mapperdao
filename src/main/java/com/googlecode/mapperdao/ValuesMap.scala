@@ -4,6 +4,8 @@ import java.util.Calendar
 import org.joda.time.DateTime
 import com.googlecode.mapperdao.utils.Equality
 import com.googlecode.mapperdao.utils.LowerCaseMutableMap
+import java.util.Date
+import java.util.Locale
 
 /**
  * @author kostantinos.kougios
@@ -50,7 +52,15 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.mutab
 				val r = toFloat(v).asInstanceOf[V]
 				update(column, r)
 				r
-			} else v;
+			} else if (dt == classOf[Date]) v match {
+				case _: Date => v
+				case t: DateTime => t.toDate.asInstanceOf[V]
+			}
+			else if (dt == classOf[Calendar]) v match {
+				case _: Calendar => v
+				case t: DateTime => t.toCalendar(Locale.getDefault()).asInstanceOf[V]
+			}
+			else v;
 		}
 
 	def apply[T, FPC, F](column: ColumnInfoOneToOne[T, FPC, F]): F =

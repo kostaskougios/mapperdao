@@ -60,7 +60,8 @@ import org.junit.runners.Suite
 		classOf[utils.HelpersSpec],
 		classOf[OptionSpec],
 		classOf[OneToManySimpleTypesSpec],
-		classOf[ManyToManySimpleTypesSpec]
+		classOf[ManyToManySimpleTypesSpec],
+		classOf[DateAndCalendarSpec]
 	)
 )
 @RunWith(classOf[Suite])
