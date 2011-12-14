@@ -55,10 +55,12 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.mutab
 			} else if (dt == classOf[Date]) v match {
 				case _: Date => v
 				case t: DateTime => t.toDate.asInstanceOf[V]
+				case null => null.asInstanceOf[V]
 			}
 			else if (dt == classOf[Calendar]) v match {
 				case _: Calendar => v
 				case t: DateTime => t.toCalendar(Locale.getDefault()).asInstanceOf[V]
+				case null => null.asInstanceOf[V]
 			}
 			else v;
 		}
