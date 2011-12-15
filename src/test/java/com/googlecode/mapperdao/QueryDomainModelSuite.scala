@@ -34,11 +34,11 @@ class QueryDomainModelSuite extends FunSuite with ShouldMatchers {
 	val attr = AttributeEntity
 	import Query._
 
-	test("entity must be set") {
+	test("query entity must be set") {
 		(select from prod).entity should equal(prod)
 	}
 
-	test("join") {
+	test("join, joinEntity, foreignEntity, column") {
 		val q = select from prod join (prod, prod.attributes, attr)
 		val j = q.joins.head
 		j.joinEntity should equal(prod)
