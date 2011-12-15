@@ -155,9 +155,6 @@ object Query {
 		val sql = "desc"
 	}
 
-	//	def by[T, V](ci: ColumnInfoBase[T, V]) = List(ci)
-	//	def by[T1, V1, T2, V2](ci1: ColumnInfoBase[T1, V1], ci2: ColumnInfoBase[T2, V2]) = List(ci1, ci2)
-
 	protected[mapperdao] class Join[T, F, E <: Entity[_, _], QPC, QT](queryEntity: QueryEntity[QPC, QT]) {
 		protected[mapperdao] var column: ColumnRelationshipBase[_, F] = _
 		protected[mapperdao] var entity: E = _

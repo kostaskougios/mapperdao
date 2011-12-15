@@ -61,7 +61,8 @@ import org.junit.runners.Suite
 		classOf[OptionSpec],
 		classOf[OneToManySimpleTypesSpec],
 		classOf[ManyToManySimpleTypesSpec],
-		classOf[DateAndCalendarSpec]
+		classOf[DateAndCalendarSpec],
+		classOf[QueryDomainModelSpec]
 	)
 )
 @RunWith(classOf[Suite])
