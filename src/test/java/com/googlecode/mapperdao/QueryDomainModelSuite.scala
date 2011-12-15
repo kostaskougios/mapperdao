@@ -1,7 +1,8 @@
 package com.googlecode.mapperdao
 import org.junit.runner.RunWith
-import org.specs2.mutable.SpecificationWithJUnit
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -9,10 +10,8 @@ import org.specs2.runner.JUnitRunner
  * 15 Dec 2011
  */
 @RunWith(classOf[JUnitRunner])
-class QueryDomainModelSpec extends SpecificationWithJUnit {
+class QueryDomainModelSuite extends FunSuite with ShouldMatchers {
 
-}
-object QueryDomainModelSpec {
 	case class Product(val id: Int, val name: String, val attributes: Set[Attribute])
 	case class Attribute(val id: Int, val name: String, val value: String)
 
@@ -31,8 +30,20 @@ object QueryDomainModelSpec {
 		def constructor(implicit m) = new Attribute(id, name, value) with Persisted
 	}
 
-	val p = ProductEntity
-	val a = AttributeEntity
+	val prod = ProductEntity
+	val attr = AttributeEntity
 	import Query._
-	def qConditionalJoin = select from p join (if (1 < 2) Some((p, p.attributes, a)) else None)
+
+	test("entity must be set") {
+		(select from prod).entity should equal(prod)
+	}
+
+	test("join") {
+		val q = select from prod join (prod, prod.attributes, attr)
+		val j = q.joins.head
+		j.joinEntity should equal(prod)
+		j.foreignEntity should equal(attr)
+		j.column should equal(prod.attributes.column)
+	}
+
 }

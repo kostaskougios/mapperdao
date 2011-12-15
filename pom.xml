@@ -152,6 +152,12 @@
 			<version>4.10</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.scalatest</groupId>
+			<artifactId>scalatest_2.9.1</artifactId>
+			<version>1.6.1</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -223,6 +229,7 @@
 							<argLine>-Ddatabase=h2</argLine>
 							<includes>
 								<include>**/*Spec.class</include>
+								<include>**/*Suite.class</include>
 							</includes>
 						</configuration>
 					</execution>
@@ -237,6 +244,7 @@
 							<argLine>-Ddatabase=postgresql</argLine>
 							<includes>
 								<include>**/*Spec.class</include>
+								<include>**/*Suite.class</include>
 							</includes>
 						</configuration>
 					</execution>
@@ -251,6 +259,7 @@
 							<argLine>-Ddatabase=oracle</argLine>
 							<includes>
 								<include>**/*Spec.class</include>
+								<include>**/*Suite.class</include>
 							</includes>
 						</configuration>
 					</execution>
@@ -265,6 +274,7 @@
 							<argLine>-Ddatabase=derby</argLine>
 							<includes>
 								<include>**/*Spec.class</include>
+								<include>**/*Suite.class</include>
 							</includes>
 						</configuration>
 					</execution>
@@ -279,6 +289,7 @@
 							<argLine>-Ddatabase=mysql</argLine>
 							<includes>
 								<include>**/*Spec.class</include>
+								<include>**/*Suite.class</include>
 							</includes>
 						</configuration>
 					</execution>
@@ -293,6 +304,7 @@
 							<argLine>-Ddatabase=sqlserver</argLine>
 							<includes>
 								<include>**/*Spec.class</include>
+								<include>**/*Suite.class</include>
 							</includes>
 						</configuration>
 					</execution>
