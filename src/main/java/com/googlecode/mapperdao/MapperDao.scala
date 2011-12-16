@@ -418,7 +418,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			}
 			val tpe = entity.tpe
 			// create a mock of the final entity, to avoid cyclic dependencies
-			val preMock = tpe.constructor(ValuesMap.fromMutableMap(typeManager, mockMods))
+			val vm = ValuesMap.fromMutableMap(typeManager, mockMods)
+			val preMock = tpe.constructor(vm)
 			val mock = tpe.constructor(ValuesMap.fromEntity(typeManager, tpe, preMock))
 			// mark it as mock
 			mock.mock = true

@@ -14,7 +14,7 @@ create table computer (
   constraint pk_computer primary key (id))
 ;
 
-alter table computer add constraint fk_computer_company_1 
+alter table computer add constraint fk_computer_company
 foreign key (company_id) references company (id) 
 on delete cascade on update cascade
 ;
