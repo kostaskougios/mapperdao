@@ -1,13 +1,13 @@
 [ddl]
 create table company (
-	id serial not null,
+	id int not null GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
 	name varchar(255) not null,
 	constraint pk_company primary key (id)
 )
 ;
 
 create table computer (
-	id serial not null,
+	id int not null GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
 	name varchar(255) not null,
 	company_id int,
 	constraint pk_computer primary key (id),
