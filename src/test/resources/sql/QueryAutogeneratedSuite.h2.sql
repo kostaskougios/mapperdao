@@ -1,6 +1,20 @@
 [ddl]
-create table Job (
-	id serial not null,
-	name varchar(100) not null,
-	primary key (id)
-)
+create table company (
+  id serial not null,
+  name varchar(255) not null,
+  constraint pk_company primary key (id))
+;
+
+create table computer (
+  id serial not null,
+  name varchar(255) not null,
+  introduced timestamp,
+  discontinued timestamp,
+  company_id int,
+  constraint pk_computer primary key (id))
+;
+
+alter table computer add constraint fk_computer_company_1 
+foreign key (company_id) references company (id) 
+on delete restrict on update restrict
+;
