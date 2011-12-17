@@ -1,9 +1,9 @@
 package com.googlecode.mapperdao.jdbc
 
-import org.specs2.mutable.SpecificationWithJUnit
-import org.specs2.specification.BeforeExample
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -11,7 +11,7 @@ import org.specs2.runner.JUnitRunner
  * 30 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class TransactionSpec extends SpecificationWithJUnit with BeforeExample {
+class TransactionSuite extends FunSuite with ShouldMatchers {
 
 	private val jdbc = Setup.setupJdbc
 
@@ -24,15 +24,15 @@ class TransactionSpec extends SpecificationWithJUnit with BeforeExample {
 		Setup.queries(this, jdbc).update("ddl")
 	}
 
-	"commit" in {
+	test("commit") {
 		tx { () =>
 			for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i);
 		}
 
-		jdbc.queryForInt("select count(*) from tx") must_== 5
+		jdbc.queryForInt("select count(*) from tx") should be === 5
 	}
 
-	"rollback" in {
+	test("rollback") {
 		try {
 			tx { () =>
 				for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i);
@@ -42,15 +42,15 @@ class TransactionSpec extends SpecificationWithJUnit with BeforeExample {
 			case e: IllegalStateException => // ignore
 		}
 
-		jdbc.queryForInt("select count(*) from tx") must_== 0
+		jdbc.queryForInt("select count(*) from tx") should be === 0
 	}
 
-	"manual rollback" in {
+	test("manual rollback") {
 		tx { status =>
 			for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i);
 			status.setRollbackOnly
 		}
 
-		jdbc.queryForInt("select count(*) from tx") must_== 0
+		jdbc.queryForInt("select count(*) from tx") should be === 0
 	}
 }
