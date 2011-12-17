@@ -1,19 +1,21 @@
 package com.googlecode.mapperdao.utils
-import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.jdbc.{ Setup => TestSetup }
 import com.googlecode.mapperdao.jdbc.Transaction
 import com.googlecode.mapperdao.jdbc.Transaction._
 import com.googlecode.mapperdao.exceptions.PersistException
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
+
 /**
  * @author kostantinos.kougios
  *
  * 14 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class DaoMixinsSpec extends SpecificationWithJUnit {
+class DaoMixinsSuite extends FunSuite with ShouldMatchers {
 	import DaoMixinsSpec._
 
 	val (jdbc, mapperDao, queryDao) = TestSetup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
@@ -22,55 +24,55 @@ class DaoMixinsSpec extends SpecificationWithJUnit {
 
 	object ProductDao extends SimpleCRUD[Product, Long] with SimpleAll[Product] {
 		protected val entity = ProductEntity
-		protected val queryDao = DaoMixinsSpec.this.queryDao
-		protected val mapperDao = DaoMixinsSpec.this.mapperDao
+		protected val queryDao = DaoMixinsSuite.this.queryDao
+		protected val mapperDao = DaoMixinsSuite.this.mapperDao
 	}
 	object ProductDaoTransactional extends TransactionalSimpleCRUD[Product, Long] with SimpleAll[Product] {
 		protected val entity = ProductEntity
-		protected val queryDao = DaoMixinsSpec.this.queryDao
-		protected val mapperDao = DaoMixinsSpec.this.mapperDao
-		protected val txManager = DaoMixinsSpec.this.txManager
+		protected val queryDao = DaoMixinsSuite.this.queryDao
+		protected val mapperDao = DaoMixinsSuite.this.mapperDao
+		protected val txManager = DaoMixinsSuite.this.txManager
 	}
 
-	"delete by id" in {
+	test("delete by id") {
 		createTables
 		val p1 = ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, "name10", "value10"))))
 		val p2 = ProductDaoTransactional.create(Product(2, "product2", Set(Attribute(11, "name11", "value11"), Attribute(12, "name12", "value12"))))
 
 		ProductDaoTransactional.delete(2)
-		ProductDaoTransactional.all.toSet must_== Set(p1)
+		ProductDaoTransactional.all.toSet should be === Set(p1)
 	}
 
-	"crud for transactional dao, positive" in {
+	test("crud for transactional dao, positive") {
 		createTables
 		val p1 = ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, "name10", "value10"))))
 		val p2 = ProductDaoTransactional.create(Product(2, "product2", Set(Attribute(11, "name11", "value11"), Attribute(12, "name12", "value12"))))
 
-		ProductDaoTransactional.all.toSet must_== Set(p1, p2)
+		ProductDaoTransactional.all.toSet should be === Set(p1, p2)
 		ProductDaoTransactional.delete(p2)
-		ProductDaoTransactional.all.toSet must_== Set(p1)
+		ProductDaoTransactional.all.toSet should be === Set(p1)
 
 		val p1u = ProductDaoTransactional.update(p1, Product(1, "product1X", p1.attributes + Attribute(50, "name50X", "value50X")))
-		ProductDaoTransactional.all.toSet must_== Set(p1u)
+		ProductDaoTransactional.all.toSet should be === Set(p1u)
 	}
 
-	"crud for transactional dao, create rolls back" in {
+	test("crud for transactional dao, create rolls back") {
 		createTables
-		ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, null, "value10")))) must throwA[PersistException]
-		ProductDaoTransactional.all.toSet must_== Set()
+		evaluating { ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, null, "value10")))) } should produce[PersistException]
+		ProductDaoTransactional.all.toSet should be === Set()
 	}
 
-	"crud for transactional dao, update rolls back" in {
+	test("crud for transactional dao, update rolls back") {
 		createTables
 		val p1 = ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, "name10", "value10"))))
 		val p2 = ProductDaoTransactional.create(Product(2, "product2", Set(Attribute(11, "name11", "value11"), Attribute(12, "name12", "value12"))))
 
-		ProductDaoTransactional.update(p1, Product(1, "product1X", p1.attributes + Attribute(50, null, "value50X"))) must throwA[PersistException]
+		evaluating { ProductDaoTransactional.update(p1, Product(1, "product1X", p1.attributes + Attribute(50, null, "value50X"))) } should produce[PersistException]
 
-		ProductDaoTransactional.all.toSet must_== Set(p1, p2)
+		ProductDaoTransactional.all.toSet should be === Set(p1, p2)
 	}
 
-	"crud for transactional dao, delete rolls back" in {
+	test("crud for transactional dao, delete rolls back") {
 		createTables
 		val p1 = ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, "name10", "value10"))))
 		val p2 = ProductDaoTransactional.create(Product(2, "product2", Set(Attribute(11, "name11", "value11"), Attribute(12, "name12", "value12"))))
@@ -81,20 +83,20 @@ class DaoMixinsSpec extends SpecificationWithJUnit {
 			status.setRollbackOnly
 		}
 
-		ProductDaoTransactional.all.toSet must_== Set(p1, p2)
+		ProductDaoTransactional.all.toSet should be === Set(p1, p2)
 	}
 
-	"crud for non-transactional dao" in {
+	test("crud for non-transactional dao") {
 		createTables
 		val p1 = ProductDao.create(Product(1, "product1", Set(Attribute(10, "name10", "value10"))))
 		val p2 = ProductDao.create(Product(2, "product2", Set(Attribute(11, "name11", "value11"), Attribute(12, "name12", "value12"))))
 
-		ProductDao.all.toSet must_== Set(p1, p2)
+		ProductDao.all.toSet should be === Set(p1, p2)
 		ProductDao.delete(p2)
-		ProductDao.all.toSet must_== Set(p1)
+		ProductDao.all.toSet should be === Set(p1)
 
 		val p1u = ProductDao.update(p1, Product(1, "product1X", p1.attributes + Attribute(50, "name50X", "value50X")))
-		ProductDao.all.toSet must_== Set(p1u)
+		ProductDao.all.toSet should be === Set(p1u)
 	}
 
 	def createTables =

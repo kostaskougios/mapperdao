@@ -1,8 +1,9 @@
 package com.googlecode.mapperdao.utils
-import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.StringValue
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -10,61 +11,61 @@ import org.specs2.runner.JUnitRunner
  * 6 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class TraversableSeparationSpec extends SpecificationWithJUnit {
+class TraversableSeparationSuite extends FunSuite with ShouldMatchers {
 
-	"added" in {
+	test("added") {
 		val left = List(X(1), X(2))
 		val air = TraversableSeparation.separate(left, left ::: List(X(3), X(4)))
-		air._1 must_== List(X(3), X(4))
+		air._1 should be === List(X(3), X(4))
 	}
 
-	"added, left is empty" in {
+	test("added, left is empty") {
 		val left = List()
 		val air = TraversableSeparation.separate(left, left ::: List(X(3), X(4)))
-		air._1 must_== List(X(3), X(4))
+		air._1 should be === List(X(3), X(4))
 	}
 
-	"intersect" in {
+	test("intersect") {
 		val left = List(X(1), X(2), X(3))
 		val (added, intersect, removed) = TraversableSeparation.separate(left, List(X(0)) ::: left.filterNot(_ == X(2)) ::: List(X(4), X(5)))
-		intersect must_== List(X(1), X(3))
-		intersect.head must beTheSameAs(left.head)
-		intersect.tail.head must beTheSameAs(left.tail.tail.head)
+		intersect should be === List(X(1), X(3))
+		intersect.head should be theSameInstanceAs (left.head)
+		intersect.tail.head should be theSameInstanceAs (left.tail.tail.head)
 	}
 
-	"intersect, left is empty" in {
+	test("intersect, left is empty") {
 		val left = List()
 		val air = TraversableSeparation.separate(left, List(X(0), X(4), X(5)))
-		air._2 must_== List()
+		air._2 should be === List()
 	}
 
-	"removed" in {
+	test("removed") {
 		val left = List(X(1), X(2), X(3))
 		val air = TraversableSeparation.separate(left, List(X(0)) ::: left.filterNot(x => x == X(2) || x == X(3)) ::: List(X(4), X(5)))
-		air._3 must_== List(X(2), X(3))
+		air._3 should be === List(X(2), X(3))
 	}
 
-	"removed, left is empty" in {
+	test("removed, left is empty") {
 		val left = List()
 		val air = TraversableSeparation.separate(left, List(X(4), X(5)))
-		air._3 must_== List()
+		air._3 should be === List()
 	}
 
-	"right is empty" in {
+	test("right is empty") {
 		val left = List(X(1), X(2))
 		val air = TraversableSeparation.separate(left, Nil)
-		air._1 must_== Nil
-		air._2 must_== Nil
-		air._3 must_== List(X(1), X(2))
+		air._1 should be === Nil
+		air._2 should be === Nil
+		air._3 should be === List(X(1), X(2))
 	}
 
-	"SimpleTypeValue separation, addition" in {
+	test("SimpleTypeValue separation, addition") {
 		val old = List(StringValue("kostas"), StringValue("kougios"))
 		val (added, intersect, removed) = TraversableSeparation.separate(old, List(StringValue("kostas"), StringValue("kougios"), StringValue("X")))
-		added must_== List(StringValue("X"))
-		intersect must_== List(StringValue("kostas"), StringValue("kougios"))
-		intersect.head must beTheSameAs(old.head)
-		intersect.tail.head must beTheSameAs(old.tail.head)
+		added should be === List(StringValue("X"))
+		intersect should be === List(StringValue("kostas"), StringValue("kougios"))
+		intersect.head should be theSameInstanceAs (old.head)
+		intersect.tail.head should be theSameInstanceAs (old.tail.head)
 	}
 
 	case class X(id: Int)

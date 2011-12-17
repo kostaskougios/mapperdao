@@ -1,7 +1,8 @@
 package com.googlecode.mapperdao.utils
-import org.specs2.mutable.SpecificationWithJUnit
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -9,58 +10,58 @@ import org.specs2.runner.JUnitRunner
  * 26 Oct 2011
  */
 @RunWith(classOf[JUnitRunner])
-class HelpersSpec extends SpecificationWithJUnit {
+class HelpersSuite extends FunSuite with ShouldMatchers {
 
 	import Helpers._
 
 	case class T(i: Int)
 
-	"added (set)" in {
+	test("added (set)") {
 		val origT1 = T(1)
 		val moded = merge(Set(origT1), Set(T(1), T(2), T(3)))
 		// make sure the set retains origT1 (same instance)
-		moded.filter(_.eq(origT1)).size must_== 1
+		moded.filter(_.eq(origT1)).size should be === 1
 		// and make sure the set contains all items
-		moded must_== Set(T(1), T(2), T(3))
+		moded should be === Set(T(1), T(2), T(3))
 	}
 
-	"removed (set)" in {
-		merge(Set(T(1)), Set(T(2), T(3))) must_== Set(T(2), T(3))
+	test("removed (set)") {
+		merge(Set(T(1)), Set(T(2), T(3))) should be === Set(T(2), T(3))
 	}
 
-	"added (list)" in {
+	test("added (list)") {
 		val origT1 = T(1)
 		val moded = merge(List(origT1), List(T(1), T(2), T(3)))
 		// make sure the set retains origT1 (same instance)
-		moded(0) must beTheSameAs(origT1)
+		moded(0) should be theSameInstanceAs (origT1)
 		// and make sure the set contains all items
-		moded must_== List(T(1), T(2), T(3))
+		moded should be === List(T(1), T(2), T(3))
 	}
 
-	"added different instance but equals, keep 1 only (list)" in {
+	test("added different instance but equals, keep 1 only (list)") {
 		val origT1 = T(1)
 		val origT1Second = T(1)
 		val moded = merge(List(origT1, origT1Second), List(T(1), T(2), T(3)))
 		// make sure the set retains origT1 (same instance)
-		moded(0) must beTheSameAs(origT1)
+		moded(0) should be theSameInstanceAs (origT1)
 		// and make sure the set contains all items
-		moded must_== List(T(1), T(2), T(3))
+		moded should be === List(T(1), T(2), T(3))
 	}
 
-	"added different instance but equals, keep both (list)" in {
+	test("added different instance but equals, keep both (list)") {
 		val origT1 = T(1)
 		val origT1Second = T(1)
 		val moded = merge(List(origT1, origT1Second), List(T(1), T(2), T(1), T(3)))
 		// make sure the set retains origT1 (same instance)
-		moded(0) must beTheSameAs(origT1)
-		moded(2) must beTheSameAs(origT1Second)
+		moded(0) should be theSameInstanceAs (origT1)
+		moded(2) should be theSameInstanceAs (origT1Second)
 		// and make sure the set contains all items
-		moded must_== List(T(1), T(2), T(1), T(3))
+		moded should be === List(T(1), T(2), T(1), T(3))
 	}
 
-	"removed (list)" in {
+	test("removed (list)") {
 		val moded = merge(List(T(1), T(2)), List(T(2), T(3)))
 		// and make sure the set contains all items
-		moded must_== List(T(2), T(3))
+		moded should be === List(T(2), T(3))
 	}
 }
