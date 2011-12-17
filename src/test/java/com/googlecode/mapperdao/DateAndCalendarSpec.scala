@@ -1,12 +1,12 @@
 package com.googlecode.mapperdao
 import org.junit.runner.RunWith
-import org.specs2.mutable.SpecificationWithJUnit
-import org.specs2.runner.JUnitRunner
 import java.util.Calendar
 import com.googlecode.mapperdao.jdbc.Setup
 import java.util.Date
-import org.scala_tools.time.Imports._
 import java.util.Locale
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -14,7 +14,7 @@ import java.util.Locale
  * 9 Dec 2011
  */
 @RunWith(classOf[JUnitRunner])
-class DateAndCalendarSpec extends SpecificationWithJUnit {
+class DateAndCalendarSuite extends FunSuite with ShouldMatchers {
 
 	case class DC(id: Int, date: Date, calendar: Calendar)
 	object DCEntity extends SimpleEntity[DC](classOf[DC]) {
@@ -26,21 +26,21 @@ class DateAndCalendarSpec extends SpecificationWithJUnit {
 	}
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(DCEntity))
 
-	"CRUD" in {
+	test("CRUD") {
 		createTables
 
 		val date = Setup.now.toDate
 		val calendar = Setup.now.toCalendar(Locale.getDefault)
 
-		mapperDao.insert(DCEntity, DC(1, date, calendar)) must_== DC(1, date, calendar)
+		mapperDao.insert(DCEntity, DC(1, date, calendar)) should be === DC(1, date, calendar)
 		val selected = mapperDao.select(DCEntity, 1).get
-		selected must_== DC(1, date, calendar)
+		selected should be === DC(1, date, calendar)
 
 		selected.date.setHours(date.getHours() - 1)
 		selected.calendar.add(Calendar.HOUR, -1)
 		val updated = mapperDao.update(DCEntity, selected)
-		updated must_== selected
-		mapperDao.select(DCEntity, 1).get must_== updated
+		updated should be === selected
+		mapperDao.select(DCEntity, 1).get should be === updated
 	}
 
 	def createTables {
