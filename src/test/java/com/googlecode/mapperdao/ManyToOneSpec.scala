@@ -1,9 +1,10 @@
 package com.googlecode.mapperdao
 
-import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -11,12 +12,12 @@ import org.specs2.runner.JUnitRunner
  * 13 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToOneSpec extends SpecificationWithJUnit {
+class ManyToOneSuite extends FunSuite with ShouldMatchers {
 	import ManyToOneSpec._
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity, HouseEntity))
 
 	if (Setup.database != "derby") {
-		"update id's" in {
+		test("update id's") {
 			createTables
 
 			val company = Company(5, "Coders limited")
@@ -25,11 +26,11 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 
 			val inserted = mapperDao.insert(PersonEntity, person)
 			mapperDao.update(HouseEntity, inserted.lives, House(7, "Rhodes,Greece"))
-			mapperDao.select(PersonEntity, 2).get must_== Person(2, "Kostas", company, House(7, "Rhodes,Greece"))
+			mapperDao.select(PersonEntity, 2).get should be === Person(2, "Kostas", company, House(7, "Rhodes,Greece"))
 		}
 	}
 
-	"insert" in {
+	test("insert") {
 		createTables
 
 		val company = Company(5, "Coders limited")
@@ -37,13 +38,13 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 		val person = Person(2, "Kostas", company, house)
 
 		val inserted = mapperDao.insert(PersonEntity, person)
-		inserted must_== person
+		inserted should be === person
 
 		mapperDao.delete(PersonEntity, inserted)
-		mapperDao.select(PersonEntity, inserted.id) must beNone
+		mapperDao.select(PersonEntity, inserted.id) should be(None)
 	}
 
-	"insert with existing foreign entity" in {
+	test("insert with existing foreign entity") {
 		createTables
 
 		import mapperDao._
@@ -52,16 +53,16 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 		val person = Person(2, "Kostas", company, house)
 
 		val inserted = insert(PersonEntity, person)
-		inserted must_== person
+		inserted should be === person
 
 		val selected = select(PersonEntity, 2).get
-		selected must_== inserted
+		selected should be === inserted
 
 		mapperDao.delete(PersonEntity, inserted)
-		mapperDao.select(PersonEntity, inserted.id) must beNone
+		mapperDao.select(PersonEntity, inserted.id) should be(None)
 	}
 
-	"select" in {
+	test("select") {
 		createTables
 
 		import mapperDao._
@@ -72,13 +73,13 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 		val inserted = insert(PersonEntity, person)
 
 		val selected = select(PersonEntity, 2).get
-		selected must_== inserted
+		selected should be === inserted
 
 		mapperDao.delete(PersonEntity, inserted)
-		mapperDao.select(PersonEntity, inserted.id) must beNone
+		mapperDao.select(PersonEntity, inserted.id) should be(None)
 	}
 
-	"select with null FK" in {
+	test("select with null FK") {
 		createTables
 
 		import mapperDao._
@@ -88,13 +89,13 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 		val inserted = insert(PersonEntity, person)
 
 		val selected = select(PersonEntity, 2).get
-		selected must_== inserted
+		selected should be === inserted
 
 		mapperDao.delete(PersonEntity, inserted)
-		mapperDao.select(PersonEntity, inserted.id) must beNone
+		mapperDao.select(PersonEntity, inserted.id) should be(None)
 	}
 
-	"update" in {
+	test("update") {
 		createTables
 
 		import mapperDao._
@@ -104,20 +105,20 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 		val person = Person(2, "Kostas", company1, house)
 
 		val inserted = insert(PersonEntity, person)
-		inserted must_== person
+		inserted should be === person
 
 		val modified = Person(2, "changed", company2, inserted.lives)
 		val updated = update(PersonEntity, inserted, modified)
-		updated must_== modified
+		updated should be === modified
 
 		val selected = select(PersonEntity, 2).get
-		selected must_== updated
+		selected should be === updated
 
 		mapperDao.delete(PersonEntity, selected)
-		mapperDao.select(PersonEntity, selected.id) must beNone
+		mapperDao.select(PersonEntity, selected.id) should be(None)
 	}
 
-	"update to null" in {
+	test("update to null") {
 		createTables
 
 		import mapperDao._
@@ -126,20 +127,20 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 		val person = Person(2, "Kostas", company1, house)
 
 		val inserted = insert(PersonEntity, person)
-		inserted must_== person
+		inserted should be === person
 
 		val modified = Person(2, "changed", null, inserted.lives)
 		val updated = update(PersonEntity, inserted, modified)
-		updated must_== modified
+		updated should be === modified
 
 		val selected = select(PersonEntity, 2).get
-		selected must_== updated
+		selected should be === updated
 
 		mapperDao.delete(PersonEntity, selected)
-		mapperDao.select(PersonEntity, selected.id) must beNone
+		mapperDao.select(PersonEntity, selected.id) should be(None)
 	}
 
-	"update to null both FK" in {
+	test("update to null both FK") {
 		createTables
 
 		import mapperDao._
@@ -148,17 +149,17 @@ class ManyToOneSpec extends SpecificationWithJUnit {
 		val person = Person(2, "Kostas", company1, house)
 
 		val inserted = insert(PersonEntity, person)
-		inserted must_== person
+		inserted should be === person
 
 		val modified = Person(2, "changed", null, null)
 		val updated = update(PersonEntity, inserted, modified)
-		updated must_== modified
+		updated should be === modified
 
 		val selected = select(PersonEntity, 2).get
-		selected must_== updated
+		selected should be === updated
 
 		mapperDao.delete(PersonEntity, selected)
-		mapperDao.select(PersonEntity, selected.id) must beNone
+		mapperDao.select(PersonEntity, selected.id) should be(None)
 	}
 
 	def createTables =

@@ -1,7 +1,9 @@
 package com.googlecode.mapperdao
-import org.specs2.mutable.SpecificationWithJUnit
+
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * Option integration
@@ -11,7 +13,7 @@ import org.specs2.runner.JUnitRunner
  * 30 Oct 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OptionSpec extends SpecificationWithJUnit {
+class OptionSuite extends FunSuite with ShouldMatchers {
 	case class Category(val name: String, val parent: Option[Category], val linked: Option[Category])
 	case class Dog(val name: Option[String])
 
@@ -40,37 +42,37 @@ class OptionSpec extends SpecificationWithJUnit {
 	val typeManager = new DefaultTypeManager()
 	val typeRegistry = TypeRegistry(CategoryEntity)
 
-	"manyToOneOption None=>null" in {
-		CategoryEntity.parent.columnToValue(Category("x", None, None)) must beNull
+	test("manyToOneOption None=>null") {
+		CategoryEntity.parent.columnToValue(Category("x", None, None)) should be(null)
 	}
 
-	"manyToOneOption Some(x)=>x" in {
-		CategoryEntity.parent.columnToValue(Category("x", Some(Category("y", None, None)), None)) must_== Category("y", None, None)
+	test("manyToOneOption Some(x)=>x") {
+		CategoryEntity.parent.columnToValue(Category("x", Some(Category("y", None, None)), None)) should be === Category("y", None, None)
 	}
 
-	"manyToOne/oneToOne constructor with None" in {
+	test("manyToOne/oneToOne constructor with None") {
 		val cat = Category("x", None, None)
 		val newCat = CategoryEntity.constructor(ValuesMap.fromEntity(typeManager, CategoryEntity.tpe, cat))
-		newCat must_== cat
+		newCat should be === cat
 	}
 
-	"manyToOne constructor with Some" in {
+	test("manyToOne constructor with Some") {
 		val cat = Category("x", Some(Category("y", None, None)), None)
 		val newCat = CategoryEntity.constructor(ValuesMap.fromEntity(typeManager, CategoryEntity.tpe, cat))
-		newCat must_== cat
+		newCat should be === cat
 	}
 
-	"oneToOne None=>null" in {
-		CategoryEntity.linked.columnToValue(Category("x", None, None)) must beNull
+	test("oneToOne None=>null") {
+		CategoryEntity.linked.columnToValue(Category("x", None, None)) should be(null)
 	}
 
-	"oneToOneOption Some(x)=>x" in {
-		CategoryEntity.linked.columnToValue(Category("x", None, Some(Category("y", None, None)))) must_== Category("y", None, None)
+	test("oneToOneOption Some(x)=>x") {
+		CategoryEntity.linked.columnToValue(Category("x", None, Some(Category("y", None, None)))) should be === Category("y", None, None)
 	}
 
-	"oneToOne constructor with Some" in {
+	test("oneToOne constructor with Some") {
 		val cat = Category("x", None, Some(Category("y", None, None)))
 		val newCat = CategoryEntity.constructor(ValuesMap.fromEntity(typeManager, CategoryEntity.tpe, cat))
-		newCat must_== cat
+		newCat should be === cat
 	}
 }

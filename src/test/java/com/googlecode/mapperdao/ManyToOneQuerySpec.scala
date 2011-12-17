@@ -1,10 +1,11 @@
 package com.googlecode.mapperdao
 
-import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
 import org.scala_tools.time.Imports._
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -12,7 +13,7 @@ import org.specs2.runner.JUnitRunner
  * 20 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToOneQuerySpec extends SpecificationWithJUnit {
+class ManyToOneQuerySuite extends FunSuite with ShouldMatchers {
 	import ManyToOneQuerySpec._
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, HouseEntity, AddressEntity))
@@ -21,68 +22,68 @@ class ManyToOneQuerySpec extends SpecificationWithJUnit {
 	import mapperDao._
 	import queryDao._
 
-	"query with limits (offset only)" in {
+	test("query with limits (offset only)") {
 		createTables
 		val (p0, p1, p2, p3, p4) = testData1
 
-		query(QueryConfig(offset = Some(2)), q0Limits).toSet must_== Set(p2, p3, p4)
+		query(QueryConfig(offset = Some(2)), q0Limits).toSet should be === Set(p2, p3, p4)
 	}
 
-	"query with limits (limit only)" in {
+	test("query with limits (limit only)") {
 		createTables
 		val (p0, p1, p2, p3, p4) = testData1
 
-		query(QueryConfig(limit = Some(2)), q0Limits).toSet must_== Set(p0, p1)
+		query(QueryConfig(limit = Some(2)), q0Limits).toSet should be === Set(p0, p1)
 	}
 
-	"query with limits" in {
+	test("query with limits") {
 		createTables
 		val (p0, p1, p2, p3, p4) = testData1
 
-		query(QueryConfig(offset = Some(2), limit = Some(1)), q0Limits).toSet must_== Set(p2)
+		query(QueryConfig(offset = Some(2), limit = Some(1)), q0Limits).toSet should be === Set(p2)
 	}
 
-	"query with skip" in {
+	test("query with skip") {
 		createTables
 		val (p0, p1, p2, p3, p4) = testData1
 
-		query(QueryConfig(skip = Set(PersonEntity.lives)), q0ForSkip) must_== List(Person(3, "p3", null), Person(4, "p4", null))
+		query(QueryConfig(skip = Set(PersonEntity.lives)), q0ForSkip) should be === List(Person(3, "p3", null), Person(4, "p4", null))
 	}
 
-	"query on FK for null" in {
+	test("query on FK for null") {
 		createTables
 		val (p0, p1, p2, p3, p4) = testData1
 		val p5 = insert(PersonEntity, Person(5, "p5", null))
 		val p6 = insert(PersonEntity, Person(6, "p6", null))
-		query(q3(null)) must_== List(p5, p6)
-		query(q3n(null)) must_== List(p0, p1, p2, p3, p4)
+		query(q3(null)) should be === List(p5, p6)
+		query(q3n(null)) should be === List(p0, p1, p2, p3, p4)
 	}
 
-	"query on FK" in {
+	test("query on FK") {
 		createTables
 		val (p0, p1, p2, p3, p4) = testData1
-		query(q3(p4.lives)) must_== List(p3, p4)
-		query(q3(p0.lives)) must_== List(p0, p1, p2)
-		query(q3n(p0.lives)) must_== List(p3, p4)
+		query(q3(p4.lives)) should be === List(p3, p4)
+		query(q3(p0.lives)) should be === List(p0, p1, p2)
+		query(q3n(p0.lives)) should be === List(p3, p4)
 	}
 
-	"query 1 level join" in {
+	test("query 1 level join") {
 		createTables
 		val (p0, p1, p2, p3, p4) = testData1
 
-		query(q0) must_== List(p3, p4)
+		query(q0) should be === List(p3, p4)
 	}
 
-	"query 2 level join" in {
+	test("query 2 level join") {
 		createTables
 		val (p0, p1, p2, p3, p4) = testData1
-		query(q1) must_== List(p0, p1, p2)
+		query(q1) should be === List(p0, p1, p2)
 	}
 
-	"query 2 level join with or" in {
+	test("query 2 level join with or") {
 		createTables
 		val (p0, p1, p2, p3, p4) = testData1
-		query(q2) must_== List(p0, p1, p2, p3, p4)
+		query(q2) should be === List(p0, p1, p2, p3, p4)
 	}
 
 	def testData1 = {

@@ -1,9 +1,10 @@
 package com.googlecode.mapperdao
 
-import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * tests one-to-many references to self
@@ -13,20 +14,20 @@ import org.specs2.runner.JUnitRunner
  * 5 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToManySelfReferencedSpec extends SpecificationWithJUnit {
+class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers {
 	import OneToManySelfReferencedSpec._
 
 	val (jdbc, mapperDao, queryDao) = setup
 
-	"insert" in {
+	test("insert") {
 		createTables
 
 		val person = new Person("main-person", Set(new Person("friend1", Set()), new Person("friend2", Set())))
 		val inserted = mapperDao.insert(PersonEntity, person)
-		inserted must_== person
+		inserted should be === person
 	}
 
-	"update, remove from traversable" in {
+	test("update, remove from traversable") {
 		createTables
 
 		val person = new Person("main-person", Set(new Person("friend1", Set()), new Person("friend2", Set())))
@@ -34,12 +35,12 @@ class OneToManySelfReferencedSpec extends SpecificationWithJUnit {
 
 		val modified = new Person("main-changed", inserted.friends.filterNot(_.name == "friend1"))
 		val updated = mapperDao.update(PersonEntity, inserted, modified)
-		updated must_== modified
+		updated should be === modified
 
-		mapperDao.select(PersonEntity, updated.id).get must_== updated
+		mapperDao.select(PersonEntity, updated.id).get should be === updated
 	}
 
-	"update, add to traversable" in {
+	test("update, add to traversable") {
 		createTables
 
 		val person = new Person("main-person", Set(new Person("friend1", Set()), new Person("friend2", Set())))
@@ -47,12 +48,12 @@ class OneToManySelfReferencedSpec extends SpecificationWithJUnit {
 		var friends = inserted.friends
 		val modified = new Person("main-changed", friends + new Person("friend3", Set()))
 		val updated = mapperDao.update(PersonEntity, inserted, modified)
-		updated must_== modified
+		updated should be === modified
 
-		mapperDao.select(PersonEntity, updated.id).get must_== updated
+		mapperDao.select(PersonEntity, updated.id).get should be === updated
 	}
 
-	"3 levels deep" in {
+	test("3 levels deep") {
 		createTables
 
 		val person = Person("level1", Set(Person("level2-friend1", Set(Person("level3-friend1-1", Set()), Person("level3-friend1-2", Set()))), Person("level2-friend2", Set(Person("level3-friend2-1", Set())))))
@@ -60,12 +61,12 @@ class OneToManySelfReferencedSpec extends SpecificationWithJUnit {
 
 		val modified = Person("main-changed", inserted.friends + Person("friend3", Set(Person("level3-friend3-1", Set()))))
 		val updated = mapperDao.update(PersonEntity, inserted, modified)
-		updated must_== modified
+		updated should be === modified
 
-		mapperDao.select(PersonEntity, updated.id).get must_== updated
+		mapperDao.select(PersonEntity, updated.id).get should be === updated
 	}
 
-	"use already persisted friends" in {
+	test("use already persisted friends") {
 		val level3 = Set(Person("level3-friend1-1", Set()), Person("level3-friend1-2", Set()))
 		val level3Inserted = level3.map(mapperDao.insert(PersonEntity, _)).toSet[Person]
 		val person = Person("level1", Set(Person("level2-friend1", level3Inserted), Person("level2-friend2", Set(Person("level3-friend2-1", Set())))))
@@ -73,9 +74,9 @@ class OneToManySelfReferencedSpec extends SpecificationWithJUnit {
 
 		val modified = Person("main-changed", inserted.friends + Person("friend3", Set(Person("level3-friend3-1", Set()))))
 		val updated = mapperDao.update(PersonEntity, inserted, modified)
-		updated must_== modified
+		updated should be === modified
 
-		mapperDao.select(PersonEntity, updated.id).get must_== updated
+		mapperDao.select(PersonEntity, updated.id).get should be === updated
 	}
 	def setup =
 		{

@@ -1,10 +1,11 @@
 package com.googlecode.mapperdao
 
-import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
 import org.scala_tools.time.Imports._
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -12,7 +13,7 @@ import org.specs2.runner.JUnitRunner
  * 28 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class SimpleSelfJoinQuerySpec extends SpecificationWithJUnit {
+class SimpleSelfJoinQuerySuite extends FunSuite with ShouldMatchers {
 
 	import SimpleSelfJoinQuerySpec._
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
@@ -21,7 +22,7 @@ class SimpleSelfJoinQuerySpec extends SpecificationWithJUnit {
 	import mapperDao._
 	import queryDao._
 
-	"query join with alias" in {
+	test("query join with alias") {
 		createJobPositionTable
 
 		val now = Setup.now
@@ -31,7 +32,7 @@ class SimpleSelfJoinQuerySpec extends SpecificationWithJUnit {
 		val j4 = insert(JobPositionEntity, JobPosition(4, "Scala Developer", now))
 		val j5 = insert(JobPositionEntity, JobPosition(5, "Scala Developer", now))
 		val j6 = insert(JobPositionEntity, JobPosition(6, "driver", DateTime.now))
-		query(q11).toSet must_== Set(j2, j4, j5)
+		query(q11).toSet should be === Set(j2, j4, j5)
 	}
 
 	def createJobPositionTable {

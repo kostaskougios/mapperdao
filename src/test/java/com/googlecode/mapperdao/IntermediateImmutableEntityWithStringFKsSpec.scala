@@ -1,9 +1,10 @@
 package com.googlecode.mapperdao
 
-import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -11,12 +12,12 @@ import org.specs2.runner.JUnitRunner
  * 6 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUnit {
+class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite with ShouldMatchers {
 	import IntermediateImmutableEntityWithStringFKsSpec._
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(EmployeeEntity, WorkedAtEntity, CompanyEntity))
 
 	import mapperDao._
-	"update intermediate" in {
+	test("update intermediate") {
 		createTables
 
 		val e = new Employee("e01") {
@@ -33,7 +34,7 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 		})
 	}
 
-	"insert" in {
+	test("insert") {
 		createTables
 		val c1 = Company("c01", "web sites inc")
 		val c2 = Company("c02", "communications inc")
@@ -45,7 +46,7 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 		test(inserted, e)
 	}
 
-	"select" in {
+	test("select") {
 		createTables
 		val c1 = Company("c01", "web sites inc")
 		val c2 = Company("c02", "communications inc")
@@ -58,7 +59,7 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 		test(selected, inserted)
 	}
 
-	"update, add more intermediate" in {
+	test("update, add more intermediate") {
 		createTables
 
 		val c1 = Company("c01", "web sites inc")
@@ -79,7 +80,7 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 		test(selected, updated)
 	}
 
-	"update, add more intermediate, existing entity" in {
+	test("update, add more intermediate, existing entity") {
 		createTables
 
 		val c1 = Company("c01", "web sites inc")
@@ -100,7 +101,7 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 		test(selected, updated)
 	}
 
-	"update, remove an intermediate" in {
+	test("update, remove an intermediate") {
 		createTables
 
 		val c1 = Company("c01", "web sites inc")
@@ -121,7 +122,7 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 		test(selected, updated)
 	}
 
-	"update, remove an intermediate affects only correct entity" in {
+	test("update, remove an intermediate affects only correct entity") {
 		createTables
 
 		val c1 = insert(CompanyEntity, Company("c01", "web sites inc"))
@@ -151,8 +152,8 @@ class IntermediateImmutableEntityWithStringFKsSpec extends SpecificationWithJUni
 	// with be thrown
 	def test(actual: Employee, expected: Employee) = {
 		def toS(w: WorkedAt) = "%s,%s,%d".format(w.employee.no, w.company, w.year)
-		expected.workedAt.map(toS _).toSet must_== actual.workedAt.map(toS _).toSet
-		expected.no must_== actual.no
+		expected.workedAt.map(toS _).toSet should be === actual.workedAt.map(toS _).toSet
+		expected.no should be === actual.no
 	}
 
 	def createTables {

@@ -1,9 +1,10 @@
 package com.googlecode.mapperdao
 
-import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -11,7 +12,7 @@ import org.specs2.runner.JUnitRunner
  * 29 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToManyQueryWithAliasesSpec extends SpecificationWithJUnit {
+class ManyToManyQueryWithAliasesSuite extends FunSuite with ShouldMatchers {
 
 	import ManyToManyQueryWithAliasesSpec._
 
@@ -21,7 +22,7 @@ class ManyToManyQueryWithAliasesSpec extends SpecificationWithJUnit {
 	import queryDao._
 	import TestQueries._
 
-	"join, 3 condition" in {
+	test("join, 3 condition") {
 		createTables
 		val a0 = insert(AttributeEntity, Attribute(100, "size", "46'"))
 		val a1 = insert(AttributeEntity, Attribute(101, "size", "50'"))
@@ -35,7 +36,7 @@ class ManyToManyQueryWithAliasesSpec extends SpecificationWithJUnit {
 		val p2 = insert(ProductEntity, Product(3, "TV 3", Set(a0, a3, a4)))
 		val p3 = insert(ProductEntity, Product(4, "TV 3", Set(a1, a3, a5)))
 
-		query(q0).toSet must_== Set(p2)
+		query(q0).toSet should be === Set(p2)
 	}
 
 	def createTables =

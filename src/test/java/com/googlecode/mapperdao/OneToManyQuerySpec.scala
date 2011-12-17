@@ -1,17 +1,18 @@
 package com.googlecode.mapperdao
 
-import org.specs2.mutable.SpecificationWithJUnit
-import org.specs2.matcher.MatchResult
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
+
 /**
  * @author kostantinos.kougios
  *
  * 28 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToManyQuerySpec extends SpecificationWithJUnit {
+class OneToManyQuerySuite extends FunSuite with ShouldMatchers {
 	import OneToManyQuerySpec._
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(HouseEntity, PersonEntity))
@@ -20,67 +21,67 @@ class OneToManyQuerySpec extends SpecificationWithJUnit {
 	import queryDao._
 	import TestQueries._
 
-	"query with limits (offset only)" in {
+	test("query with limits (offset only)") {
 		createTables
 		val persons = for (i <- 0 to 10) yield insert(PersonEntity, Person(i, "person%d".format(i), Set(House(i * 2, "London"), House(i * 2 + 1, "Paris"))))
-		query(QueryConfig(offset = Some(7)), q0Limits).toSet must_== Set(persons(7), persons(8), persons(9), persons(10))
+		query(QueryConfig(offset = Some(7)), q0Limits).toSet should be === Set(persons(7), persons(8), persons(9), persons(10))
 	}
 
-	"query with limits (limit only)" in {
+	test("query with limits (limit only)") {
 		createTables
 		val persons = for (i <- 0 to 10) yield insert(PersonEntity, Person(i, "person%d".format(i), Set(House(i * 2, "London"), House(i * 2 + 1, "Paris"))))
-		query(QueryConfig(limit = Some(2)), q0Limits).toSet must_== Set(persons(0), persons(1))
+		query(QueryConfig(limit = Some(2)), q0Limits).toSet should be === Set(persons(0), persons(1))
 	}
 
-	"query with limits" in {
+	test("query with limits") {
 		createTables
 		val persons = for (i <- 0 to 10) yield insert(PersonEntity, Person(i, "person%d".format(i), Set(House(i * 2, "London"), House(i * 2 + 1, "Paris"))))
-		query(QueryConfig(offset = Some(5), limit = Some(2)), q0Limits).toSet must_== Set(persons(5), persons(6))
+		query(QueryConfig(offset = Some(5), limit = Some(2)), q0Limits).toSet should be === Set(persons(5), persons(6))
 	}
 
-	"query with skip" in {
+	test("query with skip") {
 		createTables
 		val p0 = insert(PersonEntity, Person(5, "person0", Set(House(1, "London"), House(2, "Paris"))))
 		val p1 = insert(PersonEntity, Person(6, "person1", Set(House(3, "London"), House(4, "Athens"))))
 		val p2 = insert(PersonEntity, Person(7, "person2", Set(House(5, "Rome"), House(6, "Athens"))))
 
-		query(QueryConfig(skip = Set(PersonEntity.owns)), q0WithSkip).toSet must_== Set(Person(5, "person0", Set()), Person(6, "person1", Set()))
+		query(QueryConfig(skip = Set(PersonEntity.owns)), q0WithSkip).toSet should be === Set(Person(5, "person0", Set()), Person(6, "person1", Set()))
 	}
 
-	"based on FK" in {
+	test("based on FK") {
 		createTables
 		val p0 = insert(PersonEntity, Person(5, "person0", Set(House(1, "London"), House(2, "Paris"))))
 		val p1 = insert(PersonEntity, Person(6, "person1", Set(House(3, "London"), House(4, "Athens"))))
 
-		query(q2(p0.owns.head)) must_== List(p0)
-		query(q2(p1.owns.head)) must_== List(p1)
+		query(q2(p0.owns.head)) should be === List(p0)
+		query(q2(p1.owns.head)) should be === List(p1)
 	}
 
-	"based on FK, not equals" in {
+	test("based on FK, not equals") {
 		createTables
 		val p0 = insert(PersonEntity, Person(5, "person0", Set(House(1, "London"))))
 		val p1 = insert(PersonEntity, Person(6, "person1", Set(House(3, "London"), House(4, "Athens"))))
 
-		query(q2n(p0.owns.head)).toSet must_== Set(p1)
+		query(q2n(p0.owns.head)).toSet should be === Set(p1)
 	}
 
-	"join 1 level" in {
+	test("join 1 level") {
 		createTables
 		val p0 = insert(PersonEntity, Person(5, "person0", Set(House(1, "London"), House(2, "Paris"))))
 		val p1 = insert(PersonEntity, Person(6, "person1", Set(House(3, "London"), House(4, "Athens"))))
 		val p2 = insert(PersonEntity, Person(7, "person2", Set(House(5, "Rome"), House(6, "Athens"))))
 
-		query(q0).toSet must_== Set(p0, p1)
+		query(q0).toSet should be === Set(p0, p1)
 	}
 
-	"join with 2 conditions" in {
+	test("join with 2 conditions") {
 		createTables
 		val p0 = insert(PersonEntity, Person(5, "person0", Set(House(1, "London"), House(2, "Paris"))))
 		val p1 = insert(PersonEntity, Person(6, "person1", Set(House(3, "London"), House(4, "Athens"))))
 		val p2 = insert(PersonEntity, Person(7, "person2", Set(House(5, "Rome"), House(6, "Sofia"))))
 		val p3 = insert(PersonEntity, Person(8, "person3", Set(House(7, "Madrid"))))
 
-		query(q1).toSet must_== Set(p3)
+		query(q1).toSet should be === Set(p3)
 	}
 
 	def createTables {

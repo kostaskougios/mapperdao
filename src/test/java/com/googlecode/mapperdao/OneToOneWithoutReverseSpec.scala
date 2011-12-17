@@ -1,9 +1,10 @@
 package com.googlecode.mapperdao
 
-import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -11,82 +12,82 @@ import org.specs2.runner.JUnitRunner
  * 1 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToOneWithoutReverseSpec extends SpecificationWithJUnit {
+class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
 	import OneToOneWithoutReverseSpec._
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
 
 	import mapperDao._
 
 	if (Setup.database != "derby") {
-		"update id of related" in {
+		test("update id of related") {
 			createTables
 			val inserted = insert(InventoryEntity, Inventory(10, Product(1), 5))
 			val updatedProduct = update(ProductEntity, inserted.product, Product(7))
-			updatedProduct must_== Product(7)
-			select(InventoryEntity, 10).get must_== Inventory(10, Product(7), 5)
+			updatedProduct should be === Product(7)
+			select(InventoryEntity, 10).get should be === Inventory(10, Product(7), 5)
 		}
 	}
 
-	"update id" in {
+	test("update id") {
 		createTables
 		val inserted = insert(InventoryEntity, Inventory(10, Product(1), 5))
 		val updated = update(InventoryEntity, inserted, Inventory(8, inserted.product, 5))
-		updated must_== Inventory(8, Product(1), 5)
-		select(InventoryEntity, 8).get must_== updated
-		select(InventoryEntity, 10) must beNone
+		updated should be === Inventory(8, Product(1), 5)
+		select(InventoryEntity, 8).get should be === updated
+		select(InventoryEntity, 10) should be(None)
 	}
 
-	"update from null to existing value " in {
+	test("update from null to existing value ") {
 		createTables
 		val inserted = insert(InventoryEntity, Inventory(10, Product(1), 5))
 		val updated = update(InventoryEntity, inserted, Inventory(10, null, 7))
-		updated.product must beNull
+		updated.product should be(null)
 		val reUdated = update(InventoryEntity, updated, Inventory(10, select(ProductEntity, 1).get, 8))
-		reUdated.product must_== Product(1)
-		select(InventoryEntity, 10).get must_== reUdated
+		reUdated.product should be === Product(1)
+		select(InventoryEntity, 10).get should be === reUdated
 	}
 
-	"update from null to new value " in {
+	test("update from null to new value ") {
 		createTables
 		val inserted = insert(InventoryEntity, Inventory(10, Product(1), 5))
 		val updated = update(InventoryEntity, inserted, Inventory(10, null, 7))
-		updated.product must beNull
+		updated.product should be(null)
 		val reUdated = update(InventoryEntity, updated, Inventory(10, Product(2), 8))
-		reUdated.product must_== Product(2)
-		select(InventoryEntity, 10).get must_== reUdated
-		select(ProductEntity, 1).get must_== Product(1)
-		select(ProductEntity, 2).get must_== Product(2)
+		reUdated.product should be === Product(2)
+		select(InventoryEntity, 10).get should be === reUdated
+		select(ProductEntity, 1).get should be === Product(1)
+		select(ProductEntity, 2).get should be === Product(2)
 	}
 
-	"update to null" in {
+	test("update to null") {
 		createTables
 		val inserted = insert(InventoryEntity, Inventory(10, Product(1), 5))
 		val updated = update(InventoryEntity, inserted, Inventory(10, null, 7))
-		updated.product must beNull
-		select(InventoryEntity, 10).get must_== updated
-		select(ProductEntity, 1).get must_== Product(1)
+		updated.product should be(null)
+		select(InventoryEntity, 10).get should be === updated
+		select(ProductEntity, 1).get should be === Product(1)
 	}
 
-	"update" in {
+	test("update") {
 		createTables
 		val inserted = insert(InventoryEntity, Inventory(10, Product(1), 5))
 		val updated = update(InventoryEntity, inserted, Inventory(10, Product(2), 7))
-		select(InventoryEntity, 10).get must_== updated
-		select(ProductEntity, 1).get must_== Product(1)
-		select(ProductEntity, 2).get must_== Product(2)
+		select(InventoryEntity, 10).get should be === updated
+		select(ProductEntity, 1).get should be === Product(1)
+		select(ProductEntity, 2).get should be === Product(2)
 	}
 
-	"insert" in {
+	test("insert") {
 		createTables
 		val inventory = Inventory(10, Product(1), 5)
 		val inserted = insert(InventoryEntity, inventory)
-		inserted must_== inventory
+		inserted should be === inventory
 	}
 
-	"select" in {
+	test("select") {
 		createTables
 		val inserted = insert(InventoryEntity, Inventory(10, Product(1), 5))
-		select(InventoryEntity, 10).get must_== inserted
+		select(InventoryEntity, 10).get should be === inserted
 	}
 
 	def createTables =

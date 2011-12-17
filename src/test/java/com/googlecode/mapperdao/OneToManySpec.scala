@@ -1,10 +1,10 @@
 package com.googlecode.mapperdao
 
-import org.specs2.mutable.SpecificationWithJUnit
-import org.specs2.matcher.MatchResult
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * this spec is self contained, all entities, mapping are contained in this class
@@ -14,13 +14,13 @@ import org.specs2.runner.JUnitRunner
  * 12 Jul 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToManySpec extends SpecificationWithJUnit {
+class OneToManySuite extends FunSuite with ShouldMatchers {
 
 	import OneToManySpec._
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity, HouseEntity, PersonEntity))
 
-	"updating id of many entity" in {
+	test("updating id of many entity") {
 		createTables
 
 		val jp1 = new JobPosition(3, "C++ Developer", 10)
@@ -30,11 +30,11 @@ class OneToManySpec extends SpecificationWithJUnit {
 		val inserted = mapperDao.insert(PersonEntity, person)
 		val house = inserted.owns.find(_.id == 1).get
 		mapperDao.update(HouseEntity, house, House(5, "London"))
-		mapperDao.select(PersonEntity, 3).get must_== Person(3, "Kostas", "K", Set(House(5, "London"), House(2, "Rhodes")), 16, List(jp1, jp2, jp3))
+		mapperDao.select(PersonEntity, 3).get should be === Person(3, "Kostas", "K", Set(House(5, "London"), House(2, "Rhodes")), 16, List(jp1, jp2, jp3))
 	}
 
 	if (Setup.database != "derby") {
-		"updating id of primary entity" in {
+		test("updating id of primary entity") {
 			createTables
 
 			val jp1 = new JobPosition(3, "C++ Developer", 10)
@@ -43,13 +43,13 @@ class OneToManySpec extends SpecificationWithJUnit {
 			val person = new Person(3, "Kostas", "K", Set(House(1, "London"), House(2, "Rhodes")), 16, List(jp1, jp2, jp3))
 			val inserted = mapperDao.insert(PersonEntity, person)
 			val updated = mapperDao.update(PersonEntity, inserted, Person(8, "Kostas", "K", inserted.owns, 16, inserted.positions))
-			updated must_== Person(8, "Kostas", "K", person.owns, 16, person.positions)
-			mapperDao.select(PersonEntity, 8).get must_== updated
-			mapperDao.select(PersonEntity, 3) must beNone
+			updated should be === Person(8, "Kostas", "K", person.owns, 16, person.positions)
+			mapperDao.select(PersonEntity, 8).get should be === updated
+			mapperDao.select(PersonEntity, 3) should be(None)
 		}
 	}
 
-	"updating items (immutable)" in {
+	test("updating items (immutable)") {
 		createTables
 
 		val jp1 = new JobPosition(3, "C++ Developer", 10)
@@ -64,18 +64,18 @@ class OneToManySpec extends SpecificationWithJUnit {
 		def doUpdate(from: Person, to: Person) =
 			{
 				updated = mapperDao.update(PersonEntity, from, to)
-				updated must_== to
-				mapperDao.select(PersonEntity, 3).get must_== updated
-				mapperDao.select(PersonEntity, 3).get must_== to
+				updated should be === to
+				mapperDao.select(PersonEntity, 3).get should be === updated
+				mapperDao.select(PersonEntity, 3).get should be === to
 			}
 		doUpdate(updated, new Person(3, "Changed", "K", updated.owns, 18, updated.positions.filterNot(_ == jp1)))
 		doUpdate(updated, new Person(3, "Changed Again", "Surname changed too", updated.owns.filter(_.address == "London"), 18, jp5 :: updated.positions.filterNot(jp ⇒ jp == jp1 || jp == jp3)))
 
 		mapperDao.delete(PersonEntity, updated)
-		mapperDao.select(PersonEntity, updated.id) must beNone
+		mapperDao.select(PersonEntity, updated.id) should be(None)
 	}
 
-	"updating items (mutable)" in {
+	test("updating items (mutable)") {
 		createTables
 
 		val jp1 = new JobPosition(3, "C++ Developer", 10)
@@ -87,16 +87,16 @@ class OneToManySpec extends SpecificationWithJUnit {
 		inserted.positions.foreach(_.name = "changed")
 		inserted.positions.foreach(_.rank = 5)
 		val updated = mapperDao.update(PersonEntity, inserted)
-		updated must_== inserted
+		updated should be === inserted
 
 		val loaded = mapperDao.select(PersonEntity, 3).get
-		loaded must_== updated
+		loaded should be === updated
 
 		mapperDao.delete(PersonEntity, updated)
-		mapperDao.select(PersonEntity, updated.id) must beNone
+		mapperDao.select(PersonEntity, updated.id) should be(None)
 	}
 
-	"removing items" in {
+	test("removing items") {
 		createTables
 
 		val jp1 = new JobPosition(3, "C++ Developer", 10)
@@ -107,16 +107,16 @@ class OneToManySpec extends SpecificationWithJUnit {
 
 		inserted.positions = inserted.positions.filterNot(jp ⇒ jp == jp1 || jp == jp3)
 		val updated = mapperDao.update(PersonEntity, inserted)
-		updated must_== inserted
+		updated should be === inserted
 
 		val loaded = mapperDao.select(PersonEntity, 3).get
-		loaded must_== updated
+		loaded should be === updated
 
 		mapperDao.delete(PersonEntity, updated)
-		mapperDao.select(PersonEntity, updated.id) must beNone
+		mapperDao.select(PersonEntity, updated.id) should be(None)
 	}
 
-	"adding items" in {
+	test("adding items") {
 		createTables
 
 		val person = new Person(3, "Kostas", "K", Set(House(1, "London"), House(2, "Rhodes")), 16, List(new JobPosition(5, "Scala Developer", 10), new JobPosition(7, "Java Developer", 10)))
@@ -128,23 +128,23 @@ class OneToManySpec extends SpecificationWithJUnit {
 		loaded.positions = new JobPosition(1, "C++ Developer", 8) :: loaded.positions
 		loaded.positions = new JobPosition(0, "Groovy Developer", 5) :: loaded.positions
 		val updatedPositions = mapperDao.update(PersonEntity, loaded)
-		updatedPositions must_== loaded
+		updatedPositions should be === loaded
 
 		val updatedReloaded = mapperDao.select(PersonEntity, 3).get
-		updatedReloaded must_== updatedPositions
+		updatedReloaded should be === updatedPositions
 
 		mapperDao.delete(PersonEntity, updatedReloaded)
-		mapperDao.select(PersonEntity, updatedReloaded.id) must beNone
+		mapperDao.select(PersonEntity, updatedReloaded.id) should be(None)
 	}
 
-	"CRUD (multi purpose test)" in {
+	test("CRUD (multi purpose test)") {
 		createTables
 
 		val person = new Person(3, "Kostas", "K", Set(House(1, "London"), House(2, "Rhodes")), 16, List(new JobPosition(5, "Scala Developer", 10), new JobPosition(7, "Java Developer", 10)))
 		mapperDao.insert(PersonEntity, person)
 
 		val loaded = mapperDao.select(PersonEntity, 3).get
-		loaded must_== person
+		loaded should be === person
 
 		// update
 
@@ -153,31 +153,31 @@ class OneToManySpec extends SpecificationWithJUnit {
 		loaded.positions.head.name = "Java/Scala Developer"
 		loaded.positions.head.rank = 123
 		val updated = mapperDao.update(PersonEntity, loaded)
-		updated must_== loaded
+		updated should be === loaded
 
 		val reloaded = mapperDao.select(PersonEntity, 3).get
-		reloaded must_== loaded
+		reloaded should be === loaded
 
 		// add more elements to the collection
 		reloaded.positions = new JobPosition(1, "C++ Developer", 8) :: reloaded.positions
 		val updatedPositions = mapperDao.update(PersonEntity, reloaded)
-		updatedPositions must_== reloaded
+		updatedPositions should be === reloaded
 
 		val updatedReloaded = mapperDao.select(PersonEntity, 3).get
-		updatedReloaded must_== updatedPositions
+		updatedReloaded should be === updatedPositions
 
 		// remove elements from the collection
 		updatedReloaded.positions = updatedReloaded.positions.filterNot(_ == updatedReloaded.positions(1))
 		val removed = mapperDao.update(PersonEntity, updatedReloaded)
-		removed must_== updatedReloaded
+		removed should be === updatedReloaded
 
 		val removedReloaded = mapperDao.select(PersonEntity, 3).get
-		removedReloaded must_== removed
+		removedReloaded should be === removed
 
 		// remove them all
 		removedReloaded.positions = List()
-		mapperDao.update(PersonEntity, removedReloaded) must_== removedReloaded
-		mapperDao.select(PersonEntity, 3).get must_== removedReloaded
+		mapperDao.update(PersonEntity, removedReloaded) should be === removedReloaded
+		mapperDao.select(PersonEntity, 3).get should be === removedReloaded
 	}
 
 	def createTables {

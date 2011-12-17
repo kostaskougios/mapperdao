@@ -1,7 +1,9 @@
 package com.googlecode.mapperdao
-import org.specs2.mutable.SpecificationWithJUnit
+
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -9,13 +11,13 @@ import org.specs2.runner.JUnitRunner
  * 11 Oct 2011
  */
 @RunWith(classOf[JUnitRunner])
-class MockMapperDaoSpec extends SpecificationWithJUnit {
+class MockMapperDaoSuite extends FunSuite with ShouldMatchers {
 	case class JobPosition(var name: String)
 	object JobPositionEntity extends Entity[IntId, JobPosition](classOf[JobPosition]) {
 		def constructor(implicit m) = null
 	}
 
-	"mock insert" in {
+	test("mock insert") {
 		var r: Any = null
 		val mock = new MockMapperDao {
 			override def insert[PC, T](entity: Entity[PC, T], o: T): T with PC = {
@@ -24,10 +26,10 @@ class MockMapperDaoSpec extends SpecificationWithJUnit {
 			}
 		}
 		mock.insert(JobPositionEntity, JobPosition("x"))
-		r must_== JobPosition("x")
+		r should be === JobPosition("x")
 	}
 
-	"mock update" in {
+	test("mock update") {
 		var r: Any = null
 		val mock = new MockMapperDao {
 			override def update[PC, T](entity: Entity[PC, T], o: T with PC, newO: T): T with PC = {
@@ -36,19 +38,19 @@ class MockMapperDaoSpec extends SpecificationWithJUnit {
 			}
 		}
 		mock.update(JobPositionEntity, new JobPosition("x") with IntId { val id = 5 }, JobPosition("x"))
-		r must_== JobPosition("x")
+		r should be === JobPosition("x")
 	}
 
-	"mock select" in {
+	test("mock select") {
 		val mock = new MockMapperDao {
 			override def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], ids: List[Any]): Option[T with PC] = {
 				Some(JobPosition("y").asInstanceOf[T with PC])
 			}
 		}
-		mock.select(JobPositionEntity, 5) must_== Some(JobPosition("y"))
+		mock.select(JobPositionEntity, 5) should be === Some(JobPosition("y"))
 	}
 
-	"mock delete" in {
+	test("mock delete") {
 		val mock = new MockMapperDao {
 			override def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T = {
 				JobPosition("y").asInstanceOf[T]
@@ -56,6 +58,6 @@ class MockMapperDaoSpec extends SpecificationWithJUnit {
 		}
 		mock.delete(JobPositionEntity, new JobPosition("x") with IntId with Persisted {
 			val id = 5
-		}) must_== JobPosition("y")
+		}) should be === JobPosition("y")
 	}
 }

@@ -1,10 +1,11 @@
 package com.googlecode.mapperdao
 
-import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
 import org.scala_tools.time.Imports._
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -12,7 +13,7 @@ import org.specs2.runner.JUnitRunner
  * 28 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToOneSelfJoinQuerySpec extends SpecificationWithJUnit {
+class ManyToOneSelfJoinQuerySuite extends FunSuite with ShouldMatchers {
 
 	import ManyToOneSelfJoinQuerySpec._
 
@@ -22,7 +23,7 @@ class ManyToOneSelfJoinQuerySpec extends SpecificationWithJUnit {
 	import mapperDao._
 	import queryDao._
 
-	"self join query on house" in {
+	test("self join query on house") {
 		createTables
 		val a0 = insert(AddressEntity, Address(100, "SE1 1AA"))
 		val a1 = insert(AddressEntity, Address(101, "SE2 2BB"))
@@ -34,7 +35,7 @@ class ManyToOneSelfJoinQuerySpec extends SpecificationWithJUnit {
 		val p2 = insert(PersonEntity, Person(2, "p2", h0))
 		val p3 = insert(PersonEntity, Person(3, "p3", h1))
 		val p4 = insert(PersonEntity, Person(4, "p4", h1))
-		query(q0).toSet must_== Set(p0, p1, p2)
+		query(q0).toSet should be === Set(p0, p1, p2)
 	}
 
 	def createTables {

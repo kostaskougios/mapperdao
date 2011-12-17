@@ -1,8 +1,10 @@
 package com.googlecode.mapperdao
-import org.specs2.mutable.SpecificationWithJUnit
+
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -10,30 +12,30 @@ import org.specs2.runner.JUnitRunner
  * 8 Nov 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToManySimpleTypesSpec extends SpecificationWithJUnit {
+class ManyToManySimpleTypesSuite extends FunSuite with ShouldMatchers {
 	import ManyToManySimpleTypesSpec._
 	val typeRegistry = TypeRegistry(ProductEntity)
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(typeRegistry)
 
-	"insert, string based" in {
+	test("insert, string based") {
 		createTables("string-based")
 		val product = Product("computer", Set("PC", "laptop"))
 		val inserted = mapperDao.insert(ProductEntity, product)
-		inserted must_== product
+		inserted should be === product
 	}
 
-	"select, string based" in {
+	test("select, string based") {
 		createTables("string-based")
 		val inserted = mapperDao.insert(ProductEntity, Product("computer", Set("PC", "laptop")))
-		mapperDao.select(ProductEntity, inserted.id).get must_== inserted
+		mapperDao.select(ProductEntity, inserted.id).get should be === inserted
 	}
 
-	"update, string based" in {
+	test("update, string based") {
 		createTables("string-based")
 		val inserted = mapperDao.insert(ProductEntity, Product("computer", Set("PC", "laptop")))
 		val updated = mapperDao.update(ProductEntity, inserted, Product("computer", Set("PC")))
-		updated must_== Product("computer", Set("PC"))
-		mapperDao.select(ProductEntity, inserted.id).get must_== updated
+		updated should be === Product("computer", Set("PC"))
+		mapperDao.select(ProductEntity, inserted.id).get should be === updated
 	}
 
 	def createTables(sql: String) {

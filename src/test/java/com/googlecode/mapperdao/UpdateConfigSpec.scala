@@ -1,10 +1,12 @@
 package com.googlecode.mapperdao
-import org.specs2.mutable.SpecificationWithJUnit
+
 import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.mapperdao.jdbc.Jdbc
 import com.googlecode.mapperdao.jdbc.Queries
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -12,9 +14,9 @@ import org.specs2.runner.JUnitRunner
  * 18 Oct 2011
  */
 @RunWith(classOf[JUnitRunner])
-class UpdateConfigSpec extends SpecificationWithJUnit {
+class UpdateConfigSuite extends FunSuite with ShouldMatchers {
 
-	"one-to-many update.deleteConfig" in {
+	test("one-to-many update.deleteConfig") {
 		import UpdateConfigSpecOneToManyDecl._
 		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(FloorEntity, HouseEntity, PersonEntity))
 		prepareDb(jdbc, "OneToManyDecl")
@@ -22,7 +24,7 @@ class UpdateConfigSpec extends SpecificationWithJUnit {
 		val inserted = mapperDao.insert(PersonEntity, Person(1, "kostas", Set(House(10, Set(Floor(5, "nice floor"), Floor(6, "top floor"))), House(11, Set(Floor(7, "nice floor"), Floor(8, "top floor"))))))
 		mapperDao.update(UpdateConfig(deleteConfig = DeleteConfig(propagate = true)), PersonEntity, inserted, Person(inserted.id, inserted.name, inserted.owns.filterNot(_.id == 11)))
 
-		jdbc.queryForInt("select count(*) from Floor") must_== 2
+		jdbc.queryForInt("select count(*) from Floor") should be === 2
 	}
 
 	def prepareDb(jdbc: Jdbc, tableCreationScript: String): Unit = {

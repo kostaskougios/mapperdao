@@ -1,9 +1,10 @@
 package com.googlecode.mapperdao
 
-import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -11,38 +12,38 @@ import org.specs2.runner.JUnitRunner
  * 8 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToManyNonRecursiveSpec extends SpecificationWithJUnit {
+class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 	import ManyToManyNonRecursiveSpec._
 	val typeRegistry = TypeRegistry(ProductEntity, AttributeEntity)
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(typeRegistry)
 
-	"insert tree of entities" in {
+	test("insert tree of entities") {
 		createTables
 		val product = Product("blue jean", Set(Attribute("colour", "blue"), Attribute("size", "medium")))
 		val inserted = mapperDao.insert(ProductEntity, product)
-		inserted must_== product
+		inserted should be === product
 
 		// due to cyclic reference, the attributes set contains "mock" products which have empty traversables.
 		// it is not possible to create cyclic-depended immutable instances.
-		mapperDao.select(ProductEntity, inserted.id).get must_== inserted
+		mapperDao.select(ProductEntity, inserted.id).get should be === inserted
 
 		// attributes->product should also work
 		val colour = inserted.attributes.toList.filter(_.name == "colour").head
 		val loadedAttribute = mapperDao.select(AttributeEntity, mapperDao.intIdOf(colour)).get
-		loadedAttribute must_== Attribute("colour", "blue")
+		loadedAttribute should be === Attribute("colour", "blue")
 	}
 
-	"insert tree of entities with persisted leaf entities" in {
+	test("insert tree of entities with persisted leaf entities") {
 		createTables
 		val a1 = mapperDao.insert(AttributeEntity, Attribute("colour", "blue"))
 		val a2 = mapperDao.insert(AttributeEntity, Attribute("size", "medium"))
 		val product = Product("blue jean", Set(a1, a2))
 		val inserted = mapperDao.insert(ProductEntity, product)
-		inserted must_== product
+		inserted should be === product
 
 		// due to cyclic reference, the attributes collection contains "mock" products which have empty traversables
-		mapperDao.select(ProductEntity, inserted.id).get must_== inserted
+		mapperDao.select(ProductEntity, inserted.id).get should be === inserted
 	}
 
 	def createTables =

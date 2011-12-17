@@ -1,9 +1,10 @@
 package com.googlecode.mapperdao
 
-import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -11,59 +12,59 @@ import org.specs2.runner.JUnitRunner
  * 1 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToOneQuerySpec extends SpecificationWithJUnit {
+class OneToOneQuerySuite extends FunSuite with ShouldMatchers {
 	import OneToOneQuerySpec._
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
 	import mapperDao._
 	import queryDao._
 	import TestQueries._
 
-	"query with limits (offset only)" in {
+	test("query with limits (offset only)") {
 		createTables
 		val products = for (i <- 0 to 10) yield insert(ProductEntity, Product(i, Inventory(10 + i, 15 + i)))
-		query(QueryConfig(offset = Some(7)), q0Limits).toSet must_== Set(products(7), products(8), products(9), products(10))
+		query(QueryConfig(offset = Some(7)), q0Limits).toSet should be === Set(products(7), products(8), products(9), products(10))
 	}
 
-	"query with limits (limit only)" in {
+	test("query with limits (limit only)") {
 		createTables
 		val products = for (i <- 0 to 10) yield insert(ProductEntity, Product(i, Inventory(10 + i, 15 + i)))
-		query(QueryConfig(limit = Some(2)), q0Limits).toSet must_== Set(products(0), products(1))
+		query(QueryConfig(limit = Some(2)), q0Limits).toSet should be === Set(products(0), products(1))
 	}
 
-	"query with limits" in {
+	test("query with limits") {
 		createTables
 		val products = for (i <- 0 to 10) yield insert(ProductEntity, Product(i, Inventory(10 + i, 15 + i)))
-		query(QueryConfig(offset = Some(3), limit = Some(4)), q0Limits).toSet must_== Set(products(3), products(4), products(5), products(6))
+		query(QueryConfig(offset = Some(3), limit = Some(4)), q0Limits).toSet should be === Set(products(3), products(4), products(5), products(6))
 	}
 
-	"query with skip" in {
+	test("query with skip") {
 		createTables
 		val p0 = insert(ProductEntity, Product(0, Inventory(4, 10)))
 		val p1 = insert(ProductEntity, Product(1, Inventory(5, 11)))
 		val p2 = insert(ProductEntity, Product(2, Inventory(6, 12)))
 		val p3 = insert(ProductEntity, Product(3, Inventory(7, 13)))
 
-		query(QueryConfig(skip = Set(ProductEntity.inventory)), q0WithSkip).toSet must_== Set(Product(2, null), Product(3, null))
+		query(QueryConfig(skip = Set(ProductEntity.inventory)), q0WithSkip).toSet should be === Set(Product(2, null), Product(3, null))
 	}
 
-	"query by inventory.stock" in {
+	test("query by inventory.stock") {
 		createTables
 		val p0 = insert(ProductEntity, Product(0, Inventory(4, 10)))
 		val p1 = insert(ProductEntity, Product(1, Inventory(5, 11)))
 		val p2 = insert(ProductEntity, Product(2, Inventory(6, 12)))
 		val p3 = insert(ProductEntity, Product(3, Inventory(7, 13)))
 
-		query(q0).toSet must_== Set(p2, p3)
+		query(q0).toSet should be === Set(p2, p3)
 	}
 
-	"query with and" in {
+	test("query with and") {
 		createTables
 		val p0 = insert(ProductEntity, Product(0, Inventory(4, 10)))
 		val p1 = insert(ProductEntity, Product(1, Inventory(5, 11)))
 		val p2 = insert(ProductEntity, Product(2, Inventory(6, 12)))
 		val p3 = insert(ProductEntity, Product(3, Inventory(7, 13)))
 
-		query(q1).toSet must_== Set(p2)
+		query(q1).toSet should be === Set(p2)
 	}
 
 	def createTables =

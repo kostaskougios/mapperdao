@@ -1,10 +1,11 @@
 package com.googlecode.mapperdao
 
-import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
 import org.scala_tools.time.Imports._
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -12,7 +13,7 @@ import org.specs2.runner.JUnitRunner
  * 15 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class SimpleQuerySpec extends SpecificationWithJUnit {
+class SimpleQuerySuite extends FunSuite with ShouldMatchers {
 
 	import SimpleQuerySpec._
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
@@ -21,7 +22,7 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 	import mapperDao._
 	import queryDao._
 
-	"count with where clause" in {
+	test("count with where clause") {
 		createJobPositionTable
 
 		val now = Setup.now
@@ -29,58 +30,58 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j2 = insert(JobPositionEntity, JobPosition(6, "Scala Developer", now))
 		val j3 = insert(JobPositionEntity, JobPosition(7, "manager", now))
 		val j4 = insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
-		count(q1) must_== 2
+		count(q1) should be === 2
 	}
 
-	"count of rows" in {
+	test("count of rows") {
 		createJobPositionTable
 
 		val now = Setup.now
 		for (i <- 0 to 7) insert(JobPositionEntity, JobPosition(i, "x" + i, now))
-		queryDao.count(q0) must_== 8
+		queryDao.count(q0) should be === 8
 	}
 
-	"query with limits (limit only)" in {
+	test("query with limits (limit only)") {
 		createJobPositionTable
 
 		val now = Setup.now
 		val l = for (i <- 0 to 10) yield insert(JobPositionEntity, JobPosition(i, "x" + i, now))
-		query(QueryConfig(limit = Some(3)), qWithLimit) must_== List(l(0), l(1), l(2))
+		query(QueryConfig(limit = Some(3)), qWithLimit) should be === List(l(0), l(1), l(2))
 	}
 
-	"query with limits (offset only)" in {
+	test("query with limits (offset only)") {
 		createJobPositionTable
 
 		val now = Setup.now
 		val l = for (i <- 0 to 10) yield insert(JobPositionEntity, JobPosition(i, "x" + i, now))
-		query(QueryConfig(offset = Some(5)), qWithLimit) must_== List(l(5), l(6), l(7), l(8), l(9), l(10))
+		query(QueryConfig(offset = Some(5)), qWithLimit) should be === List(l(5), l(6), l(7), l(8), l(9), l(10))
 	}
 
-	"query with limits (both)" in {
+	test("query with limits (both)") {
 		createJobPositionTable
 
 		val now = Setup.now
 		val l = for (i <- 0 to 10) yield insert(JobPositionEntity, JobPosition(i, "x" + i, now))
-		query(QueryConfig.limits(5, 3), qWithLimit) must_== List(l(5), l(6), l(7))
+		query(QueryConfig.limits(5, 3), qWithLimit) should be === List(l(5), l(6), l(7))
 	}
 
-	"query with limits (both with orderby)" in {
+	test("query with limits (both with orderby)") {
 		createJobPositionTable
 
 		val now = Setup.now
 		val l = for (i <- 0 to 10) yield insert(JobPositionEntity, JobPosition(i, "x" + i, now))
-		query(QueryConfig(offset = Some(5), limit = Some(3)), qWithLimitAndOrderBy) must_== List(l(5), l(4), l(3))
+		query(QueryConfig(offset = Some(5), limit = Some(3)), qWithLimitAndOrderBy) should be === List(l(5), l(4), l(3))
 	}
 
-	"query builder" in {
+	test("query builder") {
 		createJobPositionTable
 
 		val now = Setup.now
 		val l = for (i <- 0 to 10) yield insert(JobPositionEntity, JobPosition(i, "x" + i, now))
-		query(qAsBuilder) must_== List(l(6), l(5), l(2), l(1))
+		query(qAsBuilder) should be === List(l(6), l(5), l(2), l(1))
 	}
 
-	"query with order by 1 column" in {
+	test("query with order by 1 column") {
 		createJobPositionTable
 
 		val now = Setup.now
@@ -88,10 +89,10 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j2 = insert(JobPositionEntity, JobPosition(6, "scala developer", now))
 		val j3 = insert(JobPositionEntity, JobPosition(7, "manager", now))
 		val j4 = insert(JobPositionEntity, JobPosition(8, "java developer", now))
-		query(qOrderBy1) must_== List(j1, j4, j3, j2)
+		query(qOrderBy1) should be === List(j1, j4, j3, j2)
 	}
 
-	"query with order by 2 column" in {
+	test("query with order by 2 column") {
 		createJobPositionTable
 
 		val now = Setup.now
@@ -99,11 +100,11 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j2 = insert(JobPositionEntity, JobPosition(6, "C developer", now.minusHours(1)))
 		val j3 = insert(JobPositionEntity, JobPosition(7, "B developer", now))
 		val j4 = insert(JobPositionEntity, JobPosition(8, "B developer", now.minusHours(1)))
-		query(qOrderBy2Alias1) must_== List(j4, j3, j2, j1)
-		query(qOrderBy2Alias2) must_== List(j4, j3, j2, j1)
+		query(qOrderBy2Alias1) should be === List(j4, j3, j2, j1)
+		query(qOrderBy2Alias2) should be === List(j4, j3, j2, j1)
 	}
 
-	"query with order by 2 column desc,asc" in {
+	test("query with order by 2 column desc,asc") {
 		createJobPositionTable
 
 		val now = Setup.now
@@ -111,21 +112,21 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j2 = insert(JobPositionEntity, JobPosition(6, "C developer", now.minusHours(1)))
 		val j3 = insert(JobPositionEntity, JobPosition(7, "B developer", now))
 		val j4 = insert(JobPositionEntity, JobPosition(8, "B developer", now.minusHours(1)))
-		query(qOrderBy3Alias1) must_== List(j2, j1, j4, j3)
-		query(qOrderBy3Alias2) must_== List(j2, j1, j4, j3)
+		query(qOrderBy3Alias1) should be === List(j2, j1, j4, j3)
+		query(qOrderBy3Alias2) should be === List(j2, j1, j4, j3)
 	}
 
-	"query select *" in {
+	test("query select *") {
 		createJobPositionTable
 
 		val now = Setup.now
 		val j1 = insert(JobPositionEntity, JobPosition(5, "developer", now))
 		val j2 = insert(JobPositionEntity, JobPosition(6, "web designer", now))
 		val j3 = insert(JobPositionEntity, JobPosition(7, "manager", now))
-		query(q0).toSet must_== Set(j1, j2, j3)
+		query(q0).toSet should be === Set(j1, j2, j3)
 	}
 
-	"query select where string value" in {
+	test("query select where string value") {
 		createJobPositionTable
 
 		val now = Setup.now
@@ -133,10 +134,10 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j2 = insert(JobPositionEntity, JobPosition(6, "Scala Developer", now))
 		val j3 = insert(JobPositionEntity, JobPosition(7, "manager", now))
 		val j4 = insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
-		query(q1).toSet must_== Set(j2, j4)
+		query(q1).toSet should be === Set(j2, j4)
 	}
 
-	"query select where string value === and int value >" in {
+	test("query select where string value === and int value >") {
 		createJobPositionTable
 
 		val now = Setup.now
@@ -146,10 +147,10 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j8 = insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
 		val j12 = insert(JobPositionEntity, JobPosition(12, "Scala Developer", now))
 		val j9 = insert(JobPositionEntity, JobPosition(9, "x", now))
-		query(q2).toSet must_== Set(j8, j12)
+		query(q2).toSet should be === Set(j8, j12)
 	}
 
-	"query select where string value === or int value <" in {
+	test("query select where string value === or int value <") {
 		createJobPositionTable
 
 		val now = Setup.now
@@ -159,10 +160,10 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j8 = insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
 		val j12 = insert(JobPositionEntity, JobPosition(12, "Scala Developer", now))
 		val j9 = insert(JobPositionEntity, JobPosition(9, "x", now))
-		query(q3).toSet must_== Set(j5, j6, j8, j12)
+		query(q3).toSet should be === Set(j5, j6, j8, j12)
 	}
 
-	"query select where int value <=" in {
+	test("query select where int value <=") {
 		createJobPositionTable
 
 		val now = Setup.now
@@ -172,10 +173,10 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j8 = insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
 		val j12 = insert(JobPositionEntity, JobPosition(12, "Scala Developer", now))
 		val j9 = insert(JobPositionEntity, JobPosition(9, "x", now))
-		query(q4).toSet must_== Set(j5, j6, j7)
+		query(q4).toSet should be === Set(j5, j6, j7)
 	}
 
-	"query select where int value >=" in {
+	test("query select where int value >=") {
 		createJobPositionTable
 
 		val now = Setup.now
@@ -185,10 +186,10 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j8 = insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
 		val j12 = insert(JobPositionEntity, JobPosition(12, "Scala Developer", now))
 		val j9 = insert(JobPositionEntity, JobPosition(9, "x", now))
-		query(q5).toSet must_== Set(j7, j8, j12, j9)
+		query(q5).toSet should be === Set(j7, j8, j12, j9)
 	}
 
-	"query select where int value =" in {
+	test("query select where int value =") {
 		createJobPositionTable
 
 		val now = Setup.now
@@ -198,10 +199,10 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j8 = insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
 		val j12 = insert(JobPositionEntity, JobPosition(12, "Scala Developer", now))
 		val j9 = insert(JobPositionEntity, JobPosition(9, "x", now))
-		query(q6).toSet must_== Set(j7)
+		query(q6).toSet should be === Set(j7)
 	}
 
-	"query select where string value like" in {
+	test("query select where string value like") {
 		createJobPositionTable
 
 		val now = Setup.now
@@ -211,10 +212,10 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j8 = insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
 		val j12 = insert(JobPositionEntity, JobPosition(12, "Scala Developer", now))
 		val j9 = insert(JobPositionEntity, JobPosition(9, "x", now))
-		query(q7).toSet must_== Set(j5, j6, j8, j12)
+		query(q7).toSet should be === Set(j5, j6, j8, j12)
 	}
 
-	"query select parenthesis" in {
+	test("query select parenthesis") {
 		createJobPositionTable
 
 		val now = Setup.now
@@ -224,10 +225,10 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j8 = insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
 		val j12 = insert(JobPositionEntity, JobPosition(12, "Scala Developer", now))
 		val j9 = insert(JobPositionEntity, JobPosition(9, "x", now))
-		query(q8).toSet must_== Set(j5, j7, j9, j12)
+		query(q8).toSet should be === Set(j5, j7, j9, j12)
 	}
 
-	"query select complex parenthesis" in {
+	test("query select complex parenthesis") {
 		createJobPositionTable
 
 		val now = Setup.now
@@ -245,10 +246,10 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j33 = insert(JobPositionEntity, JobPosition(33, "correct", now))
 		val j37 = insert(JobPositionEntity, JobPosition(37, "wrong", now))
 		val j41 = insert(JobPositionEntity, JobPosition(41, "correct", now))
-		query(q9).toSet must_== Set(j11, j15, j16, j17, j31, j32, j33)
+		query(q9).toSet should be === Set(j11, j15, j16, j17, j31, j32, j33)
 	}
 
-	"query select datetime" in {
+	test("query select datetime") {
 		createJobPositionTable
 
 		val now = Setup.now
@@ -258,8 +259,8 @@ class SimpleQuerySpec extends SpecificationWithJUnit {
 		val j8 = insert(JobPositionEntity, JobPosition(8, "Scala Developer", now.plusDays(1)))
 		val j12 = insert(JobPositionEntity, JobPosition(12, "Scala Developer", now.plusDays(2)))
 		val j9 = insert(JobPositionEntity, JobPosition(9, "x", now.plusDays(3)))
-		query(q10).toSet must_== Set(j8, j12)
-		query(q10Alias).toSet must_== Set(j8, j12)
+		query(q10).toSet should be === Set(j8, j12)
+		query(q10Alias).toSet should be === Set(j8, j12)
 	}
 
 	def createJobPositionTable {

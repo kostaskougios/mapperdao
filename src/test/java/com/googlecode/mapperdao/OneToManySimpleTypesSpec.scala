@@ -1,8 +1,10 @@
 package com.googlecode.mapperdao
-import org.specs2.mutable.SpecificationWithJUnit
+
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -10,63 +12,63 @@ import org.specs2.runner.JUnitRunner
  * 31 Oct 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToManySimpleTypesSpec extends SpecificationWithJUnit {
+class OneToManySimpleTypesSuite extends FunSuite with ShouldMatchers {
 	import OneToManySimpleTypesSpecString._
 	import OneToManySimpleTypesSpecInt._
 	val typeRegistry = TypeRegistry(ProductEntity, ProductEntityI)
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(typeRegistry)
 
-	"insert" in {
+	test("insert") {
 		createTables("create-tables-string")
 		val product = Product("test", Set("tag1", "tag2", "tag3"))
 		val inserted = mapperDao.insert(ProductEntity, product)
-		inserted must_== product
+		inserted should be === product
 	}
 
-	"select" in {
+	test("select") {
 		createTables("create-tables-string")
 		val product = Product("test", Set("tag1", "tag2", "tag3"))
 		val inserted = mapperDao.insert(ProductEntity, product)
-		mapperDao.select(ProductEntity, inserted.id).get must_== product
+		mapperDao.select(ProductEntity, inserted.id).get should be === product
 	}
 
-	"update, remove" in {
+	test("update, remove") {
 		createTables("create-tables-string")
 		val product = Product("test", Set("tag1", "tag2", "tag3"))
 		val inserted = mapperDao.insert(ProductEntity, product)
 		val up = Product(inserted.name, inserted.tags.filterNot(_ == "tag2"))
 		val updated = mapperDao.update(ProductEntity, inserted, up)
-		updated must_== up
-		mapperDao.select(ProductEntity, inserted.id).get must_== updated
+		updated should be === up
+		mapperDao.select(ProductEntity, inserted.id).get should be === updated
 	}
 
-	"update, add" in {
+	test("update, add") {
 		createTables("create-tables-string")
 		val product = Product("test", Set("tag1"))
 		val inserted = mapperDao.insert(ProductEntity, product)
 		val up = Product(inserted.name, inserted.tags ++ Set("tag2", "tag3"))
 		val updated = mapperDao.update(ProductEntity, inserted, up)
-		updated must_== up
-		mapperDao.select(ProductEntity, inserted.id).get must_== updated
+		updated should be === up
+		mapperDao.select(ProductEntity, inserted.id).get should be === updated
 	}
 
-	"query" in {
+	test("query") {
 		createTables("create-tables-string")
 		val p1 = mapperDao.insert(ProductEntity, Product("test1", Set("tag1", "tag2", "tag3")))
 		val p2 = mapperDao.insert(ProductEntity, Product("test2", Set("tag10", "tag20", "tag3")))
 		val p3 = mapperDao.insert(ProductEntity, Product("test3", Set("tag10", "tag20", "tag30")))
 
-		queryDao.query(q0).toSet must_== Set(p1, p2)
+		queryDao.query(q0).toSet should be === Set(p1, p2)
 	}
 
-	"IntEntity : update, remove" in {
+	test("IntEntity : update, remove") {
 		createTables("create-tables-int")
 		val product = ProductI("test", Set(5, 6, 7))
 		val inserted = mapperDao.insert(ProductEntityI, product)
 		val up = ProductI(inserted.name, inserted.tags.filterNot(_ == 6))
 		val updated = mapperDao.update(ProductEntityI, inserted, up)
-		updated must_== up
-		mapperDao.select(ProductEntityI, inserted.id).get must_== updated
+		updated should be === up
+		mapperDao.select(ProductEntityI, inserted.id).get should be === updated
 	}
 
 	def createTables(sql: String) {

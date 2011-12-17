@@ -1,8 +1,9 @@
 package com.googlecode.mapperdao
-import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -10,55 +11,55 @@ import org.specs2.runner.JUnitRunner
  * 13 Oct 2011
  */
 @RunWith(classOf[JUnitRunner])
-class DeclarePrimaryKeysSpec extends SpecificationWithJUnit {
+class DeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 	import DeclarePrimaryKeysSpec._
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, PriceEntity))
 
-	"entity without PK's remove all items from collection" in {
+	test("entity without PK's remove all items from collection") {
 		createTables
 		val p = mapperDao.insert(ProductEntity, Product("x", Set(Price("GBP", 5, 7), Price("EUR", 5, 6), Price("EUR", 7, 8), Price("USD", 9, 10))))
 		val newP = new Product(p.title, Set())
 		val updated = mapperDao.update(ProductEntity, p, newP)
-		updated must_== newP
+		updated should be === newP
 		val loaded = mapperDao.select(ProductEntity, updated.id).get
-		loaded must_== updated
+		loaded should be === updated
 	}
 
-	"entity without PK's remove 2 items from collection" in {
+	test("entity without PK's remove 2 items from collection") {
 		createTables
 		val p = mapperDao.insert(ProductEntity, Product("x", Set(Price("GBP", 5, 7), Price("EUR", 5, 6), Price("EUR", 7, 8), Price("USD", 9, 10))))
 		val newP = new Product(p.title, p.prices.filterNot(_.currency == "EUR"))
 		val updated = mapperDao.update(ProductEntity, p, newP)
-		updated must_== newP
+		updated should be === newP
 		val loaded = mapperDao.select(ProductEntity, updated.id).get
-		loaded must_== updated
+		loaded should be === updated
 	}
 
-	"entity without PK's remove 1 item from collection" in {
+	test("entity without PK's remove 1 item from collection") {
 		createTables
 		val p = mapperDao.insert(ProductEntity, Product("x", Set(Price("GBP", 5, 7), Price("EUR", 5, 6), Price("EUR", 7, 8), Price("USD", 9, 10))))
 		val newP = new Product(p.title, p.prices.filterNot(_.currency == "GBP"))
 		val updated = mapperDao.update(ProductEntity, p, newP)
-		updated must_== newP
+		updated should be === newP
 		val loaded = mapperDao.select(ProductEntity, updated.id).get
-		loaded must_== updated
+		loaded should be === updated
 	}
 
-	"entity without PK's add 1 item from collection" in {
+	test("entity without PK's add 1 item from collection") {
 		createTables
 		val p = mapperDao.insert(ProductEntity, Product("x", Set(Price("GBP", 5, 7), Price("EUR", 5, 6), Price("EUR", 7, 8), Price("USD", 9, 10))))
 		val newP = new Product(p.title, p.prices + Price("GBP", 6, 8))
 		val updated = mapperDao.update(ProductEntity, p, newP)
-		updated must_== newP
+		updated should be === newP
 		val loaded = mapperDao.select(ProductEntity, updated.id).get
-		loaded must_== updated
+		loaded should be === updated
 	}
 
-	"entity without PK's loaded correctly" in {
+	test("entity without PK's loaded correctly") {
 		createTables
 		val product = mapperDao.insert(ProductEntity, Product("x", Set(Price("GBP", 5, 7), Price("EUR", 5, 6), Price("EUR", 7, 8), Price("USD", 9, 10))))
 		val loaded = mapperDao.select(ProductEntity, product.id).get
-		loaded must_== product
+		loaded should be === product
 	}
 
 	def createTables {

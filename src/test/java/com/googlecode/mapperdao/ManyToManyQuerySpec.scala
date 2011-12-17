@@ -1,10 +1,11 @@
 package com.googlecode.mapperdao
 
-import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.Query._
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -12,7 +13,7 @@ import org.specs2.runner.JUnitRunner
  * 28 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToManyQuerySpec extends SpecificationWithJUnit {
+class ManyToManyQuerySuite extends FunSuite with ShouldMatchers {
 	import ManyToManyQuerySpec._
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
@@ -20,7 +21,7 @@ class ManyToManyQuerySpec extends SpecificationWithJUnit {
 	import queryDao._
 	import TestQueries._
 
-	"query with limits (offset only)" in {
+	test("query with limits (offset only)") {
 		createTables
 		val a0 = insert(AttributeEntity, Attribute(100, "size", "46'"))
 		val a1 = insert(AttributeEntity, Attribute(101, "size", "50'"))
@@ -32,10 +33,10 @@ class ManyToManyQuerySpec extends SpecificationWithJUnit {
 		val p2 = insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
 		val p3 = insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
-		query(QueryConfig(offset = Some(2)), q0Limits).toSet must_== Set(p2, p3)
+		query(QueryConfig(offset = Some(2)), q0Limits).toSet should be === Set(p2, p3)
 	}
 
-	"query with limits (limit only)" in {
+	test("query with limits (limit only)") {
 		createTables
 		val a0 = insert(AttributeEntity, Attribute(100, "size", "46'"))
 		val a1 = insert(AttributeEntity, Attribute(101, "size", "50'"))
@@ -47,10 +48,10 @@ class ManyToManyQuerySpec extends SpecificationWithJUnit {
 		val p2 = insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
 		val p3 = insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
-		query(QueryConfig(limit = Some(2)), q0Limits).toSet must_== Set(p0, p1)
+		query(QueryConfig(limit = Some(2)), q0Limits).toSet should be === Set(p0, p1)
 	}
 
-	"query with limits" in {
+	test("query with limits") {
 		createTables
 		val a0 = insert(AttributeEntity, Attribute(100, "size", "46'"))
 		val a1 = insert(AttributeEntity, Attribute(101, "size", "50'"))
@@ -62,10 +63,10 @@ class ManyToManyQuerySpec extends SpecificationWithJUnit {
 		val p2 = insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
 		val p3 = insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
-		query(QueryConfig(offset = Some(1), limit = Some(2)), q0Limits).toSet must_== Set(p1, p2)
+		query(QueryConfig(offset = Some(1), limit = Some(2)), q0Limits).toSet should be === Set(p1, p2)
 	}
 
-	"query with skip" in {
+	test("query with skip") {
 		createTables
 		val a0 = insert(AttributeEntity, Attribute(100, "size", "46'"))
 		val a1 = insert(AttributeEntity, Attribute(101, "size", "50'"))
@@ -77,10 +78,10 @@ class ManyToManyQuerySpec extends SpecificationWithJUnit {
 		val p2 = insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
 		val p3 = insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
-		query(QueryConfig(skip = Set(ProductEntity.attributes)), q0).toSet must_== Set(Product(1, "TV 1", Set()), Product(3, "TV 3", Set()))
+		query(QueryConfig(skip = Set(ProductEntity.attributes)), q0).toSet should be === Set(Product(1, "TV 1", Set()), Product(3, "TV 3", Set()))
 	}
 
-	"match on FK" in {
+	test("match on FK") {
 		createTables
 		val a = insert(AttributeEntity, Attribute(100, "size", "A"))
 		val b = insert(AttributeEntity, Attribute(101, "size", "B"))
@@ -92,14 +93,14 @@ class ManyToManyQuerySpec extends SpecificationWithJUnit {
 		val p3 = insert(ProductEntity, Product(3, "TV 3", Set(a, c)))
 		val p4 = insert(ProductEntity, Product(4, "TV 4", Set(d)))
 
-		query(q2(a)).toSet must_== Set(p1, p3)
-		query(q2(d)).toSet must_== Set(p2, p4)
-		query(q2(c)).toSet must_== Set(p2, p3)
-		query(q2(d)).toSet must_== Set(p2, p4)
-		query(q2n(d)).toSet must_== Set(p1, p2, p3)
+		query(q2(a)).toSet should be === Set(p1, p3)
+		query(q2(d)).toSet should be === Set(p2, p4)
+		query(q2(c)).toSet should be === Set(p2, p3)
+		query(q2(d)).toSet should be === Set(p2, p4)
+		query(q2n(d)).toSet should be === Set(p1, p2, p3)
 	}
 
-	"order by" in {
+	test("order by") {
 		createTables
 		val a = insert(AttributeEntity, Attribute(100, "size", "A"))
 		val b = insert(AttributeEntity, Attribute(101, "size", "B"))
@@ -112,10 +113,10 @@ class ManyToManyQuerySpec extends SpecificationWithJUnit {
 		val p4 = insert(ProductEntity, Product(4, "TV 4", Set(d)))
 
 		val result = query(q0OrderBy)
-		result must_== List(p3, p1, p1, p3, p2, p4, p2)
+		result should be === List(p3, p1, p1, p3, p2, p4, p2)
 	}
 
-	"join, 1 condition" in {
+	test("join, 1 condition") {
 		createTables
 		val a0 = insert(AttributeEntity, Attribute(100, "size", "46'"))
 		val a1 = insert(AttributeEntity, Attribute(101, "size", "50'"))
@@ -127,10 +128,10 @@ class ManyToManyQuerySpec extends SpecificationWithJUnit {
 		val p2 = insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
 		val p3 = insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
-		query(q0).toSet must_== Set(p0, p2)
+		query(q0).toSet should be === Set(p0, p2)
 	}
 
-	"join, 2 condition" in {
+	test("join, 2 condition") {
 		createTables
 		val a0 = insert(AttributeEntity, Attribute(100, "size", "46'"))
 		val a1 = insert(AttributeEntity, Attribute(101, "size", "50'"))
@@ -142,7 +143,7 @@ class ManyToManyQuerySpec extends SpecificationWithJUnit {
 		val p2 = insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
 		val p3 = insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
-		query(q1).toSet must_== Set(p0, p1, p3)
+		query(q1).toSet should be === Set(p0, p1, p3)
 	}
 
 	def createTables =

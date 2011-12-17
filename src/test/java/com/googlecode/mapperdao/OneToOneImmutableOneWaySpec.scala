@@ -1,9 +1,10 @@
 package com.googlecode.mapperdao
 
-import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -11,68 +12,67 @@ import org.specs2.runner.JUnitRunner
  * 31 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToOneImmutableOneWaySpec extends SpecificationWithJUnit {
+class OneToOneImmutableOneWaySuite extends FunSuite with ShouldMatchers {
 	import OneToOneImmutableOneWaySpec._
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
 
 	if (Setup.database != "derby") {
-		"update id" in {
+		test("update id") {
 			createTables
 			val inserted = mapperDao.insert(ProductEntity, Product(1, Inventory(10)))
 			val updated = mapperDao.update(ProductEntity, inserted, Product(2, Inventory(15)))
-			updated must_== Product(2, Inventory(15))
-			mapperDao.select(ProductEntity, 2).get must_== updated
-			mapperDao.select(ProductEntity, 1) must beNone
+			updated should be === Product(2, Inventory(15))
+			mapperDao.select(ProductEntity, 2).get should be === updated
+			mapperDao.select(ProductEntity, 1) should be(None)
 		}
 	}
 
-	"crud for many objects" in {
+	test("crud for many objects") {
 		createTables
 		for (i <- 1 to 4) {
 			val p = mapperDao.insert(ProductEntity, Product(i, Inventory(4 + i)))
 			val selected = mapperDao.select(ProductEntity, i).get
-			selected must_== p
+			selected should be === p
 		}
-		success
 	}
 
-	"update to null" in {
+	test("update to null") {
 		createTables
 		val product = new Product(1, Inventory(10))
 		val inserted = mapperDao.insert(ProductEntity, product)
 		val updated = mapperDao.update(ProductEntity, inserted, Product(1, null))
-		updated must_== Product(1, null)
-		mapperDao.select(ProductEntity, updated.id).get must_== updated
+		updated should be === Product(1, null)
+		mapperDao.select(ProductEntity, updated.id).get should be === updated
 
 		val reUpdated = mapperDao.update(ProductEntity, updated, Product(1, Inventory(8)))
-		reUpdated must_== Product(1, Inventory(8))
-		mapperDao.select(ProductEntity, reUpdated.id).get must_== reUpdated
+		reUpdated should be === Product(1, Inventory(8))
+		mapperDao.select(ProductEntity, reUpdated.id).get should be === reUpdated
 
 		mapperDao.delete(ProductEntity, reUpdated)
-		mapperDao.select(ProductEntity, reUpdated.id) must beNone
+		mapperDao.select(ProductEntity, reUpdated.id) should be(None)
 	}
 
-	"update" in {
+	test("update") {
 		createTables
 		val product = new Product(1, Inventory(10))
 		val inserted = mapperDao.insert(ProductEntity, product)
 		val updated = mapperDao.update(ProductEntity, inserted, Product(1, Inventory(15)))
-		updated must_== Product(1, Inventory(15))
-		mapperDao.select(ProductEntity, inserted.id).get must_== updated
+		updated should be === Product(1, Inventory(15))
+		mapperDao.select(ProductEntity, inserted.id).get should be === updated
 	}
 
-	"insert" in {
+	test("insert") {
 		createTables
 		val product = new Product(1, Inventory(10))
 		val inserted = mapperDao.insert(ProductEntity, product)
-		inserted must_== product
+		inserted should be === product
 	}
 
-	"select" in {
+	test("select") {
 		createTables
 		val product = new Product(1, Inventory(10))
 		val inserted = mapperDao.insert(ProductEntity, product)
-		mapperDao.select(ProductEntity, inserted.id).get must_== inserted
+		mapperDao.select(ProductEntity, inserted.id).get should be === inserted
 	}
 
 	def createTables =

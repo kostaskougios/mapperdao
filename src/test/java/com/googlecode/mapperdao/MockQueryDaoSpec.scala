@@ -1,8 +1,9 @@
 package com.googlecode.mapperdao
 
-import org.specs2.mutable.SpecificationWithJUnit
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -10,13 +11,13 @@ import org.specs2.runner.JUnitRunner
  * 12 Oct 2011
  */
 @RunWith(classOf[JUnitRunner])
-class MockQueryDaoSpec extends SpecificationWithJUnit {
+class MockQueryDaoSuite extends FunSuite with ShouldMatchers {
 	case class JobPosition(var name: String)
 	object JobPositionEntity extends Entity[IntId, JobPosition](classOf[JobPosition]) {
 		def constructor(implicit m) = null
 	}
 
-	"mock querydao" in {
+	test("mock querydao") {
 		// the mock results
 		val results = List(new JobPosition("x") with IntId with Persisted {
 			val id = 5
@@ -31,6 +32,6 @@ class MockQueryDaoSpec extends SpecificationWithJUnit {
 
 		// the test
 		import Query._
-		queryDao.query(select from JobPositionEntity) must_== results
+		queryDao.query(select from JobPositionEntity) should be === results
 	}
 }

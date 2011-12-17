@@ -1,9 +1,10 @@
 package com.googlecode.mapperdao
 
-import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * @author kostantinos.kougios
@@ -11,14 +12,14 @@ import org.specs2.runner.JUnitRunner
  * 14 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToOneAndOneToManyCyclicSpec extends SpecificationWithJUnit {
+class ManyToOneAndOneToManyCyclicSuite extends FunSuite with ShouldMatchers {
 	import ManyToOneAndOneToManyCyclicSpec._
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity))
 
 	import mapperDao._
 
 	if (Setup.database != "derby") {
-		"update id of one-to-many" in {
+		test("update id of one-to-many") {
 			createTables
 			val company = insert(CompanyEntity, Company(1, "Coders Ltd", List()))
 			val inserted = insert(PersonEntity, Person(10, "Coder1", company))
@@ -26,40 +27,40 @@ class ManyToOneAndOneToManyCyclicSpec extends SpecificationWithJUnit {
 			// reload company to get the actual state of the entity
 			val companyReloaded = select(CompanyEntity, 1).get
 			val updated = update(CompanyEntity, companyReloaded, Company(5, "Coders Ltd", companyReloaded.employees))
-			updated must_== Company(5, "Coders Ltd", List(inserted))
-			select(CompanyEntity, 5).get must_== Company(5, "Coders Ltd", List(Person(10, "Coder1", Company(5, "Coders Ltd", List())))) // Company(5, "Coders Ltd", List() is a mock object due to the cyclic dependencies
-			select(CompanyEntity, 1) must beNone
+			updated should be === Company(5, "Coders Ltd", List(inserted))
+			select(CompanyEntity, 5).get should be === Company(5, "Coders Ltd", List(Person(10, "Coder1", Company(5, "Coders Ltd", List())))) // Company(5, "Coders Ltd", List() is a mock object due to the cyclic dependencies
+			select(CompanyEntity, 1) should be(None)
 		}
 	}
 
-	"update id of many-to-one" in {
+	test("update id of many-to-one") {
 		createTables
 		val company = insert(CompanyEntity, Company(1, "Coders Ltd", List()))
 		val inserted = insert(PersonEntity, Person(10, "Coder1", company))
 		val updated = update(PersonEntity, inserted, Person(15, "Coder1", inserted.company))
-		updated must_== Person(15, "Coder1", inserted.company)
-		select(PersonEntity, 15).get must_== Person(15, "Coder1", Company(1, "Coders Ltd", List(Person(15, "Coder1", null)))) // please note the null is due to Person(15,"Coder1",null) been a mock object
-		select(PersonEntity, 10) must beNone
+		updated should be === Person(15, "Coder1", inserted.company)
+		select(PersonEntity, 15).get should be === Person(15, "Coder1", Company(1, "Coders Ltd", List(Person(15, "Coder1", null)))) // please note the null is due to Person(15,"Coder1",null) been a mock object
+		select(PersonEntity, 10) should be(None)
 	}
 
-	"insert" in {
+	test("insert") {
 		createTables
 
 		val company = insert(CompanyEntity, Company(1, "Coders Ltd", List()))
 		val person = Person(10, "Coder1", company)
-		insert(PersonEntity, person) must_== person
+		insert(PersonEntity, person) should be === person
 	}
 
-	"select" in {
+	test("select") {
 		createTables
 
 		val company = insert(CompanyEntity, Company(1, "Coders Ltd", List()))
 		val inserted = insert(PersonEntity, Person(10, "Coder1", company))
 
-		select(PersonEntity, 10).get must_== Person(10, "Coder1", Company(1, "Coders Ltd", List(Person(10, "Coder1", null))))
+		select(PersonEntity, 10).get should be === Person(10, "Coder1", Company(1, "Coders Ltd", List(Person(10, "Coder1", null))))
 	}
 
-	"update" in {
+	test("update") {
 		createTables
 
 		val company = insert(CompanyEntity, Company(1, "Coders Ltd", List()))
@@ -68,9 +69,9 @@ class ManyToOneAndOneToManyCyclicSpec extends SpecificationWithJUnit {
 		val selected = select(PersonEntity, 10).get
 
 		val updated = update(PersonEntity, selected, Person(10, "Coder1-changed", company))
-		updated must_== Person(10, "Coder1-changed", Company(1, "Coders Ltd", List()))
+		updated should be === Person(10, "Coder1-changed", Company(1, "Coders Ltd", List()))
 
-		select(CompanyEntity, 1).get must_== Company(1, "Coders Ltd", List(Person(10, "Coder1-changed", Company(1, "Coders Ltd", List()))))
+		select(CompanyEntity, 1).get should be === Company(1, "Coders Ltd", List(Person(10, "Coder1-changed", Company(1, "Coders Ltd", List()))))
 	}
 
 	def createTables =

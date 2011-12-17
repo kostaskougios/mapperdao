@@ -1,10 +1,11 @@
 package com.googlecode.mapperdao
 
-import org.specs2.mutable.SpecificationWithJUnit
 import com.googlecode.mapperdao.jdbc.Setup
 import org.scala_tools.time.Imports._
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 /**
  * this is a self contained spec, all test entities, mapping are contained within this spec
@@ -14,11 +15,11 @@ import org.specs2.runner.JUnitRunner
  * 12 Jul 2011
  */
 @RunWith(classOf[JUnitRunner])
-class SimpleEntitiesSpec extends SpecificationWithJUnit {
+class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 	import SimpleEntitiesSpec._
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
 
-	"delete by id" in {
+	test("delete by id") {
 
 		createJobPositionTable
 
@@ -26,10 +27,10 @@ class SimpleEntitiesSpec extends SpecificationWithJUnit {
 		mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date, 10))
 		mapperDao.delete(JobPositionEntity, 5)
 
-		mapperDao.select(JobPositionEntity, 5) must_== None
+		mapperDao.select(JobPositionEntity, 5) should be === None
 	}
 
-	"update id, immutable" in {
+	test("update id, immutable") {
 		createJobPositionTable
 
 		val date = Setup.now
@@ -38,13 +39,13 @@ class SimpleEntitiesSpec extends SpecificationWithJUnit {
 
 		val newV = JobPosition(7, "X", date, date - 2.months, 10)
 		val updated = mapperDao.update(JobPositionEntity, inserted, newV)
-		updated must_== newV
+		updated should be === newV
 		val s1 = mapperDao.select(JobPositionEntity, 7).get
-		s1 must_== updated
-		mapperDao.select(JobPositionEntity, 5) must beNone
+		s1 should be === updated
+		mapperDao.select(JobPositionEntity, 5) should be(None)
 	}
 
-	"update id, mutable" in {
+	test("update id, mutable") {
 		createJobPositionTable
 
 		val date = Setup.now
@@ -53,12 +54,12 @@ class SimpleEntitiesSpec extends SpecificationWithJUnit {
 
 		inserted.id = 7
 		val updated = mapperDao.update(JobPositionEntity, inserted)
-		updated must_== inserted
-		mapperDao.select(JobPositionEntity, 7).get must_== updated
-		mapperDao.select(JobPositionEntity, 5) must beNone
+		updated should be === inserted
+		mapperDao.select(JobPositionEntity, 7).get should be === updated
+		mapperDao.select(JobPositionEntity, 5) should be(None)
 	}
 
-	"immutable update" in {
+	test("immutable update") {
 		createJobPositionTable
 
 		val date = Setup.now
@@ -69,71 +70,71 @@ class SimpleEntitiesSpec extends SpecificationWithJUnit {
 		def doUpdate(from: JobPosition, to: JobPosition) =
 			{
 				updated = mapperDao.update(JobPositionEntity, from, to)
-				updated must_== to
-				mapperDao.select(JobPositionEntity, 5).get must_== to
-				mapperDao.select(JobPositionEntity, 5).get must_== updated
+				updated should be === to
+				mapperDao.select(JobPositionEntity, 5).get should be === to
+				mapperDao.select(JobPositionEntity, 5).get should be === updated
 			}
 
 		doUpdate(updated, new JobPosition(5, "Developer Changed", date, date, 5))
 		doUpdate(updated, new JobPosition(5, "Developer Changed Again", date, date, 15))
 	}
 
-	"mutable CRUD (simple type, no joins)" in {
+	test("mutable CRUD (simple type, no joins)") {
 
 		createJobPositionTable
 
 		val date = Setup.now
 		val jp = new JobPosition(5, "Developer", date, date, 10)
-		mapperDao.insert(JobPositionEntity, jp) must_== jp
+		mapperDao.insert(JobPositionEntity, jp) should be === jp
 
 		// now load
 		val loaded = mapperDao.select(JobPositionEntity, 5).get
-		loaded must_== jp
+		loaded should be === jp
 
 		// update
 		loaded.name = "Scala Developer"
 		loaded.rank = 7
 		val afterUpdate = mapperDao.update(JobPositionEntity, loaded).asInstanceOf[Persisted]
-		afterUpdate.valuesMap(JobPositionEntity.name) must_== "Scala Developer"
-		afterUpdate.valuesMap(JobPositionEntity.rank) must_== 7
-		afterUpdate must_== loaded
+		afterUpdate.valuesMap(JobPositionEntity.name) should be === "Scala Developer"
+		afterUpdate.valuesMap(JobPositionEntity.rank) should be === 7
+		afterUpdate should be === loaded
 
 		val reloaded = mapperDao.select(JobPositionEntity, 5).get
-		reloaded must_== loaded
+		reloaded should be === loaded
 
 		mapperDao.delete(JobPositionEntity, reloaded)
 
-		mapperDao.select(JobPositionEntity, 5) must_== None
+		mapperDao.select(JobPositionEntity, 5) should be === None
 	}
 
-	"immutable CRUD (simple type, no joins)" in {
+	test("immutable CRUD (simple type, no joins)") {
 
 		createJobPositionTable
 
 		val date = Setup.now
 		val jp = new JobPosition(5, "Developer", date, date, 10)
-		mapperDao.insert(JobPositionEntity, jp) must_== jp
+		mapperDao.insert(JobPositionEntity, jp) should be === jp
 
 		// now load
 		val loaded = mapperDao.select(JobPositionEntity, 5).get
-		loaded must_== jp
+		loaded should be === jp
 
 		// update
 		val changed = new JobPosition(5, "Scala Developer", date, date, 7)
 		val afterUpdate = mapperDao.update(JobPositionEntity, loaded, changed).asInstanceOf[Persisted]
-		afterUpdate.valuesMap(JobPositionEntity.name) must_== "Scala Developer"
-		afterUpdate.valuesMap(JobPositionEntity.rank) must_== 7
-		afterUpdate must_== changed
+		afterUpdate.valuesMap(JobPositionEntity.name) should be === "Scala Developer"
+		afterUpdate.valuesMap(JobPositionEntity.rank) should be === 7
+		afterUpdate should be === changed
 
 		val reloaded = mapperDao.select(JobPositionEntity, 5).get
-		reloaded must_== afterUpdate
+		reloaded should be === afterUpdate
 
 		mapperDao.delete(JobPositionEntity, reloaded)
 
-		mapperDao.select(JobPositionEntity, 5) must_== None
+		mapperDao.select(JobPositionEntity, 5) should be === None
 	}
 
-	"transaction, commit" in {
+	test("transaction, commit") {
 		createJobPositionTable
 
 		import com.googlecode.mapperdao.jdbc.Transaction
@@ -144,13 +145,13 @@ class SimpleEntitiesSpec extends SpecificationWithJUnit {
 		val inserted = tx { () =>
 			val date = Setup.now
 			val inserted = mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date - 2.months, 10))
-			mapperDao.select(JobPositionEntity, inserted.id).get must_== inserted
+			mapperDao.select(JobPositionEntity, inserted.id).get should be === inserted
 			inserted
 		}
-		mapperDao.select(JobPositionEntity, inserted.id).get must_== inserted
+		mapperDao.select(JobPositionEntity, inserted.id).get should be === inserted
 	}
 
-	"transaction, rollback" in {
+	test("transaction, rollback") {
 		createJobPositionTable
 
 		import com.googlecode.mapperdao.jdbc.Transaction
@@ -162,13 +163,13 @@ class SimpleEntitiesSpec extends SpecificationWithJUnit {
 			tx { () =>
 				val date = Setup.now
 				val inserted = mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date - 2.months, 10))
-				mapperDao.select(JobPositionEntity, inserted.id).get must_== inserted
+				mapperDao.select(JobPositionEntity, inserted.id).get should be === inserted
 				throw new IllegalStateException
 			}
 		} catch {
 			case e: IllegalStateException => // ignore
 		}
-		mapperDao.select(JobPositionEntity, 5) must_== None
+		mapperDao.select(JobPositionEntity, 5) should be === None
 	}
 
 	def createJobPositionTable {
