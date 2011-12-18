@@ -13,7 +13,6 @@ import org.scalatest.matchers.ShouldMatchers
  */
 @RunWith(classOf[JUnitRunner])
 class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
-	import ManyToManyNonRecursiveSpec._
 	val typeRegistry = TypeRegistry(ProductEntity, AttributeEntity)
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(typeRegistry)
@@ -57,9 +56,7 @@ class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 				case _ =>
 			}
 		}
-}
 
-object ManyToManyNonRecursiveSpec {
 	case class Product(val name: String, val attributes: Set[Attribute])
 	case class Attribute(val name: String, val value: String)
 

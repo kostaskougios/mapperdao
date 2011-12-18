@@ -14,29 +14,43 @@ import org.scalatest.matchers.ShouldMatchers
 @RunWith(classOf[JUnitRunner])
 class ManyToManyQueryWithAliasesSuite extends FunSuite with ShouldMatchers {
 
-	import ManyToManyQueryWithAliasesSpec._
-
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(AttributeEntity, ProductEntity))
 
-	import mapperDao._
-	import queryDao._
-	import TestQueries._
+	import Query._
+
+	val p = ProductEntity
+	val attr = AttributeEntity
 
 	test("join, 3 condition") {
 		createTables
-		val a0 = insert(AttributeEntity, Attribute(100, "size", "46'"))
-		val a1 = insert(AttributeEntity, Attribute(101, "size", "50'"))
-		val a2 = insert(AttributeEntity, Attribute(102, "colour", "black"))
-		val a3 = insert(AttributeEntity, Attribute(103, "colour", "white"))
-		val a4 = insert(AttributeEntity, Attribute(104, "dimensions", "100x100"))
-		val a5 = insert(AttributeEntity, Attribute(105, "dimensions", "200x200"))
+		val a0 = mapperDao.insert(AttributeEntity, Attribute(100, "size", "46'"))
+		val a1 = mapperDao.insert(AttributeEntity, Attribute(101, "size", "50'"))
+		val a2 = mapperDao.insert(AttributeEntity, Attribute(102, "colour", "black"))
+		val a3 = mapperDao.insert(AttributeEntity, Attribute(103, "colour", "white"))
+		val a4 = mapperDao.insert(AttributeEntity, Attribute(104, "dimensions", "100x100"))
+		val a5 = mapperDao.insert(AttributeEntity, Attribute(105, "dimensions", "200x200"))
 
-		val p0 = insert(ProductEntity, Product(1, "TV 1", Set(a0, a2, a4)))
-		val p1 = insert(ProductEntity, Product(2, "TV 2", Set(a1, a2, a4)))
-		val p2 = insert(ProductEntity, Product(3, "TV 3", Set(a0, a3, a4)))
-		val p3 = insert(ProductEntity, Product(4, "TV 3", Set(a1, a3, a5)))
+		val p0 = mapperDao.insert(ProductEntity, Product(1, "TV 1", Set(a0, a2, a4)))
+		val p1 = mapperDao.insert(ProductEntity, Product(2, "TV 2", Set(a1, a2, a4)))
+		val p2 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3, a4)))
+		val p3 = mapperDao.insert(ProductEntity, Product(4, "TV 3", Set(a1, a3, a5)))
 
-		query(q0).toSet should be === Set(p2)
+		def q0 = {
+			val p1 = new ProductEntityBase
+			val p2 = new ProductEntityBase
+			val a1 = new AttributeEntityBase
+			val a2 = new AttributeEntityBase
+
+			select from p join
+				(p, p.attributes, attr) join
+				(p, p1.attributes, a1) join
+				(p, p2.attributes, a2) where
+				(attr.name === "size" and attr.value === "46'") and
+				(a1.name === "colour" and a1.value === "white") and
+				(a2.name === "dimensions" and a2.value === "100x100")
+		}
+
+		queryDao.query(q0).toSet should be === Set(p2)
 	}
 
 	def createTables =
@@ -65,30 +79,6 @@ class ManyToManyQueryWithAliasesSuite extends FunSuite with ShouldMatchers {
 					)
 			""")
 		}
-}
-
-object ManyToManyQueryWithAliasesSpec {
-	object TestQueries {
-		val p = ProductEntity
-		val a = AttributeEntity
-
-		import Query._
-
-		def q0 = {
-			val p1 = new ProductEntityBase
-			val p2 = new ProductEntityBase
-			val a1 = new AttributeEntityBase
-			val a2 = new AttributeEntityBase
-
-			select from p join
-				(p, p.attributes, a) join
-				(p, p1.attributes, a1) join
-				(p, p2.attributes, a2) where
-				(a.name === "size" and a.value === "46'") and
-				(a1.name === "colour" and a1.value === "white") and
-				(a2.name === "dimensions" and a2.value === "100x100")
-		}
-	}
 
 	case class Product(val id: Int, val name: String, val attributes: Set[Attribute])
 	case class Attribute(val id: Int, val name: String, val value: String)

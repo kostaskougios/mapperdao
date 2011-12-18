@@ -12,7 +12,6 @@ import org.scalatest.matchers.ShouldMatchers
  */
 @RunWith(classOf[JUnitRunner])
 class DeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
-	import DeclarePrimaryKeysSpec._
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, PriceEntity))
 
 	test("entity without PK's remove all items from collection") {
@@ -72,9 +71,6 @@ class DeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 		}
 	}
 
-}
-
-object DeclarePrimaryKeysSpec {
 	case class Product(val title: String, val prices: Set[Price])
 	case class Price(val currency: String, val unitPrice: Double, val salePrice: Double)
 
