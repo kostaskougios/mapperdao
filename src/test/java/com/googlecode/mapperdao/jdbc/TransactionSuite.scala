@@ -25,6 +25,7 @@ class TransactionSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("commit") {
+		before
 		tx { () =>
 			for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i);
 		}
@@ -33,6 +34,7 @@ class TransactionSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("rollback") {
+		before
 		try {
 			tx { () =>
 				for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i);
@@ -46,6 +48,7 @@ class TransactionSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("manual rollback") {
+		before
 		tx { status =>
 			for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i);
 			status.setRollbackOnly
