@@ -13,7 +13,7 @@ import org.scalatest.matchers.ShouldMatchers
  */
 @RunWith(classOf[JUnitRunner])
 class ManyToManyQueryWithAliasesSuite extends FunSuite with ShouldMatchers {
-
+	import ManyToManyQueryWithAliasesSuite._
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(AttributeEntity, ProductEntity))
 
 	import Query._
@@ -79,7 +79,9 @@ class ManyToManyQueryWithAliasesSuite extends FunSuite with ShouldMatchers {
 					)
 			""")
 		}
+}
 
+object ManyToManyQueryWithAliasesSuite {
 	case class Product(val id: Int, val name: String, val attributes: Set[Attribute])
 	case class Attribute(val id: Int, val name: String, val value: String)
 
