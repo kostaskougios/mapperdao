@@ -252,9 +252,7 @@ case class ManyToManyOperation[FPC, F, V](left: ManyToMany[FPC, F], operand: Ope
 	if (right == null) throw new NullPointerException("Value can't be null in many-to-many FK queries. Expression was on %s.".format(left))
 	override def toString = "%s %s %s".format(left, operand, right)
 }
-//case class OneToOneReverseOperation[F, V](left: OneToOneReverse[F], operand: Operand, right: V) extends OpBase {
-//	override def toString = "%s %s %s".format(left, operand, right)
-//}
+
 case class AndOp(left: OpBase, right: OpBase) extends OpBase {
 	override def toString = "(%s and %s)".format(left, right)
 }
