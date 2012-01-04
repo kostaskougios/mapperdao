@@ -36,7 +36,7 @@ class SqlServer(override val jdbc: Jdbc, override val typeRegistry: TypeRegistry
 	 * ) as t
 	 * where Row between 3 and 5
 	 */
-	override def queryAfterSelect[PC, T](queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.QueryEntity[PC, T], columns: List[ColumnBase]): String = {
+	override def queryAfterSelect[PC, T](queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[PC, T], columns: List[ColumnBase]): String = {
 		if (queryConfig.hasRange) {
 			val sb = new StringBuilder("ROW_NUMBER() over (order by ")
 			val entity = qe.entity
@@ -51,12 +51,12 @@ class SqlServer(override val jdbc: Jdbc, override val typeRegistry: TypeRegistry
 		} else ""
 	}
 
-	override def beforeStartOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T], columns: List[ColumnBase], sql: StringBuilder): Unit =
+	override def beforeStartOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T], columns: List[ColumnBase], sql: StringBuilder): Unit =
 		if (queryConfig.hasRange) {
 			sql append "select * from (\n"
 		}
 
-	override def endOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T], sql: StringBuilder): Unit =
+	override def endOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T], sql: StringBuilder): Unit =
 		if (queryConfig.hasRange) {
 			val offset = queryConfig.offset.getOrElse(0l) + 1
 			sql append "\n) as t\nwhere Row between " append offset append " and "

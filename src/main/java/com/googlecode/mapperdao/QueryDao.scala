@@ -8,24 +8,24 @@ trait QueryDao {
 	/**
 	 * runs a query and retuns a list of entities
 	 */
-	def query[PC, T](qe: Query.QueryExpressions[PC, T]): List[T with PC] = query(qe.queryEntity)
-	def query[PC, T](queryConfig: QueryConfig, qe: Query.QueryExpressions[PC, T]): List[T with PC] = query(queryConfig, qe.queryEntity)
-	def query[PC, T](qe: Query.QueryEntity[PC, T]): List[T with PC] = query(defaultQueryConfig, qe)
+	def query[PC, T](qe: Query.Where[PC, T]): List[T with PC] = query(qe.queryEntity)
+	def query[PC, T](queryConfig: QueryConfig, qe: Query.Where[PC, T]): List[T with PC] = query(queryConfig, qe.queryEntity)
+	def query[PC, T](qe: Query.Builder[PC, T]): List[T with PC] = query(defaultQueryConfig, qe)
 
-	def query[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T]): List[T with PC]
+	def query[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]): List[T with PC]
 
 	/**
 	 * counts rows
 	 */
-	def count[PC, T](qe: Query.QueryExpressions[PC, T]): Long = count(qe.queryEntity)
-	def count[PC, T](qe: Query.QueryEntity[PC, T]): Long
+	def count[PC, T](qe: Query.Where[PC, T]): Long = count(qe.queryEntity)
+	def count[PC, T](qe: Query.Builder[PC, T]): Long
 
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[PC, T](qe: Query.QueryExpressions[PC, T]): Option[T with PC] = querySingleResult(qe.queryEntity)
-	def querySingleResult[PC, T](qe: Query.QueryEntity[PC, T]): Option[T with PC] = {
+	def querySingleResult[PC, T](qe: Query.Where[PC, T]): Option[T with PC] = querySingleResult(qe.queryEntity)
+	def querySingleResult[PC, T](qe: Query.Builder[PC, T]): Option[T with PC] = {
 		val l = query(defaultQueryConfig, qe)
 		// l.size might be costly, so we'll test if l is empty first
 		if (l.isEmpty) None
@@ -51,7 +51,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 
 	private case class SqlAndArgs(val sql: String, val args: List[Any])
 
-	def query[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T]): List[T with PC] =
+	def query[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]): List[T with PC] =
 		{
 			if (qe == null) throw new NullPointerException("qe can't be null")
 			var sa: SqlAndArgs = null
@@ -71,7 +71,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			}
 		}
 
-	def count[PC, T](qe: Query.QueryEntity[PC, T]): Long =
+	def count[PC, T](qe: Query.Builder[PC, T]): Long =
 		{
 			if (qe == null) throw new NullPointerException("qe can't be null")
 			val aliases = new Aliases(typeRegistry)
@@ -83,7 +83,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			jdbc.queryForLong(sql + "\n" + s.sql, args)
 		}
 
-	private def sqlAndArgs[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T]): SqlAndArgs =
+	private def sqlAndArgs[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]): SqlAndArgs =
 		{
 			val e = qe.entity
 			val tpe = e.tpe
@@ -99,7 +99,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			SqlAndArgs(sb.toString, s.args)
 		}
 
-	private def whereAndArgs[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T], aliases: Aliases): SqlAndArgs =
+	private def whereAndArgs[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T], aliases: Aliases): SqlAndArgs =
 		{
 			val joinsSb = new StringBuilder
 			val whereSb = new StringBuilder
@@ -217,5 +217,5 @@ object QueryDao {
  * a mock class of the query dao, useful for testing
  */
 abstract class MockQueryDao extends QueryDao {
-	def count[PC, T](qe: Query.QueryEntity[PC, T]): Long = throw new IllegalStateException("please impl MockQueryDao.count")
+	def count[PC, T](qe: Query.Builder[PC, T]): Long = throw new IllegalStateException("please impl MockQueryDao.count")
 }

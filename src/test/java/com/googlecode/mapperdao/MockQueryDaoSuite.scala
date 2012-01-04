@@ -25,7 +25,7 @@ class MockQueryDaoSuite extends FunSuite with ShouldMatchers {
 
 		// the mock query dao
 		val queryDao = new MockQueryDao {
-			override def query[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T]): List[T with PC] = {
+			override def query[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]): List[T with PC] = {
 				results.asInstanceOf[List[T with PC]]
 			}
 		}

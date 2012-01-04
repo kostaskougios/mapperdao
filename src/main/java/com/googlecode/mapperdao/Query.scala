@@ -73,20 +73,12 @@ object Query {
 	}
 	implicit def columnInfoManyToManyOperation[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F]) = new ConvertorManyToMany[T, FPC, F](ci)
 
-	/**
-	 * manages one-to-one expressions
-	 */
-	//	protected class ConvertorOneToOneReverse[T, F](ci: ColumnInfoOneToOneReverse[T, F]) {
-	//		def ===(v: F) = new OneToOneReverseOperation(ci.column, EQ(), v)
-	//	}
-	//	implicit def columnInfoOneToOneReverseOperation[T, F](ci: ColumnInfoOneToOneReverse[T, F]) = new ConvertorOneToOneReverse[T, F](ci)
-
 	// starting point of a query, "select" syntactic sugar
 	def select[PC, T] = new QueryFrom[PC, T]
 
 	// "from" syntactic sugar
 	protected class QueryFrom[PC, T] {
-		def from(entity: Entity[PC, T]) = new QueryEntity(entity)
+		def from(entity: Entity[PC, T]) = new Builder(entity)
 	}
 
 	trait OrderBy[Q] { self: Q =>
@@ -122,17 +114,20 @@ object Query {
 			}
 	}
 
-	class QueryEntity[PC, T](protected[mapperdao] val entity: Entity[PC, T]) extends OrderBy[QueryEntity[PC, T]] {
-		protected[mapperdao] var wheres = List[QueryExpressions[PC, T]]()
+	/**
+	 * main query builder, keeps track of all 'where', joins and order by.
+	 */
+	class Builder[PC, T](protected[mapperdao] val entity: Entity[PC, T]) extends OrderBy[Builder[PC, T]] {
+		protected[mapperdao] var wheres = List[Where[PC, T]]()
 		protected[mapperdao] var joins = List[Join[Any, Any, Entity[_, _], PC, T]]()
 		protected[mapperdao] var order = List[(ColumnInfoBase[_, _], AscDesc)]()
 
-		override def addOrderBy(l: List[(ColumnInfoBase[_, _], AscDesc)]) {
+		override protected def addOrderBy(l: List[(ColumnInfoBase[_, _], AscDesc)]) {
 			order :::= l
 		}
 
 		def where = {
-			val qe = new QueryExpressions(this)
+			val qe = new Where(this)
 			wheres ::= qe
 			qe
 		}
@@ -155,7 +150,7 @@ object Query {
 		val sql = "desc"
 	}
 
-	protected[mapperdao] class Join[T, F, E <: Entity[_, _], QPC, QT](queryEntity: QueryEntity[QPC, QT]) {
+	protected[mapperdao] class Join[T, F, E <: Entity[_, _], QPC, QT](queryEntity: Builder[QPC, QT]) {
 		protected[mapperdao] var column: ColumnRelationshipBase[_, F] = _
 		protected[mapperdao] var entity: E = _
 		protected[mapperdao] var foreignEntity: E = _
@@ -178,17 +173,17 @@ object Query {
 			}
 	}
 
-	protected[mapperdao] class JoinOn[PC, T](protected[mapperdao] val queryEntity: QueryEntity[PC, T]) {
-		protected[mapperdao] var ons = List[QueryExpressions[PC, T]]()
+	protected[mapperdao] class JoinOn[PC, T](protected[mapperdao] val queryEntity: Builder[PC, T]) {
+		protected[mapperdao] var ons = List[Where[PC, T]]()
 		def on =
 			{
-				val qe = new QueryExpressions(queryEntity)
+				val qe = new Where(queryEntity)
 				ons ::= qe
 				qe
 			}
 	}
 
-	protected[mapperdao] class QueryExpressions[PC, T](protected[mapperdao] val queryEntity: QueryEntity[PC, T]) extends OrderBy[QueryExpressions[PC, T]] {
+	protected[mapperdao] class Where[PC, T](protected[mapperdao] val queryEntity: Builder[PC, T]) extends OrderBy[Where[PC, T]] {
 		var clauses: OpBase = null
 
 		override def addOrderBy(l: List[(ColumnInfoBase[_, _], AscDesc)]) {
@@ -211,19 +206,19 @@ object Query {
 		}
 
 		def where = {
-			val qe = new QueryExpressions(queryEntity)
+			val qe = new Where(queryEntity)
 			queryEntity.wheres ::= qe
 			qe
 		}
 
-		override def toString = "QueryExpressions(%s)".format(clauses)
+		override def toString = "Where(%s)".format(clauses)
 	}
 }
 
 sealed abstract class Operand {
 	def sql: String
 
-	override def toString = sql
+	override def toString = "Operand(%s)".format(sql)
 }
 
 case class LT() extends Operand { def sql = "<" }

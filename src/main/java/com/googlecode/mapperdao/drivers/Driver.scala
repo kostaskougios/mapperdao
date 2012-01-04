@@ -283,7 +283,7 @@ abstract class Driver {
 	 */
 
 	// select ... from 
-	def startQuery[PC, T](queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.QueryEntity[PC, T], columns: List[ColumnBase]): String =
+	def startQuery[PC, T](queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[PC, T], columns: List[ColumnBase]): String =
 		{
 			val entity = qe.entity
 			val tpe = entity.tpe
@@ -299,7 +299,7 @@ abstract class Driver {
 			sb.toString
 		}
 
-	def queryAfterSelect[PC, T](queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.QueryEntity[PC, T], columns: List[ColumnBase]): String = ""
+	def queryAfterSelect[PC, T](queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[PC, T], columns: List[ColumnBase]): String = ""
 
 	// creates the join for one-to-one-reverse
 	def oneToOneReverseJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], oneToOneReverse: OneToOneReverse[_, _]): String =
@@ -399,7 +399,7 @@ abstract class Driver {
 		}
 
 	// creates the sql and params for expressions (i.e. id=5 and name='x')
-	def queryExpressions[PC, T](aliases: QueryDao.Aliases, wheres: List[Query.QueryExpressions[PC, T]], joinsSb: StringBuilder): (String, List[Any]) =
+	def queryExpressions[PC, T](aliases: QueryDao.Aliases, wheres: List[Query.Where[PC, T]], joinsSb: StringBuilder): (String, List[Any]) =
 		{
 			val sb = new StringBuilder(100)
 			var args = List.newBuilder[Any]
@@ -488,11 +488,11 @@ abstract class Driver {
 	def shouldCreateOrderByClause(queryConfig: QueryConfig): Boolean = true
 
 	// called at the start of each query sql generation, sql is empty at this point
-	def beforeStartOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T], columns: List[ColumnBase], sql: StringBuilder): Unit =
+	def beforeStartOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T], columns: List[ColumnBase], sql: StringBuilder): Unit =
 		{
 		}
 	// called at the end of each query sql generation
-	def endOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.QueryEntity[PC, T], sql: StringBuilder): Unit =
+	def endOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T], sql: StringBuilder): Unit =
 		{
 		}
 
