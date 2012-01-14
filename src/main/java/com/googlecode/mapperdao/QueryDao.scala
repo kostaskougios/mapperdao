@@ -79,8 +79,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			val tpe = e.tpe
 			val sql = driver.countSql(aliases, e)
 			val s = whereAndArgs(defaultQueryConfig, qe, aliases)
-			val args = s.args
-			jdbc.queryForLong(sql + "\n" + s.sql, args)
+			jdbc.queryForLong(sql + "\n" + s.sql, s.args)
 		}
 
 	private def sqlAndArgs[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]): SqlAndArgs =
@@ -206,8 +205,7 @@ object QueryDao {
 		def apply(c: ColumnBase): String =
 			{
 				val v = aliases.get(c)
-				if (v == null)
-					throw new IllegalStateException("key not found:" + c + " , are your aliases correct?")
+				if (v == null) throw new IllegalStateException("key not found:" + c + " , are your aliases correct?")
 				v
 			}
 	}

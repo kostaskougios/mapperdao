@@ -91,9 +91,6 @@ trait MapperDao {
 	def longIdOf(o: AnyRef): Long = o match {
 		case iid: LongId => iid.id
 	}
-
-	// used internally
-	//private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], entity: Entity[PC, T], selectConfig: SelectConfig, entities: EntityMap): List[T with PC]
 }
 
 /**
@@ -213,8 +210,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			// first, lets update the simple columns that changed
 
 			// run all DuringUpdate plugins
-			val pluginDUR = duringUpdatePlugins.map { plugin =>
-				plugin.during(updateConfig, entity, o, oldValuesMap, newValuesMap, entityMap, modified, modifiedTraversables)
+			val pluginDUR = duringUpdatePlugins.map {
+				_.during(updateConfig, entity, o, oldValuesMap, newValuesMap, entityMap, modified, modifiedTraversables)
 			}.reduceLeft { (dur1, dur2) =>
 				new DuringUpdateResults(dur1.values ::: dur2.values, dur1.keys ::: dur2.keys)
 			}
@@ -238,8 +235,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			mockO = createMock(entity, modified ++ modifiedTraversables)
 			entityMap.put(o, mockO)
 
-			postUpdatePlugins.foreach { plugin =>
-				plugin.after(updateConfig, entity, o, mockO, oldValuesMap, newValuesMap, entityMap, modifiedTraversables)
+			postUpdatePlugins.foreach {
+				_.after(updateConfig, entity, o, mockO, oldValuesMap, newValuesMap, entityMap, modifiedTraversables)
 			}
 
 			// done, construct the updated entity
@@ -267,7 +264,6 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			} catch {
 				case e: Throwable => throw new PersistException("An error occured during update of entity %s with value %s.".format(entity, o), e)
 			}
-
 		}
 
 	private[mapperdao] def updateInner[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T with PC with Persisted =
@@ -306,10 +302,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 	 * 					based on differences between newO and o
 	 * @return			The updated entity. Both o and newO should be disposed (not used) after the call.
 	 */
-	def update[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC, newO: T): T with PC =
-		{
-			if (!o.isInstanceOf[Persisted]) throw new IllegalArgumentException("can't update an object that is not persisted: " + o);
-			val persisted = o.asInstanceOf[T with PC with Persisted]
+	def update[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC, newO: T): T with PC = o match {
+		case persisted: T with PC with Persisted =>
 			validatePersisted(persisted)
 			persisted.discarded = true
 			try {
@@ -320,7 +314,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			} catch {
 				case e => throw new PersistException("An error occured during update of entity %s with old value %s and new value %s".format(entity, o, newO), e)
 			}
-		}
+		case _ => throw new IllegalArgumentException("can't update an object that is not persisted: " + o);
+	}
 
 	private[mapperdao] def updateInner[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC with Persisted, newO: T, entityMap: UpdateEntityMap): T with PC =
 		{
@@ -380,23 +375,22 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		val tpe = entity.tpe
 		val table = tpe.table
 		// calculate the id's for this tpe
-		val ids = table.primaryKeys.map { pk => om(pk.column.columnName) } ::: selectBeforePlugins.map { plugin =>
-			plugin.idContribution(tpe, om, entities, mods)
+		val ids = table.primaryKeys.map { pk => om(pk.column.columnName) } ::: selectBeforePlugins.map {
+			_.idContribution(tpe, om, entities, mods)
 		}.flatten
 		val cacheKey = if (ids.isEmpty) {
-			if (table.unusedPKs.isEmpty) {
+			if (table.unusedPKs.isEmpty)
 				throw new IllegalStateException("entity %s without primary key, please use declarePrimaryKeys() to declare the primary key columns of tables into your entity declaration")
-			} else {
+			else
 				table.unusedPKs.map { pk => om(pk.columnName) }
-			}
 		} else ids
 
 		entities.get[T with PC](tpe.clz, cacheKey).getOrElse {
 			val mock = createMock(entity, mods)
 			entities.put(tpe.clz, cacheKey, mock)
 
-			selectBeforePlugins.foreach { plugin =>
-				plugin.before(entity, selectConfig, om, entities, mods)
+			selectBeforePlugins.foreach {
+				_.before(entity, selectConfig, om, entities, mods)
 			}
 
 			val vm = ValuesMap.fromMutableMap(typeManager, mods)
@@ -413,8 +407,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		{
 			val mockMods = new scala.collection.mutable.HashMap[String, Any]
 			mockMods ++= mods
-			mockPlugins.foreach { plugin =>
-				plugin.updateMock(entity, mockMods)
+			mockPlugins.foreach {
+				_.updateMock(entity, mockMods)
 			}
 			val tpe = entity.tpe
 			// create a mock of the final entity, to avoid cyclic dependencies
@@ -446,11 +440,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		deleted
 	}
 
-	private[mapperdao] def deleteInner[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T =
-		{
-			if (!o.isInstanceOf[Persisted]) throw new IllegalArgumentException("can't delete an object that is not persisted: " + o);
-
-			val persisted = o.asInstanceOf[T with PC with Persisted]
+	private[mapperdao] def deleteInner[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T = o match {
+		case persisted: T with PC with Persisted =>
 			if (persisted.discarded) throw new IllegalArgumentException("can't operate on an object twice. An object that was updated/deleted must be discarded and replaced by the return value of update(), i.e. onew=update(o) or just be disposed if it was deleted. The offending object was : " + o);
 			persisted.discarded = true
 
@@ -458,15 +449,15 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			val table = tpe.table
 
 			try {
-				val keyValues0 = table.toListOfPrimaryKeySimpleColumnAndValueTuples(o) ::: beforeDeletePlugins.flatMap(plugin =>
-					plugin.idColumnValueContribution(tpe, deleteConfig, events, persisted, entityMap)
+				val keyValues0 = table.toListOfPrimaryKeySimpleColumnAndValueTuples(o) ::: beforeDeletePlugins.flatMap(
+					_.idColumnValueContribution(tpe, deleteConfig, events, persisted, entityMap)
 				)
 
 				val unusedPKColumns = table.unusedPKs.filterNot(unusedColumn => keyValues0.map(_._1).contains(unusedColumn))
 				val keyValues = keyValues0 ::: table.toListOfColumnAndValueTuples(unusedPKColumns, o)
 				// call all the before-delete plugins
-				beforeDeletePlugins.foreach { plugin =>
-					plugin.before(entity, deleteConfig, events, persisted, keyValues, entityMap)
+				beforeDeletePlugins.foreach {
+					_.before(entity, deleteConfig, events, persisted, keyValues, entityMap)
 				}
 
 				// execute the before-delete events
@@ -483,7 +474,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			} catch {
 				case e => throw new PersistException("An error occured during delete of entity %s with value %s".format(entity, o), e)
 			}
-		}
+		case _ => throw new IllegalArgumentException("can't delete an object that is not persisted: " + o);
+	}
 	/**
 	 * ===================================================================================
 	 * common methods

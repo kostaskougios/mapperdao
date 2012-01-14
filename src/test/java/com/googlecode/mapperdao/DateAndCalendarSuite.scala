@@ -36,7 +36,7 @@ class DateAndCalendarSuite extends FunSuite with ShouldMatchers {
 		val selected = mapperDao.select(DCEntity, 1).get
 		selected should be === DC(1, date, calendar)
 
-		selected.date.setHours(date.getHours() - 1)
+		selected.date.setHours(date.getHours - 1)
 		selected.calendar.add(Calendar.HOUR, -1)
 		val updated = mapperDao.update(DCEntity, selected)
 		updated should be === selected
@@ -47,5 +47,4 @@ class DateAndCalendarSuite extends FunSuite with ShouldMatchers {
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
-
 }
