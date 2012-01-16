@@ -125,7 +125,7 @@ class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 					values :::= c.selfColumns zip nullList
 					null
 				} else {
-					val vt = fo match {
+					val (value, t) = fo match {
 						case p: Persisted if (p.mock) =>
 							(p, false) //mock object shouldn't contribute to column updates
 						case p: Persisted =>
@@ -139,8 +139,8 @@ class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 							entityMap.up
 							(inserted, true)
 					}
-					if (vt._2) values :::= c.selfColumns zip ftpe.table.toListOfPrimaryKeyValues(fo)
-					vt._1
+					if (t) values :::= c.selfColumns zip ftpe.table.toListOfPrimaryKeyValues(fo)
+					value
 				}
 				modified(c.alias) = v
 			}

@@ -35,9 +35,8 @@ class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperD
 	override def before[PPC, PT, PC, T, V, FPC, F](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[PPC, PT, V, FPC, F]): List[(Column, Any)] =
 		{
 			val UpdateInfo(parent, parentColumnInfo, parentEntity) = updateInfo
-			if (parent != null) {
-				val parentColumn = parentColumnInfo.column
-				parentColumn match {
+			if (parent != null)
+				parentColumnInfo.column match {
 					case oto: OneToOneReverse[FPC, F] =>
 						val parentTpe = parentEntity.tpe
 						val parentTable = parentTpe.table
@@ -45,7 +44,7 @@ class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperD
 						oto.foreignColumns zip parentKeysAndValues.map(_._2)
 					case _ => Nil
 				}
-			} else Nil
+			else Nil
 		}
 
 	override def after[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): Unit =
@@ -56,21 +55,19 @@ class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperD
 			table.oneToOneReverseColumnInfos.foreach { cis =>
 				val fe = cis.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
 				val fo = cis.columnToValue(o)
-				val v = if (fo != null) {
-					fo match {
-						case null => null
-						case p: Persisted =>
-							entityMap.down(mockO, cis, entity)
-							val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
-							entityMap.up
-							updated
-						case x =>
-							entityMap.down(mockO, cis, entity)
-							val inserted = mapperDao.insertInner(updateConfig, fe, x, entityMap)
-							entityMap.up
-							inserted
-					}
-				} else null
+				val v = fo match {
+					case null => null
+					case p: Persisted =>
+						entityMap.down(mockO, cis, entity)
+						val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
+						entityMap.up
+						updated
+					case x =>
+						entityMap.down(mockO, cis, entity)
+						val inserted = mapperDao.insertInner(updateConfig, fe, x, entityMap)
+						entityMap.up
+						inserted
+				}
 				modified(cis.column.alias) = v
 			}
 		}

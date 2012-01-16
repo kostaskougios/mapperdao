@@ -67,9 +67,8 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				val fe = c.foreign.entity
 				val foreignPKValues = c.columns.map(mtoc => om(mtoc.columnName))
 				val fo = entities.get(fe.clz, foreignPKValues)
-				val v = if (fo.isDefined) {
-					fo.get
-				} else {
+
+				val v = fo.getOrElse {
 					entities.down(tpe, ci, om)
 					val v = mapperDao.selectInner(fe, selectConfig, foreignPKValues, entities).getOrElse(null)
 					entities.up
@@ -116,10 +115,11 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			}
 
 			val manyToOneChanged = table.manyToOneColumns.filter(Equality.onlyChanged(_, newValuesMap, oldValuesMap))
-			val mtoArgsV = manyToOneChanged.map(mto => (mto.foreign.entity, newValuesMap.valueOf[Any](mto.alias))).map { t =>
-				t._1.tpe.table.toListOfPrimaryKeyValues(t._2)
+			val mtoArgsV = manyToOneChanged.map(mto => (mto.foreign.entity, newValuesMap.valueOf[Any](mto.alias))).map {
+				case (entity, entityO) =>
+					entity.tpe.table.toListOfPrimaryKeyValues(entityO)
 			}.flatten
-			val cv = (manyToOneChanged.map(_.columns).flatten zip mtoArgsV) filterNot (cav => table.primaryKeyColumns.contains(cav._1))
+			val cv = (manyToOneChanged.map(_.columns).flatten zip mtoArgsV) filterNot { case (column, _) => table.primaryKeyColumns.contains(column) }
 			new DuringUpdateResults(cv, Nil)
 		}
 }

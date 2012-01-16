@@ -120,13 +120,13 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 				val fe = manyToMany.foreign.entity.asInstanceOf[Entity[Any, Any]]
 				val ftpe = fe.tpe
 				// delete the removed ones
-				removed.foreach(_ match {
+				removed.foreach {
 					case p: Persisted =>
 						val ftable = ftpe.table
 						val fPkArgs = manyToMany.linkTable.right zip ftable.toListOfPrimaryKeyValues(p)
 						driver.doDeleteManyToManyRef(tpe, ftpe, manyToMany, pkArgs, fPkArgs)
 						p.discarded = true
-				})
+				}
 
 				// update those that remained in the updated traversable
 				intersection.foreach { item =>
