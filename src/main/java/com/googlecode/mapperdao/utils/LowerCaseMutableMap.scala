@@ -15,10 +15,10 @@ class LowerCaseMutableMap[V] {
 		}
 
 	def get(key: String): Option[V] = m.get(key.toLowerCase)
-	def update(key: String, v: V) = m(key.toLowerCase) = v
-	def apply(key: String) = m(key.toLowerCase)
-	def getOrElse(key: String, e: => V) = m.getOrElse(key, e)
-	def ++(t: Traversable[(String, List[V])]) = m.clone ++ t
+	def update(key: String, v: V) { m(key.toLowerCase) = v }
+	def apply(key: String): V = m(key.toLowerCase)
+	def getOrElse(key: String, e: => V): V = m.getOrElse(key, e)
+	def ++(t: Traversable[(String, List[V])]): scala.collection.mutable.Map[String, Any] = m.clone ++ t
 
 	override def clone = new LowerCaseMutableMap(m)
 	def cloneMap = m.clone

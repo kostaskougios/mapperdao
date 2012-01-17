@@ -31,24 +31,12 @@ trait Transaction {
 final class TransactionImpl private[mapperdao] (transactionManager: PlatformTransactionManager, transactionDef: TransactionDefinition) extends Transaction {
 	private val tt = new TransactionTemplate(transactionManager, transactionDef)
 
-	def apply[V](f: () => V): V =
-		{
-			tt.execute(new TransactionCallback[V]() {
-				override def doInTransaction(status: TransactionStatus): V =
-					{
-						f()
-					}
-			})
-		}
-	def apply[V](f: TransactionStatus => V): V =
-		{
-			tt.execute(new TransactionCallback[V]() {
-				override def doInTransaction(status: TransactionStatus): V =
-					{
-						f(status)
-					}
-			})
-		}
+	def apply[V](f: () => V): V = tt.execute(new TransactionCallback[V] {
+		override def doInTransaction(status: TransactionStatus): V = f()
+	})
+	def apply[V](f: TransactionStatus => V): V = tt.execute(new TransactionCallback[V] {
+		override def doInTransaction(status: TransactionStatus): V = f(status)
+	})
 
 	override def toString = "TransactionImpl(%s)".format(tt)
 }
