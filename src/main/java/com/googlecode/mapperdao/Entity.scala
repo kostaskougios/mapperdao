@@ -391,3 +391,13 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 abstract class SimpleEntity[T](table: String, clz: Class[T]) extends Entity[AnyRef, T](table, clz) {
 	def this(clz: Class[T]) = this(clz.getSimpleName, clz)
 }
+
+/**
+ * external entities allow loading entities externally via a custom dao or i.e. hibernate
+ */
+abstract class ExternalEntity[PC, T](table: String, clz: Class[T]) extends Entity[PC, T](table, clz) {
+	def this(clz: Class[T]) = this(clz.getSimpleName, clz)
+
+	def select(selectConfig: SelectConfig): T
+	def insert(updateConfig: UpdateConfig, t: T): T
+}

@@ -20,6 +20,7 @@ import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.MapperDaoImpl
 import com.googlecode.mapperdao.UpdateConfig
 import com.googlecode.mapperdao.Entity
+import com.googlecode.mapperdao.ExternalEntity
 /**
  * @author kostantinos.kougios
  *
@@ -40,11 +41,14 @@ class ManyToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 					traversable.foreach { nested =>
 						val newO = if (mapperDao.isPersisted(nested)) {
 							nested
-						} else {
-							entityMap.down(mockO, cis, entity)
-							val inserted = mapperDao.insertInner(updateConfig, nestedEntity, nested, entityMap)
-							entityMap.up
-							inserted
+						} else nestedEntity match {
+							case ee: ExternalEntity[_, _] =>
+								nested
+							case _ =>
+								entityMap.down(mockO, cis, entity)
+								val inserted = mapperDao.insertInner(updateConfig, nestedEntity, nested, entityMap)
+								entityMap.up
+								inserted
 						}
 						val rightKeyValues = nestedTpe.table.toListOfPrimaryKeyAndValueTuples(newO)
 						val newKeyColumnAndValues = table.primaryKeys.map(_.column) zip newKeyValues
