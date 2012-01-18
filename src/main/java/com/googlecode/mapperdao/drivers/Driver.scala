@@ -103,17 +103,18 @@ abstract class Driver {
 			sb.toString
 		}
 
-	def doInsertManyToMany[PC, T, FPC, F](tpe: Type[PC, T], manyToMany: ManyToMany[FPC, F], left: List[(ColumnBase, Any)], right: List[(ColumnBase, Any)]): Unit =
+	def doInsertManyToMany[PC, T, FPC, F](tpe: Type[PC, T], manyToMany: ManyToMany[FPC, F], left: List[Any], right: List[Any]): Unit =
 		{
-			val sql = insertManyToManySql(tpe, manyToMany, left, right)
-			jdbc.update(sql, left.map(_._2) ::: right.map(_._2))
+			val sql = insertManyToManySql(tpe, manyToMany)
+			jdbc.update(sql, left ::: right)
 		}
 
-	protected def insertManyToManySql[PC, T, FPC, F](tpe: Type[PC, T], manyToMany: ManyToMany[FPC, F], left: List[(ColumnBase, Any)], right: List[(ColumnBase, Any)]): String =
+	protected def insertManyToManySql[PC, T, FPC, F](tpe: Type[PC, T], manyToMany: ManyToMany[FPC, F]): String =
 		{
 			val sb = new StringBuilder(100, "insert into ")
 			val linkTable = manyToMany.linkTable
-			sb append escapeTableNames(linkTable.name) append "(" append commaSeparatedListOfSimpleTypeColumns(",", linkTable.left) append "," append commaSeparatedListOfSimpleTypeColumns(",", linkTable.right) append ")\n"
+			sb append escapeTableNames(linkTable.name) append "(" append commaSeparatedListOfSimpleTypeColumns(",", linkTable.left)
+			sb append "," append commaSeparatedListOfSimpleTypeColumns(",", linkTable.right) append ")\n"
 			sb append "values(?" append (",?" * (linkTable.left.size - 1 + linkTable.right.size)) append ")"
 			sb.toString
 		}

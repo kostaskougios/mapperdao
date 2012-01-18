@@ -21,13 +21,13 @@ import com.googlecode.mapperdao.MapperDaoImpl
 import com.googlecode.mapperdao.UpdateConfig
 import com.googlecode.mapperdao.Entity
 import com.googlecode.mapperdao.ExternalEntity
+import com.googlecode.mapperdao.TypeManager
 /**
  * @author kostantinos.kougios
  *
  * 31 Aug 2011
  */
-class ManyToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends PostInsert {
-
+class ManyToManyInsertPlugin(typeManager: TypeManager, typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends PostInsert {
 	override def after[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): Unit =
 		{
 			val table = entity.tpe.table
@@ -35,26 +35,32 @@ class ManyToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 			table.manyToManyColumnInfos.foreach { cis =>
 				val newKeyValues = table.primaryKeys.map(c => modified(c.columnName))
 				val traversable = cis.columnToValue(o)
+				val cName = cis.column.alias
 				if (traversable != null) {
-					val nestedEntity = cis.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
-					val nestedTpe = nestedEntity.tpe
-					traversable.foreach { nested =>
-						val newO = if (mapperDao.isPersisted(nested)) {
-							nested
-						} else nestedEntity match {
-							case ee: ExternalEntity[_, _] =>
-								nested
-							case _ =>
-								entityMap.down(mockO, cis, entity)
-								val inserted = mapperDao.insertInner(updateConfig, nestedEntity, nested, entityMap)
-								entityMap.up
-								inserted
-						}
-						val rightKeyValues = nestedTpe.table.toListOfPrimaryKeyAndValueTuples(newO)
-						val newKeyColumnAndValues = table.primaryKeys.map(_.column) zip newKeyValues
-						driver.doInsertManyToMany(nestedTpe, cis.column, newKeyColumnAndValues, rightKeyValues)
-						val cName = cis.column.alias
-						modifiedTraversables(cName) = newO
+					val nestedEntity = cis.column.foreign.entity
+					nestedEntity match {
+						case ee: ExternalEntity[_] =>
+							val nestedTpe = ee.tpe
+							traversable.foreach { nested =>
+								val rightKeyValues = ee.primaryKeyValues(nested)
+								driver.doInsertManyToMany(nestedTpe, cis.column, newKeyValues, rightKeyValues)
+								modifiedTraversables(cName) = nested
+							}
+						case ne: Entity[Any, Any] =>
+							val nestedTpe = ne.tpe
+							traversable.foreach { nested =>
+								val newO = if (mapperDao.isPersisted(nested)) {
+									nested
+								} else {
+									entityMap.down(mockO, cis, entity)
+									val inserted = mapperDao.insertInner(updateConfig, ne, nested, entityMap)
+									entityMap.up
+									inserted
+								}
+								val rightKeyValues = nestedTpe.table.toListOfPrimaryKeyValues(newO)
+								driver.doInsertManyToMany(nestedTpe, cis.column, newKeyValues, rightKeyValues)
+								modifiedTraversables(cName) = newO
+							}
 					}
 				}
 			}
@@ -117,7 +123,8 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 				val newValues = t.toList
 				val oldValues = oldValuesMap.seq[Any](manyToMany.foreign.alias)
 
-				val pkArgs = manyToMany.linkTable.left zip oldValuesMap.toListOfColumnValue(table.primaryKeys)
+				val pkLeft = oldValuesMap.toListOfColumnValue(table.primaryKeys)
+				val pkArgs = manyToMany.linkTable.left zip pkLeft
 
 				val (added, intersection, removed) = TraversableSeparation.separate(oldValues, newValues)
 
@@ -157,8 +164,8 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 							entityMap.up
 							inserted
 					}
-					val fPKArgs = manyToMany.linkTable.right zip ftpe.table.toListOfPrimaryKeyValues(newItem)
-					driver.doInsertManyToMany(tpe, manyToMany, pkArgs, fPKArgs)
+					val fPKArgs = ftpe.table.toListOfPrimaryKeyValues(newItem)
+					driver.doInsertManyToMany(tpe, manyToMany, pkLeft, fPKArgs)
 					modified(manyToMany.alias) = newItem
 				}
 			}

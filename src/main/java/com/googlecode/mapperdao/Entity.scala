@@ -395,9 +395,12 @@ abstract class SimpleEntity[T](table: String, clz: Class[T]) extends Entity[AnyR
 /**
  * external entities allow loading entities externally via a custom dao or i.e. hibernate
  */
-abstract class ExternalEntity[PC, T](table: String, clz: Class[T]) extends Entity[PC, T](table, clz) {
+abstract class ExternalEntity[T](table: String, clz: Class[T]) extends Entity[AnyRef, T](table, clz) {
 	def this(clz: Class[T]) = this(clz.getSimpleName, clz)
 
+	override def constructor(implicit m) = throw new IllegalStateException("constructor shouldn't be called for ExternalEntity %s".format(clz))
+
+	def primaryKeyValues(t: T): List[Any]
 	def select(selectConfig: SelectConfig): T
-	def insert(updateConfig: UpdateConfig, t: T): T
+
 }
