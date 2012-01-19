@@ -21,28 +21,36 @@ class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			// many-to-one
 			table.manyToOneColumnInfos.foreach { cis =>
 				val fo = cis.columnToValue(o)
-				val fe = cis.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
-				val ftpe = fe.tpe
-				val v = if (fo != null) {
-					val v = fo match {
-						case null => null
-						case p: Persisted =>
-							entityMap.down(mockO, cis, entity)
-							val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
-							entityMap.up
-							updated
-						case x =>
-							entityMap.down(mockO, cis, entity)
-							val inserted = mapperDao.insertInner(updateConfig, fe, x, entityMap)
-							entityMap.up
-							inserted
-					}
-					val columns = cis.column.columns.filterNot(table.primaryKeyColumns.contains(_))
-					if (!columns.isEmpty && columns.size != cis.column.columns.size) throw new IllegalStateException("only some of the primary keys were declared for %s, and those primary keys overlap manyToOne relationship declaration".format(tpe))
-					extraArgs :::= columns zip ftpe.table.toListOfPrimaryKeyValues(v)
-					v
-				} else null
-				modified(cis.column.alias) = v
+
+				cis.column.foreign.entity match {
+					case ee: ExternalEntity[Any, Any] =>
+						val columns = cis.column.columns.filterNot(table.primaryKeyColumns.contains(_))
+						extraArgs :::= columns zip ee.primaryKeyValues(fo)
+						modified(cis.column.alias) = fo
+					case _ =>
+						val fe = cis.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
+						val ftpe = fe.tpe
+						val v = if (fo != null) {
+							val v = fo match {
+								case null => null
+								case p: Persisted =>
+									entityMap.down(mockO, cis, entity)
+									val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
+									entityMap.up
+									updated
+								case x =>
+									entityMap.down(mockO, cis, entity)
+									val inserted = mapperDao.insertInner(updateConfig, fe, x, entityMap)
+									entityMap.up
+									inserted
+							}
+							val columns = cis.column.columns.filterNot(table.primaryKeyColumns.contains(_))
+							if (!columns.isEmpty && columns.size != cis.column.columns.size) throw new IllegalStateException("only some of the primary keys were declared for %s, and those primary keys overlap manyToOne relationship declaration".format(tpe))
+							extraArgs :::= columns zip ftpe.table.toListOfPrimaryKeyValues(v)
+							v
+						} else null
+						modified(cis.column.alias) = v
+				}
 			}
 			extraArgs
 		}
@@ -63,18 +71,27 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			val table = tpe.table
 			// many to one
 			table.manyToOneColumnInfos.filterNot(selectConfig.skip(_)).foreach { ci =>
-				val c = ci.column.asInstanceOf[ManyToOne[Any, Any]]
-				val fe = c.foreign.entity
-				val foreignPKValues = c.columns.map(mtoc => om(mtoc.columnName))
-				val fo = entities.get(fe.clz, foreignPKValues)
+				val c = ci.column
 
-				val v = fo.getOrElse {
-					entities.down(tpe, ci, om)
-					val v = mapperDao.selectInner(fe, selectConfig, foreignPKValues, entities).getOrElse(null)
-					entities.up
-					v
+				c.foreign.entity match {
+					case ee: ExternalEntity[Any, Any] =>
+						val foreignPKValues = c.columns.map(mtoc => om(mtoc.columnName))
+						val l = ee.select(selectConfig, List(foreignPKValues))
+						if (l.size > 1) throw new IllegalStateException("expected 1 external entity but got %s".format(l))
+						l.headOption.foreach(mods(c.foreign.alias) = _)
+					case _ =>
+						val fe = c.foreign.entity
+						val foreignPKValues = c.columns.map(mtoc => om(mtoc.columnName))
+						val fo = entities.get(fe.clz, foreignPKValues)
+
+						val v = fo.getOrElse {
+							entities.down(tpe, ci, om)
+							val v = mapperDao.selectInner(fe, selectConfig, foreignPKValues, entities).getOrElse(null)
+							entities.up
+							v
+						}
+						mods(c.foreign.alias) = v
 				}
-				mods(c.foreign.alias) = v
 			}
 		}
 
