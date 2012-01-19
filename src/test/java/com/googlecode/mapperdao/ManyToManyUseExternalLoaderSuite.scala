@@ -49,9 +49,9 @@ class ManyToManyUseExternalLoaderSuite extends FunSuite with ShouldMatchers {
 
 		def primaryKeyValues(a) = List(a.id)
 
-		def select(selectConfig) = {
-			counter += 1
-			new Attribute(counter, "x" + counter)
+		def select(selectConfig: SelectConfig, ids: List[Int]) = {
+			val id = ids.head
+			Some(Attribute(id, "x" + id))
 		}
 	}
 

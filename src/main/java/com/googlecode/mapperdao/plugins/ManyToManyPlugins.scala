@@ -39,7 +39,7 @@ class ManyToManyInsertPlugin(typeManager: TypeManager, typeRegistry: TypeRegistr
 				if (traversable != null) {
 					val nestedEntity = cis.column.foreign.entity
 					nestedEntity match {
-						case ee: ExternalEntity[_] =>
+						case ee: ExternalEntity[Any] =>
 							val nestedTpe = ee.tpe
 							traversable.foreach { nested =>
 								val rightKeyValues = ee.primaryKeyValues(nested)
@@ -82,19 +82,25 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 			val table = tpe.table
 			// many to many
 			table.manyToManyColumnInfos.foreach { ci =>
-				val c = ci.column.asInstanceOf[ManyToMany[Any, Any]]
-				val fe = c.foreign.entity
-				val ftpe = fe.tpe
+				val c = ci.column
 				val mtmR = if (selectConfig.skip(ci)) {
 					Nil
 				} else {
-					val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
-					val keys = c.linkTable.left zip ids
-					val fom = driver.doSelectManyToMany(tpe, ftpe, c, keys)
-					entities.down(tpe, ci, om)
-					val mtmR = mapperDao.toEntities(fom, fe, selectConfig, entities)
-					entities.up
-					mtmR
+					val fe = c.foreign.entity
+					fe match {
+						case ee: ExternalEntity[Any] =>
+							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+							ee.select(selectConfig, ids).getOrElse(null)
+						case _ =>
+							val ftpe = fe.tpe.asInstanceOf[Type[Any, Any]]
+							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+							val keys = c.linkTable.left zip ids
+							val fom = driver.doSelectManyToMany(tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
+							entities.down(tpe, ci, om)
+							val mtmR = mapperDao.toEntities(fom, fe, selectConfig, entities)
+							entities.up
+							mtmR
+					}
 				}
 				mods(c.foreign.alias) = mtmR
 			}

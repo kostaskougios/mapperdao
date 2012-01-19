@@ -401,6 +401,6 @@ abstract class ExternalEntity[T](table: String, clz: Class[T]) extends Entity[An
 	override def constructor(implicit m) = throw new IllegalStateException("constructor shouldn't be called for ExternalEntity %s".format(clz))
 
 	def primaryKeyValues(t: T): List[Any]
-	def select(selectConfig: SelectConfig): T
+	def select[T](selectConfig: SelectConfig, id: List[T]): Some[T]
 
 }
