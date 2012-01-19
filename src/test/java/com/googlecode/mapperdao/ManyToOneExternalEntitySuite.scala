@@ -15,6 +15,25 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, HouseEntity))
 
 	if (Setup.database == "h2") {
+
+		test("delete") {
+			createTables
+
+			val person = Person("kostas", House(10, "name10"))
+			val inserted = mapperDao.insert(PersonEntity, person)
+			mapperDao.delete(PersonEntity, inserted)
+			mapperDao.select(PersonEntity, inserted.id) should be(None)
+		}
+
+		test("delete with propagate") {
+			createTables
+
+			val person = Person("kostas", House(10, "name10"))
+			val inserted = mapperDao.insert(PersonEntity, person)
+			mapperDao.delete(DeleteConfig(propagate = true), PersonEntity, inserted)
+			mapperDao.select(PersonEntity, inserted.id) should be(None)
+		}
+
 		test("insert/select") {
 			createTables
 
