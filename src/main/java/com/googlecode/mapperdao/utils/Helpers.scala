@@ -1,4 +1,6 @@
 package com.googlecode.mapperdao.utils
+import com.googlecode.mapperdao.IntId
+import com.googlecode.mapperdao.LongId
 
 /**
  * useful methods for real life applications that use
@@ -9,6 +11,16 @@ package com.googlecode.mapperdao.utils
  * 26 Oct 2011
  */
 object Helpers {
+
+	def intIdOf(o: Any): Int = o match {
+		case i: IntId => i.id
+		case _ => throw new IllegalArgumentException(o.toString)
+	}
+	def longIdOf(o: Any): Long = o match {
+		case i: LongId => i.id
+		case _ => throw new IllegalArgumentException(o.toString)
+	}
+
 	/**
 	 * merges oldSet and newSet items, keeping all unmodified
 	 * items from oldSet and adding all newItems from newSet.
