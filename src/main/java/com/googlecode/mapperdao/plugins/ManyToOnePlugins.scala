@@ -114,27 +114,38 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 
 			table.manyToOneColumnInfos.foreach { ci =>
 				val v = ci.columnToValue(o)
-				val fe = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
-				val newV = v match {
-					case null => null //throw new NullPointerException("unexpected null for primary entity on ManyToOne mapping, for entity %s.".format(o))
-					case p: Persisted =>
-						entityMap.down(o, ci, entity)
-						val newV = mapperDao.updateInner(updateConfig, fe, v, entityMap)
-						entityMap.up
-						newV
+
+				ci.column.foreign.entity match {
+					case ee: ExternalEntity[Any, Any] =>
+						modified(ci.column.alias) = v
 					case _ =>
-						entityMap.down(o, ci, entity)
-						val newV = mapperDao.insertInner(updateConfig, fe, v, entityMap)
-						entityMap.up
-						newV
+						val fe = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
+						val newV = v match {
+							case null => null //throw new NullPointerException("unexpected null for primary entity on ManyToOne mapping, for entity %s.".format(o))
+							case p: Persisted =>
+								entityMap.down(o, ci, entity)
+								val newV = mapperDao.updateInner(updateConfig, fe, v, entityMap)
+								entityMap.up
+								newV
+							case _ =>
+								entityMap.down(o, ci, entity)
+								val newV = mapperDao.insertInner(updateConfig, fe, v, entityMap)
+								entityMap.up
+								newV
+						}
+						modified(ci.column.alias) = newV
 				}
-				modified(ci.column.alias) = newV
 			}
 
 			val manyToOneChanged = table.manyToOneColumns.filter(Equality.onlyChanged(_, newValuesMap, oldValuesMap))
 			val mtoArgsV = manyToOneChanged.map(mto => (mto.foreign.entity, newValuesMap.valueOf[Any](mto.alias))).map {
 				case (entity, entityO) =>
-					entity.tpe.table.toListOfPrimaryKeyValues(entityO)
+					entity match {
+						case ee: ExternalEntity[Any, Any] =>
+							ee.primaryKeyValues(entityO)
+						case e: Entity[Any, Any] =>
+							e.tpe.table.toListOfPrimaryKeyValues(entityO)
+					}
 			}.flatten
 			val cv = (manyToOneChanged.map(_.columns).flatten zip mtoArgsV) filterNot { case (column, _) => table.primaryKeyColumns.contains(column) }
 			new DuringUpdateResults(cv, Nil)

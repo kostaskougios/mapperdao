@@ -29,6 +29,18 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 			mapperDao.select(PersonEntity, inserted1.id).get should be === inserted1
 			mapperDao.select(PersonEntity, inserted2.id).get should be === inserted2
 		}
+
+		test("update") {
+			createTables
+
+			val person = Person("kostas", House(10, "name10"))
+			val inserted = mapperDao.insert(PersonEntity, person)
+			val toUpdate = Person("kostas", House(20, "name20"))
+			val updated = mapperDao.update(PersonEntity, inserted, toUpdate)
+			updated should be === toUpdate
+
+			mapperDao.select(PersonEntity, inserted.id).get should be === updated
+		}
 	}
 
 	def createTables {

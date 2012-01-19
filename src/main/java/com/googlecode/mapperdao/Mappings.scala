@@ -53,8 +53,8 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 	val oneToManyColumns: List[OneToMany[Any, Any]] = columns.collect {
 		case c: OneToMany[Any, Any] => c
 	}
-	val manyToOneColumns: List[ManyToOne[Any, Any]] = columns.collect {
-		case mto: ManyToOne[Any, Any] => mto
+	val manyToOneColumns: List[ManyToOne[_, _]] = columns.collect {
+		case mto: ManyToOne[_, _] => mto
 	}
 	val manyToOneColumnsFlattened: List[Column] = columns.collect {
 		case ManyToOne(columns: List[Column], _) => columns
