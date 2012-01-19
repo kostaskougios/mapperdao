@@ -13,18 +13,19 @@ package com.googlecode.mapperdao
  *
  * @param	skip	skip one or more relationships from loading. If skipped, a traversable will
  * 					be empty and a reference to an other entity will be null
+ * @param	data	any kind of data
  *
  * example: SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
  */
-case class SelectConfig(skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set())
+case class SelectConfig(skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(), data: Option[Any] = None)
 
 case class QueryConfig(
-		// skip relationship from loading? i.e. SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
-		skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
-		// start index of first row, useful for paginating
-		offset: Option[Long] = None,
-		// limit the number of returned rows, useful for paginating
-		limit: Option[Long] = None) {
+	// skip relationship from loading? i.e. SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
+	skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
+	// start index of first row, useful for paginating
+	offset: Option[Long] = None,
+	// limit the number of returned rows, useful for paginating
+	limit: Option[Long] = None) {
 
 	// check parameter validity
 	if (offset.isDefined && offset.get < 0) throw new IllegalArgumentException("offset is " + offset)
