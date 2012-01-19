@@ -12,22 +12,20 @@ import org.scalatest.junit.JUnitRunner
  */
 @RunWith(classOf[JUnitRunner])
 class ManyToManyUseExternalLoaderSuite extends FunSuite with ShouldMatchers {
-	var counter = 0
-
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
 	if (Setup.database == "h2") {
 		test("persists/select externally") {
 			createTables
 
-			val product = Product("p1", Set(Attribute(1, "a1"), Attribute(2, "a2")))
+			val product = Product("p1", Set(Attribute(10, "x10"), Attribute(20, "x20")))
 			val inserted = mapperDao.insert(ProductEntity, product)
 			inserted should be === product
 			mapperDao.select(ProductEntity, inserted.id).get should be === inserted
 		}
 	}
+
 	def createTables {
-		counter = 0
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
@@ -45,13 +43,13 @@ class ManyToManyUseExternalLoaderSuite extends FunSuite with ShouldMatchers {
 		}
 	}
 
-	object AttributeEntity extends ExternalEntity[Attribute](classOf[Attribute]) {
+	object AttributeEntity extends ExternalEntity[Int, Attribute](classOf[Attribute]) {
 
 		def primaryKeyValues(a) = List(a.id)
 
-		def select(selectConfig: SelectConfig, ids: List[Int]) = {
-			val id = ids.head
-			Some(Attribute(id, "x" + id))
+		override def select(selectConfig: SelectConfig, ids: List[List[Int]]) = ids.map { idL =>
+			val id = idL.head
+			Attribute(id, "x" + id)
 		}
 	}
 

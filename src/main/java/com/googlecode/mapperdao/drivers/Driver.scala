@@ -245,6 +245,31 @@ abstract class Driver {
 			sb append "\nwhere " append generateColumnsEqualsValueString("l.", " and ", leftKeyValues.map(_._1))
 			sb.toString
 		}
+
+	/**
+	 * selects all id's of external entities and returns them in a List[List[Any]]
+	 */
+	def doSelectManyToManyForExternalEntity[PC, T, FPC, F](tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): List[List[Any]] =
+		{
+			val sql = selectManyToManySqlForExternalEntity(tpe, ftpe, manyToMany, leftKeyValues)
+			val l = jdbc.queryForList(sql, leftKeyValues.map(_._2))
+
+			val linkTable = manyToMany.linkTable
+			val columns = linkTable.right.map(_.columnName)
+			l.map { j =>
+				columns.map(c => j(c))
+			}
+		}
+	protected def selectManyToManySqlForExternalEntity[PC, T, FPC, F](tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): String =
+		{
+			val linkTable = manyToMany.linkTable
+
+			val sb = new StringBuilder(100, "select ")
+			sb append linkTable.right.map(_.columnName).mkString(",")
+			sb append "\nfrom " append escapeTableNames(linkTable.name)
+			sb append "\nwhere " append generateColumnsEqualsValueString(leftKeyValues.map(_._1), " and ")
+			sb.toString
+		}
 	/**
 	 * =====================================================================================
 	 * DELETE

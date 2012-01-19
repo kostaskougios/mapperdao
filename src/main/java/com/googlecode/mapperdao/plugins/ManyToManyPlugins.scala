@@ -39,7 +39,7 @@ class ManyToManyInsertPlugin(typeManager: TypeManager, typeRegistry: TypeRegistr
 				if (traversable != null) {
 					val nestedEntity = cis.column.foreign.entity
 					nestedEntity match {
-						case ee: ExternalEntity[Any] =>
+						case ee: ExternalEntity[Any, Any] =>
 							val nestedTpe = ee.tpe
 							traversable.foreach { nested =>
 								val rightKeyValues = ee.primaryKeyValues(nested)
@@ -87,12 +87,15 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 					Nil
 				} else {
 					val fe = c.foreign.entity
+					val ftpe = fe.tpe.asInstanceOf[Type[Any, Any]]
 					fe match {
-						case ee: ExternalEntity[Any] =>
+						case ee: ExternalEntity[Any, Any] =>
 							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
-							ee.select(selectConfig, ids).getOrElse(null)
+							val keys = c.linkTable.left zip ids
+							val allIds = driver.doSelectManyToManyForExternalEntity(tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
+
+							ee.select(selectConfig, allIds)
 						case _ =>
-							val ftpe = fe.tpe.asInstanceOf[Type[Any, Any]]
 							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
 							val keys = c.linkTable.left zip ids
 							val fom = driver.doSelectManyToMany(tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
