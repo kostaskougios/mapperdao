@@ -139,43 +139,65 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 
 				val fe = manyToMany.foreign.entity.asInstanceOf[Entity[Any, Any]]
 				val ftpe = fe.tpe
-				// delete the removed ones
-				removed.foreach {
-					case p: Persisted =>
-						val ftable = ftpe.table
-						val fPkArgs = manyToMany.linkTable.right zip ftable.toListOfPrimaryKeyValues(p)
-						driver.doDeleteManyToManyRef(tpe, ftpe, manyToMany, pkArgs, fPkArgs)
-						p.discarded = true
-				}
 
-				// update those that remained in the updated traversable
-				intersection.foreach { item =>
-					val newItem = item match {
-						case p: Persisted =>
-							entityMap.down(mockO, ci, entity)
-							mapperDao.updateInner(updateConfig, fe, item, entityMap)
-							entityMap.up
-							p.discarded = true
-							p
-						case _ =>
-							throw new IllegalStateException("Object not persisted but still exists in intersection of old and new collections. Please use the persisted entity when modifying the collection. The not persisted object is %s.".format(item))
-					}
-					modified(manyToMany.alias) = newItem
-				}
+				manyToMany.foreign.entity match {
+					case ee: ExternalEntity[Any, Any] =>
+						// delete the removed ones
+						removed.foreach { p =>
+							val ftable = ftpe.table
+							val fPkArgs = manyToMany.linkTable.right zip ee.primaryKeyValues(p)
+							driver.doDeleteManyToManyRef(tpe, ftpe, manyToMany, pkArgs, fPkArgs)
+						}
+						// update those that remained in the updated traversable
+						intersection.foreach { p =>
+							modified(manyToMany.alias) = p
+						}
+						// update the added ones
+						added.foreach { p =>
+							val fPKArgs = ee.primaryKeyValues(p)
+							driver.doInsertManyToMany(tpe, manyToMany, pkLeft, fPKArgs)
+							modified(manyToMany.alias) = p
+						}
 
-				// update the added ones
-				added.foreach { item =>
-					val newItem = item match {
-						case p: Persisted => p
-						case n =>
-							entityMap.down(mockO, ci, entity)
-							val inserted = mapperDao.insertInner[Any, Any](updateConfig, fe, n, entityMap)
-							entityMap.up
-							inserted
-					}
-					val fPKArgs = ftpe.table.toListOfPrimaryKeyValues(newItem)
-					driver.doInsertManyToMany(tpe, manyToMany, pkLeft, fPKArgs)
-					modified(manyToMany.alias) = newItem
+					case _ =>
+						// delete the removed ones
+						removed.foreach {
+							case p: Persisted =>
+								val ftable = ftpe.table
+								val fPkArgs = manyToMany.linkTable.right zip ftable.toListOfPrimaryKeyValues(p)
+								driver.doDeleteManyToManyRef(tpe, ftpe, manyToMany, pkArgs, fPkArgs)
+								p.discarded = true
+						}
+
+						// update those that remained in the updated traversable
+						intersection.foreach { item =>
+							val newItem = item match {
+								case p: Persisted =>
+									entityMap.down(mockO, ci, entity)
+									mapperDao.updateInner(updateConfig, fe, item, entityMap)
+									entityMap.up
+									p.discarded = true
+									p
+								case _ =>
+									throw new IllegalStateException("Object not persisted but still exists in intersection of old and new collections. Please use the persisted entity when modifying the collection. The not persisted object is %s.".format(item))
+							}
+							modified(manyToMany.alias) = newItem
+						}
+
+						// update the added ones
+						added.foreach { item =>
+							val newItem = item match {
+								case p: Persisted => p
+								case n =>
+									entityMap.down(mockO, ci, entity)
+									val inserted = mapperDao.insertInner[Any, Any](updateConfig, fe, n, entityMap)
+									entityMap.up
+									inserted
+							}
+							val fPKArgs = ftpe.table.toListOfPrimaryKeyValues(newItem)
+							driver.doInsertManyToMany(tpe, manyToMany, pkLeft, fPKArgs)
+							modified(manyToMany.alias) = newItem
+						}
 				}
 			}
 		}
