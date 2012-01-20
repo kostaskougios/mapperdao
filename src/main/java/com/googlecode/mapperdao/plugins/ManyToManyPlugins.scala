@@ -39,10 +39,10 @@ class ManyToManyInsertPlugin(typeManager: TypeManager, typeRegistry: TypeRegistr
 				if (traversable != null) {
 					val nestedEntity = cis.column.foreign.entity
 					nestedEntity match {
-						case ee: ExternalEntity[Any, Any] =>
+						case ee: ExternalEntity[Any, Any, Any] =>
 							val nestedTpe = ee.tpe
 							traversable.foreach { nested =>
-								val rightKeyValues = ee.primaryKeyValues(nested)
+								val rightKeyValues = ee.primaryKeyValuesToList(nested)
 								driver.doInsertManyToMany(nestedTpe, cis.column, newKeyValues, rightKeyValues)
 								modifiedTraversables(cName) = nested
 							}
@@ -89,7 +89,7 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 					val fe = c.foreign.entity
 					val ftpe = fe.tpe.asInstanceOf[Type[Any, Any]]
 					fe match {
-						case ee: ExternalEntity[Any, Any] =>
+						case ee: ExternalEntity[Any, Any, Any] =>
 							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
 							val keys = c.linkTable.left zip ids
 							val allIds = driver.doSelectManyToManyForExternalEntity(tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
@@ -141,11 +141,12 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 				val ftpe = fe.tpe
 
 				manyToMany.foreign.entity match {
-					case ee: ExternalEntity[Any, Any] =>
+					case ee: ExternalEntity[Any, Any, Any] =>
 						// delete the removed ones
 						removed.foreach { p =>
 							val ftable = ftpe.table
-							val fPkArgs = manyToMany.linkTable.right zip ee.primaryKeyValues(p)
+
+							val fPkArgs = manyToMany.linkTable.right zip ee.primaryKeyValuesToList(p)
 							driver.doDeleteManyToManyRef(tpe, ftpe, manyToMany, pkArgs, fPkArgs)
 						}
 						// update those that remained in the updated traversable
@@ -154,7 +155,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 						}
 						// update the added ones
 						added.foreach { p =>
-							val fPKArgs = ee.primaryKeyValues(p)
+							val fPKArgs = ee.primaryKeyValuesToList(p)
 							driver.doInsertManyToMany(tpe, manyToMany, pkLeft, fPKArgs)
 							modified(manyToMany.alias) = p
 						}

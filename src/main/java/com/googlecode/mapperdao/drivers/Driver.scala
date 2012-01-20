@@ -249,7 +249,7 @@ abstract class Driver {
 	/**
 	 * selects all id's of external entities and returns them in a List[List[Any]]
 	 */
-	def doSelectManyToManyForExternalEntity[PC, T, FPC, F](tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): List[List[Any]] =
+	def doSelectManyToManyForExternalEntity[PC, T, FPC, F](tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): List[(Any, Any)] =
 		{
 			val sql = selectManyToManySqlForExternalEntity(tpe, ftpe, manyToMany, leftKeyValues)
 			val l = jdbc.queryForList(sql, leftKeyValues.map(_._2))
@@ -257,7 +257,10 @@ abstract class Driver {
 			val linkTable = manyToMany.linkTable
 			val columns = linkTable.right.map(_.columnName)
 			l.map { j =>
-				columns.map(c => j(c))
+				columns match {
+					case k1 :: Nil => (j(k1), null)
+					case k1 :: k2 :: Nil => (j(k1), j(k2))
+				}
 			}
 		}
 	protected def selectManyToManySqlForExternalEntity[PC, T, FPC, F](tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): String =

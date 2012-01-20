@@ -5,7 +5,7 @@ import com.googlecode.mapperdao.utils.Equality
 import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao._
-
+import com.googlecode.mapperdao.utils.Helpers
 /**
  * @author kostantinos.kougios
  *
@@ -23,9 +23,9 @@ class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				val fo = cis.columnToValue(o)
 
 				cis.column.foreign.entity match {
-					case ee: ExternalEntity[Any, Any] =>
+					case ee: ExternalEntity[Any, Any, Any] =>
 						val columns = cis.column.columns.filterNot(table.primaryKeyColumns.contains(_))
-						extraArgs :::= columns zip ee.primaryKeyValues(fo)
+						extraArgs :::= columns zip ee.primaryKeyValuesToList(fo)
 						modified(cis.column.alias) = fo
 					case _ =>
 						val fe = cis.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
@@ -74,9 +74,9 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				val c = ci.column
 
 				c.foreign.entity match {
-					case ee: ExternalEntity[Any, Any] =>
+					case ee: ExternalEntity[Any, Any, Any] =>
 						val foreignPKValues = c.columns.map(mtoc => om(mtoc.columnName))
-						val l = ee.select(selectConfig, List(foreignPKValues))
+						val l = ee.select(selectConfig, List(Helpers.listOf2ToTuple(foreignPKValues)))
 						if (l.size > 1) throw new IllegalStateException("expected 1 external entity but got %s".format(l))
 						l.headOption.foreach(mods(c.foreign.alias) = _)
 					case _ =>
@@ -116,7 +116,7 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				val v = ci.columnToValue(o)
 
 				ci.column.foreign.entity match {
-					case ee: ExternalEntity[Any, Any] =>
+					case ee: ExternalEntity[Any, Any, Any] =>
 						modified(ci.column.alias) = v
 					case _ =>
 						val fe = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
@@ -141,8 +141,8 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			val mtoArgsV = manyToOneChanged.map(mto => (mto.foreign.entity, newValuesMap.valueOf[Any](mto.alias))).map {
 				case (entity, entityO) =>
 					entity match {
-						case ee: ExternalEntity[Any, Any] =>
-							ee.primaryKeyValues(entityO)
+						case ee: ExternalEntity[Any, Any, Any] =>
+							ee.primaryKeyValuesToList(entityO)
 						case e: Entity[Any, Any] =>
 							e.tpe.table.toListOfPrimaryKeyValues(entityO)
 					}

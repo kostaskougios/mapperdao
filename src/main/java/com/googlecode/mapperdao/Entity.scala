@@ -395,12 +395,18 @@ abstract class SimpleEntity[T](table: String, clz: Class[T]) extends Entity[AnyR
 /**
  * external entities allow loading entities externally via a custom dao or i.e. hibernate
  */
-abstract class ExternalEntity[IDT, T](table: String, clz: Class[T]) extends Entity[AnyRef, T](table, clz) {
+abstract class ExternalEntity[ID1TYPE, ID2TYPE, T](table: String, clz: Class[T]) extends Entity[AnyRef, T](table, clz) {
 	def this(clz: Class[T]) = this(clz.getSimpleName, clz)
 
 	override def constructor(implicit m) = throw new IllegalStateException("constructor shouldn't be called for ExternalEntity %s".format(clz))
 
-	def primaryKeyValues(t: T): List[Any]
-	def select(selectConfig: SelectConfig, allIds: List[List[IDT]]): List[T]
+	def primaryKeyValues(t: T): (ID1TYPE, Option[ID2TYPE])
+	def select(selectConfig: SelectConfig, allIds: List[(ID1TYPE, ID2TYPE)]): List[T]
+
+	private[mapperdao] def primaryKeyValuesToList(t: T) = {
+		val (key1, key2) = primaryKeyValues(t)
+		val right = key2.map(List(_)).getOrElse(Nil)
+		List(key1) ::: right
+	}
 
 }
