@@ -46,7 +46,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	protected def declarePrimaryKeys(pks: String*): Unit = pks.foreach { pk =>
 		unusedPKs ::= Column(pk)
 	}
-	// implicit conversions
+	// implicit conversions to be used implicitly into the constructor method
 	protected implicit def columnToBoolean(ci: ColumnInfo[T, Boolean])(implicit m: ValuesMap): Boolean = m(ci)
 	protected implicit def columnToBooleanOption(ci: ColumnInfo[T, Boolean])(implicit m: ValuesMap): Option[Boolean] = Some(m(ci))
 	protected implicit def columnToByte(ci: ColumnInfo[T, Byte])(implicit m: ValuesMap): Byte = m(ci)
@@ -184,7 +184,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	 */
 	def key(column: String) = new PKBuilder(column)
 
-	class PKBuilder(columnName: String) {
+	protected class PKBuilder(columnName: String) {
 		private var seq: Option[String] = None
 
 		def to[V](columnToValue: T => V)(implicit m: Manifest[V]): ColumnInfo[T, V] =
@@ -214,7 +214,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	 */
 	def column(column: String) = new ColumnBuilder(column)
 
-	class ColumnBuilder(column: String) {
+	protected class ColumnBuilder(column: String) {
 		def to[V](columnToValue: T => V)(implicit m: Manifest[V]): ColumnInfo[T, V] =
 			{
 				val ci = ColumnInfo[T, V](Column(column), columnToValue, m.erasure.asInstanceOf[Class[V]])
@@ -231,7 +231,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	def manytomany[FPC, FT](referenced: Entity[FPC, FT]) = new ManyToManyBuilder(referenced, false)
 	def manytomanyreverse[FPC, FT](referenced: Entity[FPC, FT]) = new ManyToManyBuilder(referenced, true)
 
-	class ManyToManyBuilder[FPC, FT](referenced: Entity[FPC, FT], reverse: Boolean) {
+	protected class ManyToManyBuilder[FPC, FT](referenced: Entity[FPC, FT], reverse: Boolean) {
 		private var linkTable = if (reverse) referenced.clz.getSimpleName + "_" + clz.getSimpleName else clz.getSimpleName + "_" + referenced.clz.getSimpleName
 		private var leftColumn = clz.getSimpleName.toLowerCase + "_id"
 		private var rightColumn = referenced.clz.getSimpleName.toLowerCase + "_id"
@@ -272,7 +272,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	 */
 	def onetoone[FPC, FT](referenced: Entity[FPC, FT]) = new OneToOneBuilder(referenced)
 
-	class OneToOneBuilder[FPC, FT](referenced: Entity[FPC, FT]) {
+	protected class OneToOneBuilder[FPC, FT](referenced: Entity[FPC, FT]) {
 		private var cols = List(referenced.clz.getSimpleName.toLowerCase + "_id")
 
 		def foreignkey(fk: String) = {
@@ -299,7 +299,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	 */
 	def onetoonereverse[FPC, FT](referenced: Entity[FPC, FT]) = new OneToOneReverseBuilder(referenced)
 
-	class OneToOneReverseBuilder[FPC, FT](referenced: Entity[FPC, FT]) {
+	protected class OneToOneReverseBuilder[FPC, FT](referenced: Entity[FPC, FT]) {
 		private var fkcols = List(clz.getSimpleName.toLowerCase + "_id")
 
 		def foreignkey(fk: String) = {
@@ -326,7 +326,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 
 	def onetomany[FPC, FT](referenced: Entity[FPC, FT]) = new OneToManyBuilder(referenced)
 
-	class OneToManyBuilder[FPC, FT](referenced: Entity[FPC, FT]) {
+	protected class OneToManyBuilder[FPC, FT](referenced: Entity[FPC, FT]) {
 		private var fkcols = List(clz.getSimpleName.toLowerCase + "_id")
 
 		def foreignkey(fk: String) = {
@@ -367,7 +367,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	 */
 	def manytoone[FPC, FT](referenced: Entity[FPC, FT]) = new ManyToOneBuilder(referenced)
 
-	class ManyToOneBuilder[FPC, FT](referenced: Entity[FPC, FT]) {
+	protected class ManyToOneBuilder[FPC, FT](referenced: Entity[FPC, FT]) {
 		private var fkcols = List(referenced.clz.getSimpleName.toLowerCase + "_id")
 		def foreignkey(fk: String) = {
 			fkcols = List(fk)
@@ -408,5 +408,4 @@ abstract class ExternalEntity[ID1TYPE, ID2TYPE, T](table: String, clz: Class[T])
 		val right = key2.map(List(_)).getOrElse(Nil)
 		List(key1) ::: right
 	}
-
 }

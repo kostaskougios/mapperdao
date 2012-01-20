@@ -80,9 +80,11 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 		}
 
 	}
-	object HouseEntity extends ExternalEntity[Int, House](classOf[House]) {
-		def primaryKeyValues(h: House) = List(h.id)
-		def select(selectConfig: SelectConfig, allIds: List[List[Int]]) = allIds.flatten.map(id => House(id, "name" + id))
+	object HouseEntity extends ExternalEntity[Int, Unit, House](classOf[House]) {
+		def primaryKeyValues(h: House) = (h.id, None)
+		def select(selectConfig: SelectConfig, allIds: List[(Int, Unit)]) = allIds.map {
+			case (id, _) =>
+				House(id, "name" + id)
+		}
 	}
-
 }

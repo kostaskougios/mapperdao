@@ -81,14 +81,13 @@ class ManyToManyUseExternalLoaderSuite extends FunSuite with ShouldMatchers {
 		}
 	}
 
-	object AttributeEntity extends ExternalEntity[Int, Attribute](classOf[Attribute]) {
+	object AttributeEntity extends ExternalEntity[Int, Unit, Attribute](classOf[Attribute]) {
 
-		def primaryKeyValues(a) = List(a.id)
+		def primaryKeyValues(a) = (a.id, None)
 
-		override def select(selectConfig: SelectConfig, ids: List[List[Int]]) = ids.map { idL =>
-			val id = idL.head
-			Attribute(id, "x" + id)
+		override def select(selectConfig: SelectConfig, ids: List[(Int, Unit)]) = ids.map {
+			case (id, _) =>
+				Attribute(id, "x" + id)
 		}
 	}
-
 }

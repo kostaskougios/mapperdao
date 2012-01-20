@@ -260,6 +260,7 @@ abstract class Driver {
 				columns match {
 					case k1 :: Nil => (j(k1), null)
 					case k1 :: k2 :: Nil => (j(k1), j(k2))
+					case _ => throw new IllegalArgumentException("list should contain 1 or 2 elements but instead was %s".format(l))
 				}
 			}
 		}
