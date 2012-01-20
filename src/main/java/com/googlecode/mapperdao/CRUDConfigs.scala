@@ -25,7 +25,8 @@ case class QueryConfig(
 	// start index of first row, useful for paginating
 	offset: Option[Long] = None,
 	// limit the number of returned rows, useful for paginating
-	limit: Option[Long] = None) {
+	limit: Option[Long] = None,
+	data: Option[Any] = None) {
 
 	// check parameter validity
 	if (offset.isDefined && offset.get < 0) throw new IllegalArgumentException("offset is " + offset)

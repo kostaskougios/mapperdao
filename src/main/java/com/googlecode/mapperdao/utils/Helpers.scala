@@ -14,11 +14,11 @@ object Helpers {
 
 	def intIdOf(o: Any): Int = o match {
 		case i: IntId => i.id
-		case _ => throw new IllegalArgumentException(o.toString)
+		case _ => throw new IllegalArgumentException("not an IntId : " + o.toString)
 	}
 	def longIdOf(o: Any): Long = o match {
 		case i: LongId => i.id
-		case _ => throw new IllegalArgumentException(o.toString)
+		case _ => throw new IllegalArgumentException("not an LongId : " + o.toString)
 	}
 
 	/**
