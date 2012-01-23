@@ -85,7 +85,7 @@ class ManyToManyUseExternalLoaderSuite extends FunSuite with ShouldMatchers {
 
 		def primaryKeyValues(a) = (a.id, None)
 
-		override def select(selectConfig: SelectConfig, ids: List[(Int, Unit)]) = ids.map {
+		override def select(ids) = ids.map {
 			case (id, _) =>
 				Attribute(id, "x" + id)
 		}

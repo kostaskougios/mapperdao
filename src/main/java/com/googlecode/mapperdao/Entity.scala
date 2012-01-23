@@ -394,6 +394,13 @@ abstract class SimpleEntity[T](table: String, clz: Class[T]) extends Entity[AnyR
 
 /**
  * external entities allow loading entities externally via a custom dao or i.e. hibernate
+ *
+ * ID1TYPE is the type of the first id and ID2TYPE of the second (if any,otherwise it can be Unit).
+ * T is the type of the entity.
+ *
+ * If queries with joins are to be done for this entity and the entity has a table (but is mapped with an other
+ * orm or is just loaded via jdbc) then the table and columns can be mapped as normally would be done if the
+ * entity was a mapperdao entity.
  */
 abstract class ExternalEntity[ID1TYPE, ID2TYPE, T](table: String, clz: Class[T]) extends Entity[AnyRef, T](table, clz) {
 	def this(clz: Class[T]) = this(clz.getSimpleName, clz)
@@ -401,7 +408,8 @@ abstract class ExternalEntity[ID1TYPE, ID2TYPE, T](table: String, clz: Class[T])
 	override def constructor(implicit m) = throw new IllegalStateException("constructor shouldn't be called for ExternalEntity %s".format(clz))
 
 	def primaryKeyValues(t: T): (ID1TYPE, Option[ID2TYPE])
-	def select(selectConfig: SelectConfig, allIds: List[(ID1TYPE, ID2TYPE)]): List[T]
+	def select(selectConfig: SelectConfig, allIds: List[(ID1TYPE, ID2TYPE)]): List[T] = select(allIds)
+	def select(allIds: List[(ID1TYPE, ID2TYPE)]): List[T] = throw new RuntimeException("please implement this method in your External Entities")
 
 	private[mapperdao] def primaryKeyValuesToList(t: T) = {
 		val (key1, key2) = primaryKeyValues(t)

@@ -78,7 +78,7 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 		Setup.queries(this, jdbc).update("ddl")
 	}
 
-	case class Person(var name: String, house: House)
+	case class Person(val name: String, val house: House)
 	case class House(val id: Int, val name: String)
 
 	val pe = PersonEntity
@@ -95,8 +95,8 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 	}
 	object HouseEntity extends ExternalEntity[Int, Unit, House](classOf[House]) {
 		val id = key("id") to (_.id)
-		def primaryKeyValues(h: House) = (h.id, None)
-		def select(selectConfig: SelectConfig, allIds: List[(Int, Unit)]) = allIds.map {
+		def primaryKeyValues(house) = (house.id, None)
+		override def select(allIds) = allIds.map {
 			case (id, _) =>
 				House(id, "name" + id)
 		}
