@@ -1,9 +1,9 @@
-#Mon Oct 31 23:06:03 GMT 2011
+#Mon Jan 23 12:31:16 GMT 2012
 Xcheck-null=false
 Xcheckinit=false
 Xdisable-assertions=false
 Xelide-below=-2147483648
-Xexperimental=false
+Xexperimental=true
 Xfatal-warnings=false
 Xfuture=false
 Xlog-implicits=false
@@ -49,7 +49,7 @@ g=vars
 no-specialization=false
 nowarn=false
 optimise=false
-scala.compiler.useProjectSettings=false
+scala.compiler.useProjectSettings=true
 syntaxColouring.bracket.bold=false
 syntaxColouring.bracket.colour=249,249,249
 syntaxColouring.bracket.italic=false

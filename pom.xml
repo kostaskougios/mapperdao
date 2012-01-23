@@ -164,6 +164,7 @@
 					<args>
 						<arg>-target:jvm-1.5</arg>
 						<arg>-Xexperimental</arg>
+						<arg>-optimize</arg>
 					</args>
 					<charset>${project.build.sourceEncoding}</charset>
 					<jvmArgs>
