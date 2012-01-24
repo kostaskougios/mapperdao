@@ -411,6 +411,9 @@ abstract class ExternalEntity[ID1TYPE, ID2TYPE, T](table: String, clz: Class[T])
 	def select(selectConfig: SelectConfig, allIds: List[(ID1TYPE, ID2TYPE)]): List[T] = select(allIds)
 	def select(allIds: List[(ID1TYPE, ID2TYPE)]): List[T] = throw new RuntimeException("please implement this method in your External Entities")
 
+	def selectOneToOneReverse(selectConfig: SelectConfig, foreignIds: (ID1TYPE, ID2TYPE)): List[T] = selectOneToOneReverse(foreignIds)
+	def selectOneToOneReverse(foreignIds: (ID1TYPE, ID2TYPE)): List[T] = throw new RuntimeException("please implement this method in your External Entities to map one-to-one-reverse externals")
+
 	private[mapperdao] def primaryKeyValuesToList(t: T) = {
 		val (key1, key2) = primaryKeyValues(t)
 		val right = key2.map(List(_)).getOrElse(Nil)

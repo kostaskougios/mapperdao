@@ -25,6 +25,8 @@ import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.TypeManager
 import com.googlecode.mapperdao.UpdateConfig
 import com.googlecode.mapperdao.Entity
+import com.googlecode.mapperdao.ExternalEntity
+import com.googlecode.mapperdao.utils.Helpers
 /**
  * @author kostantinos.kougios
  *
@@ -53,22 +55,28 @@ class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperD
 			val table = tpe.table
 			// one-to-one reverse
 			table.oneToOneReverseColumnInfos.foreach { cis =>
-				val fe = cis.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
-				val fo = cis.columnToValue(o)
-				val v = fo match {
-					case null => null
-					case p: Persisted =>
-						entityMap.down(mockO, cis, entity)
-						val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
-						entityMap.up
-						updated
-					case x =>
-						entityMap.down(mockO, cis, entity)
-						val inserted = mapperDao.insertInner(updateConfig, fe, x, entityMap)
-						entityMap.up
-						inserted
+
+				cis.column.foreign.entity match {
+					case ee: ExternalEntity[Any, Any, Any] =>
+						val fo = cis.columnToValue(o)
+						modified(cis.column.alias) = fo
+					case fe: Entity[Any, Any] =>
+						val fo = cis.columnToValue(o)
+						val v = fo match {
+							case null => null
+							case p: Persisted =>
+								entityMap.down(mockO, cis, entity)
+								val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
+								entityMap.up
+								updated
+							case x =>
+								entityMap.down(mockO, cis, entity)
+								val inserted = mapperDao.insertInner(updateConfig, fe, x, entityMap)
+								entityMap.up
+								inserted
+						}
+						modified(cis.column.alias) = v
 				}
-				modified(cis.column.alias) = v
 			}
 		}
 }
@@ -101,20 +109,27 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 			table.oneToOneReverseColumnInfos.filterNot(selectConfig.skip(_)).foreach { ci =>
 				val c = ci.column
 				val fe = c.foreign.entity
-				val ftpe = fe.tpe
-				val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
-				val keys = c.foreignColumns.zip(ids)
-				val fom = driver.doSelect(ftpe, keys)
-				entities.down(tpe, ci, om)
-				val otmL = mapperDao.toEntities(fom, fe, selectConfig, entities)
-				entities.up
-				if (otmL.isEmpty) {
-					mods(c.foreign.alias) = null
-				} else {
-					if (otmL.size > 1) throw new IllegalStateException("expected 0 or 1 row but got " + otmL)
-					else {
-						mods(c.foreign.alias) = otmL.head
-					}
+				fe match {
+					case ee: ExternalEntity[Any, Any, Any] =>
+						val foreignIds = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+						val v = ee.selectOneToOneReverse(selectConfig, Helpers.listOf2ToTuple(foreignIds))
+						mods(c.foreign.alias) = v
+					case _ =>
+						val ftpe = fe.tpe
+						val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+						val keys = c.foreignColumns.zip(ids)
+						val fom = driver.doSelect(ftpe, keys)
+						entities.down(tpe, ci, om)
+						val otmL = mapperDao.toEntities(fom, fe, selectConfig, entities)
+						entities.up
+						if (otmL.isEmpty) {
+							mods(c.foreign.alias) = null
+						} else {
+							if (otmL.size > 1) throw new IllegalStateException("expected 0 or 1 row but got " + otmL)
+							else {
+								mods(c.foreign.alias) = otmL.head
+							}
+						}
 				}
 			}
 		}
