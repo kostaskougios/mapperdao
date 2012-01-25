@@ -17,18 +17,40 @@ class OneToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 	if (Setup.database == "h2") {
 		test("persist/select") {
 			createTables
-			val product = Product(5, Inventory(10, 20))
+			val product = Product(5, Inventory(105, 205))
 			val inserted = mapperDao.insert(ProductEntity, product)
 			inserted should be === product
-			val selected = mapperDao.select(ProductEntity, inserted.id)
+			val selected = mapperDao.select(ProductEntity, inserted.id).get
 			selected should be === inserted
 		}
-	}
-	def createTables =
-		{
-			Setup.dropAllTables(jdbc)
-			Setup.queries(this, jdbc).update("ddl")
+		test("update/select") {
+			createTables
+			val inserted = mapperDao.insert(ProductEntity, Product(5, Inventory(105, 205)))
+			mapperDao.update(ProductEntity, inserted, Product(5, Inventory(106, 206)))
+			// since no update of Inventory occurs, the InventoryEntity will just
+			// return Inventory(105, 205)
+			mapperDao.select(ProductEntity, inserted.id).get should be === inserted
 		}
+		test("delete") {
+			createTables
+			val inserted = mapperDao.insert(ProductEntity, Product(5, Inventory(105, 205)))
+			mapperDao.delete(ProductEntity, inserted)
+			mapperDao.select(ProductEntity, inserted.id) should be(None)
+		}
+
+		test("query") {
+			createTables
+			val inserted1 = mapperDao.insert(ProductEntity, Product(5, Inventory(105, 205)))
+			val inserted2 = mapperDao.insert(ProductEntity, Product(6, Inventory(106, 206)))
+			import Query._
+			val pe = ProductEntity
+			queryDao.query(select from pe where pe.id === 5) should be === List(inserted1)
+		}
+	}
+	def createTables {
+		Setup.dropAllTables(jdbc)
+		Setup.queries(this, jdbc).update("ddl")
+	}
 
 	case class Inventory(val id: Int, val stock: Int)
 	case class Product(val id: Int, val inventory: Inventory)
@@ -41,5 +63,8 @@ class OneToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 	}
 	object InventoryEntity extends ExternalEntity[Int, Unit, Inventory](classOf[Inventory]) {
 		def primaryKeyValues(inventory) = (inventory.id, None)
+		override def selectOneToOneReverse(foreignIds) = foreignIds match {
+			case (foreignId, _) => new Inventory(foreignId + 100, 200 + foreignId)
+		}
 	}
 }

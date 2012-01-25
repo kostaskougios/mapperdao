@@ -164,32 +164,38 @@ class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeM
 			table.oneToOneReverseColumnInfos.foreach { ci =>
 				val fo = ci.columnToValue(o)
 				val c = ci.column
-				val fe = c.foreign.entity.asInstanceOf[Entity[Any, Any]]
-				val ftpe = fe.tpe
-				if (fo != null) {
-					val v = fo match {
-						case p: Persisted =>
-							entityMap.down(mockO, ci, entity)
-							mapperDao.updateInner(updateConfig, fe, fo, entityMap)
-							entityMap.up
-						case newO =>
-							entityMap.down(mockO, ci, entity)
-							val oldV = oldValuesMap(ci)
-							if (oldV == null) {
-								mapperDao.insertInner(updateConfig, fe, fo, entityMap)
-							} else {
-								val nVM = ValuesMap.fromEntity(typeManager, ftpe, fo)
-								mapperDao.updateInner(updateConfig, fe, oldV.asInstanceOf[Persisted], fo, entityMap)
+
+				c.foreign.entity match {
+					case ee: ExternalEntity[Any, Any, Any] =>
+					// nothing to do here, any updates or deletes
+					// to the external entity should happen externally
+					case fe: Entity[Any, Any] =>
+						val ftpe = fe.tpe
+						if (fo != null) {
+							val v = fo match {
+								case p: Persisted =>
+									entityMap.down(mockO, ci, entity)
+									mapperDao.updateInner(updateConfig, fe, fo, entityMap)
+									entityMap.up
+								case newO =>
+									entityMap.down(mockO, ci, entity)
+									val oldV = oldValuesMap(ci)
+									if (oldV == null) {
+										mapperDao.insertInner(updateConfig, fe, fo, entityMap)
+									} else {
+										val nVM = ValuesMap.fromEntity(typeManager, ftpe, fo)
+										mapperDao.updateInner(updateConfig, fe, oldV.asInstanceOf[Persisted], fo, entityMap)
+									}
+									entityMap.up
 							}
-							entityMap.up
-					}
-				} else {
-					val oldV: Any = oldValuesMap.valueOf(c.alias)
-					if (oldV != null) {
-						// delete the old value from the database
-						val args = c.foreignColumns zip newValuesMap.toListOfColumnValue(tpe.table.primaryKeys)
-						driver.doDelete(ftpe, args)
-					}
+						} else {
+							val oldV: Any = oldValuesMap.valueOf(c.alias)
+							if (oldV != null) {
+								// delete the old value from the database
+								val args = c.foreignColumns zip newValuesMap.toListOfColumnValue(tpe.table.primaryKeys)
+								driver.doDelete(ftpe, args)
+							}
+						}
 				}
 			}
 		}
