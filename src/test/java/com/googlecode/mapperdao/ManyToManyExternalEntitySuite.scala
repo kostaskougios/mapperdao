@@ -11,7 +11,7 @@ import org.scalatest.junit.JUnitRunner
  * Jan 18, 2012
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToManyUseExternalLoaderSuite extends FunSuite with ShouldMatchers {
+class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
 	if (Setup.database == "h2") {
