@@ -19,9 +19,11 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 		test("persist/select") {
 			createTables
 
-			val person = Person("p1", Set(House(10, "London"), House(11, "Paris")))
+			val person = Person("p1", Set(House(11, "house for 1"), House(12, "2nd house for 1")))
 			val inserted = mapperDao.insert(PersonEntity, person)
 			inserted should be === person
+
+			mapperDao.select(PersonEntity, inserted.id).get should be === inserted
 		}
 	}
 
@@ -44,6 +46,10 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 	object HouseEntity extends ExternalEntity[Int, Unit, House](classOf[House]) {
 		def primaryKeyValues(h) = (h.id, None)
-	}
 
+		override def selectOneToMany(ids) = ids match {
+			case List(foreignId: Int) => List(House(foreignId + 10, "house for " + foreignId), House(foreignId + 11, "2nd house for " + foreignId))
+			case _ => throw new RuntimeException
+		}
+	}
 }

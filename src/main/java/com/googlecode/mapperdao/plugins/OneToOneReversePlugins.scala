@@ -112,7 +112,7 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 				fe match {
 					case ee: ExternalEntity[Any, Any, Any] =>
 						val foreignIds = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
-						val v = ee.selectOneToOneReverse(selectConfig, Helpers.listOf2ToTuple(foreignIds))
+						val v = ee.selectOneToOneReverse(selectConfig, foreignIds)
 						mods(c.foreign.alias) = v
 					case _ =>
 						val ftpe = fe.tpe

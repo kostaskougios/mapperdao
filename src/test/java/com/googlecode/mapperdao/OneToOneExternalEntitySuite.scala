@@ -64,7 +64,8 @@ class OneToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 	object InventoryEntity extends ExternalEntity[Int, Unit, Inventory](classOf[Inventory]) {
 		def primaryKeyValues(inventory) = (inventory.id, None)
 		override def selectOneToOneReverse(foreignIds) = foreignIds match {
-			case (foreignId, _) => new Inventory(foreignId + 100, 200 + foreignId)
+			case (foreignId: Int) :: Nil => new Inventory(foreignId + 100, 200 + foreignId)
+			case _ => throw new RuntimeException
 		}
 	}
 }

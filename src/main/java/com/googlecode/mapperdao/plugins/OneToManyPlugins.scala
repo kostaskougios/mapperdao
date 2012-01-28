@@ -1,12 +1,12 @@
 package com.googlecode.mapperdao.plugins
 
-import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.drivers.Driver
-import com.googlecode.mapperdao.utils.TraversableSeparation
+import com.googlecode.mapperdao.events.Events
+import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.utils.MapOfList
-import com.googlecode.mapperdao.jdbc.JdbcMap
-import com.googlecode.mapperdao.events.Events
+import com.googlecode.mapperdao.utils.TraversableSeparation
+import com.googlecode.mapperdao._
 
 /**
  * @author kostantinos.kougios
@@ -44,28 +44,36 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 			val table = tpe.table
 			// one to many
 			table.oneToManyColumnInfos.foreach { cis =>
-				val fe = cis.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
-				val ftpe = fe.tpe
-				val newKeyValues = table.primaryKeys.map(c => modified(c.columnName))
 				val traversable = cis.columnToValue(o)
-				if (traversable != null) {
-					traversable.foreach { nested =>
-						val newO = if (mapperDao.isPersisted(nested)) {
-							val OneToMany(foreign: TypeRef[_, _], foreignColumns: List[Column]) = cis.column
-							// update
-							val keyArgs = ftpe.table.toListOfColumnAndValueTuples(ftpe.table.primaryKeys, nested)
-							driver.doUpdateOneToManyRef(ftpe, foreignColumns zip newKeyValues, keyArgs)
-							nested
-						} else {
-							// insert
-							entityMap.down(mockO, cis, entity)
-							val inserted = mapperDao.insertInner(updateConfig, fe, nested, entityMap)
-							entityMap.up
-							inserted
-						}
+				cis.column.foreign.entity match {
+					case ee: ExternalEntity[Any, Any, Any] =>
 						val cName = cis.column.alias
-						modifiedTraversables(cName) = newO
-					}
+						traversable.foreach {
+							modifiedTraversables(cName) = _
+						}
+
+					case fe: Entity[Any, Any] =>
+						val ftpe = fe.tpe
+						val newKeyValues = table.primaryKeys.map(c => modified(c.columnName))
+						if (traversable != null) {
+							traversable.foreach { nested =>
+								val newO = if (mapperDao.isPersisted(nested)) {
+									val OneToMany(foreign: TypeRef[_, _], foreignColumns: List[Column]) = cis.column
+									// update
+									val keyArgs = ftpe.table.toListOfColumnAndValueTuples(ftpe.table.primaryKeys, nested)
+									driver.doUpdateOneToManyRef(ftpe, foreignColumns zip newKeyValues, keyArgs)
+									nested
+								} else {
+									// insert
+									entityMap.down(mockO, cis, entity)
+									val inserted = mapperDao.insertInner(updateConfig, fe, nested, entityMap)
+									entityMap.up
+									inserted
+								}
+								val cName = cis.column.alias
+								modifiedTraversables(cName) = newO
+							}
+						}
 				}
 			}
 		}
@@ -87,20 +95,29 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 			// one to many
 			table.oneToManyColumnInfos.foreach { ci =>
 				val c = ci.column
-				val fe = c.foreign.entity
-				val ftpe = fe.tpe
-				val otmL = if (selectConfig.skip(ci)) {
-					Nil
-				} else {
-					val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
-					val where = c.foreignColumns.zip(ids)
-					val fom = driver.doSelect(ftpe, where)
-					entities.down(tpe, ci, om)
-					val v = mapperDao.toEntities(fom, fe, selectConfig, entities)
-					entities.up
-					v
+				c.foreign.entity match {
+					case ee: ExternalEntity[Any, Any, Any] =>
+						val table = tpe.table
+						val ids = table.primaryKeys.map { pk =>
+							om(pk.column.columnName)
+						}
+						val v = ee.selectOneToMany(selectConfig, ids)
+						mods(c.foreign.alias) = v
+					case fe: Entity[_, _] =>
+						val otmL = if (selectConfig.skip(ci)) {
+							Nil
+						} else {
+							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+							val where = c.foreignColumns.zip(ids)
+							val ftpe = fe.tpe
+							val fom = driver.doSelect(ftpe, where)
+							entities.down(tpe, ci, om)
+							val v = mapperDao.toEntities(fom, fe, selectConfig, entities)
+							entities.up
+							v
+						}
+						mods(c.foreign.alias) = otmL
 				}
-				mods(c.foreign.alias) = otmL
 			}
 		}
 
