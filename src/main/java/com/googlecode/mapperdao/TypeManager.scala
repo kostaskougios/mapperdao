@@ -17,4 +17,9 @@ trait TypeManager {
 	def convert(o: Any): Any
 
 	def reverseConvert(o: Any): Any
+
+	/**
+	 * converts o to tpe if possible
+	 */
+	def toActualType(tpe: Class[_], o: Any): Any
 }
