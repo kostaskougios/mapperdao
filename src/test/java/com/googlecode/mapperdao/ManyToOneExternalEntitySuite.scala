@@ -106,5 +106,12 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 		onInsertManyToOne(PersonEntity.house) { i =>
 			onInsertCounter += 1
 		}
+
+		onSelectManyToOne(PersonEntity.house) { s =>
+			s.primaryKeys match {
+				case List(id: Int) => House(id, "name" + id)
+				case _ => throw new IllegalStateException
+			}
+		}
 	}
 }

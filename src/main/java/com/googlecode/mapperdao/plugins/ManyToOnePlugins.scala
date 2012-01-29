@@ -71,22 +71,21 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			val tpe = entity.tpe
 			val table = tpe.table
 			// many to one
-			table.manyToOneColumnInfos.filterNot(selectConfig.skip(_)).foreach { ci =>
-				val c = ci.column
+			table.manyToOneColumnInfos.filterNot(selectConfig.skip(_)).foreach { cis =>
+				val c = cis.column
 
 				c.foreign.entity match {
 					case ee: ExternalEntity[Any, Any, Any] =>
 						val foreignPKValues = c.columns.map(mtoc => om(mtoc.columnName))
-						val l = ee.select(selectConfig, List(Helpers.listOf2ToTuple(foreignPKValues)))
-						if (l.size > 1) throw new IllegalStateException("expected 1 external entity but got %s".format(l))
-						l.headOption.foreach(mods(c.foreign.alias) = _)
+						val fo = ee.manyToOneOnSelectMap.get(cis.asInstanceOf[ColumnInfoManyToOne[_, _, Any]]).map(_(SelectExternalManyToOne(selectConfig, foreignPKValues))).getOrElse(throw new IllegalStateException("please call method onSelectManyToOne on ExternalEntity %s".format(ee.getClass)))
+						mods(c.foreign.alias) = fo
 					case _ =>
 						val fe = c.foreign.entity
 						val foreignPKValues = c.columns.map(mtoc => om(mtoc.columnName))
 						val fo = entities.get(fe.clz, foreignPKValues)
 
 						val v = fo.getOrElse {
-							entities.down(tpe, ci, om)
+							entities.down(tpe, cis, om)
 							val v = mapperDao.selectInner(fe, selectConfig, foreignPKValues, entities).getOrElse(null)
 							entities.up
 							v

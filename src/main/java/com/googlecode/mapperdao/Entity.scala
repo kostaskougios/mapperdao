@@ -429,8 +429,12 @@ abstract class ExternalEntity[ID1TYPE, ID2TYPE, T](table: String, clz: Class[T])
 	 * support for many-to-one mapping
 	 */
 	type OnInsertManyToOne = InsertExternalManyToOne[_, T] => Unit
+	type OnSelectManyToOne = SelectExternalManyToOne[_, T] => T
+
 	private[mapperdao] var manyToOneOnInsertMap = Map[ColumnInfoManyToOne[_, _, T], OnInsertManyToOne]()
+	private[mapperdao] var manyToOneOnSelectMap = Map[ColumnInfoManyToOne[_, _, T], OnSelectManyToOne]()
 	def onInsertManyToOne(ci: => ColumnInfoManyToOne[_, _, T])(handler: OnInsertManyToOne) = lazyActions(() => manyToOneOnInsertMap += (ci -> handler))
+	def onSelectManyToOne(ci: => ColumnInfoManyToOne[_, _, T])(handler: OnSelectManyToOne) = lazyActions(() => manyToOneOnSelectMap += (ci -> handler))
 
 	/**
 	 * support for one-to-many mapping
@@ -459,6 +463,7 @@ abstract class ExternalEntity[ID1TYPE, ID2TYPE, T](table: String, clz: Class[T])
 }
 
 case class InsertExternalManyToOne[T, F](updateConfig: UpdateConfig, t: T, one: F)
+case class SelectExternalManyToOne[T, F](selectConfig: SelectConfig, primaryKeys: List[Any])
 
 case class InsertExternalOneToMany[T, F](updateConfig: UpdateConfig, t: T, many: Traversable[F])
 case class SelectExternalOneToMany(selectConfig: SelectConfig, foreignIds: List[Any])
