@@ -112,28 +112,28 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			val tpe = entity.tpe
 			val table = tpe.table
 
-			table.manyToOneColumnInfos.foreach { ci =>
-				val v = ci.columnToValue(o)
+			table.manyToOneColumnInfos.foreach { cis =>
+				val v = cis.columnToValue(o)
 
-				ci.column.foreign.entity match {
+				cis.column.foreign.entity match {
 					case ee: ExternalEntity[Any, Any, Any] =>
-						modified(ci.column.alias) = v
-					case _ =>
-						val fe = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
+						ee.manyToOneOnUpdateMap.get(cis.asInstanceOf[ColumnInfoManyToOne[_, _, Any]]).map(_(UpdateExternalManyToOne(updateConfig, o, v)))
+						modified(cis.column.alias) = v
+					case fe: Entity[Any, Any] =>
 						val newV = v match {
 							case null => null //throw new NullPointerException("unexpected null for primary entity on ManyToOne mapping, for entity %s.".format(o))
 							case p: Persisted =>
-								entityMap.down(o, ci, entity)
+								entityMap.down(o, cis, entity)
 								val newV = mapperDao.updateInner(updateConfig, fe, v, entityMap)
 								entityMap.up
 								newV
 							case _ =>
-								entityMap.down(o, ci, entity)
+								entityMap.down(o, cis, entity)
 								val newV = mapperDao.insertInner(updateConfig, fe, v, entityMap)
 								entityMap.up
 								newV
 						}
-						modified(ci.column.alias) = newV
+						modified(cis.column.alias) = newV
 				}
 			}
 

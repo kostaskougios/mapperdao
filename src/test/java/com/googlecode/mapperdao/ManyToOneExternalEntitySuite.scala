@@ -56,6 +56,7 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 			val inserted = mapperDao.insert(PersonEntity, person)
 			val toUpdate = Person("kostas", House(20, "name20"))
 			val updated = mapperDao.update(PersonEntity, inserted, toUpdate)
+			HouseEntity.onUpdateCounter should be === 1
 			updated should be === toUpdate
 
 			mapperDao.select(PersonEntity, inserted.id).get should be === updated
@@ -75,6 +76,7 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 	def createTables {
 		HouseEntity.onInsertCounter = 0
+		HouseEntity.onUpdateCounter = 0
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
@@ -97,14 +99,15 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 	object HouseEntity extends ExternalEntity[Int, Unit, House](classOf[House]) {
 		val id = key("id") to (_.id)
 		def primaryKeyValues(house) = (house.id, None)
-		override def select(allIds) = allIds.map {
-			case (id, _) =>
-				House(id, "name" + id)
-		}
 
 		var onInsertCounter = 0
 		onInsertManyToOne(PersonEntity.house) { i =>
 			onInsertCounter += 1
+		}
+
+		var onUpdateCounter = 0
+		onUpdateManyToOne(PersonEntity.house) { i =>
+			onUpdateCounter += 1
 		}
 
 		onSelectManyToOne(PersonEntity.house) { s =>

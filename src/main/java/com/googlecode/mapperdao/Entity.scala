@@ -430,11 +430,14 @@ abstract class ExternalEntity[ID1TYPE, ID2TYPE, T](table: String, clz: Class[T])
 	 */
 	type OnInsertManyToOne = InsertExternalManyToOne[_, T] => Unit
 	type OnSelectManyToOne = SelectExternalManyToOne[_, T] => T
+	type OnUpdateManyToOne = UpdateExternalManyToOne[_, T] => Unit
 
 	private[mapperdao] var manyToOneOnInsertMap = Map[ColumnInfoManyToOne[_, _, T], OnInsertManyToOne]()
 	private[mapperdao] var manyToOneOnSelectMap = Map[ColumnInfoManyToOne[_, _, T], OnSelectManyToOne]()
+	private[mapperdao] var manyToOneOnUpdateMap = Map[ColumnInfoManyToOne[_, _, T], OnUpdateManyToOne]()
 	def onInsertManyToOne(ci: => ColumnInfoManyToOne[_, _, T])(handler: OnInsertManyToOne) = lazyActions(() => manyToOneOnInsertMap += (ci -> handler))
 	def onSelectManyToOne(ci: => ColumnInfoManyToOne[_, _, T])(handler: OnSelectManyToOne) = lazyActions(() => manyToOneOnSelectMap += (ci -> handler))
+	def onUpdateManyToOne(ci: => ColumnInfoManyToOne[_, _, T])(handler: OnUpdateManyToOne) = lazyActions(() => manyToOneOnUpdateMap += (ci -> handler))
 
 	/**
 	 * support for one-to-many mapping
@@ -464,6 +467,7 @@ abstract class ExternalEntity[ID1TYPE, ID2TYPE, T](table: String, clz: Class[T])
 
 case class InsertExternalManyToOne[T, F](updateConfig: UpdateConfig, t: T, one: F)
 case class SelectExternalManyToOne[T, F](selectConfig: SelectConfig, primaryKeys: List[Any])
+case class UpdateExternalManyToOne[T, F](updateConfig: UpdateConfig, t: T, one: F)
 
 case class InsertExternalOneToMany[T, F](updateConfig: UpdateConfig, t: T, many: Traversable[F])
 case class SelectExternalOneToMany(selectConfig: SelectConfig, foreignIds: List[Any])
