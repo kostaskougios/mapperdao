@@ -51,7 +51,7 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 						traversable.foreach {
 							modifiedTraversables(cName) = _
 						}
-						ee.oneToManyOnInsertMap.get(cis.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, Any]]).map { _(InsertExternalOneToMany(updateConfig, o)) }
+						ee.oneToManyOnInsertMap.get(cis.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, Any]]).map { _(InsertExternalOneToMany(updateConfig, o, traversable)) }
 
 					case fe: Entity[Any, Any] =>
 						val ftpe = fe.tpe

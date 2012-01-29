@@ -71,7 +71,7 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 		var currentData = List(House(10, "House10"), House(11, "House11"))
 
 		var onInsertCalls = 0
-		onInsert(PersonEntity.owns) { i =>
+		onInsertOneToMany(PersonEntity.owns) { i =>
 			onInsertCalls += 1
 		}
 		onSelect(PersonEntity.owns) {

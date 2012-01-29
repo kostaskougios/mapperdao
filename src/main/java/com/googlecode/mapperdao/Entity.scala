@@ -426,6 +426,13 @@ abstract class ExternalEntity[ID1TYPE, ID2TYPE, T](table: String, clz: Class[T])
 	def selectOneToOneReverse(foreignIds: List[Any]): T = throw new RuntimeException("please implement this method in your External Entities to map one-to-one-reverse externals")
 
 	/**
+	 * support for many-to-one mapping
+	 */
+	type OnInsertManyToOne = InsertExternalManyToOne[_, T] => Unit
+	private[mapperdao] var manyToOneOnInsertMap = Map[ColumnInfoManyToOne[_, _, T], OnInsertManyToOne]()
+	def onInsertManyToOne(ci: => ColumnInfoManyToOne[_, _, T])(handler: OnInsertManyToOne) = lazyActions(() => manyToOneOnInsertMap += (ci -> handler))
+
+	/**
 	 * support for one-to-many mapping
 	 */
 	type OnInsertOneToMany = InsertExternalOneToMany[_, T] => Unit
@@ -435,7 +442,7 @@ abstract class ExternalEntity[ID1TYPE, ID2TYPE, T](table: String, clz: Class[T])
 	private[mapperdao] var oneToManyOnSelectMap = Map[ColumnInfoTraversableOneToMany[_, _, T], OnSelectOneToMany]()
 	private[mapperdao] var oneToManyOnUpdateMap = Map[ColumnInfoTraversableOneToMany[_, _, T], OnUpdateOneToMany]()
 
-	def onInsert(ci: => ColumnInfoTraversableOneToMany[_, _, T])(handler: OnInsertOneToMany) = lazyActions(() => oneToManyOnInsertMap += (ci -> handler))
+	def onInsertOneToMany(ci: => ColumnInfoTraversableOneToMany[_, _, T])(handler: OnInsertOneToMany) = lazyActions(() => oneToManyOnInsertMap += (ci -> handler))
 	def onSelect(ci: => ColumnInfoTraversableOneToMany[_, _, T])(handler: OnSelectOneToMany) = lazyActions(() => oneToManyOnSelectMap += (ci -> handler))
 	def onUpdate(ci: => ColumnInfoTraversableOneToMany[_, _, T])(handler: OnUpdateOneToMany) = lazyActions(() => oneToManyOnUpdateMap += (ci -> handler))
 
@@ -451,6 +458,8 @@ abstract class ExternalEntity[ID1TYPE, ID2TYPE, T](table: String, clz: Class[T])
 	}
 }
 
-case class InsertExternalOneToMany[T, F](updateConfig: UpdateConfig, t: T)
+case class InsertExternalManyToOne[T, F](updateConfig: UpdateConfig, t: T, one: F)
+
+case class InsertExternalOneToMany[T, F](updateConfig: UpdateConfig, t: T, many: Traversable[F])
 case class SelectExternalOneToMany(selectConfig: SelectConfig, foreignIds: List[Any])
 case class UpdateExternalOneToMany[T, F](updateConfig: UpdateConfig, t: T, added: Traversable[F], intersection: Traversable[F], removed: Traversable[F])
