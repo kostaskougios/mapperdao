@@ -19,7 +19,7 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 		test("persist/select") {
 			createTables
 
-			val person = Person("p1", Set(House(11, "house for 1"), House(12, "2nd house for 1")))
+			val person = Person("p1", HouseEntity.currentData.toSet)
 			val inserted = mapperDao.insert(PersonEntity, person)
 			inserted should be === person
 
@@ -29,7 +29,7 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 		test("update") {
 			createTables
 
-			val person = Person("p1", Set(House(11, "house for 1"), House(12, "2nd house for 1")))
+			val person = Person("p1", HouseEntity.currentData.toSet)
 			val inserted = mapperDao.insert(PersonEntity, person)
 			val toUpdate = Person("p1-1", inserted.owns.filter(_.id == 11))
 			val updated = mapperDao.update(PersonEntity, inserted, toUpdate)
@@ -67,11 +67,16 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 	object HouseEntity extends ExternalEntity[Int, Unit, House](classOf[House]) {
 		def primaryKeyValues(h) = (h.id, None)
 
+		var currentData = List(House(10, "House10"), House(11, "House11"))
+
 		onSelect(PersonEntity.owns) {
 			_.foreignIds match {
-				case List(foreignId: Int) => List(House(foreignId + 10, "house for " + foreignId), House(foreignId + 11, "2nd house for " + foreignId))
+				case List(foreignId: Int) => currentData
 				case _ => throw new RuntimeException
 			}
+		}
+		onUpdate(PersonEntity.owns) { u =>
+			currentData = (u.added ++ u.intersection).toList
 		}
 	}
 }

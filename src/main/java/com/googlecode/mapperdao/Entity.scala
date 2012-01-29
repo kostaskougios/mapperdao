@@ -449,4 +449,4 @@ abstract class ExternalEntity[ID1TYPE, ID2TYPE, T](table: String, clz: Class[T])
 }
 
 case class SelectExternalOneToMany(selectConfig: SelectConfig, foreignIds: List[Any])
-case class UpdateExternalOneToMany[T, F](t: T, added: Traversable[F], intersection: Traversable[F], removed: Traversable[F])
+case class UpdateExternalOneToMany[T, F](updateConfig: UpdateConfig, t: T, added: Traversable[F], intersection: Traversable[F], removed: Traversable[F])

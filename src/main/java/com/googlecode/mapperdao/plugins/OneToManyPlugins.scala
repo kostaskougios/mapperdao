@@ -152,7 +152,7 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				ci.column.foreign.entity match {
 					case ee: ExternalEntity[Any, Any, Any] =>
 
-						ee.oneToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, Any]])(UpdateExternalOneToMany(o, added, intersection, removed))
+						ee.oneToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, Any]])(UpdateExternalOneToMany(updateConfig, o, added, intersection, removed))
 						t.foreach { newItem =>
 							modified(oneToMany.alias) = newItem
 						}
