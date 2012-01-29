@@ -5,7 +5,7 @@ import com.googlecode.mapperdao.ValuesMap
 
 /**
  * mapperdao has it's own way of considering equality of objects.
- * Here are the utility methods.
+ * Here are utility methods which check for equality.
  *
  * @author kostantinos.kougios
  *

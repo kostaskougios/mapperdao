@@ -25,8 +25,8 @@ class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				cis.column.foreign.entity match {
 					case ee: ExternalEntity[Any, Any, Any] =>
 						val columns = cis.column.columns.filterNot(table.primaryKeyColumns.contains(_))
-						extraArgs :::= columns zip ee.primaryKeyValuesToList(fo)
-						ee.manyToOneOnInsertMap.get(cis.asInstanceOf[ColumnInfoManyToOne[_, _, Any]]).map(_(InsertExternalManyToOne(updateConfig, o, fo)))
+						val fKeyValues = ee.manyToOneOnInsertMap.get(cis.asInstanceOf[ColumnInfoManyToOne[_, _, Any]]).map(_(InsertExternalManyToOne(updateConfig, o, fo))).getOrElse(throw new IllegalStateException("please call onUpdateManyToOne on ExternalEntity %s".format(ee.getClass)))
+						extraArgs :::= columns zip fKeyValues
 						modified(cis.column.alias) = fo
 					case _ =>
 						val fe = cis.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
@@ -117,7 +117,6 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 
 				cis.column.foreign.entity match {
 					case ee: ExternalEntity[Any, Any, Any] =>
-						ee.manyToOneOnUpdateMap.get(cis.asInstanceOf[ColumnInfoManyToOne[_, _, Any]]).map(_(UpdateExternalManyToOne(updateConfig, o, v)))
 						modified(cis.column.alias) = v
 					case fe: Entity[Any, Any] =>
 						val newV = v match {
@@ -138,11 +137,13 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			}
 
 			val manyToOneChanged = table.manyToOneColumns.filter(Equality.onlyChanged(_, newValuesMap, oldValuesMap))
-			val mtoArgsV = manyToOneChanged.map(mto => (mto.foreign.entity, newValuesMap.valueOf[Any](mto.alias))).map {
-				case (entity, entityO) =>
+			val mtoArgsV = manyToOneChanged.map(mto => (mto, mto.foreign.entity, newValuesMap.valueOf[Any](mto.alias))).map {
+				case (column, entity, entityO) =>
 					entity match {
 						case ee: ExternalEntity[Any, Any, Any] =>
-							ee.primaryKeyValuesToList(entityO)
+							val cis = table.columnToColumnInfoMap(column)
+							val v = cis.columnToValue(o)
+							ee.manyToOneOnUpdateMap.get(cis.asInstanceOf[ColumnInfoManyToOne[_, _, Any]]).map(_(UpdateExternalManyToOne(updateConfig, o, v))).getOrElse(throw new IllegalStateException("onUpdateManyToOne must be called for External Entity %s".format(ee.getClass)))
 						case e: Entity[Any, Any] =>
 							e.tpe.table.toListOfPrimaryKeyValues(entityO)
 					}

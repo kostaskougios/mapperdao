@@ -428,9 +428,9 @@ abstract class ExternalEntity[ID1TYPE, ID2TYPE, T](table: String, clz: Class[T])
 	/**
 	 * support for many-to-one mapping
 	 */
-	type OnInsertManyToOne = InsertExternalManyToOne[_, T] => Unit
-	type OnSelectManyToOne = SelectExternalManyToOne[_, T] => T
-	type OnUpdateManyToOne = UpdateExternalManyToOne[_, T] => Unit
+	type OnInsertManyToOne = InsertExternalManyToOne[_, T] => List[Any] // return the primary keys
+	type OnSelectManyToOne = SelectExternalManyToOne[_, T] => T // return the actual one-value
+	type OnUpdateManyToOne = UpdateExternalManyToOne[_, T] => List[Any] // return the primary keys
 
 	private[mapperdao] var manyToOneOnInsertMap = Map[ColumnInfoManyToOne[_, _, T], OnInsertManyToOne]()
 	private[mapperdao] var manyToOneOnSelectMap = Map[ColumnInfoManyToOne[_, _, T], OnSelectManyToOne]()
