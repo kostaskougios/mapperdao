@@ -51,6 +51,7 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 						traversable.foreach {
 							modifiedTraversables(cName) = _
 						}
+						ee.oneToManyOnInsertMap.get(cis.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, Any]]).map { _(InsertExternalOneToMany(updateConfig, o)) }
 
 					case fe: Entity[Any, Any] =>
 						val ftpe = fe.tpe
@@ -152,7 +153,7 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				ci.column.foreign.entity match {
 					case ee: ExternalEntity[Any, Any, Any] =>
 
-						ee.oneToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, Any]])(UpdateExternalOneToMany(updateConfig, o, added, intersection, removed))
+						ee.oneToManyOnUpdateMap.get(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, Any]]).map { _(UpdateExternalOneToMany(updateConfig, o, added, intersection, removed)) }
 						t.foreach { newItem =>
 							modified(oneToMany.alias) = newItem
 						}

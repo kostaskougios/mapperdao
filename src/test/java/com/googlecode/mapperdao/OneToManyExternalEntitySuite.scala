@@ -22,6 +22,7 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 			val person = Person("p1", HouseEntity.currentData.toSet)
 			val inserted = mapperDao.insert(PersonEntity, person)
 			inserted should be === person
+			HouseEntity.onInsertCalls should be === 1
 
 			mapperDao.select(PersonEntity, inserted.id).get should be === inserted
 		}
@@ -69,6 +70,10 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 		var currentData = List(House(10, "House10"), House(11, "House11"))
 
+		var onInsertCalls = 0
+		onInsert(PersonEntity.owns) { i =>
+			onInsertCalls += 1
+		}
 		onSelect(PersonEntity.owns) {
 			_.foreignIds match {
 				case List(foreignId: Int) => currentData
