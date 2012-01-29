@@ -101,7 +101,7 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 						val ids = table.primaryKeys.map { pk =>
 							om(pk.column.columnName)
 						}
-						val v = ee.selectOneToMany(selectConfig, ids)
+						val v = ee.oneToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, Any]])(SelectExternalOneToMany(selectConfig, ids))
 						mods(c.foreign.alias) = v
 					case fe: Entity[_, _] =>
 						val otmL = if (selectConfig.skip(ci)) {
@@ -140,10 +140,8 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			val table = tpe.table
 
 			table.oneToManyColumnInfos.foreach { ci =>
-				val fe = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
-				val t: Traversable[Any] = ci.columnToValue(o)
-
 				val oneToMany = ci.column
+				val t = ci.columnToValue(o)
 				// we'll get the 2 traversables and update the database
 				// based on their differences
 				val newValues = t.toList
@@ -151,27 +149,37 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 
 				val (added, intersection, removed) = TraversableSeparation.separate(oldValues, newValues)
 
-				// update the removed ones
-				removed.foreach { item =>
-					entityMap.down(mockO, ci, entity)
-					mapperDao.deleteInner(updateConfig.deleteConfig, fe, item, entityMap)
-					entityMap.up
-				}
+				ci.column.foreign.entity match {
+					case ee: ExternalEntity[Any, Any, Any] =>
 
-				// update those that remained in the updated traversable
-				intersection.foreach { item =>
-					entityMap.down(mockO, ci, entity)
-					val newItem = mapperDao.updateInner(updateConfig, fe, item, entityMap)
-					entityMap.up
-					item.asInstanceOf[Persisted].discarded = true
-					modified(oneToMany.alias) = newItem
-				}
-				// find the added ones
-				added.foreach { item =>
-					entityMap.down(mockO, ci, entity)
-					val newItem: Any = mapperDao.insertInner(updateConfig, fe, item, entityMap);
-					entityMap.up
-					modified(oneToMany.alias) = newItem
+						ee.oneToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, Any]])(UpdateExternalOneToMany(o, added, intersection, removed))
+						t.foreach { newItem =>
+							modified(oneToMany.alias) = newItem
+						}
+					case fe: Entity[Any, Any] =>
+
+						// update the removed ones
+						removed.foreach { item =>
+							entityMap.down(mockO, ci, entity)
+							mapperDao.deleteInner(updateConfig.deleteConfig, fe, item, entityMap)
+							entityMap.up
+						}
+
+						// update those that remained in the updated traversable
+						intersection.foreach { item =>
+							entityMap.down(mockO, ci, entity)
+							val newItem = mapperDao.updateInner(updateConfig, fe, item, entityMap)
+							entityMap.up
+							item.asInstanceOf[Persisted].discarded = true
+							modified(oneToMany.alias) = newItem
+						}
+						// find the added ones
+						added.foreach { item =>
+							entityMap.down(mockO, ci, entity)
+							val newItem: Any = mapperDao.insertInner(updateConfig, fe, item, entityMap);
+							entityMap.up
+							modified(oneToMany.alias) = newItem
+						}
 				}
 			}
 		}

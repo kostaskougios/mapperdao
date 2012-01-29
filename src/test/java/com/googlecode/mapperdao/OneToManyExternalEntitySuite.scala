@@ -67,9 +67,11 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 	object HouseEntity extends ExternalEntity[Int, Unit, House](classOf[House]) {
 		def primaryKeyValues(h) = (h.id, None)
 
-		override def selectOneToMany(ids) = ids match {
-			case List(foreignId: Int) => List(House(foreignId + 10, "house for " + foreignId), House(foreignId + 11, "2nd house for " + foreignId))
-			case _ => throw new RuntimeException
+		onSelect(PersonEntity.owns) {
+			_.foreignIds match {
+				case List(foreignId: Int) => List(House(foreignId + 10, "house for " + foreignId), House(foreignId + 11, "2nd house for " + foreignId))
+				case _ => throw new RuntimeException
+			}
 		}
 	}
 }

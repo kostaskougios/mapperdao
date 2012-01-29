@@ -2,6 +2,7 @@ package com.googlecode.mapperdao
 import java.util.Calendar
 import org.joda.time.DateTime
 import java.util.Date
+import com.googlecode.mapperdao.utils.LazyActions
 
 /**
  * @author kostantinos.kougios
@@ -12,6 +13,8 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 
 	def this(clz: Class[T]) = this(clz.getSimpleName, clz)
 	def constructor(implicit m: ValuesMap): T with PC with Persisted
+
+	private[mapperdao] def init: Unit = {}
 
 	protected[mapperdao] var persistedColumns = List[ColumnInfoBase[T with PC, _]]()
 	protected[mapperdao] var columns = List[ColumnInfoBase[T, _]]()
@@ -408,21 +411,42 @@ abstract class SimpleEntity[T](table: String, clz: Class[T]) extends Entity[AnyR
 abstract class ExternalEntity[ID1TYPE, ID2TYPE, T](table: String, clz: Class[T]) extends Entity[AnyRef, T](table, clz) {
 	def this(clz: Class[T]) = this(clz.getSimpleName, clz)
 
+	private val lazyActions = new LazyActions
+
 	override def constructor(implicit m) = throw new IllegalStateException("constructor shouldn't be called for ExternalEntity %s".format(clz))
 
 	def primaryKeyValues(t: T): (ID1TYPE, Option[ID2TYPE])
 	def select(selectConfig: SelectConfig, allIds: List[(ID1TYPE, ID2TYPE)]): List[T] = select(allIds)
 	def select(allIds: List[(ID1TYPE, ID2TYPE)]): List[T] = throw new RuntimeException("please implement this method in your External Entities")
 
+	/**
+	 * support for one-to-one reverse mapping
+	 */
 	def selectOneToOneReverse(selectConfig: SelectConfig, foreignIds: List[Any]): T = selectOneToOneReverse(foreignIds)
 	def selectOneToOneReverse(foreignIds: List[Any]): T = throw new RuntimeException("please implement this method in your External Entities to map one-to-one-reverse externals")
 
-	def selectOneToMany(selectConfig: SelectConfig, foreignIds: List[Any]): List[T] = selectOneToMany(foreignIds)
-	def selectOneToMany(foreignIds: List[Any]): List[T] = throw new RuntimeException("please implement this method in your External Entities to map one-to-many externals")
+	/**
+	 * support for one-to-many mapping
+	 */
+	type OnSelectOneToMany = SelectExternalOneToMany => List[T]
+	type OnUpdateOneToMany = UpdateExternalOneToMany[_, T] => Unit
+	private[mapperdao] var oneToManyOnSelectMap = Map[ColumnInfoTraversableOneToMany[_, _, T], OnSelectOneToMany]()
+	private[mapperdao] var oneToManyOnUpdateMap = Map[ColumnInfoTraversableOneToMany[_, _, T], OnUpdateOneToMany]()
+
+	def onSelect(ci: => ColumnInfoTraversableOneToMany[_, _, T])(handler: OnSelectOneToMany) = lazyActions(() => oneToManyOnSelectMap += (ci -> handler))
+	def onUpdate(ci: => ColumnInfoTraversableOneToMany[_, _, T])(handler: OnUpdateOneToMany) = lazyActions(() => oneToManyOnUpdateMap += (ci -> handler))
 
 	private[mapperdao] def primaryKeyValuesToList(t: T) = {
 		val (key1, key2) = primaryKeyValues(t)
 		val right = key2.map(List(_)).getOrElse(Nil)
 		List(key1) ::: right
 	}
+
+	override def init: Unit = {
+		super.init
+		lazyActions.executeAll
+	}
 }
+
+case class SelectExternalOneToMany(selectConfig: SelectConfig, foreignIds: List[Any])
+case class UpdateExternalOneToMany[T, F](t: T, added: Traversable[F], intersection: Traversable[F], removed: Traversable[F])
