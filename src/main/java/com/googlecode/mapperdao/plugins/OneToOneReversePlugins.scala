@@ -60,7 +60,7 @@ class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperD
 			table.oneToOneReverseColumnInfos.foreach { cis =>
 
 				cis.column.foreign.entity match {
-					case ee: ExternalEntity[Any, Any, Any] =>
+					case ee: ExternalEntity[Any] =>
 						val fo = cis.columnToValue(o)
 						modified(cis.column.alias) = fo
 						ee.oneToOneOnInsertMap.get(cis.asInstanceOf[ColumnInfoOneToOneReverse[_, _, Any]]).map(
@@ -116,7 +116,7 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 				val c = ci.column
 				val fe = c.foreign.entity
 				fe match {
-					case ee: ExternalEntity[Any, Any, Any] =>
+					case ee: ExternalEntity[Any] =>
 						val foreignIds = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
 						val v = ee.oneToOneOnSelectMap.get(ci.asInstanceOf[ColumnInfoOneToOneReverse[_, _, Any]]).map(
 							_(SelectExternalOneToOne(selectConfig, foreignIds))
@@ -174,7 +174,7 @@ class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeM
 				val c = ci.column
 
 				c.foreign.entity match {
-					case ee: ExternalEntity[Any, Any, Any] =>
+					case ee: ExternalEntity[Any] =>
 						ee.oneToOneOnUpdateMap.get(ci.asInstanceOf[ColumnInfoOneToOneReverse[_, _, Any]]).map(
 							_(UpdateExternalOneToOne(updateConfig, o, fo))
 						)

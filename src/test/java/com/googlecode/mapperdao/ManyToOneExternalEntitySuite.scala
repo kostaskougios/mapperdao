@@ -92,7 +92,7 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 		}
 
 	}
-	object HouseEntity extends ExternalEntity[Int, Unit, House](classOf[House]) {
+	object HouseEntity extends ExternalEntity[House](classOf[House]) {
 		val id = key("id") to (_.id)
 
 		onInsertManyToOne(PersonEntity.house) { i =>

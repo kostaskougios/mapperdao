@@ -44,7 +44,7 @@ class ManyToManyInsertPlugin(typeManager: TypeManager, typeRegistry: TypeRegistr
 				if (traversable != null) {
 					val nestedEntity = cis.column.foreign.entity
 					nestedEntity match {
-						case ee: ExternalEntity[Any, Any, Any] =>
+						case ee: ExternalEntity[Any] =>
 							val nestedTpe = ee.tpe
 							val handler = ee.manyToManyOnInsertMap.get(cis.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
 							traversable.foreach { nested =>
@@ -97,7 +97,7 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 					val fe = c.foreign.entity
 					val ftpe = fe.tpe.asInstanceOf[Type[Any, Any]]
 					fe match {
-						case ee: ExternalEntity[Any, Any, Any] =>
+						case ee: ExternalEntity[Any] =>
 							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
 							val keys = c.linkTable.left zip ids
 							val allIds = driver.doSelectManyToManyForExternalEntity(tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
@@ -154,7 +154,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 				val ftpe = fe.tpe
 
 				manyToMany.foreign.entity match {
-					case ee: ExternalEntity[Any, Any, Any] =>
+					case ee: ExternalEntity[Any] =>
 						val handler = ee.manyToManyOnUpdateMap.get(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
 						// delete the removed ones
 						removed.foreach { p =>

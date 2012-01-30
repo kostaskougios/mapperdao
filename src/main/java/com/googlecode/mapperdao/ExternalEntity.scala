@@ -11,7 +11,7 @@ import com.googlecode.mapperdao.utils.LazyActions
  * orm or is just loaded via jdbc) then the table and columns can be mapped as normally would be done if the
  * entity was a mapperdao entity.
  */
-abstract class ExternalEntity[ID1TYPE, ID2TYPE, T](table: String, clz: Class[T]) extends Entity[AnyRef, T](table, clz) {
+abstract class ExternalEntity[T](table: String, clz: Class[T]) extends Entity[AnyRef, T](table, clz) {
 	def this(clz: Class[T]) = this(clz.getSimpleName, clz)
 
 	private val lazyActions = new LazyActions

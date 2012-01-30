@@ -65,7 +65,7 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 		}
 	}
 
-	object HouseEntity extends ExternalEntity[Int, Unit, House](classOf[House]) {
+	object HouseEntity extends ExternalEntity[House](classOf[House]) {
 
 		var currentData = List(House(10, "House10"), House(11, "House11"))
 
