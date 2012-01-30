@@ -66,7 +66,6 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 	}
 
 	object HouseEntity extends ExternalEntity[Int, Unit, House](classOf[House]) {
-		override def primaryKeyValues(h) = throw new RuntimeException // (h.id, None)
 
 		var currentData = List(House(10, "House10"), House(11, "House11"))
 

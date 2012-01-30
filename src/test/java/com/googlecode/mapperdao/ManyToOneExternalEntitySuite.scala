@@ -94,7 +94,6 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 	}
 	object HouseEntity extends ExternalEntity[Int, Unit, House](classOf[House]) {
 		val id = key("id") to (_.id)
-		override def primaryKeyValues(house) = throw new IllegalStateException
 
 		onInsertManyToOne(PersonEntity.house) { i =>
 			List(i.one.id)

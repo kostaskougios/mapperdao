@@ -66,7 +66,6 @@ class OneToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 		def constructor(implicit m) = new Product(id, inventory) with Persisted
 	}
 	object InventoryEntity extends ExternalEntity[Int, Unit, Inventory](classOf[Inventory]) {
-		override def primaryKeyValues(inventory) = throw new IllegalStateException //(inventory.id, None)
 
 		var onInsertCalled = 0
 		onInsertOneToOne(ProductEntity.inventory) { i =>

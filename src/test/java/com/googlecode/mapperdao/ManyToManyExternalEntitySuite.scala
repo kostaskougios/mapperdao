@@ -83,11 +83,21 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 	object AttributeEntity extends ExternalEntity[Int, Unit, Attribute](classOf[Attribute]) {
 
-		def primaryKeyValues(a) = (a.id, None)
+		onInsertManyToMany(ProductEntity.attributes) { i =>
+			List(i.foreign.id)
+		}
 
-		override def select(ids) = ids.map {
-			case (id, _) =>
-				Attribute(id, "x" + id)
+		onSelectManyToMany(ProductEntity.attributes) { s =>
+			s.foreignIds.map {
+				case (id: Int) :: Nil =>
+					Attribute(id, "x" + id)
+				case _ => throw new RuntimeException
+			}
+		}
+
+		onUpdateManyToMany(ProductEntity.attributes) { u =>
+			List(u.foreign.id)
+
 		}
 	}
 }
