@@ -96,11 +96,11 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 		val id = key("id") to (_.id)
 
 		onInsertManyToOne(PersonEntity.house) { i =>
-			List(i.one.id)
+			PrimaryKeysValues(i.foreign.id)
 		}
 
-		onUpdateManyToOne(PersonEntity.house) { i =>
-			List(i.one.id)
+		onUpdateManyToOne(PersonEntity.house) { u =>
+			PrimaryKeysValues(u.foreign.id)
 		}
 
 		onSelectManyToOne(PersonEntity.house) { s =>

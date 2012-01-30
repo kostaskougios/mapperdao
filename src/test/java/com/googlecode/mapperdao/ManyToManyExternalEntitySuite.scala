@@ -84,7 +84,7 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 	object AttributeEntity extends ExternalEntity[Int, Unit, Attribute](classOf[Attribute]) {
 
 		onInsertManyToMany(ProductEntity.attributes) { i =>
-			List(i.foreign.id)
+			PrimaryKeysValues(i.foreign.id)
 		}
 
 		onSelectManyToMany(ProductEntity.attributes) { s =>
@@ -96,7 +96,7 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 		}
 
 		onUpdateManyToMany(ProductEntity.attributes) { u =>
-			List(u.foreign.id)
+			PrimaryKeysValues(u.foreign.id)
 
 		}
 	}

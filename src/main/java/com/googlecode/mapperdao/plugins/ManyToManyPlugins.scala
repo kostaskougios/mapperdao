@@ -51,7 +51,7 @@ class ManyToManyInsertPlugin(typeManager: TypeManager, typeRegistry: TypeRegistr
 								val rightKeyValues = handler.map(
 									_(InsertExternalManyToMany(updateConfig, o, nested))
 								).getOrElse(throw new IllegalStateException("onInsertManyToMany should be called for External Entity %s".format(ee.getClass)))
-								driver.doInsertManyToMany(nestedTpe, cis.column, newKeyValues, rightKeyValues)
+								driver.doInsertManyToMany(nestedTpe, cis.column, newKeyValues, rightKeyValues.values)
 								modifiedTraversables(cName) = nested
 							}
 						case ne: Entity[Any, Any] =>
@@ -163,7 +163,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 								_(UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Remove, o, p))
 							).getOrElse(throw new IllegalStateException("onUpdateManyToMany should be called for External Entity %s".format(ee.getClass)))
 
-							val fPkArgs = manyToMany.linkTable.right zip rightKeyValues
+							val fPkArgs = manyToMany.linkTable.right zip rightKeyValues.values
 							driver.doDeleteManyToManyRef(tpe, ftpe, manyToMany, pkArgs, fPkArgs)
 						}
 						// update those that remained in the updated traversable
@@ -175,7 +175,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 							val fPKArgs = handler.map(
 								_(UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Add, o, p))
 							).getOrElse(throw new IllegalStateException("onInsertManyToMany should be called for External Entity %s".format(ee.getClass)))
-							driver.doInsertManyToMany(tpe, manyToMany, pkLeft, fPKArgs)
+							driver.doInsertManyToMany(tpe, manyToMany, pkLeft, fPKArgs.values)
 							modified(manyToMany.alias) = p
 						}
 

@@ -73,13 +73,13 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 		onInsertOneToMany(PersonEntity.owns) { i =>
 			onInsertCalls += 1
 		}
-		onSelect(PersonEntity.owns) {
+		onSelectOneToMany(PersonEntity.owns) {
 			_.foreignIds match {
 				case List(foreignId: Int) => currentData
 				case _ => throw new RuntimeException
 			}
 		}
-		onUpdate(PersonEntity.owns) { u =>
+		onUpdateOneToMany(PersonEntity.owns) { u =>
 			currentData = (u.added ++ u.intersection).toList
 		}
 	}
