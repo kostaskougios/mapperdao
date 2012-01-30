@@ -4,7 +4,6 @@ import com.googlecode.mapperdao.utils.LazyActions
 /**
  * external entities allow loading entities externally via a custom dao or i.e. hibernate
  *
- * ID1TYPE is the type of the first id and ID2TYPE of the second (if any,otherwise it can be Unit).
  * T is the type of the entity.
  *
  * If queries with joins are to be done for this entity and the entity has a table (but is mapped with an other
