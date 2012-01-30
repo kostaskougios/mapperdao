@@ -20,6 +20,7 @@ class OneToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 			val product = Product(5, Inventory(105, 205))
 			val inserted = mapperDao.insert(ProductEntity, product)
 			inserted should be === product
+			InventoryEntity.onInsertCalled should be === 1
 			val selected = mapperDao.select(ProductEntity, inserted.id).get
 			selected should be === inserted
 		}
@@ -27,6 +28,7 @@ class OneToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 			createTables
 			val inserted = mapperDao.insert(ProductEntity, Product(5, Inventory(105, 205)))
 			mapperDao.update(ProductEntity, inserted, Product(5, Inventory(106, 206)))
+			InventoryEntity.onUpdateCalled should be === 1
 			// since no update of Inventory occurs, the InventoryEntity will just
 			// return Inventory(105, 205)
 			mapperDao.select(ProductEntity, inserted.id).get should be === inserted
@@ -48,6 +50,8 @@ class OneToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 		}
 	}
 	def createTables {
+		InventoryEntity.onInsertCalled = 0
+		InventoryEntity.onUpdateCalled = 0
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
@@ -62,10 +66,23 @@ class OneToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 		def constructor(implicit m) = new Product(id, inventory) with Persisted
 	}
 	object InventoryEntity extends ExternalEntity[Int, Unit, Inventory](classOf[Inventory]) {
-		def primaryKeyValues(inventory) = (inventory.id, None)
-		override def selectOneToOneReverse(foreignIds) = foreignIds match {
-			case (foreignId: Int) :: Nil => new Inventory(foreignId + 100, 200 + foreignId)
-			case _ => throw new RuntimeException
+		override def primaryKeyValues(inventory) = throw new IllegalStateException //(inventory.id, None)
+
+		var onInsertCalled = 0
+		onInsertOneToOne(ProductEntity.inventory) { i =>
+			onInsertCalled += 1
+		}
+
+		onSelectOneToOne(ProductEntity.inventory) {
+			_.foreignIds match {
+				case (foreignId: Int) :: Nil => new Inventory(foreignId + 100, 200 + foreignId)
+				case _ => throw new RuntimeException
+			}
+		}
+
+		var onUpdateCalled = 0
+		onUpdateOneToOne(ProductEntity.inventory) { u =>
+			onUpdateCalled += 1
 		}
 	}
 }

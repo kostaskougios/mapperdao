@@ -27,6 +27,9 @@ import com.googlecode.mapperdao.UpdateConfig
 import com.googlecode.mapperdao.Entity
 import com.googlecode.mapperdao.ExternalEntity
 import com.googlecode.mapperdao.utils.Helpers
+import com.googlecode.mapperdao.InsertExternalOneToOne
+import com.googlecode.mapperdao.SelectExternalOneToOne
+import com.googlecode.mapperdao.UpdateExternalOneToOne
 /**
  * @author kostantinos.kougios
  *
@@ -60,6 +63,9 @@ class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperD
 					case ee: ExternalEntity[Any, Any, Any] =>
 						val fo = cis.columnToValue(o)
 						modified(cis.column.alias) = fo
+						ee.oneToOneOnInsertMap.get(cis.asInstanceOf[ColumnInfoOneToOneReverse[_, _, Any]]).map(
+							_(InsertExternalOneToOne(updateConfig, o, fo))
+						)
 					case fe: Entity[Any, Any] =>
 						val fo = cis.columnToValue(o)
 						val v = fo match {
@@ -112,7 +118,9 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 				fe match {
 					case ee: ExternalEntity[Any, Any, Any] =>
 						val foreignIds = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
-						val v = ee.selectOneToOneReverse(selectConfig, foreignIds)
+						val v = ee.oneToOneOnSelectMap.get(ci.asInstanceOf[ColumnInfoOneToOneReverse[_, _, Any]]).map(
+							_(SelectExternalOneToOne(selectConfig, foreignIds))
+						).getOrElse(throw new IllegalStateException("onSelectOneToOne must be called for External Entity %s".format(ee.getClass)))
 						mods(c.foreign.alias) = v
 					case _ =>
 						val ftpe = fe.tpe
@@ -167,8 +175,9 @@ class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeM
 
 				c.foreign.entity match {
 					case ee: ExternalEntity[Any, Any, Any] =>
-					// nothing to do here, any updates or deletes
-					// to the external entity should happen externally
+						ee.oneToOneOnUpdateMap.get(ci.asInstanceOf[ColumnInfoOneToOneReverse[_, _, Any]]).map(
+							_(UpdateExternalOneToOne(updateConfig, o, fo))
+						)
 					case fe: Entity[Any, Any] =>
 						val ftpe = fe.tpe
 						if (fo != null) {

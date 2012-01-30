@@ -422,8 +422,16 @@ abstract class ExternalEntity[ID1TYPE, ID2TYPE, T](table: String, clz: Class[T])
 	/**
 	 * support for one-to-one reverse mapping
 	 */
-	def selectOneToOneReverse(selectConfig: SelectConfig, foreignIds: List[Any]): T = selectOneToOneReverse(foreignIds)
-	def selectOneToOneReverse(foreignIds: List[Any]): T = throw new RuntimeException("please implement this method in your External Entities to map one-to-one-reverse externals")
+
+	type OnInsertOneToOne = InsertExternalOneToOne[_, T] => Unit
+	type OnSelectOneToOne = SelectExternalOneToOne[_, T] => T
+	type OnUpdateOneToOne = UpdateExternalOneToOne[_, T] => Unit
+	private[mapperdao] var oneToOneOnInsertMap = Map[ColumnInfoOneToOneReverse[_, _, T], OnInsertOneToOne]()
+	private[mapperdao] var oneToOneOnSelectMap = Map[ColumnInfoOneToOneReverse[_, _, T], OnSelectOneToOne]()
+	private[mapperdao] var oneToOneOnUpdateMap = Map[ColumnInfoOneToOneReverse[_, _, T], OnUpdateOneToOne]()
+	def onInsertOneToOne(ci: => ColumnInfoOneToOneReverse[_, _, T])(handler: OnInsertOneToOne) = lazyActions(() => oneToOneOnInsertMap += (ci -> handler))
+	def onSelectOneToOne(ci: => ColumnInfoOneToOneReverse[_, _, T])(handler: OnSelectOneToOne) = lazyActions(() => oneToOneOnSelectMap += (ci -> handler))
+	def onUpdateOneToOne(ci: => ColumnInfoOneToOneReverse[_, _, T])(handler: OnUpdateOneToOne) = lazyActions(() => oneToOneOnUpdateMap += (ci -> handler))
 
 	/**
 	 * support for many-to-one mapping
@@ -464,6 +472,10 @@ abstract class ExternalEntity[ID1TYPE, ID2TYPE, T](table: String, clz: Class[T])
 		lazyActions.executeAll
 	}
 }
+
+case class InsertExternalOneToOne[T, F](updateConfig: UpdateConfig, t: T, f: F)
+case class SelectExternalOneToOne[T, F](selectConfig: SelectConfig, foreignIds: List[Any])
+case class UpdateExternalOneToOne[T, F](updateConfig: UpdateConfig, t: T, f: F)
 
 case class InsertExternalManyToOne[T, F](updateConfig: UpdateConfig, t: T, one: F)
 case class SelectExternalManyToOne[T, F](selectConfig: SelectConfig, primaryKeys: List[Any])
