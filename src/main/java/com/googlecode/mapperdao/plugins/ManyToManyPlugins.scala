@@ -46,11 +46,9 @@ class ManyToManyInsertPlugin(typeManager: TypeManager, typeRegistry: TypeRegistr
 					nestedEntity match {
 						case ee: ExternalEntity[Any] =>
 							val nestedTpe = ee.tpe
-							val handler = ee.manyToManyOnInsertMap.get(cis.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
+							val handler = ee.manyToManyOnInsertMap(cis.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
 							traversable.foreach { nested =>
-								val rightKeyValues = handler.map(
-									_(InsertExternalManyToMany(updateConfig, o, nested))
-								).getOrElse(throw new IllegalStateException("onInsertManyToMany should be called for External Entity %s".format(ee.getClass)))
+								val rightKeyValues = handler(InsertExternalManyToMany(updateConfig, o, nested))
 								driver.doInsertManyToMany(nestedTpe, cis.column, newKeyValues, rightKeyValues.values)
 								modifiedTraversables(cName) = nested
 							}
@@ -102,11 +100,8 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 							val keys = c.linkTable.left zip ids
 							val allIds = driver.doSelectManyToManyForExternalEntity(tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
 
-							val handler = ee.manyToManyOnSelectMap.get(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
-							handler.map(
-								_(SelectExternalManyToMany(selectConfig, allIds))
-							).getOrElse(throw new IllegalStateException("onSelectManyToMany should be called for External Entity %s".format(ee.getClass)))
-
+							val handler = ee.manyToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
+							handler(SelectExternalManyToMany(selectConfig, allIds))
 						case _ =>
 							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
 							val keys = c.linkTable.left zip ids
@@ -154,13 +149,11 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 
 				manyToMany.foreign.entity match {
 					case ee: ExternalEntity[Any] =>
-						val handler = ee.manyToManyOnUpdateMap.get(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
+						val handler = ee.manyToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
 						// delete the removed ones
 						removed.foreach { p =>
 							val ftable = ftpe.table
-							val rightKeyValues = handler.map(
-								_(UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Remove, o, p))
-							).getOrElse(throw new IllegalStateException("onUpdateManyToMany should be called for External Entity %s".format(ee.getClass)))
+							val rightKeyValues = handler(UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Remove, o, p))
 
 							val fPkArgs = manyToMany.linkTable.right zip rightKeyValues.values
 							driver.doDeleteManyToManyRef(tpe, ftpe, manyToMany, pkArgs, fPkArgs)
@@ -171,9 +164,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 						}
 						// update the added ones
 						added.foreach { p =>
-							val fPKArgs = handler.map(
-								_(UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Add, o, p))
-							).getOrElse(throw new IllegalStateException("onInsertManyToMany should be called for External Entity %s".format(ee.getClass)))
+							val fPKArgs = handler(UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Add, o, p))
 							driver.doInsertManyToMany(tpe, manyToMany, pkLeft, fPKArgs.values)
 							modified(manyToMany.alias) = p
 						}
