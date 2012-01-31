@@ -139,7 +139,7 @@ class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 							entityMap.up
 							(inserted, true)
 					}
-					if (t) values :::= c.selfColumns zip ftpe.table.toListOfPrimaryKeyValues(fo)
+					if (t) values :::= c.selfColumns zip ftpe.table.toListOfPrimaryKeyValues(value)
 					value
 				}
 				modified(c.alias) = v
