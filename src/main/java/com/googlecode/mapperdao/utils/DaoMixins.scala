@@ -67,66 +67,6 @@ trait CRUD[PC, T, PK] {
 	def delete(id: PK): Unit = mapperDao.delete(entity, id.asInstanceOf[AnyVal])
 }
 
-trait IntIdCRUD[T] extends CRUD[IntId, T, Int]
-trait LongIdCRUD[T] extends CRUD[LongId, T, Long]
-trait SimpleCRUD[T, PK] extends CRUD[AnyRef, T, PK]
-
-/**
- * CRUD with TransactionalCRUD will run CRUD methods within transactions
- */
-trait TransactionalCRUD[PC, T, PK] extends CRUD[PC, T, PK] {
-	protected val txManager: PlatformTransactionManager
-	/**
-	 * override this to change type of transaction that will occur and it's timeout
-	 */
-	protected def prepareTransaction: Transaction = Transaction.get(txManager, Propagation.Nested, Isolation.ReadCommited, -1)
-
-	override def create(t: T): T with PC = prepareTransaction { () =>
-		super.create(t)
-	}
-
-	override def update(t: T with PC): T with PC = prepareTransaction { () =>
-		super.update(t)
-	}
-
-	override def update(oldValue: T with PC, newValue: T): T with PC = prepareTransaction { () =>
-		super.update(oldValue, newValue)
-	}
-
-	override def delete(t: T with PC): T = prepareTransaction { () =>
-		super.delete(t)
-	}
-
-	override def delete(id: PK): Unit = prepareTransaction { () =>
-		super.delete(id)
-	}
-}
-
-trait TransactionalIntIdCRUD[T] extends IntIdCRUD[T] with TransactionalCRUD[IntId, T, Int]
-trait TransactionalLongIdCRUD[T] extends LongIdCRUD[T] with TransactionalCRUD[LongId, T, Long]
-trait TransactionalSimpleCRUD[T, PK] extends SimpleCRUD[T, PK] with TransactionalCRUD[AnyRef, T, PK]
-
-trait MockTransactionalIntIdCRUD[T] { this: TransactionalIntIdCRUD[T] =>
-	val txManager = null
-	val mapperDao: MapperDao
-
-	override protected def prepareTransaction: Transaction = new MockTransaction
-}
-
-trait MockTransactionalLongIdCRUD[T] { this: TransactionalLongIdCRUD[T] =>
-	val txManager = null
-	val mapperDao: MapperDao
-
-	override protected def prepareTransaction: Transaction = new MockTransaction
-}
-
-trait MockTransactionalSimpleCRUD[T, PK] { this: TransactionalSimpleCRUD[T, PK] =>
-	val txManager = null
-	val mapperDao: MapperDao
-
-	override protected def prepareTransaction: Transaction = new MockTransaction
-}
-
 trait All[PC, T] {
 	// the following must be populated by classes extending this trait
 	protected val queryDao: QueryDao
@@ -151,7 +91,3 @@ trait All[PC, T] {
 	def page(pageNumber: Long, rowsPerPage: Long): List[T with PC] = queryDao.query(QueryConfig.pagination(pageNumber, rowsPerPage), allQuery)
 	def countPages(rowsPerPage: Long): Long = 1 + countAll / rowsPerPage
 }
-
-trait IntIdAll[T] extends All[IntId, T]
-trait LongIdAll[T] extends All[LongId, T]
-trait SimpleAll[T] extends All[AnyRef, T]
