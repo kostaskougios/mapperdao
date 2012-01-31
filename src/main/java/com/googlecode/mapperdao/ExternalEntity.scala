@@ -28,11 +28,11 @@ abstract class ExternalEntity[T](table: String, clz: Class[T]) extends Entity[An
 	private[mapperdao] var manyToManyOnSelectMap = new MapWithDefault[ColumnInfoTraversableManyToMany[_, _, T], OnSelectManyToMany]("onSelectManyToMany must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] var manyToManyOnUpdateMap = new MapWithDefault[ColumnInfoTraversableManyToMany[_, _, T], OnUpdateManyToMany]("onUpdateManyToMany must be called for External Entity %s".format(getClass.getName))
 	def onInsertManyToMany(ci: => ColumnInfoTraversableManyToMany[_, _, T])(handler: OnInsertManyToMany) = lazyActions(() => manyToManyOnInsertMap + (ci, handler))
-	def onInsertManyToMany(handler: OnInsertManyToMany) = lazyActions(() => manyToManyOnInsertMap.default = Some(handler))
+	def onInsertManyToMany(handler: OnInsertManyToMany) { manyToManyOnInsertMap.default = Some(handler) }
 	def onSelectManyToMany(ci: => ColumnInfoTraversableManyToMany[_, _, T])(handler: OnSelectManyToMany) = lazyActions(() => manyToManyOnSelectMap + (ci, handler))
-	def onSelectManyToMany(handler: OnSelectManyToMany) = lazyActions(() => manyToManyOnSelectMap.default = Some(handler))
+	def onSelectManyToMany(handler: OnSelectManyToMany) { manyToManyOnSelectMap.default = Some(handler) }
 	def onUpdateManyToMany(ci: => ColumnInfoTraversableManyToMany[_, _, T])(handler: OnUpdateManyToMany) = lazyActions(() => manyToManyOnUpdateMap + (ci, handler))
-	def onUpdateManyToMany(handler: OnUpdateManyToMany) = lazyActions(() => manyToManyOnUpdateMap.default = Some(handler))
+	def onUpdateManyToMany(handler: OnUpdateManyToMany) { manyToManyOnUpdateMap.default = Some(handler) }
 
 	/**
 	 * support for one-to-one reverse mapping
@@ -41,12 +41,15 @@ abstract class ExternalEntity[T](table: String, clz: Class[T]) extends Entity[An
 	type OnInsertOneToOne = InsertExternalOneToOne[_, T] => Unit
 	type OnSelectOneToOne = SelectExternalOneToOne[_, T] => T
 	type OnUpdateOneToOne = UpdateExternalOneToOne[_, T] => Unit
-	private[mapperdao] var oneToOneOnInsertMap = Map[ColumnInfoOneToOneReverse[_, _, T], OnInsertOneToOne]()
-	private[mapperdao] var oneToOneOnSelectMap = Map[ColumnInfoOneToOneReverse[_, _, T], OnSelectOneToOne]()
-	private[mapperdao] var oneToOneOnUpdateMap = Map[ColumnInfoOneToOneReverse[_, _, T], OnUpdateOneToOne]()
-	def onInsertOneToOne(ci: => ColumnInfoOneToOneReverse[_, _, T])(handler: OnInsertOneToOne) = lazyActions(() => oneToOneOnInsertMap += (ci -> handler))
-	def onSelectOneToOne(ci: => ColumnInfoOneToOneReverse[_, _, T])(handler: OnSelectOneToOne) = lazyActions(() => oneToOneOnSelectMap += (ci -> handler))
-	def onUpdateOneToOne(ci: => ColumnInfoOneToOneReverse[_, _, T])(handler: OnUpdateOneToOne) = lazyActions(() => oneToOneOnUpdateMap += (ci -> handler))
+	private[mapperdao] var oneToOneOnInsertMap = new MapWithDefault[ColumnInfoOneToOneReverse[_, _, T], OnInsertOneToOne]("onInsertOneToOne must be called for External Entity %s".format(getClass.getName))
+	private[mapperdao] var oneToOneOnSelectMap = new MapWithDefault[ColumnInfoOneToOneReverse[_, _, T], OnSelectOneToOne]("onSelectOneToOne must be called for External Entity %s".format(getClass.getName))
+	private[mapperdao] var oneToOneOnUpdateMap = new MapWithDefault[ColumnInfoOneToOneReverse[_, _, T], OnUpdateOneToOne]("onUpdateOneToOne must be called for External Entity %s".format(getClass.getName))
+	def onInsertOneToOne(ci: => ColumnInfoOneToOneReverse[_, _, T])(handler: OnInsertOneToOne) = lazyActions(() => oneToOneOnInsertMap + (ci, handler))
+	def onInsertOneToOne(handler: OnInsertOneToOne) { oneToOneOnInsertMap.default = Some(handler) }
+	def onSelectOneToOne(ci: => ColumnInfoOneToOneReverse[_, _, T])(handler: OnSelectOneToOne) = lazyActions(() => oneToOneOnSelectMap + (ci, handler))
+	def onSelectOneToOne(handler: OnSelectOneToOne) { oneToOneOnSelectMap.default = Some(handler) }
+	def onUpdateOneToOne(ci: => ColumnInfoOneToOneReverse[_, _, T])(handler: OnUpdateOneToOne) = lazyActions(() => oneToOneOnUpdateMap + (ci, handler))
+	def onUpdateOneToOne(handler: OnUpdateOneToOne) { oneToOneOnUpdateMap.default = Some(handler) }
 
 	/**
 	 * support for many-to-one mapping
@@ -59,11 +62,11 @@ abstract class ExternalEntity[T](table: String, clz: Class[T]) extends Entity[An
 	private[mapperdao] val manyToOneOnSelectMap = new MapWithDefault[ColumnInfoManyToOne[_, _, T], OnSelectManyToOne]("onSelectManyToOne must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] val manyToOneOnUpdateMap = new MapWithDefault[ColumnInfoManyToOne[_, _, T], OnUpdateManyToOne]("onUpdateManyToOne must be called for External Entity %s".format(getClass.getName))
 	def onInsertManyToOne(ci: => ColumnInfoManyToOne[_, _, T])(handler: OnInsertManyToOne) = lazyActions(() => manyToOneOnInsertMap + (ci, handler))
-	def onInsertManyToOne(handler: OnInsertManyToOne) = lazyActions(() => manyToOneOnInsertMap.default = Some(handler))
+	def onInsertManyToOne(handler: OnInsertManyToOne) { manyToOneOnInsertMap.default = Some(handler) }
 	def onSelectManyToOne(ci: => ColumnInfoManyToOne[_, _, T])(handler: OnSelectManyToOne) = lazyActions(() => manyToOneOnSelectMap + (ci, handler))
-	def onSelectManyToOne(handler: OnSelectManyToOne) = lazyActions(() => manyToOneOnSelectMap.default = Some(handler))
+	def onSelectManyToOne(handler: OnSelectManyToOne) { manyToOneOnSelectMap.default = Some(handler) }
 	def onUpdateManyToOne(ci: => ColumnInfoManyToOne[_, _, T])(handler: OnUpdateManyToOne) = lazyActions(() => manyToOneOnUpdateMap + (ci, handler))
-	def onUpdateManyToOne(handler: OnUpdateManyToOne) = lazyActions(() => manyToOneOnUpdateMap.default = Some(handler))
+	def onUpdateManyToOne(handler: OnUpdateManyToOne) { manyToOneOnUpdateMap.default = Some(handler) }
 
 	/**
 	 * support for one-to-many mapping
