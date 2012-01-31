@@ -74,13 +74,16 @@ abstract class ExternalEntity[T](table: String, clz: Class[T]) extends Entity[An
 	type OnInsertOneToMany = InsertExternalOneToMany[_, T] => Unit
 	type OnSelectOneToMany = SelectExternalOneToMany => List[T]
 	type OnUpdateOneToMany = UpdateExternalOneToMany[_, T] => Unit
-	private[mapperdao] var oneToManyOnInsertMap = Map[ColumnInfoTraversableOneToMany[_, _, T], OnInsertOneToMany]()
-	private[mapperdao] var oneToManyOnSelectMap = Map[ColumnInfoTraversableOneToMany[_, _, T], OnSelectOneToMany]()
-	private[mapperdao] var oneToManyOnUpdateMap = Map[ColumnInfoTraversableOneToMany[_, _, T], OnUpdateOneToMany]()
+	private[mapperdao] var oneToManyOnInsertMap = new MapWithDefault[ColumnInfoTraversableOneToMany[_, _, T], OnInsertOneToMany]("onInsertOneToMany must be called for External Entity %s".format(getClass.getName))
+	private[mapperdao] var oneToManyOnSelectMap = new MapWithDefault[ColumnInfoTraversableOneToMany[_, _, T], OnSelectOneToMany]("onSelectOneToMany must be called for External Entity %s".format(getClass.getName))
+	private[mapperdao] var oneToManyOnUpdateMap = new MapWithDefault[ColumnInfoTraversableOneToMany[_, _, T], OnUpdateOneToMany]("onUpdateOneToMany must be called for External Entity %s".format(getClass.getName))
 
-	def onInsertOneToMany(ci: => ColumnInfoTraversableOneToMany[_, _, T])(handler: OnInsertOneToMany) = lazyActions(() => oneToManyOnInsertMap += (ci -> handler))
-	def onSelectOneToMany(ci: => ColumnInfoTraversableOneToMany[_, _, T])(handler: OnSelectOneToMany) = lazyActions(() => oneToManyOnSelectMap += (ci -> handler))
-	def onUpdateOneToMany(ci: => ColumnInfoTraversableOneToMany[_, _, T])(handler: OnUpdateOneToMany) = lazyActions(() => oneToManyOnUpdateMap += (ci -> handler))
+	def onInsertOneToMany(ci: => ColumnInfoTraversableOneToMany[_, _, T])(handler: OnInsertOneToMany) = lazyActions(() => oneToManyOnInsertMap + (ci, handler))
+	def onInsertOneToMany(handler: OnInsertOneToMany) = oneToManyOnInsertMap.default = Some(handler)
+	def onSelectOneToMany(ci: => ColumnInfoTraversableOneToMany[_, _, T])(handler: OnSelectOneToMany) = lazyActions(() => oneToManyOnSelectMap + (ci, handler))
+	def onSelectOneToMany(handler: OnSelectOneToMany) = oneToManyOnSelectMap.default = Some(handler)
+	def onUpdateOneToMany(ci: => ColumnInfoTraversableOneToMany[_, _, T])(handler: OnUpdateOneToMany) = lazyActions(() => oneToManyOnUpdateMap + (ci, handler))
+	def onUpdateOneToMany(handler: OnUpdateOneToMany) = oneToManyOnUpdateMap.default = Some(handler)
 
 	override def init: Unit = {
 		super.init
