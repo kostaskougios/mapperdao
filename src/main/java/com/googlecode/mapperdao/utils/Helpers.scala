@@ -21,6 +21,9 @@ object Helpers {
 		case _ => throw new IllegalArgumentException("not an LongId : " + o.toString)
 	}
 
+	def asIntId[T](t: T) = t.asInstanceOf[T with IntId]
+	def asLongId[T](t: T) = t.asInstanceOf[T with LongId]
+
 	/**
 	 * merges oldSet and newSet items, keeping all unmodified
 	 * items from oldSet and adding all newItems from newSet.
