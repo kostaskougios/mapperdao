@@ -96,18 +96,17 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 			// one to many
 			table.oneToManyColumnInfos.foreach { ci =>
 				val c = ci.column
-				c.foreign.entity match {
-					case ee: ExternalEntity[Any] =>
-						val table = tpe.table
-						val ids = table.primaryKeys.map { pk =>
-							om(pk.column.columnName)
-						}
-						val v = ee.oneToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, Any]])(SelectExternalOneToMany(selectConfig, ids))
-						mods(c.foreign.alias) = v
-					case fe: Entity[_, _] =>
-						val otmL = if (selectConfig.skip(ci)) {
-							Nil
-						} else {
+				val otmL = if (selectConfig.skip(ci)) {
+					Nil
+				} else
+					c.foreign.entity match {
+						case ee: ExternalEntity[Any] =>
+							val table = tpe.table
+							val ids = table.primaryKeys.map { pk =>
+								om(pk.column.columnName)
+							}
+							ee.oneToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, Any]])(SelectExternalOneToMany(selectConfig, ids))
+						case fe: Entity[_, _] =>
 							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
 							val where = c.foreignColumns.zip(ids)
 							val ftpe = fe.tpe
@@ -116,9 +115,8 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 							val v = mapperDao.toEntities(fom, fe, selectConfig, entities)
 							entities.up
 							v
-						}
-						mods(c.foreign.alias) = otmL
-				}
+					}
+				mods(c.foreign.alias) = otmL
 			}
 		}
 

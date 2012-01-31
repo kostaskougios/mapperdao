@@ -107,7 +107,6 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 								_(SelectExternalManyToMany(selectConfig, allIds))
 							).getOrElse(throw new IllegalStateException("onSelectManyToMany should be called for External Entity %s".format(ee.getClass)))
 
-						//							ee.select(selectConfig, allIds)
 						case _ =>
 							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
 							val keys = c.linkTable.left zip ids
