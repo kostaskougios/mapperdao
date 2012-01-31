@@ -1,13 +1,11 @@
 package com.googlecode.mapperdao.utils
 
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.drivers._
 import javax.sql.DataSource
-import com.googlecode.mapperdao.jdbc.Jdbc
-import com.googlecode.mapperdao.events.Events
-import com.googlecode.mapperdao.drivers.H2
 import com.googlecode.mapperdao.jdbc.Transaction
 import org.springframework.transaction.PlatformTransactionManager
+import com.googlecode.mapperdao.events.Events
+import com.googlecode.mapperdao.jdbc.Jdbc
 /**
  * a factory for simple configuration of mapperdao
  *
