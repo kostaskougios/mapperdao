@@ -62,19 +62,19 @@ abstract class ExternalEntity[F](table: String, clz: Class[F]) extends Entity[An
 	/**
 	 * support for many-to-one mapping
 	 */
-	type OnInsertManyToOne = InsertExternalManyToOne[_, F] => PrimaryKeysValues // return the primary keys
-	type OnSelectManyToOne = SelectExternalManyToOne[_, F] => F // return the actual one-value
-	type OnUpdateManyToOne = UpdateExternalManyToOne[_, F] => PrimaryKeysValues // return the primary keys
+	type OnInsertManyToOne[T] = InsertExternalManyToOne[T, F] => PrimaryKeysValues // return the primary keys
+	type OnSelectManyToOne[T] = SelectExternalManyToOne[T, F] => F // return the actual one-value
+	type OnUpdateManyToOne[T] = UpdateExternalManyToOne[T, F] => PrimaryKeysValues // return the primary keys
 
-	private[mapperdao] val manyToOneOnInsertMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnInsertManyToOne]("onInsertManyToOne must be called for External Entity %s".format(getClass.getName))
-	private[mapperdao] val manyToOneOnSelectMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnSelectManyToOne]("onSelectManyToOne must be called for External Entity %s".format(getClass.getName))
-	private[mapperdao] val manyToOneOnUpdateMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnUpdateManyToOne]("onUpdateManyToOne must be called for External Entity %s".format(getClass.getName))
-	def onInsertManyToOne(ci: => ColumnInfoManyToOne[_, _, F])(handler: OnInsertManyToOne) = lazyActions(() => manyToOneOnInsertMap + (ci, handler))
-	def onInsertManyToOne(handler: OnInsertManyToOne) { manyToOneOnInsertMap.default = Some(handler) }
-	def onSelectManyToOne(ci: => ColumnInfoManyToOne[_, _, F])(handler: OnSelectManyToOne) = lazyActions(() => manyToOneOnSelectMap + (ci, handler))
-	def onSelectManyToOne(handler: OnSelectManyToOne) { manyToOneOnSelectMap.default = Some(handler) }
-	def onUpdateManyToOne(ci: => ColumnInfoManyToOne[_, _, F])(handler: OnUpdateManyToOne) = lazyActions(() => manyToOneOnUpdateMap + (ci, handler))
-	def onUpdateManyToOne(handler: OnUpdateManyToOne) { manyToOneOnUpdateMap.default = Some(handler) }
+	private[mapperdao] val manyToOneOnInsertMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnInsertManyToOne[_]]("onInsertManyToOne must be called for External Entity %s".format(getClass.getName))
+	private[mapperdao] val manyToOneOnSelectMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnSelectManyToOne[_]]("onSelectManyToOne must be called for External Entity %s".format(getClass.getName))
+	private[mapperdao] val manyToOneOnUpdateMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnUpdateManyToOne[_]]("onUpdateManyToOne must be called for External Entity %s".format(getClass.getName))
+	def onInsertManyToOne[T](ci: => ColumnInfoManyToOne[T, _, F])(handler: OnInsertManyToOne[T]) = lazyActions(() => manyToOneOnInsertMap + (ci, handler))
+	def onInsertManyToOne(handler: OnInsertManyToOne[Any]) { manyToOneOnInsertMap.default = Some(handler) }
+	def onSelectManyToOne[T](ci: => ColumnInfoManyToOne[T, _, F])(handler: OnSelectManyToOne[T]) = lazyActions(() => manyToOneOnSelectMap + (ci, handler))
+	def onSelectManyToOne(handler: OnSelectManyToOne[Any]) { manyToOneOnSelectMap.default = Some(handler) }
+	def onUpdateManyToOne[T](ci: => ColumnInfoManyToOne[T, _, F])(handler: OnUpdateManyToOne[T]) = lazyActions(() => manyToOneOnUpdateMap + (ci, handler))
+	def onUpdateManyToOne(handler: OnUpdateManyToOne[Any]) { manyToOneOnUpdateMap.default = Some(handler) }
 
 	/**
 	 * support for one-to-many mapping

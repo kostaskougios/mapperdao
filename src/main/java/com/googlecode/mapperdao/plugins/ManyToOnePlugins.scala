@@ -25,7 +25,9 @@ class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				cis.column.foreign.entity match {
 					case ee: ExternalEntity[Any] =>
 						val columns = cis.column.columns.filterNot(table.primaryKeyColumns.contains(_))
-						val fKeyValues = ee.manyToOneOnInsertMap(cis.asInstanceOf[ColumnInfoManyToOne[_, _, Any]])(InsertExternalManyToOne(updateConfig, o, fo))
+						val handler = ee.manyToOneOnInsertMap(cis.asInstanceOf[ColumnInfoManyToOne[T, _, Any]])
+							.asInstanceOf[ee.OnInsertManyToOne[T]]
+						val fKeyValues = handler(InsertExternalManyToOne(updateConfig, o, fo))
 						extraArgs :::= columns zip fKeyValues.values
 						modified(cis.column.alias) = fo
 					case _ =>
@@ -143,8 +145,9 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 						case ee: ExternalEntity[Any] =>
 							val cis = table.columnToColumnInfoMap(column)
 							val v = cis.columnToValue(o)
-							val h = ee.manyToOneOnUpdateMap(cis.asInstanceOf[ColumnInfoManyToOne[_, _, Any]])
-							h(UpdateExternalManyToOne(updateConfig, o, v)).values
+							val handler = ee.manyToOneOnUpdateMap(cis.asInstanceOf[ColumnInfoManyToOne[_, _, Any]])
+								.asInstanceOf[ee.OnUpdateManyToOne[T]]
+							handler(UpdateExternalManyToOne(updateConfig, o, v)).values
 						case e: Entity[Any, Any] =>
 							e.tpe.table.toListOfPrimaryKeyValues(entityO)
 					}
