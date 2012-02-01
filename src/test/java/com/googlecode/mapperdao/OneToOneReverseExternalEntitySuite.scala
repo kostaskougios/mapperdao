@@ -11,7 +11,7 @@ import com.googlecode.mapperdao.jdbc.Setup
  * 24 Jan 2012
  */
 @RunWith(classOf[JUnitRunner])
-class OneToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
+class OneToOneReverseExternalEntitySuite extends FunSuite with ShouldMatchers {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
 
 	if (Setup.database == "h2") {
@@ -27,16 +27,23 @@ class OneToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 		test("update/select") {
 			createTables
 			val inserted = mapperDao.insert(ProductEntity, Product(5, Inventory(105, 205)))
-			mapperDao.update(ProductEntity, inserted, Product(5, Inventory(106, 206)))
+			val updated = mapperDao.update(ProductEntity, inserted, Product(5, Inventory(106, 206)))
 			InventoryEntity.onUpdateCalled should be === 1
-			// since no update of Inventory occurs, the InventoryEntity will just
-			// return Inventory(105, 205)
-			mapperDao.select(ProductEntity, inserted.id).get should be === inserted
+			mapperDao.select(ProductEntity, inserted.id).get should be === updated
 		}
-		test("delete") {
+		test("delete without propagate") {
 			createTables
 			val inserted = mapperDao.insert(ProductEntity, Product(5, Inventory(105, 205)))
 			mapperDao.delete(ProductEntity, inserted)
+			InventoryEntity.onDeleteCalled should be === 0
+			mapperDao.select(ProductEntity, inserted.id) should be(None)
+		}
+
+		test("delete with propagate") {
+			createTables
+			val inserted = mapperDao.insert(ProductEntity, Product(5, Inventory(105, 205)))
+			mapperDao.delete(DeleteConfig(propagate = true), ProductEntity, inserted)
+			InventoryEntity.onDeleteCalled should be === 1
 			mapperDao.select(ProductEntity, inserted.id) should be(None)
 		}
 
@@ -52,6 +59,7 @@ class OneToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 	def createTables {
 		InventoryEntity.onInsertCalled = 0
 		InventoryEntity.onUpdateCalled = 0
+		InventoryEntity.onDeleteCalled = 0
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
@@ -67,21 +75,30 @@ class OneToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 	}
 	object InventoryEntity extends ExternalEntity[Inventory](classOf[Inventory]) {
 
+		var inventory = Map[Int, Inventory]()
 		var onInsertCalled = 0
-		onInsertOneToOne(ProductEntity.inventory) { i =>
+		onInsertOneToOneReverse(ProductEntity.inventory) { i =>
 			onInsertCalled += 1
+			inventory = inventory + (i.entity.id -> i.foreign)
 		}
 
-		onSelectOneToOne(ProductEntity.inventory) {
+		onSelectOneToOneReverse(ProductEntity.inventory) {
 			_.foreignIds match {
-				case (foreignId: Int) :: Nil => new Inventory(foreignId + 100, 200 + foreignId)
+				case (foreignId: Int) :: Nil => inventory(foreignId)
 				case _ => throw new RuntimeException
 			}
 		}
 
 		var onUpdateCalled = 0
-		onUpdateOneToOne(ProductEntity.inventory) { u =>
+		onUpdateOneToOneReverse(ProductEntity.inventory) { u =>
 			onUpdateCalled += 1
+			inventory = inventory + (u.entity.asInstanceOf[Product].id -> u.foreign)
+		}
+
+		var onDeleteCalled = 0
+		onDeleteOneToOneReverse(ProductEntity.inventory) { d =>
+			inventory -= d.entity.id
+			onDeleteCalled += 1
 		}
 	}
 }

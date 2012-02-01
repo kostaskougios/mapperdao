@@ -1,35 +1,35 @@
 package com.googlecode.mapperdao.plugins
 
 import java.lang.IllegalStateException
+import com.googlecode.mapperdao.drivers.Driver
+import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.utils.MapOfList
-import com.googlecode.mapperdao.OneToOneReverse
 import com.googlecode.mapperdao.Column
 import com.googlecode.mapperdao.ColumnInfoOneToOneReverse
+import com.googlecode.mapperdao.DeleteConfig
+import com.googlecode.mapperdao.Entity
 import com.googlecode.mapperdao.EntityMap
+import com.googlecode.mapperdao.ExternalEntity
+import com.googlecode.mapperdao.InsertExternalOneToOneReverse
 import com.googlecode.mapperdao.MapperDao
 import com.googlecode.mapperdao.MapperDaoImpl
+import com.googlecode.mapperdao.OneToOneReverse
 import com.googlecode.mapperdao.Persisted
 import com.googlecode.mapperdao.SelectConfig
+import com.googlecode.mapperdao.SelectExternalOneToOneReverse
+import com.googlecode.mapperdao.UpdateExternalOneToOneReverse
 import com.googlecode.mapperdao.SelectInfo
+import com.googlecode.mapperdao.SimpleColumn
 import com.googlecode.mapperdao.Type
+import com.googlecode.mapperdao.TypeManager
+import com.googlecode.mapperdao.TypeRegistry
+import com.googlecode.mapperdao.UpdateConfig
 import com.googlecode.mapperdao.UpdateEntityMap
 import com.googlecode.mapperdao.UpdateInfo
 import com.googlecode.mapperdao.ValuesMap
-import com.googlecode.mapperdao.DeleteConfig
-import com.googlecode.mapperdao.SimpleColumn
-import com.googlecode.mapperdao.events.Events
-import com.googlecode.mapperdao.TypeRegistry
-import com.googlecode.mapperdao.drivers.Driver
-import com.googlecode.mapperdao.TypeManager
-import com.googlecode.mapperdao.UpdateConfig
-import com.googlecode.mapperdao.Entity
-import com.googlecode.mapperdao.ExternalEntity
-import com.googlecode.mapperdao.utils.Helpers
-import com.googlecode.mapperdao.InsertExternalOneToOne
-import com.googlecode.mapperdao.SelectExternalOneToOne
-import com.googlecode.mapperdao.UpdateExternalOneToOne
+import com.googlecode.mapperdao.DeleteExternalOneToOneReverse
 /**
  * @author kostantinos.kougios
  *
@@ -63,7 +63,8 @@ class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperD
 					case ee: ExternalEntity[Any] =>
 						val fo = cis.columnToValue(o)
 						modified(cis.column.alias) = fo
-						ee.oneToOneOnInsertMap(cis.asInstanceOf[ColumnInfoOneToOneReverse[_, _, Any]])(InsertExternalOneToOne(updateConfig, o, fo))
+						val handler = ee.oneToOneOnInsertMap(cis.asInstanceOf[ColumnInfoOneToOneReverse[T, _, Any]]).asInstanceOf[ee.OnInsertOneToOneReverse[T]]
+						handler(InsertExternalOneToOneReverse(updateConfig, o, fo))
 					case fe: Entity[Any, Any] =>
 						val fo = cis.columnToValue(o)
 						val v = fo match {
@@ -116,7 +117,7 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 				fe match {
 					case ee: ExternalEntity[Any] =>
 						val foreignIds = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
-						val v = ee.oneToOneOnSelectMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[_, _, Any]])(SelectExternalOneToOne(selectConfig, foreignIds))
+						val v = ee.oneToOneOnSelectMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[_, _, Any]])(SelectExternalOneToOneReverse(selectConfig, foreignIds))
 						mods(c.foreign.alias) = v
 					case _ =>
 						val ftpe = fe.tpe
@@ -171,7 +172,9 @@ class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeM
 
 				c.foreign.entity match {
 					case ee: ExternalEntity[Any] =>
-						ee.oneToOneOnUpdateMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[_, _, Any]])(UpdateExternalOneToOne(updateConfig, o, fo))
+						val handler = ee.oneToOneOnUpdateMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[T, _, Any]])
+							.asInstanceOf[ee.OnUpdateOneToOneReverse[T]]
+						handler(UpdateExternalOneToOneReverse(updateConfig, o, fo))
 					case fe: Entity[Any, Any] =>
 						val ftpe = fe.tpe
 						if (fo != null) {
@@ -208,18 +211,27 @@ class OneToOneReverseDeletePlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 
 	override def idColumnValueContribution[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, entityMap: UpdateEntityMap): List[(SimpleColumn, Any)] = Nil
 
-	override def before[PC, T](entity: Entity[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)], entityMap: UpdateEntityMap) = if (deleteConfig.propagate) {
-		val tpe = entity.tpe
-		tpe.table.oneToOneReverseColumnInfos.filterNot(deleteConfig.skip(_)).foreach { ci =>
+	override def before[PC, T](entity: Entity[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)], entityMap: UpdateEntityMap) =
+		if (deleteConfig.propagate) {
+			val tpe = entity.tpe
+			tpe.table.oneToOneReverseColumnInfos.filterNot(deleteConfig.skip(_)).foreach { cis =>
 
-			// execute before-delete-relationship events
-			events.executeBeforeDeleteRelationshipEvents(tpe, ci, o)
-			val fe = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
-			val ftpe = fe.tpe
-			driver.doDeleteOneToOneReverse(tpe, ftpe, ci.column.asInstanceOf[OneToOneReverse[Any, Any]], keyValues.map(_._2))
+				// execute before-delete-relationship events
+				events.executeBeforeDeleteRelationshipEvents(tpe, cis, o)
 
-			// execute after-delete-relationship events
-			events.executeAfterDeleteRelationshipEvents(tpe, ci, o)
+				cis.column.foreign.entity match {
+					case ee: ExternalEntity[Any] =>
+						val fo = cis.columnToValue(o)
+						val handler = ee.oneToOneOnDeleteMap(cis.asInstanceOf[ColumnInfoOneToOneReverse[T, _, Any]])
+							.asInstanceOf[ee.OnDeleteOneToOneReverse[T]]
+						handler(DeleteExternalOneToOneReverse(deleteConfig, o, fo))
+					case fe: Entity[Any, Any] =>
+						val ftpe = fe.tpe
+						driver.doDeleteOneToOneReverse(tpe, ftpe, cis.column.asInstanceOf[OneToOneReverse[Any, Any]], keyValues.map(_._2))
+				}
+
+				// execute after-delete-relationship events
+				events.executeAfterDeleteRelationshipEvents(tpe, cis, o)
+			}
 		}
-	}
 }
