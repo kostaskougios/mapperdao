@@ -16,21 +16,22 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 	if (Setup.database == "h2") {
 
+		test("delete without propagation") {
+			createTables
+
+			val product = Product("p1", Set(Attribute(10, "x10"), Attribute(20, "x20")))
+			val inserted = mapperDao.insert(ProductEntity, product)
+			mapperDao.delete(ProductEntity, inserted)
+			mapperDao.select(ProductEntity, inserted.id) should be(None)
+			AttributeEntity.onDeleteCalled should be === 0
+		}
+
 		test("delete with propagation") {
 			createTables
 
 			val product = Product("p1", Set(Attribute(10, "x10"), Attribute(20, "x20")))
 			val inserted = mapperDao.insert(ProductEntity, product)
 			mapperDao.delete(DeleteConfig(propagate = true), ProductEntity, inserted)
-			mapperDao.select(ProductEntity, inserted.id) should be(None)
-			AttributeEntity.onDeleteCalled should be === 1
-		}
-		test("delete") {
-			createTables
-
-			val product = Product("p1", Set(Attribute(10, "x10"), Attribute(20, "x20")))
-			val inserted = mapperDao.insert(ProductEntity, product)
-			mapperDao.delete(ProductEntity, inserted)
 			mapperDao.select(ProductEntity, inserted.id) should be(None)
 			AttributeEntity.onDeleteCalled should be === 1
 		}
