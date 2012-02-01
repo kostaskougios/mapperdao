@@ -65,16 +65,20 @@ abstract class ExternalEntity[F](table: String, clz: Class[F]) extends Entity[An
 	type OnInsertManyToOne[T] = InsertExternalManyToOne[T, F] => PrimaryKeysValues // return the primary keys
 	type OnSelectManyToOne[T] = SelectExternalManyToOne[T, F] => F // return the actual one-value
 	type OnUpdateManyToOne[T] = UpdateExternalManyToOne[T, F] => PrimaryKeysValues // return the primary keys
+	type OnDeleteManyToOne[T] = DeleteExternalManyToOne[T, F] => Unit
 
 	private[mapperdao] val manyToOneOnInsertMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnInsertManyToOne[_]]("onInsertManyToOne must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] val manyToOneOnSelectMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnSelectManyToOne[_]]("onSelectManyToOne must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] val manyToOneOnUpdateMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnUpdateManyToOne[_]]("onUpdateManyToOne must be called for External Entity %s".format(getClass.getName))
+	private[mapperdao] val manyToOneOnDeleteMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnDeleteManyToOne[_]]("onDeleteManyToOne must be called for External Entity %s".format(getClass.getName))
 	def onInsertManyToOne[T](ci: => ColumnInfoManyToOne[T, _, F])(handler: OnInsertManyToOne[T]) = lazyActions(() => manyToOneOnInsertMap + (ci, handler))
 	def onInsertManyToOne(handler: OnInsertManyToOne[Any]) { manyToOneOnInsertMap.default = Some(handler) }
 	def onSelectManyToOne[T](ci: => ColumnInfoManyToOne[T, _, F])(handler: OnSelectManyToOne[T]) = lazyActions(() => manyToOneOnSelectMap + (ci, handler))
 	def onSelectManyToOne(handler: OnSelectManyToOne[Any]) { manyToOneOnSelectMap.default = Some(handler) }
 	def onUpdateManyToOne[T](ci: => ColumnInfoManyToOne[T, _, F])(handler: OnUpdateManyToOne[T]) = lazyActions(() => manyToOneOnUpdateMap + (ci, handler))
 	def onUpdateManyToOne(handler: OnUpdateManyToOne[Any]) { manyToOneOnUpdateMap.default = Some(handler) }
+	def onDeleteManyToOne[T](ci: => ColumnInfoManyToOne[T, _, F])(handler: OnDeleteManyToOne[T]) = lazyActions(() => manyToOneOnDeleteMap + (ci, handler))
+	def onDeleteManyToOne(handler: OnDeleteManyToOne[Any]) { manyToOneOnDeleteMap.default = Some(handler) }
 
 	/**
 	 * support for one-to-many mapping
@@ -123,6 +127,7 @@ case class DeleteExternalOneToOneReverse[T, F](deleteConfig: DeleteConfig, entit
 case class InsertExternalManyToOne[T, F](updateConfig: UpdateConfig, entity: T, foreign: F)
 case class SelectExternalManyToOne[T, F](selectConfig: SelectConfig, primaryKeys: List[Any])
 case class UpdateExternalManyToOne[T, F](updateConfig: UpdateConfig, entity: T, foreign: F)
+case class DeleteExternalManyToOne[T, F](deleteConfig: DeleteConfig, entity: T, foreign: F)
 
 case class InsertExternalOneToMany[T, F](updateConfig: UpdateConfig, entity: T, many: Traversable[F])
 case class SelectExternalOneToMany(selectConfig: SelectConfig, foreignIds: List[Any])

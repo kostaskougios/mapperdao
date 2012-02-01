@@ -22,6 +22,7 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 			val person = Person("kostas", House(10, "name10"))
 			val inserted = mapperDao.insert(PersonEntity, person)
 			mapperDao.delete(PersonEntity, inserted)
+			HouseEntity.onDeleteCalled should be === 0
 			mapperDao.select(PersonEntity, inserted.id) should be(None)
 		}
 
@@ -31,6 +32,7 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 			val person = Person("kostas", House(10, "name10"))
 			val inserted = mapperDao.insert(PersonEntity, person)
 			mapperDao.delete(DeleteConfig(propagate = true), PersonEntity, inserted)
+			HouseEntity.onDeleteCalled should be === 1
 			mapperDao.select(PersonEntity, inserted.id) should be(None)
 		}
 
@@ -73,6 +75,7 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 	}
 
 	def createTables {
+		HouseEntity.onDeleteCalled = 0
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
@@ -108,6 +111,11 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 				case List(id: Int) => House(id, "name" + id)
 				case _ => throw new IllegalStateException
 			}
+		}
+
+		var onDeleteCalled = 0
+		onDeleteManyToOne { d =>
+			onDeleteCalled += 1
 		}
 	}
 }
