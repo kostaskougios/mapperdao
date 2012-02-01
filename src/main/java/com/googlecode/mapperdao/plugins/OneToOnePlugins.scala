@@ -115,7 +115,7 @@ class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 
 			var values = List[(Column, Any)]()
 			var keys = List[(Column, Any)]()
-			table.oneToOneColumnInfos.foreach { ci =>
+			table.oneToOneColumnInfos.filterNot(updateConfig.skip.contains(_)).foreach { ci =>
 				val fe = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
 				val ftpe = fe.tpe
 				val fo = ci.columnToValue(o)

@@ -42,7 +42,7 @@ trait MapperDao {
 	// default configurations
 	val defaultSelectConfig = SelectConfig()
 	val defaultDeleteConfig = DeleteConfig()
-	val defaultUpdateConfig = UpdateConfig(defaultDeleteConfig)
+	val defaultUpdateConfig = UpdateConfig(deleteConfig = defaultDeleteConfig)
 
 	// delete
 

@@ -133,7 +133,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 			val tpe = entity.tpe
 			val table = tpe.table
 			// update many-to-many
-			table.manyToManyColumnInfos.foreach { ci =>
+			table.manyToManyColumnInfos.filterNot(updateConfig.skip.contains(_)).foreach { ci =>
 				val t = ci.columnToValue(o)
 				val manyToMany = ci.column
 				val newValues = t.toList

@@ -138,7 +138,7 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			// update one-to-many
 			val table = tpe.table
 
-			table.oneToManyColumnInfos.foreach { ci =>
+			table.oneToManyColumnInfos.filterNot(updateConfig.skip.contains(_)).foreach { ci =>
 				val oneToMany = ci.column
 				val t = ci.columnToValue(o)
 				// we'll get the 2 traversables and update the database

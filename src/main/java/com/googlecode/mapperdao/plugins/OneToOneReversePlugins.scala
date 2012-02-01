@@ -165,7 +165,7 @@ class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeM
 			val tpe = entity.tpe
 			val table = tpe.table
 			// one-to-one-reverse
-			table.oneToOneReverseColumnInfos.foreach { ci =>
+			table.oneToOneReverseColumnInfos.filterNot(updateConfig.skip.contains(_)).foreach { ci =>
 				val fo = ci.columnToValue(o)
 				val c = ci.column
 
