@@ -48,6 +48,7 @@ class ManyToManyInsertPlugin(typeManager: TypeManager, typeRegistry: TypeRegistr
 						case ee: ExternalEntity[Any] =>
 							val nestedTpe = ee.tpe
 							val handler = ee.manyToManyOnInsertMap(cis.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
+								.asInstanceOf[ee.OnInsertManyToMany[T]]
 							traversable.foreach { nested =>
 								val rightKeyValues = handler(InsertExternalManyToMany(updateConfig, o, nested))
 								driver.doInsertManyToMany(nestedTpe, cis.column, newKeyValues, rightKeyValues.values)
@@ -151,6 +152,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 				manyToMany.foreign.entity match {
 					case ee: ExternalEntity[Any] =>
 						val handler = ee.manyToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
+							.asInstanceOf[ee.OnUpdateManyToMany[T]]
 						// delete the removed ones
 						removed.foreach { p =>
 							val ftable = ftpe.table
@@ -230,7 +232,9 @@ class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDaoImpl) extends B
 				ci.column.foreign.entity match {
 					case ee: ExternalEntity[Any] =>
 						val fo = ci.columnToValue(o)
-						ee.manyToManyOnDeleteMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])(DeleteExternalManyToMany(deleteConfig, o, fo))
+						val handler = ee.manyToManyOnDeleteMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
+							.asInstanceOf[ee.OnDeleteManyToMany[T]]
+						handler(DeleteExternalManyToMany(deleteConfig, o, fo))
 					case _ =>
 				}
 
