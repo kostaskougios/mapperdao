@@ -26,6 +26,7 @@ import com.googlecode.mapperdao.ColumnInfoTraversableManyToMany
 import com.googlecode.mapperdao.InsertExternalManyToMany
 import com.googlecode.mapperdao.UpdateExternalManyToMany
 import com.googlecode.mapperdao.SelectExternalManyToMany
+import com.googlecode.mapperdao.DeleteExternalManyToMany
 
 /**
  * @author kostantinos.kougios
@@ -224,6 +225,13 @@ class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDaoImpl) extends B
 			events.executeBeforeDeleteRelationshipEvents(tpe, ci, o)
 
 			driver.doDeleteAllManyToManyRef(tpe, ci.column, keyValues.map(_._2))
+
+			ci.column.foreign.entity match {
+				case ee: ExternalEntity[Any] =>
+					val fo = ci.columnToValue(o)
+					ee.manyToManyOnDeleteMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])(DeleteExternalManyToMany(deleteConfig, o, fo))
+				case _ =>
+			}
 
 			// execute after-delete-relationship events
 			events.executeAfterDeleteRelationshipEvents(tpe, ci, o)

@@ -23,6 +23,7 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 			val inserted = mapperDao.insert(ProductEntity, product)
 			mapperDao.delete(DeleteConfig(propagate = true), ProductEntity, inserted)
 			mapperDao.select(ProductEntity, inserted.id) should be(None)
+			AttributeEntity.onDeleteCalled should be === 1
 		}
 		test("delete") {
 			createTables
@@ -31,6 +32,7 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 			val inserted = mapperDao.insert(ProductEntity, product)
 			mapperDao.delete(ProductEntity, inserted)
 			mapperDao.select(ProductEntity, inserted.id) should be(None)
+			AttributeEntity.onDeleteCalled should be === 1
 		}
 
 		test("persists/select") {
@@ -64,6 +66,7 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 	}
 
 	def createTables {
+		AttributeEntity.onDeleteCalled = 0
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
@@ -97,7 +100,11 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 		onUpdateManyToMany(ProductEntity.attributes) { u =>
 			PrimaryKeysValues(u.foreign.id)
+		}
 
+		var onDeleteCalled = 0
+		onDeleteManyToMany { d =>
+			onDeleteCalled += 1
 		}
 	}
 }
