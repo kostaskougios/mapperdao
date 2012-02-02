@@ -38,17 +38,28 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 			mapperDao.select(PersonEntity, inserted.id).get should be === updated
 		}
 
-		test("delete") {
+		test("delete without propagation") {
 			createTables
 
 			val person = Person("p1", Set(House(11, "house for 1"), House(12, "2nd house for 1")))
 			val inserted = mapperDao.insert(PersonEntity, person)
 			mapperDao.delete(PersonEntity, inserted)
+			HouseEntity.onDeleteCount should be === 0
+			mapperDao.select(PersonEntity, inserted.id) should be(None)
+		}
+		test("delete with propagation") {
+			createTables
+
+			val person = Person("p1", Set(House(11, "house for 1"), House(12, "2nd house for 1")))
+			val inserted = mapperDao.insert(PersonEntity, person)
+			mapperDao.delete(DeleteConfig(propagate = true), PersonEntity, inserted)
+			HouseEntity.onDeleteCount should be === 1
 			mapperDao.select(PersonEntity, inserted.id) should be(None)
 		}
 	}
 
 	def createTables {
+		HouseEntity.onDeleteCount = 0
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
@@ -81,6 +92,11 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 		}
 		onUpdateOneToMany(PersonEntity.owns) { u =>
 			currentData = (u.added ++ u.intersection).toList
+		}
+
+		var onDeleteCount = 0
+		onDeleteOneToMany(PersonEntity.owns) { d =>
+			onDeleteCount += 1
 		}
 	}
 }

@@ -51,7 +51,9 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 						traversable.foreach {
 							modifiedTraversables(cName) = _
 						}
-						ee.oneToManyOnInsertMap(cis.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, Any]])(InsertExternalOneToMany(updateConfig, o, traversable))
+						val handler = ee.oneToManyOnInsertMap(cis.asInstanceOf[ColumnInfoTraversableOneToMany[T, _, Any]])
+							.asInstanceOf[ee.OnInsertOneToMany[T]]
+						handler(InsertExternalOneToMany(updateConfig, o, traversable))
 
 					case fe: Entity[Any, Any] =>
 						val ftpe = fe.tpe
@@ -151,7 +153,9 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				ci.column.foreign.entity match {
 					case ee: ExternalEntity[Any] =>
 
-						ee.oneToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, Any]])(UpdateExternalOneToMany(updateConfig, o, added, intersection, removed))
+						val handler = ee.oneToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[T, _, Any]])
+							.asInstanceOf[ee.OnUpdateOneToMany[T]]
+						handler(UpdateExternalOneToMany(updateConfig, o, added, intersection, removed))
 						t.foreach { newItem =>
 							modified(oneToMany.alias) = newItem
 						}
@@ -196,23 +200,32 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 		}
 	}
 
-	override def before[PC, T](entity: Entity[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)], entityMap: UpdateEntityMap) = if (deleteConfig.propagate) {
-		val tpe = entity.tpe
-		tpe.table.oneToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach { ci =>
-			val fe = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
-			// execute before-delete-relationship events
-			events.executeBeforeDeleteRelationshipEvents(tpe, ci, o)
+	override def before[PC, T](entity: Entity[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(SimpleColumn, Any)], entityMap: UpdateEntityMap) =
+		if (deleteConfig.propagate) {
+			val tpe = entity.tpe
+			tpe.table.oneToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach { cis =>
 
-			val fOTraversable = ci.columnToValue(o)
-			if (fOTraversable != null) fOTraversable.foreach { fO =>
-				val fOPersisted = fO.asInstanceOf[Persisted]
-				if (!fOPersisted.mock) {
-					mapperDao.delete(deleteConfig, fe, fOPersisted)
+				// execute before-delete-relationship events
+				events.executeBeforeDeleteRelationshipEvents(tpe, cis, o)
+
+				val fOTraversable = cis.columnToValue(o)
+
+				cis.column.foreign.entity match {
+					case ee: ExternalEntity[Any] =>
+						val handler = ee.oneToManyOnDeleteMap(cis.asInstanceOf[ColumnInfoTraversableOneToMany[T, _, Any]])
+							.asInstanceOf[ee.OnDeleteOneToMany[T]]
+						handler(DeleteExternalOneToMany(deleteConfig, o, fOTraversable))
+
+					case fe: Entity[Any, Any] =>
+						if (fOTraversable != null) fOTraversable.foreach { fO =>
+							val fOPersisted = fO.asInstanceOf[Persisted]
+							if (!fOPersisted.mock) {
+								mapperDao.delete(deleteConfig, fe, fOPersisted)
+							}
+						}
 				}
+				// execute after-delete-relationship events
+				events.executeAfterDeleteRelationshipEvents(tpe, cis, o)
 			}
-
-			// execute after-delete-relationship events
-			events.executeAfterDeleteRelationshipEvents(tpe, ci, o)
 		}
-	}
 }
