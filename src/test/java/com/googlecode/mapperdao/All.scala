@@ -67,7 +67,8 @@ import org.scalatest.FunSuite
 		classOf[ManyToManyExternalEntitySuite],
 		classOf[ManyToOneExternalEntitySuite],
 		classOf[OneToOneReverseExternalEntitySuite],
-		classOf[OneToManyExternalEntitySuite]
+		classOf[OneToManyExternalEntitySuite],
+		classOf[UseCaseFileSystemSuite]
 	)
 )
 @RunWith(classOf[Suite])
