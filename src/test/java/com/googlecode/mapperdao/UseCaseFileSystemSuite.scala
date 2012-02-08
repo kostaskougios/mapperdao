@@ -15,7 +15,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 class UseCaseFileSystemSuite extends FunSuite with ShouldMatchers {
 	import UseCaseFileSystemSuite._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(DirectoryEntity, FileEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(DirectoryEntity, FileEntity, ArchiveEntity))
 
 	if (Setup.database == "h2") {
 		test("integration") {
@@ -23,9 +23,22 @@ class UseCaseFileSystemSuite extends FunSuite with ShouldMatchers {
 			val parent = Directory("parent_dir", None, Nil)
 			val dir = Directory("my_dir", Some(parent), Nil)
 			val inserted = mapperDao.insert(DirectoryEntity, dir)
-			val toUpdate = inserted.copy(nodes = List(File("file1.txt", inserted, "text file")))
+			val toUpdate = inserted.copy(nodes = List(File("file1.txt", inserted, "text file"), Archive("f.zip", inserted, "zip")))
 			val updated = mapperDao.update(DirectoryEntity, inserted, toUpdate)
 			updated should be === toUpdate
+			val selected = mapperDao.select(DirectoryEntity, inserted.id).get
+			// the file into the directory contains a mock of the directory itself.
+			// that mock is not fully populated and hence selected!=updated because
+			// the updated doesn't contain the mock. We need to check the properties
+			// one by one, avoiding the mock.
+			selected.uri should be === updated.uri
+			selected.parent should be === updated.parent
+			selected.nodes.head.uri should be === updated.nodes.head.uri
+			(selected.nodes.head match {
+				case f: File => f.fileType
+			}) should be === (updated.nodes.head match {
+				case f: File => f.fileType
+			})
 		}
 
 		test("persist directory") {
@@ -61,6 +74,7 @@ object UseCaseFileSystemSuite {
 
 	abstract class FileNode(override val uri: String, val parent: Directory) extends Node(uri)
 	case class File(override val uri: String, override val parent: Directory, fileType: String) extends FileNode(uri, parent)
+	case class Archive(override val uri: String, override val parent: Directory, zipType: String) extends FileNode(uri, parent)
 
 	/**
 	 * Entities
@@ -97,6 +111,14 @@ object UseCaseFileSystemSuite {
 
 		def constructor(implicit m) = new File(uri, parent, fileType) with Persisted with IntId {
 			val id: Int = FileEntity.id
+		}
+	}
+
+	object ArchiveEntity extends FileNodeEntity(classOf[Archive]) {
+		val zipType = column("fileType") to (_.zipType)
+
+		def constructor(implicit m) = new Archive(uri, parent, zipType) with Persisted with IntId {
+			val id: Int = ArchiveEntity.id
 		}
 	}
 }
