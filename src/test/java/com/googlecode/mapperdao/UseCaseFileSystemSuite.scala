@@ -90,14 +90,14 @@ object UseCaseFileSystemSuite {
 	}
 
 	object DirectoryEntity extends NodeEntity(classOf[Directory]) {
-		// we need to map each note seperatelly. Lets start with files
+		// we need to map each node seperatelly. Lets start with files
 		val files = onetomany(FileEntity) foreignkey ("parent_id") to (_.nodes.collect {
 			// we'll collect only the files
 			case f: File => f
 		})
 		// and continue with the archives
 		var archives = onetomany(ArchiveEntity) foreignkey ("parent_id") to (_.nodes.collect {
-			// we'll collect only the files
+			// we'll collect only the archives
 			case a: Archive => a
 		})
 
