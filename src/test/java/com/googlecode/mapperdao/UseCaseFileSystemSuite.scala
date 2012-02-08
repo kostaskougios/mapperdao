@@ -95,9 +95,17 @@ object UseCaseFileSystemSuite {
 			// we'll collect only the files
 			case f: File => f
 		})
+		// and continue with the archives
+		var archives = onetomany(ArchiveEntity) foreignkey ("parent_id") to (_.nodes.collect {
+			// we'll collect only the files
+			case a: Archive => a
+		})
 
 		val parent = manytoone(this) foreignkey ("parent_id") option (_.parent)
-		def constructor(implicit m) = new Directory(uri, parent, files) with Persisted with IntId {
+
+		// though we map files and archives separatelly, for the domain model we need to
+		// merge them into a node list:
+		def constructor(implicit m) = new Directory(uri, parent, m(files).toList ++ m(archives).toList) with Persisted with IntId {
 			val id: Int = DirectoryEntity.id
 		}
 	}
@@ -115,7 +123,7 @@ object UseCaseFileSystemSuite {
 	}
 
 	object ArchiveEntity extends FileNodeEntity(classOf[Archive]) {
-		val zipType = column("fileType") to (_.zipType)
+		val zipType = column("zipType") to (_.zipType)
 
 		def constructor(implicit m) = new Archive(uri, parent, zipType) with Persisted with IntId {
 			val id: Int = ArchiveEntity.id
