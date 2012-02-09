@@ -1,19 +1,19 @@
 package com.googlecode.mapperdao.utils
 import scala.collection.mutable.HashMap
-import scala.collection.mutable.LinkedList
+import scala.collection.mutable.ListBuffer
 /**
  * @author kostantinos.kougios
  *
  * 31 Aug 2011
  */
 class MapOfList[K, V](keyModifier: K => K) extends Traversable[(K, List[V])] {
-	val m = new HashMap[K, LinkedList[V]]
+	val m = new HashMap[K, ListBuffer[V]]
 
 	def update(k: K, v: V) {
 		val key = keyModifier(k)
-		var l = m.getOrElse(key, LinkedList())
+		val l = m.getOrElse(key, ListBuffer())
 		if (l.isEmpty) m.put(key, l)
-		l :+= v
+		l + v
 	}
 
 	override def foreach[U](f: ((K, List[V])) => U): Unit =
