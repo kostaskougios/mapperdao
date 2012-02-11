@@ -1,4 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.googlecode.mapperdao</groupId>
 	<artifactId>mapperdao</artifactId>
@@ -35,6 +40,12 @@
 		<system>Google Code</system>
 		<url>https://code.google.com/p/mapperdao/issues/list</url>
 	</issueManagement>
+	<developers>
+		<developer>
+			<name>Konstantinos Kougios</name>
+			<email>kostas.kougios@googlemail.com</email>
+		</developer>
+	</developers>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring.version>3.1.0.RELEASE</spring.version>
@@ -323,26 +334,6 @@
 			</plugin>
 		</plugins>
 	</build>
-	<repositories>
-		<repository>
-			<id>scala-tools.releases</id>
-			<name>Scala-Tools Dependencies Repository for Releases</name>
-			<url>http://scala-tools.org/repo-releases</url>
-		</repository>
-		<repository>
-			<id>scala-tools.org.snapshots</id>
-			<name>Scala Tools Maven2 Repository</name>
-			<url>http://scala-tools.org/repo-snapshots</url>
-			<snapshots />
-		</repository>
-	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>scala-tools.releases</id>
-			<name>Scala-Tools Plugins Repository for Releases</name>
-			<url>http://scala-tools.org/repo-releases</url>
-		</pluginRepository>
-	</pluginRepositories>
 	<profiles>
 		<profile>
 			<id>sonatype-deploy</id>
