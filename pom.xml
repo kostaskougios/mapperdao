@@ -11,18 +11,7 @@
 	<version>1.0.0-rc2</version>
 	<name>mapperdao</name>
 	<description><![CDATA[
-	MapperDao is an ORM library for the scala language. It allows
-    * a clean domain model
-    * no references to mapperdao outside of dao classes
-    * no special rules or restrictions for entities. No reference to mapperdao within entities, no annotations necessary.
-    * promotes and encourages immutability for the domain classes
-    * map in one database, run in all supported databases
-    * oracle, postgresql, mysql, derby drivers
-    * the library is not based on reflection
-    * type safe
-    * DSL for queries which resembles typical select statements. Minimal learning curve.
-    * uses spring's JdbcTemplate for low level database access, taking advantage of the api but without the need for mapperdao to be used within spring framework. Connecting to databases, transactions etc can be configured without (and ofcourse within) spring. MapperDao is spring friendly and all spring's database related features can be used when creating dao's with mapperdao.
-    * uses joda datetime (immutable date & time classes) to manage datetimes but java.util.Calendar is also supported 
+	MapperDao is an ORM library for the scala language. https://code.google.com/p/mapperdao/ 
     ]]></description>
 	<url>https://code.google.com/p/mapperdao/</url>
 	<licenses>
@@ -306,7 +295,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-release-plugin</artifactId>
-				<version>2.2.1</version>
+				<version>2.2.2</version>
 			</plugin>
 			<plugin>
 				<artifactId>maven-repository-plugin</artifactId>
