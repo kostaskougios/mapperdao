@@ -312,26 +312,6 @@
 				<artifactId>maven-repository-plugin</artifactId>
 				<version>2.3.1</version>
 			</plugin>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.2.1</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<descriptors>
-						<descriptor>src/main/assembly/dist.xml</descriptor>
-					</descriptors>
-					<descriptorRefs>
-						<descriptorRef>project</descriptorRef>
-					</descriptorRefs>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
 	<profiles>
