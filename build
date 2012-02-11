@@ -1,3 +1,0 @@
-# build mapperdao to target directory and gpg sign
-
-mvn clean source:jar scala:doc package gpg:sign
