@@ -12,7 +12,8 @@ import com.googlecode.mapperdao.utils.MapWithDefault
  * entity was a mapperdao entity.
  */
 abstract class ExternalEntity[F](table: String, clz: Class[F]) extends Entity[AnyRef, F](table, clz) {
-	def this(clz: Class[F]) = this(clz.getSimpleName, clz)
+	def this()(implicit m: ClassManifest[F]) = this(m.erasure.getSimpleName, m.erasure.asInstanceOf[Class[F]])
+	def this(table: String)(implicit m: ClassManifest[F]) = this(table, m.erasure.asInstanceOf[Class[F]])
 
 	private val lazyActions = new LazyActions
 

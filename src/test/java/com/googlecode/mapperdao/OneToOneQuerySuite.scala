@@ -110,7 +110,7 @@ object OneToOneQuerySpec {
 	case class Inventory(val stock: Int, val sold: Int)
 	case class Product(val id: Int, val inventory: Inventory)
 
-	class InventoryEntityBase extends SimpleEntity[Inventory](classOf[Inventory]) {
+	class InventoryEntityBase extends SimpleEntity[Inventory] {
 		val stock = column("stock") to (_.stock)
 		val sold = column("sold") to (_.sold)
 
@@ -118,7 +118,7 @@ object OneToOneQuerySpec {
 	}
 	val InventoryEntity = new InventoryEntityBase
 
-	class ProductEntityBase extends SimpleEntity[Product](classOf[Product]) {
+	class ProductEntityBase extends SimpleEntity[Product] {
 		val id = key("id") to (_.id)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 

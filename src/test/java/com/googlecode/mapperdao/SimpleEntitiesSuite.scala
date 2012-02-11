@@ -204,7 +204,7 @@ object SimpleEntitiesSpec {
 	 * Mapping for JobPosition class
 	 * ============================================================================================================
 	 */
-	object JobPositionEntity extends SimpleEntity(classOf[JobPosition]) {
+	object JobPositionEntity extends SimpleEntity[JobPosition] {
 		// now a description of the table and it's columns follows.
 		// each column is followed by a function JobPosition=>Any, that
 		// returns the value of the property for that column.

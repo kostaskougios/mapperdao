@@ -310,7 +310,7 @@ object SimpleQuerySpec {
 
 	case class JobPosition(val id: Int, var name: String, val start: DateTime)
 
-	object JobPositionEntity extends SimpleEntity(classOf[JobPosition]) {
+	object JobPositionEntity extends SimpleEntity[JobPosition] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val start = column("start") to (_.start)

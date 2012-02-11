@@ -174,7 +174,7 @@ object ManyToOneSpec {
 	case class Company(val id: Int, val name: String)
 	case class House(val id: Int, val address: String)
 
-	object PersonEntity extends SimpleEntity(classOf[Person]) {
+	object PersonEntity extends SimpleEntity[Person] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val company = manytoone(CompanyEntity) to (_.company)
@@ -183,14 +183,14 @@ object ManyToOneSpec {
 		def constructor(implicit m) = new Person(id, name, company, lives) with Persisted
 	}
 
-	object CompanyEntity extends SimpleEntity(classOf[Company]) {
+	object CompanyEntity extends SimpleEntity[Company] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 
 		def constructor(implicit m) = new Company(id, name) with Persisted
 	}
 
-	object HouseEntity extends SimpleEntity(classOf[House]) {
+	object HouseEntity extends SimpleEntity[House] {
 		val id = key("id") to (_.id)
 		val address = column("address") to (_.address)
 		def constructor(implicit m) = new House(id, address) with Persisted

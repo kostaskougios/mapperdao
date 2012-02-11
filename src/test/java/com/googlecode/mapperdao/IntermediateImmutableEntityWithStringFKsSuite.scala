@@ -173,7 +173,7 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 	}
 	case class Company(val no: String, val name: String)
 
-	object EmployeeEntity extends SimpleEntity[Employee](classOf[Employee]) {
+	object EmployeeEntity extends SimpleEntity[Employee] {
 		val no = key("no") to (_.no)
 		val workedAt = onetomany(WorkedAtEntity) foreignkey "employee_no" to (_.workedAt)
 
@@ -182,7 +182,7 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 		}
 	}
 
-	object WorkedAtEntity extends SimpleEntity[WorkedAt](classOf[WorkedAt]) {
+	object WorkedAtEntity extends SimpleEntity[WorkedAt] {
 		val employee_no = key("employee_no") to (wat => if (wat.employee == null) null else wat.employee.no)
 		val company_no = key("company_no") to (wat => if (wat.company == null) null else wat.company.no)
 		val year = column("year") to (_.year)
@@ -193,7 +193,7 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 		def constructor(implicit m) = new WorkedAt(employee, company, year) with Persisted
 	}
 
-	object CompanyEntity extends SimpleEntity[Company](classOf[Company]) {
+	object CompanyEntity extends SimpleEntity[Company] {
 		val no = key("no") to (_.no)
 		val name = column("name") to (_.name)
 

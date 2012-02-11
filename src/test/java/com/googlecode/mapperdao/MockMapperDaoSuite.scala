@@ -13,7 +13,7 @@ import org.scalatest.matchers.ShouldMatchers
 @RunWith(classOf[JUnitRunner])
 class MockMapperDaoSuite extends FunSuite with ShouldMatchers {
 	case class JobPosition(var name: String)
-	object JobPositionEntity extends Entity[IntId, JobPosition](classOf[JobPosition]) {
+	object JobPositionEntity extends Entity[IntId, JobPosition] {
 		def constructor(implicit m) = null
 	}
 

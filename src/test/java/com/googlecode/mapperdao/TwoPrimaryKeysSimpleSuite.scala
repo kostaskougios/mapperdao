@@ -87,7 +87,7 @@ object TwoPrimaryKeysSimpleSpec {
 
 	case class User(val name: String, val surname: String, val age: Int)
 
-	object UserEntity extends SimpleEntity[User](classOf[User]) {
+	object UserEntity extends SimpleEntity[User] {
 		val name = key("name") to (_.name)
 		val surname = key("surname") to (_.surname)
 		val age = column("age") to (_.age)

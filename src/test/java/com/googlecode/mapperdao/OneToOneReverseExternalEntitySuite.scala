@@ -67,13 +67,13 @@ class OneToOneReverseExternalEntitySuite extends FunSuite with ShouldMatchers {
 	case class Inventory(val id: Int, val stock: Int)
 	case class Product(val id: Int, val inventory: Inventory)
 
-	object ProductEntity extends SimpleEntity[Product](classOf[Product]) {
+	object ProductEntity extends SimpleEntity[Product] {
 		val id = key("id") to (_.id)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 
 		def constructor(implicit m) = new Product(id, inventory) with Persisted
 	}
-	object InventoryEntity extends ExternalEntity[Inventory](classOf[Inventory]) {
+	object InventoryEntity extends ExternalEntity[Inventory] {
 
 		var inventory = Map[Int, Inventory]()
 		var onInsertCalled = 0

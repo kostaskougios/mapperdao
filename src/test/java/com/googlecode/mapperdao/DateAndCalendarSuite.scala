@@ -17,7 +17,7 @@ import org.scalatest.matchers.ShouldMatchers
 class DateAndCalendarSuite extends FunSuite with ShouldMatchers {
 
 	case class DC(id: Int, date: Date, calendar: Calendar)
-	object DCEntity extends SimpleEntity[DC](classOf[DC]) {
+	object DCEntity extends SimpleEntity[DC] {
 		val id = key("id") to (_.id)
 		val date = column("dt") to (_.date)
 		val calendar = column("cal") to (_.calendar)

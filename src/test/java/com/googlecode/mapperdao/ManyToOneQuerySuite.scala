@@ -168,7 +168,7 @@ object ManyToOneQuerySpec {
 	case class House(val id: Int, val name: String, val address: Address)
 	case class Address(val id: Int, val postCode: String)
 
-	object PersonEntity extends SimpleEntity(classOf[Person]) {
+	object PersonEntity extends SimpleEntity[Person] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val lives = manytoone(HouseEntity) foreignkey "lives_id" to (_.lives)
@@ -176,7 +176,7 @@ object ManyToOneQuerySpec {
 		def constructor(implicit m) = new Person(id, name, lives) with Persisted
 	}
 
-	class HouseEntityBase extends SimpleEntity(classOf[House]) {
+	class HouseEntityBase extends SimpleEntity[House] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val address = manytoone(AddressEntity) to (_.address)
@@ -186,7 +186,7 @@ object ManyToOneQuerySpec {
 
 	val HouseEntity = new HouseEntityBase
 
-	object AddressEntity extends SimpleEntity(classOf[Address]) {
+	object AddressEntity extends SimpleEntity[Address] {
 		val id = key("id") to (_.id)
 		val postCode = column("postcode") to (_.postCode)
 

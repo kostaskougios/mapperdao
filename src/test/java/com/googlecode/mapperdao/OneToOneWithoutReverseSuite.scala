@@ -101,7 +101,7 @@ object OneToOneWithoutReverseSpec {
 	case class Inventory(val id: Int, val product: Product, val stock: Int)
 	case class Product(val id: Int)
 
-	object InventoryEntity extends SimpleEntity[Inventory](classOf[Inventory]) {
+	object InventoryEntity extends SimpleEntity[Inventory] {
 		val id = key("id") to (_.id)
 		val product = onetoone(ProductEntity) to (_.product)
 		val stock = column("stock") to (_.stock)
@@ -109,7 +109,7 @@ object OneToOneWithoutReverseSpec {
 		def constructor(implicit m) = new Inventory(id, product, stock) with Persisted
 	}
 
-	object ProductEntity extends SimpleEntity[Product](classOf[Product]) {
+	object ProductEntity extends SimpleEntity[Product] {
 		val id = key("id") to (_.id)
 
 		def constructor(implicit m) = new Product(id) with Persisted

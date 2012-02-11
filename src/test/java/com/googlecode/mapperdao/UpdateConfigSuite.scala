@@ -39,21 +39,21 @@ object UpdateConfigSpecOneToManyDecl {
 	case class House(val id: Int, val floors: Set[Floor])
 	case class Floor(val id: Int, val description: String)
 
-	object FloorEntity extends SimpleEntity(classOf[Floor]) {
+	object FloorEntity extends SimpleEntity[Floor] {
 		val id = key("id") to (_.id)
 		val description = column("description") to (_.description)
 
 		def constructor(implicit m) = new Floor(id, description) with Persisted
 	}
 
-	object HouseEntity extends SimpleEntity(classOf[House]) {
+	object HouseEntity extends SimpleEntity[House] {
 		val id = key("id") to (_.id)
 		val floors = onetomany(FloorEntity) to (_.floors)
 
 		def constructor(implicit m) = new House(id, floors) with Persisted
 	}
 
-	object PersonEntity extends SimpleEntity(classOf[Person]) {
+	object PersonEntity extends SimpleEntity[Person] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val houses = onetomany(HouseEntity) to (_.owns)
