@@ -1,4 +1,8 @@
 # deploy mapperdao after all tests run
 
-mvn -DskipTests=true clean source:jar package gpg:sign
-mvn -DskipTests=true -P sonatype-deploy
+mvn -DskipTests=true clean source:jar package javadoc:jar gpg:sign deploy 
+
+#-P sonatype-deploy
+
+#mvn -DskipTests=true clean source:jar package javadoc:jar gpg:sign
+#mvn -DskipTests=true -P sonatype-deploy
