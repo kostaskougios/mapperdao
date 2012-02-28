@@ -22,11 +22,11 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers {
 		test("updating items (immutable)") {
 			createTables
 
-			val jp1 = new JobPosition(3, "C++ Developer", 10, 3)
-			val jp2 = new JobPosition(5, "Scala Developer", 10, 3)
-			val jp3 = new JobPosition(7, "Java Developer", 10, 3)
-			val jp4 = new JobPosition(8, "Web Designer", 10, 3)
-			val jp5 = new JobPosition(1, "Graphics Designer", 10, 3)
+			val jp1 = JobPosition(3, "C++ Developer", 10, 3)
+			val jp2 = JobPosition(5, "Scala Developer", 10, 3)
+			val jp3 = JobPosition(7, "Java Developer", 10, 3)
+			val jp4 = JobPosition(8, "Web Designer", 10, 3)
+			val jp5 = JobPosition(1, "Graphics Designer", 10, 3)
 			val person = Person(3, "Kostas", "K", 16, List(jp1, jp2, jp3))
 			val inserted = mapperDao.insert(PersonEntity, person)
 
@@ -38,20 +38,45 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers {
 					mapperDao.select(PersonEntity, 3).get should be === updated
 					mapperDao.select(PersonEntity, 3).get should be === to
 				}
-			doUpdate(updated, new Person(3, "Changed", "K", 18, updated.positions.filterNot(_ == jp1)))
-			doUpdate(updated, new Person(3, "Changed Again", "Surname changed too", 18, jp5 :: updated.positions.filterNot(jp ⇒ jp == jp1 || jp == jp3)))
+			doUpdate(updated, Person(3, "Changed", "K", 18, updated.positions.filterNot(_ == jp1)))
+			doUpdate(updated, Person(3, "Changed Again", "Surname changed too", 18, jp5 :: updated.positions.filterNot(jp => jp == jp1 || jp == jp3)))
 
 			mapperDao.delete(PersonEntity, updated)
 			mapperDao.select(PersonEntity, updated.id) should be(None)
 		}
 
+		test("simple query") {
+			createTables
+
+			val person1 = Person(3, "Kostas", "K", 16, List(JobPosition(3, "C++ Developer", 10, 3), JobPosition(5, "Scala Developer", 10, 3)))
+			mapperDao.insert(PersonEntity, person1)
+			val person2 = Person(5, "Someone", "Else", 16, List(JobPosition(13, "C++ Developer", 10, 5), JobPosition(15, "Scala Developer", 10, 5)))
+			mapperDao.insert(PersonEntity, person2)
+			import Query._
+			val pe = PersonEntity
+			queryDao.query(select from pe where pe.name === "Kostas") should be === List(person1)
+		}
+
+		test("simple query on personId") {
+			createTables
+
+			val person1 = Person(3, "Kostas", "K", 16, List(JobPosition(3, "C++ Developer", 10, 3), JobPosition(5, "Scala Developer", 10, 3)))
+			mapperDao.insert(PersonEntity, person1)
+			val person2 = Person(5, "Someone", "Else", 16, List(JobPosition(13, "C++ Developer", 10, 5), JobPosition(15, "Scala Developer", 10, 5)))
+			mapperDao.insert(PersonEntity, person2)
+			import Query._
+			val pe = PersonEntity
+			val jp = JobPositionEntity
+			queryDao.query(select from pe join (pe, pe.jobPositions, jp) where jp.personId === 3).toSet should be === Set(person1)
+		}
+
 		test("updating items (mutable)") {
 			createTables
 
-			val jp1 = new JobPosition(3, "C++ Developer", 10, 3)
-			val jp2 = new JobPosition(5, "Scala Developer", 10, 3)
-			val jp3 = new JobPosition(7, "Java Developer", 10, 3)
-			val person = new Person(3, "Kostas", "K", 16, List(jp1, jp2, jp3))
+			val jp1 = JobPosition(3, "C++ Developer", 10, 3)
+			val jp2 = JobPosition(5, "Scala Developer", 10, 3)
+			val jp3 = JobPosition(7, "Java Developer", 10, 3)
+			val person = Person(3, "Kostas", "K", 16, List(jp1, jp2, jp3))
 			val inserted = mapperDao.insert(PersonEntity, person)
 
 			inserted.positions.foreach(_.name = "changed")
@@ -69,10 +94,10 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers {
 		test("removing items") {
 			createTables
 
-			val jp1 = new JobPosition(3, "C++ Developer", 10, 3)
-			val jp2 = new JobPosition(5, "Scala Developer", 10, 3)
-			val jp3 = new JobPosition(7, "Java Developer", 10, 3)
-			val person = new Person(3, "Kostas", "K", 16, List(jp1, jp2, jp3))
+			val jp1 = JobPosition(3, "C++ Developer", 10, 3)
+			val jp2 = JobPosition(5, "Scala Developer", 10, 3)
+			val jp3 = JobPosition(7, "Java Developer", 10, 3)
+			val person = Person(3, "Kostas", "K", 16, List(jp1, jp2, jp3))
 			val inserted = mapperDao.insert(PersonEntity, person)
 
 			inserted.positions = inserted.positions.filterNot(jp ⇒ jp == jp1 || jp == jp3)
@@ -89,14 +114,14 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers {
 		test("adding items") {
 			createTables
 
-			val person = new Person(3, "Kostas", "K", 16, List(new JobPosition(5, "Scala Developer", 10, 3), new JobPosition(7, "Java Developer", 10, 3)))
+			val person = Person(3, "Kostas", "K", 16, List(JobPosition(5, "Scala Developer", 10, 3), JobPosition(7, "Java Developer", 10, 3)))
 			mapperDao.insert(PersonEntity, person)
 
 			val loaded = mapperDao.select(PersonEntity, 3).get
 
 			// add more elements to the collection
-			loaded.positions = new JobPosition(1, "C++ Developer", 8, 3) :: loaded.positions
-			loaded.positions = new JobPosition(0, "Groovy Developer", 5, 3) :: loaded.positions
+			loaded.positions = JobPosition(1, "C++ Developer", 8, 3) :: loaded.positions
+			loaded.positions = JobPosition(0, "Groovy Developer", 5, 3) :: loaded.positions
 			val updatedPositions = mapperDao.update(PersonEntity, loaded)
 			updatedPositions should be === loaded
 
@@ -110,7 +135,7 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers {
 		test("CRUD (multi purpose test)") {
 			createTables
 
-			val person = new Person(3, "Kostas", "K", 16, List(new JobPosition(5, "Scala Developer", 10, 3), new JobPosition(7, "Java Developer", 10, 3)))
+			val person = Person(3, "Kostas", "K", 16, List(JobPosition(5, "Scala Developer", 10, 3), JobPosition(7, "Java Developer", 10, 3)))
 			mapperDao.insert(PersonEntity, person)
 
 			val loaded = mapperDao.select(PersonEntity, 3).get
