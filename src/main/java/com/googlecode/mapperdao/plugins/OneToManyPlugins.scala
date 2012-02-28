@@ -17,18 +17,22 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 
 	override def before[PPC, PT, PC, T, V, FPC, F](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[PPC, PT, V, FPC, F]): List[(Column, Any)] =
 		{
-			val tpe = entity.tpe
 			val UpdateInfo(parent, parentColumnInfo, parentEntity) = updateInfo
 
 			if (parent != null) {
-				val parentTpe = parentEntity.tpe
 				val parentColumn = parentColumnInfo.column
 				parentColumn match {
 					case otm: OneToMany[_, _] =>
-						val foreignKeyColumns = otm.foreignColumns.filterNot(tpe.table.primaryKeyColumns.contains(_))
+						val parentTpe = parentEntity.tpe
+						val tpe = entity.tpe
+						val table = tpe.table
+						val foreignKeyColumns = otm.foreignColumns
+							.filterNot(table.primaryKeyColumns.contains(_))
+							.filterNot(table.simpleTypeColumns.contains(_))
 						if (!foreignKeyColumns.isEmpty) {
 							val parentTable = parentTpe.table
-							val parentKeysAndValues = parent.asInstanceOf[Persisted].valuesMap.toListOfColumnAndValueTuple(parentTable.primaryKeys)
+							val parentKeysAndValues = parent.asInstanceOf[Persisted]
+								.valuesMap.toListOfColumnAndValueTuple(parentTable.primaryKeys)
 							val foreignKeys = parentKeysAndValues.map(_._2)
 							if (foreignKeys.size != foreignKeyColumns.size) throw new IllegalArgumentException("mappings of one-to-many from " + parent + " to " + o + " is invalid. Number of FK columns doesn't match primary keys. columns: " + foreignKeyColumns + " , primary key values " + foreignKeys);
 							foreignKeyColumns zip foreignKeys
