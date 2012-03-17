@@ -200,7 +200,7 @@ abstract class Driver {
 	/**
 	 * default impl of select
 	 */
-	def doSelect[PC, T](tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): List[JdbcMap] =
+	def doSelect[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): List[JdbcMap] =
 		{
 			val sql = selectSql(tpe, where)
 
@@ -220,7 +220,7 @@ abstract class Driver {
 			sb.toString
 		}
 
-	def doSelectManyToMany[PC, T, FPC, F](tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): List[JdbcMap] =
+	def doSelectManyToMany[PC, T, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): List[JdbcMap] =
 		{
 			val sql = selectManyToManySql(tpe, ftpe, manyToMany, leftKeyValues)
 			jdbc.queryForList(sql, leftKeyValues.map(_._2))
@@ -249,7 +249,7 @@ abstract class Driver {
 	/**
 	 * selects all id's of external entities and returns them in a List[List[Any]]
 	 */
-	def doSelectManyToManyForExternalEntity[PC, T, FPC, F](tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): List[List[Any]] =
+	def doSelectManyToManyForExternalEntity[PC, T, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): List[List[Any]] =
 		{
 			val sql = selectManyToManySqlForExternalEntity(tpe, ftpe, manyToMany, leftKeyValues)
 			val l = jdbc.queryForList(sql, leftKeyValues.map(_._2))

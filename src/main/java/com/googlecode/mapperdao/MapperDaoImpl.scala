@@ -277,7 +277,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 				try {
 					val args = tpe.table.primaryKeys.map(_.column).zip(ids)
 					events.executeBeforeSelectEvents(tpe, args)
-					val om = driver.doSelect(tpe, args)
+					val om = driver.doSelect(selectConfig, tpe, args)
 					events.executeAfterSelectEvents(tpe, args)
 					if (om.isEmpty) None
 					else if (om.size > 1) throw new IllegalStateException("expected 1 result for %s and ids %s, but got %d. Is the primary key column a primary key in the table?".format(clz.getSimpleName, ids, om.size))
@@ -292,37 +292,42 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			)
 		}
 
-	private[mapperdao] def toEntities[PC, T](lm: List[JdbcMap], entity: Entity[PC, T], selectConfig: SelectConfig, entities: EntityMap): List[T with PC] = lm.map { om =>
-		val mods = new scala.collection.mutable.HashMap[String, Any]
-		import scala.collection.JavaConversions._
-		mods ++= om.map.toMap
-		val tpe = entity.tpe
-		val table = tpe.table
-		// calculate the id's for this tpe
-		val ids = table.primaryKeys.map { pk => om(pk.column.columnName) } ::: selectBeforePlugins.map {
-			_.idContribution(tpe, om, entities, mods)
-		}.flatten
-		val cacheKey = if (ids.isEmpty) {
-			if (table.unusedPKs.isEmpty)
-				throw new IllegalStateException("entity %s without primary key, please use declarePrimaryKeys() to declare the primary key columns of tables into your entity declaration")
-			else
-				table.unusedPKs.map { pk => om(pk.columnName) }
-		} else ids
+	private[mapperdao] def toEntities[PC, T](
+		lm: List[JdbcMap],
+		entity: Entity[PC, T],
+		selectConfig: SelectConfig,
+		entities: EntityMap): List[T with PC] =
+		lm.map { om =>
+			val mods = new scala.collection.mutable.HashMap[String, Any]
+			import scala.collection.JavaConversions._
+			mods ++= om.map.toMap
+			val tpe = entity.tpe
+			val table = tpe.table
+			// calculate the id's for this tpe
+			val ids = table.primaryKeys.map { pk => om(pk.column.columnName) } ::: selectBeforePlugins.map {
+				_.idContribution(tpe, om, entities, mods)
+			}.flatten
+			val cacheKey = if (ids.isEmpty) {
+				if (table.unusedPKs.isEmpty)
+					throw new IllegalStateException("entity %s without primary key, please use declarePrimaryKeys() to declare the primary key columns of tables into your entity declaration")
+				else
+					table.unusedPKs.map { pk => om(pk.columnName) }
+			} else ids
 
-		entities.get[T with PC](tpe.clz, cacheKey).getOrElse {
-			val mock = createMock(entity, mods)
-			entities.put(tpe.clz, cacheKey, mock)
+			entities.get[T with PC](tpe.clz, cacheKey).getOrElse {
+				val mock = createMock(entity, mods)
+				entities.put(tpe.clz, cacheKey, mock)
 
-			selectBeforePlugins.foreach {
-				_.before(entity, selectConfig, om, entities, mods)
+				selectBeforePlugins.foreach {
+					_.before(entity, selectConfig, om, entities, mods)
+				}
+
+				val vm = ValuesMap.fromMutableMap(typeManager, mods)
+				val entityV = tpe.constructor(vm)
+				entities.reput(tpe.clz, cacheKey, entityV)
+				entityV
 			}
-
-			val vm = ValuesMap.fromMutableMap(typeManager, mods)
-			val entityV = tpe.constructor(vm)
-			entities.reput(tpe.clz, cacheKey, entityV)
-			entityV
 		}
-	}
 
 	/**
 	 * creates a mock object

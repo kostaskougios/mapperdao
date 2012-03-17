@@ -85,7 +85,7 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 					mods(c.foreign.alias) = null
 				} else {
 					val foreignKeys = ftable.primaryKeys zip foreignKeyValues
-					val fom = driver.doSelect(ftpe, foreignKeys)
+					val fom = driver.doSelect(selectConfig, ftpe, foreignKeys)
 					entities.down(tpe, ci, om)
 					val otmL = mapperDao.toEntities(fom, fe, selectConfig, entities)
 					entities.up

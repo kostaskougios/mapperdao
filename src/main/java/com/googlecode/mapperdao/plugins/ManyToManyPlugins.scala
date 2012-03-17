@@ -100,14 +100,14 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 						case ee: ExternalEntity[Any] =>
 							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
 							val keys = c.linkTable.left zip ids
-							val allIds = driver.doSelectManyToManyForExternalEntity(tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
+							val allIds = driver.doSelectManyToManyForExternalEntity(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
 
 							val handler = ee.manyToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
 							handler(SelectExternalManyToMany(selectConfig, allIds))
 						case _ =>
 							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
 							val keys = c.linkTable.left zip ids
-							val fom = driver.doSelectManyToMany(tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
+							val fom = driver.doSelectManyToMany(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
 							entities.down(tpe, ci, om)
 							val mtmR = mapperDao.toEntities(fom, fe, selectConfig, entities)
 							entities.up

@@ -123,7 +123,7 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 						val ftpe = fe.tpe
 						val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
 						val keys = c.foreignColumns.zip(ids)
-						val fom = driver.doSelect(ftpe, keys)
+						val fom = driver.doSelect(selectConfig, ftpe, keys)
 						entities.down(tpe, ci, om)
 						val otmL = mapperDao.toEntities(fom, fe, selectConfig, entities)
 						entities.up
