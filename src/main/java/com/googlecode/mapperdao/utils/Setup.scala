@@ -6,6 +6,7 @@ import com.googlecode.mapperdao.jdbc.Transaction
 import org.springframework.transaction.PlatformTransactionManager
 import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.jdbc.Jdbc
+import com.googlecode.mapperdao.drivers.Cache
 /**
  * a factory for simple configuration of mapperdao
  *
@@ -45,13 +46,20 @@ object Setup {
 	def h2(dataSource: DataSource, entities: List[Entity[_, _]]): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.H2, dataSource, entities)
 
-	def apply(database: Database.DriverConfiguration, dataSource: DataSource, entities: List[Entity[_, _]]): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+	def apply(
+		database: Database.DriverConfiguration,
+		dataSource: DataSource,
+		entities: List[Entity[_, _]]): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(database, dataSource, TypeRegistry(entities))
-	def apply(database: Database.DriverConfiguration, dataSource: DataSource, typeRegistry: TypeRegistry): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+
+	def apply(
+		database: Database.DriverConfiguration,
+		dataSource: DataSource,
+		typeRegistry: TypeRegistry, cache: Option[Cache] = None): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		{
 			val typeManager = new DefaultTypeManager
 			val jdbc = Jdbc(dataSource, typeManager)
-			val driver = database.driver(jdbc, typeRegistry)
+			val driver = database.driver(jdbc, typeRegistry, cache)
 			val mapperDao = new MapperDaoImpl(driver, standardEvents)
 			val queryDao = QueryDao(typeRegistry, driver, mapperDao)
 			val txManager = Transaction.transactionManager(jdbc)

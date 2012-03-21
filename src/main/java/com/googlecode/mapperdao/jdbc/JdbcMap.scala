@@ -1,17 +1,20 @@
 package com.googlecode.mapperdao.jdbc
 import org.joda.time.DateTime
-
+import scala.collection.JavaConverters._
 /**
  * @author kostantinos.kougios
  *
  * 2 Aug 2011
  */
-class JdbcMap(val map: java.util.Map[String, _]) {
+class JdbcMap(map: java.util.Map[String, _]) {
 	private def get(key: String) =
 		{
 			val v = map.get(key)
 			v
 		}
+
+	def toMap = map.asScala.toMap
+
 	def apply(key: String): Any = get(key)
 	def int(key: String): Int = get(key) match {
 		case i: Int => i

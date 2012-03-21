@@ -300,7 +300,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		lm.map { om =>
 			val mods = new scala.collection.mutable.HashMap[String, Any]
 			import scala.collection.JavaConversions._
-			mods ++= om.map.toMap
+			mods ++= om.toMap
 			val tpe = entity.tpe
 			val table = tpe.table
 			// calculate the id's for this tpe
