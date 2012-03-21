@@ -55,7 +55,7 @@ object Setup {
 			logger.debug("connecting to %s".format(database))
 			properties.load(getClass.getResourceAsStream("/jdbc.test.%s.properties".format(database)))
 			val dataSource = BasicDataSourceFactory.createDataSource(properties)
-			val (j, m, q, t) = S(Database.byName(database), dataSource, typeRegistry)
+			val (j, m, q, t) = S(Database.byName(database), dataSource, typeRegistry, None)
 			(j, m, q)
 		}
 

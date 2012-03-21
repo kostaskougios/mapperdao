@@ -18,44 +18,45 @@ object Setup {
 	/**
 	 * sets up a mapperDao and queryDao for the dataSource and entities using postgresql driver
 	 */
-	def postGreSql(dataSource: DataSource, entities: List[Entity[_, _]]): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
-		apply(Database.PostgreSql, dataSource, entities)
+	def postGreSql(dataSource: DataSource, entities: List[Entity[_, _]], cache: Option[Cache] = None): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		apply(Database.PostgreSql, dataSource, entities, cache)
 	/**
 	 * sets up a mapperDao and queryDao for the dataSource and entities using mysql driver
 	 */
-	def mysql(dataSource: DataSource, entities: List[Entity[_, _]]): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
-		apply(Database.Mysql, dataSource, entities)
+	def mysql(dataSource: DataSource, entities: List[Entity[_, _]], cache: Option[Cache] = None): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		apply(Database.Mysql, dataSource, entities, cache)
 	/**
 	 * sets up a mapperDao and queryDao for the dataSource and entities using oracle driver
 	 */
-	def oracle(dataSource: DataSource, entities: List[Entity[_, _]]): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
-		apply(Database.Oracle, dataSource, entities)
+	def oracle(dataSource: DataSource, entities: List[Entity[_, _]], cache: Option[Cache] = None): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		apply(Database.Oracle, dataSource, entities, cache)
 	/**
 	 * sets up a mapperDao and queryDao for the dataSource and entities using derby driver
 	 */
-	def derby(dataSource: DataSource, entities: List[Entity[_, _]]): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
-		apply(Database.Derby, dataSource, entities)
+	def derby(dataSource: DataSource, entities: List[Entity[_, _]], cache: Option[Cache] = None): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		apply(Database.Derby, dataSource, entities, cache)
 	/**
 	 * sets up a mapperDao and queryDao for the dataSource and entities using sql server driver
 	 */
-	def sqlServer(dataSource: DataSource, entities: List[Entity[_, _]]): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
-		apply(Database.SqlServer, dataSource, entities)
+	def sqlServer(dataSource: DataSource, entities: List[Entity[_, _]], cache: Option[Cache] = None): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		apply(Database.SqlServer, dataSource, entities, cache)
 	/**
 	 * sets up a mapperDao and queryDao for the dataSource and entities using h2 driver
 	 */
-	def h2(dataSource: DataSource, entities: List[Entity[_, _]]): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
-		apply(Database.H2, dataSource, entities)
+	def h2(dataSource: DataSource, entities: List[Entity[_, _]], cache: Option[Cache] = None): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		apply(Database.H2, dataSource, entities, cache)
 
 	def apply(
 		database: Database.DriverConfiguration,
 		dataSource: DataSource,
-		entities: List[Entity[_, _]]): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
-		apply(database, dataSource, TypeRegistry(entities))
+		entities: List[Entity[_, _]],
+		cache: Option[Cache]): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		apply(database, dataSource, TypeRegistry(entities), cache)
 
 	def apply(
 		database: Database.DriverConfiguration,
 		dataSource: DataSource,
-		typeRegistry: TypeRegistry, cache: Option[Cache] = None): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		typeRegistry: TypeRegistry, cache: Option[Cache]): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		{
 			val typeManager = new DefaultTypeManager
 			val jdbc = Jdbc(dataSource, typeManager)
@@ -66,8 +67,8 @@ object Setup {
 			(jdbc, mapperDao, queryDao, txManager)
 		}
 
-	def apply(database: String, dataSource: DataSource, entities: List[Entity[_, _]]): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
-		apply(Database.byName(database), dataSource, entities)
+	def apply(database: String, dataSource: DataSource, entities: List[Entity[_, _]], cache: Option[Cache]): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		apply(Database.byName(database), dataSource, entities, cache)
 
 	def standardEvents = new Events
 }
