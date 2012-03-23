@@ -69,7 +69,8 @@ import org.scalatest.FunSuite
 		classOf[OneToOneReverseExternalEntitySuite],
 		classOf[OneToManyExternalEntitySuite],
 		classOf[UseCaseFileSystemSuite],
-		classOf[UseCaseMapRawColumnOneToManySuite]
+		classOf[UseCaseMapRawColumnOneToManySuite],
+		classOf[CachedDriverSuite]
 	)
 )
 @RunWith(classOf[Suite])

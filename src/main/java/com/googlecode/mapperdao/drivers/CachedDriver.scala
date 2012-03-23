@@ -19,7 +19,7 @@ trait CachedDriver extends Driver {
 				super.doSelect(selectConfig, tpe, where)
 			case co =>
 				val key = tpe.table.name :: where
-				cache(key, co.expireInMillis) {
+				cache(key, co) {
 					super.doSelect(selectConfig, tpe, where)
 				}
 		}

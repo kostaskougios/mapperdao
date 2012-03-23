@@ -1,4 +1,5 @@
 package com.googlecode.mapperdao.drivers
+import com.googlecode.mapperdao.CacheOption
 
 /**
  * implement this to provide caching for mapperdao drivers. The implementation must
@@ -10,9 +11,10 @@ package com.googlecode.mapperdao.drivers
  */
 trait Cache {
 	/**
-	 * if the key exists in the cache, then the cached value is returned.
+	 * if the key exists in the cache, then the cached value is returned according
+	 * to CacheOption.
 	 * Otherwise valueCalculator() should be invoked which will calculate the
-	 * value. The calculated value is then cached for expireInMs milliseconds.
+	 * value. The calculated value is then cached according to the CacheOption
 	 */
-	def apply[T](key: List[Any], expireInMs: Long)(valueCalculator: => T): T
+	def apply[T](key: List[Any], options: CacheOption)(valueCalculator: => T): T
 }
