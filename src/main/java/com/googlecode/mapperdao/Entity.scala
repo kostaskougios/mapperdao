@@ -27,7 +27,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 			o.valuesMap = m
 			o
 		}
-		Type(clz, con, Table(table, columns.reverse, persistedColumns, unusedPKs))
+		Type[PC, T](clz, con, Table[PC, T](table, columns.reverse, persistedColumns, unusedPKs))
 	}
 
 	override def hashCode = table.hashCode
