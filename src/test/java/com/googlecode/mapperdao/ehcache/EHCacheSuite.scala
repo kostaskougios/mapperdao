@@ -6,6 +6,7 @@ import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
 import net.sf.ehcache.CacheManager
 import com.googlecode.mapperdao.CacheOptions
+import scala.actors.Actor._
 
 /**
  * @author kostantinos.kougios
@@ -14,6 +15,44 @@ import com.googlecode.mapperdao.CacheOptions
  */
 @RunWith(classOf[JUnitRunner])
 class EHCacheSuite extends FunSuite with ShouldMatchers {
+
+	test("multithreaded accessing same key") {
+		val cacheManager = CacheManager.create
+		try {
+			val ehCache = cacheManager.getCache("test")
+			val cache = new CacheUsingEHCache(ehCache)
+
+			def createActor = actor {
+				loop {
+					react {
+						case -1 =>
+							sender ! 'Ok
+							exit()
+						case iteration: Int =>
+							//println(iteration + ":" + Thread.currentThread.getName)
+							cache(List("key1", 1), CacheOptions.OneDay) {
+								10
+							}
+					}
+				}
+			}.start
+
+			val a1 = createActor
+			val a2 = createActor
+			val a3 = createActor
+			for (i <- 1 to 10000) {
+				a1 ! i
+				a2 ! i
+				a3 ! i
+			}
+			a1 !? -1
+			a2 !? -1
+			a3 !? -1
+		} finally {
+			cacheManager.shutdown()
+		}
+	}
+
 	test("cache positive") {
 		val cacheManager = CacheManager.create
 		try {
@@ -37,6 +76,7 @@ class EHCacheSuite extends FunSuite with ShouldMatchers {
 			cacheManager.shutdown()
 		}
 	}
+
 	test("cache negative") {
 		val cacheManager = CacheManager.create
 		try {
