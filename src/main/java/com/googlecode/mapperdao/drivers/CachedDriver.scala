@@ -43,9 +43,19 @@ trait CachedDriver extends Driver {
 		case CacheOptions.NoCache =>
 			super.queryForList(queryConfig, sql, args)
 		case co =>
-			val key = List("queryForList", sql, args)
+			val key = List("query", sql, args)
 			cache(key, co) {
 				super.queryForList(queryConfig, sql, args)
+			}
+	}
+
+	override def queryForLong(queryConfig: QueryConfig, sql: String, args: List[Any]): Long = queryConfig.cacheOptions match {
+		case CacheOptions.NoCache =>
+			super.queryForLong(queryConfig, sql, args)
+		case co =>
+			val key = List("query", sql, args)
+			cache(key, co) {
+				super.queryForLong(queryConfig, sql, args)
 			}
 	}
 }

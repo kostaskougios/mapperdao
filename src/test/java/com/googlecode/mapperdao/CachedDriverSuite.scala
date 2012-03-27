@@ -62,8 +62,19 @@ class CachedDriverSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("queryForList positive") {
-		val qc = QueryConfig(cacheOptions = CacheOptions.OneDay)
-		driver(cachedValue).queryForList(qc, "select x", List(1, 2)) should be(cachedValue)
+		driver(cachedValue).queryForList(QueryConfig(cacheOptions = CacheOptions.OneDay), "select x", List(1, 2)) should be(cachedValue)
+	}
+
+	test("queryForList negative") {
+		driver(cachedValue).queryForList(QueryConfig(cacheOptions = CacheOptions.NoCache), "select x", List(1, 2)) should be(Nil)
+	}
+
+	test("queryForLong positive") {
+		driver(5.toLong).queryForLong(QueryConfig(cacheOptions = CacheOptions.OneDay), "select x", List(1, 2)) should be(5)
+	}
+
+	test("queryForLong negative") {
+		driver(5.toLong).queryForLong(QueryConfig(cacheOptions = CacheOptions.NoCache), "select x", List(1, 2)) should be(-1)
 	}
 
 	case class Product(val name: String, val attributes: Set[Attribute])
