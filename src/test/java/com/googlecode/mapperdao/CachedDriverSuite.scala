@@ -26,35 +26,44 @@ class CachedDriverSuite extends FunSuite with ShouldMatchers {
 
 		override def doSelectManyToMany[PC, T, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T],
 			ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): List[JdbcMap] = Nil
-	}
-	val driver = new DummyDriver with CachedDriver {
-		val cache = new DummyCache
+
+		override def queryForList(queryConfig: QueryConfig, sql: String, args: List[Any]): List[JdbcMap] = Nil
+		override def queryForLong(queryConfig: QueryConfig, sql: String, args: List[Any]): Long = -1
 	}
 
-	class DummyCache extends Cache {
-		override def apply[T](key: List[Any], options: CacheOption)(valueCalculator: => T): T = cachedValue.asInstanceOf[T]
+	class DummyCache(retValue: Any) extends Cache {
+		override def apply[T](key: List[Any], options: CacheOption)(valueCalculator: => T): T = retValue.asInstanceOf[T]
+	}
+
+	def driver(retValue: Any) = new DummyDriver with CachedDriver {
+		val cache = new DummyCache(retValue)
 	}
 
 	test("doSelectManyToMany cached positive") {
-		val l = driver.doSelectManyToMany[AnyRef, Product, AnyRef, Attribute](SelectConfig(cacheOptions = CacheOptions.OneDay),
+		val l = driver(cachedValue).doSelectManyToMany[AnyRef, Product, AnyRef, Attribute](SelectConfig(cacheOptions = CacheOptions.OneDay),
 			ProductEntity.tpe, AttributeEntity.tpe, ProductEntity.attributes.column, List())
 		l should be(cachedValue)
 	}
 
 	test("doSelectManyToMany cached negative") {
-		val l = driver.doSelectManyToMany[AnyRef, Product, AnyRef, Attribute](SelectConfig(cacheOptions = CacheOptions.NoCache),
+		val l = driver(cachedValue).doSelectManyToMany[AnyRef, Product, AnyRef, Attribute](SelectConfig(cacheOptions = CacheOptions.NoCache),
 			ProductEntity.tpe, AttributeEntity.tpe, ProductEntity.attributes.column, List())
 		l should be(Nil)
 	}
 
 	test("doSelect cached positive") {
-		val l = driver.doSelect(SelectConfig(cacheOptions = CacheOptions.OneDay), ProductEntity.tpe, List())
+		val l = driver(cachedValue).doSelect(SelectConfig(cacheOptions = CacheOptions.OneDay), ProductEntity.tpe, List())
 		l should be(cachedValue)
 	}
 
 	test("doSelect cached negative") {
-		val l = driver.doSelect(SelectConfig(cacheOptions = CacheOptions.NoCache), ProductEntity.tpe, List())
+		val l = driver(cachedValue).doSelect(SelectConfig(cacheOptions = CacheOptions.NoCache), ProductEntity.tpe, List())
 		l should be(Nil)
+	}
+
+	test("queryForList positive") {
+		val qc = QueryConfig(cacheOptions = CacheOptions.OneDay)
+		driver(cachedValue).queryForList(qc, "select x", List(1, 2)) should be(cachedValue)
 	}
 
 	case class Product(val name: String, val attributes: Set[Attribute])

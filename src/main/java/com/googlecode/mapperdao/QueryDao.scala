@@ -17,8 +17,11 @@ trait QueryDao {
 	/**
 	 * counts rows
 	 */
-	def count[PC, T](qe: Query.Where[PC, T]): Long = count(qe.queryEntity)
-	def count[PC, T](qe: Query.Builder[PC, T]): Long
+	def count[PC, T](qe: Query.Where[PC, T], queryConfig: QueryConfig): Long = count(queryConfig, qe.queryEntity)
+	def count[PC, T](qe: Query.Where[PC, T]): Long = count(qe, QueryConfig())
+	def count[PC, T](qe: Query.Builder[PC, T]): Long = count(QueryConfig(), qe)
+
+	def count[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]): Long
 
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not

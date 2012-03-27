@@ -535,6 +535,14 @@ abstract class Driver {
 			sb append "\nfrom " append escapeTableNames(tpe.table.name) append " " append alias
 			sb.toString
 		}
+
+	/**
+	 * =====================================================================================
+	 * generic queries
+	 * =====================================================================================
+	 */
+	def queryForList(queryConfig: QueryConfig, sql: String, args: List[Any]): List[JdbcMap] = jdbc.queryForList(sql, args)
+	def queryForLong(queryConfig: QueryConfig, sql: String, args: List[Any]): Long = jdbc.queryForLong(sql, args)
 	/**
 	 * =====================================================================================
 	 * standard methods

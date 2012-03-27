@@ -15,8 +15,6 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 
 	import QueryDao._
 
-	private val jdbc = driver.jdbc
-
 	private case class SqlAndArgs(val sql: String, val args: List[Any])
 
 	def query[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]): List[T with PC] =
@@ -25,9 +23,9 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			var sa: SqlAndArgs = null
 			try {
 				sa = sqlAndArgs(queryConfig, qe)
-				val lm = jdbc.queryForList(sa.sql, sa.args)
+				val lm = driver.queryForList(queryConfig, sa.sql, sa.args)
 				val entityMap = new EntityMap
-				val selectConfig = SelectConfig(skip = queryConfig.skip, data = queryConfig.data)
+				val selectConfig = SelectConfig(skip = queryConfig.skip, data = queryConfig.data, cacheOptions = queryConfig.cacheOptions)
 				val v = mapperDao.toEntities(lm, qe.entity, selectConfig, entityMap)
 				entityMap.done
 				v
@@ -39,7 +37,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			}
 		}
 
-	def count[PC, T](qe: Query.Builder[PC, T]): Long =
+	def count[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]): Long =
 		{
 			if (qe == null) throw new NullPointerException("qe can't be null")
 			val aliases = new Aliases(typeRegistry)
@@ -47,7 +45,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			val tpe = e.tpe
 			val sql = driver.countSql(aliases, e)
 			val s = whereAndArgs(defaultQueryConfig, qe, aliases)
-			jdbc.queryForLong(sql + "\n" + s.sql, s.args)
+			driver.queryForLong(queryConfig, sql + "\n" + s.sql, s.args)
 		}
 
 	private def sqlAndArgs[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]): SqlAndArgs =

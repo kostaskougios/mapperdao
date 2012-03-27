@@ -5,6 +5,7 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.Type
 import com.googlecode.mapperdao.CacheOptions
 import com.googlecode.mapperdao.ManyToMany
+import com.googlecode.mapperdao.QueryConfig
 
 /**
  * @author kostantinos.kougios
@@ -14,7 +15,7 @@ import com.googlecode.mapperdao.ManyToMany
 trait CachedDriver extends Driver {
 	val cache: Cache
 
-	abstract override def doSelect[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): List[JdbcMap] =
+	override def doSelect[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): List[JdbcMap] =
 		selectConfig.cacheOptions match {
 			case CacheOptions.NoCache =>
 				super.doSelect(selectConfig, tpe, where)
@@ -37,4 +38,14 @@ trait CachedDriver extends Driver {
 				}
 
 		}
+
+	override def queryForList(queryConfig: QueryConfig, sql: String, args: List[Any]): List[JdbcMap] = queryConfig.cacheOptions match {
+		case CacheOptions.NoCache =>
+			super.queryForList(queryConfig, sql, args)
+		case co =>
+			val key = List("queryForList", sql, args)
+			cache(key, co) {
+				super.queryForList(queryConfig, sql, args)
+			}
+	}
 }
