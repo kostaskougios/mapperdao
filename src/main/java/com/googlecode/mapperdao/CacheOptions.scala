@@ -32,8 +32,14 @@ object CacheOptions {
 	object OneDay extends CacheOption {
 		def expireInMillis = 24 * 60 * 60 * 1000
 	}
+
+	def apply(expiresInMillis: Long) = new CacheOption {
+		override val expireInMillis = expiresInMillis
+	}
 }
 
 trait CacheOption {
 	def expireInMillis: Long
+
+	override def toString = "CacheOption(expireInMillis:%d)".format(expireInMillis)
 }

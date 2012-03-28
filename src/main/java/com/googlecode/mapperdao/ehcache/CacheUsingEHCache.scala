@@ -13,12 +13,19 @@ import net.sf.ehcache.Element
 class CacheUsingEHCache(val cache: net.sf.ehcache.Cache) extends Cache {
 
 	override def apply[T](key: List[Any], options: CacheOption)(valueCalculator: => T): T = {
+		def calculate = {
+			val v = valueCalculator
+			cache.put(new Element(key, v))
+			v
+		}
 		cache.get(key) match {
 			case null =>
-				val v = valueCalculator
-				cache.put(new Element(key, v))
-				v
-			case v => v.getObjectValue.asInstanceOf[T]
+				calculate
+			case v =>
+				val dt = System.currentTimeMillis - v.getCreationTime
+				if (dt <= options.expireInMillis)
+					v.getObjectValue.asInstanceOf[T]
+				else calculate
 		}
 	}
 }
