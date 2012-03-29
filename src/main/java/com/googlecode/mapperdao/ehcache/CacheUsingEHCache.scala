@@ -28,6 +28,10 @@ class CacheUsingEHCache(val cache: net.sf.ehcache.Cache) extends Cache {
 				else calculate
 		}
 	}
+
+	override def put[T](key: List[Any], t: T) {
+		cache.put(new Element(key, t))
+	}
 }
 
 trait Locking extends CacheUsingEHCache {

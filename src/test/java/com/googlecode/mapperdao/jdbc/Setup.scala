@@ -20,6 +20,8 @@ import com.googlecode.mapperdao.drivers.SqlServer
 import com.googlecode.mapperdao.drivers.H2
 import com.googlecode.mapperdao.utils.{ Setup => S }
 import com.googlecode.mapperdao.utils.Database
+import com.googlecode.mapperdao.drivers.Cache
+
 /**
  * creates an environment for specs
  *
@@ -49,13 +51,13 @@ object Setup {
 		jdbc
 	} else jdbc
 
-	def setupMapperDao(typeRegistry: TypeRegistry, events: Events = new Events) =
+	def setupMapperDao(typeRegistry: TypeRegistry, events: Events = new Events, cache: Option[Cache] = None) =
 		{
 			val properties = new Properties
 			logger.debug("connecting to %s".format(database))
 			properties.load(getClass.getResourceAsStream("/jdbc.test.%s.properties".format(database)))
 			val dataSource = BasicDataSourceFactory.createDataSource(properties)
-			val (j, m, q, t) = S(Database.byName(database), dataSource, typeRegistry, None)
+			val (j, m, q, t) = S(Database.byName(database), dataSource, typeRegistry, cache)
 			(j, m, q)
 		}
 

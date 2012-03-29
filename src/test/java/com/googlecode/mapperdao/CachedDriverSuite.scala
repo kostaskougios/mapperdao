@@ -33,6 +33,7 @@ class CachedDriverSuite extends FunSuite with ShouldMatchers {
 
 	class DummyCache(retValue: Any) extends Cache {
 		override def apply[T](key: List[Any], options: CacheOption)(valueCalculator: => T): T = retValue.asInstanceOf[T]
+		override def put[T](key: List[Any], t: T) {}
 	}
 
 	def driver(retValue: Any) = new DummyDriver with CachedDriver {

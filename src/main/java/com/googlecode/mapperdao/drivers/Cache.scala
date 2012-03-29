@@ -17,4 +17,9 @@ trait Cache {
 	 * value. The calculated value is then cached according to the CacheOption
 	 */
 	def apply[T](key: List[Any], options: CacheOption)(valueCalculator: => T): T
+
+	/**
+	 * just cache the key/value pair
+	 */
+	def put[T](key: List[Any], t: T)
 }
