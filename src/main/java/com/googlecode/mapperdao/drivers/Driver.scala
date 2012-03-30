@@ -22,7 +22,8 @@ abstract class Driver {
 	protected def escapeColumnNames(name: String): String = name
 	protected def escapeTableNames(name: String): String = name
 
-	protected[mapperdao] def commaSeparatedListOfSimpleTypeColumns[T](separator: String, columns: Traversable[ColumnBase]): String = columns.map(_.columnName).map(escapeColumnNames _).mkString(separator)
+	protected[mapperdao] def commaSeparatedListOfSimpleTypeColumns[T](separator: String, columns: Traversable[ColumnBase], prefix: String = ""): String =
+		columns.map(_.columnName).map(prefix + escapeColumnNames(_)).mkString(separator)
 	protected[mapperdao] def commaSeparatedListOfSimpleTypeColumns[T](prefix: String, separator: String, columns: List[ColumnBase]): String = columns.map(_.columnName).map(escapeColumnNames _).mkString(prefix, separator + prefix, "")
 
 	protected[mapperdao] def generateColumnsEqualsValueString(l: List[ColumnBase]): String = generateColumnsEqualsValueString(l, ",\n")
@@ -232,7 +233,8 @@ abstract class Driver {
 			val linkTable = manyToMany.linkTable
 			val sb = new StringBuilder(100, "select ")
 			val fColumns = selectColumns(ftpe)
-			sb append commaSeparatedListOfSimpleTypeColumns(",", fColumns) append "\nfrom " append escapeTableNames(ftpe.table.name) append " f\n"
+			sb append commaSeparatedListOfSimpleTypeColumns(",", fColumns, "f.")
+			sb append "\nfrom " append escapeTableNames(ftpe.table.name) append " f\n"
 			sb append "inner join " append escapeTableNames(linkTable.name) append " l on "
 			var i = 0
 			ftable.primaryKeys.zip(linkTable.right).foreach { z =>
