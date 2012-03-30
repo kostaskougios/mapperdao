@@ -20,9 +20,9 @@ import org.scalatest.BeforeAndAfter
  * 24 Mar 2012
  */
 @RunWith(classOf[JUnitRunner])
-class EHCacheSuite extends FunSuite with ShouldMatchers with BeforeAndAfterAll with BeforeAndAfter {
+class EHCacheSuite extends FunSuite with ShouldMatchers with BeforeAndAfter {
 	val cacheManager = CacheManager.create
-	val ehCache = cacheManager.getCache("test")
+	val ehCache = cacheManager.getCache("EHCacheSuite")
 
 	test("cache expires positive") {
 		val cache = new CacheUsingEHCache(ehCache) with Locking
@@ -81,7 +81,6 @@ class EHCacheSuite extends FunSuite with ShouldMatchers with BeforeAndAfterAll w
 	}
 
 	test("multithreaded accessing same key") {
-		val ehCache = cacheManager.getCache("test")
 		val cache = new CacheUsingEHCache(ehCache) with Locking
 
 		def createActor = actor {
@@ -120,5 +119,4 @@ class EHCacheSuite extends FunSuite with ShouldMatchers with BeforeAndAfterAll w
 	before {
 		ehCache.flush()
 	}
-	override def afterAll = cacheManager.shutdown()
 }

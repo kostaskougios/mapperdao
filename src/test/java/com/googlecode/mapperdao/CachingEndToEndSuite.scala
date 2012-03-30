@@ -14,9 +14,9 @@ import ehcache.CacheUsingEHCache
  * 29 Mar 2012
  */
 @RunWith(classOf[JUnitRunner])
-class CachingEndToEndSuite extends FunSuite with ShouldMatchers with BeforeAndAfterAll {
+class CachingEndToEndSuite extends FunSuite with ShouldMatchers {
 	val cacheManager = CacheManager.create
-	val ehCache = cacheManager.getCache("test")
+	val ehCache = cacheManager.getCache("CachingEndToEndSuite")
 	val mapperDaoCache = new CacheUsingEHCache(ehCache)
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity), cache = Some(mapperDaoCache))
@@ -36,7 +36,7 @@ class CachingEndToEndSuite extends FunSuite with ShouldMatchers with BeforeAndAf
 		mapperDao.select(SelectConfig(cacheOptions = CacheOptions.OneHour), ProductEntity, 5) should be === Some(inserted)
 	}
 
-	override def afterAll = cacheManager.shutdown()
+	//override def afterAll = cacheManager.shutdown()
 
 	def createTables =
 		{
