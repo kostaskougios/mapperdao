@@ -30,7 +30,7 @@ import com.googlecode.mapperdao.drivers.Cache
  * 31 Jul 2011
  */
 object Setup {
-	private val logger: Logger = LoggerFactory.getLogger(getClass)
+	private val logger = LoggerFactory.getLogger(getClass)
 
 	val typeManager = new DefaultTypeManager
 	def database = {

@@ -65,6 +65,33 @@ class CachingEndToEndSuite extends FunSuite with ShouldMatchers {
 		mapperDao.select(SelectConfig(cacheOptions = CacheOptions.OneHour), AttributeEntity, 2) should be === Some(Attribute(2, "colour", "blue"))
 	}
 
+	test("query with cached data positive") {
+		createTables
+		val product = Product(5, "blue jean", Set(Attribute(2, "colour", "blue"), Attribute(7, "size", "medium")))
+		val inserted = mapperDao.insert(ProductEntity, product)
+
+		import Query._
+		// just to cache the data
+		queryDao.query(select from ProductEntity)
+		deleteAll()
+		// even if the data are deleted, the cached values will be used
+		queryDao.query(QueryConfig(cacheOptions = CacheOptions.OneHour), select from ProductEntity) should be === List(inserted)
+	}
+
+	test("query with cached data negative") {
+		createTables
+		val product = Product(5, "blue jean", Set(Attribute(2, "colour", "blue"), Attribute(7, "size", "medium")))
+		val inserted = mapperDao.insert(ProductEntity, product)
+
+		import Query._
+		// just to cache the data
+		queryDao.query(select from ProductEntity)
+		deleteAll()
+		Thread.sleep(15)
+		// even if the data are deleted, the cached values will be used
+		queryDao.query(QueryConfig(cacheOptions = CacheOptions(3)), select from ProductEntity) should be === List()
+	}
+
 	def deleteAll() {
 		jdbc.update("delete from Product")
 		jdbc.update("delete from Product_Attribute")

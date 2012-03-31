@@ -1,13 +1,4 @@
 <ehcache>
-    <defaultCache
-            maxElementsInMemory="10000"
-            eternal="false"
-            timeToIdleSeconds="5"
-            timeToLiveSeconds="5"
-            overflowToDisk="false"
-            diskPersistent="false"
-            memoryStoreEvictionPolicy="LRU" />
-
     <cache  name="EHCacheSuite"
             maxElementsInMemory="10000"
             eternal="false"
