@@ -30,14 +30,46 @@ class CachingEndToEndSuite extends FunSuite with ShouldMatchers {
 		mapperDao.select(ProductEntity, 5)
 
 		// manually delete rows
-		jdbc.update("delete from Product")
-
+		deleteAll()
 		// still cached
 		mapperDao.select(SelectConfig(cacheOptions = CacheOptions.OneHour), ProductEntity, 5) should be === Some(inserted)
 	}
 
-	//override def afterAll = cacheManager.shutdown()
+	test("main entity selection is cached but expired") {
+		createTables
+		val product = Product(5, "blue jean", Set(Attribute(2, "colour", "blue"), Attribute(7, "size", "medium")))
+		val inserted = mapperDao.insert(ProductEntity, product)
 
+		// do a dummy select, just to cache it
+		mapperDao.select(ProductEntity, 5)
+
+		// manually delete rows
+		deleteAll()
+
+		Thread.sleep(15)
+		// still cached
+		mapperDao.select(SelectConfig(cacheOptions = CacheOptions(2)), ProductEntity, 5) should be === None
+	}
+
+	test("secondary entity selection is cached") {
+		createTables
+		val product = Product(5, "blue jean", Set(Attribute(2, "colour", "blue"), Attribute(7, "size", "medium")))
+		val inserted = mapperDao.insert(ProductEntity, product)
+
+		// do a dummy select, just to cache it
+		mapperDao.select(AttributeEntity, 2)
+
+		// manually delete rows
+		deleteAll()
+		// still cached
+		mapperDao.select(SelectConfig(cacheOptions = CacheOptions.OneHour), AttributeEntity, 2) should be === Some(Attribute(2, "colour", "blue"))
+	}
+
+	def deleteAll() {
+		jdbc.update("delete from Product")
+		jdbc.update("delete from Product_Attribute")
+		jdbc.update("delete from Attribute")
+	}
 	def createTables =
 		{
 			ehCache.flush()
