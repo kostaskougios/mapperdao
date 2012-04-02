@@ -1,22 +1,15 @@
 package com.googlecode.mapperdao.plugins
 
-import com.googlecode.mapperdao.UpdateEntityMap
-import com.googlecode.mapperdao.Type
-import com.googlecode.mapperdao.MapperDao
-import com.googlecode.mapperdao.MapperDaoImpl
-import com.googlecode.mapperdao.Persisted
+import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao.Column
-import com.googlecode.mapperdao.UpdateInfo
-import com.googlecode.mapperdao.utils.LowerCaseMutableMap
-import com.googlecode.mapperdao.SelectConfig
-import com.googlecode.mapperdao.jdbc.JdbcMap
-import com.googlecode.mapperdao.EntityMap
-import com.googlecode.mapperdao.ValuesMap
-import com.googlecode.mapperdao.TypeRegistry
-import com.googlecode.mapperdao.drivers.Driver
-import com.googlecode.mapperdao.UpdateConfig
 import com.googlecode.mapperdao.Entity
+import com.googlecode.mapperdao.MapperDaoImpl
+import com.googlecode.mapperdao.Persisted
+import com.googlecode.mapperdao.TypeRegistry
+import com.googlecode.mapperdao.UpdateConfig
+import com.googlecode.mapperdao.UpdateEntityMap
+import com.googlecode.mapperdao.ValuesMap
 
 /**
  * @author kostantinos.kougios
