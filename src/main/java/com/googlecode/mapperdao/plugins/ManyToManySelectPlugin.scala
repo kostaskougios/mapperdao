@@ -1,0 +1,77 @@
+package com.googlecode.mapperdao.plugins
+
+import com.googlecode.mapperdao.MapperDao
+import com.googlecode.mapperdao.utils.MapOfList
+import com.googlecode.mapperdao.UpdateEntityMap
+import com.googlecode.mapperdao.Type
+import com.googlecode.mapperdao.utils.LowerCaseMutableMap
+import com.googlecode.mapperdao.jdbc.JdbcMap
+import com.googlecode.mapperdao.EntityMap
+import com.googlecode.mapperdao.ManyToMany
+import com.googlecode.mapperdao.SelectConfig
+import com.googlecode.mapperdao.ValuesMap
+import com.googlecode.mapperdao.utils.TraversableSeparation
+import com.googlecode.mapperdao.Persisted
+import com.googlecode.mapperdao.DeleteConfig
+import com.googlecode.mapperdao.SimpleColumn
+import com.googlecode.mapperdao.events.Events
+import com.googlecode.mapperdao.TypeRegistry
+import com.googlecode.mapperdao.drivers.Driver
+import com.googlecode.mapperdao.MapperDaoImpl
+import com.googlecode.mapperdao.UpdateConfig
+import com.googlecode.mapperdao.Entity
+import com.googlecode.mapperdao.ExternalEntity
+import com.googlecode.mapperdao.TypeManager
+import com.googlecode.mapperdao.ColumnInfoTraversableManyToMany
+import com.googlecode.mapperdao.InsertExternalManyToMany
+import com.googlecode.mapperdao.UpdateExternalManyToMany
+import com.googlecode.mapperdao.SelectExternalManyToMany
+import com.googlecode.mapperdao.DeleteExternalManyToMany
+
+/**
+ * @author kostantinos.kougios
+ *
+ * 31 Aug 2011
+ */
+class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect with SelectMock {
+
+	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any] = Nil
+
+	override def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]) =
+		{
+			val tpe = entity.tpe
+			val table = tpe.table
+			// many to many
+			table.manyToManyColumnInfos.foreach { ci =>
+				val c = ci.column
+				val mtmR = if (selectConfig.skip(ci)) {
+					Nil
+				} else {
+					val fe = c.foreign.entity
+					val ftpe = fe.tpe.asInstanceOf[Type[Any, Any]]
+					fe match {
+						case ee: ExternalEntity[Any] =>
+							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+							val keys = c.linkTable.left zip ids
+							val allIds = driver.doSelectManyToManyForExternalEntity(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
+
+							val handler = ee.manyToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
+							handler(SelectExternalManyToMany(selectConfig, allIds))
+						case _ =>
+							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+							val keys = c.linkTable.left zip ids
+							val fom = driver.doSelectManyToMany(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
+							entities.down(tpe, ci, om)
+							val mtmR = mapperDao.toEntities(fom, fe, selectConfig, entities)
+							entities.up
+							mtmR
+					}
+				}
+				mods(c.foreign.alias) = mtmR
+			}
+		}
+
+	override def updateMock[PC, T](entity: Entity[PC, T], mods: scala.collection.mutable.HashMap[String, Any]) {
+		mods ++= entity.tpe.table.manyToManyColumns.map(c => (c.alias -> List()))
+	}
+}
