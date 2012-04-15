@@ -33,19 +33,19 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 			} else Nil
 		}
 
-	override def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]) =
+	override def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap) =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
 			// one to one reverse
-			table.oneToOneReverseColumnInfos.filterNot(selectConfig.skip(_)).foreach { ci =>
+			table.oneToOneReverseColumnInfos.filterNot(selectConfig.skip(_)).map { ci =>
 				val c = ci.column
 				val fe = c.foreign.entity
 				fe match {
 					case ee: ExternalEntity[Any] =>
 						val foreignIds = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
 						val v = ee.oneToOneOnSelectMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[_, _, Any]])(SelectExternalOneToOneReverse(selectConfig, foreignIds))
-						mods(c.foreign.alias) = v
+						SelectMod(c.foreign.alias, v)
 					case _ =>
 						val ftpe = fe.tpe
 						val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
@@ -55,11 +55,11 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 						val otmL = mapperDao.toEntities(fom, fe, selectConfig, entities)
 						entities.up
 						if (otmL.isEmpty) {
-							mods(c.foreign.alias) = null
+							SelectMod(c.foreign.alias, null)
 						} else {
 							if (otmL.size > 1) throw new IllegalStateException("expected 0 or 1 row but got " + otmL)
 							else {
-								mods(c.foreign.alias) = otmL.head
+								SelectMod(c.foreign.alias, otmL.head)
 							}
 						}
 				}

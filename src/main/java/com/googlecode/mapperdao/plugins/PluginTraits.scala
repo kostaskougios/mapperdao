@@ -1,20 +1,21 @@
 package com.googlecode.mapperdao.plugins
-import com.googlecode.mapperdao.utils.MapOfList
-import com.googlecode.mapperdao.ValuesMap
-import com.googlecode.mapperdao.UpdateEntityMap
-import com.googlecode.mapperdao.Type
-import com.googlecode.mapperdao.Column
-import com.googlecode.mapperdao.UpdateInfo
-import com.googlecode.mapperdao.Persisted
-import com.googlecode.mapperdao.jdbc.JdbcMap
-import com.googlecode.mapperdao.EntityMap
-import com.googlecode.mapperdao.utils.LowerCaseMutableMap
-import com.googlecode.mapperdao.SelectConfig
-import com.googlecode.mapperdao.DeleteConfig
-import com.googlecode.mapperdao.SimpleColumn
+
 import com.googlecode.mapperdao.events.Events
-import com.googlecode.mapperdao.UpdateConfig
+import com.googlecode.mapperdao.jdbc.JdbcMap
+import com.googlecode.mapperdao.utils.LowerCaseMutableMap
+import com.googlecode.mapperdao.utils.MapOfList
+import com.googlecode.mapperdao.Persisted
+import com.googlecode.mapperdao.UpdateInfo
+import com.googlecode.mapperdao.Column
+import com.googlecode.mapperdao.DeleteConfig
 import com.googlecode.mapperdao.Entity
+import com.googlecode.mapperdao.EntityMap
+import com.googlecode.mapperdao.SelectConfig
+import com.googlecode.mapperdao.SimpleColumn
+import com.googlecode.mapperdao.Type
+import com.googlecode.mapperdao.UpdateConfig
+import com.googlecode.mapperdao.UpdateEntityMap
+import com.googlecode.mapperdao.ValuesMap
 
 /**
  * plugins executed before the main entity is inserted
@@ -75,7 +76,7 @@ trait PostUpdate {
  */
 trait BeforeSelect {
 	def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any]
-	def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): Unit
+	def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap): List[SelectMod]
 }
 
 trait SelectMock {

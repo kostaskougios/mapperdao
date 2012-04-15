@@ -318,8 +318,11 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 				val mock = createMock(entity, mods)
 				entities.put(tpe.clz, cacheKey, mock)
 
-				selectBeforePlugins.foreach {
-					_.before(entity, selectConfig, om, entities, mods)
+				selectBeforePlugins.map {
+					_.before(entity, selectConfig, om, entities)
+				}.flatten.foreach {
+					case SelectMod(k, v) =>
+						mods(k) = v
 				}
 
 				val vm = ValuesMap.fromMutableMap(typeManager, mods)

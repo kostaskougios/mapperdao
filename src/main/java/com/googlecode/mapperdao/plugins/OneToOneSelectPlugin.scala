@@ -18,12 +18,12 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 
 	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any] = Nil
 
-	override def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]) =
+	override def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap) =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
 			// one to one
-			table.oneToOneColumnInfos.filterNot(selectConfig.skip(_)).foreach { ci =>
+			table.oneToOneColumnInfos.filterNot(selectConfig.skip(_)).map { ci =>
 				val c = ci.column
 				val fe = c.foreign.entity
 				val ftpe = fe.tpe
@@ -31,7 +31,7 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 				val foreignKeyValues = c.selfColumns.map(sc => om(sc.columnName))
 				if (foreignKeyValues.contains(null)) {
 					// value is null
-					mods(c.foreign.alias) = null
+					SelectMod(c.foreign.alias, null)
 				} else {
 					val foreignKeys = ftable.primaryKeys zip foreignKeyValues
 					val fom = driver.doSelect(selectConfig, ftpe, foreignKeys)
@@ -39,7 +39,7 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 					val otmL = mapperDao.toEntities(fom, fe, selectConfig, entities)
 					entities.up
 					if (otmL.size != 1) throw new IllegalStateException("expected 1 row but got " + otmL);
-					mods(c.foreign.alias) = otmL.head
+					SelectMod(c.foreign.alias, otmL.head)
 				}
 			}
 		}

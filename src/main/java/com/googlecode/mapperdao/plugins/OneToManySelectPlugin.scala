@@ -17,12 +17,12 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 
 	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any] = Nil
 
-	override def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]) =
+	override def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap) =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
 			// one to many
-			table.oneToManyColumnInfos.foreach { ci =>
+			table.oneToManyColumnInfos.map { ci =>
 				val c = ci.column
 				val otmL = if (selectConfig.skip(ci)) {
 					Nil
@@ -44,7 +44,7 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 							entities.up
 							v
 					}
-				mods(c.foreign.alias) = otmL
+				SelectMod(c.foreign.alias, otmL)
 			}
 		}
 

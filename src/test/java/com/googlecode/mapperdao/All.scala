@@ -71,7 +71,7 @@ import org.scalatest.FunSuite
 		classOf[UseCaseFileSystemSuite],
 		classOf[UseCaseMapRawColumnOneToManySuite],
 		classOf[CachedDriverSuite],
-		classOf[ehcache.EHCacheSuite],
+		//classOf[ehcache.EHCacheSuite],
 		classOf[CachingEndToEndSuite]
 	)
 )
