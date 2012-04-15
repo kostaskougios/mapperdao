@@ -8,10 +8,10 @@ import scala.collection.mutable.HashMap
  */
 class LowerCaseMutableMap[V] {
 	private val m = new HashMap[String, V]
-	def this(map: scala.collection.mutable.Map[String, V]) =
+	def this(map: scala.collection.Map[String, V]) =
 		{
 			this()
-			map.foreach(t => m(t._1.toLowerCase) = t._2)
+			map.foreach { case (k, v) => m(k.toLowerCase) = v }
 		}
 
 	def get(key: String): Option[V] = m.get(key.toLowerCase)
