@@ -298,9 +298,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		selectConfig: SelectConfig,
 		entities: EntityMap): List[T with PC] =
 		lm.map { om =>
-			val mods = new scala.collection.mutable.HashMap[String, Any]
 			import scala.collection.JavaConversions._
-			mods ++= om.toMap
 			val tpe = entity.tpe
 			val table = tpe.table
 			// calculate the id's for this tpe
@@ -315,17 +313,18 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			} else ids
 
 			entities.get[T with PC](tpe.clz, cacheKey).getOrElse {
+				val mods = om.toMap
 				val mock = createMock(entity, mods)
 				entities.put(tpe.clz, cacheKey, mock)
 
-				selectBeforePlugins.map {
+				val allMods = mods ++ selectBeforePlugins.map {
 					_.before(entity, selectConfig, om, entities)
-				}.flatten.foreach {
+				}.flatten.map {
 					case SelectMod(k, v) =>
-						mods(k) = v
-				}
+						(k, v)
+				}.toMap
 
-				val vm = ValuesMap.fromMutableMap(typeManager, mods)
+				val vm = ValuesMap.fromMutableMap(typeManager, allMods)
 				val entityV = tpe.constructor(vm)
 				entities.reput(tpe.clz, cacheKey, entityV)
 				entityV
@@ -335,7 +334,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 	/**
 	 * creates a mock object
 	 */
-	private def createMock[PC, T](entity: Entity[PC, T], mods: scala.collection.mutable.Map[String, Any]): T with PC with Persisted =
+	private def createMock[PC, T](entity: Entity[PC, T], mods: scala.collection.Map[String, Any]): T with PC with Persisted =
 		{
 			val mockMods = new scala.collection.mutable.HashMap[String, Any]
 			mockMods ++= mods
