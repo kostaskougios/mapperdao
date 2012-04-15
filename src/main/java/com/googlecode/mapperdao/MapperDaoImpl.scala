@@ -305,7 +305,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			val table = tpe.table
 			// calculate the id's for this tpe
 			val ids = table.primaryKeys.map { pk => om(pk.column.columnName) } ::: selectBeforePlugins.map {
-				_.idContribution(tpe, om, entities, mods)
+				_.idContribution(tpe, om, entities)
 			}.flatten
 			val cacheKey = if (ids.isEmpty) {
 				if (table.unusedPKs.isEmpty)

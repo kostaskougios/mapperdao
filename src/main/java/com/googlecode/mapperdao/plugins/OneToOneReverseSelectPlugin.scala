@@ -20,7 +20,7 @@ import com.googlecode.mapperdao.TypeRegistry
  */
 class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect {
 
-	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap, mods: scala.collection.mutable.HashMap[String, Any]): List[Any] =
+	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap) =
 		{
 			val SelectInfo(parentTpe, parentCI, parentJdbcMap) = entities.peek
 			if (parentTpe != null) {
