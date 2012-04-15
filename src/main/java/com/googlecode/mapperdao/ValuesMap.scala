@@ -261,7 +261,7 @@ object ValuesMap {
 			}
 			new ValuesMap(typeManager, nm)
 		}
-	protected[mapperdao] def fromMutableMap(typeManager: TypeManager, m: scala.collection.Map[String, Any]): ValuesMap =
+	protected[mapperdao] def fromMap(typeManager: TypeManager, m: scala.collection.Map[String, Any]): ValuesMap =
 		{
 			val nm = new scala.collection.mutable.HashMap[String, Any]
 			nm ++= m

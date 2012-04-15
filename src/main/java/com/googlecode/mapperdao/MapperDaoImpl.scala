@@ -93,7 +93,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			}
 
 			val finalMods = modified ++ modifiedTraversables
-			val newE = tpe.constructor(ValuesMap.fromMutableMap(typeManager, finalMods))
+			val newE = tpe.constructor(ValuesMap.fromMap(typeManager, finalMods))
 			// re-put the actual
 			entityMap.put(o, newE)
 			newE
@@ -164,7 +164,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			}
 
 			// done, construct the updated entity
-			val finalValuesMap = ValuesMap.fromMutableMap(typeManager, modified ++ modifiedTraversables)
+			val finalValuesMap = ValuesMap.fromMap(typeManager, modified ++ modifiedTraversables)
 			val v = tpe.constructor(finalValuesMap)
 			entityMap.put(o, v)
 			v
@@ -324,7 +324,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 						(k, v)
 				}.toMap
 
-				val vm = ValuesMap.fromMutableMap(typeManager, allMods)
+				val vm = ValuesMap.fromMap(typeManager, allMods)
 				val entityV = tpe.constructor(vm)
 				entities.reput(tpe.clz, cacheKey, entityV)
 				entityV
@@ -343,7 +343,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			}
 			val tpe = entity.tpe
 			// create a mock of the final entity, to avoid cyclic dependencies
-			val vm = ValuesMap.fromMutableMap(typeManager, mockMods)
+			val vm = ValuesMap.fromMap(typeManager, mockMods)
 			val preMock = tpe.constructor(vm)
 			val mock = tpe.constructor(ValuesMap.fromEntity(typeManager, tpe, preMock))
 			// mark it as mock
