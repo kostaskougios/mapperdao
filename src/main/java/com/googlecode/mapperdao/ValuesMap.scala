@@ -15,7 +15,18 @@ import java.util.Locale
 class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[String, Any]) {
 	private val m = new LowerCaseMutableMap(mOrig)
 
-	protected[mapperdao] def valueOf[T](column: String): T = typeManager.deepClone(m.getOrElse(column.toLowerCase, null).asInstanceOf[T])
+	protected[mapperdao] def valueOf[T](column: String): T = {
+		val key = column.toLowerCase
+		val v = m.getOrElse(key, null) match {
+			case null => null
+			case f: (() => Any) =>
+				val v = f()
+				m(key) = v
+				v
+			case v => v
+		}
+		typeManager.deepClone(v).asInstanceOf[T]
+	}
 
 	private def update[T, V](column: ColumnInfo[T, _], v: V): Unit =
 		{
