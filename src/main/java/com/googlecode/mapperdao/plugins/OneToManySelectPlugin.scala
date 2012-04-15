@@ -25,24 +25,28 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 			table.oneToManyColumnInfos.map { ci =>
 				val c = ci.column
 				val otmL = if (selectConfig.skip(ci)) {
-					Nil
+					() => Nil
 				} else
 					c.foreign.entity match {
 						case ee: ExternalEntity[Any] =>
-							val table = tpe.table
-							val ids = table.primaryKeys.map { pk =>
-								om(pk.column.columnName)
+							() => {
+								val table = tpe.table
+								val ids = table.primaryKeys.map { pk =>
+									om(pk.column.columnName)
+								}
+								ee.oneToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, Any]])(SelectExternalOneToMany(selectConfig, ids))
 							}
-							ee.oneToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, Any]])(SelectExternalOneToMany(selectConfig, ids))
 						case fe: Entity[_, _] =>
-							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
-							val where = c.foreignColumns.zip(ids)
-							val ftpe = fe.tpe
-							val fom = driver.doSelect(selectConfig, ftpe, where)
-							entities.down(tpe, ci, om)
-							val v = mapperDao.toEntities(fom, fe, selectConfig, entities)
-							entities.up
-							v
+							() => {
+								val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+								val where = c.foreignColumns.zip(ids)
+								val ftpe = fe.tpe
+								val fom = driver.doSelect(selectConfig, ftpe, where)
+								entities.down(tpe, ci, om)
+								val v = mapperDao.toEntities(fom, fe, selectConfig, entities)
+								entities.up
+								v
+							}
 					}
 				SelectMod(c.foreign.alias, otmL)
 			}

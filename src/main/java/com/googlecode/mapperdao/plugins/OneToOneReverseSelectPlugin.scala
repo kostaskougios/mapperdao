@@ -41,28 +41,32 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 			table.oneToOneReverseColumnInfos.filterNot(selectConfig.skip(_)).map { ci =>
 				val c = ci.column
 				val fe = c.foreign.entity
-				fe match {
+				val v = fe match {
 					case ee: ExternalEntity[Any] =>
-						val foreignIds = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
-						val v = ee.oneToOneOnSelectMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[_, _, Any]])(SelectExternalOneToOneReverse(selectConfig, foreignIds))
-						SelectMod(c.foreign.alias, v)
+						() => {
+							val foreignIds = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+							ee.oneToOneOnSelectMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[_, _, Any]])(SelectExternalOneToOneReverse(selectConfig, foreignIds))
+						}
 					case _ =>
-						val ftpe = fe.tpe
-						val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
-						val keys = c.foreignColumns.zip(ids)
-						val fom = driver.doSelect(selectConfig, ftpe, keys)
-						entities.down(tpe, ci, om)
-						val otmL = mapperDao.toEntities(fom, fe, selectConfig, entities)
-						entities.up
-						if (otmL.isEmpty) {
-							SelectMod(c.foreign.alias, null)
-						} else {
-							if (otmL.size > 1) throw new IllegalStateException("expected 0 or 1 row but got " + otmL)
-							else {
-								SelectMod(c.foreign.alias, otmL.head)
+						() => {
+							val ftpe = fe.tpe
+							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+							val keys = c.foreignColumns.zip(ids)
+							val fom = driver.doSelect(selectConfig, ftpe, keys)
+							entities.down(tpe, ci, om)
+							val otmL = mapperDao.toEntities(fom, fe, selectConfig, entities)
+							entities.up
+							if (otmL.isEmpty) {
+								null
+							} else {
+								if (otmL.size > 1) throw new IllegalStateException("expected 0 or 1 row but got " + otmL)
+								else {
+									otmL.head
+								}
 							}
 						}
 				}
+				SelectMod(c.foreign.alias, v)
 			}
 		}
 }

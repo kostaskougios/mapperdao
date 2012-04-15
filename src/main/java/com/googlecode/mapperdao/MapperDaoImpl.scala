@@ -320,7 +320,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 					_.before(entity, selectConfig, jdbcMap, entities)
 				}.flatten.map {
 					case SelectMod(k, v) =>
-						(k, v)
+						(k, v())
 				}.toMap
 
 				val vm = ValuesMap.fromMap(typeManager, allMods)

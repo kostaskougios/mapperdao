@@ -30,27 +30,30 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 			table.manyToManyColumnInfos.map { ci =>
 				val c = ci.column
 				val mtmR = if (selectConfig.skip(ci)) {
-					Nil
+					() => Nil
 				} else {
-					val fe = c.foreign.entity
-					val ftpe = fe.tpe.asInstanceOf[Type[Any, Any]]
-					fe match {
-						case ee: ExternalEntity[Any] =>
-							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
-							val keys = c.linkTable.left zip ids
-							val allIds = driver.doSelectManyToManyForExternalEntity(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
+					() =>
+						{
+							val fe = c.foreign.entity
+							val ftpe = fe.tpe.asInstanceOf[Type[Any, Any]]
+							fe match {
+								case ee: ExternalEntity[Any] =>
+									val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+									val keys = c.linkTable.left zip ids
+									val allIds = driver.doSelectManyToManyForExternalEntity(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
 
-							val handler = ee.manyToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
-							handler(SelectExternalManyToMany(selectConfig, allIds))
-						case _ =>
-							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
-							val keys = c.linkTable.left zip ids
-							val fom = driver.doSelectManyToMany(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
-							entities.down(tpe, ci, om)
-							val mtmR = mapperDao.toEntities(fom, fe, selectConfig, entities)
-							entities.up
-							mtmR
-					}
+									val handler = ee.manyToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
+									handler(SelectExternalManyToMany(selectConfig, allIds))
+								case _ =>
+									val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+									val keys = c.linkTable.left zip ids
+									val fom = driver.doSelectManyToMany(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
+									entities.down(tpe, ci, om)
+									val mtmR = mapperDao.toEntities(fom, fe, selectConfig, entities)
+									entities.up
+									mtmR
+							}
+						}
 				}
 				SelectMod(c.foreign.alias, mtmR)
 			}

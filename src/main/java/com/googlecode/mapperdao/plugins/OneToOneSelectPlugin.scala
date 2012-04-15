@@ -29,18 +29,22 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 				val ftpe = fe.tpe
 				val ftable = ftpe.table
 				val foreignKeyValues = c.selfColumns.map(sc => om(sc.columnName))
-				if (foreignKeyValues.contains(null)) {
+				val v = if (foreignKeyValues.contains(null)) {
 					// value is null
-					SelectMod(c.foreign.alias, null)
+					() => null
 				} else {
-					val foreignKeys = ftable.primaryKeys zip foreignKeyValues
-					val fom = driver.doSelect(selectConfig, ftpe, foreignKeys)
-					entities.down(tpe, ci, om)
-					val otmL = mapperDao.toEntities(fom, fe, selectConfig, entities)
-					entities.up
-					if (otmL.size != 1) throw new IllegalStateException("expected 1 row but got " + otmL);
-					SelectMod(c.foreign.alias, otmL.head)
+					() =>
+						{
+							val foreignKeys = ftable.primaryKeys zip foreignKeyValues
+							val fom = driver.doSelect(selectConfig, ftpe, foreignKeys)
+							entities.down(tpe, ci, om)
+							val otmL = mapperDao.toEntities(fom, fe, selectConfig, entities)
+							entities.up
+							if (otmL.size != 1) throw new IllegalStateException("expected 1 row but got " + otmL);
+							otmL.head
+						}
 				}
+				SelectMod(c.foreign.alias, v)
 			}
 		}
 

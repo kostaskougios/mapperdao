@@ -5,4 +5,4 @@ package com.googlecode.mapperdao.plugins
  *
  * 15 Apr 2012
  */
-case class SelectMod(alias: String, value: Any)
+case class SelectMod(alias: String, value: () => Any)
