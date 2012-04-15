@@ -297,28 +297,27 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		entity: Entity[PC, T],
 		selectConfig: SelectConfig,
 		entities: EntityMap): List[T with PC] =
-		lm.map { om =>
-			import scala.collection.JavaConversions._
+		lm.map { jdbcMap =>
 			val tpe = entity.tpe
 			val table = tpe.table
 			// calculate the id's for this tpe
-			val ids = table.primaryKeys.map { pk => om(pk.column.columnName) } ::: selectBeforePlugins.map {
-				_.idContribution(tpe, om, entities)
+			val ids = table.primaryKeys.map { pk => jdbcMap(pk.column.columnName) } ::: selectBeforePlugins.map {
+				_.idContribution(tpe, jdbcMap, entities)
 			}.flatten
 			val cacheKey = if (ids.isEmpty) {
 				if (table.unusedPKs.isEmpty)
 					throw new IllegalStateException("entity %s without primary key, please use declarePrimaryKeys() to declare the primary key columns of tables into your entity declaration")
 				else
-					table.unusedPKs.map { pk => om(pk.columnName) }
+					table.unusedPKs.map { pk => jdbcMap(pk.columnName) }
 			} else ids
 
 			entities.get[T with PC](tpe.clz, cacheKey).getOrElse {
-				val mods = om.toMap
+				val mods = jdbcMap.toMap
 				val mock = createMock(entity, mods)
 				entities.put(tpe.clz, cacheKey, mock)
 
 				val allMods = mods ++ selectBeforePlugins.map {
-					_.before(entity, selectConfig, om, entities)
+					_.before(entity, selectConfig, jdbcMap, entities)
 				}.flatten.map {
 					case SelectMod(k, v) =>
 						(k, v)
