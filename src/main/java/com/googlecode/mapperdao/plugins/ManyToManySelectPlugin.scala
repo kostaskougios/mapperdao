@@ -55,7 +55,7 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 							}
 						}
 				}
-				SelectMod(c.foreign.alias, mtmR)
+				SelectMod(c.foreign.alias, mtmR, Nil)
 			}
 		}
 

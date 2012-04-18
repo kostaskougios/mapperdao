@@ -45,7 +45,7 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 							}
 						}
 				}
-				SelectMod(c.foreign.alias, v)
+				SelectMod(c.foreign.alias, v, null)
 			}
 		}
 

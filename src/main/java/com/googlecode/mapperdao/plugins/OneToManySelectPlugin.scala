@@ -48,7 +48,7 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 								v
 							}
 					}
-				SelectMod(c.foreign.alias, otmL)
+				SelectMod(c.foreign.alias, otmL, Nil)
 			}
 		}
 

@@ -66,7 +66,7 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 							}
 						}
 				}
-				SelectMod(c.foreign.alias, v)
+				SelectMod(c.foreign.alias, v, null)
 			}
 		}
 }

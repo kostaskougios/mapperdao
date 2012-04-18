@@ -12,4 +12,5 @@ package com.googlecode.mapperdao
 case class SelectConfig(
 	skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
 	data: Option[Any] = None,
-	cacheOptions: CacheOption = CacheOptions.NoCache)
+	cacheOptions: CacheOption = CacheOptions.NoCache,
+	lazyLoad: LazyLoad = LazyLoad.defaultLazyLoad)

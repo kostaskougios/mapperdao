@@ -44,7 +44,7 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 							otmL.head
 						}
 				}
-				SelectMod(c.foreign.alias, v)
+				SelectMod(c.foreign.alias, v, null)
 			}
 		}
 

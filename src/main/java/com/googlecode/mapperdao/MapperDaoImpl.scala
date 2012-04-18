@@ -319,7 +319,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 				val allMods = mods ++ selectBeforePlugins.map {
 					_.before(entity, selectConfig, jdbcMap, entities)
 				}.flatten.map {
-					case SelectMod(k, v) =>
+					case SelectMod(k, v, lazyBeforeLoadVal) =>
 						(k, v)
 				}.toMap
 
