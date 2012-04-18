@@ -324,7 +324,9 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 				}.toMap
 
 				val vm = ValuesMap.fromMap(typeManager, allMods)
-				val entityV = tpe.constructor(vm)
+				val entityV = if (selectConfig.lazyLoad.all) {
+					null.asInstanceOf[T with PC]
+				} else tpe.constructor(vm)
 				entities.reput(tpe.clz, cacheKey, entityV)
 				entityV
 			}

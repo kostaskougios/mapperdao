@@ -22,7 +22,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
 			val inserted = mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2)))
 
-			mapperDao.select(ProductEntity, 2).get should be === Product(2, "blue jean", inserted.attributes)
+			mapperDao.select(SelectConfig(lazyLoad = LazyLoad(all = true)), ProductEntity, 2).get should be === Product(2, "blue jean", inserted.attributes)
 		}
 	}
 
