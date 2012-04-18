@@ -241,6 +241,14 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 		private var linkTable = if (reverse) referenced.clz.getSimpleName + "_" + clz.getSimpleName else clz.getSimpleName + "_" + referenced.clz.getSimpleName
 		private var leftColumn = clz.getSimpleName.toLowerCase + "_id"
 		private var rightColumn = referenced.clz.getSimpleName.toLowerCase + "_id"
+		private var getterMethod: Option[java.lang.reflect.Method] = None
+
+		def getter(method: java.lang.reflect.Method): this.type = {
+			getterMethod = Some(method)
+			this
+		}
+
+		def getter(method: String): this.type = getter(clz.getMethod(method))
 
 		def join(linkTable: String, leftColumn: String, rightColumn: String) = {
 			this.linkTable = linkTable
@@ -256,7 +264,8 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 						LinkTable(linkTable, List(Column(leftColumn)), List(Column(rightColumn))),
 						TypeRef(createAlias, referenced)
 					),
-					columnToValue
+					columnToValue,
+					getterMethod
 				)
 				columns ::= ci
 				ci

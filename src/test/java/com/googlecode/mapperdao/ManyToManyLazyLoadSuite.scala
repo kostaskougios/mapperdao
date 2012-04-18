@@ -22,103 +22,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
 			val inserted = mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2)))
 
-			val updated = mapperDao.update(ProductEntity, inserted, Product(5, "blue jean", inserted.attributes))
-			updated should be === Product(5, "blue jean", inserted.attributes)
-
-			mapperDao.select(ProductEntity, 5).get should be === Product(5, "blue jean", inserted.attributes)
-			mapperDao.select(ProductEntity, 2) should be(None)
-		}
-
-		test("update id of secondary entity") {
-			createTables
-			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
-			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
-			val inserted = mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2)))
-
-			val updated = mapperDao.update(AttributeEntity, a1, Attribute(8, "colour", "blue"))
-			mapperDao.select(ProductEntity, 2).get should be === Product(2, "blue jean", Set(updated, a2))
-		}
-
-		test("modify leaf node values") {
-			createTables
-			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
-			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
-			val product = Product(2, "blue jean", Set(a1, a2))
-			val inserted = mapperDao.insert(ProductEntity, product)
-
-			val ua1 = mapperDao.update(AttributeEntity, a1, Attribute(6, "colour", "red"))
-			ua1 should be === Attribute(6, "colour", "red")
-
-			mapperDao.select(AttributeEntity, 6).get should be === Attribute(6, "colour", "red")
-			mapperDao.select(ProductEntity, 2).get should be === Product(2, "blue jean", Set(ua1, a2))
-		}
-
-		test("insert tree of entities") {
-			createTables
-			val product = Product(5, "blue jean", Set(Attribute(2, "colour", "blue"), Attribute(7, "size", "medium")))
-			val inserted = mapperDao.insert(ProductEntity, product)
-			inserted should be === product
-
-			mapperDao.select(ProductEntity, 5).get should be === inserted
-
-			// attributes->product should also work
-			mapperDao.select(AttributeEntity, 2).get should be === Attribute(2, "colour", "blue")
-			mapperDao.select(AttributeEntity, 7).get should be === Attribute(7, "size", "medium")
-		}
-
-		test("insert tree of entities with persisted leaf entities") {
-			createTables
-			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
-			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
-			val product = Product(2, "blue jean", Set(a1, a2))
-			val inserted = mapperDao.insert(ProductEntity, product)
-			inserted should be === product
-
-			mapperDao.select(ProductEntity, 2).get should be === inserted
-		}
-
-		test("update tree of entities, remove entity from set") {
-			createTables
-			val product = Product(1, "blue jean", Set(Attribute(5, "colour", "blue"), Attribute(6, "size", "medium"), Attribute(7, "size", "large")))
-			val inserted = mapperDao.insert(ProductEntity, product)
-
-			val changed = Product(1, "just jean", inserted.attributes.filterNot(_.name == "size"));
-			val updated = mapperDao.update(ProductEntity, inserted, changed)
-			updated should be === changed
-
-			val selected = mapperDao.select(ProductEntity, 1).get
-
-			selected should be === updated
-		}
-
-		test("update tree of entities, add new entities to set") {
-			createTables
-			val product = Product(1, "blue jean", Set(Attribute(5, "colour", "blue")))
-			val inserted = mapperDao.insert(ProductEntity, product)
-
-			val changed = Product(1, "just jean", inserted.attributes + Attribute(6, "size", "medium") + Attribute(7, "size", "large"));
-			val updated = mapperDao.update(ProductEntity, inserted, changed)
-			updated should be === changed
-
-			val selected = mapperDao.select(ProductEntity, 1).get
-
-			selected should be === updated
-		}
-
-		test("update tree of entities, add persisted entity to set") {
-			createTables
-			val product = Product(1, "blue jean", Set(Attribute(5, "colour", "blue")))
-			val inserted = mapperDao.insert(ProductEntity, product)
-
-			val persistedA = mapperDao.insert(AttributeEntity, Attribute(6, "size", "medium"))
-
-			val changed = Product(1, "just jean", inserted.attributes + persistedA + Attribute(7, "size", "large"));
-			val updated = mapperDao.update(ProductEntity, inserted, changed)
-			updated should be === changed
-
-			val selected = mapperDao.select(ProductEntity, 1).get
-
-			selected should be === updated
+			mapperDao.select(ProductEntity, 2).get should be === Product(2, "blue jean", inserted.attributes)
 		}
 	}
 
@@ -134,8 +38,8 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 	object ProductEntity extends SimpleEntity[Product] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
-		val attributes = manytomany(AttributeEntity) to (_.attributes)
-		def constructor(implicit m) = new Product(id, name, null) with Persisted
+		val attributes = manytomany(AttributeEntity) getter ("attributes") to (_.attributes)
+		def constructor(implicit m) = new Product(id, name, attributes) with Persisted
 	}
 
 	object AttributeEntity extends SimpleEntity[Attribute] {
