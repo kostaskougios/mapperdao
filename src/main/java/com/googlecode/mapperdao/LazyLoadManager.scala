@@ -5,6 +5,7 @@ import com.googlecode.classgenerator.runtime.Args
 import com.googlecode.classgenerator.LazyLoadInstanceFactory
 import org.objenesis.ObjenesisStd
 import com.googlecode.classgenerator.ReflectionManager
+import com.googlecode.classgenerator.MethodImplementation
 
 /**
  * @author kostantinos.kougios
@@ -18,7 +19,7 @@ private[mapperdao] class LazyLoadManager {
 	private val classManager = new ClassManager
 	type CacheKey = (Class[_], LazyLoad)
 
-	private val classCache = new scala.collection.mutable.HashMap[CacheKey, LazyLoadInstanceFactory[_]]
+	private val classCache = new scala.collection.mutable.HashMap[CacheKey, LazyLoadInstanceFactory[_, _]]
 
 	private def proxyFor[PC, T](entity: Entity[PC, T], lazyLoad: LazyLoad, vm: ValuesMap): Class[T] = {
 
@@ -35,7 +36,7 @@ private[mapperdao] class LazyLoadManager {
 						ci.getterMethod.getOrElse(throw new IllegalStateException("please define getter method on entity for %s".format(ci.column)))
 					).toSet
 					val builder = classManager.lazyLoadBuilder(clz, methods).interface[Persisted].get
-					val factory = new LazyLoadInstanceFactory(reflectionManager, builder)
+					val factory = new LazyLoadInstanceFactory[T with Persisted, T with Persisted with MethodImplementation[T]](reflectionManager, builder)
 					classCache.put(key, factory)
 					factory
 				case factory => factory
