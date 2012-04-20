@@ -18,6 +18,7 @@ import com.googlecode.mapperdao.events.Events
 protected final class MapperDaoImpl(val driver: Driver, events: Events) extends MapperDao {
 	private val typeRegistry = driver.typeRegistry
 	private val typeManager = driver.jdbc.typeManager
+	private val lazyLoadManager = new LazyLoadManager
 
 	private val postUpdatePlugins = List[PostUpdate](new OneToOneReverseUpdatePlugin(typeRegistry, typeManager, driver, this), new OneToManyUpdatePlugin(typeRegistry, this), new ManyToManyUpdatePlugin(typeRegistry, driver, this))
 	private val duringUpdatePlugins = List[DuringUpdate](new ManyToOneUpdatePlugin(typeRegistry, this), new OneToOneReverseUpdatePlugin(typeRegistry, typeManager, driver, this), new OneToOneUpdatePlugin(typeRegistry, this))
@@ -324,8 +325,11 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 				}.toMap
 
 				val vm = ValuesMap.fromMap(typeManager, allMods)
-				val entityV = if (selectConfig.lazyLoad.all) {
-					null.asInstanceOf[T with PC]
+				val lazyLoad = selectConfig.lazyLoad
+				val entityV = if (lazyLoad.all) {
+					val constructed = tpe.constructor(vm)
+					val proxy = lazyLoadManager.proxyFor(constructed, entity, lazyLoad, vm)
+					proxy
 				} else tpe.constructor(vm)
 				entities.reput(tpe.clz, cacheKey, entityV)
 				entityV
