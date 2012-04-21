@@ -34,6 +34,10 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 		case ci: ColumnInfo[T, _] => ci
 	}
 
+	val relationshipColumnInfos = columnInfosPlain.collect {
+		case ci: ColumnInfoRelationshipBase[T, _, _, _] => ci
+	}
+
 	val oneToOneColumns: List[OneToOne[Any, Any]] = columns.collect {
 		case c: OneToOne[Any, Any] => c
 	}

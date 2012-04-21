@@ -6,6 +6,7 @@ import com.googlecode.classgenerator.LazyLoadInstanceFactory
 import org.objenesis.ObjenesisStd
 import com.googlecode.classgenerator.ReflectionManager
 import com.googlecode.classgenerator.MethodImplementation
+import java.lang.reflect.Method
 
 /**
  * @author kostantinos.kougios
@@ -19,27 +20,25 @@ private[mapperdao] class LazyLoadManager {
 	private val classManager = new ClassManager
 	type CacheKey = (Class[_], LazyLoad)
 
-	private val classCache = new scala.collection.mutable.HashMap[CacheKey, LazyLoadInstanceFactory[_]]
+	private val classCache = new scala.collection.mutable.HashMap[CacheKey, Class[_]]
 
 	def proxyFor[PC, T](constructed: T with PC, entity: Entity[PC, T], lazyLoad: LazyLoad, vm: ValuesMap): T with PC = {
 
-		val clz = constructed.getClass
+		val clz = entity.clz
 		val relationships = entity.columns.collect {
 			case c: ColumnInfoRelationshipBase[_, _, _, _] => c
 		}
-		val key = (entity.clz, lazyLoad)
+		val key = (clz, lazyLoad)
 
-		val factory = classCache.synchronized {
-			classCache.get(key) match {
-				case null =>
-					val methods = relationships.map(ci =>
-						ci.getterMethod.getOrElse(throw new IllegalStateException("please define getter method on entity for %s".format(ci.column)))
-					).toSet
-					val builder = classManager.lazyLoadBuilder(clz, methods).interface[Persisted].get
-					val factory = new LazyLoadInstanceFactory(reflectionManager, builder)
-					classCache.put(key, factory)
-					factory
-				case factory => factory
+		val proxyClz = classCache.synchronized {
+			classCache.get(key).getOrElse {
+				val methods = relationships.map(ci =>
+					ci.getterMethod.getOrElse(throw new IllegalStateException("please define getter method on entity for %s".format(ci.column)))
+				).toSet
+				if (methods.isEmpty) throw new IllegalStateException("can't lazy load class that doesn't declare any getters for relationships. Entity: %s".format(clz))
+				val proxyClz = createProxyClz(clz, methods);
+				classCache.put(key, proxyClz)
+				proxyClz
 			}
 		}
 
@@ -47,13 +46,20 @@ private[mapperdao] class LazyLoadManager {
 			(ci.getterMethod.get.getName, ci.column.alias)
 		}.toMap
 
-		val instantiator = objenesis.getInstantiatorOf(clz)
+		val instantiator = objenesis.getInstantiatorOf(proxyClz)
 		val instance = instantiator.newInstance.asInstanceOf[PC with T with MethodImplementation[T]]
 		instance.methodImplementation { args: Args[T, Any] =>
 			val alias = methodToAlias(args.methodName)
 			vm.valueOf(alias)
 		}
 		instance
+	}
+
+	private def createProxyClz(clz: Class[_], methods: Set[Method]) = {
+		classManager.buildNewSubclass(clz)
+			.interface[Persisted]
+			.overrideMethods(clz, methods)
+			.get
 	}
 }
 
