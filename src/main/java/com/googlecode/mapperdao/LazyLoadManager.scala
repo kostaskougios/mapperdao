@@ -19,7 +19,6 @@ private[mapperdao] class LazyLoadManager {
 
 	import LazyLoadManager._
 
-	private val classManager = new ClassManager
 	type CacheKey = (Class[_], LazyLoad)
 
 	private val classCache = new scala.collection.mutable.HashMap[CacheKey, Class[_]]
@@ -33,6 +32,7 @@ private[mapperdao] class LazyLoadManager {
 	)
 
 	def proxyFor[PC, T](constructed: T with PC, entity: Entity[PC, T], lazyLoad: LazyLoad, vm: ValuesMap): T with PC = {
+		if (constructed == null) throw new NullPointerException("constructed can't be null")
 
 		val clz = entity.clz
 		// find all relationships that should be proxied
@@ -61,6 +61,10 @@ private[mapperdao] class LazyLoadManager {
 
 		val instantiator = objenesis.getInstantiatorOf(proxyClz)
 		val instance = instantiator.newInstance.asInstanceOf[PC with T with MethodImplementation[T]]
+
+		// copy data from constructed to instance
+		reflectionManager.copy(clz, constructed, instance)
+
 		instance.methodImplementation { args: Args[T, Any] =>
 			val alias = methodToAlias(args.methodName)
 			val v = vm.valueOf[Any](alias)
@@ -76,9 +80,11 @@ private[mapperdao] class LazyLoadManager {
 			.overrideMethods(clz, methods)
 			.get
 	}
+
 }
 
 object LazyLoadManager {
+	private val classManager = new ClassManager
 	private val objenesis = new ObjenesisStd
 	private val reflectionManager = new ReflectionManager
 }
