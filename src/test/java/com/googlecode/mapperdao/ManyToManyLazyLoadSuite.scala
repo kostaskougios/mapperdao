@@ -4,6 +4,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
+import com.googlecode.classgenerator.ReflectionManager
 
 /**
  * @author kostantinos.kougios
@@ -14,6 +15,7 @@ import org.scalatest.matchers.ShouldMatchers
 class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+	val reflectionManager = new ReflectionManager
 
 	if (Setup.database == "h2") {
 		test("update id of main entity") {
@@ -22,7 +24,12 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
 			val inserted = mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2)))
 
-			mapperDao.select(SelectConfig(lazyLoad = LazyLoad(all = true)), ProductEntity, 2).get should be === Product(2, "blue jean", inserted.attributes)
+			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad(all = true)), ProductEntity, 2).get
+			// use reflection to detect that the field wasn't set
+			val r: AnyRef = reflectionManager.get("attributes", selected)
+			r should be(null)
+
+			selected should be === Product(2, "blue jean", inserted.attributes)
 		}
 	}
 

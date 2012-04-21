@@ -65,11 +65,31 @@ private[mapperdao] class LazyLoadManager {
 		// copy data from constructed to instance
 		reflectionManager.copy(clz, constructed, instance)
 
+		// provide an implementation for the proxied methods
+		val alreadyCalled = new scala.collection.mutable.HashSet[String]
+
+		import com.googlecode.classgenerator._
 		instance.methodImplementation { args: Args[T, Any] =>
-			val alias = methodToAlias(args.methodName)
-			val v = vm.valueOf[Any](alias)
-			val returnType = args.method.getReturnType
-			converters(returnType)(v)
+			if (args.methodName.endsWith("_$eq")) {
+				// setter
+				alreadyCalled += getterFromSetter(args.methodName)
+				args.callSuper
+			} else {
+
+				// getter
+				if (!alreadyCalled(args.methodName)) {
+					alreadyCalled += args.methodName
+
+					val alias = methodToAlias(args.methodName)
+					val v = vm.valueOf[Any](alias)
+					val returnType = args.method.getReturnType
+					val r = converters(returnType)(v)
+					reflectionManager.set(args.methodName, args.self, r)
+					r
+				} else {
+					args.callSuper
+				}
+			}
 		}
 		instance
 	}
@@ -78,6 +98,7 @@ private[mapperdao] class LazyLoadManager {
 		classManager.buildNewSubclass(clz)
 			.interface[Persisted]
 			.overrideMethods(clz, methods)
+			.overrideSettersIfExist(clz, methods)
 			.get
 	}
 
