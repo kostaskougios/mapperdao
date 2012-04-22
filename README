@@ -25,9 +25,11 @@ mvn install:install-file -DgroupId=com.microsoft -DartifactId=sqljdbc4 -Dversion
 
 
 If you want to generate a signed bundle so it can be uploaded to the OSS
-Sonatype repository, you will need to run:
+Sonatype repository, you will need to do 1 build and run the test cases and
+if they pass then run:
 
-mvn clean package source:jar gpg:sign repository:bundle-create
+./deploy
+
 
 You will need to enter the passphrase for your private GPG key at some point.
 Please do not forget to distribute it to hkp://pgp.mit.edu if the signed
