@@ -18,6 +18,16 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 	val reflectionManager = new ReflectionManager
 
 	if (Setup.database == "h2") {
+		test("update entity without updating lazy loaded field") {
+			createTables
+			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
+			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
+			val inserted = mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2)))
+
+			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad(all = true)), ProductEntity, 2).get
+			val updated = mapperDao.update(ProductEntity, selected, Product(2, "blue jean new", selected.attributes))
+		}
+
 		test("lazy load attributes") {
 			createTables
 			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
@@ -34,6 +44,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 			classOf[scala.Function0[_]].isAssignableFrom(vm.columnValue(ProductEntity.attributes.column.alias).getClass) should be(true)
 
 			selected should be === Product(2, "blue jean", inserted.attributes)
+			selected.attributes should be === (inserted.attributes)
 		}
 
 		test("lazy load attributes but manually updating them stops lazy7 loading") {
