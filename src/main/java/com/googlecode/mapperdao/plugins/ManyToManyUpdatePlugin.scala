@@ -28,7 +28,6 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 			// update many-to-many
 			table.manyToManyColumnInfos
 				.filterNot(updateConfig.skip.contains(_))
-				.filterNot(oldValuesMap.isColumnLoaded(_))
 				.foreach { ci =>
 					val t = ci.columnToValue(o)
 					val manyToMany = ci.column

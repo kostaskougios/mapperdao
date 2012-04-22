@@ -18,7 +18,21 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 	val reflectionManager = new ReflectionManager
 
 	if (Setup.database == "h2") {
-		test("update entity without updating lazy loaded field") {
+		test("update mutable entity") {
+			createTables
+			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
+			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
+			val inserted = mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2)))
+
+			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad(all = true)), ProductEntity, 2).get
+			selected.attributes = Set(a1)
+			val updated = mapperDao.update(ProductEntity, selected)
+			updated should be === Product(2, "blue jean", Set(a1))
+			val reloaded = mapperDao.select(ProductEntity, 2).get
+			reloaded should be === updated
+		}
+
+		test("update immutable entity") {
 			createTables
 			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
 			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
@@ -26,8 +40,9 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 
 			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad(all = true)), ProductEntity, 2).get
 			val updated = mapperDao.update(ProductEntity, selected, Product(2, "blue jean new", Set()))
-			// attributes shouldn't have been loaded
-			verifyNotLoadded(selected)
+			updated should be === Product(2, "blue jean new", Set())
+			val reloaded = mapperDao.select(ProductEntity, 2).get
+			reloaded should be === updated
 		}
 
 		test("lazy load attributes") {
