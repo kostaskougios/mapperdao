@@ -116,6 +116,8 @@ private[mapperdao] class LazyLoadManager {
 			.get
 	}
 
+	def isLazyLoaded[PC, T](lazyLoad: LazyLoad, entity: Entity[PC, T]) =
+		lazyLoad.all && !entity.tpe.table.relationshipColumnInfos.isEmpty
 }
 
 object LazyLoadManager {

@@ -21,6 +21,12 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 		v.asInstanceOf[T]
 	}
 
+	def isColumnLoaded(ci: ColumnInfoRelationshipBase[_, _, _, _]): Boolean =
+		m(ci.column.alias.toLowerCase) match {
+			case f: (() => Any) => true
+			case a => false
+		}
+
 	protected[mapperdao] def valueOf[T](column: String): T = {
 		val key = column.toLowerCase
 		val v = m.getOrElse(key, null) match {

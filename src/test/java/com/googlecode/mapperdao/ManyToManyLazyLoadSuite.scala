@@ -25,7 +25,9 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 			val inserted = mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2)))
 
 			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad(all = true)), ProductEntity, 2).get
-			val updated = mapperDao.update(ProductEntity, selected, Product(2, "blue jean new", selected.attributes))
+			val updated = mapperDao.update(ProductEntity, selected, Product(2, "blue jean new", Set()))
+			// attributes shouldn't have been loaded
+			verifyNotLoadded(selected)
 		}
 
 		test("lazy load attributes") {
@@ -39,15 +41,13 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 			val r: Set[Attribute] = reflectionManager.get("attributes", selected)
 			r should be(Set())
 
-			val persisted = selected.asInstanceOf[Persisted]
-			val vm = persisted.mapperDaoValuesMap
-			classOf[scala.Function0[_]].isAssignableFrom(vm.columnValue(ProductEntity.attributes.column.alias).getClass) should be(true)
+			verifyNotLoadded(selected)
 
 			selected should be === Product(2, "blue jean", inserted.attributes)
 			selected.attributes should be === (inserted.attributes)
 		}
 
-		test("lazy load attributes but manually updating them stops lazy7 loading") {
+		test("lazy load attributes but manually updating them stops lazy loading") {
 			createTables
 			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
 			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
@@ -58,12 +58,17 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 			val r: Set[Attribute] = reflectionManager.get("attributes", selected)
 			r should be(Set())
 
+			// manually updating should stop lazy loading kick in
 			selected.attributes = Set(a1)
 			selected.attributes should be(Set(a1))
 
-			val persisted = selected.asInstanceOf[Persisted]
-			classOf[scala.Function0[_]].isAssignableFrom(persisted.mapperDaoValuesMap.columnValue(ProductEntity.attributes.column.alias).getClass) should be(true)
+			verifyNotLoadded(selected)
 		}
+	}
+
+	def verifyNotLoadded(o: Any) {
+		val persisted = o.asInstanceOf[Persisted]
+		classOf[scala.Function0[_]].isAssignableFrom(persisted.mapperDaoValuesMap.columnValue(ProductEntity.attributes.column.alias).getClass) should be(true)
 	}
 
 	def createTables =
