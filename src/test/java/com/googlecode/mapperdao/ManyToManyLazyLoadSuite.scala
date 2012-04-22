@@ -31,6 +31,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 
 			val persisted = selected.asInstanceOf[Persisted]
 			val vm = persisted.valuesMap
+			classOf[scala.Function0[_]].isAssignableFrom(vm.columnValue(ProductEntity.attributes.column.alias).getClass) should be(true)
 
 			selected should be === Product(2, "blue jean", inserted.attributes)
 		}
