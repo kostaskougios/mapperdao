@@ -36,9 +36,8 @@ private[mapperdao] class LazyLoadManager {
 
 		val clz = entity.clz
 		// find all relationships that should be proxied
-		val relationships = entity.columns.collect {
-			case c: ColumnInfoRelationshipBase[_, _, _, _] => c
-		}
+		val relationships = entity.tpe.table.relationshipColumnInfos
+
 		val key = (clz, lazyLoad)
 
 		// get cached proxy class or generate it
@@ -54,11 +53,6 @@ private[mapperdao] class LazyLoadManager {
 			}
 		}
 
-		// prepare the dynamic function
-		val methodToAlias = relationships.map { ci =>
-			(ci.getterMethod.get.getName, ci.column.alias)
-		}.toMap
-
 		val instantiator = objenesis.getInstantiatorOf(proxyClz)
 		val instance = instantiator.newInstance.asInstanceOf[PC with T with MethodImplementation[T]]
 
@@ -67,6 +61,11 @@ private[mapperdao] class LazyLoadManager {
 
 		// provide an implementation for the proxied methods
 		val alreadyCalled = new scala.collection.mutable.HashSet[String]
+
+		// prepare the dynamic function
+		val methodToAlias = relationships.map { ci =>
+			(ci.getterMethod.get.getName, ci.column.alias)
+		}.toMap
 
 		import com.googlecode.classgenerator._
 		instance.methodImplementation { args: Args[T, Any] =>

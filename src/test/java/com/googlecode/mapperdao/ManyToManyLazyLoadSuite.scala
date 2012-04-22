@@ -26,8 +26,8 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 
 			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad(all = true)), ProductEntity, 2).get
 			// use reflection to detect that the field wasn't set
-			val r: AnyRef = reflectionManager.get("attributes", selected)
-			r should be(null)
+			val r: Set[Attribute] = reflectionManager.get("attributes", selected)
+			r should be(Set())
 
 			selected should be === Product(2, "blue jean", inserted.attributes)
 		}
