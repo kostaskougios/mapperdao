@@ -30,7 +30,7 @@ class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperD
 					case oto: OneToOneReverse[FPC, F] =>
 						val parentTpe = parentEntity.tpe
 						val parentTable = parentTpe.table
-						val parentKeysAndValues = parent.asInstanceOf[Persisted].valuesMap.toListOfColumnAndValueTuple(parentTable.primaryKeys)
+						val parentKeysAndValues = parent.asInstanceOf[Persisted].mapperDaoValuesMap.toListOfColumnAndValueTuple(parentTable.primaryKeys)
 						oto.foreignColumns zip parentKeysAndValues.map(_._2)
 					case _ => Nil
 				}

@@ -194,12 +194,12 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 	private[mapperdao] def updateInner[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T with PC with Persisted =
 		// do a check if a mock is been updated
 		o match {
-			case p: Persisted if (p.mock) =>
+			case p: Persisted if (p.mapperDaoMock) =>
 				val v = o.asInstanceOf[T with PC with Persisted]
 				// report an error if mock was changed by the user
 				val tpe = entity.tpe
 				val newVM = ValuesMap.fromEntity(typeManager, tpe, o, false)
-				val oldVM = v.valuesMap
+				val oldVM = v.mapperDaoValuesMap
 				if (newVM.isSimpleColumnsChanged(tpe, oldVM)) throw new IllegalStateException("please don't modify mock objects. Object %s is mock and has been modified.".format(p))
 				v
 			case _ =>
@@ -207,11 +207,11 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 				// the existing mock/persisted object
 				entityMap.get[PC, T](o).getOrElse {
 					val persisted = o.asInstanceOf[T with PC with Persisted]
-					val oldValuesMap = persisted.valuesMap
+					val oldValuesMap = persisted.mapperDaoValuesMap
 					val tpe = entity.tpe
 					val newValuesMapPre = ValuesMap.fromEntity(typeManager, tpe, o)
 					val reConstructed = tpe.constructor(newValuesMapPre)
-					updateInner(updateConfig, entity, o, oldValuesMap, reConstructed.valuesMap, entityMap)
+					updateInner(updateConfig, entity, o, oldValuesMap, reConstructed.mapperDaoValuesMap, entityMap)
 				}
 		}
 	/**
@@ -230,7 +230,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 	def update[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC, newO: T): T with PC = o match {
 		case persisted: T with PC with Persisted =>
 			validatePersisted(persisted)
-			persisted.discarded = true
+			persisted.mapperDaoDiscarded = true
 			try {
 				val entityMap = new UpdateEntityMap
 				val v = updateInner(updateConfig, entity, persisted, newO, entityMap)
@@ -244,14 +244,14 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 
 	private[mapperdao] def updateInner[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC with Persisted, newO: T, entityMap: UpdateEntityMap): T with PC =
 		{
-			val oldValuesMap = o.valuesMap
+			val oldValuesMap = o.mapperDaoValuesMap
 			val newValuesMap = ValuesMap.fromEntity(typeManager, entity.tpe, newO)
 			updateInner(updateConfig, entity, newO, oldValuesMap, newValuesMap, entityMap)
 		}
 
 	private def validatePersisted(persisted: Persisted) {
-		if (persisted.discarded) throw new IllegalArgumentException("can't operate on an object twice. An object that was updated/deleted must be discarded and replaced by the return value of update(), i.e. onew=update(o) or just be disposed if it was deleted. The offending object was : " + persisted);
-		if (persisted.mock) throw new IllegalArgumentException("can't operate on a 'mock' object. Mock objects are created when there are cyclic dependencies of entities, i.e. entity A depends on B and B on A on a many-to-many relationship.  The offending object was : " + persisted);
+		if (persisted.mapperDaoDiscarded) throw new IllegalArgumentException("can't operate on an object twice. An object that was updated/deleted must be discarded and replaced by the return value of update(), i.e. onew=update(o) or just be disposed if it was deleted. The offending object was : " + persisted);
+		if (persisted.mapperDaoMock) throw new IllegalArgumentException("can't operate on a 'mock' object. Mock objects are created when there are cyclic dependencies of entities, i.e. entity A depends on B and B on A on a many-to-many relationship.  The offending object was : " + persisted);
 	}
 
 	/**
@@ -366,7 +366,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			val preMock = tpe.constructor(vm)
 			val mock = tpe.constructor(ValuesMap.fromEntity(typeManager, tpe, preMock))
 			// mark it as mock
-			mock.mock = true
+			mock.mapperDaoMock = true
 			mock
 		}
 
@@ -392,8 +392,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 
 	private[mapperdao] def deleteInner[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T = o match {
 		case persisted: T with PC with Persisted =>
-			if (persisted.discarded) throw new IllegalArgumentException("can't operate on an object twice. An object that was updated/deleted must be discarded and replaced by the return value of update(), i.e. onew=update(o) or just be disposed if it was deleted. The offending object was : " + o);
-			persisted.discarded = true
+			if (persisted.mapperDaoDiscarded) throw new IllegalArgumentException("can't operate on an object twice. An object that was updated/deleted must be discarded and replaced by the return value of update(), i.e. onew=update(o) or just be disposed if it was deleted. The offending object was : " + o);
+			persisted.mapperDaoDiscarded = true
 
 			val tpe = entity.tpe
 			val table = tpe.table

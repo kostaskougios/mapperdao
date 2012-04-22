@@ -37,7 +37,7 @@ class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 					null
 				} else {
 					val (value, t) = fo match {
-						case p: Persisted if (p.mock) =>
+						case p: Persisted if (p.mapperDaoMock) =>
 							(p, false) //mock object shouldn't contribute to column updates
 						case p: Persisted =>
 							entityMap.down(o, ci, entity)

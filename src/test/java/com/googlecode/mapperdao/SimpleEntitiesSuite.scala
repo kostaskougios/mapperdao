@@ -95,8 +95,8 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 		loaded.name = "Scala Developer"
 		loaded.rank = 7
 		val afterUpdate = mapperDao.update(JobPositionEntity, loaded).asInstanceOf[Persisted]
-		afterUpdate.valuesMap(JobPositionEntity.name) should be === "Scala Developer"
-		afterUpdate.valuesMap(JobPositionEntity.rank) should be === 7
+		afterUpdate.mapperDaoValuesMap(JobPositionEntity.name) should be === "Scala Developer"
+		afterUpdate.mapperDaoValuesMap(JobPositionEntity.rank) should be === 7
 		afterUpdate should be === loaded
 
 		val reloaded = mapperDao.select(JobPositionEntity, 5).get
@@ -122,8 +122,8 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 		// update
 		val changed = new JobPosition(5, "Scala Developer", date, date, 7)
 		val afterUpdate = mapperDao.update(JobPositionEntity, loaded, changed).asInstanceOf[Persisted]
-		afterUpdate.valuesMap(JobPositionEntity.name) should be === "Scala Developer"
-		afterUpdate.valuesMap(JobPositionEntity.rank) should be === 7
+		afterUpdate.mapperDaoValuesMap(JobPositionEntity.name) should be === "Scala Developer"
+		afterUpdate.mapperDaoValuesMap(JobPositionEntity.rank) should be === 7
 		afterUpdate should be === changed
 
 		val reloaded = mapperDao.select(JobPositionEntity, 5).get

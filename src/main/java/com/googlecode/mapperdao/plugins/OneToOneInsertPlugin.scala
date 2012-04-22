@@ -41,7 +41,7 @@ class OneToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 							entityMap.up
 							inserted
 					}
-					l = cis.column.selfColumns zip r.valuesMap.toListOfColumnValue(ftpe.table.primaryKeys)
+					l = cis.column.selfColumns zip r.mapperDaoValuesMap.toListOfColumnValue(ftpe.table.primaryKeys)
 					r
 				} else {
 					l = cis.column.selfColumns zip List(null, null, null, null, null, null)

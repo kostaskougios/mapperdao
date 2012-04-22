@@ -70,7 +70,7 @@ private[mapperdao] class LazyLoadManager {
 		import com.googlecode.classgenerator._
 		instance.methodImplementation { args: Args[T, Any] =>
 			val methodName = args.methodName
-			if (methodName == "valuesMap") {
+			if (methodName == "mapperDaoValuesMap") {
 				vm
 			} else if (methodName.endsWith("_$eq")) {
 				// setter

@@ -39,7 +39,7 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 					case fe: Entity[Any, Any] =>
 						if (fOTraversable != null) fOTraversable.foreach { fO =>
 							val fOPersisted = fO.asInstanceOf[Persisted]
-							if (!fOPersisted.mock) {
+							if (!fOPersisted.mapperDaoMock) {
 								mapperDao.delete(deleteConfig, fe, fOPersisted)
 							}
 						}

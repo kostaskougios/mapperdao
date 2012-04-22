@@ -40,7 +40,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 			r should be(Set())
 
 			val persisted = selected.asInstanceOf[Persisted]
-			val vm = persisted.valuesMap
+			val vm = persisted.mapperDaoValuesMap
 			classOf[scala.Function0[_]].isAssignableFrom(vm.columnValue(ProductEntity.attributes.column.alias).getClass) should be(true)
 
 			selected should be === Product(2, "blue jean", inserted.attributes)
@@ -62,7 +62,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 			selected.attributes should be(Set(a1))
 
 			val persisted = selected.asInstanceOf[Persisted]
-			classOf[scala.Function0[_]].isAssignableFrom(persisted.valuesMap.columnValue(ProductEntity.attributes.column.alias).getClass) should be(true)
+			classOf[scala.Function0[_]].isAssignableFrom(persisted.mapperDaoValuesMap.columnValue(ProductEntity.attributes.column.alias).getClass) should be(true)
 		}
 	}
 

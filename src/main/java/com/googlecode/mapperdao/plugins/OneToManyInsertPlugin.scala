@@ -32,7 +32,7 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 						if (!foreignKeyColumns.isEmpty) {
 							val parentTable = parentTpe.table
 							val parentKeysAndValues = parent.asInstanceOf[Persisted]
-								.valuesMap.toListOfColumnAndValueTuple(parentTable.primaryKeys)
+								.mapperDaoValuesMap.toListOfColumnAndValueTuple(parentTable.primaryKeys)
 							val foreignKeys = parentKeysAndValues.map(_._2)
 							if (foreignKeys.size != foreignKeyColumns.size) throw new IllegalArgumentException("mappings of one-to-many from " + parent + " to " + o + " is invalid. Number of FK columns doesn't match primary keys. columns: " + foreignKeyColumns + " , primary key values " + foreignKeys);
 							foreignKeyColumns zip foreignKeys

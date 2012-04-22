@@ -70,7 +70,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 								val ftable = ftpe.table
 								val fPkArgs = manyToMany.linkTable.right zip ftable.toListOfPrimaryKeyValues(p)
 								driver.doDeleteManyToManyRef(tpe, ftpe, manyToMany, pkArgs, fPkArgs)
-								p.discarded = true
+								p.mapperDaoDiscarded = true
 						}
 
 						// update those that remained in the updated traversable
@@ -80,7 +80,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 									entityMap.down(mockO, ci, entity)
 									mapperDao.updateInner(updateConfig, fe, item, entityMap)
 									entityMap.up
-									p.discarded = true
+									p.mapperDaoDiscarded = true
 									p
 								case _ =>
 									throw new IllegalStateException("Object not persisted but still exists in intersection of old and new collections. Please use the persisted entity when modifying the collection. The not persisted object is %s.".format(item))

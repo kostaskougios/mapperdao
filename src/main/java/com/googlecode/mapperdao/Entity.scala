@@ -24,7 +24,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 			// construct the object
 			val o = constructor(m).asInstanceOf[T with PC with Persisted]
 			// set the values map
-			o.valuesMap = m
+			o.mapperDaoValuesMap = m
 			o
 		}
 		Type[PC, T](clz, con, Table[PC, T](table, columns.reverse, persistedColumns, unusedPKs))

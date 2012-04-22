@@ -9,13 +9,13 @@ package com.googlecode.mapperdao
  */
 trait Persisted {
 	@transient
-	private[mapperdao] var valuesMap: ValuesMap = null
+	private[mapperdao] var mapperDaoValuesMap: ValuesMap = null
 
 	// after an orm operation, an object must be discarded. This guards the rule.
 	@transient
-	private[mapperdao] var discarded = false
+	private[mapperdao] var mapperDaoDiscarded = false
 
 	// mock objects are used in object graphs with cycles
 	@transient
-	private[mapperdao] var mock = false
+	private[mapperdao] var mapperDaoMock = false
 }
