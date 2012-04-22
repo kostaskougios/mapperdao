@@ -23,6 +23,11 @@ private[mapperdao] class LazyLoadManager {
 
 	private val classCache = new scala.collection.mutable.HashMap[CacheKey, Class[_]]
 
+	private val persistedMethods = reflectionManager.methods(classOf[Persisted]).toSet
+	private val persistedMethodNamesToMethod = persistedMethods.map { m =>
+		(m.getName, m)
+	}.toMap
+
 	// convert collections returned by mapperdao to actual collections
 	// required by entities
 	private val converters = Map[Class[_], Any => Any](
@@ -68,10 +73,16 @@ private[mapperdao] class LazyLoadManager {
 		}.toMap
 
 		import com.googlecode.classgenerator._
+		val persisted = new Persisted {
+		}
+		persisted.mapperDaoValuesMap = vm
+
 		instance.methodImplementation { args: Args[T, Any] =>
 			val methodName = args.methodName
-			if (methodName == "mapperDaoValuesMap") {
-				vm
+			val persistedMethodOption = persistedMethodNamesToMethod.get(methodName)
+			if (persistedMethodOption.isDefined) {
+				val method = persistedMethodOption.get
+				reflectionManager.callMethod(method, persisted, args.args)
 			} else if (methodName.endsWith("_$eq")) {
 				// setter
 				alreadyCalled += getterFromSetter(args.methodName)

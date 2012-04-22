@@ -8,6 +8,8 @@ package com.googlecode.mapperdao
  * 17 Jul 2011
  */
 trait Persisted {
+
+	// to avoid naming conflicts, all these field names start with "mapperDao" 
 	@transient
 	private[mapperdao] var mapperDaoValuesMap: ValuesMap = null
 
