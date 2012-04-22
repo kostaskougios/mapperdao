@@ -35,6 +35,24 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 
 			selected should be === Product(2, "blue jean", inserted.attributes)
 		}
+
+		test("lazy load attributes but manually updating them stops lazy7 loading") {
+			createTables
+			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
+			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
+			val inserted = mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2)))
+
+			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad(all = true)), ProductEntity, 2).get
+			// use reflection to detect that the field wasn't set
+			val r: Set[Attribute] = reflectionManager.get("attributes", selected)
+			r should be(Set())
+
+			selected.attributes = Set(a1)
+			selected.attributes should be(Set(a1))
+
+			val persisted = selected.asInstanceOf[Persisted]
+			classOf[scala.Function0[_]].isAssignableFrom(persisted.valuesMap.columnValue(ProductEntity.attributes.column.alias).getClass) should be(true)
+		}
 	}
 
 	def createTables =
@@ -43,7 +61,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 			Setup.queries(this, jdbc).update("ddl")
 		}
 
-	case class Product(val id: Int, val name: String, val attributes: Set[Attribute])
+	case class Product(val id: Int, val name: String, var attributes: Set[Attribute])
 	case class Attribute(val id: Int, val name: String, val value: String)
 
 	object ProductEntity extends SimpleEntity[Product] {
