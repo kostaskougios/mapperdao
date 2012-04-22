@@ -18,7 +18,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 	val reflectionManager = new ReflectionManager
 
 	if (Setup.database == "h2") {
-		test("update id of main entity") {
+		test("lazy load attributes") {
 			createTables
 			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
 			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
@@ -28,6 +28,9 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 			// use reflection to detect that the field wasn't set
 			val r: Set[Attribute] = reflectionManager.get("attributes", selected)
 			r should be(Set())
+
+			val persisted = selected.asInstanceOf[Persisted]
+			val vm = persisted.valuesMap
 
 			selected should be === Product(2, "blue jean", inserted.attributes)
 		}

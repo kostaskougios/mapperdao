@@ -69,7 +69,10 @@ private[mapperdao] class LazyLoadManager {
 
 		import com.googlecode.classgenerator._
 		instance.methodImplementation { args: Args[T, Any] =>
-			if (args.methodName.endsWith("_$eq")) {
+			val methodName = args.methodName
+			if (methodName == "valuesMap") {
+				vm
+			} else if (methodName.endsWith("_$eq")) {
 				// setter
 				alreadyCalled += getterFromSetter(args.methodName)
 				args.callSuper
@@ -96,6 +99,7 @@ private[mapperdao] class LazyLoadManager {
 	private def createProxyClz(clz: Class[_], methods: Set[Method]) = {
 		classManager.buildNewSubclass(clz)
 			.interface[Persisted]
+			.implementFromTrait[Persisted](false)
 			.overrideMethods(clz, methods)
 			.overrideSettersIfExist(clz, methods)
 			.get
