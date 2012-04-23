@@ -73,7 +73,8 @@ import org.scalatest.FunSuite
 		classOf[UseCaseMapRawColumnOneToManySuite],
 		classOf[CachedDriverSuite],
 		//classOf[ehcache.EHCacheSuite],
-		classOf[CachingEndToEndSuite]
+		classOf[CachingEndToEndSuite],
+		classOf[ManyToOneLazyLoadSuite]
 	)
 )
 @RunWith(classOf[Suite])

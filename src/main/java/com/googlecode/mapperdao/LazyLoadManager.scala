@@ -95,8 +95,12 @@ private[mapperdao] class LazyLoadManager {
 
 					val alias = methodToAlias(args.methodName)
 					val v = vm.valueOf[Any](alias)
-					val returnType = args.method.getReturnType
-					val r = converters(returnType)(v)
+					val r = v match {
+						case _: Traversable[_] =>
+							val returnType = args.method.getReturnType
+							converters(returnType)(v)
+						case _ => v
+					}
 					reflectionManager.set(args.methodName, args.self, r)
 					r
 				} else {

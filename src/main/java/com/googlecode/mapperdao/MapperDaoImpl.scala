@@ -334,10 +334,10 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 					val lazyLoadedMods = columnInfos.map { ci =>
 						ci match {
 							case mtm: ColumnInfoTraversableManyToMany[_, _, _] =>
-								vm.columnValue[Any](ci.column.alias) match {
-									case f: (() => Any) => (ci.column.alias, Nil)
-								}
-							case _ => (ci.column.alias, vm.valueOf(ci.column.alias))
+								(ci.column.alias, Nil)
+							case mto: ColumnInfoManyToOne[_, _, _] =>
+								(ci.column.alias, null)
+							case _ => (ci.column.alias, vm.valueOf(ci))
 						}
 					}.toMap
 					val lazyLoadedVM = ValuesMap.fromMap(typeManager, lazyLoadedMods)

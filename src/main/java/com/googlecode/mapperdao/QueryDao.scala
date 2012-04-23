@@ -64,7 +64,7 @@ object QueryDao {
 					entity.columns.foreach { ci =>
 						aliases.put(ci.column, v)
 						ci match {
-							case ColumnInfoManyToOne(column: ManyToOne[_, _], _) =>
+							case ColumnInfoManyToOne(column: ManyToOne[_, _], _, _) =>
 								column.columns.foreach { c =>
 									aliases.put(c, v)
 								}

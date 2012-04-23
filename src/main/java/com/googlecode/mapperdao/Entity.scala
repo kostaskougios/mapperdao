@@ -237,18 +237,12 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	def manytomany[FPC, FT](referenced: Entity[FPC, FT]) = new ManyToManyBuilder(referenced, false)
 	def manytomanyreverse[FPC, FT](referenced: Entity[FPC, FT]) = new ManyToManyBuilder(referenced, true)
 
-	protected class ManyToManyBuilder[FPC, FT](referenced: Entity[FPC, FT], reverse: Boolean) {
+	protected class ManyToManyBuilder[FPC, FT](referenced: Entity[FPC, FT], reverse: Boolean)
+			extends GetterDefinition {
+		val clz = Entity.this.clz
 		private var linkTable = if (reverse) referenced.clz.getSimpleName + "_" + clz.getSimpleName else clz.getSimpleName + "_" + referenced.clz.getSimpleName
 		private var leftColumn = clz.getSimpleName.toLowerCase + "_id"
 		private var rightColumn = referenced.clz.getSimpleName.toLowerCase + "_id"
-		private var getterMethod: Option[java.lang.reflect.Method] = None
-
-		def getter(method: java.lang.reflect.Method): this.type = {
-			getterMethod = Some(method)
-			this
-		}
-
-		def getter(method: String): this.type = getter(clz.getMethod(method))
 
 		def join(linkTable: String, leftColumn: String, rightColumn: String) = {
 			this.linkTable = linkTable
@@ -382,7 +376,9 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	 */
 	def manytoone[FPC, FT](referenced: Entity[FPC, FT]) = new ManyToOneBuilder(referenced)
 
-	protected class ManyToOneBuilder[FPC, FT](referenced: Entity[FPC, FT]) {
+	protected class ManyToOneBuilder[FPC, FT](referenced: Entity[FPC, FT])
+			extends GetterDefinition {
+		val clz = Entity.this.clz
 		private var fkcols = List(referenced.clz.getSimpleName.toLowerCase + "_id")
 		def foreignkey(fk: String) = {
 			fkcols = List(fk)
@@ -394,7 +390,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 		}
 		def to(columnToValue: T => FT): ColumnInfoManyToOne[T, FPC, FT] =
 			{
-				val ci = ColumnInfoManyToOne(ManyToOne(fkcols.map(Column(_)), TypeRef(createAlias, referenced)), columnToValue)
+				val ci = ColumnInfoManyToOne(ManyToOne(fkcols.map(Column(_)), TypeRef(createAlias, referenced)), columnToValue, getterMethod)
 				columns ::= ci
 				ci
 			}
