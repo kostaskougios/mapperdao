@@ -18,6 +18,19 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 	val reflectionManager = new ReflectionManager
 
 	if (Setup.database == "h2") {
+		test("update immutable entity, skip lazy loaded") {
+			createTables
+			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
+			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
+			val inserted = mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2)))
+
+			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad(all = true)), ProductEntity, 2).get
+			val updated = mapperDao.update(UpdateConfig(skip = Set(ProductEntity.attributes)), ProductEntity, selected, Product(2, "blue jean new", Set(a1)))
+			verifyNotLoadded(selected)
+			val reloaded = mapperDao.select(ProductEntity, 2).get
+			reloaded should be === Product(2, "blue jean new", Set(a1, a2))
+		}
+
 		test("update mutable entity") {
 			createTables
 			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
