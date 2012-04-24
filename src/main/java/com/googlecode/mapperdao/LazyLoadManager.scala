@@ -122,12 +122,17 @@ private[mapperdao] class LazyLoadManager {
 			.implementFromTrait[Persisted](false)
 		if (classOf[IntId].isAssignableFrom(constructedClz)) {
 			b.interface[IntId].implementFromTrait[IntId](false)
+		} else if (classOf[LongId].isAssignableFrom(constructedClz)) {
+			b.interface[LongId].implementFromTrait[LongId](false)
 		}
 		b.overrideMethods(originalClz, methods)
 			.overrideSettersIfExist(originalClz, methods)
 
 		b.get
 	}
+
+	private def hasIntId(clz: Class[_]) = classOf[IntId].isAssignableFrom(clz)
+	private def hasLongId(clz: Class[_]) = classOf[LongId].isAssignableFrom(clz)
 
 	def isLazyLoaded[PC, T](lazyLoad: LazyLoad, entity: Entity[PC, T]) =
 		lazyLoad.all && !entity.tpe.table.relationshipColumnInfos.isEmpty
