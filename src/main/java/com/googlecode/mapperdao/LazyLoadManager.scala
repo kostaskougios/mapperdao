@@ -64,7 +64,7 @@ private[mapperdao] class LazyLoadManager {
 
 		// copy data from constructed to instance
 		reflectionManager.copy(clz, constructed, instance)
-		if (hasIntId(constructedClz)) {
+		if (hasIntId(constructedClz) || hasLongId(constructedClz)) {
 			reflectionManager.copy("id", constructed, instance)
 		}
 
@@ -127,7 +127,12 @@ private[mapperdao] class LazyLoadManager {
 				return id;
 			}""")
 		} else if (hasLongId(constructedClz)) {
-			b.interface[LongId].implementFromTrait[LongId](false)
+			b.interface[LongId]
+			b.field("private long id;")
+			b.methodWithSrc("""
+			public long id() {
+				return id;
+			}""")
 		}
 		b.overrideMethods(originalClz, methods)
 			.overrideSettersIfExist(originalClz, methods)
