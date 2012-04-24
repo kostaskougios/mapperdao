@@ -28,9 +28,6 @@ private[mapperdao] class LazyLoadManager {
 		(m.getName, m)
 	}.toMap
 
-	private val idMethods = reflectionManager.methods(classOf[IntId]).toSet
-	private val idMethodNames = idMethods.map(_.getName)
-
 	// convert collections returned by mapperdao to actual collections
 	// required by entities
 	private val converters = Map[Class[_], Any => Any](
@@ -43,6 +40,7 @@ private[mapperdao] class LazyLoadManager {
 		if (constructed == null) throw new NullPointerException("constructed can't be null")
 
 		val clz = entity.clz
+		val constructedClz = constructed.getClass
 		// find all relationships that should be proxied
 		val relationships = entity.tpe.table.relationshipColumnInfos
 
@@ -55,7 +53,7 @@ private[mapperdao] class LazyLoadManager {
 					ci.getterMethod.getOrElse(throw new IllegalStateException("please define getter method on entity for %s".format(ci.column)))
 				).toSet
 				if (methods.isEmpty) throw new IllegalStateException("can't lazy load class that doesn't declare any getters for relationships. Entity: %s".format(clz))
-				val proxyClz = createProxyClz(constructed.getClass, clz, methods)
+				val proxyClz = createProxyClz(constructedClz, clz, methods)
 				classCache.put(key, proxyClz)
 				proxyClz
 			}
@@ -66,6 +64,9 @@ private[mapperdao] class LazyLoadManager {
 
 		// copy data from constructed to instance
 		reflectionManager.copy(clz, constructed, instance)
+		if (hasIntId(constructedClz)) {
+			reflectionManager.copy("id", constructed, instance)
+		}
 
 		// provide an implementation for the proxied methods
 		val alreadyCalled = new scala.collection.mutable.HashSet[String]
@@ -87,8 +88,6 @@ private[mapperdao] class LazyLoadManager {
 				// method from Persisted trait
 				val method = persistedMethodOption.get
 				reflectionManager.callMethod(method, persisted, args.args)
-			} else if (idMethodNames(methodName)) {
-				0
 			} else if (isSetter(methodName)) {
 				// setter
 				alreadyCalled += getterFromSetter(args.methodName)
@@ -120,9 +119,14 @@ private[mapperdao] class LazyLoadManager {
 		val b = classManager.buildNewSubclass(originalClz)
 			.interface[Persisted]
 			.implementFromTrait[Persisted](false)
-		if (classOf[IntId].isAssignableFrom(constructedClz)) {
-			b.interface[IntId].implementFromTrait[IntId](false)
-		} else if (classOf[LongId].isAssignableFrom(constructedClz)) {
+		if (hasIntId(constructedClz)) {
+			b.interface[IntId]
+			b.field("private int id;")
+			b.methodWithSrc("""
+			public int id() {
+				return id;
+			}""")
+		} else if (hasLongId(constructedClz)) {
 			b.interface[LongId].implementFromTrait[LongId](false)
 		}
 		b.overrideMethods(originalClz, methods)

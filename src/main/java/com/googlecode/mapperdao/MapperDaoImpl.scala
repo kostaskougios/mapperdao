@@ -330,8 +330,9 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 				// we need to lazy load it
 				val entityV = if (lazyLoadManager.isLazyLoaded(lazyLoad, entity)) {
 					// substitute lazy loaded columns with empty values
-					val columnInfos = entity.tpe.table.columnInfosPlain
-					val lazyLoadedMods = columnInfos.map { ci =>
+					val table = entity.tpe.table
+
+					val lazyLoadedMods = (table.columnInfosPlain.map { ci =>
 						ci match {
 							case mtm: ColumnInfoTraversableManyToMany[_, _, _] =>
 								(ci.column.alias, Nil)
@@ -339,7 +340,9 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 								(ci.column.alias, null)
 							case _ => (ci.column.alias, vm.valueOf(ci))
 						}
-					}.toMap
+					} ::: table.extraColumnInfosPersisted.map { ci =>
+						(ci.column.alias, vm.valueOf(ci))
+					}).toMap
 					val lazyLoadedVM = ValuesMap.fromMap(typeManager, lazyLoadedMods)
 					val constructed = tpe.constructor(lazyLoadedVM)
 					val proxy = lazyLoadManager.proxyFor(constructed, entity, lazyLoad, vm)

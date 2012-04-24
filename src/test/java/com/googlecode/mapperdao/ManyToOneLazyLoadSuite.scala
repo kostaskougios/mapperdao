@@ -19,7 +19,6 @@ class ManyToOneLazyLoadSuite extends FunSuite with ShouldMatchers {
 	if (Setup.database == "h2") {
 		test("select is lazy") {
 			createTables
-
 			val company = Company("Coders limited")
 			val person = Person("Kostas", company)
 
