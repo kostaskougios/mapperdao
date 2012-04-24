@@ -28,6 +28,9 @@ private[mapperdao] class LazyLoadManager {
 		(m.getName, m)
 	}.toMap
 
+	private val idMethods = reflectionManager.methods(classOf[IntId]).toSet
+	private val idMethodNames = idMethods.map(_.getName)
+
 	// convert collections returned by mapperdao to actual collections
 	// required by entities
 	private val converters = Map[Class[_], Any => Any](
@@ -52,7 +55,7 @@ private[mapperdao] class LazyLoadManager {
 					ci.getterMethod.getOrElse(throw new IllegalStateException("please define getter method on entity for %s".format(ci.column)))
 				).toSet
 				if (methods.isEmpty) throw new IllegalStateException("can't lazy load class that doesn't declare any getters for relationships. Entity: %s".format(clz))
-				val proxyClz = createProxyClz(clz, methods)
+				val proxyClz = createProxyClz(constructed.getClass, clz, methods)
 				classCache.put(key, proxyClz)
 				proxyClz
 			}
@@ -81,14 +84,16 @@ private[mapperdao] class LazyLoadManager {
 			val methodName = args.methodName
 			val persistedMethodOption = persistedMethodNamesToMethod.get(methodName)
 			if (persistedMethodOption.isDefined) {
+				// method from Persisted trait
 				val method = persistedMethodOption.get
 				reflectionManager.callMethod(method, persisted, args.args)
-			} else if (methodName.endsWith("_$eq")) {
+			} else if (idMethodNames(methodName)) {
+				0
+			} else if (isSetter(methodName)) {
 				// setter
 				alreadyCalled += getterFromSetter(args.methodName)
 				args.callSuper
 			} else {
-
 				// getter
 				if (!alreadyCalled(args.methodName)) {
 					alreadyCalled += args.methodName
@@ -111,13 +116,17 @@ private[mapperdao] class LazyLoadManager {
 		instance
 	}
 
-	private def createProxyClz(clz: Class[_], methods: Set[Method]) = {
-		classManager.buildNewSubclass(clz)
+	private def createProxyClz(constructedClz: Class[_], originalClz: Class[_], methods: Set[Method]) = {
+		val b = classManager.buildNewSubclass(originalClz)
 			.interface[Persisted]
 			.implementFromTrait[Persisted](false)
-			.overrideMethods(clz, methods)
-			.overrideSettersIfExist(clz, methods)
-			.get
+		if (classOf[IntId].isAssignableFrom(constructedClz)) {
+			b.interface[IntId].implementFromTrait[IntId](false)
+		}
+		b.overrideMethods(originalClz, methods)
+			.overrideSettersIfExist(originalClz, methods)
+
+		b.get
 	}
 
 	def isLazyLoaded[PC, T](lazyLoad: LazyLoad, entity: Entity[PC, T]) =
