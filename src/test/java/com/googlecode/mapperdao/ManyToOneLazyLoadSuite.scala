@@ -17,12 +17,47 @@ class ManyToOneLazyLoadSuite extends FunSuite with ShouldMatchers {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity))
 
 	if (Setup.database == "h2") {
+		test("update mutable entity") {
+			createTables
+			val c1 = mapperDao.insert(CompanyEntity, Company("Coders limited"))
+			val c2 = mapperDao.insert(CompanyEntity, Company("Designers limited"))
+			val person = Person("Kostas", c1)
+			val inserted = mapperDao.insert(PersonEntity, person)
+			val selected = mapperDao.select(PersonEntity, inserted.id).get
+			selected.company = c2
+			selected.name = "x"
+			val updated = mapperDao.update(PersonEntity, selected)
+			updated should be === selected
+			mapperDao.select(PersonEntity, updated.id).get should be === updated
+		}
+		test("update immutable entity") {
+			createTables
+			val c1 = mapperDao.insert(CompanyEntity, Company("Coders limited"))
+			val c2 = mapperDao.insert(CompanyEntity, Company("Designers limited"))
+			val person = Person("Kostas", c1)
+			val inserted = mapperDao.insert(PersonEntity, person)
+			val updatedPerson = Person("NotKostas", c2)
+			val updated = mapperDao.update(PersonEntity, inserted, updatedPerson)
+			updated should be === updatedPerson
+			mapperDao.select(PersonEntity, updated.id).get should be === updated
+		}
+
+		test("manually updating them stops lazy loading") {
+			createTables
+			val person = Person("Kostas", Company("Coders limited"))
+			val inserted = mapperDao.insert(PersonEntity, person)
+			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad(all = true)), PersonEntity, inserted.id).get
+			selected.company = Company("an other one")
+
+			selected.company should be === Company("an other one")
+			verifyNotLoadded(selected)
+		}
+
 		test("select is lazy") {
 			createTables
-			val company = Company("Coders limited")
-			val person = Person("Kostas", company)
-
+			val person = Person("Kostas", Company("Coders limited"))
 			val inserted = mapperDao.insert(PersonEntity, person)
+			inserted should be === person
 			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad(all = true)), PersonEntity, inserted.id).get
 			verifyNotLoadded(selected)
 			selected should be === inserted
@@ -41,7 +76,7 @@ class ManyToOneLazyLoadSuite extends FunSuite with ShouldMatchers {
 			Setup.queries(this, jdbc).update("ddl")
 		}
 
-	case class Person(val name: String, val company: Company)
+	case class Person(var name: String, var company: Company)
 	case class Company(val name: String)
 
 	object PersonEntity extends Entity[IntId, Person] {

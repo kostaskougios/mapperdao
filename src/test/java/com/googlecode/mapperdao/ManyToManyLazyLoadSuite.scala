@@ -58,7 +58,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 			reloaded should be === updated
 		}
 
-		test("lazy load attributes") {
+		test("lazy load") {
 			createTables
 			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
 			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
@@ -75,7 +75,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 			selected.attributes should be === (inserted.attributes)
 		}
 
-		test("lazy load attributes but manually updating them stops lazy loading") {
+		test("manually updating them stops lazy loading") {
 			createTables
 			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
 			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
