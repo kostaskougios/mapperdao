@@ -19,8 +19,8 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
-
-			table.manyToOneColumnInfos.filterNot(updateConfig.skip.contains(_)).foreach { cis =>
+			val mtoColumnInfos = table.manyToOneColumnInfos.filterNot(updateConfig.skip.contains(_))
+			mtoColumnInfos.foreach { cis =>
 				val v = cis.columnToValue(o)
 
 				cis.column.foreign.entity match {
@@ -44,7 +44,8 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				}
 			}
 
-			val manyToOneChanged = table.manyToOneColumns.filter(Equality.onlyChanged(_, newValuesMap, oldValuesMap))
+			val mtoColumns = mtoColumnInfos.map(_.column)
+			val manyToOneChanged = mtoColumns.filter(Equality.onlyChanged(_, newValuesMap, oldValuesMap))
 			val mtoArgsV = manyToOneChanged.map(mto => (mto, mto.foreign.entity, newValuesMap.valueOf[Any](mto.alias))).map {
 				case (column, entity, entityO) =>
 					entity match {
