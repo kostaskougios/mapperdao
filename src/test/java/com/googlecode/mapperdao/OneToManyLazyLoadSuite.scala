@@ -18,6 +18,18 @@ class OneToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 	if (Setup.database == "h2") {
 		val selectConfig = SelectConfig(lazyLoad = LazyLoad(all = true))
 
+		test("update immutable entity, skip lazy loaded") {
+			createTables
+			val person = Person("Kostas", Set(House("Rhodes"), House("Athens")))
+			val inserted = mapperDao.insert(PersonEntity, person)
+			val selected = mapperDao.select(selectConfig, PersonEntity, inserted.id).get
+			selected.owns = selected.owns.filter(_.address == "Rhodes")
+			selected.name = "kostas2"
+			val updated = mapperDao.update(UpdateConfig(skip = Set(PersonEntity.owns)), PersonEntity, selected)
+			updated should be === selected
+			mapperDao.select(selectConfig, PersonEntity, inserted.id).get should be === Person("kostas2", Set(House("Rhodes"), House("Athens")))
+		}
+
 		test("update mutable entity") {
 			createTables
 			val person = Person("Kostas", Set(House("Rhodes"), House("Athens")))
@@ -25,7 +37,9 @@ class OneToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 			val selected = mapperDao.select(selectConfig, PersonEntity, inserted.id).get
 			selected.owns = selected.owns.filter(_.address == "Rhodes")
 			selected.name = "kostas2"
-			xxxx
+			val updated = mapperDao.update(PersonEntity, selected)
+			updated should be === selected
+			mapperDao.select(selectConfig, PersonEntity, inserted.id).get should be === updated
 		}
 
 		test("update immutable entity") {
