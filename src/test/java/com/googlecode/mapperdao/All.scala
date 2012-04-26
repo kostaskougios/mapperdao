@@ -74,7 +74,8 @@ import org.scalatest.FunSuite
 		classOf[CachedDriverSuite],
 		//classOf[ehcache.EHCacheSuite],
 		classOf[CachingEndToEndSuite],
-		classOf[ManyToOneLazyLoadSuite]
+		classOf[ManyToOneLazyLoadSuite],
+		classOf[OneToManyLazyLoadSuite]
 	)
 )
 @RunWith(classOf[Suite])

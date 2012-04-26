@@ -17,17 +17,19 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 
 	def columnValue[T](ci: ColumnInfoRelationshipBase[_, _, _, _]): T = columnValue(ci.column.alias)
 
+	/**
+	 * returns true if the relationship is not yet loaded
+	 */
+	def isLoaded(ci: ColumnInfoRelationshipBase[_, _, _, _]): Boolean = columnValue[Any](ci) match {
+		case _: (() => Any) => false
+		case _ => true
+	}
+
 	def columnValue[T](column: String): T = {
 		val key = column.toLowerCase
 		val v = m(key)
 		v.asInstanceOf[T]
 	}
-
-	def isColumnLoaded(ci: ColumnInfoRelationshipBase[_, _, _, _]): Boolean =
-		m(ci.column.alias.toLowerCase) match {
-			case f: (() => Any) => true
-			case a => false
-		}
 
 	protected[mapperdao] def valueOf[T](ci: ColumnInfoBase[_, _]): T = valueOf(ci.column.alias)
 

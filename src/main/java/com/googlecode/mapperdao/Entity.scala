@@ -335,7 +335,9 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 
 	def onetomany[FPC, FT](referenced: Entity[FPC, FT]) = new OneToManyBuilder(referenced)
 
-	protected class OneToManyBuilder[FPC, FT](referenced: Entity[FPC, FT]) {
+	protected class OneToManyBuilder[FPC, FT](referenced: Entity[FPC, FT])
+			extends GetterDefinition {
+		val clz = Entity.this.clz
 		private var fkcols = List(clz.getSimpleName.toLowerCase + "_id")
 
 		def foreignkey(fk: String) = {
@@ -350,7 +352,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 
 		def to(columnToValue: T => Traversable[FT]): ColumnInfoTraversableOneToMany[T, FPC, FT] =
 			{
-				val ci = ColumnInfoTraversableOneToMany[T, FPC, FT](OneToMany(TypeRef(createAlias, referenced), fkcols.map(Column(_))), columnToValue)
+				val ci = ColumnInfoTraversableOneToMany[T, FPC, FT](OneToMany(TypeRef(createAlias, referenced), fkcols.map(Column(_))), columnToValue, getterMethod)
 				columns ::= ci
 				ci
 			}

@@ -82,7 +82,7 @@ class ManyToOneLazyLoadSuite extends FunSuite with ShouldMatchers {
 
 	def verifyNotLoadded(o: Any) {
 		val persisted = o.asInstanceOf[Persisted]
-		classOf[scala.Function0[_]].isAssignableFrom(persisted.mapperDaoValuesMap.columnValue(PersonEntity.company).getClass) should be(true)
+		persisted.mapperDaoValuesMap.isLoaded(PersonEntity.company) should be(false)
 	}
 
 	def createTables =
