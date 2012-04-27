@@ -46,9 +46,14 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 		typeManager.deepClone(v).asInstanceOf[T]
 	}
 
-	private def update[T, V](column: ColumnInfo[T, _], v: V): Unit =
+	private[mapperdao] def update[T, V](column: ColumnInfo[T, _], v: V): Unit =
 		{
 			val key = column.column.columnName.toLowerCase
+			m(key) = v
+		}
+	private[mapperdao] def update[T, V](column: ColumnInfoRelationshipBase[T, _, _, _], v: V): Unit =
+		{
+			val key = column.column.alias
 			m(key) = v
 		}
 
