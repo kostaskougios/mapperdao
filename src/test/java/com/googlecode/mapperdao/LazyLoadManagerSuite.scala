@@ -19,7 +19,7 @@ class LazyLoadManagerSuite extends FunSuite with ShouldMatchers {
 	test("lazy load Set") {
 		val h1 = new House("Rhodes")
 		val h2 = new House("Athens")
-		val p = new Person("Kostas", Set(), IndexedSeq()) with LongId {
+		val p = new Person("Kostas", Set(), IndexedSeq(), Nil) with LongId {
 			val id = 5.toLong
 		}
 		val vm = ValuesMap.fromEntity(typeManager, PersonEntity.tpe, p)
@@ -34,7 +34,7 @@ class LazyLoadManagerSuite extends FunSuite with ShouldMatchers {
 	test("lazy load IndexedSeq") {
 		val h1 = new House("Rhodes")
 		val h2 = new House("Athens")
-		val p = new Person("Kostas", Set(), IndexedSeq()) with LongId {
+		val p = new Person("Kostas", Set(), IndexedSeq(), Nil) with LongId {
 			val id = 5.toLong
 		}
 		val vm = ValuesMap.fromEntity(typeManager, PersonEntity.tpe, p)
@@ -46,10 +46,25 @@ class LazyLoadManagerSuite extends FunSuite with ShouldMatchers {
 		lazyP.nearby should be(IndexedSeq(h1, h2))
 	}
 
+	test("lazy load Traversable") {
+		val h1 = new House("Rhodes")
+		val h2 = new House("Athens")
+		val p = new Person("Kostas", Set(), IndexedSeq(), Nil) with LongId {
+			val id = 5.toLong
+		}
+		val vm = ValuesMap.fromEntity(typeManager, PersonEntity.tpe, p)
+		vm(PersonEntity.traversable) = () => List(h1, h2) // vm always stores lists
+
+		val lazyP = lazyLoadManager.proxyFor(p, PersonEntity, LazyLoad.all, vm)
+		vm.isLoaded(PersonEntity.traversable) should be(false)
+
+		lazyP.traversable.toList should be(List(h1, h2))
+	}
+
 	test("lazy load with LongId") {
 		val h1 = new House("Rhodes")
 		val h2 = new House("Athens")
-		val p = new Person("Kostas", Set(), IndexedSeq()) with LongId {
+		val p = new Person("Kostas", Set(), IndexedSeq(), Nil) with LongId {
 			val id = 5.toLong
 		}
 		val vm = ValuesMap.fromEntity(typeManager, PersonEntity.tpe, p)
@@ -59,7 +74,10 @@ class LazyLoadManagerSuite extends FunSuite with ShouldMatchers {
 		lazyP.id should be === 5
 	}
 
-	case class Person(name: String, owns: Set[House], nearby: IndexedSeq[House])
+	case class Person(name: String,
+		owns: Set[House],
+		nearby: IndexedSeq[House],
+		traversable: Traversable[House])
 	case class House(address: String)
 
 	object HouseEntity extends Entity[LongId, House] {
@@ -76,8 +94,9 @@ class LazyLoadManagerSuite extends FunSuite with ShouldMatchers {
 		val name = column("name") to (_.name)
 		val owns = onetomany(HouseEntity) getter ("owns") to (_.owns)
 		val nearby = onetomany(HouseEntity) getter ("nearby") to (_.nearby)
+		val traversable = onetomany(HouseEntity) getter ("traversable") to (_.traversable)
 
-		def constructor(implicit m) = new Person(name, owns, nearby) with Persisted with LongId {
+		def constructor(implicit m) = new Person(name, owns, nearby, m(traversable).toList) with Persisted with LongId {
 			val id: Long = PersonEntity.id
 		}
 	}
