@@ -33,7 +33,9 @@ private[mapperdao] class LazyLoadManager {
 	private val converters = Map[Class[_], Any => Any](
 		classOf[Set[_]] -> { _.asInstanceOf[List[_]].toSet },
 		classOf[List[_]] -> { _.asInstanceOf[List[_]] },
-		classOf[Array[_]] -> { _.asInstanceOf[List[_]].toArray[Any] }
+		classOf[Array[_]] -> { _.asInstanceOf[List[_]].toArray[Any] },
+		classOf[IndexedSeq[_]] -> { _.asInstanceOf[List[_]].toIndexedSeq },
+		classOf[Traversable[_]] -> { _.asInstanceOf[List[_]] }
 	)
 
 	def proxyFor[PC, T](constructed: T with PC, entity: Entity[PC, T], lazyLoad: LazyLoad, vm: ValuesMap): T with PC = {
