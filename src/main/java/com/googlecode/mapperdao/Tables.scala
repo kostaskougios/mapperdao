@@ -8,7 +8,7 @@ package com.googlecode.mapperdao
  * 12 Jul 2011
  */
 
-case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _]], extraColumnInfosPersisted: List[ColumnInfoBase[T with PC, _]], val unusedPKs: List[SimpleColumn]) {
+case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _]], extraColumnInfosPersisted: List[ColumnInfoBase[T with PC, _]], val unusedPKs: List[UnusedColumn[T]]) {
 
 	val columns: List[ColumnBase] = columnInfosPlain.map(_.column) ::: extraColumnInfosPersisted.map(_.column)
 	// the primary keys for this table
@@ -81,15 +81,6 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 
 	val columnToColumnInfoMap: Map[ColumnBase, ColumnInfoBase[T, _]] = columnInfosPlain.map(ci => (ci.column, ci)).toMap
 	val pcColumnToColumnInfoMap: Map[ColumnBase, ColumnInfoBase[T with PC, _]] = extraColumnInfosPersisted.map(ci => (ci.column, ci)).toMap
-	//	val columnNamesToColumnInfoMap: Map[List[String], ColumnInfoBase[T, _]] =
-	//		columnInfosPlain.map {
-	//			columnInfoToColumnNames(_)
-	//		}.toMap
-	//
-	//	def columnInfoToColumnNames(c: ColumnInfoBase[T, _]) = c match {
-	//		case sc: ColumnInfo[T, _] => (List(sc.column.columnName), sc)
-	//		case ci: ColumnInfoRelationshipBase[T, _, _, _] => (ci.column.columns.map(_.name), ci)
-	//	}
 
 	val manyToManyToColumnInfoMap: Map[ColumnBase, ColumnInfoTraversableManyToMany[T, _, _]] = columnInfosPlain.collect {
 		case c: ColumnInfoTraversableManyToMany[T, _, _] => (c.column, c)
@@ -102,7 +93,10 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 	def toListOfPrimaryKeyValues(o: T): List[Any] = toListOfPrimaryKeyAndValueTuples(o).map(_._2)
 	def toListOfPrimaryKeyAndValueTuples(o: T): List[(PK, Any)] = toListOfColumnAndValueTuples(primaryKeys, o)
 	def toListOfPrimaryKeySimpleColumnAndValueTuples(o: T): List[(SimpleColumn, Any)] = toListOfColumnAndValueTuples(primaryKeys, o)
-	def toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(o: T): List[(SimpleColumn, Any)] = toListOfColumnAndValueTuples(unusedPKs, o)
+	def toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(o: T with PC): List[(UnusedColumn[T], Any)] =
+		unusedPKs.map { u =>
+			(u, u.valueExtractor(o))
+		}
 
 	def toListOfColumnAndValueTuples[CB <: ColumnBase](columns: List[CB], o: T): List[(CB, Any)] = columns.map { c =>
 		val ctco = columnToColumnInfoMap.get(c)
@@ -110,11 +104,28 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 			if (o == null) (c, null) else (c, ctco.get.columnToValue(o))
 		} else {
 			o match {
-				case pc: T with PC => (c, pcColumnToColumnInfoMap(c).columnToValue(pc))
+				case pc: T with PC =>
+					val cio = pcColumnToColumnInfoMap.get(c)
+					cio.map { ci =>
+						(c, ci.columnToValue(pc))
+					}.getOrElse {
+						// try to find it from the declared primary keys
+						val cis = unusedPKs.filter(_.columnName == c.columnName)
+						if (cis.isEmpty) throw new IllegalStateException("can't find a column like " + c)
+						if (cis.size > 1) throw new IllegalStateException("found more than one column for " + c)
+						val vo = cis.head.valueExtractor(o)
+						(c, vo.get)
+					}
 				case null => (c, null)
 			}
 		}
 	}
+
+	def toListOfColumnAndValueTuplesForUnusedKeys(columns: List[UnusedColumn[T]], o: T) =
+		columns
+			.map { c => (c, c.valueExtractor(o)) }
+			.filter(_._2.isDefined)
+			.map { case (c, vo) => (c, vo.get) }
 
 	def toColumnAndValueMap(columns: List[ColumnBase], o: T): Map[ColumnBase, Any] = columns.map { c => (c, columnToColumnInfoMap(c).columnToValue(o)) }.toMap
 	def toPCColumnAndValueMap(columns: List[ColumnBase], o: T with PC): Map[ColumnBase, Any] = columns.map { c => (c, pcColumnToColumnInfoMap(c).columnToValue(o)) }.toMap

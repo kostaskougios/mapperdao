@@ -277,13 +277,13 @@ abstract class Driver {
 	 * DELETE
 	 * =====================================================================================
 	 */
-	def doDelete[PC, T](tpe: Type[PC, T], whereColumnValues: List[(SimpleColumn, Any)]): Unit =
+	def doDelete[PC, T](tpe: Type[PC, T], whereColumnValues: List[(ColumnBase, Any)]): Unit =
 		{
 			val sql = deleteSql(tpe, whereColumnValues)
 			jdbc.update(sql, whereColumnValues.map(_._2))
 		}
 
-	protected def deleteSql[PC, T](tpe: Type[PC, T], whereColumnValues: List[(SimpleColumn, Any)]): String =
+	protected def deleteSql[PC, T](tpe: Type[PC, T], whereColumnValues: List[(ColumnBase, Any)]): String =
 		{
 			val sb = new StringBuilder(100, "delete from ")
 			sb append escapeTableNames(tpe.table.name) append " where " append generateColumnsEqualsValueString(whereColumnValues.map(_._1), " and ")

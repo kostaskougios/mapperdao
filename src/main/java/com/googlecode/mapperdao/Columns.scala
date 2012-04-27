@@ -37,6 +37,7 @@ case class PK(column: SimpleColumn) extends SimpleColumn {
 
 protected abstract class ColumnRelationshipBase[FPC, F](foreign: TypeRef[FPC, F]) extends ColumnBase {
 	def columns: List[Column]
+	val columnNames = columns.map(_.name).toSet
 }
 
 case class OneToOne[FPC, F](foreign: TypeRef[FPC, F], selfColumns: List[Column]) extends ColumnRelationshipBase(foreign) {

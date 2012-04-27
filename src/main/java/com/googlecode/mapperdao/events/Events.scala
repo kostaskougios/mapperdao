@@ -6,8 +6,8 @@ import com.googlecode.mapperdao.Type
 import com.googlecode.mapperdao.ColumnBase
 
 trait DeleteEvent {
-	def beforeDeleteEntity[PC, T](tpe: Type[PC, T], keyValues: List[(SimpleColumn, Any)], entityValue: T with PC)
-	def afterDeleteEntity[PC, T](tpe: Type[PC, T], keyValues: List[(SimpleColumn, Any)], entityValue: T with PC)
+	def beforeDeleteEntity[PC, T](tpe: Type[PC, T], keyValues: List[(ColumnBase, Any)], entityValue: T with PC)
+	def afterDeleteEntity[PC, T](tpe: Type[PC, T], keyValues: List[(ColumnBase, Any)], entityValue: T with PC)
 }
 
 trait DeleteRelationshipEvent {
@@ -31,13 +31,13 @@ trait SelectEvent {
 }
 
 class Events(
-		deleteEvents: List[DeleteEvent] = List(),
-		deleteRelationshipEvents: List[DeleteRelationshipEvent] = List(),
-		insertEvents: List[InsertEvent] = List(),
-		updateEvents: List[UpdateEvent] = List(),
-		selectEvents: List[SelectEvent] = List()) {
-	def executeBeforeDeleteEvents[PC, T](tpe: Type[PC, T], keyValues: List[(SimpleColumn, Any)], entityValue: T with PC): Unit = deleteEvents.foreach { _.beforeDeleteEntity(tpe, keyValues, entityValue) }
-	def executeAfterDeleteEvents[PC, T](tpe: Type[PC, T], keyValues: List[(SimpleColumn, Any)], entityValue: T with PC): Unit = deleteEvents.foreach { _.afterDeleteEntity(tpe, keyValues, entityValue) }
+	deleteEvents: List[DeleteEvent] = List(),
+	deleteRelationshipEvents: List[DeleteRelationshipEvent] = List(),
+	insertEvents: List[InsertEvent] = List(),
+	updateEvents: List[UpdateEvent] = List(),
+	selectEvents: List[SelectEvent] = List()) {
+	def executeBeforeDeleteEvents[PC, T](tpe: Type[PC, T], keyValues: List[(ColumnBase, Any)], entityValue: T with PC): Unit = deleteEvents.foreach { _.beforeDeleteEntity(tpe, keyValues, entityValue) }
+	def executeAfterDeleteEvents[PC, T](tpe: Type[PC, T], keyValues: List[(ColumnBase, Any)], entityValue: T with PC): Unit = deleteEvents.foreach { _.afterDeleteEntity(tpe, keyValues, entityValue) }
 	def executeBeforeDeleteRelationshipEvents[PC, T, V, FPC, F](tpe: Type[PC, T], columnInfo: ColumnInfoRelationshipBase[T, V, FPC, F], entityValue: T with PC) = deleteRelationshipEvents.foreach { _.before(tpe, columnInfo, entityValue) }
 	def executeAfterDeleteRelationshipEvents[PC, T, V, FPC, F](tpe: Type[PC, T], columnInfo: ColumnInfoRelationshipBase[T, V, FPC, F], entityValue: T with PC) = deleteRelationshipEvents.foreach { _.after(tpe, columnInfo, entityValue) }
 	def executeBeforeInsertEvents[PC, T](tpe: Type[PC, T], args: List[(ColumnBase, Any)]): Unit = insertEvents.foreach { _.before(tpe, args) }

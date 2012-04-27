@@ -18,7 +18,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 
 	protected[mapperdao] var persistedColumns = List[ColumnInfoBase[T with PC, _]]()
 	protected[mapperdao] var columns = List[ColumnInfoBase[T, _]]()
-	protected[mapperdao] var unusedPKs = List[SimpleColumn]()
+	protected[mapperdao] var unusedPKs = List[UnusedColumn[T]]()
 	protected[mapperdao] lazy val tpe = {
 		val con: (ValuesMap) => T with PC with Persisted = m => {
 			// construct the object
@@ -46,9 +46,13 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	/**
 	 * declare any primary keys that are not used for any mappings
 	 */
-	protected def declarePrimaryKeys(pks: String*): Unit = pks.foreach { pk =>
-		unusedPKs ::= Column(pk)
+	protected def declarePrimaryKey(column: String)(valueExtractor: T => Option[Any]) {
+		unusedPKs ::= new UnusedColumn(column, valueExtractor)
 	}
+
+	//	protected def declarePrimaryKeys(pks: String*): Unit = pks.foreach { pk =>
+	//		unusedPKs ::= Column(pk)
+	//	}
 	// implicit conversions to be used implicitly into the constructor method
 	protected implicit def columnToBoolean(ci: ColumnInfo[T, Boolean])(implicit m: ValuesMap): Boolean = m(ci)
 	protected implicit def columnToBooleanOption(ci: ColumnInfo[T, Boolean])(implicit m: ValuesMap): Option[Boolean] = Some(m(ci))
@@ -238,7 +242,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	def manytomanyreverse[FPC, FT](referenced: Entity[FPC, FT]) = new ManyToManyBuilder(referenced, true)
 
 	protected class ManyToManyBuilder[FPC, FT](referenced: Entity[FPC, FT], reverse: Boolean)
-			extends GetterDefinition {
+		extends GetterDefinition {
 		val clz = Entity.this.clz
 		private var linkTable = if (reverse) referenced.clz.getSimpleName + "_" + clz.getSimpleName else clz.getSimpleName + "_" + referenced.clz.getSimpleName
 		private var leftColumn = clz.getSimpleName.toLowerCase + "_id"
@@ -336,7 +340,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	def onetomany[FPC, FT](referenced: Entity[FPC, FT]) = new OneToManyBuilder(referenced)
 
 	protected class OneToManyBuilder[FPC, FT](referenced: Entity[FPC, FT])
-			extends GetterDefinition {
+		extends GetterDefinition {
 		val clz = Entity.this.clz
 		private var fkcols = List(clz.getSimpleName.toLowerCase + "_id")
 
@@ -379,7 +383,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	def manytoone[FPC, FT](referenced: Entity[FPC, FT]) = new ManyToOneBuilder(referenced)
 
 	protected class ManyToOneBuilder[FPC, FT](referenced: Entity[FPC, FT])
-			extends GetterDefinition {
+		extends GetterDefinition {
 		val clz = Entity.this.clz
 		private var fkcols = List(referenced.clz.getSimpleName.toLowerCase + "_id")
 		def foreignkey(fk: String) = {

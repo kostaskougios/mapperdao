@@ -9,7 +9,9 @@ case class IntValue(val value: Int) extends SimpleTypeValue[Int, IntValue] {
 
 protected class IntEntityOTM(table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[IntValue](table, classOf[IntValue]) {
 	val value = column(soleColumn) to (_.value)
-	declarePrimaryKeys(fkColumn, soleColumn)
+	declarePrimaryKey(fkColumn) { _ => None }
+	declarePrimaryKey(soleColumn) { o => Some(o.value) }
+
 	def constructor(implicit m: ValuesMap) = new IntValue(value) with Persisted
 }
 

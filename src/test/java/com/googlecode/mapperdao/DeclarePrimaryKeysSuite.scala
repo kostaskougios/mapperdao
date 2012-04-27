@@ -92,7 +92,10 @@ class DeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 		val unitPrice = column("unitprice") to (_.unitPrice)
 		val salePrice = column("saleprice") to (_.salePrice)
 		// the unitprice doesn't make sense to be a PK, but we have it so that we can do extra tests
-		val pks = declarePrimaryKeys("currency", "product_id", "unitprice")
+		declarePrimaryKey("currency") { p => Some(p.currency) }
+		declarePrimaryKey("product_id") { _ => None }
+		declarePrimaryKey("unitprice") { p => Some(p.unitPrice) }
+		//val pks = declarePrimaryKeys("currency", "product_id", "unitprice")
 
 		def constructor(implicit m) = new Price(currency, unitPrice, salePrice) with Persisted
 	}
