@@ -105,17 +105,8 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 		} else {
 			o match {
 				case pc: T with PC =>
-					val cio = pcColumnToColumnInfoMap.get(c)
-					cio.map { ci =>
-						(c, ci.columnToValue(pc))
-					}.getOrElse {
-						// try to find it from the declared primary keys
-						val cis = unusedPKs.filter(_.columnName == c.columnName)
-						if (cis.isEmpty) throw new IllegalStateException("can't find a column like " + c)
-						if (cis.size > 1) throw new IllegalStateException("found more than one column for " + c)
-						val vo = cis.head.valueExtractor(o)
-						(c, vo.get)
-					}
+					val ci = pcColumnToColumnInfoMap(c)
+					(c, ci.columnToValue(pc))
 				case null => (c, null)
 			}
 		}
