@@ -33,7 +33,6 @@ private[mapperdao] class LazyLoadManager {
 	private val converters = Map[Class[_], Any => Any](
 		classOf[Set[_]] -> { _.asInstanceOf[List[_]].toSet },
 		classOf[List[_]] -> { _.asInstanceOf[List[_]] },
-		classOf[Array[_]] -> { _.asInstanceOf[List[_]].toArray[Any] },
 		classOf[IndexedSeq[_]] -> { _.asInstanceOf[List[_]].toIndexedSeq },
 		classOf[Traversable[_]] -> { _.asInstanceOf[List[_]] }
 	)
@@ -104,7 +103,12 @@ private[mapperdao] class LazyLoadManager {
 					val r = v match {
 						case _: Traversable[_] =>
 							val returnType = args.method.getReturnType
-							converters(returnType)(v)
+							if (returnType.isArray) {
+								val ct = returnType.getComponentType
+								val am = ClassManifest.fromClass(ct.asInstanceOf[Class[Any]])
+								v.asInstanceOf[List[_]].toArray(am)
+							} else
+								converters(returnType)(v)
 						case _ => v
 					}
 					reflectionManager.set(args.methodName, args.self, r)

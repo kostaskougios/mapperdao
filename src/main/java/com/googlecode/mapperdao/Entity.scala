@@ -105,6 +105,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	protected implicit def columnTraversableManyToManyToSet[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F])(implicit m: ValuesMap): Set[F] = m(ci).toSet
 	protected implicit def columnTraversableManyToManyToList[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F])(implicit m: ValuesMap): List[F] = m(ci).toList
 	protected implicit def columnTraversableManyToManyToIndexedSeq[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F])(implicit m: ValuesMap): IndexedSeq[F] = m(ci).toIndexedSeq
+	protected implicit def columnTraversableManyToManyToArray[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F])(implicit m: ValuesMap, e: ClassManifest[F]): Array[F] = m(ci).toArray
 
 	protected implicit def columnManyToOneToValue[T, FPC, F](ci: ColumnInfoManyToOne[T, FPC, F])(implicit m: ValuesMap): F = m(ci)
 	protected implicit def columnManyToOneToOptionValue[T, FPC, F](ci: ColumnInfoManyToOne[T, FPC, F])(implicit m: ValuesMap): Option[F] = m(ci) match {
@@ -115,6 +116,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	protected implicit def columnTraversableOneToManyList[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap): List[E] = m(ci).toList
 	protected implicit def columnTraversableOneToManySet[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap): Set[E] = m(ci).toSet
 	protected implicit def columnTraversableOneToManyIndexedSeq[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap): IndexedSeq[E] = m(ci).toIndexedSeq
+	protected implicit def columnTraversableOneToManyArray[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap, e: ClassManifest[E]): Array[E] = m(ci).toArray
 
 	// simple typec entities, one-to-many
 	protected implicit def columnTraversableOneToManyListStringEntity[T, EPC](ci: ColumnInfoTraversableOneToMany[T, EPC, StringValue])(implicit m: ValuesMap): List[String] =

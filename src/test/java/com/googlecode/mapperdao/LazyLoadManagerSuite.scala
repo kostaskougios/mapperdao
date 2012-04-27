@@ -16,10 +16,25 @@ class LazyLoadManagerSuite extends FunSuite with ShouldMatchers {
 	val lazyLoadManager = new LazyLoadManager
 	val typeManager = new DefaultTypeManager
 
+	test("lazy load Array") {
+		val h1 = new House("Rhodes")
+		val h2 = new House("Athens")
+		val p = new Person("Kostas", Set(), IndexedSeq(), Nil, Array()) with LongId {
+			val id = 5.toLong
+		}
+		val vm = ValuesMap.fromEntity(typeManager, PersonEntity.tpe, p)
+		vm(PersonEntity.array) = () => List(h1, h2) // vm always stores lists
+
+		val lazyP = lazyLoadManager.proxyFor(p, PersonEntity, LazyLoad.all, vm)
+		vm.isLoaded(PersonEntity.array) should be(false)
+
+		lazyP.array should be(Array(h1, h2))
+	}
+
 	test("lazy load Set") {
 		val h1 = new House("Rhodes")
 		val h2 = new House("Athens")
-		val p = new Person("Kostas", Set(), IndexedSeq(), Nil) with LongId {
+		val p = new Person("Kostas", Set(), IndexedSeq(), Nil, Array()) with LongId {
 			val id = 5.toLong
 		}
 		val vm = ValuesMap.fromEntity(typeManager, PersonEntity.tpe, p)
@@ -34,7 +49,7 @@ class LazyLoadManagerSuite extends FunSuite with ShouldMatchers {
 	test("lazy load IndexedSeq") {
 		val h1 = new House("Rhodes")
 		val h2 = new House("Athens")
-		val p = new Person("Kostas", Set(), IndexedSeq(), Nil) with LongId {
+		val p = new Person("Kostas", Set(), IndexedSeq(), Nil, Array()) with LongId {
 			val id = 5.toLong
 		}
 		val vm = ValuesMap.fromEntity(typeManager, PersonEntity.tpe, p)
@@ -49,7 +64,7 @@ class LazyLoadManagerSuite extends FunSuite with ShouldMatchers {
 	test("lazy load Traversable") {
 		val h1 = new House("Rhodes")
 		val h2 = new House("Athens")
-		val p = new Person("Kostas", Set(), IndexedSeq(), Nil) with LongId {
+		val p = new Person("Kostas", Set(), IndexedSeq(), Nil, Array()) with LongId {
 			val id = 5.toLong
 		}
 		val vm = ValuesMap.fromEntity(typeManager, PersonEntity.tpe, p)
@@ -64,7 +79,7 @@ class LazyLoadManagerSuite extends FunSuite with ShouldMatchers {
 	test("lazy load with LongId") {
 		val h1 = new House("Rhodes")
 		val h2 = new House("Athens")
-		val p = new Person("Kostas", Set(), IndexedSeq(), Nil) with LongId {
+		val p = new Person("Kostas", Set(), IndexedSeq(), Nil, Array()) with LongId {
 			val id = 5.toLong
 		}
 		val vm = ValuesMap.fromEntity(typeManager, PersonEntity.tpe, p)
@@ -77,7 +92,8 @@ class LazyLoadManagerSuite extends FunSuite with ShouldMatchers {
 	case class Person(name: String,
 		owns: Set[House],
 		nearby: IndexedSeq[House],
-		traversable: Traversable[House])
+		traversable: Traversable[House],
+		array: Array[House])
 	case class House(address: String)
 
 	object HouseEntity extends Entity[LongId, House] {
@@ -95,8 +111,9 @@ class LazyLoadManagerSuite extends FunSuite with ShouldMatchers {
 		val owns = onetomany(HouseEntity) getter ("owns") to (_.owns)
 		val nearby = onetomany(HouseEntity) getter ("nearby") to (_.nearby)
 		val traversable = onetomany(HouseEntity) getter ("traversable") to (_.traversable)
+		val array = onetomany(HouseEntity) getter ("array") to (_.array)
 
-		def constructor(implicit m) = new Person(name, owns, nearby, m(traversable).toList) with Persisted with LongId {
+		def constructor(implicit m) = new Person(name, owns, nearby, m(traversable).toList, array) with Persisted with LongId {
 			val id: Long = PersonEntity.id
 		}
 	}
