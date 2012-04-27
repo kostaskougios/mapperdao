@@ -85,7 +85,7 @@ class ManyToManyManuallyLazyLoadSuite extends FunSuite with ShouldMatchers {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
-		def constructor(implicit m) = new Product(id, name, m.valueOf[List[Attribute]](attributes).toSet) with Persisted
+		def constructor(implicit m) = new Product(id, name, attributes) with Persisted
 	}
 
 	object AttributeEntity extends SimpleEntity[Attribute] {

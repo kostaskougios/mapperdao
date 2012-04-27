@@ -25,7 +25,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 				sa = sqlAndArgs(queryConfig, qe)
 				val lm = driver.queryForList(queryConfig, sa.sql, sa.args)
 				val entityMap = new EntityMap
-				val selectConfig = SelectConfig(skip = queryConfig.skip, data = queryConfig.data, cacheOptions = queryConfig.cacheOptions)
+				val selectConfig = SelectConfig.from(queryConfig)
 				val v = mapperDao.toEntities(lm, qe.entity, selectConfig, entityMap)
 				entityMap.done
 				v

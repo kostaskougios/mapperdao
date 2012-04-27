@@ -14,3 +14,15 @@ case class SelectConfig(
 	data: Option[Any] = None,
 	cacheOptions: CacheOption = CacheOptions.NoCache,
 	lazyLoad: LazyLoad = LazyLoad.defaultLazyLoad)
+
+object SelectConfig {
+	def from(queryConfig: QueryConfig) =
+		SelectConfig(
+			skip = queryConfig.skip,
+			data = queryConfig.data,
+			cacheOptions = queryConfig.cacheOptions,
+			lazyLoad = queryConfig.lazyLoad
+		)
+
+	def lazyLoad = SelectConfig(lazyLoad = LazyLoad(all = true))
+}

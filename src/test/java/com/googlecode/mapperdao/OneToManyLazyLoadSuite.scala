@@ -16,7 +16,23 @@ class OneToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(HouseEntity, PersonEntity))
 
 	if (Setup.database == "h2") {
-		val selectConfig = SelectConfig(lazyLoad = LazyLoad(all = true))
+		val selectConfig = SelectConfig.lazyLoad
+
+		test("query is lazy") {
+			createTables
+			val p1 = Person("Kostas", Set(House("Rhodes"), House("Athens")))
+			val p2 = Person("Nikos", Set(House("Thessaloniki"), House("Athens")))
+			val i1 = mapperDao.insert(PersonEntity, p1)
+			val i2 = mapperDao.insert(PersonEntity, p2)
+			import Query._
+			val l = queryDao.query(QueryConfig(lazyLoad = LazyLoad.all), select from PersonEntity)
+			val s1 = l.head
+			val s2 = l.last
+			verifyNotLoaded(s1)
+			verifyNotLoaded(s2)
+			s1 should be === p1
+			s2 should be === p2
+		}
 
 		test("update immutable entity, skip lazy loaded") {
 			createTables
