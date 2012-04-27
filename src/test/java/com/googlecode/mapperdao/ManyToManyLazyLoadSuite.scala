@@ -9,7 +9,7 @@ import com.googlecode.classgenerator.ReflectionManager
 /**
  * @author kostantinos.kougios
  *
- * 8 Aug 2011
+ * April 2012
  */
 @RunWith(classOf[JUnitRunner])
 class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
