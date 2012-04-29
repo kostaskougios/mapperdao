@@ -17,13 +17,44 @@ class OneToOneLazyLoadSuite extends FunSuite with ShouldMatchers {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(InventoryEntity, ProductEntity))
 
 	if (Setup.database == "h2") {
+
+		val selectConfig = SelectConfig(lazyLoad = LazyLoad.all)
+
+		test("update immutable entity") {
+			createTables
+
+			val p = Product(Inventory(8), 2)
+			val inserted = mapperDao.insert(ProductEntity, p)
+
+			val selected = mapperDao.select(selectConfig, ProductEntity, inserted.id).get
+
+			val up = Product(Inventory(9), 2)
+			val updated = mapperDao.update(ProductEntity, selected, up)
+			updated should be === up
+			val reloaded = mapperDao.select(selectConfig, ProductEntity, inserted.id).get
+			reloaded should be === updated
+		}
+
+		test("manually updating them stops lazy loading") {
+			createTables
+
+			val p = Product(Inventory(8), 2)
+			val inserted = mapperDao.insert(ProductEntity, p)
+
+			val selected = mapperDao.select(selectConfig, ProductEntity, inserted.id).get
+			selected.inventory = Inventory(12)
+			verifyNotLoaded(selected)
+			selected should be === Product(Inventory(12), 2)
+			verifyNotLoaded(selected)
+		}
+
 		test("select is lazy") {
 			createTables
 
 			val p = Product(Inventory(8), 2)
 			val inserted = mapperDao.insert(ProductEntity, p)
 
-			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad.all), ProductEntity, inserted.id).get
+			val selected = mapperDao.select(selectConfig, ProductEntity, inserted.id).get
 			verifyNotLoaded(selected)
 			selected should be === inserted
 		}
