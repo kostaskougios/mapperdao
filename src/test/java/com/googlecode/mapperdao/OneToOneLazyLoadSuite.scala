@@ -19,6 +19,41 @@ class OneToOneLazyLoadSuite extends FunSuite with ShouldMatchers {
 	if (Setup.database == "h2") {
 
 		val selectConfig = SelectConfig(lazyLoad = LazyLoad.all)
+
+		test("query is lazy") {
+			createTables
+
+			val p1 = Product(Inventory(8), 2)
+			val p2 = Product(Inventory(10), 3)
+			val i1 = mapperDao.insert(ProductEntity, p1)
+			val i2 = mapperDao.insert(ProductEntity, p2)
+
+			import Query._
+			val l = queryDao.query(QueryConfig(lazyLoad = LazyLoad.all), select from ProductEntity)
+			val lp1 = l.head
+			val lp2 = l.last
+			verifyNotLoaded(lp1)
+			verifyNotLoaded(lp2)
+
+			lp1 should be === i1
+			lp2 should be === i2
+		}
+
+		test("update immutable entity, skip lazy loaded") {
+			createTables
+
+			val p = Product(Inventory(8), 2)
+			val inserted = mapperDao.insert(ProductEntity, p)
+
+			val selected = mapperDao.select(selectConfig, ProductEntity, inserted.id).get
+
+			val up = Product(Inventory(9), 3)
+			val updated = mapperDao.update(UpdateConfig(skip = Set(ProductEntity.inventory)), ProductEntity, selected, up)
+			updated should be === up
+			val reloaded = mapperDao.select(selectConfig, ProductEntity, inserted.id).get
+			reloaded should be === Product(Inventory(8), 3)
+		}
+
 		test("update mutable entity") {
 			createTables
 
@@ -71,6 +106,7 @@ class OneToOneLazyLoadSuite extends FunSuite with ShouldMatchers {
 			val selected = mapperDao.select(selectConfig, ProductEntity, inserted.id).get
 			verifyNotLoaded(selected)
 			selected should be === inserted
+			selected.id should be > 0.toLong
 		}
 	}
 
