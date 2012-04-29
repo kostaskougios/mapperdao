@@ -8,7 +8,7 @@ create table Company (
 create table Person (
 	id serial not null,
 	name varchar(100) not null,
-	company_id int,
+	company_id bigint unsigned,
 	primary key(id),
 	foreign key (company_id) references Company(id) on delete cascade
 )

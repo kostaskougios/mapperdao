@@ -6,7 +6,7 @@ create table Product (
 )
 ;
 create table ProductTags (
-	product_id int not null,
+	product_id bigint unsigned not null,
 	tag varchar(30) not null,
 	foreign key (product_id) references Product(id) on delete cascade
 )
@@ -19,7 +19,7 @@ create table ProductI (
 )
 ;
 create table ProductTagsI (
-	producti_id int not null,
+	producti_id bigint unsigned not null,
 	intTag int not null,
 	foreign key (producti_id) references ProductI(id) on delete cascade
 )

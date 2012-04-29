@@ -13,7 +13,7 @@ create table Attribute (
 )
 ;
 create table Product_Attribute (
-	product_id int not null,
-	attribute_id int not null,
+	product_id bigint unsigned not null,
+	attribute_id bigint unsigned not null,
 	primary key(product_id,attribute_id)
 )

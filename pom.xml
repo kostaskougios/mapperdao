@@ -8,7 +8,7 @@
 	<groupId>com.googlecode.mapperdao</groupId>
 	<artifactId>mapperdao</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0.0-rc5a</version>
+	<version>1.0.0-rc5b</version>
 	<name>mapperdao</name>
 	<description><![CDATA[
 	MapperDao is an ORM library for the scala language. https://code.google.com/p/mapperdao/ 
@@ -107,7 +107,7 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.18</version>
+			<version>5.1.19</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

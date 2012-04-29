@@ -6,7 +6,7 @@ create table Product (
 )
 ;
 create table Inventory (
-	product_id int not null,
+	product_id bigint unsigned not null,
 	stock int not null,
 	primary key (product_id),
 	foreign key (product_id) references Product(id) on delete cascade
@@ -20,7 +20,7 @@ create table Product (
 )
 ;
 create table Inventory (
-	product_id int null,
+	product_id bigint unsigned null,
 	stock int not null,
 	foreign key (product_id) references Product(id) on delete set null
 )

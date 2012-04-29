@@ -11,7 +11,7 @@ create table JobPosition (
 	id serial not null,
 	name varchar(100) not null,
 	rank int not null,
-	person_id int not null,
+	person_id bigint unsigned not null,
 	primary key (id),
 	constraint FK_JobPosition_Person foreign key (person_id) references Person(id)
 	on delete cascade on update cascade
@@ -20,7 +20,7 @@ create table JobPosition (
 create table House (
 	id serial not null,
 	address varchar(100) not null,
-	person_id int not null,
+	person_id bigint unsigned not null,
 	primary key (id),
 	constraint FK_House_Person foreign key (person_id) references Person(id)
 	on delete cascade on update cascade
@@ -40,7 +40,7 @@ create table JobPosition (
 	id serial not null,
 	name varchar(100) not null,
 	rank int not null,
-	person_id int,
+	person_id bigint unsigned,
 	primary key (id),
 	constraint FK_JobPosition_Person foreign key (person_id) references Person(id)
 	on delete set null on update set null
@@ -49,7 +49,7 @@ create table JobPosition (
 create table House (
 	id serial not null,
 	address varchar(100) not null,
-	person_id int not null,
+	person_id bigint unsigned not null,
 	primary key (id),
 	constraint FK_House_Person foreign key (person_id) references Person(id)
 	on delete cascade on update cascade

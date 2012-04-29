@@ -13,8 +13,8 @@ create table Attribute (
 )
 ;
 create table Product_Attribute (
-	product_id int not null,
-	attribute_id int not null,
+	product_id bigint unsigned not null,
+	attribute_id bigint unsigned not null,
 	primary key(product_id,attribute_id),
 	foreign key(product_id) references Product(id) on delete cascade,
 	foreign key(attribute_id) references Attribute(id) on delete cascade
