@@ -316,7 +316,9 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	 */
 	def onetoonereverse[FPC, FT](referenced: Entity[FPC, FT]) = new OneToOneReverseBuilder(referenced)
 
-	protected class OneToOneReverseBuilder[FPC, FT](referenced: Entity[FPC, FT]) {
+	protected class OneToOneReverseBuilder[FPC, FT](referenced: Entity[FPC, FT])
+			extends GetterDefinition {
+		val clz = Entity.this.clz
 		private var fkcols = List(clz.getSimpleName.toLowerCase + "_id")
 
 		def foreignkey(fk: String) = {
@@ -331,7 +333,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 
 		def to(columnToValue: T => FT): ColumnInfoOneToOneReverse[T, FPC, FT] =
 			{
-				val ci = ColumnInfoOneToOneReverse(OneToOneReverse(TypeRef(createAlias, referenced), fkcols.map(Column(_))), columnToValue)
+				val ci = ColumnInfoOneToOneReverse(OneToOneReverse(TypeRef(createAlias, referenced), fkcols.map(Column(_))), columnToValue, getterMethod)
 				columns ::= ci
 				ci
 			}

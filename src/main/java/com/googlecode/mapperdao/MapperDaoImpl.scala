@@ -340,6 +340,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 								(ci.column.alias, null)
 							case mtm: ColumnInfoTraversableOneToMany[_, _, _] =>
 								(ci.column.alias, Nil)
+							case otor: ColumnInfoOneToOneReverse[_, _, _] =>
+								(ci.column.alias, null)
 							case _ => (ci.column.alias, vm.valueOf(ci))
 						}
 					} ::: table.extraColumnInfosPersisted.map { ci =>

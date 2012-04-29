@@ -77,7 +77,8 @@ import org.scalatest.FunSuite
 		classOf[ManyToOneLazyLoadSuite],
 		classOf[OneToManyLazyLoadSuite],
 		classOf[ManyToManyManuallyLazyLoadSuite],
-		classOf[LazyLoadManagerSuite]
+		classOf[LazyLoadManagerSuite],
+		classOf[OneToOneLazyLoadSuite]
 	)
 )
 @RunWith(classOf[Suite])

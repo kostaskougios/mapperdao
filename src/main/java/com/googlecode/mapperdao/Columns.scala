@@ -45,6 +45,7 @@ case class OneToOne[FPC, F](foreign: TypeRef[FPC, F], selfColumns: List[Column])
 	def alias = foreign.alias
 
 	override def columns: List[Column] = selfColumns
+	override def toString = "OneToOne(%s,%s)".format(foreign.entity.getClass.getSimpleName, selfColumns.map(_.name).mkString(","))
 }
 
 case class OneToOneReverse[FPC, F](foreign: TypeRef[FPC, F], foreignColumns: List[Column]) extends ColumnRelationshipBase(foreign) {
@@ -52,6 +53,7 @@ case class OneToOneReverse[FPC, F](foreign: TypeRef[FPC, F], foreignColumns: Lis
 	def alias = foreign.alias
 
 	override def columns: List[Column] = foreignColumns
+	override def toString = "OneToOneReverse(%s,%s)".format(foreign.entity.getClass.getSimpleName, foreignColumns.map(_.name).mkString(","))
 }
 
 case class OneToMany[FPC, F](foreign: TypeRef[FPC, F], foreignColumns: List[Column]) extends ColumnRelationshipBase(foreign) {
@@ -59,11 +61,13 @@ case class OneToMany[FPC, F](foreign: TypeRef[FPC, F], foreignColumns: List[Colu
 	def alias = foreign.alias
 
 	override def columns: List[Column] = foreignColumns
+	override def toString = "OneToMany(%s,%s)".format(foreign.entity.getClass.getSimpleName, foreignColumns.map(_.name).mkString(","))
 }
 
 case class ManyToOne[FPC, F](columns: List[Column], foreign: TypeRef[FPC, F]) extends ColumnRelationshipBase(foreign) {
 	def columnName = throw new IllegalStateException("ManyToOne doesn't have a columnName")
 	def alias = foreign.alias
+	override def toString = "ManyToOne(%s,%s)".format(foreign.entity.getClass.getSimpleName, columns.map(_.name).mkString(","))
 }
 
 case class ManyToMany[FPC, F](linkTable: LinkTable, foreign: TypeRef[FPC, F]) extends ColumnRelationshipBase(foreign) {
@@ -71,6 +75,7 @@ case class ManyToMany[FPC, F](linkTable: LinkTable, foreign: TypeRef[FPC, F]) ex
 	def alias = foreign.alias
 
 	override def columns: List[Column] = Nil
+	override def toString = "ManyToMany(%s,%s)".format(foreign.entity.getClass.getSimpleName, columns.map(_.name).mkString(","))
 }
 
 case class Type[PC, T](val clz: Class[T], val constructor: ValuesMap => T with PC with Persisted, table: Table[PC, T])
