@@ -19,6 +19,20 @@ class OneToOneLazyLoadSuite extends FunSuite with ShouldMatchers {
 	if (Setup.database == "h2") {
 
 		val selectConfig = SelectConfig(lazyLoad = LazyLoad.all)
+		test("update mutable entity") {
+			createTables
+
+			val p = Product(Inventory(8), 2)
+			val inserted = mapperDao.insert(ProductEntity, p)
+
+			val selected = mapperDao.select(selectConfig, ProductEntity, inserted.id).get
+
+			selected.inventory = Inventory(9)
+			val updated = mapperDao.update(ProductEntity, selected)
+			updated should be === selected
+			val reloaded = mapperDao.select(selectConfig, ProductEntity, inserted.id).get
+			reloaded should be === updated
+		}
 
 		test("update immutable entity") {
 			createTables

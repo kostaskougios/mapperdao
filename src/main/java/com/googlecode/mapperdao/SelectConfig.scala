@@ -13,7 +13,7 @@ case class SelectConfig(
 	skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
 	data: Option[Any] = None,
 	cacheOptions: CacheOption = CacheOptions.NoCache,
-	lazyLoad: LazyLoad = LazyLoad.defaultLazyLoad)
+	lazyLoad: LazyLoad = LazyLoad.none)
 
 object SelectConfig {
 	def from(queryConfig: QueryConfig) =
