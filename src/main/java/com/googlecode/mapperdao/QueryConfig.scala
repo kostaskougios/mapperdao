@@ -19,6 +19,8 @@ case class QueryConfig(
 }
 
 object QueryConfig {
+
+	val default = QueryConfig()
 	/**
 	 * @param offset	start index of first row that will be returned
 	 * @param limit		how many rows to fetch
@@ -35,22 +37,19 @@ object QueryConfig {
 	 * @param rowsPerPage	How many rows each page contains
 	 */
 	def pagination(
-		skip: Set[ColumnInfoRelationshipBase[_, _, _, _]],
 		pageNumber: Long,
 		rowsPerPage: Long,
-		cacheOptions: CacheOption): QueryConfig = {
+		cacheOptions: CacheOption = CacheOptions.NoCache,
+		skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
+		lazyLoad: LazyLoad = LazyLoad.none): QueryConfig = {
 		if (pageNumber < 1) throw new IllegalArgumentException("pageNumber must be >=1")
 		if (rowsPerPage < 1) throw new IllegalArgumentException("rowsPerPage must be >=1")
-		QueryConfig(skip, Some((pageNumber - 1) * rowsPerPage), Some(rowsPerPage), cacheOptions = cacheOptions)
+		QueryConfig(
+			skip,
+			Some((pageNumber - 1) * rowsPerPage),
+			Some(rowsPerPage),
+			None,
+			cacheOptions,
+			lazyLoad)
 	}
-
-	/**
-	 * @param pageNumber	The page number
-	 * @param rowsPerPage	How many rows each page contains
-	 */
-	def pagination(
-		pageNumber: Long,
-		rowsPerPage: Long,
-		cacheOptions: CacheOption = CacheOptions.NoCache): QueryConfig =
-		pagination(Set(), pageNumber, rowsPerPage, cacheOptions)
 }
