@@ -325,38 +325,45 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 				}.toMap
 
 				val vm = ValuesMap.fromMap(typeManager, allMods)
-				val lazyLoad = selectConfig.lazyLoad
 				// if the entity should be lazy loaded and it has relationships, then
 				// we need to lazy load it
-				val entityV = if (lazyLoadManager.isLazyLoaded(lazyLoad, entity)) {
-					// substitute lazy loaded columns with empty values
-					val table = entity.tpe.table
-
-					val lazyLoadedMods = (table.columnInfosPlain.map { ci =>
-						ci match {
-							case mtm: ColumnInfoTraversableManyToMany[_, _, _] =>
-								(ci.column.alias, Nil)
-							case mto: ColumnInfoManyToOne[_, _, _] =>
-								(ci.column.alias, null)
-							case mtm: ColumnInfoTraversableOneToMany[_, _, _] =>
-								(ci.column.alias, Nil)
-							case otor: ColumnInfoOneToOneReverse[_, _, _] =>
-								(ci.column.alias, null)
-							case _ => (ci.column.alias, vm.valueOf(ci))
-						}
-					} ::: table.extraColumnInfosPersisted.map { ci =>
-						(ci.column.alias, vm.valueOf(ci))
-					}).toMap
-					val lazyLoadedVM = ValuesMap.fromMap(typeManager, lazyLoadedMods)
-					val constructed = tpe.constructor(lazyLoadedVM)
-					val proxy = lazyLoadManager.proxyFor(constructed, entity, lazyLoad, vm)
-					proxy
+				val entityV = if (lazyLoadManager.isLazyLoaded(selectConfig.lazyLoad, entity)) {
+					lazyLoadEntity(entity, selectConfig, vm)
 				} else tpe.constructor(vm)
 				entities.reput(tpe.clz, cacheKey, entityV)
 				entityV
 			}
 		}
 
+	private def lazyLoadEntity[PC, T](
+		entity: Entity[PC, T],
+		selectConfig: SelectConfig,
+		vm: ValuesMap) = {
+		// substitute lazy loaded columns with empty values
+		val tpe = entity.tpe
+		val table = tpe.table
+		val lazyLoad = selectConfig.lazyLoad
+
+		val lazyLoadedMods = (table.columnInfosPlain.map { ci =>
+			ci match {
+				case mtm: ColumnInfoTraversableManyToMany[_, _, _] =>
+					(ci.column.alias, Nil)
+				case mto: ColumnInfoManyToOne[_, _, _] =>
+					(ci.column.alias, null)
+				case mtm: ColumnInfoTraversableOneToMany[_, _, _] =>
+					(ci.column.alias, Nil)
+				case otor: ColumnInfoOneToOneReverse[_, _, _] =>
+					(ci.column.alias, null)
+				case _ => (ci.column.alias, vm.valueOf(ci))
+			}
+		} ::: table.extraColumnInfosPersisted.map { ci =>
+			(ci.column.alias, vm.valueOf(ci))
+		}).toMap
+		val lazyLoadedVM = ValuesMap.fromMap(typeManager, lazyLoadedMods)
+		val constructed = tpe.constructor(lazyLoadedVM)
+		val proxy = lazyLoadManager.proxyFor(constructed, entity, lazyLoad, vm)
+		proxy
+	}
 	/**
 	 * creates a mock object
 	 */

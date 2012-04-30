@@ -1,7 +1,10 @@
 package com.googlecode.mapperdao.utils
+
 import java.util.IdentityHashMap
-import com.googlecode.mapperdao.SimpleTypeValue
 import java.util.TreeMap
+
+import com.googlecode.mapperdao.Entity
+import com.googlecode.mapperdao.SimpleTypeValue
 
 /**
  * compares 2 traversables via object reference equality and returns (added,intersect,removed)
@@ -11,7 +14,7 @@ import java.util.TreeMap
  * 6 Sep 2011
  */
 protected[mapperdao] object TraversableSeparation {
-	def separate[T](oldT: Traversable[T], newT: Traversable[T]) =
+	def separate[T](entity: Entity[_, T], oldT: Traversable[T], newT: Traversable[T]) =
 		{
 			if (oldT.isEmpty)
 				(newT, Nil, Nil)
@@ -20,24 +23,19 @@ protected[mapperdao] object TraversableSeparation {
 			else {
 				val (oldM, newM) = oldT.head match {
 					case _: SimpleTypeValue[T, _] =>
-						// do an equals comparison
-						(new TreeMap[T, T], new TreeMap[T, T])
+						val eq = new EntityMap.ByObjectEquals[T]
+						(new EntityMap(entity, eq), new EntityMap(entity, eq))
 					case _ =>
-						// do an identity comparison
-						(new IdentityHashMap[T, T], new IdentityHashMap[T, T])
+						val eq = new EntityMap.EntityEquals(entity)
+						(new EntityMap(entity, eq), new EntityMap(entity, eq))
 
 				}
-				oldT.foreach { item =>
-					oldM.put(item, item)
-				}
+				oldM.addAll(oldT)
+				newM.addAll(newT)
 
-				newT.foreach { item =>
-					newM.put(item, item)
-				}
-
-				val added = newT.filterNot(oldM.containsKey(_))
-				val intersect = oldT.filter(newM.containsKey(_))
-				val removed = oldT.filterNot(newM.containsKey(_))
+				val added = newT.filterNot(oldM.contains(_))
+				val intersect = oldT.filter(newM.contains(_))
+				val removed = oldT.filterNot(newM.contains(_))
 
 				(added, intersect, removed)
 			}

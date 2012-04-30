@@ -37,7 +37,9 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 					val pkLeft = oldValuesMap.toListOfColumnValue(table.primaryKeys)
 					val pkArgs = manyToMany.linkTable.left zip pkLeft
 
-					val (added, intersection, removed) = TraversableSeparation.separate(oldValues, newValues)
+					val fentity = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
+
+					val (added, intersection, removed) = TraversableSeparation.separate(fentity, oldValues, newValues)
 
 					val fe = manyToMany.foreign.entity.asInstanceOf[Entity[Any, Any]]
 					val ftpe = fe.tpe

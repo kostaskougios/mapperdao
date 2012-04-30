@@ -29,7 +29,8 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				val newValues = t.toList
 				val oldValues = oldValuesMap.seq[Any](oneToMany.foreign.alias)
 
-				val (added, intersection, removed) = TraversableSeparation.separate(oldValues, newValues)
+				val fentity = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
+				val (added, intersection, removed) = TraversableSeparation.separate(fentity, oldValues, newValues)
 
 				ci.column.foreign.entity match {
 					case ee: ExternalEntity[Any] =>
