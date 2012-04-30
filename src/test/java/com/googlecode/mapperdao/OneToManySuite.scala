@@ -49,7 +49,7 @@ class OneToManySuite extends FunSuite with ShouldMatchers {
 		}
 	}
 
-	test("updating items (immutable)") {
+	test("updating items, immutable") {
 		createTables
 
 		val jp1 = new JobPosition(3, "C++ Developer", 10)
@@ -75,7 +75,7 @@ class OneToManySuite extends FunSuite with ShouldMatchers {
 		mapperDao.select(PersonEntity, updated.id) should be(None)
 	}
 
-	test("updating items (mutable)") {
+	test("updating items, mutable") {
 		createTables
 
 		val jp1 = new JobPosition(3, "C++ Developer", 10)

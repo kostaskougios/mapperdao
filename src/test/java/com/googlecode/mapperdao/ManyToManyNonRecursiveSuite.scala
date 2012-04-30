@@ -17,14 +17,54 @@ class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(typeRegistry)
 
+	test("update, add with new set") {
+		createTables
+		val a1 = mapperDao.insert(AttributeEntity, Attribute("colour", "blue"))
+		val a2 = mapperDao.insert(AttributeEntity, Attribute("size", "medium"))
+		val a1l = mapperDao.select(AttributeEntity, a1.id).get
+
+		val product = Product("blue jean", Set(a1))
+		val inserted = mapperDao.insert(ProductEntity, product)
+		inserted should be === product
+
+		val selected = mapperDao.select(ProductEntity, inserted.id).get
+		selected should be === inserted
+
+		val up = Product("red jean", Set(a1l, a2))
+		val updated = mapperDao.update(ProductEntity, selected, up)
+		updated should be === up
+
+		val reloaded = mapperDao.select(ProductEntity, inserted.id).get
+		reloaded should be === updated
+	}
+
+	test("update, remove with new set") {
+		createTables
+		val a1 = mapperDao.insert(AttributeEntity, Attribute("colour", "blue"))
+		val a2 = mapperDao.insert(AttributeEntity, Attribute("size", "medium"))
+		val a1l = mapperDao.select(AttributeEntity, a1.id).get
+
+		val product = Product("blue jean", Set(a1, a2))
+		val inserted = mapperDao.insert(ProductEntity, product)
+		inserted should be === product
+
+		val selected = mapperDao.select(ProductEntity, inserted.id).get
+		selected should be === inserted
+
+		val up = Product("red jean", Set(a1l))
+		val updated = mapperDao.update(ProductEntity, selected, up)
+		updated should be === up
+
+		val reloaded = mapperDao.select(ProductEntity, inserted.id).get
+		reloaded should be === updated
+	}
+
 	test("insert tree of entities") {
 		createTables
 		val product = Product("blue jean", Set(Attribute("colour", "blue"), Attribute("size", "medium")))
 		val inserted = mapperDao.insert(ProductEntity, product)
 		inserted should be === product
 
-		// due to cyclic reference, the attributes set contains "mock" products which have empty traversables.
-		// it is not possible to create cyclic-depended immutable instances.
 		mapperDao.select(ProductEntity, inserted.id).get should be === inserted
 
 		// attributes->product should also work
@@ -41,7 +81,6 @@ class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 		val inserted = mapperDao.insert(ProductEntity, product)
 		inserted should be === product
 
-		// due to cyclic reference, the attributes collection contains "mock" products which have empty traversables
 		mapperDao.select(ProductEntity, inserted.id).get should be === inserted
 	}
 
