@@ -142,6 +142,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 		case d: Double => d.toFloat
 		case b: java.math.BigDecimal => b.floatValue
 		case b: java.math.BigInteger => b.floatValue
+		case null => null.asInstanceOf[Float]
 	}
 
 	def double[T, V](column: ColumnInfo[T, V]): Double =
@@ -156,9 +157,10 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 		case d: Double => d
 		case b: java.math.BigDecimal => b.doubleValue
 		case b: java.math.BigInteger => b.doubleValue
+		case null => null.asInstanceOf[Double]
 	}
 
-	def short[T, V](column: ColumnInfo[T, V]): Int =
+	def short[T, V](column: ColumnInfo[T, V]): Short =
 		{
 			val v = valueOf[V](column.column.columnName)
 			toShort(v)
@@ -171,7 +173,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 		case b: BigInt => b.toShort
 		case b: java.math.BigInteger => b.shortValue
 		case b: java.math.BigDecimal => b.shortValue
-		case null => 0
+		case null => null.asInstanceOf[Short]
 	}
 
 	def int[T, V](column: ColumnInfo[T, V]): Int =
@@ -187,7 +189,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 		case b: BigInt => b.toInt
 		case b: java.math.BigInteger => b.intValue
 		case b: java.math.BigDecimal => b.intValue
-		case null => 0
+		case null => null.asInstanceOf[Int]
 	}
 
 	def long[T, V](column: ColumnInfo[T, V]): Long =
@@ -203,7 +205,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 		case b: BigInt => b.toLong
 		case b: java.math.BigInteger => b.longValue
 		case b: java.math.BigDecimal => b.longValue
-		case null => 0
+		case null => null.asInstanceOf[Long]
 	}
 
 	def bigDecimal[T, V](column: ColumnInfo[T, V]): BigDecimal =
@@ -251,6 +253,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 		case i: Int =>
 			val v = i == 1
 			v
+		case null => null.asInstanceOf[Boolean]
 	}
 
 	def mutableHashSet[T, FPC, F](column: ColumnInfoTraversableManyToMany[T, FPC, F]): scala.collection.mutable.HashSet[F] = new scala.collection.mutable.HashSet ++ apply(column)
