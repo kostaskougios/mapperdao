@@ -102,6 +102,13 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	protected implicit def columnToDouble(ci: ColumnInfo[T, Double])(implicit m: ValuesMap): Double = m(ci)
 	protected implicit def columnToOptionDouble(ci: ColumnInfo[T, Double])(implicit m: ValuesMap): Option[Double] = Some(m(ci))
 
+	protected implicit def columnToJBoolean(ci: ColumnInfo[T, java.lang.Boolean])(implicit m: ValuesMap): java.lang.Boolean = m(ci)
+	protected implicit def columnToJByte(ci: ColumnInfo[T, java.lang.Byte])(implicit m: ValuesMap): java.lang.Byte = m(ci)
+	protected implicit def columnToJInteger(ci: ColumnInfo[T, java.lang.Integer])(implicit m: ValuesMap): java.lang.Integer = m(ci)
+	protected implicit def columnToJLong(ci: ColumnInfo[T, java.lang.Long])(implicit m: ValuesMap): java.lang.Long = m(ci)
+	protected implicit def columnToJDouble(ci: ColumnInfo[T, java.lang.Double])(implicit m: ValuesMap): java.lang.Double = m(ci)
+	protected implicit def columnToJFloat(ci: ColumnInfo[T, java.lang.Float])(implicit m: ValuesMap): java.lang.Float = m(ci)
+
 	protected implicit def columnTraversableManyToManyToSet[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F])(implicit m: ValuesMap): Set[F] = m(ci).toSet
 	protected implicit def columnTraversableManyToManyToList[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F])(implicit m: ValuesMap): List[F] = m(ci).toList
 	protected implicit def columnTraversableManyToManyToIndexedSeq[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F])(implicit m: ValuesMap): IndexedSeq[F] = m(ci).toIndexedSeq
@@ -246,7 +253,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	def manytomanyreverse[FPC, FT](referenced: Entity[FPC, FT]) = new ManyToManyBuilder(referenced, true)
 
 	protected class ManyToManyBuilder[FPC, FT](referenced: Entity[FPC, FT], reverse: Boolean)
-			extends GetterDefinition {
+		extends GetterDefinition {
 		val clz = Entity.this.clz
 		private var linkTable = if (reverse) referenced.clz.getSimpleName + "_" + clz.getSimpleName else clz.getSimpleName + "_" + referenced.clz.getSimpleName
 		private var leftColumn = clz.getSimpleName.toLowerCase + "_id"
@@ -317,7 +324,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	def onetoonereverse[FPC, FT](referenced: Entity[FPC, FT]) = new OneToOneReverseBuilder(referenced)
 
 	protected class OneToOneReverseBuilder[FPC, FT](referenced: Entity[FPC, FT])
-			extends GetterDefinition {
+		extends GetterDefinition {
 		val clz = Entity.this.clz
 		private var fkcols = List(clz.getSimpleName.toLowerCase + "_id")
 
@@ -346,7 +353,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	def onetomany[FPC, FT](referenced: Entity[FPC, FT]) = new OneToManyBuilder(referenced)
 
 	protected class OneToManyBuilder[FPC, FT](referenced: Entity[FPC, FT])
-			extends GetterDefinition {
+		extends GetterDefinition {
 		val clz = Entity.this.clz
 		private var fkcols = List(clz.getSimpleName.toLowerCase + "_id")
 
@@ -389,7 +396,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	def manytoone[FPC, FT](referenced: Entity[FPC, FT]) = new ManyToOneBuilder(referenced)
 
 	protected class ManyToOneBuilder[FPC, FT](referenced: Entity[FPC, FT])
-			extends GetterDefinition {
+		extends GetterDefinition {
 		val clz = Entity.this.clz
 		private var fkcols = List(referenced.clz.getSimpleName.toLowerCase + "_id")
 		def foreignkey(fk: String) = {
