@@ -25,4 +25,6 @@ object SelectConfig {
 		)
 
 	def lazyLoad = SelectConfig(lazyLoad = LazyLoad(all = true))
+
+	val default = SelectConfig()
 }

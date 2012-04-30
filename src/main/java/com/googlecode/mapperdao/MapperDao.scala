@@ -39,10 +39,10 @@ trait MapperDao {
 
 	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], ids: List[Any]): Option[T with PC]
 
-	// default configurations
-	val defaultSelectConfig = SelectConfig()
-	val defaultDeleteConfig = DeleteConfig()
-	val defaultUpdateConfig = UpdateConfig(deleteConfig = defaultDeleteConfig)
+	// default configurations, can be overriden
+	protected val defaultSelectConfig = SelectConfig.default
+	protected val defaultDeleteConfig = DeleteConfig.default
+	protected val defaultUpdateConfig = UpdateConfig(deleteConfig = defaultDeleteConfig)
 
 	// delete
 
