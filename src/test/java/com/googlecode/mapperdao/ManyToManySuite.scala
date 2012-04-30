@@ -92,6 +92,66 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		selected should be === updated
 	}
 
+	test("update tree of entities, remove entity from set by creating new set") {
+		createTables
+		val a5 = mapperDao.insert(AttributeEntity, Attribute(5, "colour", "blue"))
+		val a6 = mapperDao.insert(AttributeEntity, Attribute(6, "size", "medium"))
+		val a7 = mapperDao.insert(AttributeEntity, Attribute(7, "size", "large"))
+		val product = Product(1, "blue jean", Set(a5, a6, a7))
+		val inserted = mapperDao.insert(ProductEntity, product)
+
+		val a5l = mapperDao.select(AttributeEntity, 5).get
+		val a7l = mapperDao.select(AttributeEntity, 7).get
+
+		val changed = Product(1, "just jean", Set(a5l, a7l));
+		val updated = mapperDao.update(ProductEntity, inserted, changed)
+		updated should be === changed
+
+		val selected = mapperDao.select(ProductEntity, 1).get
+
+		selected should be === updated
+	}
+
+	test("update tree of entities, add entity from set by creating new set") {
+		createTables
+		val a5 = mapperDao.insert(AttributeEntity, Attribute(5, "colour", "blue"))
+		val a6 = mapperDao.insert(AttributeEntity, Attribute(6, "size", "medium"))
+		val a7 = mapperDao.insert(AttributeEntity, Attribute(7, "size", "large"))
+		val product = Product(1, "blue jean", Set(a6))
+		val inserted = mapperDao.insert(ProductEntity, product)
+
+		val a5l = mapperDao.select(AttributeEntity, 5).get
+		val a7l = mapperDao.select(AttributeEntity, 7).get
+
+		val changed = Product(1, "just jean", Set(a5l, a6, a7l));
+		val updated = mapperDao.update(ProductEntity, inserted, changed)
+		updated should be === changed
+
+		val selected = mapperDao.select(ProductEntity, 1).get
+
+		selected should be === updated
+	}
+
+	test("update tree of entities, add and remove entity from set by creating new set") {
+		createTables
+		val a5 = mapperDao.insert(AttributeEntity, Attribute(5, "colour", "blue"))
+		val a6 = mapperDao.insert(AttributeEntity, Attribute(6, "size", "medium"))
+		val a7 = mapperDao.insert(AttributeEntity, Attribute(7, "size", "large"))
+		val product = Product(1, "blue jean", Set(a6))
+		val inserted = mapperDao.insert(ProductEntity, product)
+
+		val a5l = mapperDao.select(AttributeEntity, 5).get
+		val a7l = mapperDao.select(AttributeEntity, 7).get
+
+		val changed = Product(1, "just jean", Set(a5l, a7l));
+		val updated = mapperDao.update(ProductEntity, inserted, changed)
+		updated should be === changed
+
+		val selected = mapperDao.select(ProductEntity, 1).get
+
+		selected should be === updated
+	}
+
 	test("update tree of entities, add new entities to set") {
 		createTables
 		val product = Product(1, "blue jean", Set(Attribute(5, "colour", "blue")))

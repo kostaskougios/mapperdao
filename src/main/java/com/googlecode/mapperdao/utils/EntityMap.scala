@@ -35,8 +35,7 @@ object EntityMap {
 		override def key(o: T) = o match {
 			case p: Persisted =>
 				val table = entity.tpe.table
-				val pks = table.toListOfPrimaryKeyAndValueTuples(o) ::: table.toListOfColumnAndValueTuplesForUnusedKeys(o)
-				pks
+				table.toListOfPrimaryKeyAndValueTuples(o) ::: table.toListOfColumnAndValueTuplesForUnusedKeys(o)
 			case _ =>
 				System.identityHashCode(o)
 		}
