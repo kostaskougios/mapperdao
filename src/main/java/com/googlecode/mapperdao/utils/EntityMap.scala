@@ -34,7 +34,9 @@ object EntityMap {
 	class EntityEquals[T](entity: Entity[_, T]) extends EqualsMode[T] {
 		override def key(o: T) = o match {
 			case p: Persisted =>
-				entity.tpe.table.toListOfPrimaryKeyAndValueTuples(o)
+				val table = entity.tpe.table
+				val pks = table.toListOfPrimaryKeyAndValueTuples(o) ::: table.toListOfColumnAndValueTuplesForUnusedKeys(o)
+				pks
 			case _ =>
 				System.identityHashCode(o)
 		}

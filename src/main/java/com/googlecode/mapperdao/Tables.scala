@@ -112,7 +112,8 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 		}
 	}
 
-	def toListOfColumnAndValueTuplesForUnusedKeys(columns: List[UnusedColumn[T]], o: T) =
+	def toListOfColumnAndValueTuplesForUnusedKeys(o: T): List[(ColumnBase, Any)] = toListOfColumnAndValueTuplesForUnusedKeys(unusedPKs, o)
+	def toListOfColumnAndValueTuplesForUnusedKeys(columns: List[UnusedColumn[T]], o: T): List[(ColumnBase, Any)] =
 		columns
 			.map { c => (c, c.valueExtractor(o)) }
 			.filter(_._2.isDefined)
