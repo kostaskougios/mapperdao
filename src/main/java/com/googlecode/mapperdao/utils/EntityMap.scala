@@ -14,7 +14,7 @@ import com.googlecode.mapperdao.SimpleTypeValue
  *
  * 30 Apr 2012
  */
-class EntityMap[PC, T](entity: Entity[PC, T], keyMode: EntityMap.EqualsMode[T]) {
+protected class EntityMap[PC, T](entity: Entity[PC, T], keyMode: EntityMap.EqualsMode[T]) {
 	private val table = entity.tpe.table
 	private var m = Map[Any, T]()
 
@@ -27,7 +27,7 @@ class EntityMap[PC, T](entity: Entity[PC, T], keyMode: EntityMap.EqualsMode[T]) 
 	private def key(o: T) = keyMode.key(o)
 }
 
-object EntityMap {
+protected object EntityMap {
 	abstract class EqualsMode[T] {
 		def key(o: T): Any
 	}
