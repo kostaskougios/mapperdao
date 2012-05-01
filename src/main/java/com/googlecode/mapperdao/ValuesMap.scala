@@ -129,7 +129,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 			valueOf[F](key)
 		}
 
-	def float[T, V](column: ColumnInfo[T, V]): Float =
+	def float[T, V](column: ColumnInfo[T, V]): java.lang.Float =
 		{
 			val v = valueOf[V](column.column.columnName)
 			val f = toFloat(v)
@@ -137,15 +137,15 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 			f
 		}
 
-	private def toFloat[V](v: V) = v match {
-		case f: Float => f
+	private def toFloat[V](v: V): java.lang.Float = v match {
+		case f: java.lang.Float => f
 		case d: Double => d.toFloat
 		case b: java.math.BigDecimal => b.floatValue
 		case b: java.math.BigInteger => b.floatValue
-		case null => null.asInstanceOf[Float]
+		case null => null.asInstanceOf[java.lang.Float]
 	}
 
-	def double[T, V](column: ColumnInfo[T, V]): Double =
+	def double[T, V](column: ColumnInfo[T, V]): java.lang.Double =
 		{
 			val v = valueOf[V](column.column.columnName)
 			val d = toDouble(v)
@@ -153,59 +153,59 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 			d
 		}
 
-	private def toDouble[V](v: V) = v match {
-		case d: Double => d
+	private def toDouble[V](v: V): java.lang.Double = v match {
+		case d: java.lang.Double => d
 		case b: java.math.BigDecimal => b.doubleValue
 		case b: java.math.BigInteger => b.doubleValue
-		case null => null.asInstanceOf[Double]
+		case null => null.asInstanceOf[java.lang.Double]
 	}
 
-	def short[T, V](column: ColumnInfo[T, V]): Short =
+	def short[T, V](column: ColumnInfo[T, V]): java.lang.Short =
 		{
 			val v = valueOf[V](column.column.columnName)
 			toShort(v)
 		}
 
-	private def toShort[V](v: V): Short = v match {
-		case s: Short => s
+	private def toShort[V](v: V): java.lang.Short = v match {
+		case s: java.lang.Short => s
 		case i: Int => i.toShort
 		case l: Long => l.toShort
 		case b: BigInt => b.toShort
 		case b: java.math.BigInteger => b.shortValue
 		case b: java.math.BigDecimal => b.shortValue
-		case null => null.asInstanceOf[Short]
+		case null => null.asInstanceOf[java.lang.Short]
 	}
 
-	def int[T, V](column: ColumnInfo[T, V]): Int =
+	def int[T, V](column: ColumnInfo[T, V]): java.lang.Integer =
 		{
 			val v = valueOf[V](column.column.columnName)
 			toInt(v)
 		}
 
-	private def toInt[V](v: V) = v match {
-		case i: Int => i
+	private def toInt[V](v: V): java.lang.Integer = v match {
+		case i: java.lang.Integer => i
 		case l: Long => l.toInt
 		case s: Short => s.toInt
 		case b: BigInt => b.toInt
 		case b: java.math.BigInteger => b.intValue
 		case b: java.math.BigDecimal => b.intValue
-		case null => null.asInstanceOf[Int]
+		case null => null.asInstanceOf[java.lang.Integer]
 	}
 
-	def long[T, V](column: ColumnInfo[T, V]): Long =
+	def long[T, V](column: ColumnInfo[T, V]): java.lang.Long =
 		{
 			val v = valueOf[V](column.column.columnName)
 			toLong(v)
 		}
 
-	private def toLong[V](v: V) = v match {
-		case l: Long => l
+	private def toLong[V](v: V): java.lang.Long = v match {
+		case l: java.lang.Long => l
 		case i: Int => i.toLong
 		case s: Short => s.toLong
 		case b: BigInt => b.toLong
 		case b: java.math.BigInteger => b.longValue
 		case b: java.math.BigDecimal => b.longValue
-		case null => null.asInstanceOf[Long]
+		case null => null.asInstanceOf[java.lang.Long]
 	}
 
 	def bigDecimal[T, V](column: ColumnInfo[T, V]): BigDecimal =
@@ -240,7 +240,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 			}
 		}
 
-	def boolean[T, V](column: ColumnInfo[T, V]): Boolean =
+	def boolean[T, V](column: ColumnInfo[T, V]): java.lang.Boolean =
 		{
 			val v = valueOf[V](column.column.columnName)
 			val b = toBoolean(v)
@@ -248,12 +248,12 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 			b
 		}
 
-	private def toBoolean[V](v: V) = v match {
-		case b: Boolean => b
+	private def toBoolean[V](v: V): java.lang.Boolean = v match {
+		case b: java.lang.Boolean => b
 		case i: Int =>
 			val v = i == 1
 			v
-		case null => null.asInstanceOf[Boolean]
+		case null => null.asInstanceOf[java.lang.Boolean]
 	}
 
 	def mutableHashSet[T, FPC, F](column: ColumnInfoTraversableManyToMany[T, FPC, F]): scala.collection.mutable.HashSet[F] = new scala.collection.mutable.HashSet ++ apply(column)
