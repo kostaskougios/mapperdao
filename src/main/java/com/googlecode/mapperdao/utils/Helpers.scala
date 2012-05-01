@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao.utils
 import com.googlecode.mapperdao.IntId
 import com.googlecode.mapperdao.LongId
+import com.googlecode.mapperdao.Persisted
 
 /**
  * useful methods for real life applications that use
@@ -11,6 +12,11 @@ import com.googlecode.mapperdao.LongId
  * 26 Oct 2011
  */
 object Helpers {
+
+	def isPersisted(o: Any) = o match {
+		case _: Persisted => true
+		case _ => false
+	}
 
 	def intIdOf(o: Any): Int = o match {
 		case i: IntId => i.id
