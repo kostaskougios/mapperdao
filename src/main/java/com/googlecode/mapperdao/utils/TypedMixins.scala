@@ -9,7 +9,7 @@ trait IntIdCRUD[T] extends CRUD[IntId, T, Int] {
 	 * the entity has a correct primary key.
 	 *
 	 * I.e. if you are able to fully recreate the entity (including it's primary keys)
-	 * say after posting a form, making sure the entity has the correct database values,
+	 * say after posting a form, making sure the entity hmatches the database values,
 	 * then you can link it back to mapperdao via the link() method. Then the linked entity
 	 * can be used for updates, like if it was loaded from the database. This way a select()
 	 * can be avoided.
@@ -26,7 +26,7 @@ trait LongIdCRUD[T] extends CRUD[LongId, T, Long] {
 	 * the entity has a correct primary key.
 	 *
 	 * I.e. if you are able to fully recreate the entity (including it's primary keys)
-	 * say after posting a form, making sure the entity has the correct database values,
+	 * say after posting a form, making sure the entity matches the database values,
 	 * then you can link it back to mapperdao via the link() method. Then the linked entity
 	 * can be used for updates, like if it was loaded from the database. This way a select()
 	 * can be avoided.
@@ -43,7 +43,7 @@ trait SimpleCRUD[T, PK] extends CRUD[AnyRef, T, PK] {
 	 * the entity has a correct primary key.
 	 *
 	 * I.e. if you are able to fully recreate the entity (including it's primary keys)
-	 * say after posting a form, making sure the entity has the correct database values,
+	 * say after posting a form, making sure the entity matches the database values,
 	 * then you can link it back to mapperdao via the link() method. Then the linked entity
 	 * can be used for updates, like if it was loaded from the database. This way a select()
 	 * can be avoided.
