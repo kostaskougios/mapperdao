@@ -16,10 +16,10 @@ import com.googlecode.mapperdao.SimpleTypeValue
  */
 protected class EntityMap[PC, T](entity: Entity[PC, T], keyMode: EntityMap.EqualsMode[T]) {
 	private val table = entity.tpe.table
-	private var m = Map[Any, T]()
+	private var m = Set[Any]()
 
 	def add(o: T): Unit =
-		m = m + (key(o) -> o)
+		m = m + key(o)
 
 	def addAll(l: Traversable[T]): Unit = l foreach { o => add(o) }
 	def contains(o: T) = m.contains(key(o))
