@@ -441,18 +441,25 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		case _ => throw new IllegalArgumentException("can't delete an object that is not persisted: " + o);
 	}
 
-	def link[T](entity: SimpleEntity[T], o: T): T = {
+	override def link[T](entity: SimpleEntity[T], o: T): T = {
 		val tpe = entity.tpe
 		val vm = ValuesMap.fromEntity(typeManager, tpe, o)
 		tpe.constructor(vm)
 	}
 
-	def link[T](entity: Entity[IntId, T], o: T, id: Int): T with IntId = {
+	override def link[T](entity: Entity[IntId, T], o: T, id: Int): T with IntId =
+		linkInner(entity, o, id)
+
+	override def link[T](entity: Entity[LongId, T], o: T, id: Long): T with LongId =
+		linkInner(entity, o, id)
+
+	private def linkInner[PC, T](entity: Entity[PC, T], o: T, id: Any): T with PC = {
 		val tpe = entity.tpe
 		val vm = ValuesMap.fromEntity(typeManager, tpe, o)
 		vm(entity.tpe.table.extraColumnInfosPersisted.head) = id
 		tpe.constructor(vm)
 	}
+
 	/**
 	 * ===================================================================================
 	 * common methods

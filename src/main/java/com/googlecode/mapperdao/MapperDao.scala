@@ -88,6 +88,7 @@ trait MapperDao {
 	 * links non-persisted entities to the database provided that
 	 * the entity has a correct primary key
 	 */
-	def link[T](entity: SimpleEntity[T], o: T): T
-	def link[T](entity: Entity[IntId, T], o: T, id: Int): T with IntId
+	def link[T](entity: SimpleEntity[T], o: T): T = throw new IllegalStateException("Not supported")
+	def link[T](entity: Entity[IntId, T], o: T, id: Int): T with IntId = throw new IllegalStateException("Not supported")
+	def link[T](entity: Entity[LongId, T], o: T, id: Long): T with LongId = throw new IllegalStateException("Not supported")
 }

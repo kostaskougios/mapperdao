@@ -108,9 +108,6 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 		m.remove(key)
 	}
 
-	override def link[T](entity: SimpleEntity[T], o: T): T = throw new IllegalStateException("Not supported")
-	override def link[T](entity: Entity[IntId, T], o: T, id: Int): T with IntId = throw new IllegalStateException("Not supported")
-
 	override def toString = "MemoryMapperDao(%s)".format(m)
 }
 
