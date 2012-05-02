@@ -88,5 +88,6 @@ trait MapperDao {
 	 * links non-persisted entities to the database provided that
 	 * the entity has a correct primary key
 	 */
-	def link[PC, T](entity: Entity[PC, T], o: T): T with PC
+	def link[T](entity: SimpleEntity[T], o: T): T
+	def link[T](entity: Entity[IntId, T], o: T, id: Int): T with IntId
 }
