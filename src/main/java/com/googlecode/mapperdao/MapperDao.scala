@@ -83,4 +83,10 @@ trait MapperDao {
 	def longIdOf(o: AnyRef): Long = o match {
 		case iid: LongId => iid.id
 	}
+
+	/**
+	 * links non-persisted entities to the database provided that
+	 * the entity has a correct primary key
+	 */
+	def link[PC, T](entity: Entity[PC, T], o: T): T with PC
 }

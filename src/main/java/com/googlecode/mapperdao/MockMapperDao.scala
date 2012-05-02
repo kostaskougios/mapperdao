@@ -19,4 +19,6 @@ class MockMapperDao extends MapperDao {
 	override def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T = null.asInstanceOf[T]
 
 	def delete[PC, T](entity: Entity[PC, T], ids: List[AnyVal]): Unit = {}
+
+	override def link[PC, T](entity: Entity[PC, T], o: T): T with PC = throw new IllegalStateException("Not supported")
 }

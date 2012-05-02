@@ -4,6 +4,8 @@ import org.junit.runner.RunWith
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
+import com.googlecode.mapperdao.jdbc.Setup
+import com.googlecode.mapperdao.utils.Helpers._
 
 /**
  * @author kostantinos.kougios
@@ -13,10 +15,22 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class LinkSuite extends FunSuite with ShouldMatchers {
 
-	test("linked") {
+	if (Setup.database == "h2") {
+		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(CatEntity))
 
+		test("linked, simple entity") {
+			val c = Cat(5, "pussy cat", None)
+			val linked = mapperDao.link(CatEntity, c)
+			linked should be === c
+
+			isPersisted(linked) should be(true)
+
+			val cc = Cat(6, "child cat", Some(c))
+			val linkedc = mapperDao.link(CatEntity, cc)
+			linkedc should be === cc
+			isPersisted(linkedc) should be(true)
+		}
 	}
-
 	case class Cat(id: Int, name: String, parent: Option[Cat])
 
 	object CatEntity extends SimpleEntity[Cat] {
