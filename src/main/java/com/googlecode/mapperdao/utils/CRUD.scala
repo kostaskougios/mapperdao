@@ -16,6 +16,7 @@ import com.googlecode.mapperdao.QueryConfig
 import com.googlecode.mapperdao.SelectConfig
 import com.googlecode.mapperdao.UpdateConfig
 import com.googlecode.mapperdao.DeleteConfig
+import com.googlecode.mapperdao.SimpleEntity
 
 /**
  * mixin to add CRUD methods to a dao

@@ -86,7 +86,13 @@ trait MapperDao {
 
 	/**
 	 * links non-persisted entities to the database provided that
-	 * the entity has a correct primary key
+	 * the entity has a correct primary key.
+	 *
+	 * I.e. if you are able to fully recreate the entity (including it's primary keys)
+	 * say after posting a form, making sure the entity has the correct database values,
+	 * then you can link it back to mapperdao via the link() method. Then the linked entity
+	 * can be used for updates, like if it was loaded from the database. This way a select()
+	 * can be avoided.
 	 */
 	def link[T](entity: SimpleEntity[T], o: T): T = throw new IllegalStateException("Not supported")
 	def link[T](entity: Entity[IntId, T], o: T, id: Int): T with IntId = throw new IllegalStateException("Not supported")
