@@ -440,6 +440,12 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			}
 		case _ => throw new IllegalArgumentException("can't delete an object that is not persisted: " + o);
 	}
+
+	def link[PC, T](entity: Entity[PC, T], o: T): T with PC = {
+		val tpe = entity.tpe
+		val vm = ValuesMap.fromEntity(typeManager, tpe, o)
+		tpe.constructor(vm)
+	}
 	/**
 	 * ===================================================================================
 	 * common methods
