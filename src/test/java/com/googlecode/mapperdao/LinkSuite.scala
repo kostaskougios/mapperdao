@@ -18,6 +18,13 @@ class LinkSuite extends FunSuite with ShouldMatchers {
 	if (Setup.database == "h2") {
 		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(CatEntity))
 
+		test("unlink") {
+			val c = Cat(5, "pussy cat", None)
+			val linked = mapperDao.link(CatEntity, c)
+			mapperDao.unlink(linked)
+			isPersisted(linked) should be(false)
+		}
+
 		test("linked, simple entity") {
 			val c = Cat(5, "pussy cat", None)
 			val linked = mapperDao.link(CatEntity, c)

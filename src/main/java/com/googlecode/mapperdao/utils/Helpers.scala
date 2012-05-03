@@ -14,7 +14,7 @@ import com.googlecode.mapperdao.Persisted
 object Helpers {
 
 	def isPersisted(o: Any) = o match {
-		case _: Persisted => true
+		case p: Persisted if (p.mapperDaoValuesMap != null) => true
 		case _ => false
 	}
 

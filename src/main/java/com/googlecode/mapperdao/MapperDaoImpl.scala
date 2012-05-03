@@ -460,6 +460,13 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		tpe.constructor(vm)
 	}
 
+	override def unlink[T](o: T): T = o match {
+		case p: Persisted =>
+			p.mapperDaoDiscarded = true
+			p.mapperDaoValuesMap = null
+			o
+	}
+
 	/**
 	 * ===================================================================================
 	 * common methods
