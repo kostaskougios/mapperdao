@@ -74,4 +74,10 @@ trait CRUD[PC, T, PK] {
 	 * on the foreign keys in the database.
 	 */
 	def delete(id: PK): Unit = mapperDao.delete(entity, id.asInstanceOf[AnyVal])
+
+	/**
+	 * unlinks an entity from mapperdao. The entity is not tracked for changes and can't
+	 * be used in updates or deletes.
+	 */
+	def unlink(o: T): T = mapperDao.unlink(o)
 }
