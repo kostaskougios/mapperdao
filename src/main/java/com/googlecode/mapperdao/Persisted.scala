@@ -1,7 +1,11 @@
 package com.googlecode.mapperdao
 
 /**
- * Every persisted object must mixin with this trait.
+ * Every persisted object must mixin with this trait. Client code
+ * view this trait only within the constructor() method. Otherwise
+ * it is considered mapperdao internal implementation. Exposing the
+ * trait to the constructor method could not be avoided (without using
+ * runtime proxying)
  *
  * @author kostantinos.kougios
  *

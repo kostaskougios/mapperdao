@@ -128,5 +128,4 @@ class LinkSuite extends FunSuite with ShouldMatchers {
 			val id: Long = CatLIdEntity.id
 		}
 	}
-
 }

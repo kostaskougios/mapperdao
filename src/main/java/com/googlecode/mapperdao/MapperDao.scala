@@ -91,8 +91,16 @@ trait MapperDao {
 	 * I.e. if you are able to fully recreate the entity (including it's primary keys)
 	 * say after posting a form, making sure the entity has the correct database values,
 	 * then you can link it back to mapperdao via the link() method. Then the linked entity
-	 * can be used for updates, like if it was loaded from the database. This way a select()
+	 * can be used for updates as if it was loaded from the database. This way a select()
 	 * can be avoided.
+	 *
+	 * Extra care should be taken to match the linked entity with the data stored in the
+	 * database, otherwise an update can corrupt the data.
+	 *
+	 * val dog=new Dog("Jerry")
+	 * val linkedDog=dao.link(dog,5)
+	 *
+	 * mapperDao.update(DogEntity,linkedDog,new Dog("Updated name"))
 	 */
 	def link[T](entity: SimpleEntity[T], o: T): T = throw new IllegalStateException("Not supported")
 	def link[T](entity: Entity[IntId, T], o: T, id: Int): T with IntId = throw new IllegalStateException("Not supported")
