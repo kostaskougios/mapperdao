@@ -103,7 +103,7 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 				case ci: ColumnInfoManyToOne[Any, Any, Any] =>
 					val l = ci.columnToValue(o)
 					val fe = ci.column.foreign.entity
-					val pks = fe.tpe.table.toListOfPrimaryKeyValues(o)
+					val pks = fe.tpe.table.toListOfPrimaryKeyValues(l)
 					ci.column.columns zip pks
 			}
 		}.flatten
