@@ -60,7 +60,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 			val fv = ci.columnToValue(t)
 			val fe = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
 			val ftable = fe.tpe.table
-			ftable.toListOfPrimaryKeySimpleColumnAndValueTuples(fv)
+			ci.column.columns zip ftable.toListOfPrimaryKeyValues(fv)
 		}
 		unusedPKs ::= new UnusedColumn(ci.column.columns, valueExtractor)
 	}
