@@ -19,6 +19,7 @@ class LowerCaseMutableMap[V] {
 	def apply(key: String): V = m(key.toLowerCase)
 	def getOrElse(key: String, e: => V): V = m.getOrElse(key, e)
 	def ++(t: Traversable[(String, List[V])]): scala.collection.mutable.Map[String, Any] = m.clone ++ t
+	def contains(key: String) = m.contains(key)
 
 	override def clone = new LowerCaseMutableMap(m)
 	def cloneMap = m.clone

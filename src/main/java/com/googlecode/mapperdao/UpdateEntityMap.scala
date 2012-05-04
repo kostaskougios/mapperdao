@@ -35,4 +35,7 @@ protected class UpdateEntityMap {
 	}
 }
 
-protected case class UpdateInfo[PPC, PT, V, FPC, F](val o: PT, val ci: ColumnInfoRelationshipBase[PT, V, FPC, F], parentEntity: Entity[PPC, PT])
+protected case class UpdateInfo[PPC, PT, V, FPC, F](
+	val o: PT,
+	val ci: ColumnInfoRelationshipBase[PT, V, FPC, F],
+	parentEntity: Entity[PPC, PT])

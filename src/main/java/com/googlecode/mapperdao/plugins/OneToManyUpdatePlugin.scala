@@ -13,12 +13,38 @@ import com.googlecode.mapperdao._
  *
  * 31 Aug 2011
  */
-class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends PostUpdate {
+class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
+	extends PostUpdate with DuringUpdate {
 
+	def during[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]) = {
+		val ui = entityMap.peek[Any, Any, Traversable[Any], Any, Any]
+		ui.ci match {
+			case _: ColumnInfoTraversableOneToMany[Any, Any, Any] =>
+				val tpe = entity.tpe
+				val table = tpe.table
+
+				if (!table.primaryKeys.isEmpty) {
+					DuringUpdateResults.empty
+				} else {
+					val unusedPKArgs = table.unusedPKs.filter { c =>
+						oldValuesMap.contains(c)
+					}.map { c =>
+						(c, oldValuesMap.columnValue[Any](c))
+					}
+
+					if (unusedPKArgs.isEmpty) throw new IllegalStateException("entity %s doesn't have a primary key neither declare keys via declarePrimaryKeys".format(entity))
+
+					val pEntity = ui.parentEntity
+					val pTable = pEntity.tpe.table
+					val parentForeignKeys = ui.ci.column.columns zip pTable.toListOfPrimaryKeyValues(ui.o)
+					new DuringUpdateResults(Nil, unusedPKArgs ::: parentForeignKeys)
+				}
+			case _ => DuringUpdateResults.empty
+		}
+	}
 	def after[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
 		{
 			val tpe = entity.tpe
-			// update one-to-many
 			val table = tpe.table
 
 			table.oneToManyColumnInfos.filterNot(updateConfig.skip.contains(_)).foreach { ci =>

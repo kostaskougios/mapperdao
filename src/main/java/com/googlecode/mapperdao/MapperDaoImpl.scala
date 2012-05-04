@@ -20,13 +20,52 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 	private val typeManager = driver.jdbc.typeManager
 	private val lazyLoadManager = new LazyLoadManager
 
-	private val postUpdatePlugins = List[PostUpdate](new OneToOneReverseUpdatePlugin(typeRegistry, typeManager, driver, this), new OneToManyUpdatePlugin(typeRegistry, this), new ManyToManyUpdatePlugin(typeRegistry, driver, this))
-	private val duringUpdatePlugins = List[DuringUpdate](new ManyToOneUpdatePlugin(typeRegistry, this), new OneToOneReverseUpdatePlugin(typeRegistry, typeManager, driver, this), new OneToOneUpdatePlugin(typeRegistry, this))
-	private val beforeInsertPlugins = List[BeforeInsert](new ManyToOneInsertPlugin(typeRegistry, this), new OneToManyInsertPlugin(typeRegistry, driver, this), new OneToOneReverseInsertPlugin(typeRegistry, this), new OneToOneInsertPlugin(typeRegistry, this))
-	private val postInsertPlugins = List[PostInsert](new OneToOneReverseInsertPlugin(typeRegistry, this), new OneToManyInsertPlugin(typeRegistry, driver, this), new ManyToManyInsertPlugin(typeManager, typeRegistry, driver, this))
-	private val selectBeforePlugins: List[BeforeSelect] = List(new ManyToOneSelectPlugin(typeRegistry, this), new OneToManySelectPlugin(typeRegistry, driver, this), new OneToOneReverseSelectPlugin(typeRegistry, driver, this), new OneToOneSelectPlugin(typeRegistry, driver, this), new ManyToManySelectPlugin(typeRegistry, driver, this))
-	private val mockPlugins: List[SelectMock] = List(new OneToManySelectPlugin(typeRegistry, driver, this), new ManyToManySelectPlugin(typeRegistry, driver, this), new ManyToOneSelectPlugin(typeRegistry, this), new OneToOneSelectPlugin(typeRegistry, driver, this))
-	private val beforeDeletePlugins: List[BeforeDelete] = List(new ManyToManyDeletePlugin(driver, this), new OneToManyDeletePlugin(typeRegistry, this), new OneToOneReverseDeletePlugin(typeRegistry, driver, this), new ManyToOneDeletePlugin)
+	private val postUpdatePlugins = List[PostUpdate](
+		new OneToOneReverseUpdatePlugin(typeRegistry, typeManager, driver, this),
+		new OneToManyUpdatePlugin(typeRegistry, this),
+		new ManyToManyUpdatePlugin(typeRegistry, driver, this)
+	)
+
+	private val duringUpdatePlugins = List[DuringUpdate](
+		new ManyToOneUpdatePlugin(typeRegistry, this),
+		new OneToManyUpdatePlugin(typeRegistry, this),
+		new OneToOneReverseUpdatePlugin(typeRegistry, typeManager, driver, this),
+		new OneToOneUpdatePlugin(typeRegistry, this)
+	)
+	private val beforeInsertPlugins = List[BeforeInsert](
+		new ManyToOneInsertPlugin(typeRegistry, this),
+		new OneToManyInsertPlugin(typeRegistry, driver, this),
+		new OneToOneReverseInsertPlugin(typeRegistry, this),
+		new OneToOneInsertPlugin(typeRegistry, this)
+	)
+
+	private val postInsertPlugins = List[PostInsert](
+		new OneToOneReverseInsertPlugin(typeRegistry, this),
+		new OneToManyInsertPlugin(typeRegistry, driver, this),
+		new ManyToManyInsertPlugin(typeManager, typeRegistry, driver, this)
+	)
+
+	private val selectBeforePlugins: List[BeforeSelect] = List(
+		new ManyToOneSelectPlugin(typeRegistry, this),
+		new OneToManySelectPlugin(typeRegistry, driver, this),
+		new OneToOneReverseSelectPlugin(typeRegistry, driver, this),
+		new OneToOneSelectPlugin(typeRegistry, driver, this),
+		new ManyToManySelectPlugin(typeRegistry, driver, this)
+	)
+
+	private val mockPlugins: List[SelectMock] = List(
+		new OneToManySelectPlugin(typeRegistry, driver, this),
+		new ManyToManySelectPlugin(typeRegistry, driver, this),
+		new ManyToOneSelectPlugin(typeRegistry, this),
+		new OneToOneSelectPlugin(typeRegistry, driver, this)
+	)
+
+	private val beforeDeletePlugins: List[BeforeDelete] = List(
+		new ManyToManyDeletePlugin(driver, this),
+		new OneToManyDeletePlugin(typeRegistry, this),
+		new OneToOneReverseDeletePlugin(typeRegistry, driver, this),
+		new ManyToOneDeletePlugin
+	)
 	/**
 	 * ===================================================================================
 	 * Utility methods

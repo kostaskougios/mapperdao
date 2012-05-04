@@ -47,10 +47,14 @@ trait PostInsert {
  *
  * 31 Aug 2011
  */
-private[mapperdao] class DuringUpdateResults(val values: List[(Column, Any)], val keys: List[(Column, Any)]) {
+private[mapperdao] class DuringUpdateResults(val values: List[(ColumnBase, Any)], val keys: List[(ColumnBase, Any)]) {
 	def isEmpty = values.isEmpty && keys.isEmpty
 
 	override def toString = "DuringUpdateResults(values: %s, keys: %s)".format(values, keys)
+}
+
+private[mapperdao] object DuringUpdateResults {
+	val empty = new DuringUpdateResults(Nil, Nil)
 }
 
 trait DuringUpdate {

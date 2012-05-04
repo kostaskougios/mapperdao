@@ -15,6 +15,8 @@ import java.util.Locale
 class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[String, Any]) {
 	private val m = new LowerCaseMutableMap(mOrig)
 
+	def contains(c: ColumnBase) = m.contains(c.alias.toLowerCase)
+
 	def columnValue[T](ci: ColumnInfoRelationshipBase[_, _, _, _]): T = columnValue(ci.column.alias)
 
 	/**
@@ -24,6 +26,8 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 		case _: (() => Any) => false
 		case _ => true
 	}
+
+	def columnValue[T](column: ColumnBase): T = columnValue(column.alias)
 
 	def columnValue[T](column: String): T = {
 		val key = column.toLowerCase
