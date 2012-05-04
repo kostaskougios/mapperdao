@@ -16,15 +16,17 @@ import com.googlecode.mapperdao.SimpleTypeValue
  */
 protected class EntityMap[PC, T](entity: Entity[PC, T], keyMode: EntityMap.EqualsMode[T]) {
 	private val table = entity.tpe.table
-	private var m = Set[Any]()
+	private var m = Map[Any, T]()
 
 	def add(o: T): Unit =
-		m = m + key(o)
+		m = m + (key(o) -> o)
 
 	def addAll(l: Traversable[T]): Unit = l foreach { o => add(o) }
 	def contains(o: T) = m.contains(key(o))
 
 	private def key(o: T) = keyMode.key(o)
+
+	override def toString = "EntityMap(%s)".format(m)
 }
 
 protected object EntityMap {
@@ -35,9 +37,16 @@ protected object EntityMap {
 		override def key(o: T) = o match {
 			case p: Persisted =>
 				val table = entity.tpe.table
-				table.toListOfPrimaryKeyAndValueTuples(o) ::: table.toListOfColumnAndValueTuplesForUnusedKeys(o)
+				val k = table.toListOfPrimaryKeyAndValueTuples(o) ::: table.toListOfColumnAndValueTuplesForUnusedKeys(o)
+				k
 			case _ =>
-				System.identityHashCode(o)
+				val table = entity.tpe.table
+				if (table.primaryKeys.isEmpty && !table.unusedPKs.isEmpty) {
+					// entity has some declared keys
+					table.toListOfColumnAndValueTuplesForUnusedKeys(o)
+				} else {
+					System.identityHashCode(o)
+				}
 		}
 	}
 	class ByObjectEquals[T] extends EqualsMode[T] {
