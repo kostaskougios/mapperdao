@@ -7,6 +7,7 @@ import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao.utils.TraversableSeparation
 import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.utils.NYI
 
 /**
  * @author kostantinos.kougios
@@ -33,6 +34,7 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 								List((ci.column, co))
 							case ci: ColumnInfoManyToOne[T, Any, Any] =>
 								u.columns zip ci.column.foreign.entity.tpe.table.toListOfPrimaryKeyValues(co)
+							case _ => NYI()
 						}
 					}.flatten
 
