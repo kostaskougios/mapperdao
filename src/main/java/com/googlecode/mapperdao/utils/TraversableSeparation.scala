@@ -2,9 +2,9 @@ package com.googlecode.mapperdao.utils
 
 import java.util.IdentityHashMap
 import java.util.TreeMap
-
 import com.googlecode.mapperdao.Entity
 import com.googlecode.mapperdao.SimpleTypeValue
+import com.googlecode.mapperdao.Persisted
 
 /**
  * compares 2 traversables via object reference equality and returns (added,intersect,removed)
@@ -34,7 +34,7 @@ protected[mapperdao] object TraversableSeparation {
 				newM.addAll(newT)
 
 				val added = newT.filterNot(oldM.contains(_))
-				val intersect = oldT.filter(newM.contains(_))
+				val intersect = oldT.filter(newM.contains(_)).map(ot => (ot.asInstanceOf[T with Persisted], newM(ot)))
 				val removed = oldT.filterNot(newM.contains(_))
 
 				(added, intersect, removed)

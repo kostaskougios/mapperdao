@@ -57,8 +57,9 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 								driver.doDeleteManyToManyRef(tpe, ftpe, manyToMany, pkArgs, fPkArgs)
 							}
 							// update those that remained in the updated traversable
-							intersection.foreach { p =>
-								modified(manyToMany.alias) = p
+							intersection.foreach {
+								case (oldV, newV) =>
+									modified(manyToMany.alias) = newV
 							}
 							// update the added ones
 							added.foreach { p =>
@@ -78,18 +79,19 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 							}
 
 							// update those that remained in the updated traversable
-							intersection.foreach { item =>
-								val newItem = item match {
-									case p: Persisted =>
-										entityMap.down(mockO, ci, entity)
-										mapperDao.updateInner(updateConfig, fe, item, entityMap)
-										entityMap.up
-										p.mapperDaoDiscarded = true
-										p
-									case _ =>
-										throw new IllegalStateException("Object not persisted but still exists in intersection of old and new collections. Please use the persisted entity when modifying the collection. The not persisted object is %s.".format(item))
-								}
-								modified(manyToMany.alias) = newItem
+							intersection.foreach {
+								case (oldV, newV) =>
+									val newItem = oldV match {
+										case p: Persisted =>
+											entityMap.down(mockO, ci, entity)
+											mapperDao.updateInner(updateConfig, fe, oldV, newV, entityMap)
+											entityMap.up
+											p.mapperDaoDiscarded = true
+											p
+										case _ =>
+											throw new IllegalStateException("Object not persisted but still exists in intersection of old and new collections. Please use the persisted entity when modifying the collection. The not persisted object is %s.".format(newV))
+									}
+									modified(manyToMany.alias) = newItem
 							}
 
 							// update the added ones

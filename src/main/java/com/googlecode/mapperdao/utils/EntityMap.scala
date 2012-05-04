@@ -23,6 +23,7 @@ protected class EntityMap[PC, T](entity: Entity[PC, T], keyMode: EntityMap.Equal
 
 	def addAll(l: Traversable[T]): Unit = l foreach { o => add(o) }
 	def contains(o: T) = m.contains(key(o))
+	def apply(o: T) = m(key(o))
 
 	private def key(o: T) = keyMode.key(o)
 

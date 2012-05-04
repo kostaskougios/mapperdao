@@ -31,9 +31,9 @@ class TraversableSeparationSuite extends FunSuite with ShouldMatchers {
 	test("intersect") {
 		val left = List(X(1), X(2), X(3))
 		val (added, intersect, removed) = TraversableSeparation.separate(XEntity, left, List(X(0)) ::: left.filterNot(_ == X(2)) ::: List(X(4), X(5)))
-		intersect should be === List(X(1), X(3))
-		intersect.head should be theSameInstanceAs (left.head)
-		intersect.tail.head should be theSameInstanceAs (left.tail.tail.head)
+		intersect should be === List((X(1), X(1)), (X(3), X(3)))
+		intersect.head._1 should be theSameInstanceAs (left.head)
+		intersect.tail.head._1 should be theSameInstanceAs (left.tail.tail.head)
 	}
 
 	test("intersect, left is empty") {
@@ -66,9 +66,9 @@ class TraversableSeparationSuite extends FunSuite with ShouldMatchers {
 		val old = List(StringValue("kostas"), StringValue("kougios"))
 		val (added, intersect, removed) = TraversableSeparation.separate(stringEntity, old, List(StringValue("kostas"), StringValue("kougios"), StringValue("X")))
 		added should be === List(StringValue("X"))
-		intersect should be === List(StringValue("kostas"), StringValue("kougios"))
-		intersect.head should be theSameInstanceAs (old.head)
-		intersect.tail.head should be theSameInstanceAs (old.tail.head)
+		intersect should be === List((StringValue("kostas"), StringValue("kostas")), (StringValue("kougios"), StringValue("kougios")))
+		intersect.head._1 should be theSameInstanceAs (old.head)
+		intersect.tail.head._1 should be theSameInstanceAs (old.tail.head)
 	}
 
 	case class X(id: Int)

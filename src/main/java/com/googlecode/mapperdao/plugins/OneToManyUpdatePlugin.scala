@@ -37,7 +37,7 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 
 						val handler = ee.oneToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[T, _, Any]])
 							.asInstanceOf[ee.OnUpdateOneToMany[T]]
-						handler(UpdateExternalOneToMany(updateConfig, o, added, intersection, removed))
+						handler(UpdateExternalOneToMany(updateConfig, o, added, intersection.map(_._2), removed))
 						t.foreach { newItem =>
 							modified(oneToMany.alias) = newItem
 						}
@@ -51,12 +51,13 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 						}
 
 						// update those that remained in the updated traversable
-						intersection.foreach { item =>
-							entityMap.down(mockO, ci, entity)
-							val newItem = mapperDao.updateInner(updateConfig, fe, item, entityMap)
-							entityMap.up
-							item.asInstanceOf[Persisted].mapperDaoDiscarded = true
-							modified(oneToMany.alias) = newItem
+						intersection.foreach {
+							case (oldV, newV) =>
+								entityMap.down(mockO, ci, entity)
+								val newItem = mapperDao.updateInner(updateConfig, fe, oldV, newV, entityMap)
+								entityMap.up
+								oldV.mapperDaoDiscarded = true
+								modified(oneToMany.alias) = newItem
 						}
 						// find the added ones
 						added.foreach { item =>
