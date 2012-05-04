@@ -46,8 +46,13 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	/**
 	 * declare any primary keys that are not used for any mappings
 	 */
-	protected def declarePrimaryKey(column: String)(valueExtractor: T => Option[Any]) {
-		unusedPKs ::= new UnusedColumn(column, valueExtractor)
+	//	protected def declarePrimaryKey(column: String)(valueExtractor: T => Option[Any]) {
+	//		unusedPKs ::= new UnusedColumn(column, valueExtractor)
+	//	}
+
+	protected def declarePrimaryKey[V](ci: ColumnInfo[T, V]) {
+		val valueExtractor = (t: T) => Some(ci.columnToValue(t))
+		unusedPKs ::= new UnusedColumn(ci.column.alias, valueExtractor)
 	}
 
 	//	protected def declarePrimaryKeys(pks: String*): Unit = pks.foreach { pk =>

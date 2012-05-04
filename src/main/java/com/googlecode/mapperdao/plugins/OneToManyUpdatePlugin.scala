@@ -27,12 +27,14 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 					DuringUpdateResults.empty
 				} else {
 					val unusedPKArgs = table.unusedPKs.filter { c =>
+						println(c + " / " + c.alias + " / " + oldValuesMap.contains(c))
 						oldValuesMap.contains(c)
 					}.map { c =>
 						(c, oldValuesMap.columnValue[Any](c))
 					}
 
-					if (unusedPKArgs.isEmpty) throw new IllegalStateException("entity %s doesn't have a primary key neither declare keys via declarePrimaryKeys".format(entity))
+					if (unusedPKArgs.isEmpty)
+						throw new IllegalStateException("entity %s doesn't have a primary key neither declare keys via declarePrimaryKeys".format(entity))
 
 					val pEntity = ui.parentEntity
 					val pTable = pEntity.tpe.table

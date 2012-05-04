@@ -10,10 +10,7 @@ case class StringValue(val value: String) extends SimpleTypeValue[String, String
 protected class StringEntityOneToMany(table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[StringValue](table, classOf[StringValue]) {
 	val value = column(soleColumn) to (_.value)
 
-	declarePrimaryKey(fkColumn) { _ => None }
-	declarePrimaryKey(soleColumn) { o => Some(o.value) }
-
-	//	declarePrimaryKeys(fkColumn, soleColumn)
+	declarePrimaryKey(value)
 	def constructor(implicit m: ValuesMap) = new StringValue(value) with Persisted
 }
 

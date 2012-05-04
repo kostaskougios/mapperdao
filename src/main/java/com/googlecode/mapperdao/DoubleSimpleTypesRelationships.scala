@@ -9,8 +9,8 @@ case class DoubleValue(val value: Double) extends SimpleTypeValue[Double, Double
 
 protected class DoubleEntityOTM(table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[DoubleValue](table, classOf[DoubleValue]) {
 	val value = column(soleColumn) to (_.value)
-	declarePrimaryKey(fkColumn) { _ => None }
-	declarePrimaryKey(soleColumn) { o => Some(o.value) }
+	//declarePrimaryKey(fkColumn) { _ => None }
+	declarePrimaryKey(value)
 
 	def constructor(implicit m: ValuesMap) = new DoubleValue(value) with Persisted
 }

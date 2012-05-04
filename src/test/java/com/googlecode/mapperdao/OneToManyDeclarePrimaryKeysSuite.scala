@@ -60,8 +60,7 @@ class OneToManyDeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 	object HouseEntity extends SimpleEntity[House] {
 		val address = column("address") to (_.address)
 
-		declarePrimaryKey("address") { h => Some(h.address) }
-		declarePrimaryKey("person_id") { h => None }
+		declarePrimaryKey(address)
 
 		def constructor(implicit m) = new House(address) with Persisted
 	}

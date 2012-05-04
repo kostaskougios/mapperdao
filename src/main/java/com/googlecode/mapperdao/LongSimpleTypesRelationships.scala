@@ -9,9 +9,8 @@ case class LongValue(val value: Long) extends SimpleTypeValue[Long, LongValue] {
 
 protected class LongEntityOTM(table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[LongValue](table, classOf[LongValue]) {
 	val value = column(soleColumn) to (_.value)
-	declarePrimaryKey(fkColumn) { _ => None }
-	declarePrimaryKey(soleColumn) { o => Some(o.value) }
-
+	//	declarePrimaryKey(fkColumn) { _ => None }
+	declarePrimaryKey(value)
 	def constructor(implicit m: ValuesMap) = new LongValue(value) with Persisted
 }
 

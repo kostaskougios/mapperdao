@@ -9,8 +9,8 @@ case class FloatValue(val value: Float) extends SimpleTypeValue[Float, FloatValu
 
 protected class FloatEntityOTM(table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[FloatValue](table, classOf[FloatValue]) {
 	val value = column(soleColumn) to (_.value)
-	declarePrimaryKey(fkColumn) { _ => None }
-	declarePrimaryKey(soleColumn) { o => Some(o.value) }
+	//	declarePrimaryKey(fkColumn) { _ => None }
+	declarePrimaryKey(value)
 
 	def constructor(implicit m: ValuesMap) = new FloatValue(value) with Persisted
 }
