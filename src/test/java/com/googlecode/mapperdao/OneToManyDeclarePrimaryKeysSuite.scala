@@ -20,6 +20,11 @@ class OneToManyDeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 			createTables()
 			val SW = mapperDao.insert(PostCodeEntity, PostCode("SW"))
 			val SE = mapperDao.insert(PostCodeEntity, PostCode("SE"))
+
+			// some dummy data to mix the id's
+			mapperDao.insert(PersonEntity, Person("p1", Set(House("A1", SW))))
+			mapperDao.insert(PersonEntity, Person("p2", Set(House("A2", SE))))
+
 			val inserted = mapperDao.insert(PersonEntity, Person("kostas", Set(House("address1", SW), House("address2", SE))))
 			val otherInserted = mapperDao.insert(PersonEntity, Person("kostas", Set(House("address1", SW), House("address2", SE))))
 			inserted.owns.head.address = "updated address"
