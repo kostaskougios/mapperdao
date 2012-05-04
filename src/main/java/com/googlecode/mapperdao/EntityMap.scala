@@ -8,8 +8,7 @@ import scala.collection.mutable.HashMap
 import com.googlecode.mapperdao.jdbc.JdbcMap
 
 /**
- * contains entities sorimport com.googlecode.mapperdao.jdbc.JdbcMap
- * ted via 2 keys: class and ids
+ * contains entities sorted via 2 keys: class and ids
  *
  * @author kostantinos.kougios
  *

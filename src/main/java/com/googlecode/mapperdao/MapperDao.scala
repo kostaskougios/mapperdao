@@ -97,6 +97,9 @@ trait MapperDao {
 	 * Extra care should be taken to match the linked entity with the data stored in the
 	 * database, otherwise an update can corrupt the data.
 	 *
+	 * The linked entity and all related entities should match the data stored in the
+	 * database.
+	 *
 	 * val dog=new Dog("Jerry")
 	 * val linkedDog=dao.link(dog,5)
 	 *
@@ -108,7 +111,9 @@ trait MapperDao {
 
 	/**
 	 * unlinks an entity from mapperdao. The entity is not tracked for changes and can't
-	 * be used in updates or deletes.
+	 * be used in updates or deletes. The extra memory used by mapperdao is released.
+	 *
+	 * Use this i.e. when you want to store the entity in a session.
 	 */
 	def unlink[T](o: T): T = throw new IllegalStateException("Not supported")
 }
