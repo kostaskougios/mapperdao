@@ -8,7 +8,7 @@ package com.googlecode.mapperdao
  * 12 Jul 2011
  */
 
-case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _]], extraColumnInfosPersisted: List[ColumnInfoBase[T with PC, _]], val unusedPKs: List[UnusedColumn[T]]) {
+case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _]], extraColumnInfosPersisted: List[ColumnInfoBase[T with PC, _]], val unusedPKs: List[UnusedColumn[T, _]]) {
 
 	val columns: List[ColumnBase] = columnInfosPlain.map(_.column) ::: extraColumnInfosPersisted.map(_.column)
 	// the primary keys for this table
@@ -97,7 +97,15 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 	def unusedPrimaryKeyColumns = unusedPKs.map(_.columns).flatten
 	def toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(o: T): List[(ColumnBase, Any)] =
 		unusedPKs.map { u =>
-			u.valueExtractor(o)
+			u.ci match {
+				case ci: ColumnInfo[_, _] =>
+					List((ci.column, ci.columnToValue(o)))
+				case ci: ColumnInfoManyToOne[Any, Any, Any] =>
+					val l = ci.columnToValue(o)
+					val fe = ci.column.foreign.entity
+					val pks = fe.tpe.table.toListOfPrimaryKeyValues(o)
+					ci.column.columns zip pks
+			}
 		}.flatten
 
 	def toListOfColumnAndValueTuples[CB <: ColumnBase](columns: List[CB], o: T): List[(CB, Any)] = columns.map { c =>

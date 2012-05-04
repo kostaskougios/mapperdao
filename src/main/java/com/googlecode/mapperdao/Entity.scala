@@ -18,7 +18,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 
 	protected[mapperdao] var persistedColumns = List[ColumnInfoBase[T with PC, _]]()
 	protected[mapperdao] var columns = List[ColumnInfoBase[T, _]]()
-	protected[mapperdao] var unusedPKs = List[UnusedColumn[T]]()
+	protected[mapperdao] var unusedPKs = List[UnusedColumn[T, _]]()
 	protected[mapperdao] lazy val tpe = {
 		val con: (ValuesMap) => T with PC with Persisted = m => {
 			// construct the object
@@ -51,18 +51,11 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	//	}
 
 	protected def declarePrimaryKey[V](ci: ColumnInfo[T, V]) {
-		val valueExtractor = (t: T) => List((ci.column, ci.columnToValue(t)))
-		unusedPKs ::= new UnusedColumn(List(ci.column), valueExtractor)
+		unusedPKs ::= new UnusedColumn(List(ci.column), ci)
 	}
 
 	protected def declarePrimaryKey[V](ci: ColumnInfoManyToOne[T, _, _]) {
-		val valueExtractor = (t: T) => {
-			val fv = ci.columnToValue(t)
-			val fe = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
-			val ftable = fe.tpe.table
-			ci.column.columns zip ftable.toListOfPrimaryKeyValues(fv)
-		}
-		unusedPKs ::= new UnusedColumn(ci.column.columns, valueExtractor)
+		unusedPKs ::= new UnusedColumn(ci.column.columns, ci)
 	}
 
 	//	protected def declarePrimaryKeys(pks: String*): Unit = pks.foreach { pk =>

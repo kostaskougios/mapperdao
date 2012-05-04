@@ -78,6 +78,7 @@ class OneToManyDeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 		val address = column("address") to (_.address)
 		val postCode = manytoone(PostCodeEntity) to (_.postCode)
 
+		declarePrimaryKey(address)
 		declarePrimaryKey(postCode)
 
 		def constructor(implicit m) = new House(address, postCode) with Persisted
