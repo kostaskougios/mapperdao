@@ -14,7 +14,7 @@ import com.googlecode.mapperdao._
  * 31 Aug 2011
  */
 class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
-	extends PostUpdate with DuringUpdate {
+		extends PostUpdate with DuringUpdate {
 
 	def during[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]) = {
 		val ui = entityMap.peek[Any, Any, Traversable[Any], Any, Any]
@@ -26,20 +26,19 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				if (!table.primaryKeys.isEmpty) {
 					DuringUpdateResults.empty
 				} else {
-					val unusedPKArgs = table.unusedPKs.filter { c =>
-						println(c + " / " + c.alias + " / " + oldValuesMap.contains(c))
-						oldValuesMap.contains(c)
-					}.map { c =>
-						(c, oldValuesMap.columnValue[Any](c))
-					}
-
-					if (unusedPKArgs.isEmpty)
-						throw new IllegalStateException("entity %s doesn't have a primary key neither declare keys via declarePrimaryKeys".format(entity))
+					val unusedPKArgs = table.unusedPKs.map { c =>
+						c.valueExtractor(o)
+					}.flatten
 
 					val pEntity = ui.parentEntity
 					val pTable = pEntity.tpe.table
 					val parentForeignKeys = ui.ci.column.columns zip pTable.toListOfPrimaryKeyValues(ui.o)
-					new DuringUpdateResults(Nil, unusedPKArgs ::: parentForeignKeys)
+
+					val keys = unusedPKArgs ::: parentForeignKeys
+					if (keys.isEmpty)
+						throw new IllegalStateException("entity %s doesn't have a primary key neither declare keys via declarePrimaryKeys".format(entity))
+
+					new DuringUpdateResults(Nil, keys)
 				}
 			case _ => DuringUpdateResults.empty
 		}

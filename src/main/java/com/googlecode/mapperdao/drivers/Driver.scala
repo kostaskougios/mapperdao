@@ -214,7 +214,7 @@ abstract class Driver {
 		{
 			val columns = selectColumns(tpe)
 			val sb = new StringBuilder(100, "select ")
-			sb append commaSeparatedListOfSimpleTypeColumns(",", (columns ::: tpe.table.unusedPKs).toSet)
+			sb append commaSeparatedListOfSimpleTypeColumns(",", (columns ::: tpe.table.unusedPrimaryKeyColumns).toSet)
 			sb append " from " append escapeTableNames(tpe.table.name)
 			sb append "\nwhere " append generateColumnsEqualsValueString(where.map(_._1), " and ")
 

@@ -348,7 +348,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 				if (table.unusedPKs.isEmpty)
 					throw new IllegalStateException("entity %s without primary key, please use declarePrimaryKeys() to declare the primary key columns of tables into your entity declaration")
 				else
-					table.unusedPKs.map { pk => jdbcMap(pk.columnName) }
+					table.unusedPrimaryKeyColumns.map { c => jdbcMap(c.columnName) }
 			} else ids
 
 			entities.get[T with PC](tpe.clz, cacheKey).getOrElse {
@@ -457,7 +457,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 				)
 
 				val unusedPKColumns = table.unusedPKs.filterNot(unusedColumn => keyValues0.map(_._1).contains(unusedColumn))
-				val keyValues = keyValues0 ::: table.toListOfColumnAndValueTuplesForUnusedKeys(unusedPKColumns, o)
+				val keyValues = keyValues0 ::: table.toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(o)
 				// call all the before-delete plugins
 				beforeDeletePlugins.foreach {
 					_.before(entity, deleteConfig, events, persisted, keyValues, entityMap)

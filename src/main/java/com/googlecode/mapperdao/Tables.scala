@@ -93,12 +93,12 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 	def toListOfPrimaryKeyValues(o: T): List[Any] = toListOfPrimaryKeyAndValueTuples(o).map(_._2)
 	def toListOfPrimaryKeyAndValueTuples(o: T): List[(PK, Any)] = toListOfColumnAndValueTuples(primaryKeys, o)
 	def toListOfPrimaryKeySimpleColumnAndValueTuples(o: T): List[(SimpleColumn, Any)] = toListOfColumnAndValueTuples(primaryKeys, o)
-	def toListOfUnusedPrimaryKeySimpleColumnAndOptionValueTuples(o: T): List[(UnusedColumn[T], Option[Any])] =
+
+	def unusedPrimaryKeyColumns = unusedPKs.map(_.columns).flatten
+	def toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(o: T): List[(ColumnBase, Any)] =
 		unusedPKs.map { u =>
-			(u, u.valueExtractor(o))
-		}
-	def toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(o: T): List[(UnusedColumn[T], Any)] =
-		toListOfUnusedPrimaryKeySimpleColumnAndOptionValueTuples(o).filterNot(_._2 == None).map(t => (t._1, t._2.get))
+			u.valueExtractor(o)
+		}.flatten
 
 	def toListOfColumnAndValueTuples[CB <: ColumnBase](columns: List[CB], o: T): List[(CB, Any)] = columns.map { c =>
 		val ctco = columnToColumnInfoMap.get(c)
@@ -113,13 +113,6 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 			}
 		}
 	}
-
-	def toListOfColumnAndValueTuplesForUnusedKeys(o: T): List[(ColumnBase, Any)] = toListOfColumnAndValueTuplesForUnusedKeys(unusedPKs, o)
-	def toListOfColumnAndValueTuplesForUnusedKeys(columns: List[UnusedColumn[T]], o: T): List[(ColumnBase, Any)] =
-		columns
-			.map { c => (c, c.valueExtractor(o)) }
-			.filter(_._2.isDefined)
-			.map { case (c, vo) => (c, vo.get) }
 
 	def toColumnAndValueMap(columns: List[ColumnBase], o: T): Map[ColumnBase, Any] = columns.map { c => (c, columnToColumnInfoMap(c).columnToValue(o)) }.toMap
 	def toPCColumnAndValueMap(columns: List[ColumnBase], o: T with PC): Map[ColumnBase, Any] = columns.map { c => (c, pcColumnToColumnInfoMap(c).columnToValue(o)) }.toMap

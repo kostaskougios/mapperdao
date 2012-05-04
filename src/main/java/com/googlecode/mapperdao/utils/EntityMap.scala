@@ -38,13 +38,13 @@ protected object EntityMap {
 		override def key(o: T) = o match {
 			case p: Persisted =>
 				val table = entity.tpe.table
-				val k = table.toListOfPrimaryKeyAndValueTuples(o) ::: table.toListOfColumnAndValueTuplesForUnusedKeys(o)
+				val k = table.toListOfPrimaryKeyAndValueTuples(o) ::: table.toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(o)
 				k
 			case _ =>
 				val table = entity.tpe.table
 				if (table.primaryKeys.isEmpty && !table.unusedPKs.isEmpty) {
 					// entity has some declared keys
-					table.toListOfColumnAndValueTuplesForUnusedKeys(o)
+					table.toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(o)
 				} else {
 					System.identityHashCode(o)
 				}
