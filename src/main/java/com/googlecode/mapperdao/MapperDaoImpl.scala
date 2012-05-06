@@ -353,7 +353,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			entities.get[T with PC](tpe.clz, cacheKey) {
 				val mods = jdbcMap.toMap
 				val mock = createMock(entity, mods)
-				entities.put(tpe.clz, cacheKey, mock)
+				entities.putMock(tpe.clz, cacheKey, mock)
 
 				val allMods = mods ++ selectBeforePlugins.map {
 					_.before(entity, selectConfig, jdbcMap, entities)
@@ -368,7 +368,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 				val entityV = if (lazyLoadManager.isLazyLoaded(selectConfig.lazyLoad, entity)) {
 					lazyLoadEntity(entity, selectConfig, vm)
 				} else tpe.constructor(vm)
-				entities.reput(tpe.clz, cacheKey, entityV)
+				//entities.reput(tpe.clz, cacheKey, entityV)
 				Some(entityV)
 			}.get
 		}

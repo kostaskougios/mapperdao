@@ -3,7 +3,6 @@ package com.googlecode.mapperdao
 import java.util.IdentityHashMap
 
 import scala.collection.immutable.Stack
-import scala.collection.mutable.HashMap
 
 import com.googlecode.mapperdao.jdbc.JdbcMap
 
@@ -14,24 +13,21 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
  *
  * 7 Aug 2011
  */
-private[mapperdao] class EntityMap(
-		m: scala.collection.mutable.Map[List[Any], Option[_]] = HashMap(),
-		test: Boolean = true) {
+private[mapperdao] class EntityMap {
 	private var stack = Stack[SelectInfo[_, _, _, _, _]]()
+	private val m = scala.collection.mutable.Map[List[Any], Option[_]]()
 
 	private def key(clz: Class[_], ids: List[Any]) = clz :: ids
 
-	def put[T](clz: Class[_], ids: List[Any], entity: T): Unit =
+	def putMock[T](clz: Class[_], ids: List[Any], entity: T): Unit =
 		{
 			val k = key(clz, ids)
-			if (test && m.contains(k)) throw new IllegalStateException("ids %s already contained for %s".format(ids, clz))
-			m(k) = Some(entity)
-		}
-
-	def reput[T](clz: Class[_], ids: List[Any], entity: T): Unit =
-		{
-			val k = key(clz, ids)
-			m(k) = Some(entity)
+			if (m.contains(k)) {
+				// mocks should only "put" if the map doesn't already have a value
+				throw new IllegalStateException("ids %s already contained for %s".format(ids, clz))
+			} else {
+				m(k) = Some(entity)
+			}
 		}
 
 	def get[T](clz: Class[_], ids: List[Any])(f: => Option[T]): Option[T] = {

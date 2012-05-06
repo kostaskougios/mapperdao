@@ -14,6 +14,9 @@ package com.googlecode.mapperdao
  */
 abstract class MultiThreadedConfig {
 	val runInParallel: Boolean
+
+	// having a lot of small groups will speed up entities with few relations. Less but bigger
+	// groups speed up entities with many relations
 	val inGroupsOf: Int
 }
 
@@ -25,6 +28,10 @@ object MultiThreadedConfig {
 
 	object Multi extends MultiThreadedConfig {
 		val runInParallel = true
-		val inGroupsOf = 8
+		val inGroupsOf = 128
+	}
+
+	abstract class CustomMulti extends MultiThreadedConfig {
+		val runInParallel = true
 	}
 }

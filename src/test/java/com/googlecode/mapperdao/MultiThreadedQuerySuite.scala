@@ -15,7 +15,7 @@ import com.googlecode.mapperdao.jdbc.Transaction
 @RunWith(classOf[JUnitRunner])
 class MultiThreadedQuerySuite extends FunSuite with ShouldMatchers {
 
-	if (Setup.database == "postgresql") {
+	if (Setup.database == "h2" || Setup.database == "postgresql") {
 		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 		val txManager = Transaction.transactionManager(jdbc)
 

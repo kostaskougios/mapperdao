@@ -17,10 +17,10 @@ class EntityMapSuite extends FunSuite with ShouldMatchers {
 
 	test("put and get") {
 		val m = new EntityMap
-		m.put(classOf[E1], List(5), E1("1"))
-		m.put(classOf[E1], List(6), E1("2"))
-		m.put(classOf[E2], List(5, 6), E2("x"))
-		m.put(classOf[E2], List(5, 7), E2("y"))
+		m.putMock(classOf[E1], List(5), E1("1"))
+		m.putMock(classOf[E1], List(6), E1("2"))
+		m.putMock(classOf[E2], List(5, 6), E2("x"))
+		m.putMock(classOf[E2], List(5, 7), E2("y"))
 
 		m.get[E1](classOf[E1], List(5)) { None }.get should be === E1("1")
 		m.get[E1](classOf[E1], List(6)) { None }.get should be === E1("2")
@@ -36,14 +36,7 @@ class EntityMapSuite extends FunSuite with ShouldMatchers {
 
 	test("re-put throws exception") {
 		val m = new EntityMap
-		m.put(classOf[E1], List(5), E1("1"))
-		evaluating { m.put(classOf[E1], List(5), E1("1")) } should produce[IllegalStateException]
-	}
-
-	test("reput") {
-		val m = new EntityMap
-		m.put(classOf[E1], List(5), E1("1"))
-		m.reput(classOf[E1], List(5), E1("2"))
-		m.get[E1](classOf[E1], List(5)) { None }.get should be === E1("2")
+		m.putMock(classOf[E1], List(5), E1("1"))
+		evaluating { m.putMock(classOf[E1], List(5), E1("1")) } should produce[IllegalStateException]
 	}
 }
