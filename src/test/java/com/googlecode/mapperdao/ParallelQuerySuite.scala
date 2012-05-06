@@ -5,6 +5,7 @@ import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.jdbc.Setup
+import com.googlecode.mapperdao.jdbc.Transaction
 
 /**
  * @author kostantinos.kougios
@@ -16,6 +17,32 @@ class ParallelQuerySuite extends FunSuite with ShouldMatchers {
 
 	if (Setup.database == "postgresql") {
 		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+		val txManager = Transaction.transactionManager(jdbc)
+
+		test("parallel query") {
+			createTables
+
+			val tx = Transaction.default(txManager)
+			val (attrs, products) = tx { () =>
+				val attrs = for (i <- 1 to 20) yield {
+					mapperDao.insert(AttributeEntity, Attribute("a" + i, "v" + i))
+				}
+				val products = for (i <- 1 to 1000) yield {
+					val idx = i % 19
+					mapperDao.insert(ProductEntity, Product("product" + i, Set(attrs(idx), attrs(idx + 1))))
+				}
+				(attrs, products)
+			}
+
+			import Query._
+			val loaded = queryDao.query(select from ProductEntity).toSet
+			products.toSet should be === loaded
+		}
+
+		def createTables {
+			Setup.dropAllTables(jdbc)
+			Setup.queries(this, jdbc).update("ddl")
+		}
 	}
 
 	case class Product(val name: String, val attributes: Set[Attribute])

@@ -80,7 +80,8 @@ import org.scalatest.FunSuite
 		classOf[LazyLoadManagerSuite],
 		classOf[OneToOneLazyLoadSuite],
 		classOf[LinkSuite],
-		classOf[OneToManyDeclarePrimaryKeysSuite]
+		classOf[OneToManyDeclarePrimaryKeysSuite],
+		classOf[ParallelQuerySuite]
 	)
 )
 @RunWith(classOf[Suite])
