@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * 6 May 2012
  */
-private[mapperdao] class MultiThreadedQueryRunStrategy(mapperDao: MapperDaoImpl) extends QueryRunStrategy {
+private[mapperdao] class ParQueryRunStrategy(mapperDao: MapperDaoImpl) extends QueryRunStrategy {
 
 	override def run[PC, T](entity: Entity[PC, T], queryConfig: QueryConfig, lm: List[JdbcMap]) = {
 		// a global cache for fully loaded entities

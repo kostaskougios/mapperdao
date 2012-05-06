@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
 final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends QueryDao {
 
 	private val defaultQueryRunStrategy = new DefaultQueryRunStrategy(mapperDao)
-	private val multiThreadQueryRunStrategy = new MultiThreadedQueryRunStrategy(mapperDao)
+	private val multiThreadQueryRunStrategy = new ParQueryRunStrategy(mapperDao)
 
 	import QueryDao._
 
