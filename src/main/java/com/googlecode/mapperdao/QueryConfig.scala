@@ -9,7 +9,8 @@ case class QueryConfig(
 		limit: Option[Long] = None,
 		data: Option[Any] = None,
 		cacheOptions: CacheOption = CacheOptions.NoCache,
-		lazyLoad: LazyLoad = LazyLoad.none) {
+		lazyLoad: LazyLoad = LazyLoad.none,
+		multi: MultiThreadedConfig = MultiThreadedConfig.Single) {
 
 	// check parameter validity
 	if (offset.isDefined && offset.get < 0) throw new IllegalArgumentException("offset is " + offset)

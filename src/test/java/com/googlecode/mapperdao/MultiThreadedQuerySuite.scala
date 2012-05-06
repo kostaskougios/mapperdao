@@ -13,7 +13,7 @@ import com.googlecode.mapperdao.jdbc.Transaction
  * 6 May 2012
  */
 @RunWith(classOf[JUnitRunner])
-class ParallelQuerySuite extends FunSuite with ShouldMatchers {
+class MultiThreadedQuerySuite extends FunSuite with ShouldMatchers {
 
 	if (Setup.database == "postgresql") {
 		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
@@ -35,7 +35,7 @@ class ParallelQuerySuite extends FunSuite with ShouldMatchers {
 			}
 
 			import Query._
-			val loaded = queryDao.query(select from ProductEntity).toSet
+			val loaded = queryDao.query(QueryConfig(multi = MultiThreadedConfig.Multi), select from ProductEntity).toSet
 			products.toSet should be === loaded
 		}
 

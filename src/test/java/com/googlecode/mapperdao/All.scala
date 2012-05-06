@@ -81,7 +81,7 @@ import org.scalatest.FunSuite
 		classOf[OneToOneLazyLoadSuite],
 		classOf[LinkSuite],
 		classOf[OneToManyDeclarePrimaryKeysSuite],
-		classOf[ParallelQuerySuite]
+		classOf[MultiThreadedQuerySuite]
 	)
 )
 @RunWith(classOf[Suite])
