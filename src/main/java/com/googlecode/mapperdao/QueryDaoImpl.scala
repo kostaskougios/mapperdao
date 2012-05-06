@@ -30,6 +30,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 				val lm = driver.queryForList(queryConfig, sa.sql, sa.args)
 
 				if (queryConfig.multi.runInParallel) {
+					if (!qe.order.isEmpty) throw new IllegalStateException("order by is not allowed for multi-thread queries")
 					// run query using multiple threads
 					multiThreadQueryRunStrategy.run(qe.entity, queryConfig, lm)
 				} else {

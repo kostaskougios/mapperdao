@@ -39,7 +39,19 @@ class MultiThreadedQuerySuite extends FunSuite with ShouldMatchers {
 			val loaded = queryDao.query(QueryConfig(multi = MultiThreadedConfig.Multi), select from ProductEntity).toSet
 			val dt = System.currentTimeMillis - start
 			println("dt: " + dt)
-			products.toSet should be === loaded
+			loaded should be === products.toSet
+			loaded.foreach { p =>
+				p match {
+					case pp: Persisted =>
+						pp.mapperDaoMock should be(false)
+						pp.attributes.foreach { a =>
+							a match {
+								case pa: Persisted =>
+									pa.mapperDaoMock should be(false)
+							}
+						}
+				}
+			}
 		}
 
 		def createTables {
