@@ -14,7 +14,9 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
  *
  * 7 Aug 2011
  */
-private[mapperdao] class EntityMap(m: scala.collection.mutable.Map[List[Any], Option[_]] = HashMap()) {
+private[mapperdao] class EntityMap(
+		m: scala.collection.mutable.Map[List[Any], Option[_]] = HashMap(),
+		test: Boolean = true) {
 	private var stack = Stack[SelectInfo[_, _, _, _, _]]()
 
 	private def key(clz: Class[_], ids: List[Any]) = clz :: ids
@@ -22,7 +24,7 @@ private[mapperdao] class EntityMap(m: scala.collection.mutable.Map[List[Any], Op
 	def put[T](clz: Class[_], ids: List[Any], entity: T): Unit =
 		{
 			val k = key(clz, ids)
-			if (m.contains(k)) throw new IllegalStateException("ids %s already contained for %s".format(ids, clz))
+			if (test && m.contains(k)) throw new IllegalStateException("ids %s already contained for %s".format(ids, clz))
 			m(k) = Some(entity)
 		}
 
