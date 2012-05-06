@@ -24,11 +24,25 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			try {
 				sa = sqlAndArgs(queryConfig, qe)
 				val lm = driver.queryForList(queryConfig, sa.sql, sa.args)
-				val entityMap = new EntityMap
-				val selectConfig = SelectConfig.from(queryConfig)
-				val v = mapperDao.toEntities(lm, qe.entity, selectConfig, entityMap)
-				entityMap.done
-				v
+
+				if (queryConfig.multi.runInParallel) {
+					// run query using multiple threads
+					val lmc = lm.grouped(queryConfig.multi.inGroupsOf).toList.par.map { l =>
+						val entityMap = new EntityMap
+						val selectConfig = SelectConfig.from(queryConfig)
+						val v = mapperDao.toEntities(l, qe.entity, selectConfig, entityMap)
+						entityMap.done
+						v
+					}.toList
+					lmc.flatten
+				} else {
+					// run query
+					val entityMap = new EntityMap
+					val selectConfig = SelectConfig.from(queryConfig)
+					val v = mapperDao.toEntities(lm, qe.entity, selectConfig, entityMap)
+					entityMap.done
+					v
+				}
 			} catch {
 				case e =>
 					val extra = if (sa != null) "\n------\nThe query:%s\nThe arguments:%s\n------\n".format(sa.sql, sa.args) else "None"

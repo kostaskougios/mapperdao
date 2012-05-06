@@ -14,8 +14,7 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
  *
  * 7 Aug 2011
  */
-private[mapperdao] class EntityMap {
-	private val m = HashMap[List[Any], Option[_]]()
+private[mapperdao] class EntityMap(m: scala.collection.mutable.Map[List[Any], Option[_]] = HashMap()) {
 	private var stack = Stack[SelectInfo[_, _, _, _, _]]()
 
 	private def key(clz: Class[_], ids: List[Any]) = clz :: ids
