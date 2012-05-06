@@ -14,28 +14,32 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
  *
  * 7 Aug 2011
  */
-protected class EntityMap {
-	type InnerMap = HashMap[List[Any], AnyRef]
-	private val m = HashMap[Class[_], InnerMap]()
+private[mapperdao] class EntityMap {
+	private val m = HashMap[List[Any], Option[_]]()
 	private var stack = Stack[SelectInfo[_, _, _, _, _]]()
+
+	private def key(clz: Class[_], ids: List[Any]) = clz :: ids
 
 	def put[T](clz: Class[_], ids: List[Any], entity: T): Unit =
 		{
-			val im = m.getOrElseUpdate(clz, HashMap())
-			if (im.contains(ids)) throw new IllegalStateException("ids %s already contained for %s".format(ids, clz))
-			im(ids) = entity.asInstanceOf[AnyRef]
+			val k = key(clz, ids)
+			if (m.contains(k)) throw new IllegalStateException("ids %s already contained for %s".format(ids, clz))
+			m(k) = Some(entity)
 		}
 
 	def reput[T](clz: Class[_], ids: List[Any], entity: T): Unit =
 		{
-			val im = m.getOrElseUpdate(clz, HashMap())
-			im(ids) = entity.asInstanceOf[AnyRef]
+			val k = key(clz, ids)
+			m(k) = Some(entity)
 		}
 
 	def get[T](clz: Class[_], ids: List[Any])(f: => Option[T]): Option[T] = {
-		val im = m.get(clz)
-		val vo = if (im.isDefined) im.get.get(ids).asInstanceOf[Option[T]] else None
-		if (vo.isDefined) vo else f
+		val k = key(clz, ids)
+		m.getOrElse(k, {
+			val vo = f
+			m(k) = vo
+			vo
+		}).asInstanceOf[Option[T]]
 	}
 
 	def down[PC, T, V, FPC, F](o: Type[PC, T], ci: ColumnInfoRelationshipBase[T, V, FPC, F], jdbcMap: JdbcMap): Unit =
