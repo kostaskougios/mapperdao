@@ -14,6 +14,9 @@ import java.util.concurrent.ConcurrentHashMap
  */
 final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends QueryDao {
 
+	private val defaultQueryRunStrategy = new DefaultQueryRunStrategy(mapperDao)
+	private val multiThreadQueryRunStrategy = new MultiThreadedQueryRunStrategy(mapperDao)
+
 	import QueryDao._
 
 	private case class SqlAndArgs(val sql: String, val args: List[Any])
@@ -28,22 +31,10 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 
 				if (queryConfig.multi.runInParallel) {
 					// run query using multiple threads
-					val globalL1 = new ConcurrentHashMap[List[Any], Option[_]]
-					val lmc = lm.grouped(queryConfig.multi.inGroupsOf).toList.par.map { l =>
-						val entityMap = new MultiThreadedQueryEntityMapImpl(globalL1)
-						val selectConfig = SelectConfig.from(queryConfig)
-						val v = mapperDao.toEntities(l, qe.entity, selectConfig, entityMap)
-						entityMap.done
-						v
-					}.toList
-					lmc.flatten
+					multiThreadQueryRunStrategy.run(qe.entity, queryConfig, lm)
 				} else {
 					// run query
-					val entityMap = new EntityMapImpl
-					val selectConfig = SelectConfig.from(queryConfig)
-					val v = mapperDao.toEntities(lm, qe.entity, selectConfig, entityMap)
-					entityMap.done
-					v
+					defaultQueryRunStrategy.run(qe.entity, queryConfig, lm)
 				}
 			} catch {
 				case e =>
