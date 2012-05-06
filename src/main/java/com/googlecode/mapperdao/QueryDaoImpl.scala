@@ -29,7 +29,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					// run query using multiple threads
 					//val m = new scala.collection.mutable.HashMap[List[Any], Option[_]]() with scala.collection.mutable.SynchronizedMap[List[Any], Option[_]]
 					val lmc = lm.grouped(queryConfig.multi.inGroupsOf).toList.par.map { l =>
-						val entityMap = new EntityMap
+						val entityMap = new EntityMapImpl
 						val selectConfig = SelectConfig.from(queryConfig)
 						val v = mapperDao.toEntities(l, qe.entity, selectConfig, entityMap)
 						entityMap.done
@@ -38,7 +38,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					lmc.flatten
 				} else {
 					// run query
-					val entityMap = new EntityMap
+					val entityMap = new EntityMapImpl
 					val selectConfig = SelectConfig.from(queryConfig)
 					val v = mapperDao.toEntities(lm, qe.entity, selectConfig, entityMap)
 					entityMap.done

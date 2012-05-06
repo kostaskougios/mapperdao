@@ -2,8 +2,6 @@ package com.googlecode.mapperdao
 
 import java.util.IdentityHashMap
 
-import scala.collection.immutable.Stack
-
 import com.googlecode.mapperdao.jdbc.JdbcMap
 
 /**
@@ -13,43 +11,10 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
  *
  * 7 Aug 2011
  */
-private[mapperdao] class EntityMap {
-	private var stack = Stack[SelectInfo[_, _, _, _, _]]()
-	private val m = scala.collection.mutable.Map[List[Any], Option[_]]()
+private[mapperdao] trait EntityMap extends EntityStack {
 
-	private def key(clz: Class[_], ids: List[Any]) = clz :: ids
-
-	def putMock[T](clz: Class[_], ids: List[Any], entity: T): Unit =
-		{
-			val k = key(clz, ids)
-			if (m.contains(k)) {
-				// mocks should only "put" if the map doesn't already have a value
-				throw new IllegalStateException("ids %s already contained for %s".format(ids, clz))
-			} else {
-				m(k) = Some(entity)
-			}
-		}
-
-	def get[T](clz: Class[_], ids: List[Any])(f: => Option[T]): Option[T] = {
-		val k = key(clz, ids)
-		m.getOrElse(k, {
-			val vo = f
-			m(k) = vo
-			vo
-		}).asInstanceOf[Option[T]]
-	}
-
-	def down[PC, T, V, FPC, F](o: Type[PC, T], ci: ColumnInfoRelationshipBase[T, V, FPC, F], jdbcMap: JdbcMap): Unit =
-		stack = stack.push(SelectInfo(o, ci, jdbcMap))
-
-	def peek[PC, T, V, FPC, F] = (if (stack.isEmpty) SelectInfo(null, null, null) else stack.top).asInstanceOf[SelectInfo[PC, T, V, FPC, F]]
-
-	def up = stack = stack.pop
-
-	def done {
-		if (!stack.isEmpty) throw new InternalError("stack should be empty but is " + stack)
-	}
-
-	override def toString = "EntityMap(%s)".format(m.toString)
+	def putMock[T](clz: Class[_], ids: List[Any], entity: T): Unit
+	def get[T](clz: Class[_], ids: List[Any])(f: => Option[T]): Option[T]
 }
+
 protected case class SelectInfo[PC, T, V, FPC, F](val tpe: Type[PC, T], val ci: ColumnInfoRelationshipBase[T, V, FPC, F], val jdbcMap: JdbcMap)
