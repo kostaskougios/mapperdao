@@ -313,7 +313,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			val tpe = entity.tpe
 			if (tpe.table.primaryKeys.size != ids.size) throw new IllegalStateException("Primary keys number dont match the number of parameters. Primary keys: %s".format(tpe.table.primaryKeys))
 
-			entities.get[T with PC](tpe.clz, ids).headOption.orElse(
+			entities.get[T with PC](tpe.clz, ids) {
 				try {
 					val args = tpe.table.primaryKeys.map(_.column).zip(ids)
 					events.executeBeforeSelectEvents(tpe, args)
@@ -323,13 +323,12 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 					else if (om.size > 1) throw new IllegalStateException("expected 1 result for %s and ids %s, but got %d. Is the primary key column a primary key in the table?".format(clz.getSimpleName, ids, om.size))
 					else {
 						val l = toEntities(om, entity, selectConfig, entities)
-						if (l.size != 1) throw new IllegalStateException("expected 1 object, but got %s".format(l))
 						Some(l.head)
 					}
 				} catch {
 					case e => throw new QueryException("An error occured during select of entity %s and primary keys %s".format(entity, ids), e)
 				}
-			)
+			}
 		}
 
 	private[mapperdao] def toEntities[PC, T](
@@ -351,7 +350,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 					table.unusedPrimaryKeyColumns.map { c => jdbcMap(c.columnName) }
 			} else ids
 
-			entities.get[T with PC](tpe.clz, cacheKey).getOrElse {
+			entities.get[T with PC](tpe.clz, cacheKey) {
 				val mods = jdbcMap.toMap
 				val mock = createMock(entity, mods)
 				entities.put(tpe.clz, cacheKey, mock)
@@ -370,8 +369,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 					lazyLoadEntity(entity, selectConfig, vm)
 				} else tpe.constructor(vm)
 				entities.reput(tpe.clz, cacheKey, entityV)
-				entityV
-			}
+				Some(entityV)
+			}.get
 		}
 
 	private def lazyLoadEntity[PC, T](

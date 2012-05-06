@@ -22,16 +22,16 @@ class EntityMapSuite extends FunSuite with ShouldMatchers {
 		m.put(classOf[E2], List(5, 6), E2("x"))
 		m.put(classOf[E2], List(5, 7), E2("y"))
 
-		m.get[E1](classOf[E1], List(5)).get should be === E1("1")
-		m.get[E1](classOf[E1], List(6)).get should be === E1("2")
+		m.get[E1](classOf[E1], List(5)) { None }.get should be === E1("1")
+		m.get[E1](classOf[E1], List(6)) { None }.get should be === E1("2")
 
-		m.get[E2](classOf[E2], List(5, 6)).get should be === E2("x")
-		m.get[E2](classOf[E2], List(5, 7)).get should be === E2("y")
+		m.get[E2](classOf[E2], List(5, 6)) { None }.get should be === E2("x")
+		m.get[E2](classOf[E2], List(5, 7)) { None }.get should be === E2("y")
 	}
 
 	test("get from empty") {
 		val m = new EntityMap
-		m.get[E2](classOf[E2], List(5, 6)) should be(None)
+		m.get[E2](classOf[E2], List(5, 6)) { None } should be(None)
 	}
 
 	test("re-put throws exception") {
@@ -44,6 +44,6 @@ class EntityMapSuite extends FunSuite with ShouldMatchers {
 		val m = new EntityMap
 		m.put(classOf[E1], List(5), E1("1"))
 		m.reput(classOf[E1], List(5), E1("2"))
-		m.get[E1](classOf[E1], List(5)).get should be === E1("2")
+		m.get[E1](classOf[E1], List(5)) { None }.get should be === E1("2")
 	}
 }

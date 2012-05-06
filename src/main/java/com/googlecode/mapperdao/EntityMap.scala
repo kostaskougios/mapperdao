@@ -32,9 +32,10 @@ protected class EntityMap {
 			im(ids) = entity.asInstanceOf[AnyRef]
 		}
 
-	def get[T](clz: Class[_], ids: List[Any]): Option[T] = {
+	def get[T](clz: Class[_], ids: List[Any])(f: => Option[T]): Option[T] = {
 		val im = m.get(clz)
-		if (im.isDefined) im.get.get(ids).asInstanceOf[Option[T]] else None
+		val vo = if (im.isDefined) im.get.get(ids).asInstanceOf[Option[T]] else None
+		if (vo.isDefined) vo else f
 	}
 
 	def down[PC, T, V, FPC, F](o: Type[PC, T], ci: ColumnInfoRelationshipBase[T, V, FPC, F], jdbcMap: JdbcMap): Unit =
