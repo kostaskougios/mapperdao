@@ -10,6 +10,9 @@ case class QueryConfig(
 		data: Option[Any] = None,
 		cacheOptions: CacheOption = CacheOptions.NoCache,
 		lazyLoad: LazyLoad = LazyLoad.none,
+		// run the query in multiple threads to improve performance.
+		// WARNING: multi-threaded runs of queries don't run
+		// within a transaction.
 		multi: MultiThreadedConfig = MultiThreadedConfig.Single) {
 
 	// check parameter validity

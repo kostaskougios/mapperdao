@@ -27,15 +27,18 @@ class MultiThreadedQuerySuite extends FunSuite with ShouldMatchers {
 				val attrs = for (i <- 1 to 20) yield {
 					mapperDao.insert(AttributeEntity, Attribute("a" + i, "v" + i))
 				}
-				val products = for (i <- 1 to 1000) yield {
+				val products = for (i <- 1 to 10000) yield {
 					val idx = i % 19
 					mapperDao.insert(ProductEntity, Product("product" + i, Set(attrs(idx), attrs(idx + 1))))
 				}
 				(attrs, products)
 			}
 
+			val start = System.currentTimeMillis
 			import Query._
 			val loaded = queryDao.query(QueryConfig(multi = MultiThreadedConfig.Multi), select from ProductEntity).toSet
+			val dt = System.currentTimeMillis - start
+			println("dt: " + dt)
 			products.toSet should be === loaded
 		}
 
