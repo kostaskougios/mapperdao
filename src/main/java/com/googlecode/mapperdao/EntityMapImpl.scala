@@ -8,7 +8,7 @@ package com.googlecode.mapperdao
 private[mapperdao] class EntityMapImpl extends EntityMap with EntityStack {
 	private val m = scala.collection.mutable.Map[List[Any], Option[_]]()
 
-	private def key(clz: Class[_], ids: List[Any]) = clz :: ids
+	protected def key(clz: Class[_], ids: List[Any]) = clz :: ids
 
 	def putMock[T](clz: Class[_], ids: List[Any], entity: T): Unit =
 		{
@@ -30,5 +30,5 @@ private[mapperdao] class EntityMapImpl extends EntityMap with EntityStack {
 		}).asInstanceOf[Option[T]]
 	}
 
-	override def toString = "EntityMap(%s)".format(m.toString)
+	override def toString = "EntityMapImpl(%s)".format(m.toString)
 }

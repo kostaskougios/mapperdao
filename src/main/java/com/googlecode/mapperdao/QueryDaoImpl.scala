@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao
 import com.googlecode.mapperdao.exceptions.QueryException
 import com.googlecode.mapperdao.drivers.Driver
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * the QueryDao implementation
@@ -27,9 +28,9 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 
 				if (queryConfig.multi.runInParallel) {
 					// run query using multiple threads
-					//val m = new scala.collection.mutable.HashMap[List[Any], Option[_]]() with scala.collection.mutable.SynchronizedMap[List[Any], Option[_]]
+					val globalL1 = new ConcurrentHashMap[List[Any], Option[_]]
 					val lmc = lm.grouped(queryConfig.multi.inGroupsOf).toList.par.map { l =>
-						val entityMap = new EntityMapImpl
+						val entityMap = new MultiThreadedQueryEntityMapImpl(globalL1)
 						val selectConfig = SelectConfig.from(queryConfig)
 						val v = mapperDao.toEntities(l, qe.entity, selectConfig, entityMap)
 						entityMap.done
