@@ -17,7 +17,7 @@ import com.googlecode.mapperdao.utils.NYI
 class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 		extends PostUpdate with DuringUpdate {
 
-	def during[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]) = {
+	def during[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o1: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]) = {
 		val ui = entityMap.peek[Any, Any, Traversable[Any], Any, Any]
 		ui.ci match {
 			case _: ColumnInfoTraversableOneToMany[Any, Any, Any] =>
@@ -58,7 +58,9 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 
 			table.oneToManyColumnInfos.filterNot(updateConfig.skip.contains(_)).foreach { ci =>
 				val oneToMany = ci.column
-				val t = ci.columnToValue(o)
+				//val t = ci.columnToValue(o)
+				val t = newValuesMap.valueOf[Traversable[Any]](ci)
+
 				// we'll get the 2 traversables and update the database
 				// based on their differences
 				val newValues = t.toList
