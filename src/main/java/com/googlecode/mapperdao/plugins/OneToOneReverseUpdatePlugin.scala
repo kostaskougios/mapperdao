@@ -19,7 +19,7 @@ import com.googlecode.mapperdao.ValuesMap
 class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeManager, driver: Driver, mapperDao: MapperDaoImpl) extends DuringUpdate with PostUpdate {
 	private val emptyDUR = new DuringUpdateResults(Nil, Nil)
 
-	override def during[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
+	override def during[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o1: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
 			val UpdateInfo(parent, parentColumnInfo, parentEntity) = entityMap.peek[Any, Any, T, Any, Any]
 			if (parent != null) {
@@ -38,7 +38,7 @@ class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeM
 			val table = tpe.table
 			// one-to-one-reverse
 			table.oneToOneReverseColumnInfos.filterNot(updateConfig.skip.contains(_)).foreach { ci =>
-				val fo = ci.columnToValue(o)
+				val fo = newValuesMap.valueOf[Any](ci)
 				val c = ci.column
 
 				c.foreign.entity match {

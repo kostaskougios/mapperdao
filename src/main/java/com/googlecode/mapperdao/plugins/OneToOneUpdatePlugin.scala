@@ -29,7 +29,8 @@ class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 			table.oneToOneColumnInfos.filterNot(updateConfig.skip.contains(_)).foreach { ci =>
 				val fe = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
 				val ftpe = fe.tpe
-				val fo = ci.columnToValue(o)
+				val fo = newValuesMap.valueOf[Any](ci)
+
 				val c = ci.column
 				val oldV: Persisted = oldValuesMap.valueOf(c.alias)
 				val v = if (fo == null) {
