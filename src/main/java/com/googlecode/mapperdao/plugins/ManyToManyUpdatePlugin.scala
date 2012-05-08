@@ -29,11 +29,10 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 			table.manyToManyColumnInfos
 				.filterNot(updateConfig.skip.contains(_))
 				.foreach { ci =>
-					val t = ci.columnToValue(o)
-					val manyToMany = ci.column
-					val newValues = if (t == null) Nil else t.toList
-					val oldValues = oldValuesMap.seq[Any](manyToMany.foreign.alias)
+					val newValues = newValuesMap.valueOf[Traversable[Any]](ci)
+					val oldValues = oldValuesMap.valueOf[Traversable[Any]](ci)
 
+					val manyToMany = ci.column
 					val pkLeft = oldValuesMap.toListOfColumnValue(table.primaryKeys)
 					val pkArgs = manyToMany.linkTable.left zip pkLeft
 

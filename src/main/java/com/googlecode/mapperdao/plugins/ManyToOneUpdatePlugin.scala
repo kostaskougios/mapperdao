@@ -21,7 +21,7 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			val table = tpe.table
 			val mtoColumnInfos = table.manyToOneColumnInfos.filterNot(updateConfig.skip.contains(_))
 			mtoColumnInfos.foreach { cis =>
-				val v = cis.columnToValue(o)
+				val v = newValuesMap.valueOf[Any](cis)
 
 				cis.column.foreign.entity match {
 					case ee: ExternalEntity[Any] =>
