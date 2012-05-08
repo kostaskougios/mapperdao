@@ -23,11 +23,11 @@ protected[mapperdao] object TraversableSeparation {
 			else {
 				val (oldM, newM) = oldT.head match {
 					case _: SimpleTypeValue[T, _] =>
-						val eq = new EntityMap.ByObjectEquals[T]
-						(new EntityMap(entity, eq), new EntityMap(entity, eq))
+						val eq = new EntityComparisonMap.ByObjectEquals[T]
+						(new EntityComparisonMap(entity, eq), new EntityComparisonMap(entity, eq))
 					case _ =>
-						val eq = new EntityMap.EntityEquals(entity)
-						(new EntityMap(entity, eq), new EntityMap(entity, eq))
+						val eq = new EntityComparisonMap.EntityEquals(entity)
+						(new EntityComparisonMap(entity, eq), new EntityComparisonMap(entity, eq))
 
 				}
 				oldM.addAll(oldT)
