@@ -14,9 +14,6 @@ import java.util.concurrent.ConcurrentHashMap
  */
 final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends QueryDao {
 
-	private val defaultQueryRunStrategy = new DefaultQueryRunStrategy(mapperDao)
-	private val multiThreadQueryRunStrategy = new ParQueryRunStrategy(mapperDao)
-
 	import QueryDao._
 
 	private case class SqlAndArgs(val sql: String, val args: List[Any])
@@ -29,14 +26,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 				sa = sqlAndArgs(queryConfig, qe)
 				val lm = driver.queryForList(queryConfig, sa.sql, sa.args)
 
-				if (queryConfig.multi.runInParallel) {
-					if (!qe.order.isEmpty) throw new IllegalStateException("order by is not allowed for multi-thread queries")
-					// run query using multiple threads
-					multiThreadQueryRunStrategy.run(qe.entity, queryConfig, lm)
-				} else {
-					// run query
-					defaultQueryRunStrategy.run(qe.entity, queryConfig, lm)
-				}
+				queryConfig.multi.runStrategy.run(mapperDao, qe, queryConfig, lm)
 			} catch {
 				case e =>
 					val extra = if (sa != null) "\n------\nThe query:%s\nThe arguments:%s\n------\n".format(sa.sql, sa.args) else "None"

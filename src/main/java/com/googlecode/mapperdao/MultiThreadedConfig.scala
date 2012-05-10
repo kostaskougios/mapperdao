@@ -13,25 +13,24 @@ package com.googlecode.mapperdao
  * 6 May 2012
  */
 abstract class MultiThreadedConfig {
-	val runInParallel: Boolean
-
 	// having a lot of small groups will speed up entities with few relations. Less but bigger
 	// groups speed up entities with many relations
 	val inGroupsOf: Int
+	val runStrategy: QueryRunStrategy
 }
 
 object MultiThreadedConfig {
 	object Single extends MultiThreadedConfig {
-		val runInParallel = false
 		val inGroupsOf = -1
+		val runStrategy = new DefaultQueryRunStrategy
 	}
 
 	object Multi extends MultiThreadedConfig {
-		val runInParallel = true
 		val inGroupsOf = 128
+		val runStrategy = new ParQueryRunStrategy
 	}
 
 	abstract class CustomMulti extends MultiThreadedConfig {
-		val runInParallel = true
+		val runStrategy = new ParQueryRunStrategy
 	}
 }

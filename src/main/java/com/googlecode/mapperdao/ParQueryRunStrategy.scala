@@ -10,9 +10,11 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * 6 May 2012
  */
-private[mapperdao] class ParQueryRunStrategy(mapperDao: MapperDaoImpl) extends QueryRunStrategy {
+private[mapperdao] class ParQueryRunStrategy extends QueryRunStrategy {
 
-	override def run[PC, T](entity: Entity[PC, T], queryConfig: QueryConfig, lm: List[JdbcMap]) = {
+	override def run[PC, T](mapperDao: MapperDaoImpl, qe: Query.Builder[PC, T], queryConfig: QueryConfig, lm: List[JdbcMap]) = {
+		if (!qe.order.isEmpty) throw new IllegalStateException("order-by is not allowed for multi-thread queries")
+
 		// a global cache for fully loaded entities
 		val globalL1 = new ConcurrentHashMap[List[Any], Option[_]]
 		val selectConfig = SelectConfig.from(queryConfig)
@@ -20,7 +22,7 @@ private[mapperdao] class ParQueryRunStrategy(mapperDao: MapperDaoImpl) extends Q
 		// group the query results and par-map them to entities
 		val lmc = lm.grouped(queryConfig.multi.inGroupsOf).toList.par.map { l =>
 			val entityMap = new MultiThreadedQueryEntityMapImpl(globalL1)
-			val v = mapperDao.toEntities(l, entity, selectConfig, entityMap)
+			val v = mapperDao.toEntities(l, qe.entity, selectConfig, entityMap)
 			entityMap.done
 			v
 		}.toList
