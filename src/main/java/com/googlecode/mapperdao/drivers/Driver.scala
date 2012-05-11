@@ -216,22 +216,27 @@ abstract class Driver {
 			val sb = new StringBuilder(100, "select ")
 			sb append commaSeparatedListOfSimpleTypeColumns(",", (columns ::: tpe.table.unusedPrimaryKeyColumns).toSet)
 			sb append " from " append escapeTableNames(tpe.table.name)
-			val hints = selectConfig.hints.afterTableName
-			if (!hints.isEmpty) {
-				sb append " " append hints.map { _.hint }.mkString(" ")
-			}
+
+			sb append applyHints(selectConfig.hints)
 			sb append "\nwhere " append generateColumnsEqualsValueString(where.map(_._1), " and ")
 
 			sb.toString
 		}
 
+	private def applyHints(hints: SelectHints) = {
+		val h = hints.afterTableName
+		if (!h.isEmpty) {
+			" " + h.map { _.hint }.mkString(" ") + "\n"
+		} else ""
+	}
+
 	def doSelectManyToMany[PC, T, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): List[JdbcMap] =
 		{
-			val sql = selectManyToManySql(tpe, ftpe, manyToMany, leftKeyValues)
+			val sql = selectManyToManySql(selectConfig, tpe, ftpe, manyToMany, leftKeyValues)
 			jdbc.queryForList(sql, leftKeyValues.map(_._2))
 		}
 
-	protected def selectManyToManySql[PC, T, FPC, F](tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): String =
+	protected def selectManyToManySql[PC, T, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): String =
 		{
 			val ftable = ftpe.table
 			val linkTable = manyToMany.linkTable
@@ -239,6 +244,8 @@ abstract class Driver {
 			val fColumns = selectColumns(ftpe)
 			sb append commaSeparatedListOfSimpleTypeColumns(",", fColumns, "f.")
 			sb append "\nfrom " append escapeTableNames(ftpe.table.name) append " f\n"
+			sb append applyHints(selectConfig.hints)
+
 			sb append "inner join " append escapeTableNames(linkTable.name) append " l on "
 			var i = 0
 			ftable.primaryKeys.zip(linkTable.right).foreach { z =>
