@@ -246,7 +246,8 @@ abstract class Driver {
 			sb append "\nfrom " append escapeTableNames(ftpe.table.name) append " f\n"
 			sb append applyHints(selectConfig.hints)
 
-			sb append "inner join " append escapeTableNames(linkTable.name) append " l on "
+			sb append "inner join " append escapeTableNames(linkTable.name) append " l"
+			sb append applyHints(selectConfig.hints) append " on "
 			var i = 0
 			ftable.primaryKeys.zip(linkTable.right).foreach { z =>
 				val PK(left) = z._1
