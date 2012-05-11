@@ -13,19 +13,26 @@ import java.util.concurrent.ConcurrentHashMap
 private[mapperdao] class ParQueryRunStrategy extends QueryRunStrategy {
 
 	override def run[PC, T](mapperDao: MapperDaoImpl, qe: Query.Builder[PC, T], queryConfig: QueryConfig, lm: List[JdbcMap]) = {
-		if (!qe.order.isEmpty) throw new IllegalStateException("order-by is not allowed for multi-thread queries")
-
 		// a global cache for fully loaded entities
 		val globalL1 = new ConcurrentHashMap[List[Any], Option[_]]
 		val selectConfig = SelectConfig.from(queryConfig)
 
-		// group the query results and par-map them to entities
-		val lmc = lm.grouped(queryConfig.multi.inGroupsOf).toList.par.map { l =>
-			val entityMap = new MultiThreadedQueryEntityMapImpl(globalL1)
-			val v = mapperDao.toEntities(l, qe.entity, selectConfig, entityMap)
-			entityMap.done
-			v
-		}.toList
+		// group the query results and par-map them to entities.
+		// we also need to maintain the order of retrieved results.
+		val lmc = lm.grouped(queryConfig.multi.inGroupsOf)
+			.zipWithIndex
+			.toList
+			.par
+			.map {
+				case (l, idx) =>
+					val entityMap = new MultiThreadedQueryEntityMapImpl(globalL1)
+					val v = mapperDao.toEntities(l, qe.entity, selectConfig, entityMap)
+					entityMap.done
+					(v, idx)
+			}
+			.toList
+			.sortWith((t1, t2) => t1._2 < t2._2)
+			.map(_._1)
 		lmc.flatten
 	}
 }

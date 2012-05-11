@@ -36,10 +36,13 @@ class MultiThreadedQuerySuite extends FunSuite with ShouldMatchers {
 
 			val start = System.currentTimeMillis
 			import Query._
-			val loaded = queryDao.query(QueryConfig(multi = MultiThreadedConfig.Multi), select from ProductEntity).toSet
+			val loaded = queryDao.query(
+				QueryConfig(multi = MultiThreadedConfig.Multi),
+				select from ProductEntity orderBy (ProductEntity.name, desc)
+			)
 			val dt = System.currentTimeMillis - start
 			println("dt: " + dt)
-			loaded should be === products.toSet
+			loaded.toSet should be === products.toSet
 			loaded.foreach { p =>
 				p match {
 					case pp: Persisted =>
@@ -52,6 +55,11 @@ class MultiThreadedQuerySuite extends FunSuite with ShouldMatchers {
 						}
 				}
 			}
+			// check the order
+			loaded.head.name should be === "product9999"
+			loaded.tail.head.name should be === "product9998"
+			loaded.tail.tail.head.name should be === "product9997"
+			loaded.tail.tail.tail.head.name should be === "product9996"
 		}
 
 		def createTables {
