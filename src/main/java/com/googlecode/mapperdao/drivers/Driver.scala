@@ -203,19 +203,23 @@ abstract class Driver {
 	 */
 	def doSelect[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): List[JdbcMap] =
 		{
-			val sql = selectSql(tpe, where)
+			val sql = selectSql(selectConfig, tpe, where)
 
 			// 1st step is to get the simple values
 			// of this object from the database
 			jdbc.queryForList(sql, where.map(_._2))
 		}
 
-	protected def selectSql[PC, T](tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): String =
+	protected def selectSql[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): String =
 		{
 			val columns = selectColumns(tpe)
 			val sb = new StringBuilder(100, "select ")
 			sb append commaSeparatedListOfSimpleTypeColumns(",", (columns ::: tpe.table.unusedPrimaryKeyColumns).toSet)
 			sb append " from " append escapeTableNames(tpe.table.name)
+			val hints = selectConfig.hints.afterTableName
+			if (!hints.isEmpty) {
+				sb append " " append hints.map { _.hint }.mkString(" ")
+			}
 			sb append "\nwhere " append generateColumnsEqualsValueString(where.map(_._1), " and ")
 
 			sb.toString

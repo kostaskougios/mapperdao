@@ -1,19 +1,21 @@
 package com.googlecode.mapperdao
+import com.googlecode.mapperdao.drivers.SelectHints
 
 case class QueryConfig(
-		// skip relationship from loading? i.e. SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
-		skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
-		// start index of first row, useful for paginating
-		offset: Option[Long] = None,
-		// limit the number of returned rows, useful for paginating
-		limit: Option[Long] = None,
-		data: Option[Any] = None,
-		cacheOptions: CacheOption = CacheOptions.NoCache,
-		lazyLoad: LazyLoad = LazyLoad.none,
-		// run the query in multiple threads to improve performance.
-		// WARNING: multi-threaded runs of queries don't run
-		// within a transaction.
-		multi: MultiThreadedConfig = MultiThreadedConfig.Single) {
+	// skip relationship from loading? i.e. SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
+	skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
+	// start index of first row, useful for paginating
+	offset: Option[Long] = None,
+	// limit the number of returned rows, useful for paginating
+	limit: Option[Long] = None,
+	data: Option[Any] = None,
+	cacheOptions: CacheOption = CacheOptions.NoCache,
+	lazyLoad: LazyLoad = LazyLoad.none,
+	// run the query in multiple threads to improve performance.
+	// WARNING: multi-threaded runs of queries don't run
+	// within a transaction.
+	multi: MultiThreadedConfig = MultiThreadedConfig.Single,
+	hints: SelectHints = SelectHints.None) {
 
 	// check parameter validity
 	if (offset.isDefined && offset.get < 0) throw new IllegalArgumentException("offset is " + offset)

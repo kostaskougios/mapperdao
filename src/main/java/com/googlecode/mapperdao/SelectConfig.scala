@@ -1,4 +1,5 @@
 package com.googlecode.mapperdao
+import com.googlecode.mapperdao.drivers.SelectHints
 
 /**
  * mapperDao.select configuration.
@@ -13,7 +14,8 @@ case class SelectConfig(
 	skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
 	data: Option[Any] = None,
 	cacheOptions: CacheOption = CacheOptions.NoCache,
-	lazyLoad: LazyLoad = LazyLoad.none)
+	lazyLoad: LazyLoad = LazyLoad.none,
+	hints: SelectHints = SelectHints.None)
 
 object SelectConfig {
 	def from(queryConfig: QueryConfig) =
@@ -21,7 +23,8 @@ object SelectConfig {
 			skip = queryConfig.skip,
 			data = queryConfig.data,
 			cacheOptions = queryConfig.cacheOptions,
-			lazyLoad = queryConfig.lazyLoad
+			lazyLoad = queryConfig.lazyLoad,
+			hints = queryConfig.hints
 		)
 
 	def lazyLoad = SelectConfig(lazyLoad = LazyLoad(all = true))

@@ -27,9 +27,11 @@ trait QueryDao {
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[PC, T](qe: Query.Where[PC, T]): Option[T with PC] = querySingleResult(qe.queryEntity)
-	def querySingleResult[PC, T](qe: Query.Builder[PC, T]): Option[T with PC] = {
-		val l = query(defaultQueryConfig, qe)
+	def querySingleResult[PC, T](qe: Query.Where[PC, T]): Option[T with PC] = querySingleResult(defaultQueryConfig, qe.queryEntity)
+	def querySingleResult[PC, T](queryConfig: QueryConfig, qe: Query.Where[PC, T]): Option[T with PC] = querySingleResult(queryConfig, qe.queryEntity)
+	def querySingleResult[PC, T](qe: Query.Builder[PC, T]): Option[T with PC] = querySingleResult(defaultQueryConfig, qe)
+	def querySingleResult[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]): Option[T with PC] = {
+		val l = query(queryConfig, qe)
 		// l.size might be costly, so we'll test if l is empty first
 		if (l.isEmpty) None
 		else if (l.size > 1) throw new IllegalStateException("expected 0 or 1 result but got %s.".format(l))
