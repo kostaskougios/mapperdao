@@ -1,44 +1,16 @@
 package com.googlecode.mapperdao.jdbc
-import org.springframework.transaction.support.TransactionTemplate
+
+import org.springframework.jdbc.datasource.DataSourceTransactionManager
+import org.springframework.transaction.support.DefaultTransactionDefinition
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionDefinition
-import org.springframework.transaction.support.TransactionCallback
 import org.springframework.transaction.TransactionStatus
-import org.springframework.jdbc.datasource.DataSourceTransactionManager
+
 import javax.sql.DataSource
-import org.springframework.transaction.support.DefaultTransactionDefinition
-import org.springframework.transaction.support.SimpleTransactionStatus
 
 trait Transaction {
 	def apply[V](f: () => V): V
 	def apply[V](f: TransactionStatus => V): V
-}
-/**
- * manages transactions
- *
- * This class uses the spring-jdbc transaction capability, which is very
- * easy to use and robust. This is just a wrapper to simplify transaction
- * management for apps that don't use the spring framework.
- *
- * 1 instance can be reused and it is thread safe. Typically you can
- * create the instance using the companion object's get() or default()
- * methods
- *
- * @author kostantinos.kougios
- *
- * 29 Aug 2011
- */
-final class TransactionImpl private[mapperdao] (transactionManager: PlatformTransactionManager, transactionDef: TransactionDefinition) extends Transaction {
-	private val tt = new TransactionTemplate(transactionManager, transactionDef)
-
-	def apply[V](f: () => V): V = tt.execute(new TransactionCallback[V] {
-		override def doInTransaction(status: TransactionStatus): V = f()
-	})
-	def apply[V](f: TransactionStatus => V): V = tt.execute(new TransactionCallback[V] {
-		override def doInTransaction(status: TransactionStatus): V = f(status)
-	})
-
-	override def toString = "TransactionImpl(%s)".format(tt)
 }
 
 object Transaction {
@@ -67,7 +39,7 @@ object Transaction {
 		object Serializable extends Level(TransactionDefinition.ISOLATION_SERIALIZABLE)
 	}
 	/**
-	 * returns a transaction manager for the provided datasource. Keep 1 transaction manager per database
+	 * returns a transaction manager for the provided datasource. 1 transaction manager per datasource
 	 */
 	def transactionManager(dataSource: DataSource): PlatformTransactionManager = new DataSourceTransactionManager(dataSource)
 	def transactionManager(jdbc: Jdbc): PlatformTransactionManager = transactionManager(jdbc.dataSource)
@@ -80,6 +52,13 @@ object Transaction {
 			td.setTimeout(timeOutSec)
 			new TransactionImpl(transactionManager, td)
 		}
+
+	/**
+	 * higest isolation level (serializable) that never times out
+	 */
+	def highest(transactionManager: PlatformTransactionManager): Transaction =
+		get(transactionManager, Propagation.Required, Isolation.Serializable, -1)
+
 	/**
 	 * gets a Transaction with default settings:
 	 *
@@ -90,9 +69,4 @@ object Transaction {
 			val td = new DefaultTransactionDefinition
 			new TransactionImpl(transactionManager, td)
 		}
-}
-
-class MockTransaction extends Transaction {
-	def apply[V](f: () => V): V = f()
-	def apply[V](f: TransactionStatus => V): V = f(new SimpleTransactionStatus)
 }
