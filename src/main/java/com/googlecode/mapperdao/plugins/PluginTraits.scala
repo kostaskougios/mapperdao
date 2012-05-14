@@ -85,7 +85,7 @@ trait BeforeSelect {
 }
 
 trait SelectMock {
-	def updateMock[PC, T](entity: Entity[PC, T], mods: scala.collection.mutable.HashMap[String, Any])
+	def updateMock[PC, T](entity: Entity[PC, T], mods: scala.collection.mutable.Map[String, Any])
 }
 
 /**

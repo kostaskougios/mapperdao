@@ -404,17 +404,16 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		proxy
 	}
 	/**
-	 * creates a mock object
+	 * create a mock of the current entity, to avoid cyclic dependencies
+	 * doing infinite loops.
 	 */
 	private def createMock[PC, T](entity: Entity[PC, T], mods: scala.collection.Map[String, Any]): T with PC with Persisted =
 		{
-			val mockMods = new scala.collection.mutable.HashMap[String, Any]
-			mockMods ++= mods
+			val mockMods = new scala.collection.mutable.HashMap[String, Any] ++ mods
 			mockPlugins.foreach {
 				_.updateMock(entity, mockMods)
 			}
 			val tpe = entity.tpe
-			// create a mock of the final entity, to avoid cyclic dependencies
 			val vm = ValuesMap.fromMap(typeManager, mockMods)
 			val preMock = tpe.constructor(vm)
 			val mock = tpe.constructor(ValuesMap.fromEntity(typeManager, tpe, preMock))

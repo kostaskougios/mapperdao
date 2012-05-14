@@ -52,7 +52,7 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 			}
 		}
 
-	override def updateMock[PC, T](entity: Entity[PC, T], mods: scala.collection.mutable.HashMap[String, Any]) {
+	override def updateMock[PC, T](entity: Entity[PC, T], mods: scala.collection.mutable.Map[String, Any]) {
 		mods ++= entity.tpe.table.oneToManyColumns.map(c => (c.alias -> List()))
 	}
 }

@@ -59,7 +59,7 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 			}
 		}
 
-	override def updateMock[PC, T](entity: Entity[PC, T], mods: scala.collection.mutable.HashMap[String, Any]) {
+	override def updateMock[PC, T](entity: Entity[PC, T], mods: scala.collection.mutable.Map[String, Any]) {
 		mods ++= entity.tpe.table.manyToManyColumns.map(c => (c.alias -> List()))
 	}
 }
