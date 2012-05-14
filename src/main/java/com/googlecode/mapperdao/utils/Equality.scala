@@ -14,12 +14,8 @@ import com.googlecode.mapperdao.ValuesMap
 protected[mapperdao] object Equality {
 
 	def isEqual(o1: Any, o2: Any): Boolean = o1 match {
-		case _: String => o1 == o2
-		case _: Int | _: Boolean | _: Long | _: Byte | _: Short | _: Char => o1 == o2
-		case _: Float => o1 == o2
-		case _: Double => o1 == o2
-		case a1: AnyRef => o2 match {
-			case a2: AnyRef => a1.eq(a2)
+		case a1: Any => o2 match {
+			case a2: Any => a1 == a2
 			case null => false
 		}
 		case null => o2 == null

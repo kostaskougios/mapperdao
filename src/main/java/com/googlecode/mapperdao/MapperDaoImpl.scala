@@ -9,6 +9,7 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.plugins.SelectMock
 import utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.events.Events
+import com.googlecode.mapperdao.utils.Equality
 
 /**
  * @author kostantinos.kougios
@@ -162,7 +163,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 	private def updateInner[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap): T with PC with Persisted =
 		{
 			val tpe = entity.tpe
-			def changed(column: ColumnBase) = newValuesMap.valueOf(column.alias) != oldValuesMap.valueOf(column.alias)
+			def changed(column: ColumnBase) = !Equality.isEqual(newValuesMap.valueOf(column.alias), oldValuesMap.valueOf(column.alias))
 			val table = tpe.table
 			val modified = new LowerCaseMutableMap[Any](oldValuesMap.toMutableMap ++ newValuesMap.toMutableMap)
 			val modifiedTraversables = new MapOfList[String, Any](MapOfList.stringToLowerCaseModifier)
