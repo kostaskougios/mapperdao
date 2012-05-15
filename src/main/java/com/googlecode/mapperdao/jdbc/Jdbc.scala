@@ -56,7 +56,7 @@ class Jdbc private (val dataSource: DataSource, val typeManager: TypeManager) {
 						counter += 1
 						a match {
 							case s: String => "'" + s + "'"
-							case c: Calendar => c.getTime
+							case c: Calendar => "'" + c.getTime + "'"
 							case _ => a
 						}
 					}

@@ -2,6 +2,8 @@ package com.googlecode.mapperdao.utils
 
 import com.googlecode.mapperdao.ColumnBase
 import com.googlecode.mapperdao.ValuesMap
+import java.util.Calendar
+import org.joda.time.DateTime
 
 /**
  * mapperdao has it's own way of considering equality of objects.

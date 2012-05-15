@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao
 import java.util.Calendar
 import org.joda.time.DateTime
+import org.joda.time.chrono.ISOChronology
 
 /**
  * @author kostantinos.kougios
@@ -8,6 +9,7 @@ import org.joda.time.DateTime
  * 1 Aug 2011
  */
 class DefaultTypeManager extends TypeManager {
+	private val chronology = ISOChronology.getInstance
 
 	override def deepClone[T](o: T): T = o match {
 		case t: scala.collection.mutable.Traversable[_] => t.map(e => e).asInstanceOf[T] // copy mutable traversables
@@ -16,7 +18,8 @@ class DefaultTypeManager extends TypeManager {
 	}
 
 	override def convert(o: Any): Any = o match {
-		case t: java.util.Date => new DateTime(t)
+		case t: java.util.Date => new DateTime(t, chronology)
+		case c: java.util.Calendar => new DateTime(c, chronology)
 		case _ => o
 	}
 
