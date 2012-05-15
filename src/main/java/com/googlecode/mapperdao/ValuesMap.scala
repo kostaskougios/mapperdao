@@ -61,6 +61,11 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 			m(key) = v
 		}
 
+	def raw[T, V](column: ColumnInfo[T, V]): Option[Any] = {
+		val key = column.column.columnName
+		m.get(key)
+	}
+
 	def apply[T, V](column: ColumnInfo[T, V]): V =
 		{
 			val key = column.column.columnName
