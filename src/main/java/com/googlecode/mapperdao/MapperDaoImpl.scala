@@ -369,7 +369,6 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 				val entityV = if (lazyLoadManager.isLazyLoaded(selectConfig.lazyLoad, entity)) {
 					lazyLoadEntity(entity, selectConfig, vm)
 				} else tpe.constructor(vm)
-				//entities.reput(tpe.clz, cacheKey, entityV)
 				Some(entityV)
 			}.get
 		}
