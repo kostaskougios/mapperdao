@@ -30,10 +30,12 @@ class CacheUsingEHCache(val cache: net.sf.ehcache.Cache) extends Cache {
 	}
 
 	override def put[T](key: List[Any], t: T) {
+		//		println("\n\nput :" + key)
 		cache.put(new Element(key, t))
 	}
 
 	override def flush(key: List[Any]) {
+		//		println("\n\nremove :" + key)
 		cache.remove(key)
 	}
 }

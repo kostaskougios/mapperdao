@@ -8,6 +8,7 @@ import com.googlecode.mapperdao.ManyToMany
 import com.googlecode.mapperdao.QueryConfig
 import com.googlecode.mapperdao.ColumnBase
 import com.googlecode.mapperdao.jdbc.UpdateResult
+import com.googlecode.mapperdao.PK
 
 /**
  * @author kostantinos.kougios
@@ -78,8 +79,18 @@ trait CachedDriver extends Driver {
 
 	override def doUpdate[PC, T](tpe: Type[PC, T], args: List[(ColumnBase, Any)], pkArgs: List[(ColumnBase, Any)]): UpdateResult = {
 		val u = super.doUpdate(tpe, args, pkArgs)
-		val key = tpe.table.name :: pkArgs
+		val key = tpe.table.name :: pkArgs.map {
+			case (PK(c), v) => (c, v)
+			case c => c
+		}
 		cache.flush(key)
+		u
+	}
+
+	override def doDeleteManyToManyRef[PC, T, PR, R](tpe: Type[PC, T], ftpe: Type[PR, R], manyToMany: ManyToMany[_, _], leftKeyValues: List[(ColumnBase, Any)], rightKeyValues: List[(ColumnBase, Any)]): UpdateResult = {
+		val u = super.doDeleteManyToManyRef(tpe, ftpe, manyToMany, leftKeyValues, rightKeyValues)
+		cache.flush(manyToMany.linkTable.name :: leftKeyValues)
+		cache.flush(manyToMany.linkTable.name :: rightKeyValues)
 		u
 	}
 }

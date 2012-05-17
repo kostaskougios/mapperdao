@@ -10,8 +10,8 @@
     <cache  name="CachingEndToEndSuite"
             maxElementsInMemory="10000"
             eternal="false"
-            timeToIdleSeconds="5"
-            timeToLiveSeconds="5"
+            timeToIdleSeconds="5000"
+            timeToLiveSeconds="5000"
             overflowToDisk="false"
             diskPersistent="false"
             memoryStoreEvictionPolicy="LRU" />
