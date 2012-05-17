@@ -93,4 +93,9 @@ trait CachedDriver extends Driver {
 		cache.flush(manyToMany.linkTable.name :: rightKeyValues)
 		u
 	}
+
+	override def doInsertManyToMany[PC, T, FPC, F](tpe: Type[PC, T], manyToMany: ManyToMany[FPC, F], left: List[Any], right: List[Any]): Unit = {
+		val u = super.doInsertManyToMany(tpe, manyToMany, left, right)
+		u
+	}
 }
