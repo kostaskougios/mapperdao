@@ -22,4 +22,9 @@ trait Cache {
 	 * just cache the key/value pair
 	 */
 	def put[T](key: List[Any], t: T)
+
+	/**
+	 * flush the data for this key
+	 */
+	def flush(key: List[Any])
 }

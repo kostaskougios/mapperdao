@@ -6,6 +6,8 @@ import com.googlecode.mapperdao.Type
 import com.googlecode.mapperdao.CacheOptions
 import com.googlecode.mapperdao.ManyToMany
 import com.googlecode.mapperdao.QueryConfig
+import com.googlecode.mapperdao.ColumnBase
+import com.googlecode.mapperdao.jdbc.UpdateResult
 
 /**
  * @author kostantinos.kougios
@@ -72,5 +74,12 @@ trait CachedDriver extends Driver {
 					super.queryForLong(queryConfig, sql, args)
 				}
 		}
+	}
+
+	override def doUpdate[PC, T](tpe: Type[PC, T], args: List[(ColumnBase, Any)], pkArgs: List[(ColumnBase, Any)]): UpdateResult = {
+		val u = super.doUpdate(tpe, args, pkArgs)
+		val key = tpe.table.name :: pkArgs
+		cache.flush(key)
+		u
 	}
 }

@@ -7,7 +7,7 @@ package com.googlecode.mapperdao.jdbc
  *
  * 2 Aug 2011
  */
-class UpdateResult(val rowsAffected: Int)
+case class UpdateResult(val rowsAffected: Int)
 
 class UpdateResultWithGeneratedKeys(override val rowsAffected: Int, val keys: Map[String, Any]) extends UpdateResult(rowsAffected) {
 	def intKey(key: String): Int = keys(key) match {
