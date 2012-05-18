@@ -64,8 +64,6 @@ class CachedDriverSuite extends FunSuite with ShouldMatchers {
 		d.doSelect(SelectConfig(cacheOptions = CacheOptions.OneDay), ProductEntity.tpe, mockKeyValue)
 		d.doUpdate(ProductEntity.tpe, Nil, mockKeyValue)
 		cachedKey should be === flushedKey
-
-		flushedKey should be === List(List("Product") ::: mockKeyValue)
 	}
 
 	test("doSelectManyToMany cached positive") {

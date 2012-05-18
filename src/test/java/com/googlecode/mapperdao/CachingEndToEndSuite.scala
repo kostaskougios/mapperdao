@@ -21,19 +21,6 @@ class CachingEndToEndSuite extends FunSuite with ShouldMatchers {
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity), cache = Some(mapperDaoCache))
 
-	test("update, many to many, remove related, flushes cached") {
-		createTables
-		val product = Product(5, "blue jean", Set(Attribute(2, "colour", "blue"), Attribute(7, "size", "medium")))
-		val inserted = mapperDao.insert(ProductEntity, product)
-
-		// do a dummy select, just to cache it
-		mapperDao.select(ProductEntity, 5)
-
-		val updated = mapperDao.update(ProductEntity, inserted, Product(5, "xxx", inserted.attributes.filter(_.id != 2)))
-		// still cached
-		mapperDao.select(SelectConfig(cacheOptions = CacheOptions.OneHour), ProductEntity, 5) should be === Some(updated)
-	}
-
 	test("update, many to many, add related, flushes cached") {
 		createTables
 		val product = Product(5, "blue jean", Set(Attribute(2, "colour", "blue")))
@@ -43,6 +30,19 @@ class CachingEndToEndSuite extends FunSuite with ShouldMatchers {
 		mapperDao.select(ProductEntity, 5)
 
 		val updated = mapperDao.update(ProductEntity, inserted, Product(5, "xxx", inserted.attributes + Attribute(8, "size", "large")))
+		// still cached
+		mapperDao.select(SelectConfig(cacheOptions = CacheOptions.OneHour), ProductEntity, 5) should be === Some(updated)
+	}
+
+	test("update, many to many, remove related, flushes cached") {
+		createTables
+		val product = Product(5, "blue jean", Set(Attribute(2, "colour", "blue"), Attribute(7, "size", "medium")))
+		val inserted = mapperDao.insert(ProductEntity, product)
+
+		// do a dummy select, just to cache it
+		mapperDao.select(ProductEntity, 5)
+
+		val updated = mapperDao.update(ProductEntity, inserted, Product(5, "xxx", inserted.attributes.filter(_.id != 2)))
 		// still cached
 		mapperDao.select(SelectConfig(cacheOptions = CacheOptions.OneHour), ProductEntity, 5) should be === Some(updated)
 	}

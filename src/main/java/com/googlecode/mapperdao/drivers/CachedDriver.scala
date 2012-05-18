@@ -19,7 +19,10 @@ trait CachedDriver extends Driver {
 	val cache: Cache
 
 	override def doSelect[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): List[JdbcMap] = {
-		val key = tpe.table.name :: where
+		val key = tpe.table.name :: where.map {
+			case (PK(c), v) => (c, v)
+			case t => t
+		}
 		selectConfig.cacheOptions match {
 			case CacheOptions.NoCache =>
 				val r = super.doSelect(selectConfig, tpe, where)
@@ -97,18 +100,15 @@ trait CachedDriver extends Driver {
 	override def doInsertManyToMany[PC, T, FPC, F](
 		tpe: Type[PC, T],
 		manyToMany: ManyToMany[FPC, F],
-		left: List[(ColumnBase, Any)],
-		right: List[(ColumnBase, Any)]): Unit = {
+		left: List[Any],
+		right: List[Any]): Unit = {
 
 		val u = super.doInsertManyToMany(tpe, manyToMany, left, right)
 
-		val f = (x: (ColumnBase, Any)) => x match {
-			case (PK(c), v) => (c, v)
-			case t => t
-		}
-		val lkey = manyToMany.linkTable.name :: left.map(f)
+		val lkey = manyToMany.linkTable.name :: (manyToMany.linkTable.left zip left)
 		cache.flush(lkey)
-		cache.flush(manyToMany.linkTable.name :: right.map(f))
+		val rkey = manyToMany.linkTable.name :: (manyToMany.linkTable.right zip right)
+		cache.flush(rkey)
 		u
 	}
 }
