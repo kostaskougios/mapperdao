@@ -1,5 +1,5 @@
 package com.googlecode.mapperdao.utils
-import scala.collection.mutable.HashMap
+import scala.collection.mutable.ListMap
 
 /**
  * @author kostantinos.kougios
@@ -7,7 +7,7 @@ import scala.collection.mutable.HashMap
  * 23 Sep 2011
  */
 class LowerCaseMutableMap[V] {
-	private val m = new HashMap[String, V]
+	private val m = new ListMap[String, V]
 	def this(map: scala.collection.Map[String, V]) =
 		{
 			this()
