@@ -254,7 +254,7 @@ abstract class Driver {
 			sb append applyHints(selectConfig.hints) append " on "
 			var i = 0
 			ftable.primaryKeys.zip(linkTable.right).foreach { z =>
-				val PK(left) = z._1
+				val left = z._1
 				val right = z._2
 				if (i > 0) sb append " and "
 				sb append "f." append left.columnName append "=l." append right.name

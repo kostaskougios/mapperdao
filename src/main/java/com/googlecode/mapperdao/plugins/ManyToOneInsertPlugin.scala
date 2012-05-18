@@ -26,7 +26,7 @@ class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 
 				cis.column.foreign.entity match {
 					case ee: ExternalEntity[Any] =>
-						val columns = cis.column.columns.filterNot(table.primaryKeyColumns.contains(_))
+						val columns = cis.column.columns.filterNot(table.primaryKeys.contains(_))
 						val handler = ee.manyToOneOnInsertMap(cis.asInstanceOf[ColumnInfoManyToOne[T, _, Any]])
 							.asInstanceOf[ee.OnInsertManyToOne[T]]
 						val fKeyValues = handler(InsertExternalManyToOne(updateConfig, o, fo))
@@ -49,7 +49,7 @@ class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 									entityMap.up
 									inserted
 							}
-							val columns = cis.column.columns.filterNot(table.primaryKeyColumns.contains(_))
+							val columns = cis.column.columns.filterNot(c => table.primaryKeysAsColumns.contains(c))
 							if (!columns.isEmpty && columns.size != cis.column.columns.size) throw new IllegalStateException("only some of the primary keys were declared for %s, and those primary keys overlap manyToOne relationship declaration".format(tpe))
 							extraArgs :::= columns zip ftpe.table.toListOfPrimaryKeyValues(v)
 							v

@@ -44,13 +44,13 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 				val v = fe match {
 					case ee: ExternalEntity[Any] =>
 						() => {
-							val foreignIds = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+							val foreignIds = tpe.table.primaryKeys.map { pk => om(pk.columnName) }
 							ee.oneToOneOnSelectMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[_, _, Any]])(SelectExternalOneToOneReverse(selectConfig, foreignIds))
 						}
 					case _ =>
 						() => {
 							val ftpe = fe.tpe
-							val ids = tpe.table.primaryKeys.map { pk => om(pk.column.columnName) }
+							val ids = tpe.table.primaryKeys.map { pk => om(pk.columnName) }
 							val keys = c.foreignColumns.zip(ids)
 							val fom = driver.doSelect(selectConfig, ftpe, keys)
 							entities.down(tpe, ci, om)

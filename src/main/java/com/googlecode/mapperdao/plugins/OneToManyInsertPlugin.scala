@@ -27,7 +27,7 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 						val tpe = entity.tpe
 						val table = tpe.table
 						val foreignKeyColumns = otm.foreignColumns
-							.filterNot(table.primaryKeyColumns.contains(_))
+							.filterNot(table.primaryKeysAsColumns.contains(_))
 							.filterNot(table.simpleTypeColumns.contains(_))
 						if (!foreignKeyColumns.isEmpty) {
 							val parentTable = parentTpe.table

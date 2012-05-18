@@ -19,10 +19,7 @@ trait CachedDriver extends Driver {
 	val cache: Cache
 
 	override def doSelect[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): List[JdbcMap] = {
-		val key = tpe.table.name :: where.map {
-			case (PK(c), v) => (c, v)
-			case t => t
-		}
+		val key = tpe.table.name :: where
 		selectConfig.cacheOptions match {
 			case CacheOptions.NoCache =>
 				val r = super.doSelect(selectConfig, tpe, where)
@@ -82,10 +79,7 @@ trait CachedDriver extends Driver {
 
 	override def doUpdate[PC, T](tpe: Type[PC, T], args: List[(ColumnBase, Any)], pkArgs: List[(ColumnBase, Any)]): UpdateResult = {
 		val u = super.doUpdate(tpe, args, pkArgs)
-		val key = tpe.table.name :: pkArgs.map {
-			case (PK(c), v) => (c, v)
-			case c => c
-		}
+		val key = tpe.table.name :: pkArgs
 		cache.flush(key)
 		u
 	}

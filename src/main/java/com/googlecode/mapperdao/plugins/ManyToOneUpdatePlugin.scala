@@ -59,7 +59,7 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 							e.tpe.table.toListOfPrimaryKeyValues(entityO)
 					}
 			}.flatten
-			val cv = (manyToOneChanged.map(_.columns).flatten zip mtoArgsV) filterNot { case (column, _) => table.primaryKeyColumns.contains(column) }
+			val cv = (manyToOneChanged.map(_.columns).flatten zip mtoArgsV) filterNot { case (column, _) => table.primaryKeysAsColumns.contains(column) }
 			new DuringUpdateResults(cv, Nil)
 		}
 }

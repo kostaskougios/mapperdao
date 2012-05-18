@@ -43,7 +43,7 @@ class SqlServer(override val jdbc: Jdbc, override val typeRegistry: TypeRegistry
 			val alias = aliases(qe.entity)
 			val orderBySql = qe.order.map(t => alias + "." + t._1.column.columnName + " " + t._2.sql).mkString(",")
 			if (orderBySql.isEmpty) {
-				sb append entity.tpe.table.primaryKeyColumns.map(alias + "." + _.columnName).mkString(",")
+				sb append entity.tpe.table.primaryKeys.map(alias + "." + _.columnName).mkString(",")
 			} else sb append orderBySql
 
 			sb append ") as Row"

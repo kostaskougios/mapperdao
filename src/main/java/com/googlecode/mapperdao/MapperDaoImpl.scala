@@ -316,7 +316,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 
 			entities.get[T with PC](tpe.clz, ids) {
 				try {
-					val args = tpe.table.primaryKeys.map(_.column).zip(ids)
+					val args = tpe.table.primaryKeys.zip(ids)
 					events.executeBeforeSelectEvents(tpe, args)
 					val om = driver.doSelect(selectConfig, tpe, args)
 					events.executeAfterSelectEvents(tpe, args)
@@ -341,7 +341,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			val tpe = entity.tpe
 			val table = tpe.table
 			// calculate the id's for this tpe
-			val ids = table.primaryKeys.map { pk => jdbcMap(pk.column.columnName) } ::: selectBeforePlugins.map {
+			val ids = table.primaryKeys.map { pk => jdbcMap(pk.columnName) } ::: selectBeforePlugins.map {
 				_.idContribution(tpe, jdbcMap, entities)
 			}.flatten
 			val cacheKey = if (ids.isEmpty) {
@@ -425,7 +425,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
-			val pks = table.primaryKeyColumns
+			val pks = table.primaryKeys
 			if (pks.size != ids.size) throw new IllegalArgumentException("number of primary key values don't match number of primary keys : %s != %s".format(pks, ids))
 			val keyValues = pks zip ids
 			// do the actual delete database op
