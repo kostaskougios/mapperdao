@@ -104,10 +104,14 @@ abstract class Driver {
 			sb.toString
 		}
 
-	def doInsertManyToMany[PC, T, FPC, F](tpe: Type[PC, T], manyToMany: ManyToMany[FPC, F], left: List[Any], right: List[Any]): Unit =
+	def doInsertManyToMany[PC, T, FPC, F](
+		tpe: Type[PC, T],
+		manyToMany: ManyToMany[FPC, F],
+		left: List[(ColumnBase, Any)],
+		right: List[(ColumnBase, Any)]): Unit =
 		{
 			val sql = insertManyToManySql(tpe, manyToMany)
-			jdbc.update(sql, left ::: right)
+			jdbc.update(sql, left.map(_._2) ::: right.map(_._2))
 		}
 
 	protected def insertManyToManySql[PC, T, FPC, F](tpe: Type[PC, T], manyToMany: ManyToMany[FPC, F]): String =

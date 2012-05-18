@@ -33,8 +33,8 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 					val oldValues = oldValuesMap.valueOf[Traversable[Any]](ci)
 
 					val manyToMany = ci.column
-					val pkLeft = oldValuesMap.toListOfColumnValue(table.primaryKeys)
-					val pkArgs = manyToMany.linkTable.left zip pkLeft
+					val pkLeft = oldValuesMap.toListOfColumnAndValueTuple(table.primaryKeys)
+					val pkArgs = manyToMany.linkTable.left zip pkLeft.map(_._2)
 
 					val fentity = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
 
@@ -63,7 +63,8 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 							// update the added ones
 							added.foreach { p =>
 								val fPKArgs = handler(UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Add, o, p))
-								driver.doInsertManyToMany(tpe, manyToMany, pkLeft, fPKArgs.values)
+								val fkArgs = ftpe.table.primaryKeyColumns zip fPKArgs.values
+								driver.doInsertManyToMany(tpe, manyToMany, pkLeft, fkArgs)
 								modified(manyToMany.alias) = p
 							}
 
@@ -103,7 +104,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 										entityMap.up
 										inserted
 								}
-								val fPKArgs = ftpe.table.toListOfPrimaryKeyValues(newItem)
+								val fPKArgs = ftpe.table.toListOfPrimaryKeyAndValueTuples(newItem)
 								driver.doInsertManyToMany(tpe, manyToMany, pkLeft, fPKArgs)
 								modified(manyToMany.alias) = newItem
 							}
