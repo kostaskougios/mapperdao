@@ -79,13 +79,16 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 		case null => None
 		case v => Some(v)
 	}
-	protected implicit def columnToDate(ci: ColumnInfo[T, Date])(implicit m: ValuesMap): Date = m(ci)
-	protected implicit def columnToOptionDate(ci: ColumnInfo[T, Date])(implicit m: ValuesMap): Option[Date] = m(ci) match {
+
+	protected implicit def columnToDate(ci: ColumnInfo[T, Date])(implicit m: ValuesMap): Date =
+		m.date(ci)
+
+	protected implicit def columnToOptionDate(ci: ColumnInfo[T, Date])(implicit m: ValuesMap): Option[Date] = m.date(ci) match {
 		case null => None
 		case v => Some(v)
 	}
-	protected implicit def columnToCalendar(ci: ColumnInfo[T, Calendar])(implicit m: ValuesMap): Calendar = m(ci)
-	protected implicit def columnToOptionCalendar(ci: ColumnInfo[T, Calendar])(implicit m: ValuesMap): Option[Calendar] = m(ci) match {
+	protected implicit def columnToCalendar(ci: ColumnInfo[T, Calendar])(implicit m: ValuesMap): Calendar = m.calendar(ci)
+	protected implicit def columnToOptionCalendar(ci: ColumnInfo[T, Calendar])(implicit m: ValuesMap): Option[Calendar] = m.calendar(ci) match {
 		case null => None
 		case v => Some(v)
 	}

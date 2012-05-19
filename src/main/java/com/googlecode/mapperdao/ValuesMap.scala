@@ -70,42 +70,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 		{
 			val key = column.column.columnName
 			val v = valueOf[V](key)
-			val dt = column.dataType
-			if (dt == classOf[Int]) {
-				val r = toInt(v).asInstanceOf[V]
-				update(column, r)
-				r
-			} else if (dt == classOf[Long]) {
-				val r = toLong(v).asInstanceOf[V]
-				update(column, r)
-				r
-			} else if (dt == classOf[Boolean]) {
-				val r = toBoolean(v).asInstanceOf[V]
-				update(column, r)
-				r
-			} else if (dt == classOf[Short]) {
-				val r = toShort(v).asInstanceOf[V]
-				update(column, r)
-				r
-			} else if (dt == classOf[Double]) {
-				val r = toDouble(v).asInstanceOf[V]
-				update(column, r)
-				r
-			} else if (dt == classOf[Float]) {
-				val r = toFloat(v).asInstanceOf[V]
-				update(column, r)
-				r
-			} else if (dt == classOf[Date]) v match {
-				case _: Date => v
-				case t: DateTime => t.toDate.asInstanceOf[V]
-				case null => null.asInstanceOf[V]
-			}
-			else if (dt == classOf[Calendar]) v match {
-				case _: Calendar => v
-				case t: DateTime => t.toCalendar(Locale.getDefault()).asInstanceOf[V]
-				case null => null.asInstanceOf[V]
-			}
-			else v;
+			v
 		}
 
 	def apply[T, FPC, F](column: ColumnInfoOneToOne[T, FPC, F]): F =
@@ -247,6 +212,18 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 					update(column, v)
 					v
 			}
+		}
+
+	def date[T](column: ColumnInfo[T, Date]): Date =
+		{
+			val v = valueOf[DateTime](column.column.columnName)
+			v.toDate
+		}
+
+	def calendar[T](column: ColumnInfo[T, Calendar]): Calendar =
+		{
+			val v = valueOf[DateTime](column.column.columnName)
+			v.toCalendar(Locale.getDefault)
 		}
 
 	def boolean[T, V](column: ColumnInfo[T, V]): java.lang.Boolean =
