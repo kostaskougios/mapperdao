@@ -55,6 +55,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 			val key = column.column.columnName.toLowerCase
 			m(key) = v
 		}
+
 	private[mapperdao] def update[T, V](column: ColumnInfoRelationshipBase[T, _, _, _], v: V): Unit =
 		{
 			val key = column.column.alias
@@ -103,116 +104,26 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 			valueOf[F](key)
 		}
 
-	def float[T, V](column: ColumnInfo[T, V]): java.lang.Float =
-		{
-			val v = valueOf[V](column.column.columnName)
-			val f = toFloat(v)
-			update(column, f)
-			f
-		}
+	def float[T](column: ColumnInfo[T, java.lang.Float]): java.lang.Float =
+		valueOf[java.lang.Float](column.column.columnName)
 
-	private def toFloat[V](v: V): java.lang.Float = v match {
-		case f: java.lang.Float => f
-		case d: Double => d.toFloat
-		case b: java.math.BigDecimal => b.floatValue
-		case b: java.math.BigInteger => b.floatValue
-		case null => null.asInstanceOf[java.lang.Float]
-	}
+	def double[T](column: ColumnInfo[T, java.lang.Double]): java.lang.Double =
+		valueOf[java.lang.Double](column.column.columnName)
 
-	def double[T, V](column: ColumnInfo[T, V]): java.lang.Double =
-		{
-			val v = valueOf[V](column.column.columnName)
-			val d = toDouble(v)
-			update(column, v)
-			d
-		}
+	def short[T](column: ColumnInfo[T, java.lang.Short]): java.lang.Short =
+		valueOf[java.lang.Short](column.column.columnName)
 
-	private def toDouble[V](v: V): java.lang.Double = v match {
-		case d: java.lang.Double => d
-		case b: java.math.BigDecimal => b.doubleValue
-		case b: java.math.BigInteger => b.doubleValue
-		case null => null.asInstanceOf[java.lang.Double]
-	}
+	def int[T](column: ColumnInfo[T, java.lang.Integer]): java.lang.Integer =
+		valueOf[java.lang.Integer](column.column.columnName)
 
-	def short[T, V](column: ColumnInfo[T, V]): java.lang.Short =
-		{
-			val v = valueOf[V](column.column.columnName)
-			toShort(v)
-		}
+	def long[T](column: ColumnInfo[T, java.lang.Long]): java.lang.Long =
+		valueOf[java.lang.Long](column.column.columnName)
 
-	private def toShort[V](v: V): java.lang.Short = v match {
-		case s: java.lang.Short => s
-		case i: Int => i.toShort
-		case l: Long => l.toShort
-		case b: BigInt => b.toShort
-		case b: java.math.BigInteger => b.shortValue
-		case b: java.math.BigDecimal => b.shortValue
-		case null => null.asInstanceOf[java.lang.Short]
-	}
+	def bigDecimal[T](column: ColumnInfo[T, BigDecimal]): BigDecimal =
+		valueOf[BigDecimal](column.column.columnName)
 
-	def int[T, V](column: ColumnInfo[T, V]): java.lang.Integer =
-		{
-			val v = valueOf[V](column.column.columnName)
-			toInt(v)
-		}
-
-	private def toInt[V](v: V): java.lang.Integer = v match {
-		case i: java.lang.Integer => i
-		case l: Long => l.toInt
-		case s: Short => s.toInt
-		case b: BigInt => b.toInt
-		case b: java.math.BigInteger => b.intValue
-		case b: java.math.BigDecimal => b.intValue
-		case null => null.asInstanceOf[java.lang.Integer]
-	}
-
-	def long[T, V](column: ColumnInfo[T, V]): java.lang.Long =
-		{
-			val v = valueOf[V](column.column.columnName)
-			toLong(v)
-		}
-
-	private def toLong[V](v: V): java.lang.Long = v match {
-		case l: java.lang.Long => l
-		case i: Int => i.toLong
-		case s: Short => s.toLong
-		case b: BigInt => b.toLong
-		case b: java.math.BigInteger => b.longValue
-		case b: java.math.BigDecimal => b.longValue
-		case null => null.asInstanceOf[java.lang.Long]
-	}
-
-	def bigDecimal[T, V](column: ColumnInfo[T, V]): BigDecimal =
-		{
-			val v = valueOf[V](column.column.columnName)
-			v match {
-				case bd: BigDecimal => bd
-				case d: Double =>
-					val v = BigDecimal(d)
-					update(column, v)
-					v
-				case b: java.math.BigDecimal =>
-					val v = BigDecimal(b)
-					update(column, v)
-					v
-			}
-		}
-
-	def bigInt[T, V](column: ColumnInfo[T, V]): BigInt =
-		{
-			val v = valueOf[V](column.column.columnName)
-			v match {
-				case i: BigInt => i
-				case i: Int =>
-					val v = BigInt(i)
-					update(column, v)
-					v
-				case l: Long =>
-					val v = BigInt(l)
-					update(column, v)
-					v
-			}
-		}
+	def bigInt[T](column: ColumnInfo[T, BigInt]): BigInt =
+		valueOf[BigInt](column.column.columnName)
 
 	def date[T](column: ColumnInfo[T, Date]): Date =
 		{
@@ -226,21 +137,8 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 			v.toCalendar(Locale.getDefault)
 		}
 
-	def boolean[T, V](column: ColumnInfo[T, V]): java.lang.Boolean =
-		{
-			val v = valueOf[V](column.column.columnName)
-			val b = toBoolean(v)
-			update(column, b)
-			b
-		}
-
-	private def toBoolean[V](v: V): java.lang.Boolean = v match {
-		case b: java.lang.Boolean => b
-		case i: Int =>
-			val v = i == 1
-			v
-		case null => null.asInstanceOf[java.lang.Boolean]
-	}
+	def boolean[T](column: ColumnInfo[T, java.lang.Boolean]): java.lang.Boolean =
+		valueOf[java.lang.Boolean](column.column.columnName)
 
 	def mutableHashSet[T, FPC, F](column: ColumnInfoTraversableManyToMany[T, FPC, F]): scala.collection.mutable.HashSet[F] = new scala.collection.mutable.HashSet ++ apply(column)
 	def mutableLinkedList[T, FPC, F](column: ColumnInfoTraversableManyToMany[T, FPC, F]): scala.collection.mutable.LinkedList[F] = new scala.collection.mutable.LinkedList ++ apply(column)
