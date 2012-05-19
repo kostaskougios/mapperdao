@@ -126,24 +126,28 @@ class DefaultTypeManager extends TypeManager {
 		// related data (if any)
 		val related = table.relationshipColumnInfos.collect {
 			case ci: ColumnInfoManyToOne[T, _, _] =>
-				val column = ci.column
-				val fe = column.foreign.entity
-				val ftable = fe.tpe.table
-
-				val columnNames = column.columns.map(_.columnName)
-				val forT = (columnNames zip ftable.primaryKeyColumnInfosForT.map(_.dataType)).map {
-					case (name, t) =>
-						val v = j(name)
-						(name.toLowerCase, corrections(t)(v))
-				}
-				val forTWithPC = (columnNames zip ftable.primaryKeyColumnInfosForTWithPC.map(_.dataType)).map {
-					case (name, t) =>
-						val v = j(name)
-						(name.toLowerCase, corrections(t)(v))
-				}
-				forT ::: forTWithPC
+				columnToCorrectedValue(ci.column, ci.column.foreign, j)
+			case ci: ColumnInfoOneToOne[T, _, _] =>
+				columnToCorrectedValue(ci.column, ci.column.foreign, j)
 		}.flatten
 		val dm = (sts ::: ecil ::: related).toMap
 		new DatabaseValues(dm)
+	}
+
+	private def columnToCorrectedValue(column: ColumnRelationshipBase[_, _], foreign: TypeRef[_, _], j: JdbcMap) = {
+		val fe = foreign.entity
+		val ftable = fe.tpe.table
+		val columnNames = column.columns.map(_.columnName)
+		val forT = (columnNames zip ftable.primaryKeyColumnInfosForT.map(_.dataType)).map {
+			case (name, t) =>
+				val v = j(name)
+				(name.toLowerCase, corrections(t)(v))
+		}
+		val forTWithPC = (columnNames zip ftable.primaryKeyColumnInfosForTWithPC.map(_.dataType)).map {
+			case (name, t) =>
+				val v = j(name)
+				(name.toLowerCase, corrections(t)(v))
+		}
+		forT ::: forTWithPC
 	}
 }
