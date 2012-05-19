@@ -3,6 +3,7 @@ import java.util.Calendar
 import org.joda.time.DateTime
 import org.joda.time.chrono.ISOChronology
 import com.googlecode.mapperdao.jdbc.JdbcMap
+import java.util.Date
 
 /**
  * @author kostantinos.kougios
@@ -54,7 +55,7 @@ class DefaultTypeManager extends TypeManager {
 		case b: BigInt => b.toInt
 		case b: java.math.BigInteger => b.intValue
 		case b: java.math.BigDecimal => b.intValue
-		case null => 0
+		case null => null
 	}
 
 	private def toLong(v: Any) = v match {
@@ -64,7 +65,7 @@ class DefaultTypeManager extends TypeManager {
 		case b: BigInt => b.toLong
 		case b: java.math.BigInteger => b.longValue
 		case b: java.math.BigDecimal => b.longValue
-		case null => 0
+		case null => null
 	}
 
 	private def toFloat(v: Any) = v match {
@@ -72,22 +73,24 @@ class DefaultTypeManager extends TypeManager {
 		case d: Double => d.toFloat
 		case b: java.math.BigDecimal => b.floatValue
 		case b: java.math.BigInteger => b.floatValue
+		case null => null
 	}
 
 	private def toDouble(v: Any) = v match {
 		case d: Double => d
 		case b: java.math.BigDecimal => b.doubleValue
 		case b: java.math.BigInteger => b.doubleValue
+		case null => null
 	}
 
-	private def toShort(v: Any): Short = v match {
+	private def toShort(v: Any) = v match {
 		case s: Short => s
 		case i: Int => i.toShort
 		case l: Long => l.toShort
 		case b: BigInt => b.toShort
 		case b: java.math.BigInteger => b.shortValue
 		case b: java.math.BigDecimal => b.shortValue
-		case null => 0
+		case null => null
 	}
 
 	private def toBoolean(v: Any) = v match {
@@ -95,9 +98,13 @@ class DefaultTypeManager extends TypeManager {
 		case i: Int =>
 			val v = i == 1
 			v
+		case null => null
 	}
 
-	private def toDate(t: DateTime) = new DateTime(t, chronology)
+	private def toDate(t: DateTime) = t match {
+		case null => null
+		case t: DateTime => new DateTime(t, chronology)
+	}
 
 	private val corrections = Map[Class[_], Any => Any](
 		classOf[Int] -> ((v: Any) => toInt(v)),
@@ -107,6 +114,8 @@ class DefaultTypeManager extends TypeManager {
 		classOf[Double] -> ((v: Any) => toDouble(v)),
 		classOf[Float] -> ((v: Any) => toFloat(v)),
 		classOf[DateTime] -> ((v: Any) => toDate(v.asInstanceOf[DateTime])),
+		classOf[Date] -> ((v: Any) => toDate(v.asInstanceOf[DateTime])),
+		classOf[Calendar] -> ((v: Any) => toDate(v.asInstanceOf[DateTime])),
 		classOf[String] -> ((v: Any) => v)
 	)
 

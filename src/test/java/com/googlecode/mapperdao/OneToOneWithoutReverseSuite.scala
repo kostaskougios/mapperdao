@@ -18,6 +18,15 @@ class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
 
 	import mapperDao._
 
+	test("update to null") {
+		createTables
+		val inserted = insert(InventoryEntity, Inventory(10, Product(1), 5))
+		val updated = update(InventoryEntity, inserted, Inventory(10, null, 7))
+		updated.product should be(null)
+		select(InventoryEntity, 10).get should be === updated
+		select(ProductEntity, 1).get should be === Product(1)
+	}
+
 	if (Setup.database != "derby") {
 		test("update id of related") {
 			createTables
@@ -57,15 +66,6 @@ class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
 		select(InventoryEntity, 10).get should be === reUdated
 		select(ProductEntity, 1).get should be === Product(1)
 		select(ProductEntity, 2).get should be === Product(2)
-	}
-
-	test("update to null") {
-		createTables
-		val inserted = insert(InventoryEntity, Inventory(10, Product(1), 5))
-		val updated = update(InventoryEntity, inserted, Inventory(10, null, 7))
-		updated.product should be(null)
-		select(InventoryEntity, 10).get should be === updated
-		select(ProductEntity, 1).get should be === Product(1)
 	}
 
 	test("update") {
