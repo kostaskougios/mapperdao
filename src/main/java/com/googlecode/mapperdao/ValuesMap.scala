@@ -1,11 +1,13 @@
 package com.googlecode.mapperdao
-import scala.collection.mutable.Buffer
+
 import java.util.Calendar
-import org.joda.time.DateTime
-import com.googlecode.mapperdao.utils.Equality
-import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 import java.util.Date
 import java.util.Locale
+
+import org.joda.time.DateTime
+
+import com.googlecode.mapperdao.utils.LowerCaseMutableMap
+import com.googlecode.mapperdao.utils.Equality
 
 /**
  * @author kostantinos.kougios
