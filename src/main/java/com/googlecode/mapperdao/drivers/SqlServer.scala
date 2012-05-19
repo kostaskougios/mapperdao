@@ -7,6 +7,7 @@ import com.googlecode.mapperdao.jdbc.UpdateResultWithGeneratedKeys
 import com.googlecode.mapperdao.QueryDao
 import com.googlecode.mapperdao.Query
 import com.googlecode.mapperdao.QueryConfig
+import com.googlecode.mapperdao.TypeManager
 
 /**
  * mapperdao driver for Sql Server
@@ -15,7 +16,7 @@ import com.googlecode.mapperdao.QueryConfig
  *
  * 13 Nov 2011
  */
-class SqlServer(override val jdbc: Jdbc, override val typeRegistry: TypeRegistry) extends Driver {
+class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: TypeManager) extends Driver {
 	private val invalidColumnNames = Set("end", "select", "where", "group", "user")
 	private val invalidTableNames = Set("end", "select", "where", "group", "user")
 

@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao.events.Events
-import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao.Persisted
@@ -17,6 +16,7 @@ import com.googlecode.mapperdao.UpdateConfig
 import com.googlecode.mapperdao.UpdateEntityMap
 import com.googlecode.mapperdao.ValuesMap
 import com.googlecode.mapperdao.ColumnBase
+import com.googlecode.mapperdao.DatabaseValues
 
 /**
  * plugins executed before the main entity is inserted
@@ -80,8 +80,8 @@ trait PostUpdate {
  * 31 Aug 2011
  */
 trait BeforeSelect {
-	def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap): List[Any]
-	def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap): List[SelectMod]
+	def idContribution[PC, T](tpe: Type[PC, T], om: DatabaseValues, entities: EntityMap): List[Any]
+	def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: DatabaseValues, entities: EntityMap): List[SelectMod]
 }
 
 trait SelectMock {

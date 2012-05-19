@@ -60,7 +60,7 @@ object Setup {
 		{
 			val typeManager = new DefaultTypeManager
 			val jdbc = Jdbc(dataSource, typeManager)
-			val driver = database.driver(jdbc, typeRegistry, cache)
+			val driver = database.driver(jdbc, typeRegistry, typeManager, cache)
 			val mapperDao = new MapperDaoImpl(driver, standardEvents)
 			val queryDao = QueryDao(typeRegistry, driver, mapperDao)
 			val txManager = Transaction.transactionManager(jdbc)

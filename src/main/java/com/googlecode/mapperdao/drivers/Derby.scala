@@ -7,13 +7,14 @@ import com.googlecode.mapperdao.PK
 import com.googlecode.mapperdao.QueryConfig
 import com.googlecode.mapperdao.Query
 import com.googlecode.mapperdao.jdbc.UpdateResultWithGeneratedKeys
+import com.googlecode.mapperdao.TypeManager
 
 /**
  * @author kostantinos.kougios
  *
  * 14 Jul 2011
  */
-class Derby(override val jdbc: Jdbc, override val typeRegistry: TypeRegistry) extends Driver {
+class Derby(override val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: TypeManager) extends Driver {
 
 	private val invalidColumnNames = Set("end", "select", "where", "group", "year", "no")
 	private val invalidTableNames = Set("end", "select", "where", "group", "user", "User")

@@ -7,13 +7,14 @@ import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.PK
 import com.googlecode.mapperdao.QueryConfig
 import com.googlecode.mapperdao.Query
+import com.googlecode.mapperdao.TypeManager
 
 /**
  * @author kostantinos.kougios
  *
  * 23 Sep 2011
  */
-class Oracle(override val jdbc: Jdbc, override val typeRegistry: TypeRegistry) extends Driver {
+class Oracle(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: TypeManager) extends Driver {
 	private val invalidColumnNames = Set("select", "where", "group", "start")
 	private val invalidTableNames = Set("end", "select", "where", "group", "user", "User")
 

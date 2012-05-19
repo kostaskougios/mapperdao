@@ -6,13 +6,14 @@ import com.googlecode.mapperdao.jdbc.Jdbc
 import com.googlecode.mapperdao.Type
 import com.googlecode.mapperdao.QueryConfig
 import com.googlecode.mapperdao.Query
+import com.googlecode.mapperdao.TypeManager
 
 /**
  * @author kostantinos.kougios
  *
  * 2 Sep 2011
  */
-class Mysql(override val jdbc: Jdbc, override val typeRegistry: TypeRegistry) extends Driver {
+class Mysql(override val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: TypeManager) extends Driver {
 
 	override protected def sequenceSelectNextSql(sequenceColumn: ColumnBase): String = throw new IllegalStateException("MySql doesn't support sequences")
 

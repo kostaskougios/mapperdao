@@ -1,13 +1,13 @@
 package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao.drivers.Driver
-import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.Entity
 import com.googlecode.mapperdao.EntityMap
 import com.googlecode.mapperdao.MapperDaoImpl
 import com.googlecode.mapperdao.SelectConfig
 import com.googlecode.mapperdao.Type
 import com.googlecode.mapperdao.TypeRegistry
+import com.googlecode.mapperdao.DatabaseValues
 
 /**
  * @author kostantinos.kougios
@@ -16,9 +16,9 @@ import com.googlecode.mapperdao.TypeRegistry
  */
 class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect with SelectMock {
 
-	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap) = Nil
+	override def idContribution[PC, T](tpe: Type[PC, T], om: DatabaseValues, entities: EntityMap) = Nil
 
-	override def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap) =
+	override def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: DatabaseValues, entities: EntityMap) =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table

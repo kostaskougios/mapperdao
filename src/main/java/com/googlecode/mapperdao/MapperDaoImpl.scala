@@ -333,7 +333,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 		}
 
 	private[mapperdao] def toEntities[PC, T](
-		lm: List[JdbcMap],
+		lm: List[DatabaseValues],
 		entity: Entity[PC, T],
 		selectConfig: SelectConfig,
 		entities: EntityMap): List[T with PC] =
@@ -352,7 +352,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			} else ids
 
 			entities.get[T with PC](tpe.clz, cacheKey) {
-				val mods = jdbcMap.toMap
+				val mods = jdbcMap.map
 				val mock = createMock(entity, mods)
 				entities.putMock(tpe.clz, cacheKey, mock)
 

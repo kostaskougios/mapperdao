@@ -22,13 +22,14 @@ class CachedDriverSuite extends FunSuite with ShouldMatchers {
 	class DummyDriver extends Driver {
 		val typeRegistry = null
 		val jdbc = null
+		val typeManager = null
 
-		override def doSelect[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): List[JdbcMap] = Nil
+		override def doSelect[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): List[DatabaseValues] = Nil
 
 		override def doSelectManyToMany[PC, T, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T],
-			ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): List[JdbcMap] = Nil
+			ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): List[DatabaseValues] = Nil
 
-		override def queryForList(queryConfig: QueryConfig, sql: String, args: List[Any]): List[JdbcMap] = Nil
+		override def queryForList[PC, T](queryConfig: QueryConfig, tpe: Type[PC, T], sql: String, args: List[Any]): List[DatabaseValues] = Nil
 		override def queryForLong(queryConfig: QueryConfig, sql: String, args: List[Any]): Long = -1
 
 		override def doUpdate[PC, T](tpe: Type[PC, T], args: List[(ColumnBase, Any)], pkArgs: List[(ColumnBase, Any)]): UpdateResult =
@@ -89,11 +90,11 @@ class CachedDriverSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("queryForList positive") {
-		driver(cachedValue).queryForList(QueryConfig(cacheOptions = CacheOptions.OneDay), "select x", List(1, 2)) should be(cachedValue)
+		driver(cachedValue).queryForList(QueryConfig(cacheOptions = CacheOptions.OneDay), null, "select x", List(1, 2)) should be(cachedValue)
 	}
 
 	test("queryForList negative") {
-		driver(cachedValue).queryForList(QueryConfig(cacheOptions = CacheOptions.NoCache), "select x", List(1, 2)) should be(Nil)
+		driver(cachedValue).queryForList(QueryConfig(cacheOptions = CacheOptions.NoCache), null, "select x", List(1, 2)) should be(Nil)
 	}
 
 	test("queryForLong positive") {

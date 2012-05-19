@@ -6,63 +6,63 @@ import com.googlecode.mapperdao.drivers._
 
 object Database {
 	trait DriverConfiguration {
-		def driver(jdbc: Jdbc, typeRegistry: TypeRegistry, cache: Option[Cache]): Driver
+		def driver(jdbc: Jdbc, typeRegistry: TypeRegistry, typeManager: TypeManager, cache: Option[Cache]): Driver
 		def database: String
 	}
 
 	object PostgreSql extends DriverConfiguration {
-		override def driver(jdbc: Jdbc, typeRegistry: TypeRegistry, cache: Option[Cache]) = cache.map(c =>
-			new PostgreSql(jdbc, typeRegistry) with CachedDriver {
+		override def driver(jdbc: Jdbc, typeRegistry: TypeRegistry, typeManager: TypeManager, cache: Option[Cache]) = cache.map(c =>
+			new PostgreSql(jdbc, typeRegistry, typeManager) with CachedDriver {
 				val cache = c
 			}
-		).getOrElse(new PostgreSql(jdbc, typeRegistry))
+		).getOrElse(new PostgreSql(jdbc, typeRegistry, typeManager))
 
 		override def database = "postgresql"
 	}
 
 	object Derby extends DriverConfiguration {
-		override def driver(jdbc: Jdbc, typeRegistry: TypeRegistry, cache: Option[Cache]) = cache.map(c =>
-			new Derby(jdbc, typeRegistry) with CachedDriver {
+		override def driver(jdbc: Jdbc, typeRegistry: TypeRegistry, typeManager: TypeManager, cache: Option[Cache]) = cache.map(c =>
+			new Derby(jdbc, typeRegistry, typeManager) with CachedDriver {
 				val cache = c
 			}
-		).getOrElse(new Derby(jdbc, typeRegistry))
+		).getOrElse(new Derby(jdbc, typeRegistry, typeManager))
 
 		override def database = "derby"
 	}
 
 	object Oracle extends DriverConfiguration {
-		override def driver(jdbc: Jdbc, typeRegistry: TypeRegistry, cache: Option[Cache]) = cache.map(c =>
-			new Oracle(jdbc, typeRegistry) with CachedDriver {
+		override def driver(jdbc: Jdbc, typeRegistry: TypeRegistry, typeManager: TypeManager, cache: Option[Cache]) = cache.map(c =>
+			new Oracle(jdbc, typeRegistry, typeManager) with CachedDriver {
 				val cache = c
 			}
-		).getOrElse(new Oracle(jdbc, typeRegistry))
+		).getOrElse(new Oracle(jdbc, typeRegistry, typeManager))
 		override def database = "oracle"
 	}
 
 	object SqlServer extends DriverConfiguration {
-		override def driver(jdbc: Jdbc, typeRegistry: TypeRegistry, cache: Option[Cache]) = cache.map(c =>
-			new SqlServer(jdbc, typeRegistry) with CachedDriver {
+		override def driver(jdbc: Jdbc, typeRegistry: TypeRegistry, typeManager: TypeManager, cache: Option[Cache]) = cache.map(c =>
+			new SqlServer(jdbc, typeRegistry, typeManager) with CachedDriver {
 				val cache = c
 			}
-		).getOrElse(new SqlServer(jdbc, typeRegistry))
+		).getOrElse(new SqlServer(jdbc, typeRegistry, typeManager))
 		override def database = "sqlserver"
 	}
 
 	object Mysql extends DriverConfiguration {
-		override def driver(jdbc: Jdbc, typeRegistry: TypeRegistry, cache: Option[Cache]) = cache.map(c =>
-			new Mysql(jdbc, typeRegistry) with CachedDriver {
+		override def driver(jdbc: Jdbc, typeRegistry: TypeRegistry, typeManager: TypeManager, cache: Option[Cache]) = cache.map(c =>
+			new Mysql(jdbc, typeRegistry, typeManager) with CachedDriver {
 				val cache = c
 			}
-		).getOrElse(new Mysql(jdbc, typeRegistry))
+		).getOrElse(new Mysql(jdbc, typeRegistry, typeManager))
 		override def database = "mysql"
 	}
 
 	object H2 extends DriverConfiguration {
-		override def driver(jdbc: Jdbc, typeRegistry: TypeRegistry, cache: Option[Cache]) = cache.map(c =>
-			new H2(jdbc, typeRegistry) with CachedDriver {
+		override def driver(jdbc: Jdbc, typeRegistry: TypeRegistry, typeManager: TypeManager, cache: Option[Cache]) = cache.map(c =>
+			new H2(jdbc, typeRegistry, typeManager) with CachedDriver {
 				val cache = c
 			}
-		).getOrElse(new H2(jdbc, typeRegistry))
+		).getOrElse(new H2(jdbc, typeRegistry, typeManager))
 		override def database = "h2"
 	}
 

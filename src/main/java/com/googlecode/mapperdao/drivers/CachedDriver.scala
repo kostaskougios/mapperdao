@@ -18,7 +18,7 @@ import com.googlecode.mapperdao.PK
 trait CachedDriver extends Driver {
 	val cache: Cache
 
-	override def doSelect[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): List[JdbcMap] = {
+	override def doSelect[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]) = {
 		val key = tpe.table.name :: where
 		selectConfig.cacheOptions match {
 			case CacheOptions.NoCache =>
@@ -36,8 +36,11 @@ trait CachedDriver extends Driver {
 		tpe: Type[PC, T],
 		ftpe: Type[FPC, F],
 		manyToMany: ManyToMany[FPC, F],
-		leftKeyValues: List[(SimpleColumn, Any)]): List[JdbcMap] = {
+		leftKeyValues: List[(SimpleColumn, Any)]) = {
 		val key = manyToMany.linkTable.name :: leftKeyValues
+
+		//		println("\n\n ** cache: " + key + "\n\n")
+
 		selectConfig.cacheOptions match {
 			case CacheOptions.NoCache =>
 				val r = super.doSelectManyToMany(selectConfig, tpe, ftpe, manyToMany, leftKeyValues)
@@ -50,16 +53,16 @@ trait CachedDriver extends Driver {
 
 		}
 	}
-	override def queryForList(queryConfig: QueryConfig, sql: String, args: List[Any]): List[JdbcMap] = {
+	override def queryForList[PC, T](queryConfig: QueryConfig, tpe: Type[PC, T], sql: String, args: List[Any]) = {
 		val key = List("query", sql, args)
 		queryConfig.cacheOptions match {
 			case CacheOptions.NoCache =>
-				val r = super.queryForList(queryConfig, sql, args)
+				val r = super.queryForList(queryConfig, tpe, sql, args)
 				cache.put(key, r)
 				r
 			case co =>
 				cache(key, co) {
-					super.queryForList(queryConfig, sql, args)
+					super.queryForList(queryConfig, tpe, sql, args)
 				}
 		}
 	}
@@ -100,6 +103,9 @@ trait CachedDriver extends Driver {
 		val u = super.doInsertManyToMany(tpe, manyToMany, left, right)
 
 		val lkey = manyToMany.linkTable.name :: (manyToMany.linkTable.left zip left)
+
+		//		println("\n\n ** flush: " + lkey + "\n\n")
+
 		cache.flush(lkey)
 		val rkey = manyToMany.linkTable.name :: (manyToMany.linkTable.right zip right)
 		cache.flush(rkey)

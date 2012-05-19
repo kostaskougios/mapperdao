@@ -24,7 +24,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			var sa: SqlAndArgs = null
 			try {
 				sa = sqlAndArgs(queryConfig, qe)
-				val lm = driver.queryForList(queryConfig, sa.sql, sa.args)
+				val lm = driver.queryForList(queryConfig, qe.entity.tpe, sa.sql, sa.args)
 
 				queryConfig.multi.runStrategy.run(mapperDao, qe, queryConfig, lm)
 			} catch {

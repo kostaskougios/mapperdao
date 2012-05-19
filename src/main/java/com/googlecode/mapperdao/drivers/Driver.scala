@@ -14,6 +14,8 @@ import com.googlecode.mapperdao.jdbc.UpdateResult
 abstract class Driver {
 	val jdbc: Jdbc
 	val typeRegistry: TypeRegistry
+	val typeManager: TypeManager
+
 	/**
 	 * =====================================================================================
 	 * utility methods
@@ -205,13 +207,13 @@ abstract class Driver {
 	/**
 	 * default impl of select
 	 */
-	def doSelect[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): List[JdbcMap] =
+	def doSelect[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): List[DatabaseValues] =
 		{
 			val sql = selectSql(selectConfig, tpe, where)
 
 			// 1st step is to get the simple values
 			// of this object from the database
-			jdbc.queryForList(sql, where.map(_._2))
+			jdbc.queryForList(sql, where.map(_._2)).map(j => typeManager.correctTypes(tpe.table, j))
 		}
 
 	protected def selectSql[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): String =
@@ -234,10 +236,10 @@ abstract class Driver {
 		} else ""
 	}
 
-	def doSelectManyToMany[PC, T, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): List[JdbcMap] =
+	def doSelectManyToMany[PC, T, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): List[DatabaseValues] =
 		{
 			val sql = selectManyToManySql(selectConfig, tpe, ftpe, manyToMany, leftKeyValues)
-			jdbc.queryForList(sql, leftKeyValues.map(_._2))
+			jdbc.queryForList(sql, leftKeyValues.map(_._2)).map(j => typeManager.correctTypes(ftpe.table, j))
 		}
 
 	protected def selectManyToManySql[PC, T, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): String =
@@ -559,7 +561,8 @@ abstract class Driver {
 	 * generic queries
 	 * =====================================================================================
 	 */
-	def queryForList(queryConfig: QueryConfig, sql: String, args: List[Any]): List[JdbcMap] = jdbc.queryForList(sql, args)
+	def queryForList[PC, T](queryConfig: QueryConfig, tpe: Type[PC, T], sql: String, args: List[Any]): List[DatabaseValues] =
+		jdbc.queryForList(sql, args).map { j => typeManager.correctTypes(tpe.table, j) }
 	def queryForLong(queryConfig: QueryConfig, sql: String, args: List[Any]): Long = jdbc.queryForLong(sql, args)
 	/**
 	 * =====================================================================================

@@ -1,5 +1,7 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.jdbc.JdbcMap
+
 /**
  * manages types
  *
@@ -22,4 +24,6 @@ trait TypeManager {
 	 * converts o to tpe if possible
 	 */
 	def toActualType(tpe: Class[_], o: Any): Any
+
+	def correctTypes[PC, T](table: Table[PC, T], j: JdbcMap): DatabaseValues
 }

@@ -1,6 +1,5 @@
 package com.googlecode.mapperdao.plugins
 
-import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.utils.Equality
 import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.utils.MapOfList
@@ -15,9 +14,9 @@ import com.googlecode.mapperdao.events.Events
  */
 class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeSelect with SelectMock {
 
-	override def idContribution[PC, T](tpe: Type[PC, T], om: JdbcMap, entities: EntityMap) = Nil
+	override def idContribution[PC, T](tpe: Type[PC, T], om: DatabaseValues, entities: EntityMap) = Nil
 
-	override def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: JdbcMap, entities: EntityMap) =
+	override def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: DatabaseValues, entities: EntityMap) =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table

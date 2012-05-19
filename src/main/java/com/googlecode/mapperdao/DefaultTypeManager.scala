@@ -2,6 +2,7 @@ package com.googlecode.mapperdao
 import java.util.Calendar
 import org.joda.time.DateTime
 import org.joda.time.chrono.ISOChronology
+import com.googlecode.mapperdao.jdbc.JdbcMap
 
 /**
  * @author kostantinos.kougios
@@ -94,5 +95,55 @@ class DefaultTypeManager extends TypeManager {
 		case i: Int =>
 			val v = i == 1
 			v
+	}
+
+	private def toDate(t: DateTime) = new DateTime(t, chronology)
+
+	private val corrections = Map[Class[_], Any => Any](
+		classOf[Int] -> ((v: Any) => toInt(v)),
+		classOf[Long] -> ((v: Any) => toLong(v)),
+		classOf[Boolean] -> ((v: Any) => toBoolean(v)),
+		classOf[Short] -> ((v: Any) => toShort(v)),
+		classOf[Double] -> ((v: Any) => toDouble(v)),
+		classOf[Float] -> ((v: Any) => toFloat(v)),
+		classOf[DateTime] -> ((v: Any) => toDate(v.asInstanceOf[DateTime])),
+		classOf[String] -> ((v: Any) => v)
+	)
+
+	override def correctTypes[PC, T](table: Table[PC, T], j: JdbcMap) = {
+		val ecil = table.extraColumnInfosPersisted.map {
+			case ci: ColumnInfo[T, _] =>
+				val column = ci.column
+				val v = j(column.columnName)
+				(column.columnName.toLowerCase, corrections(ci.dataType)(v))
+		}
+		val sts = table.simpleTypeColumnInfos.map { ci =>
+			val column = ci.column
+			val v = j(column.columnName)
+			(column.columnName.toLowerCase, corrections(ci.dataType)(v))
+		}
+
+		// related data (if any)
+		val related = table.relationshipColumnInfos.collect {
+			case ci: ColumnInfoManyToOne[T, _, _] =>
+				val column = ci.column
+				val fe = column.foreign.entity
+				val ftable = fe.tpe.table
+
+				val columnNames = column.columns.map(_.columnName)
+				val forT = (columnNames zip ftable.primaryKeyColumnInfosForT.map(_.dataType)).map {
+					case (name, t) =>
+						val v = j(name)
+						(name.toLowerCase, corrections(t)(v))
+				}
+				val forTWithPC = (columnNames zip ftable.primaryKeyColumnInfosForTWithPC.map(_.dataType)).map {
+					case (name, t) =>
+						val v = j(name)
+						(name.toLowerCase, corrections(t)(v))
+				}
+				forT ::: forTWithPC
+		}.flatten
+		val dm = (sts ::: ecil ::: related).toMap
+		new DatabaseValues(dm)
 	}
 }
