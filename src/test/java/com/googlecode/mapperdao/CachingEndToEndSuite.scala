@@ -20,6 +20,21 @@ class CachingEndToEndSuite extends FunSuite with ShouldMatchers {
 	val mapperDaoCache = new CacheUsingEHCache(ehCache)
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity), cache = Some(mapperDaoCache))
+	val selectConfig = SelectConfig(cacheOptions = CacheOptions.OneHour)
+	val queryConfig = QueryConfig(cacheOptions = CacheOptions.OneHour)
+
+	test("delete flushes cache") {
+		createTables
+		val product = Product(5, "blue jean", Set(Attribute(2, "colour", "blue")))
+		val inserted = mapperDao.insert(ProductEntity, product)
+
+		// do a dummy select, just to cache it
+		mapperDao.select(ProductEntity, 5)
+
+		mapperDao.delete(ProductEntity, 5)
+
+		mapperDao.select(selectConfig, ProductEntity, 5) should be === None
+	}
 
 	test("update, many to many, add related, flushes cached") {
 		createTables
@@ -31,7 +46,7 @@ class CachingEndToEndSuite extends FunSuite with ShouldMatchers {
 
 		val updated = mapperDao.update(ProductEntity, inserted, Product(5, "xxx", inserted.attributes + Attribute(8, "size", "large")))
 		// still cached
-		mapperDao.select(SelectConfig(cacheOptions = CacheOptions.OneHour), ProductEntity, 5) should be === Some(updated)
+		mapperDao.select(selectConfig, ProductEntity, 5) should be === Some(updated)
 	}
 
 	test("update, many to many, remove related, flushes cached") {
@@ -44,7 +59,7 @@ class CachingEndToEndSuite extends FunSuite with ShouldMatchers {
 
 		val updated = mapperDao.update(ProductEntity, inserted, Product(5, "xxx", inserted.attributes.filter(_.id != 2)))
 		// still cached
-		mapperDao.select(SelectConfig(cacheOptions = CacheOptions.OneHour), ProductEntity, 5) should be === Some(updated)
+		mapperDao.select(selectConfig, ProductEntity, 5) should be === Some(updated)
 	}
 
 	test("main entity selection is cached") {
@@ -58,7 +73,7 @@ class CachingEndToEndSuite extends FunSuite with ShouldMatchers {
 		// manually delete rows
 		deleteAll()
 		// still cached
-		mapperDao.select(SelectConfig(cacheOptions = CacheOptions.OneHour), ProductEntity, 5) should be === Some(inserted)
+		mapperDao.select(selectConfig, ProductEntity, 5) should be === Some(inserted)
 	}
 
 	test("main entity selection is cached but expired") {
@@ -88,7 +103,7 @@ class CachingEndToEndSuite extends FunSuite with ShouldMatchers {
 		// manually delete rows
 		deleteAll()
 		// still cached
-		mapperDao.select(SelectConfig(cacheOptions = CacheOptions.OneHour), AttributeEntity, 2) should be === Some(Attribute(2, "colour", "blue"))
+		mapperDao.select(selectConfig, AttributeEntity, 2) should be === Some(Attribute(2, "colour", "blue"))
 	}
 
 	test("query with cached data positive") {
@@ -101,7 +116,7 @@ class CachingEndToEndSuite extends FunSuite with ShouldMatchers {
 		queryDao.query(select from ProductEntity)
 		deleteAll()
 		// even if the data are deleted, the cached values will be used
-		queryDao.query(QueryConfig(cacheOptions = CacheOptions.OneHour), select from ProductEntity) should be === List(inserted)
+		queryDao.query(queryConfig, select from ProductEntity) should be === List(inserted)
 	}
 
 	test("query with cached data negative") {
