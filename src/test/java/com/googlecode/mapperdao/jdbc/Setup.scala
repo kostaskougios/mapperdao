@@ -79,7 +79,10 @@ object Setup {
 					}
 				case "h2" =>
 					jdbc.queryForList("show tables").foreach { m =>
-						val table = m("TABLE_NAME")
+						val table = m("TABLE_NAME") match {
+							case "Values" => """"Values""""
+							case t: String => t
+						}
 						try {
 							jdbc.update("drop table %s".format(table))
 						} catch {

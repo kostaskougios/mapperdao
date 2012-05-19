@@ -17,10 +17,10 @@ import com.googlecode.mapperdao.SimpleColumn
 class PostgreSql(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: TypeManager) extends Driver {
 
 	private val invalidColumnNames = Set("end", "select", "where", "group")
-	private val invalidTableNames = Set("end", "select", "where", "group", "user", "User")
+	private val invalidTableNames = Set("end", "select", "where", "group", "user")
 
-	override def escapeColumnNames(name: String) = if (invalidColumnNames.contains(name)) '"' + name + '"'; else name
-	override def escapeTableNames(name: String): String = if (invalidTableNames.contains(name)) '"' + name + '"'; else name
+	override def escapeColumnNames(name: String) = if (invalidColumnNames.contains(name.toLowerCase)) '"' + name + '"'; else name
+	override def escapeTableNames(name: String): String = if (invalidTableNames.contains(name.toLowerCase)) '"' + name + '"'; else name
 
 	override protected def insertSql[PC, T](tpe: Type[PC, T], args: List[(SimpleColumn, Any)]): String =
 		{

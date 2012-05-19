@@ -102,11 +102,17 @@ class DefaultTypeManager(chronology: Chronology) extends TypeManager {
 
 	private val corrections = Map[Class[_], Any => Any](
 		classOf[Int] -> ((v: Any) => toInt(v)),
+		classOf[java.lang.Integer] -> ((v: Any) => toInt(v)),
 		classOf[Long] -> ((v: Any) => toLong(v)),
+		classOf[java.lang.Long] -> ((v: Any) => toLong(v)),
 		classOf[Boolean] -> ((v: Any) => toBoolean(v)),
+		classOf[java.lang.Boolean] -> ((v: Any) => toBoolean(v)),
 		classOf[Short] -> ((v: Any) => toShort(v)),
+		classOf[java.lang.Short] -> ((v: Any) => toShort(v)),
 		classOf[Double] -> ((v: Any) => toDouble(v)),
+		classOf[java.lang.Double] -> ((v: Any) => toDouble(v)),
 		classOf[Float] -> ((v: Any) => toFloat(v)),
+		classOf[java.lang.Float] -> ((v: Any) => toFloat(v)),
 		classOf[DateTime] -> ((v: Any) => toDate(v.asInstanceOf[DateTime])),
 		classOf[Date] -> ((v: Any) => toDate(v.asInstanceOf[DateTime])),
 		classOf[Calendar] -> ((v: Any) => toDate(v.asInstanceOf[DateTime])),
