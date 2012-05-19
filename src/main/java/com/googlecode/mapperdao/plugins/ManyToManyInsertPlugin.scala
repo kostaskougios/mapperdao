@@ -24,7 +24,7 @@ class ManyToManyInsertPlugin(typeManager: TypeManager, typeRegistry: TypeRegistr
 			val table = entity.tpe.table
 			// many to many
 			table.manyToManyColumnInfos.foreach { cis =>
-				val newKeyValues = table.primaryKeys.map(c => modified(c.columnName))
+				val newKeyValues = table.primaryKeys.map(c => modified(c.name))
 				val traversable = cis.columnToValue(o)
 				val cName = cis.column.alias
 				if (traversable != null) {

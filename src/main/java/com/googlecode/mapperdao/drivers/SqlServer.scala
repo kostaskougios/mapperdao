@@ -42,9 +42,9 @@ class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager:
 			val sb = new StringBuilder("ROW_NUMBER() over (order by ")
 			val entity = qe.entity
 			val alias = aliases(qe.entity)
-			val orderBySql = qe.order.map(t => alias + "." + t._1.column.columnName + " " + t._2.sql).mkString(",")
+			val orderBySql = qe.order.map(t => alias + "." + t._1.column.name + " " + t._2.sql).mkString(",")
 			if (orderBySql.isEmpty) {
-				sb append entity.tpe.table.primaryKeys.map(alias + "." + _.columnName).mkString(",")
+				sb append entity.tpe.table.primaryKeys.map(alias + "." + _.name).mkString(",")
 			} else sb append orderBySql
 
 			sb append ") as Row"

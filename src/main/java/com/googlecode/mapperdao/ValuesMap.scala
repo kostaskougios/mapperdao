@@ -54,7 +54,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 
 	private[mapperdao] def update[T, V](column: ColumnInfoBase[T, _], v: V): Unit =
 		{
-			val key = column.column.columnName.toLowerCase
+			val key = column.column.name.toLowerCase
 			m(key) = v
 		}
 
@@ -65,13 +65,13 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 		}
 
 	def raw[T, V](column: ColumnInfo[T, V]): Option[Any] = {
-		val key = column.column.columnName
+		val key = column.column.name
 		m.get(key)
 	}
 
 	def apply[T, V](column: ColumnInfo[T, V]): V =
 		{
-			val key = column.column.columnName
+			val key = column.column.name
 			val v = valueOf[V](key)
 			v
 		}
@@ -107,34 +107,34 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 		}
 
 	def float[T](column: ColumnInfo[T, java.lang.Float]): java.lang.Float =
-		valueOf[java.lang.Float](column.column.columnName)
+		valueOf[java.lang.Float](column.column.name)
 
 	def double[T](column: ColumnInfo[T, java.lang.Double]): java.lang.Double =
-		valueOf[java.lang.Double](column.column.columnName)
+		valueOf[java.lang.Double](column.column.name)
 
 	def short[T](column: ColumnInfo[T, java.lang.Short]): java.lang.Short =
-		valueOf[java.lang.Short](column.column.columnName)
+		valueOf[java.lang.Short](column.column.name)
 
 	def int[T](column: ColumnInfo[T, java.lang.Integer]): java.lang.Integer =
-		valueOf[java.lang.Integer](column.column.columnName)
+		valueOf[java.lang.Integer](column.column.name)
 
 	def long[T](column: ColumnInfo[T, java.lang.Long]): java.lang.Long =
-		valueOf[java.lang.Long](column.column.columnName)
+		valueOf[java.lang.Long](column.column.name)
 
 	def bigDecimal[T](column: ColumnInfo[T, BigDecimal]): BigDecimal =
-		valueOf[BigDecimal](column.column.columnName)
+		valueOf[BigDecimal](column.column.name)
 
 	def bigInt[T](column: ColumnInfo[T, BigInt]): BigInt =
-		valueOf[BigInt](column.column.columnName)
+		valueOf[BigInt](column.column.name)
 
 	def date[T](column: ColumnInfo[T, Date]): Date =
-		valueOf[DateTime](column.column.columnName).toDate
+		valueOf[DateTime](column.column.name).toDate
 
 	def calendar[T](column: ColumnInfo[T, Calendar]): Calendar =
-		valueOf[DateTime](column.column.columnName).toCalendar(Locale.getDefault)
+		valueOf[DateTime](column.column.name).toCalendar(Locale.getDefault)
 
 	def boolean[T](column: ColumnInfo[T, java.lang.Boolean]): java.lang.Boolean =
-		valueOf[java.lang.Boolean](column.column.columnName)
+		valueOf[java.lang.Boolean](column.column.name)
 
 	def mutableHashSet[T, FPC, F](column: ColumnInfoTraversableManyToMany[T, FPC, F]): scala.collection.mutable.HashSet[F] = new scala.collection.mutable.HashSet ++ apply(column)
 	def mutableLinkedList[T, FPC, F](column: ColumnInfoTraversableManyToMany[T, FPC, F]): scala.collection.mutable.LinkedList[F] = new scala.collection.mutable.LinkedList ++ apply(column)

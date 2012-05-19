@@ -117,13 +117,13 @@ class DefaultTypeManager(chronology: Chronology) extends TypeManager {
 		val ecil = table.extraColumnInfosPersisted.map {
 			case ci: ColumnInfo[T, _] =>
 				val column = ci.column
-				val v = j(column.columnName)
-				(column.columnName.toLowerCase, corrections(ci.dataType)(v))
+				val v = j(column.name)
+				(column.name.toLowerCase, corrections(ci.dataType)(v))
 		}
 		val sts = table.simpleTypeColumnInfos.map { ci =>
 			val column = ci.column
-			val v = j(column.columnName)
-			(column.columnName.toLowerCase, corrections(ci.dataType)(v))
+			val v = j(column.name)
+			(column.name.toLowerCase, corrections(ci.dataType)(v))
 		}
 
 		// related data (if any)
@@ -140,7 +140,7 @@ class DefaultTypeManager(chronology: Chronology) extends TypeManager {
 	private def columnToCorrectedValue(column: ColumnRelationshipBase[_, _], foreign: TypeRef[_, _], j: JdbcMap) = {
 		val fe = foreign.entity
 		val ftable = fe.tpe.table
-		val columnNames = column.columns.map(_.columnName)
+		val columnNames = column.columns.map(_.name)
 		val forT = (columnNames zip ftable.primaryKeyColumnInfosForT.map(_.dataType)).map {
 			case (name, t) =>
 				val v = j(name)

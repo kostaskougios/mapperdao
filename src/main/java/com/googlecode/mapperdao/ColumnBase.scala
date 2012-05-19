@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao
 
 protected abstract class ColumnBase {
-	def columnName: String
+	def name: String
 	def alias: String
 }

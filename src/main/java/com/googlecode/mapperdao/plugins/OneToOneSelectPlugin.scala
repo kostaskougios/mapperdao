@@ -28,7 +28,7 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 				val fe = c.foreign.entity
 				val ftpe = fe.tpe
 				val ftable = ftpe.table
-				val foreignKeyValues = c.selfColumns.map(sc => om(sc.columnName))
+				val foreignKeyValues = c.selfColumns.map(sc => om(sc.name))
 				val v = if (foreignKeyValues.contains(null)) {
 					// value is null
 					() => null

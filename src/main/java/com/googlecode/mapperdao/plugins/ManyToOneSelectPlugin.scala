@@ -27,13 +27,13 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				val v = c.foreign.entity match {
 					case ee: ExternalEntity[Any] =>
 						() => {
-							val foreignPKValues = c.columns.map(mtoc => om(mtoc.columnName))
+							val foreignPKValues = c.columns.map(mtoc => om(mtoc.name))
 							ee.manyToOneOnSelectMap(cis.asInstanceOf[ColumnInfoManyToOne[_, _, Any]])(SelectExternalManyToOne(selectConfig, foreignPKValues))
 						}
 					case _ =>
 						() => {
 							val fe = c.foreign.entity
-							val foreignPKValues = c.columns.map(mtoc => om(mtoc.columnName))
+							val foreignPKValues = c.columns.map(mtoc => om(mtoc.name))
 							entities.get(fe.clz, foreignPKValues) {
 								entities.down(tpe, cis, om)
 								val v = mapperDao.selectInner(fe, selectConfig, foreignPKValues, entities).getOrElse(null)

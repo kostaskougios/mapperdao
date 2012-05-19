@@ -31,13 +31,13 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 							() => {
 								val table = tpe.table
 								val ids = table.primaryKeys.map { pk =>
-									om(pk.columnName)
+									om(pk.name)
 								}
 								ee.oneToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, Any]])(SelectExternalOneToMany(selectConfig, ids))
 							}
 						case fe: Entity[_, _] =>
 							() => {
-								val ids = tpe.table.primaryKeys.map { pk => om(pk.columnName) }
+								val ids = tpe.table.primaryKeys.map { pk => om(pk.name) }
 								val where = c.foreignColumns.zip(ids)
 								val ftpe = fe.tpe
 								val fom = driver.doSelect(selectConfig, ftpe, where)

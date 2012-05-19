@@ -24,9 +24,9 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 		case ci @ ColumnInfo(pk: PK, _, _) => ci
 	}
 
-	val primaryKeysAsColumns = primaryKeys.map(k => Column(k.columnName)).toSet
+	val primaryKeysAsColumns = primaryKeys.map(k => Column(k.name)).toSet
 	//val primaryKeyColumns: List[SimpleColumn] = primaryKeys.map(_.column)
-	val primaryKeysAsCommaSeparatedList = primaryKeys.map(_.columnName).mkString(",")
+	val primaryKeysAsCommaSeparatedList = primaryKeys.map(_.name).mkString(",")
 
 	val simpleTypeColumns = columns.collect {
 		case c: Column => c

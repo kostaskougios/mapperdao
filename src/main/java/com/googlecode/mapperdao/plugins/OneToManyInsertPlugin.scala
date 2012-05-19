@@ -61,7 +61,7 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 
 					case fe: Entity[Any, Any] =>
 						val ftpe = fe.tpe
-						val newKeyValues = table.primaryKeys.map(c => modified(c.columnName))
+						val newKeyValues = table.primaryKeys.map(c => modified(c.name))
 						if (traversable != null) {
 							traversable.foreach { nested =>
 								val newO = if (mapperDao.isPersisted(nested)) {

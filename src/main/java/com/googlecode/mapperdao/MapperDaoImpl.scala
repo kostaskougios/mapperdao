@@ -119,7 +119,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 					table.pcColumnToColumnInfoMap(c) match {
 						case ci: ColumnInfo[_, _] =>
 							val fixed = typeManager.toActualType(ci.dataType, ag)
-							modified(c.columnName) = fixed
+							modified(c.name) = fixed
 					}
 				}
 			}
@@ -340,14 +340,14 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			val tpe = entity.tpe
 			val table = tpe.table
 			// calculate the id's for this tpe
-			val ids = table.primaryKeys.map { pk => jdbcMap(pk.columnName) } ::: selectBeforePlugins.map {
+			val ids = table.primaryKeys.map { pk => jdbcMap(pk.name) } ::: selectBeforePlugins.map {
 				_.idContribution(tpe, jdbcMap, entities)
 			}.flatten
 			val cacheKey = if (ids.isEmpty) {
 				if (table.unusedPKs.isEmpty)
 					throw new IllegalStateException("entity %s without primary key, please use declarePrimaryKeys() to declare the primary key columns of tables into your entity declaration")
 				else
-					table.unusedPrimaryKeyColumns.map { c => jdbcMap(c.columnName) }
+					table.unusedPrimaryKeyColumns.map { c => jdbcMap(c.name) }
 			} else ids
 
 			entities.get[T with PC](tpe.clz, cacheKey) {
