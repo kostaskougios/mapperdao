@@ -7,6 +7,8 @@ import org.springframework.transaction.PlatformTransactionManager
 import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.jdbc.Jdbc
 import com.googlecode.mapperdao.drivers.Cache
+import org.joda.time.Chronology
+import org.joda.time.chrono.ISOChronology
 /**
  * a factory for simple configuration of mapperdao
  *
@@ -56,12 +58,13 @@ object Setup {
 	def apply(
 		database: Database.DriverConfiguration,
 		dataSource: DataSource,
-		typeRegistry: TypeRegistry, cache: Option[Cache]): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		typeRegistry: TypeRegistry, cache: Option[Cache],
+		chronology: Chronology = ISOChronology.getInstance): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		{
-			val typeManager = new DefaultTypeManager
-			val jdbc = Jdbc(dataSource, typeManager)
+			val typeManager = new DefaultTypeManager(chronology)
+			val jdbc = Jdbc(dataSource, chronology)
 			val driver = database.driver(jdbc, typeRegistry, typeManager, cache)
-			val mapperDao = new MapperDaoImpl(driver, standardEvents)
+			val mapperDao = new MapperDaoImpl(driver, standardEvents, typeManager)
 			val queryDao = QueryDao(typeRegistry, driver, mapperDao)
 			val txManager = Transaction.transactionManager(jdbc)
 			(jdbc, mapperDao, queryDao, txManager)

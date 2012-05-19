@@ -1,36 +1,29 @@
 package com.googlecode.mapperdao
 import java.util.Calendar
 import org.joda.time.DateTime
-import org.joda.time.chrono.ISOChronology
 import com.googlecode.mapperdao.jdbc.JdbcMap
 import java.util.Date
 import scala.collection.immutable.ListMap
+import org.joda.time.Chronology
 
 /**
  * @author kostantinos.kougios
  *
  * 1 Aug 2011
  */
-class DefaultTypeManager extends TypeManager {
-	private val chronology = ISOChronology.getInstance
+class DefaultTypeManager(chronology: Chronology) extends TypeManager {
 
 	override def deepClone[T](o: T): T = o match {
 		case t: scala.collection.mutable.Traversable[_] => t.map(e => e).asInstanceOf[T] // copy mutable traversables
-		case cal: Calendar => cal.clone().asInstanceOf[T]
+		case cal: Calendar => cal.clone.asInstanceOf[T]
+		case dt: Date => dt.clone.asInstanceOf[T]
 		case _ => o
 	}
 
-	override def convert(o: Any): Any = o match {
-		case t: java.util.Date => new DateTime(t, chronology)
-		case c: java.util.Calendar => new DateTime(c, chronology)
-		case _ => o
-	}
-
-	override def reverseConvert(o: Any): Any = o match {
-		case t: DateTime => t.toCalendar(null)
-		case d: BigDecimal => d.bigDecimal
-		case i: BigInt => i.bigInteger
-		case _ => o
+	override def normalize(v: Any) = v match {
+		case d: Date => new DateTime(d, chronology)
+		case c: Calendar => new DateTime(c, chronology)
+		case v => v
 	}
 
 	override def toActualType(tpe: Class[_], o: Any): Any = {

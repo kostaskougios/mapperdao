@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.JdbcMap
+import org.joda.time.DateTime
 
 /**
  * manages types
@@ -16,10 +17,7 @@ trait TypeManager {
 	 */
 	def deepClone[T](o: T): T
 
-	def convert(o: Any): Any
-
-	def reverseConvert(o: Any): Any
-
+	def normalize(v: Any): Any
 	/**
 	 * converts o to tpe if possible
 	 */

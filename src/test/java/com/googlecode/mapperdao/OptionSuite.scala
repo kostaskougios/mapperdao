@@ -4,6 +4,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
+import org.joda.time.chrono.ISOChronology
 
 /**
  * Option integration
@@ -39,7 +40,7 @@ class OptionSuite extends FunSuite with ShouldMatchers {
 		}
 	}
 
-	val typeManager = new DefaultTypeManager()
+	val typeManager = new DefaultTypeManager(ISOChronology.getInstance)
 	val typeRegistry = TypeRegistry(CategoryEntity)
 
 	test("manyToOneOption None=>null") {

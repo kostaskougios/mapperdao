@@ -8,6 +8,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 import java.util.Calendar
 import java.util.Date
 import org.joda.time.DateTime
+import org.joda.time.chrono.ISOChronology
 
 /**
  * @author kostantinos.kougios
@@ -18,7 +19,7 @@ import org.joda.time.DateTime
 class ValuesMapSuite extends FunSuite with ShouldMatchers {
 	if (Setup.database == "h2") {
 		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(TypeEntity))
-		val typeManager = new DefaultTypeManager
+		val typeManager = new DefaultTypeManager(ISOChronology.getInstance)
 
 		test("calendar") {
 			val date = Setup.now

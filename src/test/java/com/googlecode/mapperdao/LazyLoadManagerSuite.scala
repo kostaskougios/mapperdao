@@ -4,6 +4,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
+import org.joda.time.chrono.ISOChronology
 
 /**
  * @author kostantinos.kougios
@@ -14,7 +15,7 @@ import org.scalatest.FunSuite
 class LazyLoadManagerSuite extends FunSuite with ShouldMatchers {
 
 	val lazyLoadManager = new LazyLoadManager
-	val typeManager = new DefaultTypeManager
+	val typeManager = new DefaultTypeManager(ISOChronology.getInstance)
 
 	test("lazy load Array") {
 		val h1 = new House("Rhodes")

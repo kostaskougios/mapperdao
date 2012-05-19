@@ -21,6 +21,7 @@ import com.googlecode.mapperdao.drivers.H2
 import com.googlecode.mapperdao.utils.{ Setup => S }
 import com.googlecode.mapperdao.utils.Database
 import com.googlecode.mapperdao.drivers.Cache
+import org.joda.time.chrono.ISOChronology
 
 /**
  * creates an environment for specs
@@ -32,7 +33,7 @@ import com.googlecode.mapperdao.drivers.Cache
 object Setup {
 	private val logger = LoggerFactory.getLogger(getClass)
 
-	val typeManager = new DefaultTypeManager
+	val typeManager = new DefaultTypeManager(ISOChronology.getInstance)
 	def database = {
 		val d = System.getProperty("database")
 		if (d == null) throw new IllegalStateException("please define database via -Ddatabase=postgresql")
@@ -47,7 +48,7 @@ object Setup {
 		logger.debug("connecting to %s".format(database))
 		properties.load(getClass.getResourceAsStream("/jdbc.test.%s.properties".format(database)))
 		val dataSource = BasicDataSourceFactory.createDataSource(properties).asInstanceOf[BasicDataSource]
-		jdbc = Jdbc(dataSource, typeManager)
+		jdbc = Jdbc(dataSource, ISOChronology.getInstance)
 		jdbc
 	} else jdbc
 

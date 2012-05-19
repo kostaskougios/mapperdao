@@ -16,9 +16,8 @@ import com.googlecode.mapperdao.utils.Equality
  *
  * 13 Jul 2011
  */
-protected final class MapperDaoImpl(val driver: Driver, events: Events) extends MapperDao {
+protected final class MapperDaoImpl(val driver: Driver, events: Events, val typeManager: TypeManager) extends MapperDao {
 	private val typeRegistry = driver.typeRegistry
-	private val typeManager = driver.jdbc.typeManager
 	private val lazyLoadManager = new LazyLoadManager
 
 	private val postUpdatePlugins = List[PostUpdate](
@@ -352,7 +351,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events) extends 
 			} else ids
 
 			entities.get[T with PC](tpe.clz, cacheKey) {
-				val mods = jdbcMap.map
+				val mods = jdbcMap.toMap
 				val mock = createMock(entity, mods)
 				entities.putMock(tpe.clz, cacheKey, mock)
 

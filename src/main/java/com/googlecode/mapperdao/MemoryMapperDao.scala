@@ -3,6 +3,7 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.ConcurrentHashMap
 import exceptions.PersistException
+import org.joda.time.chrono.ISOChronology
 
 /**
  * a memory implementation of the MapperDao interface, useful for testing
@@ -117,6 +118,6 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 
 object MemoryMapperDao {
 	// a factory to create a MemoryMapperDao with the default TypeManager
-	def apply(typeRegistry: TypeRegistry): MapperDao = new MemoryMapperDao(typeRegistry, new DefaultTypeManager)
+	def apply(typeRegistry: TypeRegistry): MapperDao = new MemoryMapperDao(typeRegistry, new DefaultTypeManager(ISOChronology.getInstance))
 	def apply(typeRegistry: TypeRegistry, typeManager: TypeManager): MapperDao = new MemoryMapperDao(typeRegistry, typeManager)
 }
