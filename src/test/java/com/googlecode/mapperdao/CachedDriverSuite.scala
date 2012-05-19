@@ -32,7 +32,7 @@ class CachedDriverSuite extends FunSuite with ShouldMatchers {
 		override def queryForList[PC, T](queryConfig: QueryConfig, tpe: Type[PC, T], sql: String, args: List[Any]): List[DatabaseValues] = Nil
 		override def queryForLong(queryConfig: QueryConfig, sql: String, args: List[Any]): Long = -1
 
-		override def doUpdate[PC, T](tpe: Type[PC, T], args: List[(ColumnBase, Any)], pkArgs: List[(ColumnBase, Any)]): UpdateResult =
+		override def doUpdate[PC, T](tpe: Type[PC, T], args: List[(SimpleColumn, Any)], pkArgs: List[(SimpleColumn, Any)]): UpdateResult =
 			UpdateResult(1)
 	}
 

@@ -54,7 +54,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 
 	private[mapperdao] def update[T, V](column: ColumnInfoBase[T, _], v: V): Unit =
 		{
-			val key = column.column.name.toLowerCase
+			val key = column.column.alias.toLowerCase
 			m(key) = v
 		}
 
@@ -154,6 +154,7 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 	protected[mapperdao] def toMutableMap = m.cloneMap
 
 	protected[mapperdao] def toListOfColumnAndValueTuple(columns: List[ColumnBase]) = columns.map(c => (c, m(c.alias.toLowerCase)))
+	protected[mapperdao] def toListOfSimpleColumnAndValueTuple(columns: List[SimpleColumn]) = columns.map(c => (c, m(c.alias.toLowerCase)))
 	protected[mapperdao] def toListOfColumnValue(columns: List[ColumnBase]) = columns.map(c => m(c.alias.toLowerCase))
 	protected[mapperdao] def isSimpleColumnsChanged[PC, T](tpe: Type[PC, T], from: ValuesMap): Boolean =
 		tpe.table.simpleTypeColumnInfos.exists { ci =>

@@ -91,32 +91,32 @@ object Query {
 	}
 
 	trait OrderBy[Q] { self: Q =>
-		protected def addOrderBy(l: List[(ColumnInfoBase[_, _], AscDesc)])
+		protected def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)])
 
-		def orderBy(byList: (ColumnInfoBase[_, _], AscDesc)*) =
+		def orderBy(byList: (ColumnInfo[_, _], AscDesc)*) =
 			{
 				addOrderBy(byList.toList)
 				self
 			}
 
-		def orderBy[T, V](ci: ColumnInfoBase[T, V]) =
+		def orderBy[T, V](ci: ColumnInfo[T, V]) =
 			{
 				addOrderBy(List((ci, asc)))
 				self
 			}
-		def orderBy[T, V](ci: ColumnInfoBase[T, V], ascDesc: AscDesc) =
+		def orderBy[T, V](ci: ColumnInfo[T, V], ascDesc: AscDesc) =
 			{
 				addOrderBy(List((ci, ascDesc)))
 				self
 			}
 
-		def orderBy[T1, V1, T2, V2](ci1: ColumnInfoBase[T1, V1], ci2: ColumnInfoBase[T2, V2]) =
+		def orderBy[T1, V1, T2, V2](ci1: ColumnInfo[T1, V1], ci2: ColumnInfo[T2, V2]) =
 			{
 				addOrderBy(List((ci1, asc), (ci2, asc)))
 				self
 			}
 
-		def orderBy[T1, V1, T2, V2](ci1: ColumnInfoBase[T1, V1], ascDesc1: AscDesc, ci2: ColumnInfoBase[T2, V2], ascDesc2: AscDesc) =
+		def orderBy[T1, V1, T2, V2](ci1: ColumnInfo[T1, V1], ascDesc1: AscDesc, ci2: ColumnInfo[T2, V2], ascDesc2: AscDesc) =
 			{
 				addOrderBy(List((ci1, ascDesc1), (ci2, ascDesc2)))
 				self
@@ -129,9 +129,9 @@ object Query {
 	class Builder[PC, T](protected[mapperdao] val entity: Entity[PC, T]) extends OrderBy[Builder[PC, T]] {
 		protected[mapperdao] var wheres = List[Where[PC, T]]()
 		protected[mapperdao] var joins = List[Join[Any, Any, Entity[_, _], PC, T]]()
-		protected[mapperdao] var order = List[(ColumnInfoBase[_, _], AscDesc)]()
+		protected[mapperdao] var order = List[(ColumnInfo[_, _], AscDesc)]()
 
-		override protected def addOrderBy(l: List[(ColumnInfoBase[_, _], AscDesc)]) {
+		override protected def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)]) {
 			order :::= l
 		}
 
@@ -198,7 +198,7 @@ object Query {
 	protected[mapperdao] class Where[PC, T](protected[mapperdao] val queryEntity: Builder[PC, T]) extends OrderBy[Where[PC, T]] {
 		var clauses: OpBase = null
 
-		override def addOrderBy(l: List[(ColumnInfoBase[_, _], AscDesc)]) {
+		override def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)]) {
 			queryEntity.order :::= l
 		}
 

@@ -15,7 +15,7 @@ import com.googlecode.mapperdao.utils.NYI
  * 31 Aug 2011
  */
 class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
-	extends PostUpdate with DuringUpdate {
+		extends PostUpdate with DuringUpdate {
 
 	def during[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o1: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]) = {
 		val ui = entityMap.peek[Any, Any, Traversable[Any], Any, Any]

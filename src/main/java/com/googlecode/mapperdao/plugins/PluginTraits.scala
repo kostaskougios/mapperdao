@@ -47,7 +47,7 @@ trait PostInsert {
  *
  * 31 Aug 2011
  */
-private[mapperdao] class DuringUpdateResults(val values: List[(ColumnBase, Any)], val keys: List[(ColumnBase, Any)]) {
+private[mapperdao] class DuringUpdateResults(val values: List[(SimpleColumn, Any)], val keys: List[(SimpleColumn, Any)]) {
 	def isEmpty = values.isEmpty && keys.isEmpty
 
 	override def toString = "DuringUpdateResults(values: %s, keys: %s)".format(values, keys)
@@ -92,6 +92,6 @@ trait SelectMock {
  * plugins executed before deleting an entity
  */
 trait BeforeDelete {
-	def idColumnValueContribution[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, entityMap: UpdateEntityMap): List[(ColumnBase, Any)]
+	def idColumnValueContribution[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, entityMap: UpdateEntityMap): List[(SimpleColumn, Any)]
 	def before[PC, T](entity: Entity[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(ColumnBase, Any)], entityMap: UpdateEntityMap): Unit
 }

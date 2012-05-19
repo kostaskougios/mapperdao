@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao
 
 case class OneToOne[FPC, F](foreign: TypeRef[FPC, F], selfColumns: List[Column]) extends ColumnRelationshipBase(foreign) {
-	def name = throw new IllegalStateException("OneToOne doesn't have a columnName")
 	def alias = foreign.alias
 
 	override def columns: List[Column] = selfColumns

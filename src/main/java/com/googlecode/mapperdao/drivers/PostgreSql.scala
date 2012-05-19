@@ -7,6 +7,7 @@ import com.googlecode.mapperdao.PK
 import com.googlecode.mapperdao.QueryConfig
 import com.googlecode.mapperdao.Query
 import com.googlecode.mapperdao.TypeManager
+import com.googlecode.mapperdao.SimpleColumn
 
 /**
  * @author kostantinos.kougios
@@ -21,7 +22,7 @@ class PostgreSql(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager
 	override def escapeColumnNames(name: String) = if (invalidColumnNames.contains(name)) '"' + name + '"'; else name
 	override def escapeTableNames(name: String): String = if (invalidTableNames.contains(name)) '"' + name + '"'; else name
 
-	override protected def insertSql[PC, T](tpe: Type[PC, T], args: List[(ColumnBase, Any)]): String =
+	override protected def insertSql[PC, T](tpe: Type[PC, T], args: List[(SimpleColumn, Any)]): String =
 		{
 			val sql = super.insertSql(tpe, args)
 			if (args.isEmpty && tpe.table.simpleTypeSequenceColumns.isEmpty) {

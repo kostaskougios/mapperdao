@@ -105,7 +105,7 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 	def toListOfPrimaryKeySimpleColumnAndValueTuples(o: T): List[(SimpleColumn, Any)] = toListOfColumnAndValueTuples(primaryKeys, o)
 
 	def unusedPrimaryKeyColumns = unusedPKs.map(_.columns).flatten
-	def toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(o: T): List[(ColumnBase, Any)] =
+	def toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(o: T): List[(SimpleColumn, Any)] =
 		unusedPKs.map { u =>
 			u.ci match {
 				case ci: ColumnInfo[_, _] =>
