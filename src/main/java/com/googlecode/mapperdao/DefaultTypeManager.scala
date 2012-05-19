@@ -4,6 +4,7 @@ import org.joda.time.DateTime
 import org.joda.time.chrono.ISOChronology
 import com.googlecode.mapperdao.jdbc.JdbcMap
 import java.util.Date
+import scala.collection.immutable.ListMap
 
 /**
  * @author kostantinos.kougios
@@ -139,8 +140,8 @@ class DefaultTypeManager extends TypeManager {
 			case ci: ColumnInfoOneToOne[T, _, _] =>
 				columnToCorrectedValue(ci.column, ci.column.foreign, j)
 		}.flatten
-		val dm = (sts ::: ecil ::: related).toMap
-		new DatabaseValues(dm)
+		val dm = sts ::: ecil ::: related
+		new DatabaseValues(ListMap.empty ++ dm)
 	}
 
 	private def columnToCorrectedValue(column: ColumnRelationshipBase[_, _], foreign: TypeRef[_, _], j: JdbcMap) = {

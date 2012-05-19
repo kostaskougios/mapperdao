@@ -1,10 +1,12 @@
 package com.googlecode.mapperdao
 
+import scala.collection.immutable.ListMap
+
 /**
  * @author kostantinos.kougios
  *
  * 18 May 2012
  */
-class DatabaseValues(val map: Map[String, Any]) {
+private[mapperdao] class DatabaseValues(val map: ListMap[String, Any]) {
 	def apply(columnName: String) = map(columnName.toLowerCase)
 }
