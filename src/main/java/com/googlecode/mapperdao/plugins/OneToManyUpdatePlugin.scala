@@ -100,8 +100,10 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 						added.foreach { item =>
 							entityMap.down(mockO, ci, entity)
 							val newItem: Any = item match {
-								case p: Persisted => mapperDao.updateInner(updateConfig, fe, item, entityMap)
-								case _ => mapperDao.insertInner(updateConfig, fe, item, entityMap)
+								case p: Persisted =>
+									mapperDao.updateInner(updateConfig, fe, item, entityMap)
+								case _ =>
+									mapperDao.insertInner(updateConfig, fe, item, entityMap)
 							}
 							entityMap.up
 							modified(oneToMany.alias) = newItem

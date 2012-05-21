@@ -1,4 +1,4 @@
-[ddl]
+[many-to-many]
 create table Product (
 	id int not null,
 	name varchar(100) not null,
