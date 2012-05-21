@@ -234,7 +234,7 @@ abstract class Driver {
 	private def applyHints(hints: SelectHints) = {
 		val h = hints.afterTableName
 		if (!h.isEmpty) {
-			" " + h.map { _.hint }.mkString(" ") + "\n"
+			" " + h.map { _.hint }.mkString(" ") + " "
 		} else ""
 	}
 

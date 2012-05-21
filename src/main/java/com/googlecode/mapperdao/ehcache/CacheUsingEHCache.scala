@@ -10,12 +10,12 @@ import net.sf.ehcache.Element
  *
  * 24 Mar 2012
  */
-class CacheUsingEHCache(val cache: net.sf.ehcache.Cache) extends Cache {
+class CacheUsingEHCache(val cache: net.sf.ehcache.Cache, limitForTraversables: Int = -1) extends Cache {
 
 	override def apply[T](key: List[Any], options: CacheOption)(valueCalculator: => T): T = {
 		def calculate = {
 			val v = valueCalculator
-			cache.put(new Element(key, v))
+			put(key, v)
 			v
 		}
 		cache.get(key) match {
@@ -30,8 +30,12 @@ class CacheUsingEHCache(val cache: net.sf.ehcache.Cache) extends Cache {
 	}
 
 	override def put[T](key: List[Any], t: T) {
-		//		println("\n\nput :" + key)
-		cache.put(new Element(key, t))
+		t match {
+			case tr: Traversable[_] if (limitForTraversables > 0) =>
+				if (tr.size < limitForTraversables) cache.put(new Element(key, t))
+			case _ =>
+				cache.put(new Element(key, t))
+		}
 	}
 
 	override def flush(key: List[Any]) {
