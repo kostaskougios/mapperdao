@@ -128,10 +128,16 @@ class ValuesMap private (typeManager: TypeManager, mOrig: scala.collection.Map[S
 		valueOf[BigInt](column.column.name)
 
 	def date[T](column: ColumnInfo[T, Date]): Date =
-		valueOf[DateTime](column.column.name).toDate
+		valueOf[DateTime](column.column.name) match {
+			case dt: DateTime => dt.toDate
+			case null => null
+		}
 
 	def calendar[T](column: ColumnInfo[T, Calendar]): Calendar =
-		valueOf[DateTime](column.column.name).toCalendar(Locale.getDefault)
+		valueOf[DateTime](column.column.name) match {
+			case dt: DateTime => dt.toCalendar(Locale.getDefault)
+			case null => null
+		}
 
 	def boolean[T](column: ColumnInfo[T, java.lang.Boolean]): java.lang.Boolean =
 		valueOf[java.lang.Boolean](column.column.name)
