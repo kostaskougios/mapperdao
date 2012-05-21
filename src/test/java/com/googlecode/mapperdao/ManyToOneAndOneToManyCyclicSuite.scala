@@ -39,7 +39,12 @@ class ManyToOneAndOneToManyCyclicSuite extends FunSuite with ShouldMatchers {
 		val inserted = insert(PersonEntity, Person(10, "Coder1", company))
 		val updated = update(PersonEntity, inserted, Person(15, "Coder1", inserted.company))
 		updated should be === Person(15, "Coder1", inserted.company)
-		select(PersonEntity, 15).get should be === Person(15, "Coder1", Company(1, "Coders Ltd", List(Person(15, "Coder1", null)))) // please note the null is due to Person(15,"Coder1",null) been a mock object
+		select(PersonEntity, 15).get should be === Person(15, "Coder1",
+			Company(1, "Coders Ltd",
+				List(Person(15, "Coder1", Company(1, "Coders Ltd", List()))
+				)
+			)
+		)
 		select(PersonEntity, 10) should be(None)
 	}
 
@@ -57,7 +62,13 @@ class ManyToOneAndOneToManyCyclicSuite extends FunSuite with ShouldMatchers {
 		val company = insert(CompanyEntity, Company(1, "Coders Ltd", List()))
 		val inserted = insert(PersonEntity, Person(10, "Coder1", company))
 
-		select(PersonEntity, 10).get should be === Person(10, "Coder1", Company(1, "Coders Ltd", List(Person(10, "Coder1", null))))
+		select(PersonEntity, 10).get should be === Person(10, "Coder1",
+			Company(1, "Coders Ltd",
+				List(
+					Person(10, "Coder1", Company(1, "Coders Ltd", List()))
+				)
+			)
+		)
 	}
 
 	test("update") {

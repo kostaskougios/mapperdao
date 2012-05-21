@@ -22,8 +22,8 @@ class OneToManyWithoutFKQuerySuite extends FunSuite with ShouldMatchers {
 		test("query for many") {
 			createTables
 
-			val p1 = mapperDao.insert(ProductEntity, Product(1, "p1", Set(Info("X1", l1), Info("X2", l2))))
-			val p2 = mapperDao.insert(ProductEntity, Product(2, "p2", Set(Info("Y1", l1), Info("Y2", l2))))
+			val p1 = mapperDao.insert(ProductEntity, Product(10, "p1", Set(Info("X1", l1), Info("X2", l2))))
+			val p2 = mapperDao.insert(ProductEntity, Product(20, "p2", Set(Info("Y1", l1), Info("Y2", l2))))
 
 			import Query._
 			val l = queryDao.query(select from ProductEntity)

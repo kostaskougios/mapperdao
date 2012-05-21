@@ -342,18 +342,14 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			// calculate the id's for this tpe
 			val ids = table.primaryKeys.map { pk => jdbcMap(pk.name) } ::: selectBeforePlugins.map {
 				_.idContribution(tpe, jdbcMap, entities)
-			}.flatten
-			val cacheKey = if (ids.isEmpty) {
-				if (table.unusedPKs.isEmpty)
-					throw new IllegalStateException("entity %s without primary key, please use declarePrimaryKeys() to declare the primary key columns of tables into your entity declaration")
-				else
-					table.unusedPrimaryKeyColumns.collect { case c: SimpleColumn => jdbcMap(c.name) }
-			} else ids
+			}.flatten ::: table.unusedPrimaryKeyColumns.collect { case c: SimpleColumn => jdbcMap(c.name) }
+			if (ids.isEmpty)
+				throw new IllegalStateException("entity %s without primary key, please use declarePrimaryKeys() to declare the primary key columns of tables into your entity declaration")
 
-			entities.get[T with PC](tpe.clz, cacheKey) {
+			entities.get[T with PC](tpe.clz, ids) {
 				val mods = jdbcMap.toMap
 				val mock = createMock(entity, mods)
-				entities.putMock(tpe.clz, cacheKey, mock)
+				entities.putMock(tpe.clz, ids, mock)
 
 				val allMods = mods ++ selectBeforePlugins.map {
 					_.before(entity, selectConfig, jdbcMap, entities)

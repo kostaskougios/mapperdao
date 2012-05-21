@@ -5,7 +5,17 @@ import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao.utils.TraversableSeparation
-import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.MapperDaoImpl
+import com.googlecode.mapperdao.SelectInfo
+import com.googlecode.mapperdao.EntityMap
+import com.googlecode.mapperdao.DatabaseValues
+import com.googlecode.mapperdao.SelectConfig
+import com.googlecode.mapperdao.Entity
+import com.googlecode.mapperdao.TypeRegistry
+import com.googlecode.mapperdao.Type
+import com.googlecode.mapperdao.ColumnInfoTraversableOneToMany
+import com.googlecode.mapperdao.ExternalEntity
+import com.googlecode.mapperdao.SelectExternalOneToMany
 
 /**
  * @author kostantinos.kougios
@@ -14,7 +24,17 @@ import com.googlecode.mapperdao._
  */
 class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect with SelectMock {
 
-	override def idContribution[PC, T](tpe: Type[PC, T], om: DatabaseValues, entities: EntityMap) = Nil
+	override def idContribution[PC, T](tpe: Type[PC, T], om: DatabaseValues, entities: EntityMap) = {
+		val peek = entities.peek[PC, T, Traversable[Any], Any, Any]
+		peek.ci match {
+			case ci: ColumnInfoTraversableOneToMany[T, Any, Any] =>
+				val parentTable = peek.tpe.table
+				val parentValues = peek.databaseValues
+				val ids = ci.column.columns zip parentTable.primaryKeys.map { column => parentValues(column.name) }
+				ids
+			case _ => Nil
+		}
+	}
 
 	override def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: DatabaseValues, entities: EntityMap) =
 		{

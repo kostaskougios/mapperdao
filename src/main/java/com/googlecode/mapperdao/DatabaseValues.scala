@@ -8,7 +8,8 @@ import scala.collection.immutable.ListMap
  * 18 May 2012
  */
 private[mapperdao] class DatabaseValues(map: ListMap[String, Any]) {
-	def apply(columnName: String) = map(columnName.toLowerCase)
+	def apply(columnName: String): Any = map(columnName.toLowerCase)
+	def apply(column: SimpleColumn): Any = apply(column.name)
 	def toMap: Map[String, Any] = map
 
 	override def toString = "DatabaseValues(%s)".format(map)

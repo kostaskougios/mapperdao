@@ -17,4 +17,7 @@ private[mapperdao] trait EntityMap extends EntityStack {
 	def get[T](clz: Class[_], ids: List[Any])(f: => Option[T]): Option[T]
 }
 
-protected case class SelectInfo[PC, T, V, FPC, F](val tpe: Type[PC, T], val ci: ColumnInfoRelationshipBase[T, V, FPC, F], val databaseValues: DatabaseValues)
+protected case class SelectInfo[PC, T, V, FPC, F](
+	val tpe: Type[PC, T],
+	val ci: ColumnInfoRelationshipBase[T, V, FPC, F],
+	val databaseValues: DatabaseValues)
