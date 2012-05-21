@@ -5,4 +5,6 @@ package com.googlecode.mapperdao
  *
  * Apr 27, 2012
  */
-class UnusedColumn[T, V](val columns: List[SimpleColumn], val ci: ColumnInfoBase[T, V])
+class UnusedColumn[T, V](val columns: List[SimpleColumn], val ci: ColumnInfoBase[T, V]) {
+	override def toString = "UnusedColumn(%s)".format(columns)
+}
