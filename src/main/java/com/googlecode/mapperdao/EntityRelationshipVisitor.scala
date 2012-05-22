@@ -6,33 +6,48 @@ import java.util.IdentityHashMap
  *
  * 17 May 2012
  */
-abstract class EntityRelationshipVisitor {
+abstract class EntityRelationshipVisitor(visitLazyLoaded: Boolean = false) {
 	private val m = new IdentityHashMap[Any, Any]
 
 	def visit(entity: Entity[_, _], o: Any): Unit = {
 		if (o != null && !m.containsKey(o)) {
 			m.put(o, o)
+			val vmo = o match {
+				case p: Persisted if (p.mapperDaoValuesMap != null) =>
+					Some(p.mapperDaoValuesMap)
+				case _ => None
+			}
 			entity.tpe.table.columnInfosPlain.foreach {
 				case ci: ColumnInfoTraversableManyToMany[Any, _, _] =>
-					val fo = ci.columnToValue(o)
-					manyToMany(ci, fo)
-					fo.foreach { t =>
-						visit(ci.column.foreign.entity, t)
+					if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) {
+						val fo = ci.columnToValue(o)
+						manyToMany(ci, fo)
+						fo.foreach { t =>
+							visit(ci.column.foreign.entity, t)
+						}
 					}
 				case ci: ColumnInfoTraversableOneToMany[Any, _, _] =>
-					val fo = ci.columnToValue(o)
-					oneToMany(ci, fo)
-					fo.foreach { t =>
-						visit(ci.column.foreign.entity, t)
+					if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) {
+						val fo = ci.columnToValue(o)
+						oneToMany(ci, fo)
+						fo.foreach { t =>
+							visit(ci.column.foreign.entity, t)
+						}
 					}
 				case ci: ColumnInfoManyToOne[Any, _, _] =>
-					val fo = ci.columnToValue(o)
-					manyToOne(ci, fo)
-					visit(ci.column.foreign.entity, fo)
+					if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) {
+						val fo = ci.columnToValue(o)
+						manyToOne(ci, fo)
+						visit(ci.column.foreign.entity, fo)
+					}
 				case ci: ColumnInfoOneToOne[Any, _, _] =>
-					oneToOne(ci, ci.columnToValue(o))
+					if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) {
+						oneToOne(ci, ci.columnToValue(o))
+					}
 				case ci: ColumnInfoOneToOneReverse[Any, _, _] =>
-					oneToOneReverse(ci, ci.columnToValue(o))
+					if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) {
+						oneToOneReverse(ci, ci.columnToValue(o))
+					}
 				case _ =>
 			}
 		}
