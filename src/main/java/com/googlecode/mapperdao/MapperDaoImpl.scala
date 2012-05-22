@@ -161,6 +161,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 	 */
 	private def updateInner[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap): T with PC with Persisted =
 		{
+			if (oldValuesMap == null)
+				throw new IllegalStateException("old product in inconsistent state. Did you unlink it? For entity %s , value %s".format(entity, o))
 			val tpe = entity.tpe
 			def changed(column: ColumnBase) = !Equality.isEqual(newValuesMap.valueOf(column.alias), oldValuesMap.valueOf(column.alias))
 			val table = tpe.table
