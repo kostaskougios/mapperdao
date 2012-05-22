@@ -60,4 +60,13 @@ class EntityRelationshipVisitorSuite extends FunSuite with ShouldMatchers {
 				vp should be === (p)
 		}
 	}
+	test("visit one to many") {
+		val visitor = new Visitor
+		val o = Owner("kostas", Set(House("London"), House("Rhodes")))
+		visitor.visit(OwnerEntity, o) match {
+			case vo: Owner =>
+				vo should not be eq(o)
+				vo should be === (o)
+		}
+	}
 }
