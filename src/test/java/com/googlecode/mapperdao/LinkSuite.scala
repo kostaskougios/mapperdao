@@ -21,7 +21,7 @@ class LinkSuite extends FunSuite with ShouldMatchers {
 		test("unlink") {
 			val c = Cat(5, "pussy cat", None)
 			val linked = mapperDao.link(CatEntity, c)
-			mapperDao.unlink(linked)
+			mapperDao.unlink(CatEntity, linked)
 			isPersisted(linked) should be(false)
 		}
 

@@ -492,11 +492,11 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 		tpe.constructor(vm)
 	}
 
-	override def unlink[T](o: T): T = o match {
-		case p: Persisted =>
-			p.mapperDaoDiscarded = true
-			p.mapperDaoValuesMap = null
-			o
+	private val unlinkVisitor = new UnlinkEntityRelationshipVisitor
+	override def unlink[PC, T](entity: Entity[PC, T], o: T): T = {
+		unlinkVisitor.unlink(o)
+		unlinkVisitor.visit(entity, o)
+		o
 	}
 
 	/**

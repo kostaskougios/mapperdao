@@ -115,5 +115,5 @@ trait MapperDao {
 	 *
 	 * Use this i.e. when you want to store the entity in a session.
 	 */
-	def unlink[T](o: T): T = throw new IllegalStateException("Not supported")
+	def unlink[PC, T](entity: Entity[PC, T], o: T): T = throw new IllegalStateException("Not supported")
 }

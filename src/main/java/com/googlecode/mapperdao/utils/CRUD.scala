@@ -79,5 +79,5 @@ trait CRUD[PC, T, PK] {
 	 * unlinks an entity from mapperdao. The entity is not tracked for changes and can't
 	 * be used in updates or deletes.
 	 */
-	def unlink(o: T): T = mapperDao.unlink(o)
+	def unlink(o: T): T = mapperDao.unlink(entity, o)
 }
