@@ -96,7 +96,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			val updateInfo @ UpdateInfo(parent, parentColumnInfo, parentEntity) = entityMap.peek[Any, Any, Any, PC, T]
 
 			// create a mock
-			var mockO = createMock(entity, modified ++ modifiedTraversables)
+			var mockO = createMock(updateConfig.data, entity, modified ++ modifiedTraversables)
 			entityMap.put(o, mockO)
 
 			val extraArgs = beforeInsertPlugins.map { plugin =>
@@ -125,7 +125,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			}
 
 			// create a more up-to-date mock
-			mockO = createMock(entity, modified ++ modifiedTraversables)
+			mockO = createMock(updateConfig.data, entity, modified ++ modifiedTraversables)
 			entityMap.put(o, mockO)
 
 			postInsertPlugins.foreach { plugin =>
@@ -133,7 +133,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			}
 
 			val finalMods = modified ++ modifiedTraversables
-			val newE = tpe.constructor(ValuesMap.fromMap(typeManager, finalMods))
+			val newE = tpe.constructor(updateConfig.data, ValuesMap.fromMap(typeManager, finalMods))
 			// re-put the actual
 			entityMap.put(o, newE)
 			newE
@@ -170,7 +170,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			val modifiedTraversables = new MapOfList[String, Any](MapOfList.stringToLowerCaseModifier)
 
 			// store a mock in the entity map so that we don't process the same instance twice
-			var mockO = createMock(entity, modified ++ modifiedTraversables)
+			var mockO = createMock(updateConfig.data, entity, modified ++ modifiedTraversables)
 			entityMap.put(o, mockO)
 
 			// first, lets update the simple columns that changed
@@ -198,7 +198,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			}
 
 			// update the mock
-			mockO = createMock(entity, modified ++ modifiedTraversables)
+			mockO = createMock(updateConfig.data, entity, modified ++ modifiedTraversables)
 			entityMap.put(o, mockO)
 
 			postUpdatePlugins.foreach {
@@ -207,7 +207,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 
 			// done, construct the updated entity
 			val finalValuesMap = ValuesMap.fromMap(typeManager, modified ++ modifiedTraversables)
-			val v = tpe.constructor(finalValuesMap)
+			val v = tpe.constructor(updateConfig.data, finalValuesMap)
 			entityMap.put(o, v)
 			v
 		}
@@ -251,7 +251,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 					val oldValuesMap = persisted.mapperDaoValuesMap
 					val tpe = entity.tpe
 					val newValuesMapPre = ValuesMap.fromEntity(typeManager, tpe, o)
-					val reConstructed = tpe.constructor(newValuesMapPre)
+					val reConstructed = tpe.constructor(updateConfig.data, newValuesMapPre)
 					updateInner(updateConfig, entity, o, oldValuesMap, reConstructed.mapperDaoValuesMap, entityMap)
 				}
 		}
@@ -350,7 +350,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 
 			entities.get[T with PC](tpe.clz, ids) {
 				val mods = jdbcMap.toMap
-				val mock = createMock(entity, mods)
+				val mock = createMock(selectConfig.data, entity, mods)
 				entities.putMock(tpe.clz, ids, mock)
 
 				val allMods = mods ++ selectBeforePlugins.map {
@@ -365,7 +365,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 				// we need to lazy load it
 				val entityV = if (lazyLoadManager.isLazyLoaded(selectConfig.lazyLoad, entity)) {
 					lazyLoadEntity(entity, selectConfig, vm)
-				} else tpe.constructor(vm)
+				} else tpe.constructor(selectConfig.data, vm)
 				Some(entityV)
 			}.get
 		}
@@ -395,7 +395,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			(ci.column.alias, vm.valueOf(ci))
 		}).toMap
 		val lazyLoadedVM = ValuesMap.fromMap(typeManager, lazyLoadedMods)
-		val constructed = tpe.constructor(lazyLoadedVM)
+		val constructed = tpe.constructor(selectConfig.data, lazyLoadedVM)
 		val proxy = lazyLoadManager.proxyFor(constructed, entity, lazyLoad, vm)
 		proxy
 	}
@@ -403,7 +403,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 	 * create a mock of the current entity, to avoid cyclic dependencies
 	 * doing infinite loops.
 	 */
-	private def createMock[PC, T](entity: Entity[PC, T], mods: scala.collection.Map[String, Any]): T with PC with Persisted =
+	private def createMock[PC, T](data: Option[Any], entity: Entity[PC, T], mods: scala.collection.Map[String, Any]): T with PC with Persisted =
 		{
 			val mockMods = new scala.collection.mutable.HashMap[String, Any] ++ mods
 			mockPlugins.foreach {
@@ -411,8 +411,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			}
 			val tpe = entity.tpe
 			val vm = ValuesMap.fromMap(typeManager, mockMods)
-			val preMock = tpe.constructor(vm)
-			val mock = tpe.constructor(ValuesMap.fromEntity(typeManager, tpe, preMock))
+			val preMock = tpe.constructor(data, vm)
+			val mock = tpe.constructor(data, ValuesMap.fromEntity(typeManager, tpe, preMock))
 			// mark it as mock
 			mock.mapperDaoMock = true
 			mock
@@ -478,7 +478,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 	override def link[T](entity: SimpleEntity[T], o: T): T = {
 		val tpe = entity.tpe
 		val vm = ValuesMap.fromEntity(typeManager, tpe, o)
-		tpe.constructor(vm)
+		tpe.constructor(None, vm)
 	}
 
 	override def link[T](entity: Entity[IntId, T], o: T, id: Int): T with IntId =
@@ -491,7 +491,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 		val tpe = entity.tpe
 		val vm = ValuesMap.fromEntity(typeManager, tpe, o)
 		vm(entity.tpe.table.extraColumnInfosPersisted.head) = id
-		tpe.constructor(vm)
+		tpe.constructor(None, vm)
 	}
 
 	private val unlinkVisitor = new UnlinkEntityRelationshipVisitor
