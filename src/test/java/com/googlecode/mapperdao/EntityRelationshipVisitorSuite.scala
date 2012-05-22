@@ -43,12 +43,21 @@ class EntityRelationshipVisitorSuite extends FunSuite with ShouldMatchers {
 
 	test("visit manyToMany") {
 		val visitor = new Visitor
-		val p = new Product("jeans", Set(Attribute("colour", "blue"), Attribute("colour", "green")))
+		val p = Product("jeans", Set(Attribute("colour", "blue"), Attribute("colour", "green")))
 		visitor.visit(ProductEntity, p) match {
 			case vp: Product =>
 				vp should not be eq(p)
 				vp should be === (p)
 		}
+	}
 
+	test("visit many to one") {
+		val visitor = new Visitor
+		val p = Person("kostas", Company("r-it"))
+		visitor.visit(PersonEntity, p) match {
+			case vp: Person =>
+				vp should not be eq(p)
+				vp should be === (p)
+		}
 	}
 }
