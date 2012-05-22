@@ -1,27 +1,45 @@
 package com.googlecode.mapperdao
+import java.util.IdentityHashMap
 
 /**
  * @author kostantinos.kougios
  *
  * 17 May 2012
  */
-abstract class EntityRelationshipVisitor[RETURN_MTM, RETURN_OTM, RETURN_MTO, RETURN_OTO, RETURN_OTOR] {
-	def visit[PC, T](entity: Entity[PC, T], o: T): List[Any] = entity.tpe.table.columnInfosPlain.collect {
-		case ci: ColumnInfoTraversableManyToMany[T, _, _] =>
-			manyToMany(ci, ci.columnToValue(o))
-		case ci: ColumnInfoTraversableOneToMany[T, _, _] =>
-			oneToMany(ci, ci.columnToValue(o))
-		case ci: ColumnInfoManyToOne[T, _, _] =>
-			manyToOne(ci, ci.columnToValue(o))
-		case ci: ColumnInfoOneToOne[T, _, _] =>
-			oneToOne(ci, ci.columnToValue(o))
-		case ci: ColumnInfoOneToOneReverse[T, _, _] =>
-			oneToOneReverse(ci, ci.columnToValue(o))
-	}.filter(_ != None).map(_.get)
+abstract class EntityRelationshipVisitor {
+	private val m = new IdentityHashMap[Any, Any]
 
-	def manyToMany[T, F](ci: ColumnInfoTraversableManyToMany[T, _, F], traversable: Traversable[F]): Option[RETURN_MTM]
-	def oneToMany[T, F](ci: ColumnInfoTraversableOneToMany[T, _, F], traversable: Traversable[F]): Option[RETURN_OTM]
-	def manyToOne[T, F](ci: ColumnInfoManyToOne[T, _, F], foreign: F): Option[RETURN_MTO]
-	def oneToOne[T, F](ci: ColumnInfoOneToOne[T, _, _], foreign: F): Option[RETURN_OTO]
-	def oneToOneReverse[T, F](ci: ColumnInfoOneToOneReverse[T, _, _], foreign: F): Option[RETURN_OTOR]
+	def visit(entity: Entity[_, _], o: Any): Unit = {
+		if (o != null && !m.containsKey(o)) {
+			m.put(o, o)
+			entity.tpe.table.columnInfosPlain.foreach {
+				case ci: ColumnInfoTraversableManyToMany[Any, _, _] =>
+					val fo = ci.columnToValue(o)
+					manyToMany(ci, fo)
+					fo.foreach { t =>
+						visit(ci.column.foreign.entity, t)
+					}
+				case ci: ColumnInfoTraversableOneToMany[Any, _, _] =>
+					val fo = ci.columnToValue(o)
+					oneToMany(ci, fo)
+					fo.foreach { t =>
+						visit(ci.column.foreign.entity, t)
+					}
+				case ci: ColumnInfoManyToOne[Any, _, _] =>
+					val fo = ci.columnToValue(o)
+					manyToOne(ci, fo)
+					visit(ci.column.foreign.entity, fo)
+				case ci: ColumnInfoOneToOne[Any, _, _] =>
+					oneToOne(ci, ci.columnToValue(o))
+				case ci: ColumnInfoOneToOneReverse[Any, _, _] =>
+					oneToOneReverse(ci, ci.columnToValue(o))
+				case _ =>
+			}
+		}
+	}
+	def manyToMany[T, F](ci: ColumnInfoTraversableManyToMany[T, _, F], traversable: Traversable[F]): Unit
+	def oneToMany[T, F](ci: ColumnInfoTraversableOneToMany[T, _, F], traversable: Traversable[F]): Unit
+	def manyToOne[T, F](ci: ColumnInfoManyToOne[T, _, F], foreign: F): Unit
+	def oneToOne[T, F](ci: ColumnInfoOneToOne[T, _, _], foreign: F): Unit
+	def oneToOneReverse[T, F](ci: ColumnInfoOneToOneReverse[T, _, _], foreign: F): Unit
 }

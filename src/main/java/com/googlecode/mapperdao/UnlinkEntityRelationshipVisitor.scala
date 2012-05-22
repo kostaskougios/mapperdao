@@ -5,7 +5,7 @@ package com.googlecode.mapperdao
  *
  * 22 May 2012
  */
-class UnlinkEntityRelationshipVisitor extends EntityRelationshipVisitor[Unit, Unit, Unit, Unit, Unit] {
+class UnlinkEntityRelationshipVisitor extends EntityRelationshipVisitor {
 	def manyToMany[T, F](ci: ColumnInfoTraversableManyToMany[T, _, F], traversable: Traversable[F]) = {
 		traversable.foreach(unlink(_))
 		None
