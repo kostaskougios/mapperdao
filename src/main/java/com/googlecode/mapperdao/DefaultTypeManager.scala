@@ -5,13 +5,14 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
 import java.util.Date
 import scala.collection.immutable.ListMap
 import org.joda.time.Chronology
+import org.joda.time.chrono.ISOChronology
 
 /**
  * @author kostantinos.kougios
  *
  * 1 Aug 2011
  */
-class DefaultTypeManager(chronology: Chronology) extends TypeManager {
+class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) extends TypeManager {
 
 	override def deepClone[T](o: T): T = o match {
 		case t: scala.collection.mutable.Traversable[_] => t.map(e => e).asInstanceOf[T] // copy mutable traversables

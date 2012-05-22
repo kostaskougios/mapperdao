@@ -6,55 +6,50 @@ import java.util.IdentityHashMap
  *
  * 17 May 2012
  */
-abstract class EntityRelationshipVisitor(visitLazyLoaded: Boolean = false) {
-	private val m = new IdentityHashMap[Any, Any]
+abstract class EntityRelationshipVisitor[R](visitLazyLoaded: Boolean = false) {
+	private val m = new IdentityHashMap[Any, R]
 
-	def visit(entity: Entity[_, _], o: Any): Unit = {
-		if (o != null && !m.containsKey(o)) {
-			m.put(o, o)
+	def visit(entity: Entity[_, _], o: Any): R = {
+		val r = m.get(o)
+		if (r == null) {
 			val vmo = o match {
 				case p: Persisted if (p.mapperDaoValuesMap != null) =>
 					Some(p.mapperDaoValuesMap)
 				case _ => None
 			}
-			entity.tpe.table.columnInfosPlain.foreach {
-				case ci: ColumnInfoTraversableManyToMany[Any, _, _] =>
-					if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) {
-						val fo = ci.columnToValue(o)
-						manyToMany(ci, fo)
-						fo.foreach { t =>
-							visit(ci.column.foreign.entity, t)
-						}
-					}
-				case ci: ColumnInfoTraversableOneToMany[Any, _, _] =>
-					if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) {
-						val fo = ci.columnToValue(o)
-						oneToMany(ci, fo)
-						fo.foreach { t =>
-							visit(ci.column.foreign.entity, t)
-						}
-					}
-				case ci: ColumnInfoManyToOne[Any, _, _] =>
-					if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) {
-						val fo = ci.columnToValue(o)
-						manyToOne(ci, fo)
-						visit(ci.column.foreign.entity, fo)
-					}
-				case ci: ColumnInfoOneToOne[Any, _, _] =>
-					if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) {
-						oneToOne(ci, ci.columnToValue(o))
-					}
-				case ci: ColumnInfoOneToOneReverse[Any, _, _] =>
-					if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) {
-						oneToOneReverse(ci, ci.columnToValue(o))
-					}
-				case _ =>
+			val collected = entity.tpe.table.columnInfosPlain.collect {
+				case ci: ColumnInfoTraversableManyToMany[Any, _, _] if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) =>
+					val fo = ci.columnToValue(o)
+					val l = fo.map { t => visit(ci.column.foreign.entity, t) }
+					(ci, manyToMany(ci, fo, l))
+				case ci: ColumnInfoTraversableOneToMany[Any, _, _] if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) =>
+					val fo = ci.columnToValue(o)
+					val l = fo.map { t => visit(ci.column.foreign.entity, t) }
+					(ci, oneToMany(ci, fo, l))
+				case ci: ColumnInfoManyToOne[Any, _, _] if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) =>
+					val fo = ci.columnToValue(o)
+					manyToOne(ci, fo)
+					(ci, visit(ci.column.foreign.entity, fo))
+				case ci: ColumnInfoOneToOne[Any, _, _] if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) =>
+					(ci, oneToOne(ci, ci.columnToValue(o)))
+				case ci: ColumnInfoOneToOneReverse[Any, _, _] if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) =>
+					(ci, oneToOneReverse(ci, ci.columnToValue(o)))
+				case ci: ColumnInfo[Any, _] =>
+					val v = ci.columnToValue(o)
+					(ci, simple(ci, v))
 			}
-		}
+			val r = createR(collected, entity, o)
+			m.put(o, r)
+			r
+		} else r
 	}
-	def manyToMany[T, F](ci: ColumnInfoTraversableManyToMany[T, _, F], traversable: Traversable[F]): Unit
-	def oneToMany[T, F](ci: ColumnInfoTraversableOneToMany[T, _, F], traversable: Traversable[F]): Unit
-	def manyToOne[T, F](ci: ColumnInfoManyToOne[T, _, F], foreign: F): Unit
-	def oneToOne[T, F](ci: ColumnInfoOneToOne[T, _, _], foreign: F): Unit
-	def oneToOneReverse[T, F](ci: ColumnInfoOneToOneReverse[T, _, _], foreign: F): Unit
+	def manyToMany[T, F](ci: ColumnInfoTraversableManyToMany[T, _, F], traversable: Traversable[F], collected: Traversable[Any]): Any = {}
+	def oneToMany[T, F](ci: ColumnInfoTraversableOneToMany[T, _, F], traversable: Traversable[F], collected: Traversable[Any]): Any = {}
+	def manyToOne[T, F](ci: ColumnInfoManyToOne[T, _, F], foreign: F): Any = {}
+	def oneToOne[T, F](ci: ColumnInfoOneToOne[T, _, _], foreign: F): Any = {}
+	def oneToOneReverse[T, F](ci: ColumnInfoOneToOneReverse[T, _, _], foreign: F): Any = {}
+
+	def simple(ci: ColumnInfo[Any, _], v: Any): Any = {}
+
+	def createR(collected: List[(ColumnInfoBase[Any, _], Any)], entity: Entity[_, _], o: Any): R = { null.asInstanceOf[R] }
 }

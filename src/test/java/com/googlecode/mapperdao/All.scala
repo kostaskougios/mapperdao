@@ -83,7 +83,8 @@ import org.scalatest.FunSuite
 		classOf[OneToManyDeclarePrimaryKeysSuite],
 		classOf[ValuesMapSuite],
 		classOf[NullValuesSuite],
-		classOf[OneToManyWithoutFKQuerySuite]
+		classOf[OneToManyWithoutFKQuerySuite],
+		classOf[EntityRelationshipVisitorSuite]
 	//classOf[MultiThreadedQuerySuite]
 	)
 )
