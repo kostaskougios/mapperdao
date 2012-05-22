@@ -133,7 +133,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			}
 
 			val finalMods = modified ++ modifiedTraversables
-			val newE = tpe.constructor(updateConfig.data, ValuesMap.fromMap(typeManager, finalMods))
+			val newE = tpe.constructor(updateConfig.data, ValuesMap.fromMap(finalMods))
 			// re-put the actual
 			entityMap.put(o, newE)
 			newE
@@ -206,7 +206,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			}
 
 			// done, construct the updated entity
-			val finalValuesMap = ValuesMap.fromMap(typeManager, modified ++ modifiedTraversables)
+			val finalValuesMap = ValuesMap.fromMap(modified ++ modifiedTraversables)
 			val v = tpe.constructor(updateConfig.data, finalValuesMap)
 			entityMap.put(o, v)
 			v
@@ -360,7 +360,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 						(k, v)
 				}.toMap
 
-				val vm = ValuesMap.fromMap(typeManager, allMods)
+				val vm = ValuesMap.fromMap(allMods)
 				// if the entity should be lazy loaded and it has relationships, then
 				// we need to lazy load it
 				val entityV = if (lazyLoadManager.isLazyLoaded(selectConfig.lazyLoad, entity)) {
@@ -394,7 +394,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 		} ::: table.extraColumnInfosPersisted.map { ci =>
 			(ci.column.alias, vm.valueOf(ci))
 		}).toMap
-		val lazyLoadedVM = ValuesMap.fromMap(typeManager, lazyLoadedMods)
+		val lazyLoadedVM = ValuesMap.fromMap(lazyLoadedMods)
 		val constructed = tpe.constructor(selectConfig.data, lazyLoadedVM)
 		val proxy = lazyLoadManager.proxyFor(constructed, entity, lazyLoad, vm)
 		proxy
@@ -410,7 +410,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 				_.updateMock(entity, mockMods)
 			}
 			val tpe = entity.tpe
-			val vm = ValuesMap.fromMap(typeManager, mockMods)
+			val vm = ValuesMap.fromMap(mockMods)
 			val preMock = tpe.constructor(data, vm)
 			val mock = tpe.constructor(data, ValuesMap.fromEntity(typeManager, tpe, preMock))
 			// mark it as mock

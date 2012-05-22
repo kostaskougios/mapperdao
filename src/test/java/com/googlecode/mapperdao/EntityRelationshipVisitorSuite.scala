@@ -15,8 +15,6 @@ class EntityRelationshipVisitorSuite extends FunSuite with ShouldMatchers {
 
 	import CommonEntities._
 
-	val typeManager = new DefaultTypeManager
-
 	class Visitor extends EntityRelationshipVisitor[Any](visitLazyLoaded = true) {
 		override def manyToMany[T, F](ci: ColumnInfoTraversableManyToMany[T, _, F], traversable: Traversable[F], collected: Traversable[Any]) =
 			collected
@@ -36,7 +34,7 @@ class EntityRelationshipVisitorSuite extends FunSuite with ShouldMatchers {
 				case (ci, v) =>
 					(ci.column.alias, v)
 			}.toMap
-			val vm = ValuesMap.fromMap(typeManager, m)
+			val vm = ValuesMap.fromMap(m)
 			entity.constructor(vm)
 		}
 	}

@@ -12,11 +12,6 @@ import org.joda.time.DateTime
  */
 trait TypeManager {
 
-	/**
-	 * creates a deep clone of the object
-	 */
-	def deepClone[T](o: T): T
-
 	def normalize(v: Any): Any
 	/**
 	 * converts o to tpe if possible

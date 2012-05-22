@@ -14,13 +14,6 @@ import org.joda.time.chrono.ISOChronology
  */
 class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) extends TypeManager {
 
-	override def deepClone[T](o: T): T = o match {
-		case t: scala.collection.mutable.Traversable[_] => t.map(e => e).asInstanceOf[T] // copy mutable traversables
-		case cal: Calendar => cal.clone.asInstanceOf[T]
-		case dt: Date => dt.clone.asInstanceOf[T]
-		case _ => o
-	}
-
 	override def normalize(v: Any) = v match {
 		case d: Date => new DateTime(d, chronology)
 		case c: Calendar => new DateTime(c, chronology)
