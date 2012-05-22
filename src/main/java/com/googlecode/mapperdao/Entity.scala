@@ -17,7 +17,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	 * override any of these constructors
 	 */
 	def constructor(implicit m: ValuesMap): T with PC with Persisted
-	def constructor(data: Option[Any], m: ValuesMap): T with PC with Persisted = constructor(m)
+	def constructor(implicit data: Option[Any], m: ValuesMap): T with PC with Persisted = constructor(m)
 
 	private[mapperdao] def init: Unit = {}
 
