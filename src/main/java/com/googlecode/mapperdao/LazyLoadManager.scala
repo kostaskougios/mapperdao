@@ -46,11 +46,11 @@ private[mapperdao] class LazyLoadManager {
 		val relationships = entity.tpe.table.relationshipColumnInfos
 
 		val key = (clz, lazyLoad)
-
+		val lazyRelationships = relationships.filter(lazyLoad.isLazyLoaded(_))
 		// get cached proxy class or generate it
 		val proxyClz = classCache.synchronized {
 			classCache.get(key).getOrElse {
-				val methods = relationships.filter(lazyLoad.isLazyLoaded(_)).map(ci =>
+				val methods = lazyRelationships.map(ci =>
 					ci.getterMethod.getOrElse(throw new IllegalStateException("please define getter method on entity for %s".format(ci.column)))
 				).toSet
 				if (methods.isEmpty)
@@ -74,7 +74,7 @@ private[mapperdao] class LazyLoadManager {
 		val alreadyCalled = new scala.collection.mutable.HashSet[String]
 
 		// prepare the dynamic function
-		val methodToAlias = relationships.map { ci =>
+		val methodToAlias = lazyRelationships.map { ci =>
 			(ci.getterMethod.get.getName, ci.column.alias)
 		}.toMap
 
