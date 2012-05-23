@@ -17,14 +17,16 @@ abstract class EntityRelationshipVisitor[R](visitLazyLoaded: Boolean = false) {
 					Some(p.mapperDaoValuesMap)
 				case _ => None
 			}
-			val collected = entity.tpe.table.columnInfosPlain.collect {
+			val collected = if (o != null) entity.tpe.table.columnInfosPlain.collect {
 				case ci: ColumnInfoTraversableManyToMany[Any, _, _] if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) =>
 					val fo = ci.columnToValue(o)
-					val l = fo.map { t => visit(ci.column.foreign.entity, t) }
+					// convert to list to avoid problems with java collections
+					val l = fo.toList.map { t => visit(ci.column.foreign.entity, t) }
 					(ci, manyToMany(ci, fo, l))
 				case ci: ColumnInfoTraversableOneToMany[Any, _, _] if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) =>
 					val fo = ci.columnToValue(o)
-					val l = fo.map { t => visit(ci.column.foreign.entity, t) }
+					// convert to list to avoid problems with java collections
+					val l = fo.toList.map { t => visit(ci.column.foreign.entity, t) }
 					(ci, oneToMany(ci, fo, l))
 				case ci: ColumnInfoManyToOne[Any, _, _] if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) =>
 					val fo = ci.columnToValue(o)
@@ -38,6 +40,7 @@ abstract class EntityRelationshipVisitor[R](visitLazyLoaded: Boolean = false) {
 					val v = ci.columnToValue(o)
 					(ci, simple(ci, v))
 			}
+			else null
 			val r = createR(collected, entity, o)
 			m.put(o, r)
 			r

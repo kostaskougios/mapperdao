@@ -496,8 +496,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 
 	override def unlink[PC, T](entity: Entity[PC, T], o: T): T = {
 		val unlinkVisitor = new UnlinkEntityRelationshipVisitor
-		unlinkVisitor.unlink(o)
 		unlinkVisitor.visit(entity, o)
+		unlinkVisitor.unlink(o)
 		o
 	}
 
