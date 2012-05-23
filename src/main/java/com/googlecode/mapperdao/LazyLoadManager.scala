@@ -53,7 +53,8 @@ private[mapperdao] class LazyLoadManager {
 				val methods = relationships.map(ci =>
 					ci.getterMethod.getOrElse(throw new IllegalStateException("please define getter method on entity for %s".format(ci.column)))
 				).toSet
-				if (methods.isEmpty) throw new IllegalStateException("can't lazy load class that doesn't declare any getters for relationships. Entity: %s".format(clz))
+				if (methods.isEmpty)
+					throw new IllegalStateException("can't lazy load class that doesn't declare any getters for relationships. Entity: %s".format(clz))
 				val proxyClz = createProxyClz(constructedClz, clz, methods)
 				classCache.put(key, proxyClz)
 				proxyClz
@@ -150,8 +151,7 @@ private[mapperdao] class LazyLoadManager {
 	private def hasLongId(clz: Class[_]) = classOf[LongId].isAssignableFrom(clz)
 
 	def isLazyLoaded[PC, T](lazyLoad: LazyLoad, entity: Entity[PC, T]) =
-		lazyLoad.all || lazyLoad.isAnyColumnLazyLoaded(entity.tpe.table.relationshipColumnInfos.toSet)
-	//&& !entity.tpe.table.relationshipColumnInfos.isEmpty
+		(lazyLoad.all || lazyLoad.isAnyColumnLazyLoaded(entity.tpe.table.relationshipColumnInfos.toSet)) && !entity.tpe.table.relationshipColumnInfos.isEmpty
 }
 
 object LazyLoadManager {
