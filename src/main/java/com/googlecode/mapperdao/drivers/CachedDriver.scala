@@ -82,8 +82,17 @@ trait CachedDriver extends Driver {
 
 	override def doUpdate[PC, T](tpe: Type[PC, T], args: List[(SimpleColumn, Any)], pkArgs: List[(SimpleColumn, Any)]): UpdateResult = {
 		val u = super.doUpdate(tpe, args, pkArgs)
-		val key = tpe.table.name :: pkArgs
+
+		val table = tpe.table
+		// flush main cache for entity
+		val key = table.name :: pkArgs
 		cache.flush(key)
+
+		// flush one-to-many caches
+		table.oneToManyColumns.foreach { c =>
+			val k = c.foreign.entity.tpe.table.name :: (c.columns zip pkArgs.map(_._2))
+			cache.flush(k)
+		}
 		u
 	}
 
