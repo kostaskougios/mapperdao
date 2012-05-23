@@ -13,3 +13,12 @@ create table House (
 	constraint FK_House_Person foreign key (person_id) references Person(id)
 		on delete cascade on update cascade
 )
+;
+create table Car (
+	id serial not null,
+	model varchar(50) not null,
+	person_id int not null,
+	primary key (id),
+	constraint FK_Car_Person foreign key (person_id) references Person(id)
+		on delete cascade on update cascade
+)

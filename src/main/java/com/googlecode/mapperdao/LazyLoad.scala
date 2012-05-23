@@ -39,5 +39,6 @@ object LazyLoad {
 	// lazy load all related entities
 	val all = LazyLoadAll
 
-	def some(lazyLoaded: Set[ColumnInfoRelationshipBase[_, _, _, _]]) = LazyLoadSome(lazyLoaded = lazyLoaded)
+	def some(lazyLoaded: Set[ColumnInfoRelationshipBase[_, _, _, _]]): LazyLoad = LazyLoadSome(lazyLoaded = lazyLoaded)
+	def apply(lazyLoaded: ColumnInfoRelationshipBase[_, _, _, _]*): LazyLoad = LazyLoadSome(lazyLoaded = lazyLoaded.toSet)
 }

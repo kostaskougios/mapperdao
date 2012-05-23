@@ -203,6 +203,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 	}
 	def verifyPropertiesNotLoadded(o: Any) {
 		val persisted = o.asInstanceOf[Persisted]
+		persisted.mapperDaoValuesMap.isLoaded(ProductEntity.attributes) should be(true)
 		persisted.mapperDaoValuesMap.isLoaded(ProductEntity.properties) should be(false)
 	}
 
