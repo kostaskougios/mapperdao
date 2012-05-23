@@ -19,6 +19,22 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 
 	if (Setup.database == "h2") {
 
+		test("lazy load 1 of 2 related entities and update it") {
+			createTables
+			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
+			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
+			val p1 = mapperDao.insert(PropertyEntity, Property(100, "p1", "v1"))
+			val p2 = mapperDao.insert(PropertyEntity, Property(101, "p2", "v2"))
+
+			val inserted = mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2), Set(p1, p2)))
+
+			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad.some(Set(ProductEntity.properties))), ProductEntity, 2).get
+			val updated = mapperDao.update(ProductEntity, selected, Product(2, "blue jean", Set(a1), Set(p1)))
+			updated should be === Product(2, "blue jean", Set(a1), Set(p1))
+			val reloaded = mapperDao.select(SelectConfig(lazyLoad = LazyLoad.some(Set(ProductEntity.properties))), ProductEntity, 2).get
+			reloaded should be === updated
+		}
+
 		test("lazy load 1 of 2 related entities") {
 			createTables
 			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))

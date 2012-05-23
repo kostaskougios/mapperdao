@@ -41,13 +41,16 @@ class ValuesMap private (mOrig: scala.collection.Map[String, Any]) {
 
 	protected[mapperdao] def valueOf[T](column: String): T = {
 		val key = column.toLowerCase
-		val v = m.getOrElse(key, null) match {
-			case null => null
-			case f: (() => Any) =>
-				val v = f()
-				m(key) = v
-				v
-			case v => v
+		// to avoid lazy loading twice in 2 separate threads, and avoid corrupting the map, we need to sync
+		val v = m.synchronized {
+			m.getOrElse(key, null) match {
+				case null => null
+				case f: (() => Any) =>
+					val v = f()
+					m(key) = v
+					v
+				case v => v
+			}
 		}
 		ValuesMap.deepClone(v).asInstanceOf[T]
 	}
