@@ -7,6 +7,7 @@ import org.objenesis.ObjenesisStd
 import com.googlecode.classgenerator.ReflectionManager
 import com.googlecode.classgenerator.MethodImplementation
 import java.lang.reflect.Method
+import scala.collection.immutable.ListMap
 
 /**
  * manages lazy loading of classes
@@ -83,6 +84,11 @@ private[mapperdao] class LazyLoadManager {
 		}
 		persisted.mapperDaoValuesMap = vm
 
+		// memory optimization for unlinked entities
+		val toLazyLoad = ListMap.empty ++ lazyRelationships.map { ci =>
+			(ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, Any]], vm.columnValue[() => Any](ci))
+		}.toMap
+
 		instance.methodImplementation { args: Args[T, Any] =>
 			val methodName = args.methodName
 			val persistedMethodOption = persistedMethodNamesToMethod.get(methodName)
@@ -102,7 +108,7 @@ private[mapperdao] class LazyLoadManager {
 					val ci = methodToCI(args.methodName)
 					val gm = ci.getterMethod.get
 					val alias = ci.column.alias
-					val v = vm.valueOf[Any](alias)
+					val v = toLazyLoad(ci)()
 					val r = v match {
 						case _: Traversable[_] =>
 							val returnType = args.method.getReturnType
