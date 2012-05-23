@@ -11,11 +11,17 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
 trait EntityStack {
 	private var stack = Stack[SelectInfo[_, _, _, _, _]]()
 	def down[PC, T, V, FPC, F](o: Type[PC, T], ci: ColumnInfoRelationshipBase[T, V, FPC, F], dv: DatabaseValues): Unit =
-		stack = stack.push(SelectInfo(o, ci, dv))
+		this.synchronized {
+			stack = stack.push(SelectInfo(o, ci, dv))
+		}
 
-	def peek[PC, T, V, FPC, F] = (if (stack.isEmpty) SelectInfo(null, null, null) else stack.top).asInstanceOf[SelectInfo[PC, T, V, FPC, F]]
+	def peek[PC, T, V, FPC, F] = this.synchronized {
+		(if (stack.isEmpty) SelectInfo(null, null, null) else stack.top).asInstanceOf[SelectInfo[PC, T, V, FPC, F]]
+	}
 
-	def up = stack = stack.pop
+	def up = this.synchronized {
+		stack = stack.pop
+	}
 
 	def done {
 		if (!stack.isEmpty) throw new InternalError("stack should be empty but is " + stack)
