@@ -9,6 +9,9 @@ import java.util.IdentityHashMap
 abstract class EntityRelationshipVisitor[R](visitLazyLoaded: Boolean = false) {
 	private val m = new IdentityHashMap[Any, R]
 
+	private def isLoaded(vmo: Option[ValuesMap], ci: ColumnInfoRelationshipBase[_, _, _, _]) =
+		vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)
+
 	def visit(entity: Entity[_, _], o: Any): R = {
 		val r = m.get(o)
 		if (r == null) {
@@ -18,23 +21,23 @@ abstract class EntityRelationshipVisitor[R](visitLazyLoaded: Boolean = false) {
 				case _ => None
 			}
 			val collected = if (o != null) entity.tpe.table.columnInfosPlain.collect {
-				case ci: ColumnInfoTraversableManyToMany[Any, _, _] if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) =>
+				case ci: ColumnInfoTraversableManyToMany[Any, _, _] if (isLoaded(vmo, ci)) =>
 					val fo = ci.columnToValue(o)
 					// convert to list to avoid problems with java collections
 					val l = fo.toList.map { t => visit(ci.column.foreign.entity, t) }
 					(ci, manyToMany(ci, fo, l))
-				case ci: ColumnInfoTraversableOneToMany[Any, _, _] if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) =>
+				case ci: ColumnInfoTraversableOneToMany[Any, _, _] if (isLoaded(vmo, ci)) =>
 					val fo = ci.columnToValue(o)
 					// convert to list to avoid problems with java collections
 					val l = fo.toList.map { t => visit(ci.column.foreign.entity, t) }
 					(ci, oneToMany(ci, fo, l))
-				case ci: ColumnInfoManyToOne[Any, _, _] if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) =>
+				case ci: ColumnInfoManyToOne[Any, _, _] if (isLoaded(vmo, ci)) =>
 					val fo = ci.columnToValue(o)
 					manyToOne(ci, fo)
 					(ci, visit(ci.column.foreign.entity, fo))
-				case ci: ColumnInfoOneToOne[Any, _, _] if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) =>
+				case ci: ColumnInfoOneToOne[Any, _, _] if (isLoaded(vmo, ci)) =>
 					(ci, oneToOne(ci, ci.columnToValue(o)))
-				case ci: ColumnInfoOneToOneReverse[Any, _, _] if (vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)) =>
+				case ci: ColumnInfoOneToOneReverse[Any, _, _] if (isLoaded(vmo, ci)) =>
 					(ci, oneToOneReverse(ci, ci.columnToValue(o)))
 				case ci: ColumnInfo[Any, _] =>
 					val v = ci.columnToValue(o)
