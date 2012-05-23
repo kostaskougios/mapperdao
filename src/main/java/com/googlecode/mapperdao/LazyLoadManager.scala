@@ -150,7 +150,8 @@ private[mapperdao] class LazyLoadManager {
 	private def hasLongId(clz: Class[_]) = classOf[LongId].isAssignableFrom(clz)
 
 	def isLazyLoaded[PC, T](lazyLoad: LazyLoad, entity: Entity[PC, T]) =
-		lazyLoad.all && !entity.tpe.table.relationshipColumnInfos.isEmpty
+		lazyLoad.all || lazyLoad.isAnyColumnLazyLoaded(entity.tpe.table.relationshipColumnInfos.toSet)
+	//&& !entity.tpe.table.relationshipColumnInfos.isEmpty
 }
 
 object LazyLoadManager {

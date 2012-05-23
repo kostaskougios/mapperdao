@@ -380,15 +380,16 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 		val lazyLoad = selectConfig.lazyLoad
 
 		val lazyLoadedMods = (table.columnInfosPlain.map { ci =>
+			val ll = lazyLoad.isLazyLoaded(ci)
 			ci match {
 				case mtm: ColumnInfoTraversableManyToMany[_, _, _] =>
-					(ci.column.alias, Nil)
+					(ci.column.alias, if (ll) vm.valueOf(ci) else Nil)
 				case mto: ColumnInfoManyToOne[_, _, _] =>
-					(ci.column.alias, null)
+					(ci.column.alias, if (ll) vm.valueOf(ci) else null)
 				case mtm: ColumnInfoTraversableOneToMany[_, _, _] =>
-					(ci.column.alias, Nil)
+					(ci.column.alias, if (ll) vm.valueOf(ci) else Nil)
 				case otor: ColumnInfoOneToOneReverse[_, _, _] =>
-					(ci.column.alias, null)
+					(ci.column.alias, if (ll) vm.valueOf(ci) else null)
 				case _ => (ci.column.alias, vm.valueOf(ci))
 			}
 		} ::: table.extraColumnInfosPersisted.map { ci =>
