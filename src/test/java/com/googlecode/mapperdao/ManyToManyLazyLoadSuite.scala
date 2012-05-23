@@ -19,6 +19,28 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 
 	if (Setup.database == "h2") {
 
+		test("lazy load 1 of 2 related entities") {
+			createTables
+			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
+			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
+			val p1 = mapperDao.insert(PropertyEntity, Property(100, "p1", "v1"))
+			val p2 = mapperDao.insert(PropertyEntity, Property(101, "p2", "v2"))
+
+			val inserted = mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2), Set(p1, p2)))
+
+			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad.some(Set(ProductEntity.properties))), ProductEntity, 2).get
+			// use reflection to detect that the field wasn't set
+			val r1: Set[Attribute] = reflectionManager.get("attributes", selected)
+			r1 should be(Set(a1, a2))
+			val r2: Set[Attribute] = reflectionManager.get("properties", selected)
+			r2 should be(Set())
+			verifyPropertiesNotLoadded(selected)
+
+			selected should be === Product(2, "blue jean", inserted.attributes, inserted.properties)
+			selected.attributes should be === inserted.attributes
+			selected.properties should be === inserted.properties
+		}
+
 		test("lazy load 2 related entities") {
 			createTables
 			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
@@ -139,6 +161,10 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 	def verifyNotLoadded(o: Any) {
 		val persisted = o.asInstanceOf[Persisted]
 		persisted.mapperDaoValuesMap.isLoaded(ProductEntity.attributes) should be(false)
+		persisted.mapperDaoValuesMap.isLoaded(ProductEntity.properties) should be(false)
+	}
+	def verifyPropertiesNotLoadded(o: Any) {
+		val persisted = o.asInstanceOf[Persisted]
 		persisted.mapperDaoValuesMap.isLoaded(ProductEntity.properties) should be(false)
 	}
 

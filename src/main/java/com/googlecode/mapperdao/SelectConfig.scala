@@ -27,7 +27,7 @@ object SelectConfig {
 			hints = queryConfig.hints
 		)
 
-	def lazyLoad = SelectConfig(lazyLoad = LazyLoad(all = true))
+	def lazyLoad = SelectConfig(lazyLoad = LazyLoad.all)
 
 	val default = SelectConfig()
 }
