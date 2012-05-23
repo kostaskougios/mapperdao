@@ -50,7 +50,7 @@ private[mapperdao] class LazyLoadManager {
 		// get cached proxy class or generate it
 		val proxyClz = classCache.synchronized {
 			classCache.get(key).getOrElse {
-				val methods = relationships.map(ci =>
+				val methods = relationships.filter(lazyLoad.isLazyLoaded(_)).map(ci =>
 					ci.getterMethod.getOrElse(throw new IllegalStateException("please define getter method on entity for %s".format(ci.column)))
 				).toSet
 				if (methods.isEmpty)
