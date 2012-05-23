@@ -6,11 +6,11 @@ import java.util.IdentityHashMap
  *
  * 17 May 2012
  */
-abstract class EntityRelationshipVisitor[R](visitLazyLoaded: Boolean = false) {
+abstract class EntityRelationshipVisitor[R](visitLazyLoaded: Boolean = false, visitUnlinked: Boolean = false) {
 	private val m = new IdentityHashMap[Any, R]
 
 	private def isLoaded(vmo: Option[ValuesMap], ci: ColumnInfoRelationshipBase[_, _, _, _]) =
-		vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(true)
+		vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(visitUnlinked)
 
 	def visit(entity: Entity[_, _], o: Any): R = {
 		val r = m.get(o)
