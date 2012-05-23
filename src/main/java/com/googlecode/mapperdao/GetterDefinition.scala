@@ -18,6 +18,11 @@ protected trait GetterDefinition {
 		val method = clz.getMethod(methodName)
 		getter(method, methodName)
 	}
+
+	def getter(methodName: String, fieldName: String): this.type = {
+		val method = clz.getMethod(methodName)
+		getter(method, fieldName, None)
+	}
 	def getter(methodName: String, fieldName: String, converter: Any => Any): this.type = {
 		val method = clz.getMethod(methodName)
 		getter(method, fieldName, Some(converter))
