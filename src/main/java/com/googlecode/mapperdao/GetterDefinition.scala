@@ -7,12 +7,19 @@ package com.googlecode.mapperdao
  */
 protected trait GetterDefinition {
 	val clz: Class[_]
-	var getterMethod: Option[java.lang.reflect.Method] = None
+	var getterMethod: Option[GetterMethod] = None
 
-	def getter(method: java.lang.reflect.Method): this.type = {
-		getterMethod = Some(method)
+	def getter(getterMethod: java.lang.reflect.Method, fieldName: String, converter: Option[Any => Any] = None): this.type = {
+		this.getterMethod = Some(GetterMethod(getterMethod, fieldName, converter))
 		this
 	}
 
-	def getter(method: String): this.type = getter(clz.getMethod(method))
+	def getter(methodName: String): this.type = {
+		val method = clz.getMethod(methodName)
+		getter(method, methodName)
+	}
+	def getter(methodName: String, fieldName: String, converter: Any => Any): this.type = {
+		val method = clz.getMethod(methodName)
+		getter(method, fieldName, Some(converter))
+	}
 }

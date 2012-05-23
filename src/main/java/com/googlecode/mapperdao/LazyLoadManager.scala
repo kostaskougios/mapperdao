@@ -51,7 +51,7 @@ private[mapperdao] class LazyLoadManager {
 		val proxyClz = classCache.synchronized {
 			classCache.get(key).getOrElse {
 				val methods = lazyRelationships.map(ci =>
-					ci.getterMethod.getOrElse(throw new IllegalStateException("please define getter method on entity for %s".format(ci.column)))
+					ci.getterMethod.getOrElse(throw new IllegalStateException("please define getter method on entity for %s".format(ci.column))).getterMethod
 				).toSet
 				if (methods.isEmpty)
 					throw new IllegalStateException("can't lazy load class that doesn't declare any getters for relationships. Entity: %s".format(clz))
@@ -74,8 +74,8 @@ private[mapperdao] class LazyLoadManager {
 		val alreadyCalled = new scala.collection.mutable.HashSet[String]
 
 		// prepare the dynamic function
-		val methodToAlias = lazyRelationships.map { ci =>
-			(ci.getterMethod.get.getName, ci.column.alias)
+		val methodToCI = lazyRelationships.map { ci =>
+			(ci.getterMethod.get.getterMethod.getName, ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, Any]])
 		}.toMap
 
 		import com.googlecode.classgenerator._
@@ -99,7 +99,9 @@ private[mapperdao] class LazyLoadManager {
 				if (!alreadyCalled(args.methodName)) {
 					alreadyCalled += args.methodName
 
-					val alias = methodToAlias(args.methodName)
+					val ci = methodToCI(args.methodName)
+					val gm = ci.getterMethod.get
+					val alias = ci.column.alias
 					val v = vm.valueOf[Any](alias)
 					val r = v match {
 						case _: Traversable[_] =>
@@ -108,11 +110,13 @@ private[mapperdao] class LazyLoadManager {
 								val ct = returnType.getComponentType
 								val am = ClassManifest.fromClass(ct.asInstanceOf[Class[Any]])
 								v.asInstanceOf[List[_]].toArray(am)
-							} else
-								converters(returnType)(v)
+							} else {
+								val con = converters.getOrElse(returnType, gm.converter.getOrElse(throw new IllegalStateException("type %s not supported for getter. Please define a converter function".format(returnType))))
+								con(v)
+							}
 						case _ => v
 					}
-					reflectionManager.set(args.methodName, args.self, r)
+					reflectionManager.set(gm.fieldName, args.self, r)
 					r
 				} else {
 					args.callSuper
