@@ -37,9 +37,8 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 						{
 							val foreignKeys = ftable.primaryKeys zip foreignKeyValues
 							val fom = driver.doSelect(selectConfig, ftpe, foreignKeys)
-							entities.down(tpe, ci, om)
-							val otmL = mapperDao.toEntities(fom, fe, selectConfig, entities)
-							entities.up
+							val down = entities.down(tpe, ci, om)
+							val otmL = mapperDao.toEntities(fom, fe, selectConfig, down)
 							if (otmL.size != 1) throw new IllegalStateException("expected 1 row but got " + otmL);
 							otmL.head
 						}

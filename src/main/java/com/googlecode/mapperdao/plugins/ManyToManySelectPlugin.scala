@@ -48,9 +48,8 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 									val ids = tpe.table.primaryKeys.map { pk => om(pk.name) }
 									val keys = c.linkTable.left zip ids
 									val fom = driver.doSelectManyToMany(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
-									entities.down(tpe, ci, om)
-									val mtmR = mapperDao.toEntities(fom, fe, selectConfig, entities)
-									entities.up
+									val down = entities.down(tpe, ci, om)
+									val mtmR = mapperDao.toEntities(fom, fe, selectConfig, down)
 									mtmR
 							}
 						}

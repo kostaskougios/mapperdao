@@ -35,9 +35,8 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 							val fe = c.foreign.entity
 							val foreignPKValues = c.columns.map(mtoc => om(mtoc.name))
 							entities.get(fe.clz, foreignPKValues) {
-								entities.down(tpe, cis, om)
-								val v = mapperDao.selectInner(fe, selectConfig, foreignPKValues, entities).getOrElse(null)
-								entities.up
+								val down = entities.down(tpe, cis, om)
+								val v = mapperDao.selectInner(fe, selectConfig, foreignPKValues, down).getOrElse(null)
 								Some(v)
 							}.get
 						}

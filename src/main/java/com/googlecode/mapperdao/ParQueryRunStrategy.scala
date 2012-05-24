@@ -27,7 +27,6 @@ private[mapperdao] class ParQueryRunStrategy extends QueryRunStrategy {
 				case (l, idx) =>
 					val entityMap = new MultiThreadedQueryEntityMapImpl(globalL1)
 					val v = mapperDao.toEntities(l, qe.entity, selectConfig, entityMap)
-					entityMap.done
 					(v, idx)
 			}
 			.toList

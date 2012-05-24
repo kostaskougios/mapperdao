@@ -16,7 +16,7 @@ class EntityMapSuite extends FunSuite with ShouldMatchers {
 	case class E2(n: String)
 
 	test("put and get") {
-		val m = new EntityMapImpl
+		val m = new EntityMap
 		m.putMock(classOf[E1], List(5), E1("1"))
 		m.putMock(classOf[E1], List(6), E1("2"))
 		m.putMock(classOf[E2], List(5, 6), E2("x"))
@@ -30,12 +30,12 @@ class EntityMapSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("get from empty") {
-		val m = new EntityMapImpl
+		val m = new EntityMap
 		m.get[E2](classOf[E2], List(5, 6)) { None } should be(None)
 	}
 
 	test("re-put throws exception") {
-		val m = new EntityMapImpl
+		val m = new EntityMap
 		m.putMock(classOf[E1], List(5), E1("1"))
 		evaluating { m.putMock(classOf[E1], List(5), E1("1")) } should produce[IllegalStateException]
 	}

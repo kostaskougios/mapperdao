@@ -303,9 +303,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 	 */
 	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], ids: List[Any]): Option[T with PC] =
 		{
-			val entityMap = new EntityMapImpl
+			val entityMap = new EntityMap
 			val v = selectInner(entity, selectConfig, ids, entityMap)
-			entityMap.done
 			v
 		}
 
