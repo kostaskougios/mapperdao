@@ -121,9 +121,9 @@ trait MapperDao {
 	 * releases the objects used to store state for lazy loading to occur, freeing memory
 	 * but lazy loaded relattionships will not be loaded
 	 */
-	def freeLazyLoadMemoryData(o: Any) {
-		o match {
-			case ll: LazyLoaded => ll.freeLazyLoadMemoryData()
-		}
+	def unlinkLazyLoadMemoryData[PC, T](entity: Entity[PC, T], o: Any) {
+		val visitor = new FreeLazyLoadedEntityVisitor
+		visitor.visit(entity, o)
+		visitor.free(o)
 	}
 }
