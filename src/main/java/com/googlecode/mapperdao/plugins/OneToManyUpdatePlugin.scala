@@ -93,7 +93,6 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 								entityMap.down(mockO, ci, entity)
 								val newItem = mapperDao.updateInner(updateConfig, fe, oldV, newV, entityMap)
 								entityMap.up
-								oldV.mapperDaoDiscarded = true
 								modified(oneToMany.alias) = newItem
 						}
 						// find the added ones
