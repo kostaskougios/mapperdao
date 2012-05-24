@@ -32,27 +32,29 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 				val mtmR = if (selectConfig.skip(ci)) {
 					() => Nil
 				} else {
-					() =>
-						{
-							val fe = c.foreign.entity
-							val ftpe = fe.tpe.asInstanceOf[Type[Any, Any]]
-							fe match {
-								case ee: ExternalEntity[Any] =>
-									val ids = tpe.table.primaryKeys.map { pk => om(pk.name) }
-									val keys = c.linkTable.left zip ids
-									val allIds = driver.doSelectManyToManyForExternalEntity(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
+					new LazyLoader {
+						def calculate =
+							{
+								val fe = c.foreign.entity
+								val ftpe = fe.tpe.asInstanceOf[Type[Any, Any]]
+								fe match {
+									case ee: ExternalEntity[Any] =>
+										val ids = tpe.table.primaryKeys.map { pk => om(pk.name) }
+										val keys = c.linkTable.left zip ids
+										val allIds = driver.doSelectManyToManyForExternalEntity(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
 
-									val handler = ee.manyToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
-									handler(SelectExternalManyToMany(selectConfig, allIds))
-								case _ =>
-									val ids = tpe.table.primaryKeys.map { pk => om(pk.name) }
-									val keys = c.linkTable.left zip ids
-									val fom = driver.doSelectManyToMany(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
-									val down = entities.down(tpe, ci, om)
-									val mtmR = mapperDao.toEntities(fom, fe, selectConfig, down)
-									mtmR
+										val handler = ee.manyToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
+										handler(SelectExternalManyToMany(selectConfig, allIds))
+									case _ =>
+										val ids = tpe.table.primaryKeys.map { pk => om(pk.name) }
+										val keys = c.linkTable.left zip ids
+										val fom = driver.doSelectManyToMany(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
+										val down = entities.down(tpe, ci, om)
+										val mtmR = mapperDao.toEntities(fom, fe, selectConfig, down)
+										mtmR
+								}
 							}
-						}
+					}
 				}
 				SelectMod(c.foreign.alias, mtmR, Nil)
 			}

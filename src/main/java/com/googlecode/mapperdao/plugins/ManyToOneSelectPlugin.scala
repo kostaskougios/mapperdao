@@ -31,14 +31,17 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 							ee.manyToOneOnSelectMap(cis.asInstanceOf[ColumnInfoManyToOne[_, _, Any]])(SelectExternalManyToOne(selectConfig, foreignPKValues))
 						}
 					case _ =>
-						() => {
-							val fe = c.foreign.entity
-							val foreignPKValues = c.columns.map(mtoc => om(mtoc.name))
-							entities.get(fe.clz, foreignPKValues) {
-								val down = entities.down(tpe, cis, om)
-								val v = mapperDao.selectInner(fe, selectConfig, foreignPKValues, down).getOrElse(null)
-								Some(v)
-							}.get
+						new LazyLoader {
+							def calculate =
+								{
+									val fe = c.foreign.entity
+									val foreignPKValues = c.columns.map(mtoc => om(mtoc.name))
+									entities.get(fe.clz, foreignPKValues) {
+										val down = entities.down(tpe, cis, om)
+										val v = mapperDao.selectInner(fe, selectConfig, foreignPKValues, down).getOrElse(null)
+										Some(v)
+									}.get
+								}
 						}
 				}
 				SelectMod(c.foreign.alias, v, null)

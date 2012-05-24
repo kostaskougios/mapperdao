@@ -48,21 +48,24 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 							ee.oneToOneOnSelectMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[_, _, Any]])(SelectExternalOneToOneReverse(selectConfig, foreignIds))
 						}
 					case _ =>
-						() => {
-							val ftpe = fe.tpe
-							val ids = tpe.table.primaryKeys.map { pk => om(pk.name) }
-							val keys = c.foreignColumns.zip(ids)
-							val fom = driver.doSelect(selectConfig, ftpe, keys)
-							val down = entities.down(tpe, ci, om)
-							val otmL = mapperDao.toEntities(fom, fe, selectConfig, down)
-							if (otmL.isEmpty) {
-								null
-							} else {
-								if (otmL.size > 1) throw new IllegalStateException("expected 0 or 1 row but got " + otmL)
-								else {
-									otmL.head
+						new LazyLoader {
+							def calculate =
+								{
+									val ftpe = fe.tpe
+									val ids = tpe.table.primaryKeys.map { pk => om(pk.name) }
+									val keys = c.foreignColumns.zip(ids)
+									val fom = driver.doSelect(selectConfig, ftpe, keys)
+									val down = entities.down(tpe, ci, om)
+									val otmL = mapperDao.toEntities(fom, fe, selectConfig, down)
+									if (otmL.isEmpty) {
+										null
+									} else {
+										if (otmL.size > 1) throw new IllegalStateException("expected 0 or 1 row but got " + otmL)
+										else {
+											otmL.head
+										}
+									}
 								}
-							}
 						}
 				}
 				SelectMod(c.foreign.alias, v, null)

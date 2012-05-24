@@ -33,15 +33,17 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 					// value is null
 					() => null
 				} else {
-					() =>
-						{
-							val foreignKeys = ftable.primaryKeys zip foreignKeyValues
-							val fom = driver.doSelect(selectConfig, ftpe, foreignKeys)
-							val down = entities.down(tpe, ci, om)
-							val otmL = mapperDao.toEntities(fom, fe, selectConfig, down)
-							if (otmL.size != 1) throw new IllegalStateException("expected 1 row but got " + otmL);
-							otmL.head
-						}
+					new LazyLoader {
+						def calculate =
+							{
+								val foreignKeys = ftable.primaryKeys zip foreignKeyValues
+								val fom = driver.doSelect(selectConfig, ftpe, foreignKeys)
+								val down = entities.down(tpe, ci, om)
+								val otmL = mapperDao.toEntities(fom, fe, selectConfig, down)
+								if (otmL.size != 1) throw new IllegalStateException("expected 1 row but got " + otmL);
+								otmL.head
+							}
+					}
 				}
 				SelectMod(c.foreign.alias, v, null)
 			}
