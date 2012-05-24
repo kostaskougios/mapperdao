@@ -1,14 +1,17 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.classgenerator.ClassManager
-import com.googlecode.classgenerator.runtime.Args
-import com.googlecode.classgenerator.LazyLoadInstanceFactory
-import org.objenesis.ObjenesisStd
-import com.googlecode.classgenerator.ReflectionManager
-import com.googlecode.classgenerator.MethodImplementation
 import java.lang.reflect.Method
+
 import scala.collection.mutable.ListMap
 
+import org.objenesis.ObjenesisStd
+
+import com.googlecode.classgenerator.runtime.Args
+import com.googlecode.classgenerator.ClassManager
+import com.googlecode.classgenerator.LazyLoadInstanceFactory
+import com.googlecode.classgenerator.MethodImplementation
+import com.googlecode.classgenerator.ReflectionManager
+import javassist._
 /**
  * manages lazy loading of classes
  *
@@ -181,7 +184,11 @@ private[mapperdao] class LazyLoadManager {
 }
 
 object LazyLoadManager {
-	private val classManager = new ClassManager
+	private val classManager = new ClassManager(pool = {
+		val cp = new ClassPool(null)
+		cp.appendClassPath(new LoaderClassPath(getClass.getClassLoader))
+		cp
+	})
 	private val objenesis = new ObjenesisStd
 	private val reflectionManager = new ReflectionManager
 }
