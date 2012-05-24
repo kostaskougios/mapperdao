@@ -100,6 +100,13 @@ private[mapperdao] class LazyLoadManager {
 				// setter
 				alreadyCalled += getterFromSetter(args.methodName)
 				args.callSuper
+			} else if (methodName == "freeLazyLoadMemoryData") {
+				toLazyLoad.synchronized {
+					toLazyLoad.clear()
+					methodToCI.map(_._1).foreach {
+						alreadyCalled += _
+					}
+				}
 			} else {
 				// getter
 				if (!alreadyCalled(args.methodName)) {
@@ -142,6 +149,8 @@ private[mapperdao] class LazyLoadManager {
 	private def createProxyClz(constructedClz: Class[_], originalClz: Class[_], methods: Set[Method]) = {
 		val b = classManager.buildNewSubclass(originalClz)
 			.interface[Persisted]
+			.interface[LazyLoaded]
+			.implementFromTrait[LazyLoaded](false)
 			.implementFromTrait[Persisted](false)
 		if (hasIntId(constructedClz)) {
 			b.interface[IntId]
