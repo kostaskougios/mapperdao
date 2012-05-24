@@ -201,8 +201,11 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			mockO = createMock(updateConfig.data, entity, modified ++ modifiedTraversables)
 			entityMap.put(o, mockO)
 
-			postUpdatePlugins.foreach {
-				_.after(updateConfig, entity, o, mockO, oldValuesMap, newValuesMap, entityMap, modifiedTraversables)
+			if (updateConfig.depth > 0) {
+				val newUC = updateConfig.copy(depth = updateConfig.depth - 1)
+				postUpdatePlugins.foreach {
+					_.after(newUC, entity, o, mockO, oldValuesMap, newValuesMap, entityMap, modifiedTraversables)
+				}
 			}
 
 			// done, construct the updated entity
