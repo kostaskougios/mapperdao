@@ -95,54 +95,54 @@ private[mapperdao] class LazyLoadManager {
 		instance.methodImplementation { args: Args[T, Any] =>
 			val methodName = args.methodName
 			val persistedMethodOption = persistedMethodNamesToMethod.get(methodName)
-			if (persistedMethodOption.isDefined) {
-				// method from Persisted trait
-				val method = persistedMethodOption.get
-				reflectionManager.callMethod(method, persisted, args.args)
-			} else if (isSetter(methodName)) {
-				// setter
-				alreadyCalled += getterFromSetter(args.methodName)
-				args.callSuper
-			} else if (methodName == "freeLazyLoadMemoryData") {
-				toLazyLoad.synchronized {
+			synchronized {
+				if (persistedMethodOption.isDefined) {
+					// method from Persisted trait
+					val method = persistedMethodOption.get
+					reflectionManager.callMethod(method, persisted, args.args)
+				} else if (isSetter(methodName)) {
+					// setter
+					alreadyCalled += getterFromSetter(args.methodName)
+					args.callSuper
+				} else if (methodName == "freeLazyLoadMemoryData") {
 					toLazyLoad.clear()
 					methodToCI.map(_._1).foreach {
 						alreadyCalled += _
 					}
-				}
-			} else {
-				// getter
-				if (!alreadyCalled(args.methodName)) {
-					alreadyCalled += args.methodName
-
-					val ci = methodToCI(args.methodName)
-					val gm = ci.getterMethod.get
-					val alias = ci.column.alias
-
-					val v = toLazyLoad.synchronized {
-						// we need to remove the values
-						// to free memory usage
-						val v = toLazyLoad(ci)()
-						toLazyLoad -= ci
-						v
-					}
-					val r = v match {
-						case _: Traversable[_] =>
-							val returnType = args.method.getReturnType
-							if (returnType.isArray) {
-								val ct = returnType.getComponentType
-								val am = ClassManifest.fromClass(ct.asInstanceOf[Class[Any]])
-								v.asInstanceOf[List[_]].toArray(am)
-							} else {
-								val con = converters.getOrElse(returnType, gm.converter.getOrElse(throw new IllegalStateException("type %s not supported for getter. Please define a converter function".format(returnType))))
-								con(v)
-							}
-						case _ => v
-					}
-					reflectionManager.set(gm.fieldName, args.self, r)
-					r
 				} else {
-					args.callSuper
+					// getter
+					if (!alreadyCalled(args.methodName)) {
+						alreadyCalled += args.methodName
+
+						val ci = methodToCI(args.methodName)
+						val gm = ci.getterMethod.get
+						val alias = ci.column.alias
+
+						val v = toLazyLoad.synchronized {
+							// we need to remove the values
+							// to free memory usage
+							val v = toLazyLoad(ci)()
+							toLazyLoad -= ci
+							v
+						}
+						val r = v match {
+							case _: Traversable[_] =>
+								val returnType = args.method.getReturnType
+								if (returnType.isArray) {
+									val ct = returnType.getComponentType
+									val am = ClassManifest.fromClass(ct.asInstanceOf[Class[Any]])
+									v.asInstanceOf[List[_]].toArray(am)
+								} else {
+									val con = converters.getOrElse(returnType, gm.converter.getOrElse(throw new IllegalStateException("type %s not supported for getter. Please define a converter function".format(returnType))))
+									con(v)
+								}
+							case _ => v
+						}
+						reflectionManager.set(gm.fieldName, args.self, r)
+						r
+					} else {
+						args.callSuper
+					}
 				}
 			}
 		}
