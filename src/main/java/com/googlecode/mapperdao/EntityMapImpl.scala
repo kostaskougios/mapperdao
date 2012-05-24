@@ -6,7 +6,7 @@ package com.googlecode.mapperdao
  * 6 May 2012
  */
 private[mapperdao] class EntityMapImpl extends EntityMap with EntityStack {
-	private val m = scala.collection.mutable.Map[List[Any], Option[_]]()
+	private val m = scala.collection.mutable.ListMap[List[Any], Option[_]]()
 
 	protected def key(clz: Class[_], ids: List[Any]) = clz :: ids
 

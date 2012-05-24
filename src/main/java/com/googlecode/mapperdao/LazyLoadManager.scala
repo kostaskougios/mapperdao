@@ -7,7 +7,7 @@ import org.objenesis.ObjenesisStd
 import com.googlecode.classgenerator.ReflectionManager
 import com.googlecode.classgenerator.MethodImplementation
 import java.lang.reflect.Method
-import scala.collection.immutable.ListMap
+import scala.collection.mutable.ListMap
 
 /**
  * manages lazy loading of classes
@@ -72,7 +72,7 @@ private[mapperdao] class LazyLoadManager {
 		}
 
 		// provide an implementation for the proxied methods
-		val alreadyCalled = new scala.collection.mutable.HashSet[String]
+		var alreadyCalled = Set.empty[String]
 
 		// prepare the dynamic function
 		val methodToCI = lazyRelationships.map { ci =>
@@ -108,7 +108,14 @@ private[mapperdao] class LazyLoadManager {
 					val ci = methodToCI(args.methodName)
 					val gm = ci.getterMethod.get
 					val alias = ci.column.alias
-					val v = toLazyLoad(ci)()
+
+					val v = toLazyLoad.synchronized {
+						// we need to remove the values
+						// to free memory usage
+						val v = toLazyLoad(ci)()
+						toLazyLoad -= ci
+						v
+					}
 					val r = v match {
 						case _: Traversable[_] =>
 							val returnType = args.method.getReturnType
