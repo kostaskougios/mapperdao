@@ -444,7 +444,8 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 	private[mapperdao] def deleteInner[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC, entityMap: UpdateEntityMap): T = o match {
 		case persisted: T with PC with Persisted =>
 			if (persisted.mapperDaoDiscarded) throw new IllegalArgumentException("can't operate on an object twice. An object that was updated/deleted must be discarded and replaced by the return value of update(), i.e. onew=update(o) or just be disposed if it was deleted. The offending object was : " + o);
-			persisted.mapperDaoDiscarded = true
+			// this creates problems
+			//persisted.mapperDaoDiscarded = true
 
 			val tpe = entity.tpe
 			val table = tpe.table
