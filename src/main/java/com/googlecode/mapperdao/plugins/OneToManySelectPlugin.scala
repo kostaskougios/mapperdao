@@ -42,11 +42,10 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 			val table = tpe.table
 			// one to many
 			table.oneToManyColumnInfos.map { ci =>
-				val c = ci.column
 				val otmL = if (selectConfig.skip(ci)) {
 					() => Nil
 				} else
-					c.foreign.entity match {
+					ci.column.foreign.entity match {
 						case ee: ExternalEntity[Any] =>
 							() => {
 								val table = tpe.table
@@ -56,9 +55,13 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 								ee.oneToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, Any]])(SelectExternalOneToMany(selectConfig, ids))
 							}
 						case fe: Entity[_, _] =>
+							// try to capture as few variables as possible
+							// for optimal memory usage
 							new LazyLoader {
 								def calculate =
 									{
+										val c = ci.column
+										val fe = c.foreign.entity // so that it doesn't capture it
 										val ids = tpe.table.primaryKeys.map { pk => om(pk.name) }
 										val where = c.foreignColumns.zip(ids)
 										val ftpe = fe.tpe
@@ -69,7 +72,7 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 									}
 							}
 					}
-				SelectMod(c.foreign.alias, otmL, Nil)
+				SelectMod(ci.column.foreign.alias, otmL, Nil)
 			}
 		}
 

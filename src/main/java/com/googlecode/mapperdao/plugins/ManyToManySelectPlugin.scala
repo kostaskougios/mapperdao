@@ -28,13 +28,15 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 			val table = tpe.table
 			// many to many
 			table.manyToManyColumnInfos.map { ci =>
-				val c = ci.column
 				val mtmR = if (selectConfig.skip(ci)) {
 					() => Nil
 				} else {
+					// to conserve memory we try to capture as 
+					// fewer variables as possible
 					new LazyLoader {
 						def calculate =
 							{
+								val c = ci.column
 								val fe = c.foreign.entity
 								val ftpe = fe.tpe.asInstanceOf[Type[Any, Any]]
 								fe match {
@@ -56,7 +58,7 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 							}
 					}
 				}
-				SelectMod(c.foreign.alias, mtmR, Nil)
+				SelectMod(ci.column.foreign.alias, mtmR, Nil)
 			}
 		}
 

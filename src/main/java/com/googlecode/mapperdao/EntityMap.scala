@@ -12,8 +12,8 @@ import scala.collection.mutable.ListMap
  * 7 Aug 2011
  */
 private[mapperdao] case class EntityMap(
-		m: scala.collection.mutable.ListMap[List[Any], Option[_]] = ListMap(),
-		parent: SelectInfo[_, _, _, _, _] = SelectInfo(null, null, null)) {
+		private val m: scala.collection.mutable.ListMap[List[Any], Option[_]] = ListMap(),
+		private val parent: SelectInfo[_, _, _, _, _] = SelectInfo(null, null, null)) {
 	protected def key(clz: Class[_], ids: List[Any]) = clz :: ids
 
 	def putMock[T](clz: Class[_], ids: List[Any], entity: T): Unit =

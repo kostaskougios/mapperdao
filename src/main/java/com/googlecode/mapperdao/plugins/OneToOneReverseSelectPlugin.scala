@@ -39,18 +39,20 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 			val table = tpe.table
 			// one to one reverse
 			table.oneToOneReverseColumnInfos.filterNot(selectConfig.skip(_)).map { ci =>
-				val c = ci.column
-				val fe = c.foreign.entity
-				val v = fe match {
+				val v = ci.column.foreign.entity match {
 					case ee: ExternalEntity[Any] =>
 						() => {
 							val foreignIds = tpe.table.primaryKeys.map { pk => om(pk.name) }
 							ee.oneToOneOnSelectMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[_, _, Any]])(SelectExternalOneToOneReverse(selectConfig, foreignIds))
 						}
 					case _ =>
+						// try to capture as few variables as possible
+						// for optimal memory usage
 						new LazyLoader {
 							def calculate =
 								{
+									val c = ci.column
+									val fe = c.foreign.entity
 									val ftpe = fe.tpe
 									val ids = tpe.table.primaryKeys.map { pk => om(pk.name) }
 									val keys = c.foreignColumns.zip(ids)
@@ -68,7 +70,7 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 								}
 						}
 				}
-				SelectMod(c.foreign.alias, v, null)
+				SelectMod(ci.column.foreign.alias, v, null)
 			}
 		}
 }

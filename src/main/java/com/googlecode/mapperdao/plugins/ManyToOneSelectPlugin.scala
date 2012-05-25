@@ -22,18 +22,20 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			val table = tpe.table
 			// many to one
 			table.manyToOneColumnInfos.filterNot(selectConfig.skip(_)).map { cis =>
-				val c = cis.column
-
-				val v = c.foreign.entity match {
+				val v = cis.column.foreign.entity match {
 					case ee: ExternalEntity[Any] =>
 						() => {
+							val c = cis.column
 							val foreignPKValues = c.columns.map(mtoc => om(mtoc.name))
 							ee.manyToOneOnSelectMap(cis.asInstanceOf[ColumnInfoManyToOne[_, _, Any]])(SelectExternalManyToOne(selectConfig, foreignPKValues))
 						}
 					case _ =>
+						// try to capture as few variables as possible
+						// to limit memory usage for lazy loaded
 						new LazyLoader {
 							def calculate =
 								{
+									val c = cis.column
 									val fe = c.foreign.entity
 									val foreignPKValues = c.columns.map(mtoc => om(mtoc.name))
 									entities.get(fe.clz, foreignPKValues) {
@@ -44,7 +46,7 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 								}
 						}
 				}
-				SelectMod(c.foreign.alias, v, null)
+				SelectMod(cis.column.foreign.alias, v, null)
 			}
 		}
 

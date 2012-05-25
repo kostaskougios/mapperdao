@@ -36,6 +36,12 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 					new LazyLoader {
 						def calculate =
 							{
+								// redeclare some variables to avoid capturing
+								// them and using extra memory
+								val c = ci.column
+								val fe = c.foreign.entity
+								val ftpe = fe.tpe
+								val ftable = ftpe.table
 								val foreignKeys = ftable.primaryKeys zip foreignKeyValues
 								val fom = driver.doSelect(selectConfig, ftpe, foreignKeys)
 								val down = entities.down(tpe, ci, om)
