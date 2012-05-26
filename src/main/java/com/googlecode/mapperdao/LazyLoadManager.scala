@@ -27,20 +27,6 @@ private[mapperdao] class LazyLoadManager {
 
 	private val classCache = new scala.collection.mutable.HashMap[CacheKey, Class[_]]
 
-	private val persistedMethods = reflectionManager.methods(classOf[Persisted]).toSet
-	private val persistedMethodNamesToMethod = persistedMethods.map { m =>
-		(m.getName, m)
-	}.toMap
-
-	// convert collections returned by mapperdao to actual collections
-	// required by entities
-	private val converters = Map[Class[_], Any => Any](
-		classOf[Set[_]] -> { _.asInstanceOf[List[_]].toSet },
-		classOf[List[_]] -> { _.asInstanceOf[List[_]] },
-		classOf[IndexedSeq[_]] -> { _.asInstanceOf[List[_]].toIndexedSeq },
-		classOf[Traversable[_]] -> { _.asInstanceOf[List[_]] }
-	)
-
 	def proxyFor[PC, T](constructed: T with PC, entity: Entity[PC, T], lazyLoad: LazyLoad, vm: ValuesMap): T with PC = {
 		if (constructed == null) throw new NullPointerException("constructed can't be null")
 
@@ -79,7 +65,6 @@ private[mapperdao] class LazyLoadManager {
 			(ci.getterMethod.get.getterMethod.getName, ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, Any]])
 		}.toMap
 
-		import com.googlecode.classgenerator._
 		val persisted = new Persisted {
 		}
 		persisted.mapperDaoValuesMap = vm
@@ -89,7 +74,7 @@ private[mapperdao] class LazyLoadManager {
 			(ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, Any]], vm.columnValue[() => Any](ci))
 		}.toMap
 
-		instance.methodImplementation {}
+		instance.methodImplementation(new LazyLoadProxyMethod[T](persisted, toLazyLoad, methodToCI))
 		instance
 	}
 
@@ -135,4 +120,9 @@ object LazyLoadManager {
 	})
 	private val objenesis = new ObjenesisStd
 	private[mapperdao] val reflectionManager = new ReflectionManager
+	private[mapperdao] val persistedMethods = reflectionManager.methods(classOf[Persisted]).toSet
+	private[mapperdao] val persistedMethodNamesToMethod = persistedMethods.map { m =>
+		(m.getName, m)
+	}.toMap
+
 }
