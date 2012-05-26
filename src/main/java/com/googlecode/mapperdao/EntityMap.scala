@@ -40,8 +40,11 @@ private[mapperdao] case class EntityMap(
 		}.asInstanceOf[Option[T]]
 	}
 
-	def down[PC, T, V, FPC, F](tpe: Type[PC, T], ci: ColumnInfoRelationshipBase[T, V, FPC, F], dv: DatabaseValues): EntityMap =
-		copy(parent = SelectInfo(tpe, ci, dv))
+	def down[PC, T, V, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T], ci: ColumnInfoRelationshipBase[T, V, FPC, F], dv: DatabaseValues): EntityMap =
+		if (selectConfig.lazyLoad.isLazyLoaded(ci))
+			copy(m = ListMap(), parent = SelectInfo(tpe, ci, dv))
+		else
+			copy(parent = SelectInfo(tpe, ci, dv))
 
 	def peek[PC, T, V, FPC, F] =
 		parent.asInstanceOf[SelectInfo[PC, T, V, FPC, F]]

@@ -31,31 +31,27 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 				val mtmR = if (selectConfig.skip(ci)) {
 					() => Nil
 				} else {
-					// to conserve memory we try to capture as 
+					// to conserve memory for lazy loaded entities, we try to capture as 
 					// fewer variables as possible
-					new LazyLoader {
-						def calculate =
-							{
-								val c = ci.column
-								val fe = c.foreign.entity
-								val ftpe = fe.tpe.asInstanceOf[Type[Any, Any]]
-								fe match {
-									case ee: ExternalEntity[Any] =>
-										val ids = tpe.table.primaryKeys.map { pk => om(pk.name) }
-										val keys = c.linkTable.left zip ids
-										val allIds = driver.doSelectManyToManyForExternalEntity(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
+					ci.column.foreign.entity match {
+						case ee: ExternalEntity[Any] =>
+							new LazyLoader {
+								def calculate = {
+									val c = ci.column
+									val fe = c.foreign.entity
+									val ftpe = fe.tpe.asInstanceOf[Type[Any, Any]]
 
-										val handler = ee.manyToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
-										handler(SelectExternalManyToMany(selectConfig, allIds))
-									case _ =>
-										val ids = tpe.table.primaryKeys.map { pk => om(pk.name) }
-										val keys = c.linkTable.left zip ids
-										val fom = driver.doSelectManyToMany(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
-										val down = entities.down(tpe, ci, om)
-										val mtmR = mapperDao.toEntities(fom, fe, selectConfig, down)
-										mtmR
+									val ids = tpe.table.primaryKeys.map { pk => om(pk.name) }
+									val keys = c.linkTable.left zip ids
+									val allIds = driver.doSelectManyToManyForExternalEntity(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
+
+									val handler = ee.manyToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
+									handler(SelectExternalManyToMany(selectConfig, allIds))
 								}
 							}
+						case _ =>
+							val down = entities.down(selectConfig, tpe, ci, om)
+							new ManyToManyEntityLazyLoader(driver, mapperDao, selectConfig, entity, down, om, ci)
 					}
 				}
 				SelectMod(ci.column.foreign.alias, mtmR, Nil)

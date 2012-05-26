@@ -66,7 +66,7 @@ private[mapperdao] class LazyLoadManager {
 		}
 
 		val instantiator = objenesis.getInstantiatorOf(proxyClz)
-		val instance = instantiator.newInstance.asInstanceOf[PC with T with MethodImplementation[T]]
+		val instance = instantiator.newInstance.asInstanceOf[PC with T with MethodImplementation[T with Persisted]]
 
 		// copy data from constructed to instance
 		reflectionManager.copy(clz, constructed, instance)
@@ -92,10 +92,14 @@ private[mapperdao] class LazyLoadManager {
 			(ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, Any]], vm.columnValue[() => Any](ci))
 		}.toMap
 
-		instance.methodImplementation { args: Args[T, Any] =>
+		instance.methodImplementation { args: Args[T with Persisted, Any] =>
 			val methodName = args.methodName
 			val persistedMethodOption = persistedMethodNamesToMethod.get(methodName)
-			synchronized {
+			// this getter might be called by multiple threads
+			// on the same time. We need to ensure that we aquire a lock
+			// (not on this though as it might be locked by client code)
+			// and that each op is executed only once.
+			alreadyCalled.synchronized {
 				if (persistedMethodOption.isDefined) {
 					// method from Persisted trait
 					val method = persistedMethodOption.get
@@ -118,13 +122,10 @@ private[mapperdao] class LazyLoadManager {
 						val gm = ci.getterMethod.get
 						val alias = ci.column.alias
 
-						val v = toLazyLoad.synchronized {
-							// we need to remove the values
-							// to free memory usage
-							val v = toLazyLoad(ci)()
-							toLazyLoad -= ci
-							v
-						}
+						// we need to remove the values
+						// to free memory usage
+						val v = toLazyLoad(ci)()
+						toLazyLoad -= ci
 						val r = v match {
 							case _: Traversable[_] =>
 								val returnType = args.method.getReturnType
@@ -138,7 +139,10 @@ private[mapperdao] class LazyLoadManager {
 								}
 							case _ => v
 						}
-						reflectionManager.set(gm.fieldName, args.self, r)
+						val t = args.self
+						reflectionManager.set(gm.fieldName, t, r)
+						if (t.mapperDaoValuesMap != null)
+							t.mapperDaoValuesMap(ci) = r
 						r
 					} else {
 						args.callSuper
