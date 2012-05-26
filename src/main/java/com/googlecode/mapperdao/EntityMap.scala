@@ -29,6 +29,13 @@ private[mapperdao] case class EntityMap(
 			}
 		}
 
+	def justGet[T](clz: Class[_], ids: List[Any]): Option[T] = {
+		val k = key(clz, ids)
+		this.synchronized {
+			m.get(k).getOrElse(None)
+		}.asInstanceOf[Option[T]]
+	}
+
 	def get[T](clz: Class[_], ids: List[Any])(f: => Option[T]): Option[T] = {
 		val k = key(clz, ids)
 		this.synchronized {

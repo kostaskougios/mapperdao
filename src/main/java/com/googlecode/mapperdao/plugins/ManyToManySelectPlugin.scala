@@ -51,7 +51,7 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 							}
 						case _ =>
 							val down = entities.down(selectConfig, tpe, ci, om)
-							new ManyToManyEntityLazyLoader(driver, mapperDao, selectConfig, entity, down, om, ci)
+							new ManyToManyEntityLazyLoader(mapperDao, selectConfig, entity, down, om, ci)
 					}
 				}
 				SelectMod(ci.column.foreign.alias, mtmR, Nil)

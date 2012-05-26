@@ -32,19 +32,16 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 					case _ =>
 						// try to capture as few variables as possible
 						// to limit memory usage for lazy loaded
-						new LazyLoader {
-							def calculate =
-								{
-									val c = cis.column
-									val fe = c.foreign.entity
-									val foreignPKValues = c.columns.map(mtoc => om(mtoc.name))
-									entities.get(fe.clz, foreignPKValues) {
-										val down = entities.down(selectConfig, tpe, cis, om)
-										val v = mapperDao.selectInner(fe, selectConfig, foreignPKValues, down).getOrElse(null)
-										Some(v)
-									}.get
-								}
-						}
+						val c = cis.column
+						val fe = c.foreign.entity
+						val foreignPKValues = c.columns.map(mtoc => om(mtoc.name))
+						entities.justGet[T](fe.clz, foreignPKValues)
+							.map { o =>
+								() => o
+							}.getOrElse {
+								val down = entities.down(selectConfig, tpe, cis, om)
+								new ManyToOneEntityLazyLoader(mapperDao, selectConfig, cis, down, om)
+							}
 				}
 				SelectMod(cis.column.foreign.alias, v, null)
 			}
