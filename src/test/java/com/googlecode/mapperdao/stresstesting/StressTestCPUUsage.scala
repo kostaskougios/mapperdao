@@ -21,18 +21,18 @@ object StressTestCPUUsage extends App {
 	val data1 = mapperDao.insert(ProductEntity, Product("test", Set(Attribute("colour", "red"), Attribute("colour", "green"))))
 
 	val (f, loops) = args(0) match {
-		case "select" => (select, 100000)
-		case "lazySelect" => (lazySelect, 100000)
+		case "select" => (select, 500000)
+		case "lazySelect" => (lazySelect, 500000)
 	}
 
 	println("warm up")
-	for (i <- 0 to 1000) {
+	for (i <- 0 to 5000) {
 		f()
 	}
 
 	println("benchmark")
 	val start = System.currentTimeMillis
-	for (i <- 0 to 100000) {
+	for (i <- 0 to loops) {
 		f()
 	}
 	val dt = System.currentTimeMillis - start
