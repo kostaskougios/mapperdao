@@ -34,7 +34,7 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 					() => null
 				} else {
 					new LazyLoader {
-						def calculate =
+						def apply =
 							{
 								// redeclare some variables to avoid capturing
 								// them and using extra memory

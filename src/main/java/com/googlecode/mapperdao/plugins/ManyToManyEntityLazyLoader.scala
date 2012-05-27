@@ -24,7 +24,7 @@ class ManyToManyEntityLazyLoader[PC, T](
 	om: DatabaseValues,
 	ci: ColumnInfoTraversableManyToMany[T, _, _])
 		extends LazyLoader {
-	def calculate =
+	def apply =
 		{
 			val c = ci.column
 			val fe = c.foreign.entity

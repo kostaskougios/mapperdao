@@ -36,7 +36,7 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 					ci.column.foreign.entity match {
 						case ee: ExternalEntity[Any] =>
 							new LazyLoader {
-								def calculate = {
+								def apply = {
 									val c = ci.column
 									val fe = c.foreign.entity
 									val ftpe = fe.tpe.asInstanceOf[Type[Any, Any]]

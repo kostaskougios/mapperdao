@@ -55,9 +55,9 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 								ee.oneToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, Any]])(SelectExternalOneToMany(selectConfig, ids))
 							}
 						case fe: Entity[_, _] =>
-							val down = entities.down(selectConfig, tpe, ci, om)
 							// try to capture as few variables as possible
-							// for optimal memory usage
+							// for optimal memory usage for lazy loaded entities
+							val down = entities.down(selectConfig, tpe, ci, om)
 							new OneToManyEntityLazyLoader(mapperDao, selectConfig, entity, down, om, ci)
 					}
 				SelectMod(ci.column.foreign.alias, otmL, Nil)

@@ -49,7 +49,7 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 						// try to capture as few variables as possible
 						// for optimal memory usage
 						new LazyLoader {
-							def calculate =
+							def apply =
 								{
 									val c = ci.column
 									val fe = c.foreign.entity

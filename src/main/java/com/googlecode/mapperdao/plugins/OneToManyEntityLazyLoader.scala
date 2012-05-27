@@ -20,7 +20,7 @@ class OneToManyEntityLazyLoader[PC, T](
 	om: DatabaseValues,
 	ci: ColumnInfoTraversableOneToMany[T, _, _])
 		extends LazyLoader {
-	def calculate =
+	def apply =
 		{
 			val c = ci.column
 			val fe = c.foreign.entity // so that it doesn't capture it
