@@ -168,4 +168,5 @@ object Setup {
 	}
 
 	def queries(that: AnyRef, jdbc: Jdbc) = Queries.fromClassPath(that.getClass, jdbc, "/sql/%s.%s.sql".format(that.getClass.getSimpleName, database))
+	def commonEntitiesQueries(jdbc: Jdbc) = Queries.fromClassPath(this.getClass, jdbc, "/sql/CommonEntities.%s.sql".format(database))
 }
