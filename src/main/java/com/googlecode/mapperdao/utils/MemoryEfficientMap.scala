@@ -71,8 +71,10 @@ private[mapperdao] trait MemoryEfficientMap[K, V] {
 
 	def memToString = {
 		val b = new StringBuilder("MEMMap(")
-		for (i <- 0 until keys.size)
-			b append (keys(i)) append (",") append (values(i))
+		for (i <- 0 until keys.size) {
+			if (i > 0) b.append(", ")
+			b append (keys(i)) append (" -> ") append (values(i))
+		}
 
 		b append (")") toString
 	}
