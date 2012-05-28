@@ -13,9 +13,9 @@ import com.googlecode.classgenerator._
  * 26 May 2012
  */
 class LazyLoadProxyMethod[T](
-		persisted: Persisted,
-		private var toLazyLoad: scala.collection.mutable.Map[ColumnInfoRelationshipBase[T, Any, Any, Any], () => Any],
-		private var methodToCI: Map[java.lang.String, com.googlecode.mapperdao.ColumnInfoRelationshipBase[T, Any, Any, Any]]) extends (Args[T with Persisted, Any] => Any) {
+	persisted: Persisted,
+	private var toLazyLoad: scala.collection.mutable.Map[ColumnInfoRelationshipBase[T, Any, Any, Any], () => Any],
+	private var methodToCI: Map[java.lang.String, com.googlecode.mapperdao.ColumnInfoRelationshipBase[T, Any, Any, Any]]) extends (Args[T with Persisted, Any] => Any) {
 
 	import LazyLoadProxyMethod._
 	// provide an implementation for the proxied methods
@@ -38,9 +38,11 @@ class LazyLoadProxyMethod[T](
 				alreadyCalled += getterFromSetter(args.methodName)
 				args.callSuper
 			} else if (methodName == "freeLazyLoadMemoryData") {
-				toLazyLoad.clear()
-				methodToCI.map(_._1).foreach {
-					alreadyCalled += _
+				if (toLazyLoad != null) {
+					toLazyLoad.clear()
+					methodToCI.map(_._1).foreach {
+						alreadyCalled += _
+					}
 				}
 			} else {
 				// getter
