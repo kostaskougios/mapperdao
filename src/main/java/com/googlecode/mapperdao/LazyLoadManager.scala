@@ -25,7 +25,7 @@ private[mapperdao] class LazyLoadManager {
 
 	type CacheKey = (Class[_], LazyLoad)
 
-	private val classCache = new scala.collection.mutable.HashMap[CacheKey, Class[_]]
+	private val classCache = new scala.collection.mutable.HashMap[CacheKey, (Class[_], Map[String, ColumnInfoRelationshipBase[_, Any, Any, Any]])]
 
 	def proxyFor[PC, T](constructed: T with PC, entity: Entity[PC, T], lazyLoad: LazyLoad, vm: ValuesMap): T with PC = {
 		if (constructed == null) throw new NullPointerException("constructed can't be null")
@@ -38,7 +38,7 @@ private[mapperdao] class LazyLoadManager {
 		val key = (clz, lazyLoad)
 		val lazyRelationships = relationships.filter(lazyLoad.isLazyLoaded(_))
 		// get cached proxy class or generate it
-		val proxyClz = classCache.synchronized {
+		val (proxyClz, methodToCI) = classCache.synchronized {
 			classCache.get(key).getOrElse {
 				val methods = lazyRelationships.map(ci =>
 					ci.getterMethod.getOrElse(throw new IllegalStateException("please define getter method on entity for %s".format(ci.column))).getterMethod
@@ -46,8 +46,13 @@ private[mapperdao] class LazyLoadManager {
 				if (methods.isEmpty)
 					throw new IllegalStateException("can't lazy load class that doesn't declare any getters for relationships. Entity: %s".format(clz))
 				val proxyClz = createProxyClz(constructedClz, clz, methods)
-				classCache.put(key, proxyClz)
-				proxyClz
+
+				val methodToCI = lazyRelationships.map { ci =>
+					(ci.getterMethod.get.getterMethod.getName, ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, Any]])
+				}.toMap
+				val r = (proxyClz, methodToCI)
+				classCache.put(key, r)
+				r
 			}
 		}
 
@@ -61,9 +66,6 @@ private[mapperdao] class LazyLoadManager {
 		}
 
 		// prepare the dynamic function
-		val methodToCI = lazyRelationships.map { ci =>
-			(ci.getterMethod.get.getterMethod.getName, ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, Any]])
-		}.toMap
 
 		val persisted = new Persisted {
 		}
@@ -74,7 +76,7 @@ private[mapperdao] class LazyLoadManager {
 			(ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, Any]], vm.columnValue[() => Any](ci))
 		}.toMap
 
-		instance.methodImplementation(new LazyLoadProxyMethod[T](persisted, toLazyLoad, methodToCI))
+		instance.methodImplementation(new LazyLoadProxyMethod[T](persisted, toLazyLoad, methodToCI.asInstanceOf[Map[String, ColumnInfoRelationshipBase[T, Any, Any, Any]]]))
 		instance
 	}
 
