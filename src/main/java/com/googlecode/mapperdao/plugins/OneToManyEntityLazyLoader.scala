@@ -20,11 +20,13 @@ class OneToManyEntityLazyLoader[PC, T](
 	om: DatabaseValues,
 	ci: ColumnInfoTraversableOneToMany[T, _, _])
 		extends LazyLoader {
+
+	private val m = om.map
 	def apply =
 		{
 			val c = ci.column
-			val fe = c.foreign.entity // so that it doesn't capture it
-			val ids = entity.tpe.table.primaryKeys.map { pk => om(pk.name) }
+			val fe = c.foreign.entity
+			val ids = entity.tpe.table.primaryKeys.map { pk => m(pk.name) }
 			val where = c.foreignColumns.zip(ids)
 			val ftpe = fe.tpe
 			val fom = mapperDao.driver.doSelect(selectConfig, ftpe, where)

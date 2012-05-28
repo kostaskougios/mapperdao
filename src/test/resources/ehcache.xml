@@ -15,4 +15,12 @@
             overflowToDisk="false"
             diskPersistent="false"
             memoryStoreEvictionPolicy="LRU" />
+    <cache  name="StressTestCPUUsage"
+            maxElementsInMemory="10000"
+            eternal="false"
+            timeToIdleSeconds="500"
+            timeToLiveSeconds="500"
+            overflowToDisk="false"
+            diskPersistent="false"
+            memoryStoreEvictionPolicy="LRU" />
 </ehcache>

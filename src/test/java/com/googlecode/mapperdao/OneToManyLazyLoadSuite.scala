@@ -21,6 +21,16 @@ class OneToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 		val selectConfig = SelectConfig.lazyLoad
 		val selectConfigCar = SelectConfig(lazyLoad = LazyLoad(PersonEntity.cars))
 
+		test("select is lazy") {
+			createTables
+			val person = Person("Kostas", Set(House("Rhodes"), House("Athens")), List(Car("car1"), Car("car2")))
+			val inserted = mapperDao.insert(PersonEntity, person)
+			val selected = mapperDao.select(selectConfig, PersonEntity, inserted.id).get
+			verifyNotLoaded(selected)
+			selected should be === person
+			println(person)
+		}
+
 		test("update, 1 entity lazy loaded") {
 			createTables
 			val person = Person("Kostas", Set(House("Rhodes"), House("Athens")), List(Car("car1"), Car("car2")))
@@ -115,16 +125,6 @@ class OneToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 			selected.owns = Set()
 			selected.owns should be(Set())
 			verifyNotLoaded(selected)
-		}
-
-		test("select is lazy") {
-			createTables
-			val person = Person("Kostas", Set(House("Rhodes"), House("Athens")), List(Car("car1"), Car("car2")))
-			val inserted = mapperDao.insert(PersonEntity, person)
-			val selected = mapperDao.select(selectConfig, PersonEntity, inserted.id).get
-			verifyNotLoaded(selected)
-			selected should be === person
-			println(person)
 		}
 	}
 

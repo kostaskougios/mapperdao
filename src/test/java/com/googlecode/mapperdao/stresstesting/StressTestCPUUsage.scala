@@ -5,6 +5,9 @@ import com.googlecode.mapperdao.CommonEntities
 import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.mapperdao.SelectConfig
 import com.googlecode.mapperdao.LazyLoad
+import com.googlecode.mapperdao.ehcache.CacheUsingEHCache
+import com.googlecode.mapperdao.ehcache.Locking
+import net.sf.ehcache.CacheManager
 
 /**
  * @author kostantinos.kougios
@@ -14,7 +17,16 @@ import com.googlecode.mapperdao.LazyLoad
 object StressTestCPUUsage extends App {
 	import CommonEntities._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+	val cache = if (args(1).contains("cached")) {
+		println("With Cache")
+		val cacheManager = CacheManager.create
+		val ehCache = cacheManager.getCache("StressTestCPUUsage")
+		Some(new CacheUsingEHCache(ehCache) with Locking)
+	} else None
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(
+		TypeRegistry(ProductEntity, AttributeEntity),
+		cache = cache)
+
 	Setup.dropAllTables(jdbc)
 	Setup.commonEntitiesQueries(jdbc).update("product-attribute")
 
