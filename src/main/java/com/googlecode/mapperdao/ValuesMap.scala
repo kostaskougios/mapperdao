@@ -9,6 +9,8 @@ import org.joda.time.DateTime
 import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.utils.Equality
 
+import scala.collection.JavaConverters._
+
 /**
  * @author kostantinos.kougios
  *
@@ -154,8 +156,14 @@ class ValuesMap private (mOrig: scala.collection.Map[String, Any]) {
 	/**
 	 * the following methods do a conversion
 	 */
-	protected[mapperdao] def set[T](column: String): Set[T] = valueOf(column).asInstanceOf[Traversable[T]].toSet
-	protected[mapperdao] def seq[T](column: String): Seq[T] = valueOf(column).asInstanceOf[Traversable[T]].toSeq
+	protected[mapperdao] def set[T](column: String): Set[T] = valueOf[Any](column) match {
+		case t: Traversable[T] => t.toSet
+		case i: java.lang.Iterable[T] => i.asScala.toSet
+	}
+	protected[mapperdao] def seq[T](column: String): Seq[T] = valueOf[Any](column) match {
+		case t: Traversable[T] => t.toSeq
+		case i: java.lang.Iterable[T] => i.asScala.toSeq
+	}
 
 	override def toString = m.toString
 

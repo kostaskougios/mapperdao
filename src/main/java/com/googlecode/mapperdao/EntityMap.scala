@@ -12,8 +12,8 @@ import scala.collection.mutable.ListMap
  * 7 Aug 2011
  */
 private[mapperdao] case class EntityMap(
-		private val m: scala.collection.mutable.ListMap[List[Any], Option[_]] = ListMap(),
-		private val parent: SelectInfo[_, _, _, _, _] = SelectInfo(null, null, null)) {
+	private val m: scala.collection.mutable.ListMap[List[Any], Option[_]] = ListMap(),
+	private val parent: SelectInfo[_, _, _, _, _] = SelectInfo(null, null, null)) {
 	protected def key(clz: Class[_], ids: List[Any]) = clz :: ids
 
 	def putMock[T](clz: Class[_], ids: List[Any], entity: T): Unit =
@@ -48,10 +48,7 @@ private[mapperdao] case class EntityMap(
 	}
 
 	def down[PC, T, V, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T], ci: ColumnInfoRelationshipBase[T, V, FPC, F], dv: DatabaseValues): EntityMap =
-		if (selectConfig.lazyLoad.isLazyLoaded(ci))
-			copy(m = ListMap(), parent = SelectInfo(tpe, ci, dv))
-		else
-			copy(parent = SelectInfo(tpe, ci, dv))
+		copy(parent = SelectInfo(tpe, ci, dv))
 
 	def peek[PC, T, V, FPC, F] =
 		parent.asInstanceOf[SelectInfo[PC, T, V, FPC, F]]
