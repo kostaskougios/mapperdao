@@ -7,7 +7,6 @@ import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao.plugins._
 import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.plugins.SelectMock
-import utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.utils.Equality
 
@@ -90,7 +89,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			val tpe = entity.tpe
 			val table = tpe.table
 
-			val modified = ValuesMap.fromEntity(typeManager, tpe, o).toLowerCaseMutableMap
+			val modified = ValuesMap.fromEntity(typeManager, tpe, o).toMutableMap
 			val modifiedTraversables = new MapOfList[String, Any](MapOfList.stringToLowerCaseModifier)
 
 			val updateInfo @ UpdateInfo(parent, parentColumnInfo, parentEntity) = entityMap.peek[Any, Any, Any, PC, T]
@@ -166,7 +165,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			val tpe = entity.tpe
 			def changed(column: ColumnBase) = !Equality.isEqual(newValuesMap.valueOf(column.alias), oldValuesMap.valueOf(column.alias))
 			val table = tpe.table
-			val modified = new LowerCaseMutableMap[Any](oldValuesMap.toMutableMap ++ newValuesMap.toMutableMap)
+			val modified = oldValuesMap.toMutableMap ++ newValuesMap.toMutableMap
 			val modifiedTraversables = new MapOfList[String, Any](MapOfList.stringToLowerCaseModifier)
 
 			// store a mock in the entity map so that we don't process the same instance twice

@@ -3,7 +3,6 @@ package com.googlecode.mapperdao.plugins
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.jdbc.JdbcMap
-import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao.utils.TraversableSeparation
 import com.googlecode.mapperdao._
@@ -17,7 +16,7 @@ import com.googlecode.mapperdao.utils.NYI
 class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 		extends PostUpdate with DuringUpdate {
 
-	def during[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o1: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]) = {
+	def during[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o1: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]) = {
 		val ui = entityMap.peek[Any, Any, Traversable[Any], Any, Any]
 		ui.ci match {
 			case _: ColumnInfoTraversableOneToMany[Any, Any, Any] =>

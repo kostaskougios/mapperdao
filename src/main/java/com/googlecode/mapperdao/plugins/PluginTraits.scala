@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao.events.Events
-import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao.Persisted
 import com.googlecode.mapperdao.UpdateInfo
@@ -26,7 +25,7 @@ import com.googlecode.mapperdao.DatabaseValues
  * 31 Aug 2011
  */
 trait BeforeInsert {
-	def before[PPC, PT, PC, T, V, FPC, F](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[PPC, PT, V, FPC, F]): List[(Column, Any)]
+	def before[PPC, PT, PC, T, V, FPC, F](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], updateInfo: UpdateInfo[PPC, PT, V, FPC, F]): List[(Column, Any)]
 }
 
 /**
@@ -37,7 +36,7 @@ trait BeforeInsert {
  * 31 Aug 2011
  */
 trait PostInsert {
-	def after[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): Unit
+	def after[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): Unit
 }
 
 /**
@@ -58,7 +57,7 @@ private[mapperdao] object DuringUpdateResults {
 }
 
 trait DuringUpdate {
-	def during[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults
+	def during[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults
 }
 
 /**

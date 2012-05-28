@@ -2,7 +2,6 @@ package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.utils.Equality
-import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.utils.Helpers
@@ -15,7 +14,7 @@ import com.googlecode.mapperdao.events.Events
  */
 class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeInsert {
 
-	override def before[PPC, PT, PC, T, V, FPC, F](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: LowerCaseMutableMap[Any], updateInfo: UpdateInfo[PPC, PT, V, FPC, F]): List[(Column, Any)] =
+	override def before[PPC, PT, PC, T, V, FPC, F](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], updateInfo: UpdateInfo[PPC, PT, V, FPC, F]): List[(Column, Any)] =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table

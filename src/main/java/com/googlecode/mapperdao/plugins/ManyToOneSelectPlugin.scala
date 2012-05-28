@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao.utils.Equality
-import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.utils.Helpers

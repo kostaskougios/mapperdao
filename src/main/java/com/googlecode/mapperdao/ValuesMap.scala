@@ -6,20 +6,25 @@ import java.util.Locale
 
 import org.joda.time.DateTime
 
-import com.googlecode.mapperdao.utils.LowerCaseMutableMap
 import com.googlecode.mapperdao.utils.Equality
-
 import scala.collection.JavaConverters._
+import utils.MemoryEfficientMap
+import utils.SynchronizedMemoryEfficientMap
 
 /**
  * @author kostantinos.kougios
  *
  * 16 Jul 2011
  */
-class ValuesMap private (mOrig: scala.collection.Map[String, Any]) {
-	private val m = new LowerCaseMutableMap(mOrig)
+class ValuesMap private (mOrig: scala.collection.Map[String, Any])
+		extends MemoryEfficientMap[String, Any]
+		with SynchronizedMemoryEfficientMap[String, Any] {
 
-	def contains(c: ColumnBase) = m.contains(c.alias.toLowerCase)
+	initializeMEM(mOrig)
+
+	override def transformKey(k: String) = k.toLowerCase
+
+	def contains(c: ColumnBase) = containsMEM(c.alias)
 
 	def columnValue[T](ci: ColumnInfoRelationshipBase[_, _, _, _]): T = columnValue(ci.column.alias)
 
@@ -34,22 +39,20 @@ class ValuesMap private (mOrig: scala.collection.Map[String, Any]) {
 	def columnValue[T](column: ColumnBase): T = columnValue(column.alias)
 
 	def columnValue[T](column: String): T = {
-		val key = column.toLowerCase
-		val v = m(key)
+		val v = getMEM(column)
 		v.asInstanceOf[T]
 	}
 
 	protected[mapperdao] def valueOf[T](ci: ColumnInfoBase[_, _]): T = valueOf(ci.column.alias)
 
 	protected[mapperdao] def valueOf[T](column: String): T = {
-		val key = column.toLowerCase
 		// to avoid lazy loading twice in 2 separate threads, and avoid corrupting the map, we need to sync
-		val v = m.synchronized {
-			m.getOrElse(key, null) match {
+		val v = synchronized {
+			getMEMOrElse(column, null) match {
 				case null => null
 				case f: (() => Any) =>
 					val v = f()
-					m(key) = v
+					putMEM(column, v)
 					v
 				case v => v
 			}
@@ -59,19 +62,19 @@ class ValuesMap private (mOrig: scala.collection.Map[String, Any]) {
 
 	private[mapperdao] def update[T, V](column: ColumnInfoBase[T, _], v: V): Unit =
 		{
-			val key = column.column.alias.toLowerCase
-			m(key) = v
+			val key = column.column.alias
+			putMEM(key, v)
 		}
 
 	private[mapperdao] def update[T, V](column: ColumnInfoRelationshipBase[T, _, _, _], v: V): Unit =
 		{
 			val key = column.column.alias
-			m(key) = v
+			putMEM(key, v)
 		}
 
 	def raw[T, V](column: ColumnInfo[T, V]): Option[Any] = {
 		val key = column.column.name
-		m.get(key)
+		getMEMOption(key)
 	}
 
 	def apply[T, V](column: ColumnInfo[T, V]): V =
@@ -165,14 +168,11 @@ class ValuesMap private (mOrig: scala.collection.Map[String, Any]) {
 		case i: java.lang.Iterable[T] => i.asScala.toSeq
 	}
 
-	override def toString = m.toString
+	override def toString = memToString
 
-	protected[mapperdao] def toLowerCaseMutableMap: LowerCaseMutableMap[Any] = m.clone
-	protected[mapperdao] def toMutableMap = m.cloneMap
-
-	protected[mapperdao] def toListOfColumnAndValueTuple(columns: List[ColumnBase]) = columns.map(c => (c, m(c.alias.toLowerCase)))
-	protected[mapperdao] def toListOfSimpleColumnAndValueTuple(columns: List[SimpleColumn]) = columns.map(c => (c, m(c.alias.toLowerCase)))
-	protected[mapperdao] def toListOfColumnValue(columns: List[ColumnBase]) = columns.map(c => m(c.alias.toLowerCase))
+	protected[mapperdao] def toListOfColumnAndValueTuple(columns: List[ColumnBase]) = columns.map(c => (c, getMEM(c.alias)))
+	protected[mapperdao] def toListOfSimpleColumnAndValueTuple(columns: List[SimpleColumn]) = columns.map(c => (c, getMEM(c.alias)))
+	protected[mapperdao] def toListOfColumnValue(columns: List[ColumnBase]) = columns.map(c => getMEM(c.alias))
 	protected[mapperdao] def isSimpleColumnsChanged[PC, T](tpe: Type[PC, T], from: ValuesMap): Boolean =
 		tpe.table.simpleTypeColumnInfos.exists { ci =>
 			!Equality.isEqual(apply(ci), from.apply(ci))

@@ -13,9 +13,9 @@ import com.googlecode.classgenerator._
  * 26 May 2012
  */
 class LazyLoadProxyMethod[T](
-		persisted: Persisted,
-		private var toLazyLoad: scala.collection.mutable.Map[ColumnInfoRelationshipBase[T, Any, Any, Any], () => Any],
-		private var methodToCI: Map[String, ColumnInfoRelationshipBase[T, Any, Any, Any]]) extends (Args[T with Persisted, Any] => Any) {
+	private var toLazyLoad: scala.collection.mutable.Map[ColumnInfoRelationshipBase[T, Any, Any, Any], () => Any],
+	private var methodToCI: Map[String, ColumnInfoRelationshipBase[T, Any, Any, Any]])
+		extends (Args[T with Persisted, Any] => Any) with Persisted {
 
 	import LazyLoadProxyMethod._
 	// provide an implementation for the proxied methods
@@ -32,7 +32,7 @@ class LazyLoadProxyMethod[T](
 			if (persistedMethodOption.isDefined) {
 				// method from Persisted trait
 				val method = persistedMethodOption.get
-				reflectionManager.callMethod(method, persisted, args.args)
+				reflectionManager.callMethod(method, this, args.args)
 			} else if (isSetter(methodName)) {
 				// setter
 				alreadyCalled += getterFromSetter(args.methodName)

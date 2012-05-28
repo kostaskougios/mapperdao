@@ -67,16 +67,14 @@ private[mapperdao] class LazyLoadManager {
 
 		// prepare the dynamic function
 
-		val persisted = new Persisted {
-		}
-		persisted.mapperDaoValuesMap = vm
-
 		// memory optimization for unlinked entities
 		val toLazyLoad = ListMap.empty ++ lazyRelationships.map { ci =>
 			(ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, Any]], vm.columnValue[() => Any](ci))
 		}.toMap
 
-		instance.methodImplementation(new LazyLoadProxyMethod[T](persisted, toLazyLoad, methodToCI.asInstanceOf[Map[String, ColumnInfoRelationshipBase[T, Any, Any, Any]]]))
+		val llpm = new LazyLoadProxyMethod[T](toLazyLoad, methodToCI.asInstanceOf[Map[String, ColumnInfoRelationshipBase[T, Any, Any, Any]]])
+		llpm.mapperDaoValuesMap = vm
+		instance.methodImplementation(llpm)
 		instance
 	}
 

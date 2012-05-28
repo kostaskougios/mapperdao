@@ -36,7 +36,7 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 			if (entity == null) throw new NullPointerException("entity must not be null")
 
 			val tpe = entity.tpe
-			val modified = ValuesMap.fromEntity(typeManager, tpe, o).toLowerCaseMutableMap
+			val modified = ValuesMap.fromEntity(typeManager, tpe, o).toMutableMap
 
 			val table = tpe.table
 			val vm = ValuesMap.fromEntity(typeManager, tpe, o)
@@ -47,7 +47,7 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 				else
 					modified(c.name) = idGen.incrementAndGet
 			}
-			val e = tpe.constructor(updateConfig.data, ValuesMap.fromMap(modified.cloneMap))
+			val e = tpe.constructor(updateConfig.data, ValuesMap.fromMap(modified))
 			val pks = table.toListOfPrimaryKeyValues(e)
 			val key = entity.clz :: pks
 			if (m.containsKey(key)) throw new PersistException("Primary Key violation: key %s already persisted".format(key))
@@ -60,12 +60,12 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 		if (o == null) throw new NullPointerException("o must not be null")
 		if (entity == null) throw new NullPointerException("entity must not be null")
 		val tpe = entity.tpe
-		val modified = ValuesMap.fromEntity(typeManager, tpe, o).toLowerCaseMutableMap
+		val modified = ValuesMap.fromEntity(typeManager, tpe, o).toMutableMap
 		val table = tpe.table
 		val pks = table.toListOfPrimaryKeyValues(o)
 		val key = entity.clz :: pks
 		if (!m.containsKey(key)) throw new PersistException("entity with key %s not persisted: %s".format(key, o))
-		val e = tpe.constructor(updateConfig.data, ValuesMap.fromMap(modified.cloneMap))
+		val e = tpe.constructor(updateConfig.data, ValuesMap.fromMap(modified))
 		e
 	}
 	// update immutable
@@ -73,7 +73,7 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 		if (o == null) throw new NullPointerException("o must not be null")
 		if (entity == null) throw new NullPointerException("entity must not be null")
 		val tpe = entity.tpe
-		val modified = ValuesMap.fromEntity(typeManager, tpe, o).toLowerCaseMutableMap.cloneMap ++ ValuesMap.fromEntity(typeManager, tpe, newO).toLowerCaseMutableMap.cloneMap
+		val modified = ValuesMap.fromEntity(typeManager, tpe, o).toMutableMap ++ ValuesMap.fromEntity(typeManager, tpe, newO).toMutableMap
 		val table = tpe.table
 		val pks = table.toListOfPrimaryKeyValues(o)
 		val key = entity.clz :: pks
@@ -89,8 +89,8 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 		val e = m.get(key)
 		if (e == null) None else {
 			val tpe = entity.tpe
-			val modified = ValuesMap.fromEntity(typeManager, tpe, e.asInstanceOf[T]).toLowerCaseMutableMap
-			Some(tpe.constructor(selectConfig.data, ValuesMap.fromMap(modified.cloneMap)))
+			val modified = ValuesMap.fromEntity(typeManager, tpe, e.asInstanceOf[T]).toMutableMap
+			Some(tpe.constructor(selectConfig.data, ValuesMap.fromMap(modified)))
 		}
 	}
 
