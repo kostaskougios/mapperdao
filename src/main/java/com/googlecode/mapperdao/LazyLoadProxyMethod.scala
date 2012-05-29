@@ -15,7 +15,7 @@ import com.googlecode.classgenerator._
 class LazyLoadProxyMethod[T](
 	private var toLazyLoad: scala.collection.mutable.Map[ColumnInfoRelationshipBase[T, Any, Any, Any], () => Any],
 	private var methodToCI: Map[String, ColumnInfoRelationshipBase[T, Any, Any, Any]])
-		extends (Args[T with Persisted, Any] => Any) with Persisted {
+	extends (Args[T with Persisted, Any] => Any) with Persisted {
 
 	import LazyLoadProxyMethod._
 	// provide an implementation for the proxied methods
@@ -77,7 +77,7 @@ class LazyLoadProxyMethod[T](
 					if (t.mapperDaoValuesMap != null)
 						t.mapperDaoValuesMap(ci) = r
 
-					if (toLazyLoad.isEmpty) {
+					if (toLazyLoad != null && toLazyLoad.isEmpty) {
 						toLazyLoad = null
 						methodToCI = null
 					}
