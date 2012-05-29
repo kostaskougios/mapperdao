@@ -33,23 +33,8 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 					// value is null
 					() => null
 				} else {
-					new LazyLoader {
-						def apply =
-							{
-								// redeclare some variables to avoid capturing
-								// them and using extra memory
-								val c = ci.column
-								val fe = c.foreign.entity
-								val ftpe = fe.tpe
-								val ftable = ftpe.table
-								val foreignKeys = ftable.primaryKeys zip foreignKeyValues
-								val fom = driver.doSelect(selectConfig, ftpe, foreignKeys)
-								val down = entities.down(selectConfig, tpe, ci, om)
-								val otmL = mapperDao.toEntities(fom, fe, selectConfig, down)
-								if (otmL.size != 1) throw new IllegalStateException("expected 1 row but got " + otmL);
-								otmL.head
-							}
-					}
+					val down = entities.down(selectConfig, tpe, ci, om)
+					new OneToOneEntityLazyLoader(selectConfig, mapperDao, down, ci, foreignKeyValues)
 				}
 				SelectMod(c.foreign.alias, v, null)
 			}

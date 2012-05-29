@@ -48,27 +48,8 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 					case _ =>
 						// try to capture as few variables as possible
 						// for optimal memory usage
-						new LazyLoader {
-							def apply =
-								{
-									val c = ci.column
-									val fe = c.foreign.entity
-									val ftpe = fe.tpe
-									val ids = tpe.table.primaryKeys.map { pk => om(pk.name) }
-									val keys = c.foreignColumns.zip(ids)
-									val fom = driver.doSelect(selectConfig, ftpe, keys)
-									val down = entities.down(selectConfig, tpe, ci, om)
-									val otmL = mapperDao.toEntities(fom, fe, selectConfig, down)
-									if (otmL.isEmpty) {
-										null
-									} else {
-										if (otmL.size > 1) throw new IllegalStateException("expected 0 or 1 row but got " + otmL)
-										else {
-											otmL.head
-										}
-									}
-								}
-						}
+						val down = entities.down(selectConfig, tpe, ci, om)
+						new OneToOneReverseEntityLazyLoader(selectConfig, mapperDao, entity, om, down, ci)
 				}
 				SelectMod(ci.column.foreign.alias, v, null)
 			}
