@@ -50,5 +50,18 @@ class ManyToManyCustomLoaderSuite extends FunSuite with ShouldMatchers {
 			), ProductEntity, inserted.id).get
 			selected should be === Product("p1", Set(Attribute("x", "y")))
 		}
+
+		test("update custom loaded data") {
+			createProductAttribute(jdbc)
+			val inserted = mapperDao.insert(ProductEntity, Product("p1", Set(Attribute("a1", "v1"), Attribute("a2", "v2"))))
+			val selected = mapperDao.select(SelectConfig(
+				manyToManyCustomLoaders = loaders
+
+			), ProductEntity, inserted.id).get
+			val up = Product("updated", selected.attributes + Attribute("a3", "x3"))
+			val updated = mapperDao.update(ProductEntity, selected, up)
+			updated should be === up
+			mapperDao.select(ProductEntity, inserted.id).get should be === updated
+		}
 	}
 }
