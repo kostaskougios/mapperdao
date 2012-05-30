@@ -1,5 +1,8 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.jdbc.Setup
+import com.googlecode.mapperdao.jdbc.Jdbc
+
 /**
  * @author kostantinos.kougios
  *
@@ -7,6 +10,10 @@ package com.googlecode.mapperdao
  */
 object CommonEntities {
 
+	def createProductAttribute(jdbc: Jdbc) = {
+		Setup.dropAllTables(jdbc)
+		Setup.commonEntitiesQueries(jdbc).update("product-attribute")
+	}
 	/**
 	 * many to many
 	 */

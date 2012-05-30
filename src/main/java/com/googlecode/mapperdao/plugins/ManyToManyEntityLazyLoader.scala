@@ -31,8 +31,16 @@ class ManyToManyEntityLazyLoader[PC, T](
 			val ftpe = fe.tpe.asInstanceOf[Type[Any, Any]]
 			val ids = entity.tpe.table.primaryKeys.map { pk => om(pk.name) }
 			val keys = c.linkTable.left zip ids
-			val fom = mapperDao.driver.doSelectManyToMany(selectConfig, entity.tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
-			val mtmR = mapperDao.toEntities(fom, fe, selectConfig, entityMap)
-			mtmR
+			val customLoader = selectConfig.loaderFor(ci)
+
+			customLoader.map { f =>
+				val fom = mapperDao.driver.doSelectManyToManyCustomLoader(selectConfig, entity.tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
+				val mtmR = f.loader(selectConfig, fom)
+				mtmR
+			}.getOrElse {
+				val fom = mapperDao.driver.doSelectManyToMany(selectConfig, entity.tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
+				val mtmR = mapperDao.toEntities(fom, fe, selectConfig, entityMap)
+				mtmR
+			}
 		}
 }

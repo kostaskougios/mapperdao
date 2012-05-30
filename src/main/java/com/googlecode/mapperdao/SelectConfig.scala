@@ -11,11 +11,15 @@ import com.googlecode.mapperdao.drivers.SelectHints
  * example: SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
  */
 case class SelectConfig(
-	skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
-	data: Option[Any] = None,
-	cacheOptions: CacheOption = CacheOptions.NoCache,
-	lazyLoad: LazyLoad = LazyLoad.none,
-	hints: SelectHints = SelectHints.None)
+		skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
+		data: Option[Any] = None,
+		cacheOptions: CacheOption = CacheOptions.NoCache,
+		lazyLoad: LazyLoad = LazyLoad.none,
+		hints: SelectHints = SelectHints.None,
+		manyToManyCustomLoaders: List[CustomLoader[_, _, _]] = Nil) {
+
+	def loaderFor(ci: ColumnInfoRelationshipBase[_, _, _, _]) = manyToManyCustomLoaders.find(_.ci == ci)
+}
 
 object SelectConfig {
 	def from(queryConfig: QueryConfig) =

@@ -268,6 +268,22 @@ abstract class Driver {
 			sb.toString
 		}
 
+	def doSelectManyToManyCustomLoader[PC, T, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): List[JdbcMap] =
+		{
+			val sql = selectManyToManyCustomLoaderSql(selectConfig, tpe, ftpe, manyToMany, leftKeyValues)
+			jdbc.queryForList(sql, leftKeyValues.map(_._2))
+		}
+	protected def selectManyToManyCustomLoaderSql[PC, T, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): String =
+		{
+			val ftable = ftpe.table
+			val linkTable = manyToMany.linkTable
+			val sb = new StringBuilder(100, "select ")
+			sb append linkTable.right.map(_.name).mkString(",")
+			sb append "\nfrom " append escapeTableNames(linkTable.name)
+			sb append applyHints(selectConfig.hints)
+			sb append "\nwhere " append generateColumnsEqualsValueString("", " and ", leftKeyValues.map(_._1))
+			sb.toString
+		}
 	/**
 	 * selects all id's of external entities and returns them in a List[List[Any]]
 	 */
