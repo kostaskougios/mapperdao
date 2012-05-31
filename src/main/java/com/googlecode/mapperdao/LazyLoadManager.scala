@@ -99,7 +99,7 @@ private[mapperdao] class LazyLoadManager {
 				return id;
 			}""")
 		}
-		b.overrideMethods(originalClz, methods)
+		b.overrideMethods(methods)
 			.overrideSettersIfExist(originalClz, methods)
 
 		b.get
