@@ -30,8 +30,8 @@ create table Person (
 create table House (
 	id serial not null,
 	address varchar(100) not null,
-	person_id int not null,
+	person_id bigint unsigned not null,
 	primary key (id),
 	constraint FK_House_Person foreign key (person_id) references Person(id)
-		on delete cascade on update cascade
+		on update cascade on delete cascade 
 )  engine InnoDB
