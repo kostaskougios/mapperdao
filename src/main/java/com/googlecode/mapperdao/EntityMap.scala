@@ -2,7 +2,7 @@ package com.googlecode.mapperdao
 
 import java.util.IdentityHashMap
 import com.googlecode.mapperdao.jdbc.JdbcMap
-import scala.collection.mutable.ListMap
+import scala.collection.mutable.{ HashMap => TMap }
 
 /**
  * contains entities sorted via 2 keys: class and ids
@@ -12,14 +12,15 @@ import scala.collection.mutable.ListMap
  * 7 Aug 2011
  */
 private[mapperdao] case class EntityMap(
-	private val m: scala.collection.mutable.ListMap[List[Any], Option[_]] = ListMap(),
+	private val m: TMap[List[Any], Option[_]] = TMap(),
 	private val parent: SelectInfo[_, _, _, _, _] = SelectInfo(null, null, null)) {
+
 	protected def key(clz: Class[_], ids: List[Any]) = clz :: ids
 
 	def putMock[T](clz: Class[_], ids: List[Any], entity: T): Unit =
 		{
 			val k = key(clz, ids)
-			this.synchronized {
+			m.synchronized {
 				if (m.contains(k)) {
 					// mocks should only "put" if the map doesn't already have a value
 					throw new IllegalStateException("ids %s already contained for %s".format(ids, clz))
@@ -31,14 +32,14 @@ private[mapperdao] case class EntityMap(
 
 	def justGet[T](clz: Class[_], ids: List[Any]): Option[T] = {
 		val k = key(clz, ids)
-		this.synchronized {
+		m.synchronized {
 			m.get(k).getOrElse(None)
 		}.asInstanceOf[Option[T]]
 	}
 
 	def get[T](clz: Class[_], ids: List[Any])(f: => Option[T]): Option[T] = {
 		val k = key(clz, ids)
-		this.synchronized {
+		m.synchronized {
 			m.getOrElse(k, {
 				val vo = f
 				m(k) = vo
