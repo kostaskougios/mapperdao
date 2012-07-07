@@ -48,6 +48,33 @@ class UseCaseManyToManyForTraitSuite extends FunSuite with ShouldMatchers {
 			mapperDao.select(ContactListEntity, inserted2.id).get should be === ContactList("list2", Set(Person("alexandros", 20), filipos, Company("mc5", "gj4xxx")))
 		}
 
+		test("Querying") {
+			createTables()
+
+			val nick = mapperDao.insert(PersonEntity, Person("nick", 30))
+			val filipos = Person("filipos", 30)
+			val cl1 = ContactList("list1", Set(Person("kostas", 20), nick, Company("com1", "xx55")))
+			val inserted1 = mapperDao.insert(ContactListEntity, cl1)
+
+			val cl2 = ContactList("list2", Set(Person("alexandros", 20), nick, filipos, Company("mc5", "gj4xxx")))
+			val inserted2 = mapperDao.insert(ContactListEntity, cl2)
+			inserted2 should be === cl2
+
+			// aliases
+			val cle = ContactListEntity
+			val p = PersonEntity
+			import Query._
+			val cList1 = (
+				select
+				from cle
+				join (cle, cle.people, p)
+				where
+				cle.people === nick
+			).toList(queryDao)
+
+			cList1.toSet should be === Set(inserted1, inserted2)
+		}
+
 		def createTables() {
 			Setup.dropAllTables(jdbc)
 			Setup.queries(this, jdbc).update("ddl")
