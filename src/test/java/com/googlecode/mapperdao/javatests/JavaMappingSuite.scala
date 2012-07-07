@@ -26,7 +26,7 @@ class JavaMappingSuite extends FunSuite with ShouldMatchers {
 				val id: Int = ProductEntity.id
 			}
 			p.setName(name)
-			p.setAttributes(attributes)
+			//p.setAttributes(attributes)
 			p
 		}
 	}
