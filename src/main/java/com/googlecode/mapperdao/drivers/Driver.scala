@@ -507,7 +507,10 @@ abstract class Driver {
 					case OneToManyOperation(left: OneToMany[_, _], operand: Operand, right: Any) =>
 						val entity = typeRegistry.entityOf(left)
 						val foreignEntity = left.foreign.entity
-						joinsSb append oneToManyJoin(aliases, entity, foreignEntity, left)
+						val mj = oneToManyJoin(aliases, entity, foreignEntity, left)
+						// ugly hack to avoid double joins. Will be removed when the QueryBuilder refactoring occurs
+						if (!joinsSb.toString.contains(mj))
+							joinsSb append mj
 						val fTpe = foreignEntity.tpe
 						val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
 						fPKColumnAndValues.foreach { t =>
@@ -517,14 +520,16 @@ abstract class Driver {
 					case ManyToManyOperation(left: ManyToMany[_, _], operand: Operand, right: Any) =>
 						val entity = typeRegistry.entityOf(left)
 						val foreignEntity = left.foreign.entity
-						joinsSb append manyToManyJoin(aliases, entity, foreignEntity, left)
+						val mj = manyToManyJoin(aliases, entity, foreignEntity, left)
+						// ugly hack to avoid double joins. Will be removed when the QueryBuilder refactoring occurs
+						if (!joinsSb.toString.contains(mj))
+							joinsSb append mj
 						val fTpe = foreignEntity.tpe
 						val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
 						fPKColumnAndValues.foreach { t =>
 							sb append resolveWhereExpression(aliases, args, t._1)
 							sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
 						}
-					//					case OneToOneReverseOperation(left: OneToOneReverse[_], operand: Operand, right: Any) =>
 				}
 
 				inner(op)

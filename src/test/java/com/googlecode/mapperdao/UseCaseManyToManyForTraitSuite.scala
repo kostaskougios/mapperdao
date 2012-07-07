@@ -52,27 +52,64 @@ class UseCaseManyToManyForTraitSuite extends FunSuite with ShouldMatchers {
 			createTables()
 
 			val nick = mapperDao.insert(PersonEntity, Person("nick", 30))
-			val filipos = Person("filipos", 30)
+			val filipos = mapperDao.insert(PersonEntity, Person("filipos", 30))
 			val cl1 = ContactList("list1", Set(Person("kostas", 20), nick, Company("com1", "xx55")))
 			val inserted1 = mapperDao.insert(ContactListEntity, cl1)
 
-			val cl2 = ContactList("list2", Set(Person("alexandros", 20), nick, filipos, Company("mc5", "gj4xxx")))
+			val company2 = mapperDao.insert(CompanyEntity, Company("mc5", "gj4xxx"))
+			val cl2 = ContactList("list2", Set(Person("alexandros", 20), nick, filipos, company2))
 			val inserted2 = mapperDao.insert(ContactListEntity, cl2)
 			inserted2 should be === cl2
+
+			// noise
+			for (i <- 1 to 5)
+				mapperDao.insert(ContactListEntity, ContactList("list" + i, Set(Person("unknown" + i, 20), Company("XX" + i, "YY" + i))))
 
 			// aliases
 			val cle = ContactListEntity
 			val p = PersonEntity
 			import Query._
-			val cList1 = (
+			(
 				select
 				from cle
 				join (cle, cle.people, p)
 				where
 				cle.people === nick
-			).toList(queryDao)
+			).toList(queryDao).toSet should be === Set(inserted1, inserted2)
 
-			cList1.toSet should be === Set(inserted1, inserted2)
+			(
+				select
+				from cle
+				join (cle, cle.people, p)
+				where
+				cle.people === filipos
+			).toList(queryDao).toSet should be === Set(inserted2)
+
+			(
+				select
+				from cle
+				join (cle, cle.people, p)
+				where
+				cle.companies === company2
+			).toList(queryDao).toSet should be === Set(inserted2)
+
+			(
+				select
+				from cle
+				join (cle, cle.people, p)
+				where
+				(cle.companies === company2) or (cle.people === nick)
+			).toList(queryDao).toSet should be === Set(inserted1, inserted2)
+
+			val r = (
+				select
+				from cle
+				join (cle, cle.people, p)
+				where
+				(cle.companies === company2) or (cle.people === nick)
+				orderBy (cle.name)
+			).toList(queryDao)
+			r should be === List(inserted1, inserted2, inserted2, inserted2)
 		}
 
 		def createTables() {
