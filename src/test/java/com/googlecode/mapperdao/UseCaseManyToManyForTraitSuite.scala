@@ -158,12 +158,9 @@ class UseCaseManyToManyForTraitSuite extends FunSuite with ShouldMatchers {
 			case c: Company => c
 		})
 
-		def constructor(implicit m: ValuesMap) = {
-			val cs = m(companies).toSet
-			val ppl = m(people).toSet
-			new ContactList(name, ppl ++ cs) with IntId with Persisted {
+		def constructor(implicit m: ValuesMap) =
+			new ContactList(name, m(people).toSet ++ m(companies).toSet) with IntId with Persisted {
 				val id: Int = ContactListEntity.id
 			}
-		}
 	}
 }
