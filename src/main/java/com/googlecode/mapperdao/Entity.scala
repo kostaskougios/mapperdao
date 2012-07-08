@@ -52,9 +52,6 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	/**
 	 * declare any primary keys that are not used for any mappings
 	 */
-	//	protected def declarePrimaryKey(column: String)(valueExtractor: T => Option[Any]) {
-	//		unusedPKs ::= new UnusedColumn(column, valueExtractor)
-	//	}
 
 	protected def declarePrimaryKey[V](ci: ColumnInfo[T, V]) {
 		unusedPKs ::= new UnusedColumn(List(ci.column), ci)
@@ -64,9 +61,6 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 		unusedPKs ::= new UnusedColumn(ci.column.columns, ci)
 	}
 
-	//	protected def declarePrimaryKeys(pks: String*): Unit = pks.foreach { pk =>
-	//		unusedPKs ::= Column(pk)
-	//	}
 	// implicit conversions to be used implicitly into the constructor method
 	protected implicit def columnToBoolean(ci: ColumnInfo[T, Boolean])(implicit m: ValuesMap): Boolean = m(ci)
 	protected implicit def columnToBooleanOption(ci: ColumnInfo[T, Boolean])(implicit m: ValuesMap): Option[Boolean] = Some(m(ci))
@@ -149,10 +143,21 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 		case v => Some(v)
 	}
 
+	// one to many : Scala
 	protected implicit def columnTraversableOneToManyList[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap): List[E] = m(ci).toList
 	protected implicit def columnTraversableOneToManySet[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap): Set[E] = m(ci).toSet
 	protected implicit def columnTraversableOneToManyIndexedSeq[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap): IndexedSeq[E] = m(ci).toIndexedSeq
 	protected implicit def columnTraversableOneToManyArray[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap, e: ClassManifest[E]): Array[E] = m(ci).toArray
+
+	// one to many : Java
+	protected implicit def columnTraversableOneToManyJList[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap): java.util.List[E] = m(ci) match {
+		case null => null
+		case v => v.toList.asJava
+	}
+	protected implicit def columnTraversableOneToManyJSet[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap): java.util.Set[E] = m(ci) match {
+		case null => null
+		case v => v.toSet.asJava
+	}
 
 	// simple typec entities, one-to-many
 	protected implicit def columnTraversableOneToManyListStringEntity[T, EPC](ci: ColumnInfoTraversableOneToMany[T, EPC, StringValue])(implicit m: ValuesMap): List[String] =
@@ -409,6 +414,8 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 				if (!onlyForQuery) columns ::= ci
 				ci
 			}
+		def tojava(columnToValue: T => java.lang.Iterable[FT]): ColumnInfoTraversableOneToMany[T, FPC, FT] =
+			to((ctv: T) => columnToValue(ctv).asScala)
 
 		def tostring(columnToValue: T => Traversable[String]): ColumnInfoTraversableOneToMany[T, FPC, FT] =
 			to((t: T) => { columnToValue(t).map(StringValue(_)).asInstanceOf[Traversable[FT]] })
