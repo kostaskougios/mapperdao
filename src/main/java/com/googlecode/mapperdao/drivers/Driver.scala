@@ -4,6 +4,9 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.jdbc.UpdateResultWithGeneratedKeys
 import com.googlecode.mapperdao.jdbc.Jdbc
 import com.googlecode.mapperdao.jdbc.UpdateResult
+
+import sqlbuilder.SqlBuilder
+
 /**
  * all database drivers must implement this trait
  *
@@ -209,26 +212,40 @@ abstract class Driver {
 	 */
 	def doSelect[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): List[DatabaseValues] =
 		{
-			val sql = selectSql(selectConfig, tpe, where)
+			val result = selectSql(selectConfig, tpe, where).result
 
 			// 1st step is to get the simple values
 			// of this object from the database
-			jdbc.queryForList(sql, where.map(_._2)).map(j => typeManager.correctTypes(tpe.table, j))
+			jdbc.queryForList(result.sql, result.values).map(j => typeManager.correctTypes(tpe.table, j))
 		}
 
-	protected def selectSql[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): String =
+	protected def selectSql[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): SqlBuilder.SqlSelectBuilder =
 		{
+			val sql = SqlBuilder.select
 			val columns = selectColumns(tpe)
-			val sb = new StringBuilder(100, "select ")
-			sb append commaSeparatedListOfSimpleTypeColumns(",", (columns ::: tpe.table.unusedPrimaryKeyColumns.collect {
-				case c: SimpleColumn => c
-			}).toSet)
-			sb append " from " append escapeTableNames(tpe.table.name)
+			sql.columns(
+				(columns ::: tpe.table.unusedPrimaryKeyColumns.collect {
+					case c: SimpleColumn => c
+				}).map(_.name).distinct.map(escapeColumnNames(_))
+			)
+			sql.from(escapeTableNames(tpe.table.name), null, applyHints(selectConfig.hints))
+			sql.where.andAll(where.map {
+				case (c, v) =>
+					(c.name, v)
+			}, "=")
+			sql
 
-			sb append applyHints(selectConfig.hints)
-			sb append "\nwhere " append generateColumnsEqualsValueString(where.map(_._1), " and ")
-
-			sb.toString
+			//			val columns = selectColumns(tpe)
+			//			val sb = new StringBuilder(100, "select ")
+			//			sb append commaSeparatedListOfSimpleTypeColumns(",", (columns ::: tpe.table.unusedPrimaryKeyColumns.collect {
+			//				case c: SimpleColumn => c
+			//			}).toSet)
+			//			sb append " from " append escapeTableNames(tpe.table.name)
+			//
+			//			sb append applyHints(selectConfig.hints)
+			//			sb append "\nwhere " append generateColumnsEqualsValueString(where.map(_._1), " and ")
+			//
+			//			sb.toString
 		}
 
 	private def applyHints(hints: SelectHints) = {
