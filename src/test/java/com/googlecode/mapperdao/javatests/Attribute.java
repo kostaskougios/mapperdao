@@ -9,6 +9,13 @@ public class Attribute
 {
 	private String	name, value;
 
+	public Attribute(String name, String value)
+	{
+		super();
+		this.name = name;
+		this.value = value;
+	}
+
 	public String getName()
 	{
 		return name;
@@ -27,5 +34,24 @@ public class Attribute
 	public void setValue(String value)
 	{
 		this.value = value;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		// simple impl
+		if (obj instanceof Attribute)
+		{
+			Attribute a = (Attribute) obj;
+			return name.equals(a.name) && value.equals(a.value);
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		// simple impl
+		return name.hashCode();
 	}
 }
