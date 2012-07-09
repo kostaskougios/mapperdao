@@ -9,6 +9,7 @@ import com.googlecode.mapperdao.drivers.Cache
 import com.googlecode.mapperdao.drivers.CachedDriver
 import jdbc.JdbcMap
 import com.googlecode.mapperdao.jdbc.UpdateResult
+import com.googlecode.mapperdao.drivers.EscapeNamesStrategy
 
 /**
  * @author kostantinos.kougios
@@ -23,6 +24,11 @@ class CachedDriverSuite extends FunSuite with ShouldMatchers {
 		val typeRegistry = null
 		val jdbc = null
 		val typeManager = null
+
+		protected def escapeNamesStrategy = new EscapeNamesStrategy {
+			override def escapeColumnNames(name: String) = name
+			override def escapeTableNames(name: String) = name
+		}
 
 		override def doSelect[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): List[DatabaseValues] = Nil
 

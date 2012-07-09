@@ -24,12 +24,12 @@ abstract class Driver {
 	 * utility methods
 	 * =====================================================================================
 	 */
-	protected def escapeColumnNames(name: String): String = name
-	protected def escapeTableNames(name: String): String = name
+	protected def escapeNamesStrategy: EscapeNamesStrategy
 
 	protected[mapperdao] def commaSeparatedListOfSimpleTypeColumns[T](separator: String, columns: Traversable[SimpleColumn], prefix: String = ""): String =
-		columns.map(_.name).map(prefix + escapeColumnNames(_)).mkString(separator)
-	protected[mapperdao] def commaSeparatedListOfSimpleTypeColumns[T](prefix: String, separator: String, columns: List[SimpleColumn]): String = columns.map(_.name).map(escapeColumnNames _).mkString(prefix, separator + prefix, "")
+		columns.map(_.name).map(prefix + escapeNamesStrategy.escapeColumnNames(_)).mkString(separator)
+	protected[mapperdao] def commaSeparatedListOfSimpleTypeColumns[T](prefix: String, separator: String, columns: List[SimpleColumn]): String =
+		columns.map(_.name).map(escapeNamesStrategy.escapeColumnNames _).mkString(prefix, separator + prefix, "")
 
 	protected[mapperdao] def generateColumnsEqualsValueString(l: List[SimpleColumn]): String = generateColumnsEqualsValueString(l, ",\n")
 
@@ -39,7 +39,7 @@ abstract class Driver {
 			var cnt = 0
 			l.foreach { ci =>
 				if (cnt > 0) sb.append(separator) else cnt += 1
-				sb append escapeColumnNames(ci.name) append "=?"
+				sb append escapeNamesStrategy.escapeColumnNames(ci.name) append "=?"
 			}
 			sb.toString
 		}
@@ -49,7 +49,7 @@ abstract class Driver {
 			var cnt = 0
 			l.foreach { ci =>
 				if (cnt > 0) sb.append(separator) else cnt += 1
-				sb append prefix append escapeColumnNames(ci.name) append "=?"
+				sb append prefix append escapeNamesStrategy.escapeColumnNames(ci.name) append "=?"
 			}
 			sb.toString
 		}
@@ -87,7 +87,7 @@ abstract class Driver {
 	protected def insertSql[PC, T](tpe: Type[PC, T], args: List[(SimpleColumn, Any)]): String =
 		{
 			val sb = new StringBuilder(100, "insert into ")
-			sb append escapeTableNames(tpe.table.name)
+			sb append escapeNamesStrategy.escapeTableNames(tpe.table.name)
 
 			val sequenceColumns = tpe.table.simpleTypeSequenceColumns
 			if (!args.isEmpty || !sequenceColumns.isEmpty) {
@@ -123,7 +123,7 @@ abstract class Driver {
 		{
 			val sb = new StringBuilder(100, "insert into ")
 			val linkTable = manyToMany.linkTable
-			sb append escapeTableNames(linkTable.name) append "(" append commaSeparatedListOfSimpleTypeColumns(",", linkTable.left)
+			sb append escapeNamesStrategy.escapeTableNames(linkTable.name) append "(" append commaSeparatedListOfSimpleTypeColumns(",", linkTable.left)
 			sb append "," append commaSeparatedListOfSimpleTypeColumns(",", linkTable.right) append ")\n"
 			sb append "values(?" append (",?" * (linkTable.left.size - 1 + linkTable.right.size)) append ")"
 			sb.toString
@@ -147,7 +147,7 @@ abstract class Driver {
 	protected def updateSql[PC, T](tpe: Type[PC, T], args: List[(SimpleColumn, Any)], pkArgs: List[(SimpleColumn, Any)]): String =
 		{
 			val sb = new StringBuilder(100, "update ")
-			sb append escapeTableNames(tpe.table.name) append "\n"
+			sb append escapeNamesStrategy.escapeTableNames(tpe.table.name) append "\n"
 			sb append "set " append generateColumnsEqualsValueString(args.map(_._1))
 			sb append "\nwhere " append generateColumnsEqualsValueString(pkArgs.map(_._1), " and ")
 			sb.toString
@@ -165,7 +165,7 @@ abstract class Driver {
 	protected def updateOneToManyRefSql[PC, T](tpe: Type[PC, T], foreignKeys: List[(SimpleColumn, Any)], pkArgs: List[(SimpleColumn, Any)]): String =
 		{
 			val sb = new StringBuilder(100, "update ")
-			sb append escapeTableNames(tpe.table.name) append "\n"
+			sb append escapeNamesStrategy.escapeTableNames(tpe.table.name) append "\n"
 			sb append "set " append generateColumnsEqualsValueString(foreignKeys.map(_._1))
 			sb append "\nwhere " append generateColumnsEqualsValueString(pkArgs.map(_._1))
 			sb.toString
@@ -182,7 +182,7 @@ abstract class Driver {
 	protected def deleteManyToManyRefSql[PC, T, PR, R](tpe: Type[PC, T], ftpe: Type[PR, R], manyToMany: ManyToMany[_, _], leftKeyValues: List[(SimpleColumn, Any)], rightKeyValues: List[(SimpleColumn, Any)]): String =
 		{
 			val sb = new StringBuilder(100, "delete from ")
-			sb append escapeTableNames(manyToMany.linkTable.name) append "\nwhere "
+			sb append escapeNamesStrategy.escapeTableNames(manyToMany.linkTable.name) append "\nwhere "
 			sb append generateColumnsEqualsValueString("", " and ", leftKeyValues.map(_._1) ::: rightKeyValues.map(_._1))
 			sb.toString
 		}
@@ -193,7 +193,7 @@ abstract class Driver {
 	}
 	protected def deleteAllManyToManyRef[PC, T](tpe: Type[PC, T], manyToMany: ManyToMany[_, _], fkKeyValues: List[Any]): String = {
 		val sb = new StringBuilder(50, "delete from ")
-		sb append escapeTableNames(manyToMany.linkTable.name) append "\nwhere "
+		sb append escapeNamesStrategy.escapeTableNames(manyToMany.linkTable.name) append "\nwhere "
 		sb append generateColumnsEqualsValueString("", " and ", manyToMany.linkTable.left)
 		sb.toString
 	}
@@ -221,15 +221,15 @@ abstract class Driver {
 
 	protected def selectSql[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]) =
 		{
-			val sql = SqlBuilder.select
+			val sql = SqlBuilder.select(escapeNamesStrategy)
 			val columns = selectColumns(tpe)
-			sql.columns(
+			sql.columns(null,
 				(columns ::: tpe.table.unusedPrimaryKeyColumns.collect {
 					case c: SimpleColumn => c
-				}).map(_.name).distinct.map(escapeColumnNames(_))
+				}).map(_.name).distinct
 			)
-			sql.from(escapeTableNames(tpe.table.name), null, applyHints(selectConfig.hints))
-			sql.where.andAll(where.map {
+			sql.from(tpe.table.name, null, applyHints(selectConfig.hints))
+			sql.where.andAll(null, where.map {
 				case (c, v) =>
 					(c.name, v)
 			}, "=")
@@ -254,20 +254,20 @@ abstract class Driver {
 			val ftable = ftpe.table
 			val linkTable = manyToMany.linkTable
 
-			val sql = SqlBuilder.select
+			val sql = SqlBuilder.select(escapeNamesStrategy)
 			val fColumns = selectColumns(ftpe)
-			sql.columns(fColumns.map { "f." + _.name })
-			sql.from(escapeTableNames(ftpe.table.name), "f", applyHints(selectConfig.hints))
-			val j = sql.innerJoin(escapeTableNames(linkTable.name), "l", applyHints(selectConfig.hints))
+			sql.columns("f", fColumns.map { _.name })
+			sql.from(ftpe.table.name, "f", applyHints(selectConfig.hints))
+			val j = sql.innerJoin(linkTable.name, "l", applyHints(selectConfig.hints))
 			ftable.primaryKeys.zip(linkTable.right).foreach { z =>
 				val left = z._1
 				val right = z._2
-				j.and("f." + left.name, "=", "l." + right.name)
+				j.and("f", left.name, "=", "l", right.name)
 			}
 			val wcs = leftKeyValues.map {
-				case (c, v) => ("l." + c.name, v)
+				case (c, v) => (c.name, v)
 			}
-			sql.where.andAll(wcs, "=")
+			sql.where.andAll("l", wcs, "=")
 			sql
 		}
 
@@ -280,11 +280,11 @@ abstract class Driver {
 		{
 			val ftable = ftpe.table
 			val linkTable = manyToMany.linkTable
-			val sql = SqlBuilder.select
-			sql.columns(linkTable.right.map(n => escapeColumnNames(n.name)))
-			sql.from(escapeTableNames(linkTable.name), null, applyHints(selectConfig.hints))
-			sql.where.andAll(leftKeyValues.map {
-				case (c, v) => (escapeColumnNames(c.name), v)
+			val sql = SqlBuilder.select(escapeNamesStrategy)
+			sql.columns(null, linkTable.right.map(n => n.name))
+			sql.from(linkTable.name, null, applyHints(selectConfig.hints))
+			sql.where.andAll(null, leftKeyValues.map {
+				case (c, v) => (c.name, v)
 			}, "=")
 			sql
 
@@ -307,19 +307,13 @@ abstract class Driver {
 		{
 			val linkTable = manyToMany.linkTable
 
-			val sql = SqlBuilder.select
-			sql.columns(linkTable.right.map(n => escapeColumnNames(n.name)))
-			sql.from(escapeTableNames(linkTable.name))
-			sql.where.andAll(leftKeyValues.map {
-				case (c, v) => (escapeColumnNames(c.name), v)
+			val sql = SqlBuilder.select(escapeNamesStrategy)
+			sql.columns(null, linkTable.right.map(n => n.name))
+			sql.from(linkTable.name)
+			sql.where.andAll(null, leftKeyValues.map {
+				case (c, v) => (c.name, v)
 			}, "=")
 			sql
-
-			//			val sb = new StringBuilder(100, "select ")
-			//			sb append linkTable.right.map(_.name).mkString(",")
-			//			sb append "\nfrom " append escapeTableNames(linkTable.name)
-			//			sb append "\nwhere " append generateColumnsEqualsValueString(leftKeyValues.map(_._1), " and ")
-			//			sb.toString
 		}
 	/**
 	 * =====================================================================================
@@ -335,7 +329,7 @@ abstract class Driver {
 	protected def deleteSql[PC, T](tpe: Type[PC, T], whereColumnValues: List[(SimpleColumn, Any)]): String =
 		{
 			val sb = new StringBuilder(100, "delete from ")
-			sb append escapeTableNames(tpe.table.name) append " where " append generateColumnsEqualsValueString(whereColumnValues.map(_._1), " and ")
+			sb append escapeNamesStrategy.escapeTableNames(tpe.table.name) append " where " append generateColumnsEqualsValueString(whereColumnValues.map(_._1), " and ")
 
 			sb.toString
 		}
@@ -349,7 +343,7 @@ abstract class Driver {
 	def deleteOneToOneReverseSql[PC, T, FPC, FT](tpe: Type[PC, T], ftpe: Type[FPC, FT], oneToOneReverse: OneToOneReverse[FPC, FT]): String =
 		{
 			val sb = new StringBuilder(100, "delete from ")
-			sb append escapeTableNames(ftpe.table.name) append " where " append generateColumnsEqualsValueString(oneToOneReverse.foreignColumns, " and ")
+			sb append escapeNamesStrategy.escapeTableNames(ftpe.table.name) append " where " append generateColumnsEqualsValueString(oneToOneReverse.foreignColumns, " and ")
 
 			sb.toString
 		}
@@ -371,7 +365,7 @@ abstract class Driver {
 			}
 			val alias = aliases(entity)
 			sb append commaSeparatedListOfSimpleTypeColumns(alias + ".", ",", columns)
-			sb append "\nfrom " append escapeTableNames(tpe.table.name) append " " append alias
+			sb append "\nfrom " append escapeNamesStrategy.escapeTableNames(tpe.table.name) append " " append alias
 
 			sb.toString
 		}
@@ -389,7 +383,7 @@ abstract class Driver {
 			val jAlias = aliases(joinEntity)
 
 			val sb = new StringBuilder
-			sb append "\njoin " append escapeTableNames(foreignTable.name) append " " append fAlias append " on "
+			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(foreignTable.name) append " " append fAlias append " on "
 			(table.primaryKeys zip oneToOneReverse.foreignColumns).foreach { t =>
 				sb append jAlias append "." append t._1.name append " = " append fAlias append "." append t._2.name append " "
 			}
@@ -405,7 +399,7 @@ abstract class Driver {
 			val jAlias = aliases(joinEntity)
 
 			val sb = new StringBuilder
-			sb append "\njoin " append escapeTableNames(foreignTable.name) append " " append fAlias append " on "
+			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(foreignTable.name) append " " append fAlias append " on "
 			(manyToOne.columns zip foreignTable.primaryKeys).foreach { t =>
 				sb append jAlias append "." append t._1.name append " = " append fAlias append "." append t._2.name append " "
 			}
@@ -423,7 +417,7 @@ abstract class Driver {
 			val jAlias = aliases(joinEntity)
 
 			val sb = new StringBuilder
-			sb append "\njoin " append escapeTableNames(foreignTable.name) append " " append fAlias append " on "
+			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(foreignTable.name) append " " append fAlias append " on "
 			(joinTpe.table.primaryKeys zip oneToMany.foreignColumns).foreach { t =>
 				sb append jAlias append "." append t._1.name append " = " append fAlias append "." append t._2.name append " "
 			}
@@ -444,13 +438,13 @@ abstract class Driver {
 
 			val sb = new StringBuilder
 			// left part
-			sb append "\njoin " append escapeTableNames(linkTable.name) append " " append linkTableAlias append " on "
+			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(linkTable.name) append " " append linkTableAlias append " on "
 			(joinTpe.table.primaryKeys zip linkTable.left).foreach { t =>
 				sb append linkTableAlias append "." append t._2.name append " = " append jAlias append "." append t._1.name append " "
 			}
 
 			// right part
-			sb append "\njoin " append escapeTableNames(foreignTable.name) append " " append fAlias append " on "
+			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(foreignTable.name) append " " append fAlias append " on "
 			(foreignTable.primaryKeys zip linkTable.right).foreach { t =>
 				sb append fAlias append "." append t._1.name append " = " append linkTableAlias append "." append t._2.name append " "
 			}
@@ -464,7 +458,7 @@ abstract class Driver {
 			val jTable = jEntity.tpe.table
 			val qAlias = aliases(jEntity)
 			val sb = new StringBuilder
-			sb append "\njoin " append escapeTableNames(jTable.name) append " " append qAlias
+			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(jTable.name) append " " append qAlias
 
 			var args = if (join.on != null) {
 				val expressions = queryExpressions(aliases, join.on.ons, sb)
@@ -552,7 +546,7 @@ abstract class Driver {
 
 	protected def resolveWhereExpression(aliases: QueryDao.Aliases, args: scala.collection.mutable.Builder[Any, List[Any]], v: Any): String = v match {
 		case c: SimpleColumn =>
-			aliases(c) + "." + escapeColumnNames(c.name)
+			aliases(c) + "." + escapeNamesStrategy.escapeColumnNames(c.name)
 		case _ =>
 			args += v
 			"?"
@@ -562,7 +556,7 @@ abstract class Driver {
 	def orderBy(queryConfig: QueryConfig, aliases: QueryDao.Aliases, columns: List[(SimpleColumn, Query.AscDesc)]): String = if (shouldCreateOrderByClause(queryConfig)) {
 		"\norder by " + columns.map {
 			case (c, ascDesc) =>
-				aliases(c) + "." + escapeColumnNames(c.name) + " " + ascDesc.sql
+				aliases(c) + "." + escapeNamesStrategy.escapeColumnNames(c.name) + " " + ascDesc.sql
 		}.mkString(",")
 	} else ""
 
@@ -587,7 +581,7 @@ abstract class Driver {
 			val tpe = entity.tpe
 			val sb = new StringBuilder(50, "select count(*)")
 			val alias = aliases(entity)
-			sb append "\nfrom " append escapeTableNames(tpe.table.name) append " " append alias
+			sb append "\nfrom " append escapeNamesStrategy.escapeTableNames(tpe.table.name) append " " append alias
 			sb.toString
 		}
 

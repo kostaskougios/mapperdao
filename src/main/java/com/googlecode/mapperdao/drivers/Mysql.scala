@@ -16,6 +16,11 @@ import com.googlecode.mapperdao.TypeManager
  */
 class Mysql(override val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: TypeManager) extends Driver {
 
+	protected def escapeNamesStrategy = new EscapeNamesStrategy {
+		override def escapeColumnNames(name: String) = name
+		override def escapeTableNames(name: String) = name
+	}
+
 	override protected def sequenceSelectNextSql(sequenceColumn: ColumnBase): String = throw new IllegalStateException("MySql doesn't support sequences")
 
 	override protected def insertSql[PC, T](tpe: Type[PC, T], args: List[(SimpleColumn, Any)]): String =
