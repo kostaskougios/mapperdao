@@ -219,7 +219,7 @@ abstract class Driver {
 			jdbc.queryForList(result.sql, result.values).map(j => typeManager.correctTypes(tpe.table, j))
 		}
 
-	protected def selectSql[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): SqlBuilder.SqlSelectBuilder =
+	protected def selectSql[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]) =
 		{
 			val sql = SqlBuilder.select
 			val columns = selectColumns(tpe)
@@ -257,32 +257,51 @@ abstract class Driver {
 
 	def doSelectManyToMany[PC, T, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): List[DatabaseValues] =
 		{
-			val sql = selectManyToManySql(selectConfig, tpe, ftpe, manyToMany, leftKeyValues)
-			jdbc.queryForList(sql, leftKeyValues.map(_._2)).map(j => typeManager.correctTypes(ftpe.table, j))
+			val r = selectManyToManySql(selectConfig, tpe, ftpe, manyToMany, leftKeyValues).result
+			jdbc.queryForList(r.sql, r.values).map(j => typeManager.correctTypes(ftpe.table, j))
 		}
 
-	protected def selectManyToManySql[PC, T, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): String =
+	protected def selectManyToManySql[PC, T, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]) =
 		{
 			val ftable = ftpe.table
 			val linkTable = manyToMany.linkTable
-			val sb = new StringBuilder(100, "select ")
-			val fColumns = selectColumns(ftpe)
-			sb append commaSeparatedListOfSimpleTypeColumns(",", fColumns, "f.")
-			sb append "\nfrom " append escapeTableNames(ftpe.table.name) append " f\n"
-			sb append applyHints(selectConfig.hints)
 
-			sb append "inner join " append escapeTableNames(linkTable.name) append " l"
-			sb append applyHints(selectConfig.hints) append " on "
-			var i = 0
+			val sql = SqlBuilder.select
+			val fColumns = selectColumns(ftpe)
+			sql.columns(fColumns.map { "f." + _.name })
+			sql.from(escapeTableNames(ftpe.table.name), "f", applyHints(selectConfig.hints))
+			val j = sql.innerJoin(escapeTableNames(linkTable.name), "l", applyHints(selectConfig.hints))
 			ftable.primaryKeys.zip(linkTable.right).foreach { z =>
 				val left = z._1
 				val right = z._2
-				if (i > 0) sb append " and "
-				sb append "f." append left.name append "=l." append right.name
-				i += 1
+				j.and(left.name, "=", right.name)
 			}
-			sb append "\nwhere " append generateColumnsEqualsValueString("l.", " and ", leftKeyValues.map(_._1))
-			sb.toString
+			val wcs = leftKeyValues.map {
+				case (c, v) => ("l." + c.name, v)
+			}
+			sql.where.andAll(wcs, "=")
+			sql
+
+			//			val ftable = ftpe.table
+			//			val linkTable = manyToMany.linkTable
+			//			val sb = new StringBuilder(100, "select ")
+			//			val fColumns = selectColumns(ftpe)
+			//			sb append commaSeparatedListOfSimpleTypeColumns(",", fColumns, "f.")
+			//			sb append "\nfrom " append escapeTableNames(ftpe.table.name) append " f\n"
+			//			sb append applyHints(selectConfig.hints)
+			//
+			//			sb append "inner join " append escapeTableNames(linkTable.name) append " l"
+			//			sb append applyHints(selectConfig.hints) append " on "
+			//			var i = 0
+			//			ftable.primaryKeys.zip(linkTable.right).foreach { z =>
+			//				val left = z._1
+			//				val right = z._2
+			//				if (i > 0) sb append " and "
+			//				sb append "f." append left.name append "=l." append right.name
+			//				i += 1
+			//			}
+			//			sb append "\nwhere " append generateColumnsEqualsValueString("l.", " and ", leftKeyValues.map(_._1))
+			//			sb.toString
 		}
 
 	def doSelectManyToManyCustomLoader[PC, T, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): List[JdbcMap] =

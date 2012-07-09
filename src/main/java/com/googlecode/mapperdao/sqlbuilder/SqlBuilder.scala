@@ -35,6 +35,26 @@ object SqlBuilder {
 	private case class Clause(column: String, op: String, value: Any) extends Expression {
 		override def toSql = column + op + "?"
 	}
+	private case class NonValueClause(left: String, op: String, right: String) extends Expression {
+		override def toSql = left + op + right
+	}
+
+	protected class InnerJoinBuilder(table: String, alias: String, hints: String) {
+		private var e: Expression = null
+		def on(left: String, op: String, right: String) = {
+			e = NonValueClause(left, op, right)
+			this
+		}
+		def and(left: String, op: String, right: String) = {
+			val nvc = NonValueClause(left, op, right)
+			if (e == null)
+				e = nvc
+			else e = And(e, nvc)
+			this
+		}
+
+		def toSql = "inner join %s %s %s on %s".format(table, alias, hints, e.toSql)
+	}
 
 	protected class WhereBuilder {
 		private var e: Expression = null
@@ -67,6 +87,7 @@ object SqlBuilder {
 	class SqlSelectBuilder {
 		private var cols = List[String]()
 		private var from: Table = null
+		private var innerJoins = List[InnerJoinBuilder]()
 		val where = new WhereBuilder
 
 		def columns(cs: List[String]) = {
@@ -80,9 +101,24 @@ object SqlBuilder {
 			this
 		}
 
+		def innerJoin(table: String, alias: String, hints: String) = {
+			val ijb = new InnerJoinBuilder(table, alias, hints)
+			innerJoins = ijb :: innerJoins
+			ijb
+		}
+
 		def result = Result(toSql, where.toValues)
 
-		def toSql = "select %s\nfrom %s\nwhere %s".format(cols.mkString(","), from.toSql, where.toSql)
+		def toSql = {
+			val s = new StringBuilder("select ")
+			s append cols.mkString(",") append "\n"
+			s append "from " append from.toSql append "\n"
+			innerJoins.foreach { j =>
+				s append j.toSql append "\n"
+			}
+			s append "where " append where.toSql
+			s.toString
+		}
 
 		override def toString = "SqlSelectBuilder(" + toSql + ")"
 	}
