@@ -94,6 +94,7 @@ object SqlBuilder {
 			cols = cols ::: cs
 			this
 		}
+		def from(table: String): this.type = from(table, null, null)
 
 		def from(table: String, alias: String, hints: String): this.type = {
 			if (from != null) throw new IllegalStateException("from already called for %s".format(from))

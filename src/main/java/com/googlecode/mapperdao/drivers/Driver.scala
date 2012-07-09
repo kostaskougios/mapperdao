@@ -281,7 +281,7 @@ abstract class Driver {
 			val ftable = ftpe.table
 			val linkTable = manyToMany.linkTable
 			val sql = SqlBuilder.select
-			sql.columns(linkTable.right.map(_.name))
+			sql.columns(linkTable.right.map(n => escapeColumnNames(n.name)))
 			sql.from(escapeTableNames(linkTable.name), null, applyHints(selectConfig.hints))
 			sql.where.andAll(leftKeyValues.map {
 				case (c, v) => (escapeColumnNames(c.name), v)
@@ -294,8 +294,8 @@ abstract class Driver {
 	 */
 	def doSelectManyToManyForExternalEntity[PC, T, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): List[List[Any]] =
 		{
-			val sql = selectManyToManySqlForExternalEntity(tpe, ftpe, manyToMany, leftKeyValues)
-			val l = jdbc.queryForList(sql, leftKeyValues.map(_._2))
+			val r = selectManyToManySqlForExternalEntity(tpe, ftpe, manyToMany, leftKeyValues).result
+			val l = jdbc.queryForList(r.sql, r.values)
 
 			val linkTable = manyToMany.linkTable
 			val columns = linkTable.right.map(_.name)
@@ -303,15 +303,23 @@ abstract class Driver {
 				columns.map(c => j(c))
 			}
 		}
-	protected def selectManyToManySqlForExternalEntity[PC, T, FPC, F](tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]): String =
+	protected def selectManyToManySqlForExternalEntity[PC, T, FPC, F](tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]) =
 		{
 			val linkTable = manyToMany.linkTable
 
-			val sb = new StringBuilder(100, "select ")
-			sb append linkTable.right.map(_.name).mkString(",")
-			sb append "\nfrom " append escapeTableNames(linkTable.name)
-			sb append "\nwhere " append generateColumnsEqualsValueString(leftKeyValues.map(_._1), " and ")
-			sb.toString
+			val sql = SqlBuilder.select
+			sql.columns(linkTable.right.map(n => escapeColumnNames(n.name)))
+			sql.from(escapeTableNames(linkTable.name))
+			sql.where.andAll(leftKeyValues.map {
+				case (c, v) => (escapeColumnNames(c.name), v)
+			}, "=")
+			sql
+
+			//			val sb = new StringBuilder(100, "select ")
+			//			sb append linkTable.right.map(_.name).mkString(",")
+			//			sb append "\nfrom " append escapeTableNames(linkTable.name)
+			//			sb append "\nwhere " append generateColumnsEqualsValueString(leftKeyValues.map(_._1), " and ")
+			//			sb.toString
 		}
 	/**
 	 * =====================================================================================
