@@ -274,7 +274,7 @@ abstract class Driver {
 			ftable.primaryKeys.zip(linkTable.right).foreach { z =>
 				val left = z._1
 				val right = z._2
-				j.and(left.name, "=", right.name)
+				j.and("f." + left.name, "=", "l." + right.name)
 			}
 			val wcs = leftKeyValues.map {
 				case (c, v) => ("l." + c.name, v)
