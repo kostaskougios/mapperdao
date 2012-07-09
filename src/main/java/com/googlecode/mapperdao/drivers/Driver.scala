@@ -24,7 +24,7 @@ abstract class Driver {
 	 * utility methods
 	 * =====================================================================================
 	 */
-	protected def escapeNamesStrategy: EscapeNamesStrategy
+	val escapeNamesStrategy: EscapeNamesStrategy
 
 	protected[mapperdao] def commaSeparatedListOfSimpleTypeColumns[T](separator: String, columns: Traversable[SimpleColumn], prefix: String = ""): String =
 		columns.map(_.name).map(prefix + escapeNamesStrategy.escapeColumnNames(_)).mkString(separator)
@@ -222,11 +222,12 @@ abstract class Driver {
 	protected def selectSql[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]) =
 		{
 			val sql = SqlBuilder.select(escapeNamesStrategy)
-			val columns = selectColumns(tpe)
 			sql.columns(null,
-				(columns ::: tpe.table.unusedPrimaryKeyColumns.collect {
-					case c: SimpleColumn => c
-				}).map(_.name).distinct
+				(
+					selectColumns(tpe) ::: tpe.table.unusedPrimaryKeyColumns.collect {
+						case c: SimpleColumn => c
+					}
+				).map(_.name).distinct
 			)
 			sql.from(tpe.table.name, null, applyHints(selectConfig.hints))
 			sql.where.andAll(null, where.map {
@@ -276,6 +277,7 @@ abstract class Driver {
 			val r = selectManyToManyCustomLoaderSql(selectConfig, tpe, ftpe, manyToMany, leftKeyValues).result
 			jdbc.queryForList(r.sql, r.values)
 		}
+
 	protected def selectManyToManyCustomLoaderSql[PC, T, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]) =
 		{
 			val ftable = ftpe.table
@@ -303,6 +305,7 @@ abstract class Driver {
 				columns.map(c => j(c))
 			}
 		}
+
 	protected def selectManyToManySqlForExternalEntity[PC, T, FPC, F](tpe: Type[PC, T], ftpe: Type[FPC, F], manyToMany: ManyToMany[FPC, F], leftKeyValues: List[(SimpleColumn, Any)]) =
 		{
 			val linkTable = manyToMany.linkTable
@@ -354,7 +357,7 @@ abstract class Driver {
 	 */
 
 	// select ... from 
-	def startQuery[PC, T](queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[PC, T], columns: List[SimpleColumn]): String =
+	def startQuery[PC, T](q: SqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[PC, T], columns: List[SimpleColumn]): String =
 		{
 			val entity = qe.entity
 			val tpe = entity.tpe
@@ -373,7 +376,7 @@ abstract class Driver {
 	def queryAfterSelect[PC, T](queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[PC, T], columns: List[SimpleColumn]): String = ""
 
 	// creates the join for one-to-one-reverse
-	def oneToOneReverseJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], oneToOneReverse: OneToOneReverse[_, _]): String =
+	def oneToOneReverseJoin(q: SqlBuilder.SqlSelectBuilder, aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], oneToOneReverse: OneToOneReverse[_, _]) =
 		{
 			val tpe = joinEntity.tpe
 			val table = tpe.table
@@ -382,32 +385,44 @@ abstract class Driver {
 			val fAlias = aliases(foreignEntity)
 			val jAlias = aliases(joinEntity)
 
-			val sb = new StringBuilder
-			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(foreignTable.name) append " " append fAlias append " on "
-			(table.primaryKeys zip oneToOneReverse.foreignColumns).foreach { t =>
-				sb append jAlias append "." append t._1.name append " = " append fAlias append "." append t._2.name append " "
+			val j = q.innerJoin(foreignTable.name, fAlias, null)
+			(table.primaryKeys zip oneToOneReverse.foreignColumns).foreach {
+				case (left, right) =>
+					j.and(jAlias, left.name, "=", fAlias, right.name)
 			}
-			sb.toString
+
+			//			val sb = new StringBuilder
+			//			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(foreignTable.name) append " " append fAlias append " on "
+			//			(table.primaryKeys zip oneToOneReverse.foreignColumns).foreach { t =>
+			//				sb append jAlias append "." append t._1.name append " = " append fAlias append "." append t._2.name append " "
+			//			}
+			//			sb.toString
 		}
 
 	// creates the join for many-to-one
-	def manyToOneJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], manyToOne: ManyToOne[_, _]): String =
+	def manyToOneJoin(q: SqlBuilder.SqlSelectBuilder, aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], manyToOne: ManyToOne[_, _]) =
 		{
 			val foreignTpe = foreignEntity.tpe
 			val foreignTable = foreignTpe.table
 			val fAlias = aliases(foreignEntity)
 			val jAlias = aliases(joinEntity)
 
-			val sb = new StringBuilder
-			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(foreignTable.name) append " " append fAlias append " on "
-			(manyToOne.columns zip foreignTable.primaryKeys).foreach { t =>
-				sb append jAlias append "." append t._1.name append " = " append fAlias append "." append t._2.name append " "
+			val j = q.innerJoin(foreignTable.name, fAlias, null)
+			(manyToOne.columns zip foreignTable.primaryKeys).foreach {
+				case (left, right) =>
+					j.and(jAlias, left.name, "=", fAlias, right.name)
 			}
-			sb.toString
+
+			//			val sb = new StringBuilder
+			//			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(foreignTable.name) append " " append fAlias append " on "
+			//			(manyToOne.columns zip foreignTable.primaryKeys).foreach { t =>
+			//				sb append jAlias append "." append t._1.name append " = " append fAlias append "." append t._2.name append " "
+			//			}
+			//			sb.toString
 		}
 
 	// creates the join for one-to-many
-	def oneToManyJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], oneToMany: OneToMany[_, _]): String =
+	def oneToManyJoin(q: SqlBuilder.SqlSelectBuilder, aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], oneToMany: OneToMany[_, _]) =
 		{
 			val joinTpe = joinEntity.tpe
 			val foreignTpe = foreignEntity.tpe
@@ -416,15 +431,21 @@ abstract class Driver {
 			val fAlias = aliases(foreignEntity)
 			val jAlias = aliases(joinEntity)
 
-			val sb = new StringBuilder
-			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(foreignTable.name) append " " append fAlias append " on "
-			(joinTpe.table.primaryKeys zip oneToMany.foreignColumns).foreach { t =>
-				sb append jAlias append "." append t._1.name append " = " append fAlias append "." append t._2.name append " "
+			val j = q.innerJoin(foreignTable.name, fAlias, null)
+			(joinTpe.table.primaryKeys zip oneToMany.foreignColumns).foreach {
+				case (left, right) =>
+					j.and(jAlias, left.name, "=", fAlias, right.name)
 			}
-			sb.toString
+
+			//			val sb = new StringBuilder
+			//			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(foreignTable.name) append " " append fAlias append " on "
+			//			(joinTpe.table.primaryKeys zip oneToMany.foreignColumns).foreach { t =>
+			//				sb append jAlias append "." append t._1.name append " = " append fAlias append "." append t._2.name append " "
+			//			}
+			//			sb.toString
 		}
 	// creates the join for one-to-many
-	def manyToManyJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], manyToMany: ManyToMany[_, _]): String =
+	def manyToManyJoin(q: SqlBuilder.SqlSelectBuilder, aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], manyToMany: ManyToMany[_, _]) =
 		{
 			val joinTpe = joinEntity.tpe
 			val foreignTpe = foreignEntity.tpe
@@ -436,49 +457,69 @@ abstract class Driver {
 			val linkTable = manyToMany.linkTable
 			val linkTableAlias = aliases(linkTable)
 
-			val sb = new StringBuilder
-			// left part
-			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(linkTable.name) append " " append linkTableAlias append " on "
-			(joinTpe.table.primaryKeys zip linkTable.left).foreach { t =>
-				sb append linkTableAlias append "." append t._2.name append " = " append jAlias append "." append t._1.name append " "
+			val j1 = q.innerJoin(linkTable.name, linkTableAlias, null)
+			(joinTpe.table.primaryKeys zip linkTable.left).foreach {
+				case (left, right) =>
+					j1.and(linkTableAlias, right.name, "=", jAlias, left.name)
 			}
 
-			// right part
-			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(foreignTable.name) append " " append fAlias append " on "
-			(foreignTable.primaryKeys zip linkTable.right).foreach { t =>
-				sb append fAlias append "." append t._1.name append " = " append linkTableAlias append "." append t._2.name append " "
+			val j2 = q.innerJoin(foreignTable.name, fAlias, null)
+			(foreignTable.primaryKeys zip linkTable.right).foreach {
+				case (left, right) =>
+					j2.and(fAlias, left.name, "=", linkTableAlias, right.name)
 			}
-			sb.toString
+
+			//			val sb = new StringBuilder
+			//			// left part
+			//			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(linkTable.name) append " " append linkTableAlias append " on "
+			//			(joinTpe.table.primaryKeys zip linkTable.left).foreach { t =>
+			//				sb append linkTableAlias append "." append t._2.name append " = " append jAlias append "." append t._1.name append " "
+			//			}
+			//
+			//			// right part
+			//			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(foreignTable.name) append " " append fAlias append " on "
+			//			(foreignTable.primaryKeys zip linkTable.right).foreach { t =>
+			//				sb append fAlias append "." append t._1.name append " = " append linkTableAlias append "." append t._2.name append " "
+			//			}
+			//			sb.toString
 		}
 
 	// creates the join sql and params for joins (including join on expressions, i.e. join T on j1.name<>j2.name)
-	def joinTable(aliases: QueryDao.Aliases, join: Query.Join[_, _, Entity[_, _], _, _]): (String, List[Any]) =
+	def joinTable(q: SqlBuilder.SqlSelectBuilder, aliases: QueryDao.Aliases, join: Query.Join[_, _, Entity[_, _], _, _]) =
 		{
 			val jEntity = join.entity
 			val jTable = jEntity.tpe.table
 			val qAlias = aliases(jEntity)
-			val sb = new StringBuilder
-			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(jTable.name) append " " append qAlias
 
-			var args = if (join.on != null) {
-				val expressions = queryExpressions(aliases, join.on.ons, sb)
-				sb append " on " append expressions._1
-				expressions._2
-			} else List[Any]()
+			val j = q.innerJoin(jTable.name, qAlias, null)
+			if (join.on != null) {
+				val e = queryExpressions(q, aliases, join.on.ons)
+				j(e)
+			}
 
-			(sb.toString, args)
+			//			val sb = new StringBuilder
+			//			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(jTable.name) append " " append qAlias
+			//
+			//			if (join.on != null) {
+			//				queryExpressions(q, aliases, join.on.ons, sb)
+			//			}
 		}
 
 	// creates the sql and params for expressions (i.e. id=5 and name='x')
-	def queryExpressions[PC, T](aliases: QueryDao.Aliases, wheres: List[Query.Where[PC, T]], joinsSb: StringBuilder): (String, List[Any]) =
+	def queryExpressions[PC, T](q: SqlBuilder.SqlSelectBuilder, aliases: QueryDao.Aliases, wheres: List[Query.Where[PC, T]]): SqlBuilder.Expression =
 		{
-			val sb = new StringBuilder(100)
-			var args = List.newBuilder[Any]
 			wheres.map(_.clauses).foreach { op =>
 				def inner(op: OpBase): Unit = op match {
 					case o: Operation[_] =>
-						sb append resolveWhereExpression(aliases, args, o.left)
-						sb append ' ' append o.operand.sql append ' ' append resolveWhereExpression(aliases, args, o.right)
+						o.right match {
+							case rc:SimpleColumn=>
+								new SqlBuilder.NonValueClause(escapeNamesStrategy,aliases(o.left),o.left.name,o.operand.sql ,aliases(rc),rc.name)
+							case _=>
+								new SqlBuilder.Clause(escapeNamesStrategy,aliases(o.left),o.left.name,o.operand.sql ,o.right)
+						}
+//						resolveWhereExpression(aliases, args, o.left)
+//						o.operand.sql 
+//						resolveWhereExpression(aliases, args, o.right)
 					case and: AndOp =>
 						sb append "( "
 						inner(and.left)
@@ -544,7 +585,7 @@ abstract class Driver {
 			(sb.toString, args.result)
 		}
 
-	protected def resolveWhereExpression(aliases: QueryDao.Aliases, args: scala.collection.mutable.Builder[Any, List[Any]], v: Any): String = v match {
+	protected def resolveWhereExpression(aliases: QueryDao.Aliases, args: scala.collection.mutable.Builder[Any, List[Any]], v: Any): : SqlBuilder.Expression = v match {
 		case c: SimpleColumn =>
 			aliases(c) + "." + escapeNamesStrategy.escapeColumnNames(c.name)
 		case _ =>
@@ -563,11 +604,11 @@ abstract class Driver {
 	def shouldCreateOrderByClause(queryConfig: QueryConfig): Boolean = true
 
 	// called at the start of each query sql generation, sql is empty at this point
-	def beforeStartOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T], columns: List[SimpleColumn], sql: StringBuilder): Unit =
+	def beforeStartOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T], columns: List[SimpleColumn], sql: SqlBuilder.SqlSelectBuilder): Unit =
 		{
 		}
 	// called at the end of each query sql generation
-	def endOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T], sql: StringBuilder): Unit =
+	def endOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T], sql: SqlBuilder.SqlSelectBuilder): Unit =
 		{
 		}
 

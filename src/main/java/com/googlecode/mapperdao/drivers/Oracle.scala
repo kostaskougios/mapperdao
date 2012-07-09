@@ -17,7 +17,7 @@ import com.googlecode.mapperdao.TypeManager
  */
 class Oracle(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: TypeManager) extends Driver {
 
-	protected def escapeNamesStrategy = new EscapeNamesStrategy {
+	val escapeNamesStrategy = new EscapeNamesStrategy {
 		val invalidColumnNames = Set("select", "where", "group", "start")
 		val invalidTableNames = Set("end", "select", "where", "group", "user")
 

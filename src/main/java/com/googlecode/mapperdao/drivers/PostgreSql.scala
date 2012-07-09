@@ -16,7 +16,7 @@ import com.googlecode.mapperdao.SimpleColumn
  */
 class PostgreSql(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: TypeManager) extends Driver {
 
-	protected def escapeNamesStrategy = new EscapeNamesStrategy {
+	val escapeNamesStrategy = new EscapeNamesStrategy {
 		val invalidColumnNames = Set("end", "select", "where", "group")
 		val invalidTableNames = Set("end", "select", "where", "group", "user")
 

@@ -17,7 +17,7 @@ import com.googlecode.mapperdao.SimpleColumn
  */
 class H2(override val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: TypeManager) extends Driver {
 
-	protected def escapeNamesStrategy = new EscapeNamesStrategy {
+	val escapeNamesStrategy = new EscapeNamesStrategy {
 		val invalidColumnNames = Set("select", "where", "group")
 		val invalidTableNames = Set("select", "where", "group", "values")
 		override def escapeColumnNames(name: String) = if (invalidColumnNames.contains(name.toLowerCase)) '"' + name + '"'; else name

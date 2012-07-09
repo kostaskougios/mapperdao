@@ -2,6 +2,7 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.exceptions.QueryException
 import com.googlecode.mapperdao.drivers.Driver
 import java.util.concurrent.ConcurrentHashMap
+import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 
 /**
  * the QueryDao implementation
@@ -15,8 +16,6 @@ import java.util.concurrent.ConcurrentHashMap
 final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends QueryDao {
 
 	import QueryDao._
-
-	private case class SqlAndArgs(val sql: String, val args: List[Any])
 
 	def query[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]): List[T with PC] =
 		{
@@ -46,7 +45,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			driver.queryForLong(queryConfig, sql + "\n" + s.sql, s.args)
 		}
 
-	private def sqlAndArgs[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]): SqlAndArgs =
+	private def sqlAndArgs[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
 		{
 			val e = qe.entity
 			val tpe = e.tpe
@@ -54,19 +53,15 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 
 			val aliases = new Aliases(typeRegistry)
 
-			val sb = new StringBuilder
-			driver.beforeStartOfQuery(queryConfig, qe, columns, sb)
-			sb append driver.startQuery(queryConfig, aliases, qe, columns)
-			val s = whereAndArgs(queryConfig, qe, aliases)
-			sb.append(s.sql)
-			SqlAndArgs(sb.toString, s.args)
+			val q = SqlBuilder.select(driver.escapeNamesStrategy)
+			driver.beforeStartOfQuery(queryConfig, qe, columns, q)
+			driver.startQuery(q, queryConfig, aliases, qe, columns)
+			whereAndArgs(q, queryConfig, qe, aliases)
+			q
 		}
 
-	private def whereAndArgs[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T], aliases: Aliases): SqlAndArgs =
+	private def whereAndArgs[PC, T](q: SqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], aliases: Aliases) =
 		{
-			val joinsSb = new StringBuilder
-			val whereSb = new StringBuilder
-
 			var args = List[Any]()
 			// iterate through the joins in the correct order
 			qe.joins.reverse.foreach { j =>
@@ -78,13 +73,13 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 						case join: Query.Join[_, _, _, PC, T] =>
 							join.column match {
 								case manyToOne: ManyToOne[_, _] =>
-									joinsSb append driver.manyToOneJoin(aliases, joinEntity, foreignEntity, manyToOne)
+									driver.manyToOneJoin(q, aliases, joinEntity, foreignEntity, manyToOne)
 								case oneToMany: OneToMany[_, _] =>
-									joinsSb append driver.oneToManyJoin(aliases, joinEntity, foreignEntity, oneToMany)
+									driver.oneToManyJoin(q, aliases, joinEntity, foreignEntity, oneToMany)
 								case manyToMany: ManyToMany[_, _] =>
-									joinsSb append driver.manyToManyJoin(aliases, joinEntity, foreignEntity, manyToMany)
+									driver.manyToManyJoin(q, aliases, joinEntity, foreignEntity, manyToMany)
 								case oneToOneReverse: OneToOneReverse[_, _] =>
-									joinsSb append driver.oneToOneReverseJoin(aliases, joinEntity, foreignEntity, oneToOneReverse)
+									driver.oneToOneReverseJoin(q, aliases, joinEntity, foreignEntity, oneToOneReverse)
 							}
 					}
 				} else {
@@ -110,7 +105,6 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 				sb append orderBySql
 			}
 			driver.endOfQuery(queryConfig, qe, sb)
-			SqlAndArgs(sb.toString, args)
 		}
 }
 

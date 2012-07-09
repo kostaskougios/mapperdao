@@ -10,23 +10,23 @@ import com.googlecode.mapperdao.drivers.EscapeNamesStrategy
  * 8 Jul 2012
  */
 
-object SqlBuilder {
+private[mapperdao] object SqlBuilder {
 
-	private abstract class Expression {
+	abstract class Expression {
 		def toSql: String
 	}
-	private abstract class Combine extends Expression {
+	abstract class Combine extends Expression {
 		val left: Expression
 		val right: Expression
 	}
-	private case class And(left: Expression, right: Expression) extends Combine {
+	case class And(left: Expression, right: Expression) extends Combine {
 		override def toSql = left.toSql + " and " + right.toSql
 	}
-	private case class Or(left: Expression, right: Expression) extends Combine {
+	case class Or(left: Expression, right: Expression) extends Combine {
 		override def toSql = left.toSql + " or " + right.toSql
 	}
 
-	private case class Table(escapeNamesStrategy: EscapeNamesStrategy, table: String, alias: String, hints: String) {
+	case class Table(escapeNamesStrategy: EscapeNamesStrategy, table: String, alias: String, hints: String) {
 		def toSql = {
 			var s = escapeNamesStrategy.escapeTableNames(table)
 			if (alias != null) s += " " + alias
@@ -34,7 +34,7 @@ object SqlBuilder {
 			s
 		}
 	}
-	private case class Clause(escapeNamesStrategy: EscapeNamesStrategy, alias: String, column: String, op: String, value: Any) extends Expression {
+	case class Clause(escapeNamesStrategy: EscapeNamesStrategy, alias: String, column: String, op: String, value: Any) extends Expression {
 		override def toSql = {
 			val sb = new StringBuilder
 			if (alias != null) sb append (alias) append (".")
@@ -42,7 +42,7 @@ object SqlBuilder {
 			sb.toString
 		}
 	}
-	private case class NonValueClause(escapeNamesStrategy: EscapeNamesStrategy, leftAlias: String, left: String, op: String, rightAlias: String, right: String) extends Expression {
+	case class NonValueClause(escapeNamesStrategy: EscapeNamesStrategy, leftAlias: String, left: String, op: String, rightAlias: String, right: String) extends Expression {
 		override def toSql = {
 			val sb = new StringBuilder
 			if (leftAlias != null) sb append (leftAlias) append (".")
@@ -53,7 +53,7 @@ object SqlBuilder {
 		}
 	}
 
-	protected class InnerJoinBuilder(escapeNamesStrategy: EscapeNamesStrategy, table: String, alias: String, hints: String) {
+	class InnerJoinBuilder(escapeNamesStrategy: EscapeNamesStrategy, table: String, alias: String, hints: String) {
 		private var e: Expression = null
 		def on(leftAlias: String, left: String, op: String, rightAlias: String, right: String) = {
 			e = NonValueClause(escapeNamesStrategy, leftAlias, left, op, rightAlias, right)
@@ -70,7 +70,7 @@ object SqlBuilder {
 		def toSql = "inner join %s %s %s on %s".format(table, alias, hints, e.toSql)
 	}
 
-	protected class WhereBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
+	class WhereBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		private var e: Expression = null
 
 		def andAll(alias: String, columnsAndValues: List[(String, Any)], op: String) = {

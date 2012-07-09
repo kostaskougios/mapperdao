@@ -16,7 +16,7 @@ import com.googlecode.mapperdao.TypeManager
  */
 class Mysql(override val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: TypeManager) extends Driver {
 
-	protected def escapeNamesStrategy = new EscapeNamesStrategy {
+	val escapeNamesStrategy = new EscapeNamesStrategy {
 		override def escapeColumnNames(name: String) = name
 		override def escapeTableNames(name: String) = name
 	}
