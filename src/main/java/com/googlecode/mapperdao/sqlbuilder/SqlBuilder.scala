@@ -67,7 +67,19 @@ private[mapperdao] object SqlBuilder {
 			this
 		}
 
+		def apply(e: Expression) = {
+			this.e = e
+			this
+		}
+
 		def toSql = "inner join %s %s %s on %s".format(table, alias, hints, e.toSql)
+		def toValues = combineValues(e)
+
+		private def combineValues(e: Expression): List[Any] = e match {
+			case c: Combine => combineValues(c.left) ::: combineValues(c.right)
+			case c: Clause => List(c.value)
+			case _ => Nil
+		}
 	}
 
 	class WhereBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
@@ -122,7 +134,7 @@ private[mapperdao] object SqlBuilder {
 			ijb
 		}
 
-		def result = Result(toSql, where.toValues)
+		def result = Result(toSql, innerJoins.map { _.toValues } ::: where.toValues)
 
 		def toSql = {
 			val s = new StringBuilder("select ")

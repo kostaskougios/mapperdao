@@ -509,48 +509,63 @@ abstract class Driver {
 	def queryExpressions[PC, T](q: SqlBuilder.SqlSelectBuilder, aliases: QueryDao.Aliases, wheres: List[Query.Where[PC, T]]): SqlBuilder.Expression =
 		{
 			wheres.map(_.clauses).foreach { op =>
-				def inner(op: OpBase): Unit = op match {
+				def inner(op: OpBase): SqlBuilder.Expression = op match {
 					case o: Operation[_] =>
 						o.right match {
-							case rc:SimpleColumn=>
-								new SqlBuilder.NonValueClause(escapeNamesStrategy,aliases(o.left),o.left.name,o.operand.sql ,aliases(rc),rc.name)
-							case _=>
-								new SqlBuilder.Clause(escapeNamesStrategy,aliases(o.left),o.left.name,o.operand.sql ,o.right)
+							case rc: SimpleColumn =>
+								SqlBuilder.NonValueClause(escapeNamesStrategy, aliases(o.left), o.left.name, o.operand.sql, aliases(rc), rc.name)
+							case _ =>
+								SqlBuilder.Clause(escapeNamesStrategy, aliases(o.left), o.left.name, o.operand.sql, o.right)
 						}
-//						resolveWhereExpression(aliases, args, o.left)
-//						o.operand.sql 
-//						resolveWhereExpression(aliases, args, o.right)
+					//						resolveWhereExpression(aliases, args, o.left)
+					//						o.operand.sql 
+					//						resolveWhereExpression(aliases, args, o.right)
 					case and: AndOp =>
-						sb append "( "
-						inner(and.left)
-						sb append " and "
-						inner(and.right)
-						sb append " )"
+						SqlBuilder.And(inner(and.left), inner(and.right))
+					//						sb append "( "
+					//						inner(and.left)
+					//						sb append " and "
+					//						inner(and.right)
+					//						sb append " )"
 					case and: OrOp =>
-						sb append "( "
-						inner(and.left)
-						sb append " or "
-						inner(and.right)
-						sb append " )"
+						SqlBuilder.Or(inner(and.left), inner(and.right))
+					//						sb append "( "
+					//						inner(and.left)
+					//						sb append " or "
+					//						inner(and.right)
+					//						sb append " )"
 					case mto: ManyToOneOperation[Any, Any, Any] =>
 						val ManyToOneOperation(left, operand, right) = mto
-						if (right == null) {
-							left.columns foreach { c =>
-								sb append resolveWhereExpression(aliases, args, c)
-								operand match {
-									case EQ() => sb append " is null"
-									case NE() => sb append " is not null"
+						val exprs = if (right == null) {
+							left.columns map { c =>
+								val r = operand match {
+									case EQ() => "null"
+									case NE() => "not null"
 									case _ => throw new IllegalArgumentException("operand %s not valid when right hand parameter is null.".format(operand))
 								}
+								SqlBuilder.NonValueClause(escapeNamesStrategy, aliases(c), c.name, "is", null, r)
 							}
+							//							left.columns foreach { c =>
+							//								sb append resolveWhereExpression(aliases, args, c)
+							//								operand match {
+							//									case EQ() => sb append " is null"
+							//									case NE() => sb append " is not null"
+							//									case _ => throw new IllegalArgumentException("operand %s not valid when right hand parameter is null.".format(operand))
+							//								}
+							//							}
 						} else {
 							val fTpe = left.foreign.entity.tpe
 							val fPKs = fTpe.table.toListOfPrimaryKeyValues(right)
 							if (left.columns.size != fPKs.size) throw new IllegalStateException("foreign keys %s don't match foreign key columns %s".format(fPKs, left.columns))
-							left.columns zip fPKs foreach { t =>
-								sb append resolveWhereExpression(aliases, args, t._1)
-								sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
+							left.columns zip fPKs map {
+								case (c, v) =>
+									SqlBuilder.Clause(escapeNamesStrategy, aliases(c), c.name, operand.sql, v)
+								//								sb append resolveWhereExpression(aliases, args, t._1)
+								//								sb append ' ' append operand.sql append ' ' append resolveWhereExpression(aliases, args, t._2)
 							}
+						}
+						exprs.reduceLeft { (l, r) =>
+							SqlBuilder.And(l, r)
 						}
 					case OneToManyOperation(left: OneToMany[_, _], operand: Operand, right: Any) =>
 						val entity = typeRegistry.entityOf(left)
@@ -585,7 +600,7 @@ abstract class Driver {
 			(sb.toString, args.result)
 		}
 
-	protected def resolveWhereExpression(aliases: QueryDao.Aliases, args: scala.collection.mutable.Builder[Any, List[Any]], v: Any): : SqlBuilder.Expression = v match {
+	protected def resolveWhereExpression(aliases: QueryDao.Aliases, args: scala.collection.mutable.Builder[Any, List[Any]], v: Any): SqlBuilder.Expression = v match {
 		case c: SimpleColumn =>
 			aliases(c) + "." + escapeNamesStrategy.escapeColumnNames(c.name)
 		case _ =>
