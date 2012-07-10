@@ -12,7 +12,7 @@ import com.googlecode.mapperdao.drivers.EscapeNamesStrategy
 
 private[mapperdao] object SqlBuilder {
 
-	abstract class Expression {
+	trait Expression {
 		def toSql: String
 	}
 	abstract class Combine extends Expression {
@@ -26,15 +26,25 @@ private[mapperdao] object SqlBuilder {
 		override def toSql = left.toSql + " or " + right.toSql
 	}
 
-	case class Table(escapeNamesStrategy: EscapeNamesStrategy, table: String, alias: String, hints: String) {
+	trait FromClause {
+		def toSql: String
+		def toValues: List[Any]
+	}
+
+	case class Table(escapeNamesStrategy: EscapeNamesStrategy, table: String, alias: String, hints: String) extends FromClause {
 		def toSql = {
 			var s = escapeNamesStrategy.escapeTableNames(table)
 			if (alias != null) s += " " + alias
 			if (hints != null) s += " " + hints
 			s
 		}
+		def toValues = Nil
 	}
-	case class Clause(escapeNamesStrategy: EscapeNamesStrategy, alias: String, column: String, op: String, value: Any) extends Expression {
+	case class Clause(escapeNamesStrategy: EscapeNamesStrategy,
+			alias: String, column: String,
+			op: String,
+			value: Any) extends Expression {
+
 		override def toSql = {
 			val sb = new StringBuilder
 			if (alias != null) sb append (alias) append (".")
@@ -42,7 +52,11 @@ private[mapperdao] object SqlBuilder {
 			sb.toString
 		}
 	}
-	case class NonValueClause(escapeNamesStrategy: EscapeNamesStrategy, leftAlias: String, left: String, op: String, rightAlias: String, right: String) extends Expression {
+	case class NonValueClause(escapeNamesStrategy: EscapeNamesStrategy,
+			leftAlias: String, left: String,
+			op: String,
+			rightAlias: String, right: String) extends Expression {
+
 		override def toSql = {
 			val sb = new StringBuilder
 			if (leftAlias != null) sb append (leftAlias) append (".")
@@ -86,7 +100,7 @@ private[mapperdao] object SqlBuilder {
 		private var e: Expression = null
 
 		def andAll(alias: String, columnsAndValues: List[(String, Any)], op: String) = {
-			e = columnsAndValues.foldLeft[Expression](null) { (c, cav) =>
+			e = columnsAndValues.foldLeft[Expression](e) { (c, cav) =>
 				val (column, value) = cav
 				val clause = Clause(escapeNamesStrategy, alias, column, op, value)
 				c match {
@@ -94,6 +108,17 @@ private[mapperdao] object SqlBuilder {
 					case _ => And(c, clause)
 				}
 			}
+			this
+		}
+
+		def apply(alias: String, column: String, op: String, value: Any) = {
+			if (e != null) throw new IllegalStateException("where clause already set to " + e)
+			e = Clause(escapeNamesStrategy, alias, column, op, value)
+			this
+		}
+		def apply(e: Expression) = {
+			if (this.e != null) throw new IllegalStateException("where clause already set to " + this.e)
+			this.e = e
 			this
 		}
 
@@ -110,9 +135,9 @@ private[mapperdao] object SqlBuilder {
 
 	case class Result(sql: String, values: List[Any])
 
-	class SqlSelectBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
+	class SqlSelectBuilder(escapeNamesStrategy: EscapeNamesStrategy) extends FromClause {
 		private var cols = List[String]()
-		private var from: Table = null
+		private var fromClause: FromClause = null
 		private var innerJoins = List[InnerJoinBuilder]()
 		val where = new WhereBuilder(escapeNamesStrategy)
 
@@ -120,22 +145,33 @@ private[mapperdao] object SqlBuilder {
 			cols = cols ::: cs.map((if (alias != null) alias + "." else "") + escapeNamesStrategy.escapeColumnNames(_))
 			this
 		}
+
+		def from = fromClause
+		def from(from: FromClause): this.type = {
+			this.fromClause = from
+			this
+		}
 		def from(table: String): this.type = from(table, null, null)
 
 		def from(table: String, alias: String, hints: String): this.type = {
-			if (from != null) throw new IllegalStateException("from already called for %s".format(from))
-			from = Table(escapeNamesStrategy, table, alias, hints)
+			if (fromClause != null) throw new IllegalStateException("from already called for %s".format(from))
+			fromClause = Table(escapeNamesStrategy, table, alias, hints)
 			this
 		}
 
+		def innerJoin(ijb: InnerJoinBuilder) = {
+			innerJoins = ijb :: innerJoins
+			this
+		}
 		def innerJoin(table: String, alias: String, hints: String) = {
 			val ijb = new InnerJoinBuilder(escapeNamesStrategy, table, alias, hints)
 			innerJoins = ijb :: innerJoins
 			ijb
 		}
 
-		def result = Result(toSql, innerJoins.map { _.toValues } ::: where.toValues)
+		def result = Result(toSql, toValues)
 
+		def toValues = innerJoins.map { _.toValues } ::: where.toValues
 		def toSql = {
 			val s = new StringBuilder("select ")
 			s append cols.map(n => escapeNamesStrategy.escapeColumnNames(n)).mkString(",") append "\n"

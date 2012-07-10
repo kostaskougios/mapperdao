@@ -9,6 +9,7 @@ import com.googlecode.mapperdao.PK
 import com.googlecode.mapperdao.QueryConfig
 import com.googlecode.mapperdao.Query
 import com.googlecode.mapperdao.TypeManager
+import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 
 /**
  * @author kostantinos.kougios
@@ -31,18 +32,33 @@ class Oracle(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: Ty
 		case PK(columnName, true, sequence) => "%s.nextval".format(sequence.get)
 	}
 
-	override def beforeStartOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T], columns: List[SimpleColumn], sql: StringBuilder): Unit =
+	override def beforeStartOfQuery[PC, T](q: SqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], columns: List[SimpleColumn]) =
 		if (queryConfig.offset.isDefined || queryConfig.limit.isDefined) {
-			sql append "select * from (\n"
-			sql append "select " append commaSeparatedListOfSimpleTypeColumns(",", columns) append ",rownum as rn$ from ("
-		}
+			val nq = SqlBuilder.select(escapeNamesStrategy)
+			nq.columns(null, List("*"))
 
-	override def endOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T], sql: StringBuilder): Unit =
+			val iq = SqlBuilder.select(escapeNamesStrategy)
+			nq.from(iq)
+
+			iq.columns(null, "rownum as rn$" :: columns.map(_.name))
+			iq.from(q)
+			//			sql append "select * from (\n"
+			//			sql append "select " append commaSeparatedListOfSimpleTypeColumns(",", columns) append ",rownum as rn$ from ("
+		} else q
+
+	override def endOfQuery[PC, T](q: SqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
 		if (queryConfig.offset.isDefined || queryConfig.limit.isDefined) {
 			val offset = queryConfig.offset.getOrElse(0l)
-			sql append "\n) where rownum<=" append (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset else Long.MaxValue)
-			sql append "\n) where rn$>" append offset
-		}
+
+			q.where(null, "rn$", ">", offset)
+			q.from match {
+				case iq: SqlBuilder.SqlSelectBuilder =>
+					iq.where(null, "rownum", "<=", (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset else Long.MaxValue))
+			}
+			q
+			//			sql append "\n) where rownum<=" append (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset else Long.MaxValue)
+			//			sql append "\n) where rn$>" append offset
+		} else q
 
 	override def toString = "Oracle"
 }

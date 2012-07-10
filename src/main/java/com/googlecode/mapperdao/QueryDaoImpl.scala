@@ -20,15 +20,14 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 	def query[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]): List[T with PC] =
 		{
 			if (qe == null) throw new NullPointerException("qe can't be null")
-			var sa: SqlAndArgs = null
+			val r = sqlAndArgs(queryConfig, qe).result
 			try {
-				sa = sqlAndArgs(queryConfig, qe)
-				val lm = driver.queryForList(queryConfig, qe.entity.tpe, sa.sql, sa.args)
+				val lm = driver.queryForList(queryConfig, qe.entity.tpe, r.sql, r.values)
 
 				queryConfig.multi.runStrategy.run(mapperDao, qe, queryConfig, lm)
 			} catch {
 				case e =>
-					val extra = if (sa != null) "\n------\nThe query:%s\nThe arguments:%s\n------\n".format(sa.sql, sa.args) else "None"
+					val extra = "\n------\nThe query:%s\nThe arguments:%s\n------\n".format(r.sql, r.values)
 					val msg = "An error occured during execution of query %s.\nQuery Information:%s\nIssue:\n%s".format(qe, extra, e.getMessage)
 					throw new QueryException(msg, e)
 			}
@@ -41,8 +40,10 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			val e = qe.entity
 			val tpe = e.tpe
 			val sql = driver.countSql(aliases, e)
-			val s = whereAndArgs(defaultQueryConfig, qe, aliases)
-			driver.queryForLong(queryConfig, sql + "\n" + s.sql, s.args)
+			val q = SqlBuilder.select(driver.escapeNamesStrategy)
+			val s = whereAndArgs(q, defaultQueryConfig, qe, aliases)
+			val r = q.result
+			driver.queryForLong(queryConfig, sql + "\n" + r.sql, r.values)
 		}
 
 	private def sqlAndArgs[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
@@ -54,15 +55,15 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			val aliases = new Aliases(typeRegistry)
 
 			val q = SqlBuilder.select(driver.escapeNamesStrategy)
-			driver.beforeStartOfQuery(queryConfig, qe, columns, q)
+			val outer = driver.beforeStartOfQuery(q, queryConfig, qe, columns)
 			driver.startQuery(q, queryConfig, aliases, qe, columns)
 			whereAndArgs(q, queryConfig, qe, aliases)
-			q
+			driver.endOfQuery(outer, queryConfig, qe)
+			outer
 		}
 
 	private def whereAndArgs[PC, T](q: SqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], aliases: Aliases) =
 		{
-			var args = List[Any]()
 			// iterate through the joins in the correct order
 			qe.joins.reverse.foreach { j =>
 				val column = j.column
@@ -73,38 +74,37 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 						case join: Query.Join[_, _, _, PC, T] =>
 							join.column match {
 								case manyToOne: ManyToOne[_, _] =>
-									driver.manyToOneJoin(q, aliases, joinEntity, foreignEntity, manyToOne)
+									val join = driver.manyToOneJoin(aliases, joinEntity, foreignEntity, manyToOne)
+									q.innerJoin(join)
 								case oneToMany: OneToMany[_, _] =>
-									driver.oneToManyJoin(q, aliases, joinEntity, foreignEntity, oneToMany)
+									val join = driver.oneToManyJoin(aliases, joinEntity, foreignEntity, oneToMany)
+									q.innerJoin(join)
 								case manyToMany: ManyToMany[_, _] =>
-									driver.manyToManyJoin(q, aliases, joinEntity, foreignEntity, manyToMany)
+									val (leftJoin, rightJoin) = driver.manyToManyJoin(aliases, joinEntity, foreignEntity, manyToMany)
+									q.innerJoin(leftJoin)
+									q.innerJoin(rightJoin)
 								case oneToOneReverse: OneToOneReverse[_, _] =>
-									driver.oneToOneReverseJoin(q, aliases, joinEntity, foreignEntity, oneToOneReverse)
+									val join = driver.oneToOneReverseJoin(aliases, joinEntity, foreignEntity, oneToOneReverse)
+									q.innerJoin(join)
 							}
 					}
 				} else {
 					val joined = driver.joinTable(aliases, j)
-					joinsSb append joined._1
-					args = args ::: joined._2
+					q.innerJoin(joined)
 				}
 			}
 
 			// append the where clause and get the list of arguments
 			if (!qe.wheres.isEmpty) {
-				val (sql, wargs) = driver.queryExpressions(aliases, qe.wheres, joinsSb)
-				args = args ::: wargs
-				whereSb append "\nwhere " append sql
+				val e = driver.queryExpressions(aliases, qe.wheres)
+				q.where(e)
 			}
 
-			val sb = new StringBuilder
-			sb append joinsSb append whereSb
 			if (!qe.order.isEmpty) {
 				val orderColumns = qe.order.map(t => (t._1.column, t._2))
 
 				val orderBySql = driver.orderBy(queryConfig, aliases, orderColumns)
-				sb append orderBySql
 			}
-			driver.endOfQuery(queryConfig, qe, sb)
 		}
 }
 
