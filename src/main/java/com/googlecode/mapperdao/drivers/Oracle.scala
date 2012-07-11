@@ -32,12 +32,12 @@ class Oracle(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: Ty
 		case PK(columnName, true, sequence) => "%s.nextval".format(sequence.get)
 	}
 
-	override def beforeStartOfQuery[PC, T](q: SqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], columns: List[SimpleColumn]) =
+	override def beforeStartOfQuery[PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], columns: List[SimpleColumn]) =
 		if (queryConfig.offset.isDefined || queryConfig.limit.isDefined) {
-			val nq = SqlBuilder.select(escapeNamesStrategy)
+			val nq = new sqlBuilder.SqlSelectBuilder
 			nq.columns(null, List("*"))
 
-			val iq = SqlBuilder.select(escapeNamesStrategy)
+			val iq = new sqlBuilder.SqlSelectBuilder
 			nq.from(iq)
 
 			iq.columns(null, "rownum as rn$" :: columns.map(_.name))
@@ -46,13 +46,13 @@ class Oracle(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: Ty
 			//			sql append "select " append commaSeparatedListOfSimpleTypeColumns(",", columns) append ",rownum as rn$ from ("
 		} else q
 
-	override def endOfQuery[PC, T](q: SqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
+	override def endOfQuery[PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
 		if (queryConfig.offset.isDefined || queryConfig.limit.isDefined) {
 			val offset = queryConfig.offset.getOrElse(0l)
 
 			q.where(null, "rn$", ">", offset)
 			q.from match {
-				case iq: SqlBuilder.SqlSelectBuilder =>
+				case iq: sqlBuilder.SqlSelectBuilder =>
 					iq.where(null, "rownum", "<=", (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset else Long.MaxValue))
 			}
 			q

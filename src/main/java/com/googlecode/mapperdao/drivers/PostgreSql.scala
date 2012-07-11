@@ -37,7 +37,7 @@ class PostgreSql(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager
 		case PK(columnName, true, sequence) => "NEXTVAL('%s')".format(sequence.get)
 	}
 
-	override def endOfQuery[PC, T](q: SqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
+	override def endOfQuery[PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
 		{
 			queryConfig.offset.foreach(o => q.appendSql("offset " + o))
 			queryConfig.limit.foreach(l => q.appendSql("limit " + l))

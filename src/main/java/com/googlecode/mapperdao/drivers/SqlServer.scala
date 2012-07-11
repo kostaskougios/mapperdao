@@ -56,20 +56,20 @@ class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager:
 		} else ""
 	}
 
-	override def beforeStartOfQuery[PC, T](q: SqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], columns: List[SimpleColumn]) =
+	override def beforeStartOfQuery[PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], columns: List[SimpleColumn]) =
 		if (queryConfig.hasRange) {
-			val nq = SqlBuilder.select(escapeNamesStrategy)
+			val nq = new sqlBuilder.SqlSelectBuilder
 			nq.columns(null, List("*"))
 			nq.from(q)
 			//sql append "select * from (\n"
 			nq
 		} else q
 
-	override def endOfQuery[PC, T](q: SqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
+	override def endOfQuery[PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
 		if (queryConfig.hasRange) {
 			val offset = queryConfig.offset.getOrElse(0l) + 1
 			val w = q.where
-			w(SqlBuilder.Between(escapeNamesStrategy, null, "Row", offset, (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue)))
+			w(sqlBuilder.Between(null, "Row", offset, (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue)))
 			//			sql append "\n) as t\nwhere Row between " append offset append " and "
 			//			sql append (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue)
 			q
