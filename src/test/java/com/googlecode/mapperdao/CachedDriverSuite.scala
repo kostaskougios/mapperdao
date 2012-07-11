@@ -25,7 +25,7 @@ class CachedDriverSuite extends FunSuite with ShouldMatchers {
 		val jdbc = null
 		val typeManager = null
 
-		protected def escapeNamesStrategy = new EscapeNamesStrategy {
+		val escapeNamesStrategy = new EscapeNamesStrategy {
 			override def escapeColumnNames(name: String) = name
 			override def escapeTableNames(name: String) = name
 		}

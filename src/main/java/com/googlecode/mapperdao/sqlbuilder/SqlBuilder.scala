@@ -43,6 +43,7 @@ private[mapperdao] object SqlBuilder {
 		}
 		def toValues = Nil
 	}
+
 	case class Clause(escapeNamesStrategy: EscapeNamesStrategy,
 			alias: String, column: String,
 			op: String,
@@ -74,7 +75,7 @@ private[mapperdao] object SqlBuilder {
 		override def toValues = Nil
 	}
 
-	case class BetweenClause(escapeNamesStrategy: EscapeNamesStrategy, alias: String, column: String, left: Any, right: Any) extends Expression {
+	case class Between(escapeNamesStrategy: EscapeNamesStrategy, alias: String, column: String, left: Any, right: Any) extends Expression {
 		override def toSql = column + " " + (if (alias != null) alias else "") + " between ? and ?"
 		override def toValues = left :: right :: Nil
 	}
@@ -94,18 +95,13 @@ private[mapperdao] object SqlBuilder {
 		}
 
 		def apply(e: Expression) = {
+			if (this.e != null) throw new IllegalStateException("expression already set to " + this.e)
 			this.e = e
 			this
 		}
 
 		def toSql = "inner join %s %s %s on %s".format(table, alias, hints, e.toSql)
-		def toValues = combineValues(e)
-
-		private def combineValues(e: Expression): List[Any] = e match {
-			case c: Combine => combineValues(c.left) ::: combineValues(c.right)
-			case c: Clause => List(c.value)
-			case _ => Nil
-		}
+		def toValues = e.toValues
 	}
 
 	class WhereBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
@@ -142,15 +138,9 @@ private[mapperdao] object SqlBuilder {
 			this
 		}
 
-		def toValues = combineValues(e)
+		def toValues = e.toValues
 
-		private def combineValues(e: Expression): List[Any] = e match {
-			case c: Combine => combineValues(c.left) ::: combineValues(c.right)
-			case c: Clause => List(c.value)
-			case _ => Nil
-		}
-
-		def toSql = e.toSql
+		def toSql = "\nwhere " + e.toSql
 	}
 
 	case class Result(sql: String, values: List[Any])
@@ -206,7 +196,7 @@ private[mapperdao] object SqlBuilder {
 			innerJoins.foreach { j =>
 				s append j.toSql append "\n"
 			}
-			s append "where " append where.toSql
+			s append where.toSql
 			if (!atTheEnd.isEmpty) s append "\n" append atTheEnd.reverse.mkString("\n")
 			s.toString
 		}

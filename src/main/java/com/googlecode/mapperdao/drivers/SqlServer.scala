@@ -69,7 +69,7 @@ class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager:
 		if (queryConfig.hasRange) {
 			val offset = queryConfig.offset.getOrElse(0l) + 1
 			val w = q.where
-			w(SqlBuilder.BetweenClause(escapeNamesStrategy, null, "Row", offset, (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue)))
+			w(SqlBuilder.Between(escapeNamesStrategy, null, "Row", offset, (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue)))
 			//			sql append "\n) as t\nwhere Row between " append offset append " and "
 			//			sql append (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue)
 			q
