@@ -113,29 +113,12 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	protected implicit def columnToDouble(ci: ColumnInfo[T, Double])(implicit m: ValuesMap): Double = m(ci)
 	protected implicit def columnToOptionDouble(ci: ColumnInfo[T, Double])(implicit m: ValuesMap): Option[Double] = Some(m(ci))
 
-	protected implicit def columnToJBoolean(ci: ColumnInfo[T, java.lang.Boolean])(implicit m: ValuesMap): java.lang.Boolean = m(ci)
-	protected implicit def columnToJShort(ci: ColumnInfo[T, java.lang.Short])(implicit m: ValuesMap): java.lang.Short = m.short(ci)
-	protected implicit def columnToJInteger(ci: ColumnInfo[T, java.lang.Integer])(implicit m: ValuesMap): java.lang.Integer = m.int(ci)
-	protected implicit def columnToJLong(ci: ColumnInfo[T, java.lang.Long])(implicit m: ValuesMap): java.lang.Long = m.long(ci)
-	protected implicit def columnToJDouble(ci: ColumnInfo[T, java.lang.Double])(implicit m: ValuesMap): java.lang.Double = m.double(ci)
-	protected implicit def columnToJFloat(ci: ColumnInfo[T, java.lang.Float])(implicit m: ValuesMap): java.lang.Float = m.float(ci)
-
 	// many to many : Scala
 	protected implicit def columnTraversableManyToManyToSet[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F])(implicit m: ValuesMap): Set[F] = m(ci).toSet
 	protected implicit def columnTraversableManyToManyToList[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F])(implicit m: ValuesMap): List[F] = m(ci).toList
 	protected implicit def columnTraversableManyToManyToIndexedSeq[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F])(implicit m: ValuesMap): IndexedSeq[F] = m(ci).toIndexedSeq
 	protected implicit def columnTraversableManyToManyToArray[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F])(implicit m: ValuesMap, e: ClassManifest[F]): Array[F] = m(ci).toArray
 
-	// many to many : Java
-	protected implicit def columnTraversableManyToManyToJSet[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F])(implicit m: ValuesMap): java.util.Set[F] =
-		m(ci) match {
-			case null => null
-			case v => v.toSet.asJava
-		}
-	protected implicit def columnTraversableManyToManyToJList[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F])(implicit m: ValuesMap): java.util.List[F] = m(ci) match {
-		case null => null
-		case v => v.toList.asJava
-	}
 	// many to one
 	protected implicit def columnManyToOneToValue[T, FPC, F](ci: ColumnInfoManyToOne[T, FPC, F])(implicit m: ValuesMap): F = m(ci)
 	protected implicit def columnManyToOneToOptionValue[T, FPC, F](ci: ColumnInfoManyToOne[T, FPC, F])(implicit m: ValuesMap): Option[F] = m(ci) match {
@@ -148,16 +131,6 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	protected implicit def columnTraversableOneToManySet[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap): Set[E] = m(ci).toSet
 	protected implicit def columnTraversableOneToManyIndexedSeq[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap): IndexedSeq[E] = m(ci).toIndexedSeq
 	protected implicit def columnTraversableOneToManyArray[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap, e: ClassManifest[E]): Array[E] = m(ci).toArray
-
-	// one to many : Java
-	protected implicit def columnTraversableOneToManyJList[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap): java.util.List[E] = m(ci) match {
-		case null => null
-		case v => v.toList.asJava
-	}
-	protected implicit def columnTraversableOneToManyJSet[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap): java.util.Set[E] = m(ci) match {
-		case null => null
-		case v => v.toSet.asJava
-	}
 
 	// simple typec entities, one-to-many
 	protected implicit def columnTraversableOneToManyListStringEntity[T, EPC](ci: ColumnInfoTraversableOneToMany[T, EPC, StringValue])(implicit m: ValuesMap): List[String] =
@@ -460,4 +433,34 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 		def option(columnToValue: T => Option[FT]): ColumnInfoManyToOne[T, FPC, FT] =
 			to(optionToValue(columnToValue))
 	}
+
+	// ===================== Java section ================================
+	protected implicit def columnToJBoolean(ci: ColumnInfo[T, java.lang.Boolean])(implicit m: ValuesMap): java.lang.Boolean = m(ci)
+	protected implicit def columnToJShort(ci: ColumnInfo[T, java.lang.Short])(implicit m: ValuesMap): java.lang.Short = m.short(ci)
+	protected implicit def columnToJInteger(ci: ColumnInfo[T, java.lang.Integer])(implicit m: ValuesMap): java.lang.Integer = m.int(ci)
+	protected implicit def columnToJLong(ci: ColumnInfo[T, java.lang.Long])(implicit m: ValuesMap): java.lang.Long = m.long(ci)
+	protected implicit def columnToJDouble(ci: ColumnInfo[T, java.lang.Double])(implicit m: ValuesMap): java.lang.Double = m.double(ci)
+	protected implicit def columnToJFloat(ci: ColumnInfo[T, java.lang.Float])(implicit m: ValuesMap): java.lang.Float = m.float(ci)
+
+	// many to many : Java
+	protected implicit def columnTraversableManyToManyToJSet[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F])(implicit m: ValuesMap): java.util.Set[F] =
+		m(ci) match {
+			case null => null
+			case v => v.toSet.asJava
+		}
+	protected implicit def columnTraversableManyToManyToJList[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F])(implicit m: ValuesMap): java.util.List[F] = m(ci) match {
+		case null => null
+		case v => v.toList.asJava
+	}
+	// one to many : Java
+	protected implicit def columnTraversableOneToManyJList[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap): java.util.List[E] = m(ci) match {
+		case null => null
+		case v => v.toList.asJava
+	}
+	protected implicit def columnTraversableOneToManyJSet[T, EPC, E](ci: ColumnInfoTraversableOneToMany[T, EPC, E])(implicit m: ValuesMap): java.util.Set[E] = m(ci) match {
+		case null => null
+		case v => v.toSet.asJava
+	}
+
+	// ===================== /Java section ================================
 }
