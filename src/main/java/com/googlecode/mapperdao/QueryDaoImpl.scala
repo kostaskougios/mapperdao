@@ -40,7 +40,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			val e = qe.entity
 			val tpe = e.tpe
 			val sql = driver.countSql(aliases, e)
-			val q = SqlBuilder.select(driver.escapeNamesStrategy)
+			val q = new driver.sqlBuilder.SqlSelectBuilder
 			val s = whereAndArgs(q, defaultQueryConfig, qe, aliases)
 			val r = q.result
 			driver.queryForLong(queryConfig, sql + "\n" + r.sql, r.values)
@@ -54,7 +54,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 
 			val aliases = new Aliases(typeRegistry)
 
-			val q = SqlBuilder.select(driver.escapeNamesStrategy)
+			val q = new driver.sqlBuilder.SqlSelectBuilder
 			val outer = driver.beforeStartOfQuery(q, queryConfig, qe, columns)
 			driver.startQuery(q, queryConfig, aliases, qe, columns)
 			whereAndArgs(q, queryConfig, qe, aliases)
@@ -62,7 +62,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			outer
 		}
 
-	private def whereAndArgs[PC, T](q: SqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], aliases: Aliases) =
+	private def whereAndArgs[PC, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], aliases: Aliases) =
 		{
 			// iterate through the joins in the correct order
 			qe.joins.reverse.foreach { j =>
