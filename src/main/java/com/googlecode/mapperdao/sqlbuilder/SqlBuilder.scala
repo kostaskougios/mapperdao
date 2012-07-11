@@ -105,40 +105,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		def toValues = e.toValues
 	}
 
-	class WhereBuilder {
-		private var e: Expression = null
-
-		def andAll(alias: String, columnsAndValues: List[(String, Any)], op: String) = {
-			e = columnsAndValues.foldLeft[Expression](e) { (c, cav) =>
-				val (column, value) = cav
-				val clause = Clause(alias, column, op, value)
-				c match {
-					case null => clause
-					case _ => And(c, clause)
-				}
-			}
-			this
-		}
-
-		def apply(alias: String, column: String, op: String, value: Any) = {
-			if (e != null) throw new IllegalStateException("where clause already set to " + e)
-			e = Clause(alias, column, op, value)
-			this
-		}
-
-		def apply(e: Expression) = {
-			if (this.e != null) throw new IllegalStateException("where clause already set to " + this.e)
-			this.e = e
-			this
-		}
-
-		def and(e: Expression) = {
-			if (this.e == null) throw new IllegalStateException("can't perform 'and', where clause not set")
-
-			this.e = And(this.e, e)
-			this
-		}
-
+	class WhereBuilder(e: Expression) {
 		def toValues = e.toValues
 
 		def toSql = "\nwhere " + e.toSql
@@ -154,7 +121,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		private var innerJoins = List[InnerJoinBuilder]()
 		private var atTheEnd = List[String]()
 
-		val where = new WhereBuilder
+		private var whereBuilder: Option[WhereBuilder] = None
 
 		def columns(alias: String, cs: List[String]) = {
 			cols = cols ::: cs.map((if (alias != null) alias + "." else "") + escapeNamesStrategy.escapeColumnNames(_))
@@ -171,6 +138,31 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		def from(table: String, alias: String, hints: String): this.type = {
 			if (fromClause != null) throw new IllegalStateException("from already called for %s".format(from))
 			fromClause = Table(table, alias, hints)
+			this
+		}
+
+		def whereAll(alias: String, columnsAndValues: List[(String, Any)], op: String) = {
+			if (whereBuilder.isDefined) throw new IllegalStateException("where already defiled")
+			whereBuilder = Some(new WhereBuilder(columnsAndValues.foldLeft[Expression](null) { (c, cav) =>
+				val (column, value) = cav
+				val clause = Clause(alias, column, op, value)
+				c match {
+					case null => clause
+					case _ => And(c, clause)
+				}
+			}))
+			this
+		}
+
+		def where(alias: String, column: String, op: String, value: Any) = {
+			if (whereBuilder.isDefined) throw new IllegalStateException("where already defiled")
+			whereBuilder = Some(new WhereBuilder(Clause(alias, column, op, value)))
+			this
+		}
+
+		def where(e: Expression) = {
+			if (whereBuilder.isDefined) throw new IllegalStateException("where already defined")
+			whereBuilder = Some(new WhereBuilder(e))
 			this
 		}
 
@@ -191,7 +183,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 
 		def result = Result(toSql, toValues)
 
-		def toValues = innerJoins.map { _.toValues } ::: where.toValues
+		def toValues = innerJoins.map { _.toValues } ::: whereBuilder.map(_.toValues).getOrElse(Nil)
 		def toSql = {
 			val s = new StringBuilder("select ")
 			s append cols.map(n => escapeNamesStrategy.escapeColumnNames(n)).mkString(",") append "\n"
@@ -199,7 +191,8 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			innerJoins.foreach { j =>
 				s append j.toSql append "\n"
 			}
-			s append where.toSql
+			whereBuilder.foreach(s append _.toSql)
+
 			if (!atTheEnd.isEmpty) s append "\n" append atTheEnd.reverse.mkString("\n")
 			s.toString
 		}

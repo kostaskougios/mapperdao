@@ -41,6 +41,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			val tpe = e.tpe
 			val q = new driver.sqlBuilder.SqlSelectBuilder
 			driver.countSql(q, aliases, e)
+			joins(q, defaultQueryConfig, qe, aliases)
 			whereAndArgs(q, defaultQueryConfig, qe, aliases)
 			val r = q.result
 			driver.queryForLong(queryConfig, r.sql, r.values)
@@ -57,12 +58,13 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			val q = new driver.sqlBuilder.SqlSelectBuilder
 			val outer = driver.beforeStartOfQuery(q, queryConfig, qe, columns)
 			driver.startQuery(q, queryConfig, aliases, qe, columns)
+			joins(q, queryConfig, qe, aliases)
 			whereAndArgs(q, queryConfig, qe, aliases)
 			driver.endOfQuery(outer, queryConfig, qe)
 			outer
 		}
 
-	private def whereAndArgs[PC, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], aliases: Aliases) =
+	private def joins[PC, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], aliases: Aliases) =
 		{
 			// iterate through the joins in the correct order
 			qe.joins.reverse.foreach { j =>
@@ -93,7 +95,10 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					q.innerJoin(joined)
 				}
 			}
+		}
 
+	private def whereAndArgs[PC, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], aliases: Aliases) =
+		{
 			// append the where clause and get the list of arguments
 			if (!qe.wheres.isEmpty) {
 				val e = driver.queryExpressions(aliases, qe.wheres)

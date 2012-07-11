@@ -230,7 +230,7 @@ abstract class Driver {
 				).map(_.name).distinct
 			)
 			sql.from(tpe.table.name, null, applyHints(selectConfig.hints))
-			sql.where.andAll(null, where.map {
+			sql.whereAll(null, where.map {
 				case (c, v) =>
 					(c.name, v)
 			}, "=")
@@ -268,7 +268,7 @@ abstract class Driver {
 			val wcs = leftKeyValues.map {
 				case (c, v) => (c.name, v)
 			}
-			sql.where.andAll("l", wcs, "=")
+			sql.whereAll("l", wcs, "=")
 			sql
 		}
 
@@ -285,7 +285,7 @@ abstract class Driver {
 			val sql = new sqlBuilder.SqlSelectBuilder
 			sql.columns(null, linkTable.right.map(n => n.name))
 			sql.from(linkTable.name, null, applyHints(selectConfig.hints))
-			sql.where.andAll(null, leftKeyValues.map {
+			sql.whereAll(null, leftKeyValues.map {
 				case (c, v) => (c.name, v)
 			}, "=")
 			sql
@@ -313,7 +313,7 @@ abstract class Driver {
 			val sql = new sqlBuilder.SqlSelectBuilder
 			sql.columns(null, linkTable.right.map(n => n.name))
 			sql.from(linkTable.name)
-			sql.where.andAll(null, leftKeyValues.map {
+			sql.whereAll(null, leftKeyValues.map {
 				case (c, v) => (c.name, v)
 			}, "=")
 			sql
@@ -617,7 +617,7 @@ abstract class Driver {
 		{
 			val table = entity.tpe.table
 			val alias = aliases(entity)
-			q.columns(null, List("*"))
+			q.columns(null, List("count(*)"))
 			q.from(table.name, alias, null)
 
 			//			val sb = new StringBuilder(50, "select count(*)")
