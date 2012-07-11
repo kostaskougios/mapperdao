@@ -9,6 +9,7 @@ import com.googlecode.mapperdao.Query
 import com.googlecode.mapperdao.QueryConfig
 import com.googlecode.mapperdao.TypeManager
 import com.googlecode.mapperdao.SimpleColumn
+import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 
 /**
  * mapperdao driver for Sql Server
@@ -55,17 +56,24 @@ class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager:
 		} else ""
 	}
 
-	override def beforeStartOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T], columns: List[SimpleColumn], sql: StringBuilder): Unit =
+	override def beforeStartOfQuery[PC, T](q: SqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], columns: List[SimpleColumn]) =
 		if (queryConfig.hasRange) {
-			sql append "select * from (\n"
-		}
+			val nq = SqlBuilder.select(escapeNamesStrategy)
+			nq.columns(null, List("*"))
+			nq.from(q)
+			//sql append "select * from (\n"
+			nq
+		} else q
 
-	override def endOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T], sql: StringBuilder): Unit =
+	override def endOfQuery[PC, T](q: SqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
 		if (queryConfig.hasRange) {
 			val offset = queryConfig.offset.getOrElse(0l) + 1
-			sql append "\n) as t\nwhere Row between " append offset append " and "
-			sql append (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue)
-		}
+			val w = q.where
+			w(SqlBuilder.BetweenClause(escapeNamesStrategy, null, "Row", offset, (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue)))
+			//			sql append "\n) as t\nwhere Row between " append offset append " and "
+			//			sql append (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue)
+			q
+		} else q
 
 	override def shouldCreateOrderByClause(queryConfig: QueryConfig): Boolean = !queryConfig.hasRange
 

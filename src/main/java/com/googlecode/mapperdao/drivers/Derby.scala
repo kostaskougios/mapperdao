@@ -1,14 +1,15 @@
 package com.googlecode.mapperdao.drivers
+
 import com.googlecode.mapperdao.jdbc.Jdbc
-import com.googlecode.mapperdao.TypeRegistry
+import com.googlecode.mapperdao.jdbc.UpdateResultWithGeneratedKeys
+import com.googlecode.mapperdao.Query
 import com.googlecode.mapperdao.ColumnBase
-import com.googlecode.mapperdao.Type
 import com.googlecode.mapperdao.PK
 import com.googlecode.mapperdao.QueryConfig
-import com.googlecode.mapperdao.Query
-import com.googlecode.mapperdao.jdbc.UpdateResultWithGeneratedKeys
-import com.googlecode.mapperdao.TypeManager
 import com.googlecode.mapperdao.SimpleColumn
+import com.googlecode.mapperdao.TypeManager
+import com.googlecode.mapperdao.TypeRegistry
+import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 
 /**
  * @author kostantinos.kougios
@@ -30,10 +31,11 @@ class Derby(override val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeMan
 		case PK(columnName, true, sequence) => "NEXT VALUE FOR %s".format(sequence.get)
 	}
 
-	override def endOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T], sql: StringBuilder): Unit =
+	override def endOfQuery[PC, T](q: SqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
 		{
-			queryConfig.offset.foreach(sql append "\noffset " append _ append " rows")
-			queryConfig.limit.foreach(sql append "\nfetch next " append _ append " rows only")
+			queryConfig.offset.foreach(o => q.appendSql("offset " + o + " rows"))
+			queryConfig.limit.foreach(l => q.appendSql("fetch next " + l + " rows only"))
+			q
 		}
 
 	override def toString = "Derby"

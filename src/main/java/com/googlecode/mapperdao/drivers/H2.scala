@@ -9,6 +9,7 @@ import com.googlecode.mapperdao.QueryConfig
 import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.TypeManager
 import com.googlecode.mapperdao.SimpleColumn
+import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 
 /**
  * @author kostantinos.kougios
@@ -30,13 +31,14 @@ class H2(override val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManage
 		case PK(columnName, true, sequence) => "NEXTVAL('%s')".format(sequence.get)
 	}
 
-	override def endOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T], sql: StringBuilder): Unit =
+	override def endOfQuery[PC, T](q: SqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
 		{
-			queryConfig.limit.foreach(sql append "\nlimit " append _)
+			queryConfig.limit.foreach(l => q.appendSql("limit " + l))
 			queryConfig.offset.foreach { o =>
-				if (!queryConfig.limit.isDefined) sql append "\nlimit -1"
-				sql append "\noffset " append o
+				if (!queryConfig.limit.isDefined) q.appendSql("limit -1")
+				q.appendSql("offset " + o)
 			}
+			q
 		}
 
 	override def toString = "H2"

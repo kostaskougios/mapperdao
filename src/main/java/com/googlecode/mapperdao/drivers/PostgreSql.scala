@@ -8,6 +8,7 @@ import com.googlecode.mapperdao.QueryConfig
 import com.googlecode.mapperdao.Query
 import com.googlecode.mapperdao.TypeManager
 import com.googlecode.mapperdao.SimpleColumn
+import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 
 /**
  * @author kostantinos.kougios
@@ -36,10 +37,11 @@ class PostgreSql(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager
 		case PK(columnName, true, sequence) => "NEXTVAL('%s')".format(sequence.get)
 	}
 
-	override def endOfQuery[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T], sql: StringBuilder): Unit =
+	override def endOfQuery[PC, T](q: SqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
 		{
-			queryConfig.offset.foreach(sql append "\noffset " append _)
-			queryConfig.limit.foreach(sql append "\nlimit " append _)
+			queryConfig.offset.foreach(o => q.appendSql("offset " + o))
+			queryConfig.limit.foreach(l => q.appendSql("limit " + l))
+			q
 		}
 
 	override def toString = "PostgreSql"

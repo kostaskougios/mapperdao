@@ -14,6 +14,7 @@ private[mapperdao] object SqlBuilder {
 
 	trait Expression {
 		def toSql: String
+		def toValues: List[Any]
 	}
 	abstract class Combine extends Expression {
 		val left: Expression
@@ -21,9 +22,11 @@ private[mapperdao] object SqlBuilder {
 	}
 	case class And(left: Expression, right: Expression) extends Combine {
 		override def toSql = left.toSql + " and " + right.toSql
+		override def toValues = left.toValues ::: right.toValues
 	}
 	case class Or(left: Expression, right: Expression) extends Combine {
 		override def toSql = left.toSql + " or " + right.toSql
+		override def toValues = left.toValues ::: right.toValues
 	}
 
 	trait FromClause {
@@ -51,6 +54,8 @@ private[mapperdao] object SqlBuilder {
 			sb append escapeNamesStrategy.escapeColumnNames(column) append op append "?"
 			sb.toString
 		}
+
+		override def toValues = List(value)
 	}
 	case class NonValueClause(escapeNamesStrategy: EscapeNamesStrategy,
 			leftAlias: String, left: String,
@@ -65,6 +70,13 @@ private[mapperdao] object SqlBuilder {
 			sb append escapeNamesStrategy.escapeColumnNames(right)
 			sb.toString
 		}
+
+		override def toValues = Nil
+	}
+
+	case class BetweenClause(escapeNamesStrategy: EscapeNamesStrategy, alias: String, column: String, left: Any, right: Any) extends Expression {
+		override def toSql = column + " " + (if (alias != null) alias else "") + " between ? and ?"
+		override def toValues = left :: right :: Nil
 	}
 
 	class InnerJoinBuilder(escapeNamesStrategy: EscapeNamesStrategy, table: String, alias: String, hints: String) {
@@ -116,9 +128,17 @@ private[mapperdao] object SqlBuilder {
 			e = Clause(escapeNamesStrategy, alias, column, op, value)
 			this
 		}
+
 		def apply(e: Expression) = {
 			if (this.e != null) throw new IllegalStateException("where clause already set to " + this.e)
 			this.e = e
+			this
+		}
+
+		def and(e: Expression) = {
+			if (this.e == null) throw new IllegalStateException("can't perform 'and', where clause not set")
+
+			this.e = And(this.e, e)
 			this
 		}
 
@@ -139,6 +159,8 @@ private[mapperdao] object SqlBuilder {
 		private var cols = List[String]()
 		private var fromClause: FromClause = null
 		private var innerJoins = List[InnerJoinBuilder]()
+		private var atTheEnd = List[String]()
+
 		val where = new WhereBuilder(escapeNamesStrategy)
 
 		def columns(alias: String, cs: List[String]) = {
@@ -156,6 +178,11 @@ private[mapperdao] object SqlBuilder {
 		def from(table: String, alias: String, hints: String): this.type = {
 			if (fromClause != null) throw new IllegalStateException("from already called for %s".format(from))
 			fromClause = Table(escapeNamesStrategy, table, alias, hints)
+			this
+		}
+
+		def appendSql(sql: String) = {
+			atTheEnd = sql :: atTheEnd
 			this
 		}
 
@@ -180,6 +207,7 @@ private[mapperdao] object SqlBuilder {
 				s append j.toSql append "\n"
 			}
 			s append "where " append where.toSql
+			if (!atTheEnd.isEmpty) s append "\n" append atTheEnd.reverse.mkString("\n")
 			s.toString
 		}
 
