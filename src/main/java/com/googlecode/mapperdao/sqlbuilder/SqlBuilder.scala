@@ -108,7 +108,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 	class WhereBuilder(e: Expression) {
 		def toValues = e.toValues
 
-		def toSql = "\nwhere " + e.toSql
+		def toSql = "where " + e.toSql
 
 		override def toString = "WhereBuilder(%s)".format(e.toSql)
 	}
@@ -185,13 +185,14 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 
 		def toValues = innerJoins.map { _.toValues } ::: whereBuilder.map(_.toValues).getOrElse(Nil)
 		def toSql = {
+			if (fromClause == null) throw new IllegalStateException("fromClause is null")
 			val s = new StringBuilder("select ")
 			s append cols.map(n => escapeNamesStrategy.escapeColumnNames(n)).mkString(",") append "\n"
-			s append "from " append from.toSql append "\n"
+			s append "from " append fromClause.toSql append "\n"
 			innerJoins.foreach { j =>
 				s append j.toSql append "\n"
 			}
-			whereBuilder.foreach(s append _.toSql)
+			whereBuilder.foreach(s append _.toSql append "\n")
 
 			if (!atTheEnd.isEmpty) s append "\n" append atTheEnd.reverse.mkString("\n")
 			s.toString
