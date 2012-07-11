@@ -613,13 +613,16 @@ abstract class Driver {
 	 * aggregate methods
 	 * =====================================================================================
 	 */
-	def countSql[PC, T](aliases: QueryDao.Aliases, entity: Entity[PC, T]): String =
+	def countSql[PC, T](q: sqlBuilder.SqlSelectBuilder, aliases: QueryDao.Aliases, entity: Entity[PC, T]): Unit =
 		{
-			val tpe = entity.tpe
-			val sb = new StringBuilder(50, "select count(*)")
+			val table = entity.tpe.table
 			val alias = aliases(entity)
-			sb append "\nfrom " append escapeNamesStrategy.escapeTableNames(tpe.table.name) append " " append alias
-			sb.toString
+			q.columns(null, List("*"))
+			q.from(table.name, alias, null)
+
+			//			val sb = new StringBuilder(50, "select count(*)")
+			//			sb append "\nfrom " append escapeNamesStrategy.escapeTableNames(tpe.table.name) append " " append alias
+			//			sb.toString
 		}
 
 	/**

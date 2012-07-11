@@ -39,11 +39,11 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			val aliases = new Aliases(typeRegistry)
 			val e = qe.entity
 			val tpe = e.tpe
-			val sql = driver.countSql(aliases, e)
 			val q = new driver.sqlBuilder.SqlSelectBuilder
-			val s = whereAndArgs(q, defaultQueryConfig, qe, aliases)
+			driver.countSql(q, aliases, e)
+			whereAndArgs(q, defaultQueryConfig, qe, aliases)
 			val r = q.result
-			driver.queryForLong(queryConfig, sql + "\n" + r.sql, r.values)
+			driver.queryForLong(queryConfig, r.sql, r.values)
 		}
 
 	private def sqlAndArgs[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =

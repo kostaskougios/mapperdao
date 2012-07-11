@@ -142,6 +142,8 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		def toValues = e.toValues
 
 		def toSql = "\nwhere " + e.toSql
+
+		override def toString = "WhereBuilder(%s)".format(e.toSql)
 	}
 
 	case class Result(sql: String, values: List[Any])
