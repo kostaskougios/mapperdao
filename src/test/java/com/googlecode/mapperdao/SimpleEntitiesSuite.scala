@@ -18,7 +18,6 @@ import org.scalatest.matchers.ShouldMatchers
 class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 	import SimpleEntitiesSpec._
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
-
 	test("delete by id") {
 
 		createJobPositionTable

@@ -24,7 +24,7 @@ abstract class Driver {
 	 * =====================================================================================
 	 */
 	val escapeNamesStrategy: EscapeNamesStrategy
-	val sqlBuilder = new SqlBuilder(escapeNamesStrategy)
+	val sqlBuilder: SqlBuilder
 
 	protected[mapperdao] def commaSeparatedListOfSimpleTypeColumns[T](separator: String, columns: Traversable[SimpleColumn], prefix: String = ""): String =
 		columns.map(_.name).map(prefix + escapeNamesStrategy.escapeColumnNames(_)).mkString(separator)

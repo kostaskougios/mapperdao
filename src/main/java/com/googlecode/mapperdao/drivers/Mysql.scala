@@ -21,6 +21,7 @@ class Mysql(override val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeMan
 		override def escapeColumnNames(name: String) = name
 		override def escapeTableNames(name: String) = name
 	}
+	val sqlBuilder = new SqlBuilder(escapeNamesStrategy)
 
 	override protected def sequenceSelectNextSql(sequenceColumn: ColumnBase): String = throw new IllegalStateException("MySql doesn't support sequences")
 
