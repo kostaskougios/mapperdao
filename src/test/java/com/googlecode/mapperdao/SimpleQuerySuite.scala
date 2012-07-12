@@ -22,6 +22,22 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers {
 	import mapperDao._
 	import queryDao._
 
+	test("query with both limits , with orderby") {
+		createJobPositionTable
+
+		val now = Setup.now
+		val l = for (i <- 0 to 10) yield insert(JobPositionEntity, JobPosition(i, "x" + i, now))
+		query(QueryConfig(offset = Some(5), limit = Some(3)), qWithLimitAndOrderBy) should be === List(l(5), l(4), l(3))
+	}
+
+	test("query with limits (limit only)") {
+		createJobPositionTable
+
+		val now = Setup.now
+		val l = for (i <- 0 to 10) yield insert(JobPositionEntity, JobPosition(i, "x" + i, now))
+		query(QueryConfig(limit = Some(3)), qWithLimit) should be === List(l(0), l(1), l(2))
+	}
+
 	test("count with where clause") {
 		createJobPositionTable
 
@@ -41,14 +57,6 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers {
 		queryDao.count(q0) should be === 8
 	}
 
-	test("query with limits (limit only)") {
-		createJobPositionTable
-
-		val now = Setup.now
-		val l = for (i <- 0 to 10) yield insert(JobPositionEntity, JobPosition(i, "x" + i, now))
-		query(QueryConfig(limit = Some(3)), qWithLimit) should be === List(l(0), l(1), l(2))
-	}
-
 	test("query with limits (offset only)") {
 		createJobPositionTable
 
@@ -57,20 +65,12 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers {
 		query(QueryConfig(offset = Some(5)), qWithLimit) should be === List(l(5), l(6), l(7), l(8), l(9), l(10))
 	}
 
-	test("query with limits (both)") {
+	test("query with both limits") {
 		createJobPositionTable
 
 		val now = Setup.now
 		val l = for (i <- 0 to 10) yield insert(JobPositionEntity, JobPosition(i, "x" + i, now))
 		query(QueryConfig.limits(5, 3), qWithLimit) should be === List(l(5), l(6), l(7))
-	}
-
-	test("query with limits (both with orderby)") {
-		createJobPositionTable
-
-		val now = Setup.now
-		val l = for (i <- 0 to 10) yield insert(JobPositionEntity, JobPosition(i, "x" + i, now))
-		query(QueryConfig(offset = Some(5), limit = Some(3)), qWithLimitAndOrderBy) should be === List(l(5), l(4), l(3))
 	}
 
 	test("query builder") {

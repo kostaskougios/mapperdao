@@ -60,6 +60,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			driver.startQuery(q, queryConfig, aliases, qe, columns)
 			joins(q, queryConfig, qe, aliases)
 			whereAndArgs(q, queryConfig, qe, aliases)
+			orderBy(q, queryConfig, qe, aliases)
 			driver.endOfQuery(outer, queryConfig, qe)
 			outer
 		}
@@ -98,18 +99,17 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 		}
 
 	private def whereAndArgs[PC, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], aliases: Aliases) =
-		{
-			// append the where clause and get the list of arguments
-			if (!qe.wheres.isEmpty) {
-				val e = driver.queryExpressions(aliases, qe.wheres)
-				q.where(e)
-			}
+		// append the where clause and get the list of arguments
+		if (!qe.wheres.isEmpty) {
+			val e = driver.queryExpressions(aliases, qe.wheres)
+			q.where(e)
+		}
 
-			if (!qe.order.isEmpty) {
-				val orderColumns = qe.order.map(t => (t._1.column, t._2))
+	private def orderBy[PC, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], aliases: Aliases) =
+		if (!qe.order.isEmpty) {
+			val orderColumns = qe.order.map { case (ci, ascDesc) => (ci.column, ascDesc) }
 
-				val orderBySql = driver.orderBy(queryConfig, aliases, orderColumns)
-			}
+			driver.orderBy(q, queryConfig, aliases, orderColumns)
 		}
 }
 

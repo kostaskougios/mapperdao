@@ -357,23 +357,20 @@ abstract class Driver {
 	 */
 
 	// select ... from 
-	def startQuery[PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[PC, T], columns: List[SimpleColumn]): String =
+	def startQuery[PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[PC, T], columns: List[SimpleColumn]) =
 		{
 			val entity = qe.entity
 			val tpe = entity.tpe
-			val sb = new StringBuilder(100, "select ")
-			val qAS = queryAfterSelect(queryConfig, aliases, qe, columns)
-			if (!qAS.isEmpty) {
-				sb.append(qAS).append(',')
-			}
+			val qAS = queryAfterSelect(q, queryConfig, aliases, qe, columns)
 			val alias = aliases(entity)
-			sb append commaSeparatedListOfSimpleTypeColumns(alias + ".", ",", columns)
-			sb append "\nfrom " append escapeNamesStrategy.escapeTableNames(tpe.table.name) append " " append alias
 
-			sb.toString
+			q.columns(alias, columns.map(_.name))
+			q.from(tpe.table.name, alias, null)
+			//			sb append commaSeparatedListOfSimpleTypeColumns(alias + ".", ",", columns)
+			//			sb append "\nfrom " append escapeNamesStrategy.escapeTableNames(tpe.table.name) append " " append alias
 		}
 
-	def queryAfterSelect[PC, T](queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[PC, T], columns: List[SimpleColumn]): String = ""
+	def queryAfterSelect[PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[PC, T], columns: List[SimpleColumn]): Unit = {}
 
 	// creates the join for one-to-one-reverse
 	def oneToOneReverseJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], oneToOneReverse: OneToOneReverse[_, _]) =
@@ -594,11 +591,12 @@ abstract class Driver {
 	//	}
 
 	// create order by clause
-	def orderBy(queryConfig: QueryConfig, aliases: QueryDao.Aliases, columns: List[(SimpleColumn, Query.AscDesc)]): String = if (shouldCreateOrderByClause(queryConfig)) {
-		"\norder by " + columns.map {
-			case (c, ascDesc) =>
-				aliases(c) + "." + escapeNamesStrategy.escapeColumnNames(c.name) + " " + ascDesc.sql
-		}.mkString(",")
+	def orderBy(q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, columns: List[(SimpleColumn, Query.AscDesc)]): Unit = if (shouldCreateOrderByClause(queryConfig)) {
+		q.order
+		//		"\norder by " + columns.map {
+		//			case (c, ascDesc) =>
+		//				aliases(c) + "." + escapeNamesStrategy.escapeColumnNames(c.name) + " " + ascDesc.sql
+		//		}.mkString(",")
 	} else ""
 
 	def shouldCreateOrderByClause(queryConfig: QueryConfig): Boolean = true

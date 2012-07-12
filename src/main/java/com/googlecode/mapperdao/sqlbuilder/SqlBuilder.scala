@@ -119,6 +119,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		private var cols = List[String]()
 		private var fromClause: FromClause = null
 		private var innerJoins = List[InnerJoinBuilder]()
+		private var orderByBuilder: Option[OrderByBuilder] = None
 		private var atTheEnd = List[String]()
 
 		private var whereBuilder: Option[WhereBuilder] = None
@@ -181,6 +182,11 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			ijb
 		}
 
+		def orderBy(obb: OrderByBuilder) = {
+			orderByBuilder = Some(obb);
+			this
+		}
+
 		def result = Result(toSql, toValues)
 
 		def toValues = innerJoins.map { _.toValues } ::: whereBuilder.map(_.toValues).getOrElse(Nil)
@@ -193,11 +199,18 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 				s append j.toSql append "\n"
 			}
 			whereBuilder.foreach(s append _.toSql append "\n")
-
+			orderByBuilder.fore
 			if (!atTheEnd.isEmpty) s append "\n" append atTheEnd.reverse.mkString("\n")
 			s.toString
 		}
 
 		override def toString = "SqlSelectBuilder(" + toSql + ")"
+	}
+
+	case class OrderByExpression(column: String, ascDesc: String) {
+		def toSql = column + " " + ascDesc
+	}
+	class OrderByBuilder(expressions: List[OrderByExpression]) {
+		def toSql = "order by %s".format(expressions.map(_.toSql).mkString(","))
 	}
 }
