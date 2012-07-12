@@ -101,7 +101,13 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			this
 		}
 
-		def toSql = "inner join %s %s %s on %s".format(table, alias, hints, e.toSql)
+		def toSql = {
+			val sb = new StringBuilder("inner join ") append table append " "
+			if (alias != null) sb append alias append " "
+			if (hints != null) sb append hints append " "
+			sb append "on " append e.toSql
+			sb.toString
+		}
 		def toValues = e.toValues
 	}
 
@@ -189,7 +195,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 
 		def result = Result(toSql, toValues)
 
-		def toValues = innerJoins.map { _.toValues } ::: whereBuilder.map(_.toValues).getOrElse(Nil)
+		def toValues = innerJoins.map { _.toValues }.flatten ::: whereBuilder.map(_.toValues).getOrElse(Nil)
 		def toSql = {
 			if (fromClause == null) throw new IllegalStateException("fromClause is null")
 			val s = new StringBuilder("select ")
