@@ -411,13 +411,6 @@ abstract class Driver {
 					j.and(jAlias, left.name, "=", fAlias, right.name)
 			}
 			j
-
-			//			val sb = new StringBuilder
-			//			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(foreignTable.name) append " " append fAlias append " on "
-			//			(manyToOne.columns zip foreignTable.primaryKeys).foreach { t =>
-			//				sb append jAlias append "." append t._1.name append " = " append fAlias append "." append t._2.name append " "
-			//			}
-			//			sb.toString
 		}
 
 	// creates the join for one-to-many
