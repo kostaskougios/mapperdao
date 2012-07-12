@@ -72,7 +72,6 @@ class UseCaseManyToManyForTraitSuite extends FunSuite with ShouldMatchers {
 			(
 				select
 				from cle
-				join (cle, cle.people, p)
 				where
 				cle.people === nick
 			).toList(queryDao).toSet should be === Set(inserted1, inserted2)
@@ -80,7 +79,6 @@ class UseCaseManyToManyForTraitSuite extends FunSuite with ShouldMatchers {
 			(
 				select
 				from cle
-				join (cle, cle.people, p)
 				where
 				cle.people === filipos
 			).toList(queryDao).toSet should be === Set(inserted2)
@@ -88,7 +86,6 @@ class UseCaseManyToManyForTraitSuite extends FunSuite with ShouldMatchers {
 			(
 				select
 				from cle
-				join (cle, cle.people, p)
 				where
 				cle.companies === company2
 			).toList(queryDao).toSet should be === Set(inserted2)
@@ -96,7 +93,6 @@ class UseCaseManyToManyForTraitSuite extends FunSuite with ShouldMatchers {
 			(
 				select
 				from cle
-				join (cle, cle.people, p)
 				where
 				(cle.companies === company2) or (cle.people === nick)
 			).toList(queryDao).toSet should be === Set(inserted1, inserted2)
@@ -106,7 +102,7 @@ class UseCaseManyToManyForTraitSuite extends FunSuite with ShouldMatchers {
 				from cle
 				join (cle, cle.people, p)
 				where
-				(cle.companies === company2) or (cle.people === nick)
+				(cle.companies === company2) or (p.name === "nick")
 				orderBy (cle.name)
 			).toList(queryDao)
 			r should be === List(inserted1, inserted2, inserted2, inserted2)
