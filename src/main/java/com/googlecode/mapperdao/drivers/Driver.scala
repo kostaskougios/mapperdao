@@ -592,7 +592,12 @@ abstract class Driver {
 
 	// create order by clause
 	def orderBy(q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, columns: List[(SimpleColumn, Query.AscDesc)]): Unit = if (shouldCreateOrderByClause(queryConfig)) {
-		q.order
+		new sqlBuilder.OrderByBuilder(
+			columns.map {
+				case (c, ad) =>
+					sqlBuilder.OrderByExpression(c.name, ad.sql)
+			}
+		)
 		//		"\norder by " + columns.map {
 		//			case (c, ascDesc) =>
 		//				aliases(c) + "." + escapeNamesStrategy.escapeColumnNames(c.name) + " " + ascDesc.sql
