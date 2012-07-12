@@ -22,6 +22,40 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers {
 	import mapperDao._
 	import queryDao._
 
+	test("query select complex parenthesis") {
+		createJobPositionTable
+
+		val now = Setup.now
+		val j10 = insert(JobPositionEntity, JobPosition(10, "correct", now))
+		val j11 = insert(JobPositionEntity, JobPosition(11, "correct", now))
+		val j12 = insert(JobPositionEntity, JobPosition(12, "wrong", now))
+		val j15 = insert(JobPositionEntity, JobPosition(15, "correct", now))
+		val j16 = insert(JobPositionEntity, JobPosition(16, "correct", now))
+		val j17 = insert(JobPositionEntity, JobPosition(17, "correct", now))
+		val j20 = insert(JobPositionEntity, JobPosition(20, "correct", now))
+
+		val j30 = insert(JobPositionEntity, JobPosition(30, "correct", now))
+		val j31 = insert(JobPositionEntity, JobPosition(31, "correct", now))
+		val j32 = insert(JobPositionEntity, JobPosition(32, "correct", now))
+		val j33 = insert(JobPositionEntity, JobPosition(33, "correct", now))
+		val j37 = insert(JobPositionEntity, JobPosition(37, "wrong", now))
+		val j41 = insert(JobPositionEntity, JobPosition(41, "correct", now))
+		query(q9).toSet should be === Set(j11, j15, j16, j17, j31, j32, j33)
+	}
+
+	test("query select where string value like") {
+		createJobPositionTable
+
+		val now = Setup.now
+		val j5 = insert(JobPositionEntity, JobPosition(5, "developer", now))
+		val j6 = insert(JobPositionEntity, JobPosition(6, "Scala Developer", now))
+		val j7 = insert(JobPositionEntity, JobPosition(7, "manager", now))
+		val j8 = insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
+		val j12 = insert(JobPositionEntity, JobPosition(12, "Scala Developer", now))
+		val j9 = insert(JobPositionEntity, JobPosition(9, "x", now))
+		query(q7).toSet should be === Set(j5, j6, j8, j12)
+	}
+
 	test("query with both limits , with orderby") {
 		createJobPositionTable
 
@@ -202,19 +236,6 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers {
 		query(q6).toSet should be === Set(j7)
 	}
 
-	test("query select where string value like") {
-		createJobPositionTable
-
-		val now = Setup.now
-		val j5 = insert(JobPositionEntity, JobPosition(5, "developer", now))
-		val j6 = insert(JobPositionEntity, JobPosition(6, "Scala Developer", now))
-		val j7 = insert(JobPositionEntity, JobPosition(7, "manager", now))
-		val j8 = insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
-		val j12 = insert(JobPositionEntity, JobPosition(12, "Scala Developer", now))
-		val j9 = insert(JobPositionEntity, JobPosition(9, "x", now))
-		query(q7).toSet should be === Set(j5, j6, j8, j12)
-	}
-
 	test("query select parenthesis") {
 		createJobPositionTable
 
@@ -226,27 +247,6 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers {
 		val j12 = insert(JobPositionEntity, JobPosition(12, "Scala Developer", now))
 		val j9 = insert(JobPositionEntity, JobPosition(9, "x", now))
 		query(q8).toSet should be === Set(j5, j7, j9, j12)
-	}
-
-	test("query select complex parenthesis") {
-		createJobPositionTable
-
-		val now = Setup.now
-		val j10 = insert(JobPositionEntity, JobPosition(10, "correct", now))
-		val j11 = insert(JobPositionEntity, JobPosition(11, "correct", now))
-		val j12 = insert(JobPositionEntity, JobPosition(12, "wrong", now))
-		val j15 = insert(JobPositionEntity, JobPosition(15, "correct", now))
-		val j16 = insert(JobPositionEntity, JobPosition(16, "correct", now))
-		val j17 = insert(JobPositionEntity, JobPosition(17, "correct", now))
-		val j20 = insert(JobPositionEntity, JobPosition(20, "correct", now))
-
-		val j30 = insert(JobPositionEntity, JobPosition(30, "correct", now))
-		val j31 = insert(JobPositionEntity, JobPosition(31, "correct", now))
-		val j32 = insert(JobPositionEntity, JobPosition(32, "correct", now))
-		val j33 = insert(JobPositionEntity, JobPosition(33, "correct", now))
-		val j37 = insert(JobPositionEntity, JobPosition(37, "wrong", now))
-		val j41 = insert(JobPositionEntity, JobPosition(41, "correct", now))
-		query(q9).toSet should be === Set(j11, j15, j16, j17, j31, j32, j33)
 	}
 
 	test("query select datetime") {

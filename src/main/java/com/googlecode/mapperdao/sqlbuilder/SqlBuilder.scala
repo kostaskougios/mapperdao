@@ -21,11 +21,11 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		val right: Expression
 	}
 	case class And(left: Expression, right: Expression) extends Combine {
-		override def toSql = left.toSql + " and " + right.toSql
+		override def toSql = "(" + left.toSql + ") and (" + right.toSql + ")"
 		override def toValues = left.toValues ::: right.toValues
 	}
 	case class Or(left: Expression, right: Expression) extends Combine {
-		override def toSql = left.toSql + " or " + right.toSql
+		override def toSql = "(" + left.toSql + ") or (" + right.toSql + ")"
 		override def toValues = left.toValues ::: right.toValues
 	}
 
@@ -37,7 +37,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		override def toSql = {
 			val sb = new StringBuilder
 			if (alias != null) sb append (alias) append (".")
-			sb append escapeNamesStrategy.escapeColumnNames(column) append op append "?"
+			sb append escapeNamesStrategy.escapeColumnNames(column) append " " append op append " ?"
 			sb.toString
 		}
 
