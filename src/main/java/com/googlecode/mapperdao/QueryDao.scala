@@ -49,6 +49,7 @@ object QueryDao {
 		private val aliases = new java.util.IdentityHashMap[Any, String]
 		private var aliasCount = new scala.collection.mutable.HashMap[String, Int]
 
+		override def toString = "Aliases(%s)".format(aliases)
 		private def getCnt(prefix: String): Int = {
 			val v = aliasCount.getOrElseUpdate(prefix, 1)
 			aliasCount(prefix) = v + 1
@@ -95,7 +96,8 @@ object QueryDao {
 		def apply(c: ColumnBase): String =
 			{
 				val v = aliases.get(c)
-				if (v == null) throw new IllegalStateException("key not found:" + c + " , are your aliases correct?")
+				if (v == null)
+					throw new IllegalStateException("key not found:" + c + " , are your aliases correct?")
 				v
 			}
 	}

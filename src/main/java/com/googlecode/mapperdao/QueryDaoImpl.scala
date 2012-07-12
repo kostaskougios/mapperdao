@@ -3,6 +3,7 @@ import com.googlecode.mapperdao.exceptions.QueryException
 import com.googlecode.mapperdao.drivers.Driver
 import java.util.concurrent.ConcurrentHashMap
 import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
+import com.googlecode.mapperdao.utils.NYI
 
 /**
  * the QueryDao implementation
@@ -83,7 +84,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 									val join = driver.oneToManyJoin(aliases, joinEntity, foreignEntity, oneToMany)
 									q.innerJoin(join)
 								case manyToMany: ManyToMany[_, _] =>
-									val (leftJoin, rightJoin) = driver.manyToManyJoin(aliases, joinEntity, foreignEntity, manyToMany)
+									val List(leftJoin, rightJoin) = driver.manyToManyJoin(aliases, joinEntity, foreignEntity, manyToMany)
 									q.innerJoin(leftJoin)
 									q.innerJoin(rightJoin)
 								case oneToOneReverse: OneToOneReverse[_, _] =>
@@ -95,6 +96,30 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					val joined = driver.joinTable(aliases, j)
 					q.innerJoin(joined)
 				}
+			}
+
+			def joins(op: OpBase): Unit = op match {
+				case and: AndOp =>
+					joins(and.left)
+					joins(and.right)
+				case and: OrOp =>
+					joins(and.left)
+					joins(and.right)
+				case mto: ManyToOneOperation[Any, Any, Any] =>
+					NYI()
+				case OneToManyOperation(left: OneToMany[_, _], operand: Operand, right: Any) =>
+					NYI()
+				case ManyToManyOperation(left: ManyToMany[_, _], operand: Operand, right: Any) =>
+					val foreignEntity = left.foreign.entity
+					val entity = typeRegistry.entityOf(left)
+					driver.manyToManyJoin(aliases, entity, foreignEntity, left).foreach { j =>
+						q.innerJoin(j)
+					}
+				case _ => //noop
+			}
+			// also where clauses might imply joins
+			qe.wheres.map(_.clauses).map { op =>
+				joins(op)
 			}
 		}
 

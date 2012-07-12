@@ -468,7 +468,7 @@ abstract class Driver {
 				case (left, right) =>
 					j2.and(fAlias, left.name, "=", linkTableAlias, right.name)
 			}
-			(j1, j2)
+			List(j1, j2)
 
 			//			val sb = new StringBuilder
 			//			// left part
@@ -496,13 +496,6 @@ abstract class Driver {
 			val e = queryExpressions(aliases, join.on.ons)
 			j(e)
 			j
-
-			//			val sb = new StringBuilder
-			//			sb append "\njoin " append escapeNamesStrategy.escapeTableNames(jTable.name) append " " append qAlias
-			//
-			//			if (join.on != null) {
-			//				queryExpressions(q, aliases, join.on.ons, sb)
-			//			}
 		}
 
 	// creates the sql and params for expressions (i.e. id=5 and name='x')
@@ -544,10 +537,7 @@ abstract class Driver {
 						sqlBuilder.And(l, r)
 					}
 				case OneToManyOperation(left: OneToMany[_, _], operand: Operand, right: Any) =>
-					//					val entity = typeRegistry.entityOf(left)
 					val foreignEntity = left.foreign.entity
-					//					val mj = oneToManyJoin(aliases, entity, foreignEntity, left)
-					//					q.innerJoin(mj)
 					val fTpe = foreignEntity.tpe
 					val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
 					val exprs = fPKColumnAndValues.map {
@@ -558,19 +548,14 @@ abstract class Driver {
 						sqlBuilder.And(l, r)
 					}
 				case ManyToManyOperation(left: ManyToMany[_, _], operand: Operand, right: Any) =>
-					//					val entity = typeRegistry.entityOf(left)
 					val foreignEntity = left.foreign.entity
-					//					val (leftJoin, rightJoin) = manyToManyJoin(aliases, entity, foreignEntity, left)
-					//					q.innerJoin(leftJoin)
-					//					q.innerJoin(rightJoin)
-
 					val fTpe = foreignEntity.tpe
+
 					val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
-					val exprs = fPKColumnAndValues.map {
+					fPKColumnAndValues.map {
 						case (c, v) =>
 							sqlBuilder.Clause(aliases(c), c.name, operand.sql, v)
-					}
-					exprs.reduceLeft[sqlBuilder.Expression] { (l, r) =>
+					}.reduceLeft[sqlBuilder.Expression] { (l, r) =>
 						sqlBuilder.And(l, r)
 					}
 			}
@@ -582,14 +567,6 @@ abstract class Driver {
 			}
 		}
 
-	//	protected def resolveWhereExpression(aliases: QueryDao.Aliases, args: scala.collection.mutable.Builder[Any, List[Any]], v: Any): SqlBuilder.Expression = v match {
-	//		case c: SimpleColumn =>
-	//			aliases(c) + "." + escapeNamesStrategy.escapeColumnNames(c.name)
-	//		case _ =>
-	//			args += v
-	//			"?"
-	//	}
-
 	// create order by clause
 	def orderBy(queryConfig: QueryConfig, aliases: QueryDao.Aliases, columns: List[(SimpleColumn, Query.AscDesc)]) = if (shouldCreateOrderByClause(queryConfig)) {
 		Some(
@@ -600,10 +577,6 @@ abstract class Driver {
 				}
 			)
 		)
-		//		"\norder by " + columns.map {
-		//			case (c, ascDesc) =>
-		//				aliases(c) + "." + escapeNamesStrategy.escapeColumnNames(c.name) + " " + ascDesc.sql
-		//		}.mkString(",")
 	} else None
 
 	def shouldCreateOrderByClause(queryConfig: QueryConfig): Boolean = true
