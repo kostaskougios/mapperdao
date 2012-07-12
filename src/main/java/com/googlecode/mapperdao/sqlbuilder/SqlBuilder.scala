@@ -51,7 +51,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		override def toSql = {
 			val sb = new StringBuilder
 			if (leftAlias != null) sb append (leftAlias) append (".")
-			sb append escapeNamesStrategy.escapeColumnNames(left) append op
+			sb append escapeNamesStrategy.escapeColumnNames(left) append " " append op append " "
 			if (rightAlias != null) sb append rightAlias append "."
 			sb append escapeNamesStrategy.escapeColumnNames(right)
 			sb.toString
