@@ -552,9 +552,11 @@ abstract class Driver {
 					val fTpe = foreignEntity.tpe
 
 					val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
-					fPKColumnAndValues.map {
-						case (c, v) =>
-							sqlBuilder.Clause(aliases(c), c.name, operand.sql, v)
+					if (fPKColumnAndValues.size != left.linkTable.right.size) throw new IllegalStateException("linktable not having the correct right columns for %s and %s".format(fPKColumnAndValues, left.linkTable.right))
+					val zipped = (fPKColumnAndValues zip left.linkTable.right)
+					zipped.map {
+						case ((c, v), ltr) =>
+							sqlBuilder.Clause(aliases(left.linkTable), ltr.name, operand.sql, v)
 					}.reduceLeft[sqlBuilder.Expression] { (l, r) =>
 						sqlBuilder.And(l, r)
 					}

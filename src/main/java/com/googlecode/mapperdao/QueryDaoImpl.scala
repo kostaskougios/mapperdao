@@ -112,9 +112,8 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 				case ManyToManyOperation(left: ManyToMany[_, _], operand: Operand, right: Any) =>
 					val foreignEntity = left.foreign.entity
 					val entity = typeRegistry.entityOf(left)
-					driver.manyToManyJoin(aliases, entity, foreignEntity, left).foreach { j =>
-						q.innerJoin(j)
-					}
+					val List(leftJ, rightJ) = driver.manyToManyJoin(aliases, entity, foreignEntity, left)
+					q.innerJoin(leftJ)
 				case _ => //noop
 			}
 			// also where clauses might imply joins
