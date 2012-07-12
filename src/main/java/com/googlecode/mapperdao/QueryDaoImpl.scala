@@ -108,8 +108,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 	private def orderBy[PC, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], aliases: Aliases) =
 		if (!qe.order.isEmpty) {
 			val orderColumns = qe.order.map { case (ci, ascDesc) => (ci.column, ascDesc) }
-
-			driver.orderBy(q, queryConfig, aliases, orderColumns)
+			driver.orderBy(queryConfig, aliases, orderColumns).foreach(q.orderBy(_))
 		}
 }
 

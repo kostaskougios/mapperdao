@@ -200,7 +200,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			}
 			whereBuilder.foreach(s append _.toSql append "\n")
 			orderByBuilder.foreach(s append _.toSql append "\n")
-			if (!atTheEnd.isEmpty) s append "\n" append atTheEnd.reverse.mkString("\n")
+			if (!atTheEnd.isEmpty) s append atTheEnd.reverse.mkString("\n")
 			s.toString
 		}
 
