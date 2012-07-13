@@ -41,7 +41,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			val e = qe.entity
 			val tpe = e.tpe
 			val q = new driver.sqlBuilder.SqlSelectBuilder
-			driver.countSql(q, aliases, e)
+			countSql(q, aliases, e)
 			joins(q, defaultQueryConfig, qe, aliases)
 			whereAndArgs(q, defaultQueryConfig, qe, aliases)
 			val r = q.result
@@ -304,4 +304,16 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			List(j1, j2)
 		}
 
+	/**
+	 * =====================================================================================
+	 * aggregate methods
+	 * =====================================================================================
+	 */
+	def countSql[PC, T](q: driver.sqlBuilder.SqlSelectBuilder, aliases: QueryDao.Aliases, entity: Entity[PC, T]): Unit =
+		{
+			val table = entity.tpe.table
+			val alias = aliases(entity)
+			q.columns(null, List("count(*)"))
+			q.from(table.name, alias, null)
+		}
 }

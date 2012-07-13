@@ -378,19 +378,6 @@ abstract class Driver {
 
 	/**
 	 * =====================================================================================
-	 * aggregate methods
-	 * =====================================================================================
-	 */
-	def countSql[PC, T](q: sqlBuilder.SqlSelectBuilder, aliases: QueryDao.Aliases, entity: Entity[PC, T]): Unit =
-		{
-			val table = entity.tpe.table
-			val alias = aliases(entity)
-			q.columns(null, List("count(*)"))
-			q.from(table.name, alias, null)
-		}
-
-	/**
-	 * =====================================================================================
 	 * generic queries
 	 * =====================================================================================
 	 */
