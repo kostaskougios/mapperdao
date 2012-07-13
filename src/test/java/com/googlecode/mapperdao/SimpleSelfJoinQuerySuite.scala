@@ -15,50 +15,40 @@ import org.scalatest.matchers.ShouldMatchers
 @RunWith(classOf[JUnitRunner])
 class SimpleSelfJoinQuerySuite extends FunSuite with ShouldMatchers {
 
-	import SimpleSelfJoinQuerySpec._
+	val JobPositionEntity = new JobPositionEntityBase
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
-
-	import SSJQS._
-	import mapperDao._
-	import queryDao._
 
 	test("query join with alias") {
 		createJobPositionTable
 
 		val now = Setup.now
-		val j1 = insert(JobPositionEntity, JobPosition(1, "developer", now))
-		val j2 = insert(JobPositionEntity, JobPosition(2, "Scala Developer", now))
-		val j3 = insert(JobPositionEntity, JobPosition(3, "manager", now))
-		val j4 = insert(JobPositionEntity, JobPosition(4, "Scala Developer", now))
-		val j5 = insert(JobPositionEntity, JobPosition(5, "Scala Developer", now))
-		val j6 = insert(JobPositionEntity, JobPosition(6, "driver", DateTime.now))
-		query(q11).toSet should be === Set(j2, j4, j5)
+		val j1 = mapperDao.insert(JobPositionEntity, JobPosition(1, "developer", now))
+		val j2 = mapperDao.insert(JobPositionEntity, JobPosition(2, "Scala Developer", now))
+		val j3 = mapperDao.insert(JobPositionEntity, JobPosition(3, "manager", now))
+		val j4 = mapperDao.insert(JobPositionEntity, JobPosition(4, "Scala Developer", now))
+		val j5 = mapperDao.insert(JobPositionEntity, JobPosition(5, "Scala Developer", now))
+		val j6 = mapperDao.insert(JobPositionEntity, JobPosition(6, "driver", DateTime.now))
+		queryDao.query(q11).toSet should be === Set(j2, j4, j5)
 	}
 
 	def createJobPositionTable {
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
-}
 
-object SimpleSelfJoinQuerySpec {
+	def q11 =
+		{
+			import Query._
+			// main table
+			val jp1 = JobPositionEntity
+			// alias of same table
+			val jp2 = new JobPositionEntityBase
 
-	object SSJQS {
-		import Query._
-		def q11 =
-			{
-				// main table
-				val jp1 = JobPositionEntity
-				// alias of same table
-				val jp2 = new JobPositionEntityBase
-
-				select from jp1 join
-					jp2 on
-					jp1.name === jp2.name and
-					jp1.id <> jp2.id
-			}
-	}
-
+			select from jp1 join
+				jp2 on
+				jp1.name === jp2.name and
+				jp1.id <> jp2.id
+		}
 	case class JobPosition(val id: Int, var name: String, val start: DateTime)
 
 	class JobPositionEntityBase extends SimpleEntity[JobPosition] {
@@ -68,5 +58,4 @@ object SimpleSelfJoinQuerySpec {
 
 		def constructor(implicit m) = new JobPosition(id, name, start) with Persisted
 	}
-	val JobPositionEntity = new JobPositionEntityBase
 }
