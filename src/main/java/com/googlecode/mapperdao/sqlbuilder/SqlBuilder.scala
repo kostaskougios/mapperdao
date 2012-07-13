@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao.sqlbuilder
 
 import com.googlecode.mapperdao.drivers.EscapeNamesStrategy
+import com.googlecode.mapperdao.SimpleColumn
 
 /**
  * builds queries, inserts, updates and deletes
@@ -148,22 +149,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			this
 		}
 
-		def whereAll(alias: String, columnsAndValues: List[(String, Any)], op: String) =
-			if (whereBuilder.isDefined)
-				throw new IllegalStateException("where already defiled")
-			else {
-				whereBuilder = Some(
-					new WhereBuilder(columnsAndValues.foldLeft[Expression](null) {
-						case (prevClause, (column, value)) =>
-							val clause = Clause(alias, column, op, value)
-							prevClause match {
-								case null => clause
-								case _ => And(prevClause, clause)
-							}
-					})
-				)
-				this
-			}
+		def whereAll(alias: String, columnsAndValues: List[(String, Any)], op: String) = SqlBuilder.this.whereAll(alias, columnsAndValues, op)
 
 		def where(alias: String, column: String, op: String, value: Any) = {
 			if (whereBuilder.isDefined) throw new IllegalStateException("where already defiled")
@@ -217,6 +203,21 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		override def toString = "SqlSelectBuilder(" + toSql + ")"
 	}
 
+	def whereAllColumns(alias: String, columnsAndValues: List[(SimpleColumn, Any)], op: String): WhereBuilder =
+		whereAll(alias, columnsAndValues.map {
+			case (c, v) => (c.name, v)
+		}, op)
+
+	def whereAll(alias: String, columnsAndValues: List[(String, Any)], op: String): WhereBuilder =
+		new WhereBuilder(columnsAndValues.foldLeft[Expression](null) {
+			case (prevClause, (column, value)) =>
+				val clause = Clause(alias, column, op, value)
+				prevClause match {
+					case null => clause
+					case _ => And(prevClause, clause)
+				}
+		})
+
 	case class OrderByExpression(column: String, ascDesc: String) {
 		def toSql = column + " " + ascDesc
 	}
@@ -238,7 +239,11 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			this
 		}
 
+		def result = Result(toSql, toValues)
+
 		def toSql = "delete from %s where %s".format(fromClause.toSql, whereBuilder.toSql)
 		def toValues = whereBuilder.toValues
+
+		override def toString = "DeleteBuilder(%s)".format(toSql)
 	}
 }

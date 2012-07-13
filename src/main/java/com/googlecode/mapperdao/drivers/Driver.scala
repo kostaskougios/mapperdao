@@ -324,16 +324,21 @@ abstract class Driver {
 	 */
 	def doDelete[PC, T](tpe: Type[PC, T], whereColumnValues: List[(SimpleColumn, Any)]): Unit =
 		{
-			val sql = deleteSql(tpe, whereColumnValues)
-			jdbc.update(sql, whereColumnValues.map(_._2))
+			val s = deleteSql(tpe, whereColumnValues).result
+			jdbc.update(s.sql, s.values)
 		}
 
-	protected def deleteSql[PC, T](tpe: Type[PC, T], whereColumnValues: List[(SimpleColumn, Any)]): String =
+	protected def deleteSql[PC, T](tpe: Type[PC, T], whereColumnValues: List[(SimpleColumn, Any)]) =
 		{
-			val sb = new StringBuilder(100, "delete from ")
-			sb append escapeNamesStrategy.escapeTableNames(tpe.table.name) append " where " append generateColumnsEqualsValueString(whereColumnValues.map(_._1), " and ")
-
-			sb.toString
+			val s = new sqlBuilder.DeleteBuilder
+			s.from(sqlBuilder.Table(tpe.table.name, null, null))
+			s.where(sqlBuilder.whereAllColumns(null, whereColumnValues, "="))
+			s
+			//
+			//			val sb = new StringBuilder(100, "delete from ")
+			//			sb append escapeNamesStrategy.escapeTableNames(tpe.table.name) append " where " append generateColumnsEqualsValueString(whereColumnValues.map(_._1), " and ")
+			//
+			//			sb.toString
 		}
 
 	def doDeleteOneToOneReverse[PC, T, FPC, FT](tpe: Type[PC, T], ftpe: Type[FPC, FT], oneToOneReverse: OneToOneReverse[FPC, FT], keyValues: List[Any]): Unit =
