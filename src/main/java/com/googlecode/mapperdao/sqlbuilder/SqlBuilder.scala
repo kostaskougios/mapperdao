@@ -223,4 +223,22 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 	class OrderByBuilder(expressions: List[OrderByExpression]) {
 		def toSql = "order by %s".format(expressions.map(_.toSql).mkString(","))
 	}
+
+	class DeleteBuilder {
+		private var fromClause: FromClause = null
+		private var whereBuilder: WhereBuilder = null
+
+		def from(fromClause: FromClause) = {
+			this.fromClause = fromClause
+			this
+		}
+
+		def where(whereBuilder: WhereBuilder) = {
+			this.whereBuilder = whereBuilder
+			this
+		}
+
+		def toSql = "delete from %s where %s".format(fromClause.toSql, whereBuilder.toSql)
+		def toValues = whereBuilder.toValues
+	}
 }
