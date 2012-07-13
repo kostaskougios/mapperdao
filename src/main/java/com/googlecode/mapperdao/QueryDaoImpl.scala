@@ -16,6 +16,7 @@ import com.googlecode.mapperdao.utils.NYI
  */
 final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends QueryDao {
 
+	private val sqlBuilder = driver.sqlBuilder
 	import QueryDao._
 
 	def query[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]): List[T with PC] =
@@ -40,7 +41,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			val aliases = new Aliases(typeRegistry)
 			val e = qe.entity
 			val tpe = e.tpe
-			val q = new driver.sqlBuilder.SqlSelectBuilder
+			val q = new sqlBuilder.SqlSelectBuilder
 			countSql(q, aliases, e)
 			joins(q, defaultQueryConfig, qe, aliases)
 			whereAndArgs(q, defaultQueryConfig, qe, aliases)
