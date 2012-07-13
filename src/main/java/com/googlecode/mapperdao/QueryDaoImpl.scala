@@ -78,17 +78,17 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 						case join: Query.Join[_, _, _, PC, T] =>
 							join.column match {
 								case manyToOne: ManyToOne[_, _] =>
-									val join = driver.manyToOneJoin(aliases, joinEntity, foreignEntity, manyToOne)
+									val join = manyToOneJoin(aliases, joinEntity, foreignEntity, manyToOne)
 									q.innerJoin(join)
 								case oneToMany: OneToMany[_, _] =>
-									val join = driver.oneToManyJoin(aliases, joinEntity, foreignEntity, oneToMany)
+									val join = oneToManyJoin(aliases, joinEntity, foreignEntity, oneToMany)
 									q.innerJoin(join)
 								case manyToMany: ManyToMany[_, _] =>
-									val List(leftJoin, rightJoin) = driver.manyToManyJoin(aliases, joinEntity, foreignEntity, manyToMany)
+									val List(leftJoin, rightJoin) = manyToManyJoin(aliases, joinEntity, foreignEntity, manyToMany)
 									q.innerJoin(leftJoin)
 									q.innerJoin(rightJoin)
 								case oneToOneReverse: OneToOneReverse[_, _] =>
-									val join = driver.oneToOneReverseJoin(aliases, joinEntity, foreignEntity, oneToOneReverse)
+									val join = oneToOneReverseJoin(aliases, joinEntity, foreignEntity, oneToOneReverse)
 									q.innerJoin(join)
 							}
 					}
@@ -108,12 +108,12 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 				case OneToManyOperation(left: OneToMany[_, _], operand: Operand, right: Any) =>
 					val entity = typeRegistry.entityOf(left)
 					val foreignEntity = left.foreign.entity
-					q.innerJoin(driver.oneToManyJoin(aliases, entity, foreignEntity, left))
+					q.innerJoin(oneToManyJoin(aliases, entity, foreignEntity, left))
 
 				case ManyToManyOperation(left: ManyToMany[_, _], operand: Operand, right: Any) =>
 					val foreignEntity = left.foreign.entity
 					val entity = typeRegistry.entityOf(left)
-					val List(leftJ, rightJ) = driver.manyToManyJoin(aliases, entity, foreignEntity, left)
+					val List(leftJ, rightJ) = manyToManyJoin(aliases, entity, foreignEntity, left)
 					q.innerJoin(leftJ)
 				case _ => //noop
 			}
@@ -226,5 +226,82 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 				driver.sqlBuilder.And(l, r)
 			}
 		}
-}
 
+	// creates the join for one-to-one-reverse
+	private def oneToOneReverseJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], oneToOneReverse: OneToOneReverse[_, _]) =
+		{
+			val tpe = joinEntity.tpe
+			val table = tpe.table
+			val foreignTpe = foreignEntity.tpe
+			val foreignTable = foreignTpe.table
+			val fAlias = aliases(foreignEntity)
+			val jAlias = aliases(joinEntity)
+
+			val j = new driver.sqlBuilder.InnerJoinBuilder(foreignTable.name, fAlias, null)
+			(table.primaryKeys zip oneToOneReverse.foreignColumns).foreach {
+				case (left, right) =>
+					j.and(jAlias, left.name, "=", fAlias, right.name)
+			}
+			j
+		}
+
+	// creates the join for many-to-one
+	private def manyToOneJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], manyToOne: ManyToOne[_, _]) =
+		{
+			val foreignTable = foreignEntity.tpe.table
+			val fAlias = aliases(foreignEntity)
+			val jAlias = aliases(joinEntity)
+
+			val j = new driver.sqlBuilder.InnerJoinBuilder(foreignTable.name, fAlias, null)
+			(manyToOne.columns zip foreignTable.primaryKeys).foreach {
+				case (left, right) =>
+					j.and(jAlias, left.name, "=", fAlias, right.name)
+			}
+			j
+		}
+
+	// creates the join for one-to-many
+	private def oneToManyJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], oneToMany: OneToMany[_, _]) =
+		{
+			val joinTpe = joinEntity.tpe
+			val foreignTpe = foreignEntity.tpe
+
+			val fAlias = aliases(foreignEntity)
+			val jAlias = aliases(joinEntity)
+
+			val j = new driver.sqlBuilder.InnerJoinBuilder(foreignTpe.table.name, fAlias, null)
+			(joinTpe.table.primaryKeys zip oneToMany.foreignColumns).foreach {
+				case (left, right) =>
+					j.and(jAlias, left.name, "=", fAlias, right.name)
+			}
+			j
+		}
+
+	// creates the join for one-to-many
+	private def manyToManyJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], manyToMany: ManyToMany[_, _]) =
+		{
+			val joinTpe = joinEntity.tpe
+			val foreignTpe = foreignEntity.tpe
+
+			val foreignTable = foreignTpe.table
+			val fAlias = aliases(foreignEntity)
+			val jAlias = aliases(joinEntity)
+
+			val linkTable = manyToMany.linkTable
+			val linkTableAlias = aliases(linkTable)
+
+			val j1 = new driver.sqlBuilder.InnerJoinBuilder(linkTable.name, linkTableAlias, null)
+			(joinTpe.table.primaryKeys zip linkTable.left).foreach {
+				case (left, right) =>
+					j1.and(linkTableAlias, right.name, "=", jAlias, left.name)
+			}
+
+			val j2 = new driver.sqlBuilder.InnerJoinBuilder(foreignTable.name, fAlias, null)
+			(foreignTable.primaryKeys zip linkTable.right).foreach {
+				case (left, right) =>
+					j2.and(fAlias, left.name, "=", linkTableAlias, right.name)
+			}
+			List(j1, j2)
+		}
+
+}
