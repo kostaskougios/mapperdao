@@ -148,18 +148,22 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			this
 		}
 
-		def whereAll(alias: String, columnsAndValues: List[(String, Any)], op: String) = {
-			if (whereBuilder.isDefined) throw new IllegalStateException("where already defiled")
-			whereBuilder = Some(new WhereBuilder(columnsAndValues.foldLeft[Expression](null) { (c, cav) =>
-				val (column, value) = cav
-				val clause = Clause(alias, column, op, value)
-				c match {
-					case null => clause
-					case _ => And(c, clause)
-				}
-			}))
-			this
-		}
+		def whereAll(alias: String, columnsAndValues: List[(String, Any)], op: String) =
+			if (whereBuilder.isDefined)
+				throw new IllegalStateException("where already defiled")
+			else {
+				whereBuilder = Some(
+					new WhereBuilder(columnsAndValues.foldLeft[Expression](null) {
+						case (prevClause, (column, value)) =>
+							val clause = Clause(alias, column, op, value)
+							prevClause match {
+								case null => clause
+								case _ => And(prevClause, clause)
+							}
+					})
+				)
+				this
+			}
 
 		def where(alias: String, column: String, op: String, value: Any) = {
 			if (whereBuilder.isDefined) throw new IllegalStateException("where already defiled")

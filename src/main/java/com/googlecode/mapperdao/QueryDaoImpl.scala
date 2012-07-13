@@ -93,7 +93,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 							}
 					}
 				} else {
-					val joined = driver.joinTable(aliases, j)
+					val joined = joinTable(aliases, j)
 					q.innerJoin(joined)
 				}
 			}
@@ -126,14 +126,105 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 	private def whereAndArgs[PC, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], aliases: Aliases) =
 		// append the where clause and get the list of arguments
 		if (!qe.wheres.isEmpty) {
-			val e = driver.queryExpressions(aliases, qe.wheres)
+			val e = queryExpressions(aliases, qe.wheres)
 			q.where(e)
 		}
 
 	private def orderBy[PC, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], aliases: Aliases) =
 		if (!qe.order.isEmpty) {
 			val orderColumns = qe.order.map { case (ci, ascDesc) => (ci.column, ascDesc) }
-			driver.orderBy(queryConfig, aliases, orderColumns).foreach(q.orderBy(_))
+			if (driver.shouldCreateOrderByClause(queryConfig)) {
+				val obb = new driver.sqlBuilder.OrderByBuilder(
+					orderColumns.map {
+						case (c, ad) =>
+							driver.sqlBuilder.OrderByExpression(c.name, ad.sql)
+					}
+				)
+				q.orderBy(obb)
+			}
+		}
+
+	private def joinTable(aliases: QueryDao.Aliases, join: Query.Join[_, _, Entity[_, _], _, _]) =
+		{
+			val jEntity = join.entity
+			val jTable = jEntity.tpe.table
+			val qAlias = aliases(jEntity)
+
+			val e = queryExpressions(aliases, join.on.ons)
+			val j = new driver.sqlBuilder.InnerJoinBuilder(jTable.name, qAlias, null)
+			j(e)
+			j
+		}
+
+	// creates the sql and params for expressions (i.e. id=5 and name='x')
+	private def queryExpressions[PC, T](aliases: QueryDao.Aliases, wheres: List[Query.Where[PC, T]]): driver.sqlBuilder.Expression =
+		{
+			def inner(op: OpBase): driver.sqlBuilder.Expression = op match {
+				case o: Operation[_] =>
+					o.right match {
+						case rc: SimpleColumn =>
+							driver.sqlBuilder.NonValueClause(aliases(o.left), o.left.name, o.operand.sql, aliases(rc), rc.name)
+						case _ =>
+							driver.sqlBuilder.Clause(aliases(o.left), o.left.name, o.operand.sql, o.right)
+					}
+				case and: AndOp =>
+					driver.sqlBuilder.And(inner(and.left), inner(and.right))
+				case and: OrOp =>
+					driver.sqlBuilder.Or(inner(and.left), inner(and.right))
+				case mto: ManyToOneOperation[Any, Any, Any] =>
+					val ManyToOneOperation(left, operand, right) = mto
+					val exprs = if (right == null) {
+						left.columns map { c =>
+							val r = operand match {
+								case EQ() => "null"
+								case NE() => "not null"
+								case _ => throw new IllegalArgumentException("operand %s not valid when right hand parameter is null.".format(operand))
+							}
+							driver.sqlBuilder.NonValueClause(aliases(c), c.name, "is", null, r)
+						}
+					} else {
+						val fTpe = left.foreign.entity.tpe
+						val fPKs = fTpe.table.toListOfPrimaryKeyValues(right)
+						if (left.columns.size != fPKs.size) throw new IllegalStateException("foreign keys %s don't match foreign key columns %s".format(fPKs, left.columns))
+						left.columns zip fPKs map {
+							case (c, v) =>
+								driver.sqlBuilder.Clause(aliases(c), c.name, operand.sql, v)
+						}
+					}
+					exprs.reduceLeft { (l, r) =>
+						driver.sqlBuilder.And(l, r)
+					}
+				case OneToManyOperation(left: OneToMany[_, _], operand: Operand, right: Any) =>
+					val foreignEntity = left.foreign.entity
+					val fTpe = foreignEntity.tpe
+					val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
+					val exprs = fPKColumnAndValues.map {
+						case (c, v) =>
+							driver.sqlBuilder.Clause(aliases(c), c.name, operand.sql, v)
+					}
+					exprs.reduceLeft[driver.sqlBuilder.Expression] { (l, r) =>
+						driver.sqlBuilder.And(l, r)
+					}
+				case ManyToManyOperation(left: ManyToMany[_, _], operand: Operand, right: Any) =>
+					val foreignEntity = left.foreign.entity
+					val fTpe = foreignEntity.tpe
+
+					val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
+					if (fPKColumnAndValues.size != left.linkTable.right.size) throw new IllegalStateException("linktable not having the correct right columns for %s and %s".format(fPKColumnAndValues, left.linkTable.right))
+					val zipped = (fPKColumnAndValues zip left.linkTable.right)
+					zipped.map {
+						case ((c, v), ltr) =>
+							driver.sqlBuilder.Clause(aliases(left.linkTable), ltr.name, operand.sql, v)
+					}.reduceLeft[driver.sqlBuilder.Expression] { (l, r) =>
+						driver.sqlBuilder.And(l, r)
+					}
+			}
+
+			wheres.map(_.clauses).map { op =>
+				inner(op)
+			}.reduceLeft { (l, r) =>
+				driver.sqlBuilder.And(l, r)
+			}
 		}
 }
 
