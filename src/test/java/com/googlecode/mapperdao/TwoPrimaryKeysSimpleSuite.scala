@@ -13,11 +13,7 @@ import org.scalatest.matchers.ShouldMatchers
  */
 @RunWith(classOf[JUnitRunner])
 class TwoPrimaryKeysSimpleSuite extends FunSuite with ShouldMatchers {
-	import TwoPrimaryKeysSimpleSpec._
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(UserEntity))
-
-	import queryDao._
-	import TestQueries._
 
 	test("insert") {
 		createTables
@@ -74,16 +70,17 @@ class TwoPrimaryKeysSimpleSuite extends FunSuite with ShouldMatchers {
 		val u3 = mapperDao.insert(UserEntity, User("Antonis", "Agnostos", 23))
 		val u4 = mapperDao.insert(UserEntity, User("Kostas", "Patroklos", 24))
 
-		query(q0) should be === List(u0, u4, u2)
+		val u = UserEntity
+
+		import Query._
+		queryDao.query(select from u where
+			u.surname === "Kougios" or u.name === "Kostas" orderBy (u.name, u.surname)) should be === List(u0, u4, u2)
 	}
 
 	def createTables = {
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
-}
-
-object TwoPrimaryKeysSimpleSpec {
 
 	case class User(val name: String, val surname: String, val age: Int)
 
@@ -94,13 +91,4 @@ object TwoPrimaryKeysSimpleSpec {
 
 		def constructor(implicit m) = new User(name, surname, age) with Persisted
 	}
-
-	object TestQueries {
-		val u = UserEntity
-
-		import Query._
-		def q0 = select from u where
-			u.surname === "Kougios" or u.name === "Kostas" orderBy (u.name, u.surname)
-	}
-
 }
