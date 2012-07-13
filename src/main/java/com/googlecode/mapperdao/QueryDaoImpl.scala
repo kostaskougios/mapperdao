@@ -309,7 +309,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 	 * aggregate methods
 	 * =====================================================================================
 	 */
-	def countSql[PC, T](q: driver.sqlBuilder.SqlSelectBuilder, aliases: QueryDao.Aliases, entity: Entity[PC, T]): Unit =
+	private def countSql[PC, T](q: driver.sqlBuilder.SqlSelectBuilder, aliases: QueryDao.Aliases, entity: Entity[PC, T]): Unit =
 		{
 			val table = entity.tpe.table
 			val alias = aliases(entity)
