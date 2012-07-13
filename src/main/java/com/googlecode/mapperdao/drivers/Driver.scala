@@ -334,11 +334,6 @@ abstract class Driver {
 			s.from(sqlBuilder.Table(tpe.table.name, null, null))
 			s.where(sqlBuilder.whereAllColumns(null, whereColumnValues, "="))
 			s
-			//
-			//			val sb = new StringBuilder(100, "delete from ")
-			//			sb append escapeNamesStrategy.escapeTableNames(tpe.table.name) append " where " append generateColumnsEqualsValueString(whereColumnValues.map(_._1), " and ")
-			//
-			//			sb.toString
 		}
 
 	def doDeleteOneToOneReverse[PC, T, FPC, FT](tpe: Type[PC, T], ftpe: Type[FPC, FT], oneToOneReverse: OneToOneReverse[FPC, FT], keyValues: List[Any]): Unit =

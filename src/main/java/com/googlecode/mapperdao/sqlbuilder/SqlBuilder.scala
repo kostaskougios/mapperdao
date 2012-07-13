@@ -149,10 +149,14 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			this
 		}
 
-		def whereAll(alias: String, columnsAndValues: List[(String, Any)], op: String) = SqlBuilder.this.whereAll(alias, columnsAndValues, op)
+		def whereAll(alias: String, columnsAndValues: List[(String, Any)], op: String) = {
+			if (whereBuilder.isDefined) throw new IllegalStateException("where already defined")
+			whereBuilder = Some(SqlBuilder.this.whereAll(alias, columnsAndValues, op))
+			this
+		}
 
 		def where(alias: String, column: String, op: String, value: Any) = {
-			if (whereBuilder.isDefined) throw new IllegalStateException("where already defiled")
+			if (whereBuilder.isDefined) throw new IllegalStateException("where already defined")
 			whereBuilder = Some(new WhereBuilder(Clause(alias, column, op, value)))
 			this
 		}
@@ -241,7 +245,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 
 		def result = Result(toSql, toValues)
 
-		def toSql = "delete from %s where %s".format(fromClause.toSql, whereBuilder.toSql)
+		def toSql = "delete from %s %s".format(fromClause.toSql, whereBuilder.toSql)
 		def toValues = whereBuilder.toValues
 
 		override def toString = "DeleteBuilder(%s)".format(toSql)
