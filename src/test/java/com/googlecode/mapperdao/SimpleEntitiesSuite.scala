@@ -16,7 +16,6 @@ import org.scalatest.matchers.ShouldMatchers
  */
 @RunWith(classOf[JUnitRunner])
 class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
-	import SimpleEntitiesSpec._
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
 	test("delete by id") {
 
@@ -175,9 +174,6 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
-}
-
-object SimpleEntitiesSpec {
 
 	/**
 	 * ============================================================================================================

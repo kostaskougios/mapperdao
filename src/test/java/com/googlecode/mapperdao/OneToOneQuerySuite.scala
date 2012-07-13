@@ -13,58 +13,57 @@ import org.scalatest.matchers.ShouldMatchers
  */
 @RunWith(classOf[JUnitRunner])
 class OneToOneQuerySuite extends FunSuite with ShouldMatchers {
-	import OneToOneQuerySpec._
+	val InventoryEntity = new InventoryEntityBase
+	val ProductEntity = new ProductEntityBase
+
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
-	import mapperDao._
-	import queryDao._
-	import TestQueries._
 
 	test("query with limits (offset only)") {
 		createTables
-		val products = for (i <- 0 to 10) yield insert(ProductEntity, Product(i, Inventory(10 + i, 15 + i)))
-		query(QueryConfig(offset = Some(7)), q0Limits).toSet should be === Set(products(7), products(8), products(9), products(10))
+		val products = for (i <- 0 to 10) yield mapperDao.insert(ProductEntity, Product(i, Inventory(10 + i, 15 + i)))
+		queryDao.query(QueryConfig(offset = Some(7)), q0Limits).toSet should be === Set(products(7), products(8), products(9), products(10))
 	}
 
 	test("query with limits (limit only)") {
 		createTables
-		val products = for (i <- 0 to 10) yield insert(ProductEntity, Product(i, Inventory(10 + i, 15 + i)))
-		query(QueryConfig(limit = Some(2)), q0Limits).toSet should be === Set(products(0), products(1))
+		val products = for (i <- 0 to 10) yield mapperDao.insert(ProductEntity, Product(i, Inventory(10 + i, 15 + i)))
+		queryDao.query(QueryConfig(limit = Some(2)), q0Limits).toSet should be === Set(products(0), products(1))
 	}
 
 	test("query with limits") {
 		createTables
-		val products = for (i <- 0 to 10) yield insert(ProductEntity, Product(i, Inventory(10 + i, 15 + i)))
-		query(QueryConfig(offset = Some(3), limit = Some(4)), q0Limits).toSet should be === Set(products(3), products(4), products(5), products(6))
+		val products = for (i <- 0 to 10) yield mapperDao.insert(ProductEntity, Product(i, Inventory(10 + i, 15 + i)))
+		queryDao.query(QueryConfig(offset = Some(3), limit = Some(4)), q0Limits).toSet should be === Set(products(3), products(4), products(5), products(6))
 	}
 
 	test("query with skip") {
 		createTables
-		val p0 = insert(ProductEntity, Product(0, Inventory(4, 10)))
-		val p1 = insert(ProductEntity, Product(1, Inventory(5, 11)))
-		val p2 = insert(ProductEntity, Product(2, Inventory(6, 12)))
-		val p3 = insert(ProductEntity, Product(3, Inventory(7, 13)))
+		val p0 = mapperDao.insert(ProductEntity, Product(0, Inventory(4, 10)))
+		val p1 = mapperDao.insert(ProductEntity, Product(1, Inventory(5, 11)))
+		val p2 = mapperDao.insert(ProductEntity, Product(2, Inventory(6, 12)))
+		val p3 = mapperDao.insert(ProductEntity, Product(3, Inventory(7, 13)))
 
-		query(QueryConfig(skip = Set(ProductEntity.inventory)), q0WithSkip).toSet should be === Set(Product(2, null), Product(3, null))
+		queryDao.query(QueryConfig(skip = Set(ProductEntity.inventory)), q0WithSkip).toSet should be === Set(Product(2, null), Product(3, null))
 	}
 
 	test("query by inventory.stock") {
 		createTables
-		val p0 = insert(ProductEntity, Product(0, Inventory(4, 10)))
-		val p1 = insert(ProductEntity, Product(1, Inventory(5, 11)))
-		val p2 = insert(ProductEntity, Product(2, Inventory(6, 12)))
-		val p3 = insert(ProductEntity, Product(3, Inventory(7, 13)))
+		val p0 = mapperDao.insert(ProductEntity, Product(0, Inventory(4, 10)))
+		val p1 = mapperDao.insert(ProductEntity, Product(1, Inventory(5, 11)))
+		val p2 = mapperDao.insert(ProductEntity, Product(2, Inventory(6, 12)))
+		val p3 = mapperDao.insert(ProductEntity, Product(3, Inventory(7, 13)))
 
-		query(q0).toSet should be === Set(p2, p3)
+		queryDao.query(q0).toSet should be === Set(p2, p3)
 	}
 
 	test("query with and") {
 		createTables
-		val p0 = insert(ProductEntity, Product(0, Inventory(4, 10)))
-		val p1 = insert(ProductEntity, Product(1, Inventory(5, 11)))
-		val p2 = insert(ProductEntity, Product(2, Inventory(6, 12)))
-		val p3 = insert(ProductEntity, Product(3, Inventory(7, 13)))
+		val p0 = mapperDao.insert(ProductEntity, Product(0, Inventory(4, 10)))
+		val p1 = mapperDao.insert(ProductEntity, Product(1, Inventory(5, 11)))
+		val p2 = mapperDao.insert(ProductEntity, Product(2, Inventory(6, 12)))
+		val p3 = mapperDao.insert(ProductEntity, Product(3, Inventory(7, 13)))
 
-		query(q1).toSet should be === Set(p2)
+		queryDao.query(q1).toSet should be === Set(p2)
 	}
 
 	def createTables =
@@ -86,26 +85,19 @@ class OneToOneQuerySuite extends FunSuite with ShouldMatchers {
 				)
 			""")
 		}
-}
-
-object OneToOneQuerySpec {
-
-	object TestQueries {
-		val p = ProductEntity
-		val i = InventoryEntity
-		import Query._
-		def q0 = select from p join (p, p.inventory, i) where i.stock > 5
-		def q0Limits = select from p
-		def q0WithSkip = select from p join (p, p.inventory, i) where i.stock > 5
-		def q1 = (
-			select from p
-			join (p, p.inventory, i)
-			where
-			i.stock > 5
-			and i.sold < 13
-		)
-		//def q2(inventory: Inventory) = select from p where p.inventory === inventory
-	}
+	val p = ProductEntity
+	val i = InventoryEntity
+	import Query._
+	def q0 = select from p join (p, p.inventory, i) where i.stock > 5
+	def q0Limits = select from p
+	def q0WithSkip = select from p join (p, p.inventory, i) where i.stock > 5
+	def q1 = (
+		select from p
+		join (p, p.inventory, i)
+		where
+		i.stock > 5
+		and i.sold < 13
+	)
 
 	case class Inventory(val stock: Int, val sold: Int)
 	case class Product(val id: Int, val inventory: Inventory)
@@ -116,7 +108,6 @@ object OneToOneQuerySpec {
 
 		def constructor(implicit m) = new Inventory(stock, sold) with Persisted
 	}
-	val InventoryEntity = new InventoryEntityBase
 
 	class ProductEntityBase extends SimpleEntity[Product] {
 		val id = key("id") to (_.id)
@@ -124,5 +115,4 @@ object OneToOneQuerySpec {
 
 		def constructor(implicit m) = new Product(id, inventory) with Persisted
 	}
-	val ProductEntity = new ProductEntityBase
 }
