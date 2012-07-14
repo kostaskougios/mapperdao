@@ -338,16 +338,16 @@ abstract class Driver {
 
 	def doDeleteOneToOneReverse[PC, T, FPC, FT](tpe: Type[PC, T], ftpe: Type[FPC, FT], oneToOneReverse: OneToOneReverse[FPC, FT], keyValues: List[Any]): Unit =
 		{
-			val sql = deleteOneToOneReverseSql(tpe, ftpe, oneToOneReverse)
-			jdbc.update(sql, keyValues)
+			val r = deleteOneToOneReverseSql(tpe, ftpe, oneToOneReverse.foreignColumns zip keyValues).result
+			jdbc.update(r.sql, r.values)
 		}
 
-	def deleteOneToOneReverseSql[PC, T, FPC, FT](tpe: Type[PC, T], ftpe: Type[FPC, FT], oneToOneReverse: OneToOneReverse[FPC, FT]): String =
+	def deleteOneToOneReverseSql[PC, T, FPC, FT](tpe: Type[PC, T], ftpe: Type[FPC, FT], columnAndValues: List[(SimpleColumn, Any)]) =
 		{
-			val sb = new StringBuilder(100, "delete from ")
-			sb append escapeNamesStrategy.escapeTableNames(ftpe.table.name) append " where " append generateColumnsEqualsValueString(oneToOneReverse.foreignColumns, " and ")
-
-			sb.toString
+			val s = new sqlBuilder.DeleteBuilder
+			s.from(sqlBuilder.Table(ftpe.table.name, null, null))
+			s.where(sqlBuilder.whereAllColumns(null, columnAndValues, "="))
+			s
 		}
 	/**
 	 * =====================================================================================
