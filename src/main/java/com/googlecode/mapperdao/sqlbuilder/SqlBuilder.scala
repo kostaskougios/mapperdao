@@ -250,4 +250,31 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 
 		override def toString = "DeleteBuilder(%s)".format(toSql)
 	}
+
+	case class InsertBuilder {
+		private var table: Table = null
+		private var cvs: List[(SimpleColumn, Any)] = Nil
+		private var css: List[(SimpleColumn, String)] = Nil
+
+		def into(table: Table) = {
+			this.table = table;
+			this
+		}
+
+		def columnAndSequences(css: List[(SimpleColumn, String)]) = {
+			this.css = this.css ::: css
+			this
+		}
+		def columnAndValues(cvs: List[(SimpleColumn, Any)]) = {
+			this.cvs = this.cvs ::: cvs
+			this
+		}
+
+		def toSql = "insert into %s(%s) values(%s)".format(table.table, cvs.map {
+			case (c, v) => c.name
+		}.mkString(","), cvs.map(cv => "?").mkString(","))
+		def toValues = cvs.map(_._2)
+
+		def result = Result(toSql, toValues)
+	}
 }

@@ -84,29 +84,38 @@ abstract class Driver {
 	/**
 	 * default impl of the insert statement generation
 	 */
-	protected def insertSql[PC, T](tpe: Type[PC, T], args: List[(SimpleColumn, Any)]): String =
+	protected def insertSql[PC, T](tpe: Type[PC, T], args: List[(SimpleColumn, Any)]) =
 		{
-			val sb = new StringBuilder(100, "insert into ")
-			sb append escapeNamesStrategy.escapeTableNames(tpe.table.name)
+			val s = new sqlBuilder.InsertBuilder
+			s.into(sqlBuilder.Table(tpe.table.name, null, null))
 
 			val sequenceColumns = tpe.table.simpleTypeSequenceColumns
 			if (!args.isEmpty || !sequenceColumns.isEmpty) {
-				sb append "("
-				// append sequences
-				// and normal columns
-				if (!args.isEmpty || !sequenceColumns.isEmpty) sb append commaSeparatedListOfSimpleTypeColumns(",", sequenceColumns ::: args.map(_._1))
-				sb append ")\n"
-				sb append "values("
-				// sequence values
-				if (!sequenceColumns.isEmpty) {
-					sb append sequenceColumns.map { sequenceSelectNextSql _ }.mkString(",")
-					if (!args.isEmpty) sb append ","
-				}
-				// column values
-				if (!args.isEmpty) sb append "?" append (",?" * (args.size - 1))
-				sb append ")"
+				val seqVal = sequenceColumns.map { sequenceSelectNextSql _ }
 			}
-			sb.toString
+			s
+
+			//			val sb = new StringBuilder(100, "insert into ")
+			//			sb append escapeNamesStrategy.escapeTableNames(tpe.table.name)
+			//
+			//			val sequenceColumns = tpe.table.simpleTypeSequenceColumns
+			//			if (!args.isEmpty || !sequenceColumns.isEmpty) {
+			//				sb append "("
+			//				// append sequences
+			//				// and normal columns
+			//				if (!args.isEmpty || !sequenceColumns.isEmpty) sb append commaSeparatedListOfSimpleTypeColumns(",", sequenceColumns ::: args.map(_._1))
+			//				sb append ")\n"
+			//				sb append "values("
+			//				// sequence values
+			//				if (!sequenceColumns.isEmpty) {
+			//					sb append sequenceColumns.map { sequenceSelectNextSql _ }.mkString(",")
+			//					if (!args.isEmpty) sb append ","
+			//				}
+			//				// column values
+			//				if (!args.isEmpty) sb append "?" append (",?" * (args.size - 1))
+			//				sb append ")"
+			//			}
+			//			sb.toString
 		}
 
 	def doInsertManyToMany[PC, T, FPC, F](
@@ -176,26 +185,28 @@ abstract class Driver {
 	 */
 	def doDeleteManyToManyRef[PC, T, PR, R](tpe: Type[PC, T], ftpe: Type[PR, R], manyToMany: ManyToMany[_, _], leftKeyValues: List[(SimpleColumn, Any)], rightKeyValues: List[(SimpleColumn, Any)]): UpdateResult =
 		{
-			val sql = deleteManyToManyRefSql(tpe, ftpe, manyToMany, leftKeyValues, rightKeyValues)
-			jdbc.update(sql, leftKeyValues.map(_._2) ::: rightKeyValues.map(_._2))
+			val r = deleteManyToManyRefSql(tpe, ftpe, manyToMany, leftKeyValues, rightKeyValues).result
+			jdbc.update(r.sql, r.values)
 		}
-	protected def deleteManyToManyRefSql[PC, T, PR, R](tpe: Type[PC, T], ftpe: Type[PR, R], manyToMany: ManyToMany[_, _], leftKeyValues: List[(SimpleColumn, Any)], rightKeyValues: List[(SimpleColumn, Any)]): String =
+	protected def deleteManyToManyRefSql[PC, T, PR, R](tpe: Type[PC, T], ftpe: Type[PR, R], manyToMany: ManyToMany[_, _], leftKeyValues: List[(SimpleColumn, Any)], rightKeyValues: List[(SimpleColumn, Any)]) =
 		{
-			val sb = new StringBuilder(100, "delete from ")
-			sb append escapeNamesStrategy.escapeTableNames(manyToMany.linkTable.name) append "\nwhere "
-			sb append generateColumnsEqualsValueString("", " and ", leftKeyValues.map(_._1) ::: rightKeyValues.map(_._1))
-			sb.toString
+			val s = new sqlBuilder.DeleteBuilder
+			s.from(sqlBuilder.Table(manyToMany.linkTable.name, null, null))
+			val w = sqlBuilder.whereAllColumns(null, leftKeyValues ::: rightKeyValues, "=")
+			s.where(w)
+			s
 		}
 
 	def doDeleteAllManyToManyRef[PC, T](tpe: Type[PC, T], manyToMany: ManyToMany[_, _], fkKeyValues: List[Any]): UpdateResult = {
-		val sql = deleteAllManyToManyRef(tpe, manyToMany, fkKeyValues)
-		jdbc.update(sql, fkKeyValues)
+		val r = deleteAllManyToManyRef(tpe, manyToMany, fkKeyValues).result
+		jdbc.update(r.sql, r.values)
 	}
-	protected def deleteAllManyToManyRef[PC, T](tpe: Type[PC, T], manyToMany: ManyToMany[_, _], fkKeyValues: List[Any]): String = {
-		val sb = new StringBuilder(50, "delete from ")
-		sb append escapeNamesStrategy.escapeTableNames(manyToMany.linkTable.name) append "\nwhere "
-		sb append generateColumnsEqualsValueString("", " and ", manyToMany.linkTable.left)
-		sb.toString
+	protected def deleteAllManyToManyRef[PC, T](tpe: Type[PC, T], manyToMany: ManyToMany[_, _], fkKeyValues: List[Any]) = {
+		val s = new sqlBuilder.DeleteBuilder
+		s.from(sqlBuilder.Table(manyToMany.linkTable.name, null, null))
+		val w = sqlBuilder.whereAllColumns(null, manyToMany.linkTable.left zip fkKeyValues, "=")
+		s.where(w)
+		s
 	}
 	/**
 	 * =====================================================================================
