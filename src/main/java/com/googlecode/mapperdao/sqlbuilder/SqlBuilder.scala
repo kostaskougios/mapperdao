@@ -270,9 +270,19 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			this
 		}
 
-		def toSql = "insert into %s(%s) values(%s)".format(table.table, cvs.map {
-			case (c, v) => c.name
-		}.mkString(","), cvs.map(cv => "?").mkString(","))
+		def toSql = "insert into %s(%s) values(%s)".format(
+			escapeNamesStrategy.escapeTableNames(table.table),
+			(
+				css.map {
+					case (c, s) => escapeNamesStrategy.escapeColumnNames(c.name)
+				} ::: cvs.map {
+					case (c, v) => escapeNamesStrategy.escapeColumnNames(c.name)
+				}
+			).mkString(","),
+			(
+				css.map { case (c, s) => s } ::: cvs.map(cv => "?")
+			).mkString(",")
+		)
 		def toValues = cvs.map(_._2)
 
 		def result = Result(toSql, toValues)

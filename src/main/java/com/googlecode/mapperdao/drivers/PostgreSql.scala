@@ -26,13 +26,13 @@ class PostgreSql(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager
 	}
 	val sqlBuilder = new SqlBuilder(escapeNamesStrategy)
 
-	override protected def insertSql[PC, T](tpe: Type[PC, T], args: List[(SimpleColumn, Any)]): String =
-		{
-			val sql = super.insertSql(tpe, args)
-			if (args.isEmpty && tpe.table.simpleTypeSequenceColumns.isEmpty) {
-				sql + "\ndefault values"
-			} else sql
-		}
+	//	override protected def insertSql[PC, T](tpe: Type[PC, T], args: List[(SimpleColumn, Any)]): String =
+	//		{
+	//			val sql = super.insertSql(tpe, args)
+	//			if (args.isEmpty && tpe.table.simpleTypeSequenceColumns.isEmpty) {
+	//				sql + "\ndefault values"
+	//			} else sql
+	//		}
 
 	override protected def sequenceSelectNextSql(sequenceColumn: ColumnBase): String = sequenceColumn match {
 		case PK(columnName, true, sequence) => "NEXTVAL('%s')".format(sequence.get)
