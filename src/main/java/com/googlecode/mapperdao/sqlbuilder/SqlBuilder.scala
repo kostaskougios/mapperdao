@@ -287,4 +287,34 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 
 		def result = Result(toSql, toValues)
 	}
+
+	case class UpdateBuilder {
+		private var table: Table = null
+		private var columnAndValues = List[(String, Any)]()
+		private var where: WhereBuilder = null
+
+		def table(table: Table): this.type = {
+			this.table = table
+			this
+		}
+
+		def set(columnAndValues: List[(String, Any)]) = {
+			this.columnAndValues = columnAndValues
+			this
+		}
+
+		def where(where: WhereBuilder): this.type = {
+			if (this.where != null) throw new IllegalStateException("where already set to " + this.where)
+			this.where = where
+			this
+		}
+
+		def toSql = "update %s\nset %s\n%s".format(table.toSql,
+			columnAndValues.map {
+				case (c, v) =>
+					escapeNamesStrategy.escapeColumnNames(c) + " = ?"
+			},
+			where.toSql
+		)
+	}
 }
