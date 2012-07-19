@@ -22,6 +22,12 @@ class ManyToOneQuerySuite extends FunSuite with ShouldMatchers {
 	import mapperDao._
 	import queryDao._
 
+	test("query 2 level join") {
+		createTables
+		val (p0, p1, p2, p3, p4) = testData1
+		query(q1) should be === List(p0, p1, p2)
+	}
+
 	test("query with limits (offset only)") {
 		createTables
 		val (p0, p1, p2, p3, p4) = testData1
@@ -72,12 +78,6 @@ class ManyToOneQuerySuite extends FunSuite with ShouldMatchers {
 		val (p0, p1, p2, p3, p4) = testData1
 
 		query(q0) should be === List(p3, p4)
-	}
-
-	test("query 2 level join") {
-		createTables
-		val (p0, p1, p2, p3, p4) = testData1
-		query(q1) should be === List(p0, p1, p2)
 	}
 
 	test("query 2 level join with or") {
@@ -143,10 +143,12 @@ object ManyToOneQuerySpec {
 		val q0Limits = select from pe
 		val q0ForSkip = select from pe join (pe, pe.lives, he) where he.name === "Block B"
 
-		val q1 = select from pe join
-			(pe, pe.lives, he) join
-			(he, he.address, ad) where
-			ad.postCode === "SE1 1AA"
+		val q1 = (
+			select from pe
+			join (pe, pe.lives, he)
+			join (he, he.address, ad)
+			where ad.postCode === "SE1 1AA"
+		)
 
 		val q2 = select from pe join
 			(pe, pe.lives, he) join

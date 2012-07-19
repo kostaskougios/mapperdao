@@ -110,6 +110,8 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			sb.toString
 		}
 		def toValues = e.toValues
+
+		override def toString = toSql
 	}
 
 	class WhereBuilder(e: Expression) {
@@ -198,7 +200,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			val s = new StringBuilder("select ")
 			s append cols.map(n => escapeNamesStrategy.escapeColumnNames(n)).mkString(",") append "\n"
 			s append "from " append fromClause.toSql append "\n"
-			innerJoins.foreach { j =>
+			innerJoins.reverse.foreach { j =>
 				s append j.toSql append "\n"
 			}
 			whereBuilder.foreach(s append _.toSql append "\n")
