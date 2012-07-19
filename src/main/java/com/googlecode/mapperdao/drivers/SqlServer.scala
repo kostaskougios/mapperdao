@@ -55,13 +55,13 @@ class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager:
 
 			sb append ") as Row"
 			val sql = sb.toString
-			q.columns(null, List(sql))
+			q.columnNames(null, List(sql))
 		}
 
 	override def beforeStartOfQuery[PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], columns: List[SimpleColumn]) =
 		if (queryConfig.hasRange) {
 			val nq = new sqlBuilder.SqlSelectBuilder
-			nq.columns(null, List("*"))
+			nq.columnNames(null, List("*"))
 			nq.from(q)
 			//sql append "select * from (\n"
 			nq

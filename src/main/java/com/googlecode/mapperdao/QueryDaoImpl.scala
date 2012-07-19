@@ -313,7 +313,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 		{
 			val table = entity.tpe.table
 			val alias = aliases(entity)
-			q.columns(null, List("count(*)"))
+			q.columnNames(null, List("count(*)"))
 			q.from(table.name, alias, null)
 		}
 }

@@ -71,7 +71,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		def toValues: List[Any]
 	}
 
-	case class Table(table: String, alias: String, hints: String) extends FromClause {
+	case class Table(table: String, alias: String = null, hints: String = null) extends FromClause {
 		def toSql = {
 			var s = escapeNamesStrategy.escapeTableNames(table)
 			if (alias != null) s += " " + alias
@@ -131,7 +131,10 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 
 		private var whereBuilder: Option[WhereBuilder] = None
 
-		def columns(alias: String, cs: List[String]) = {
+		def columns(alias: String, cs: List[SimpleColumn]): this.type =
+			columnNames(alias, cs.map(_.name))
+
+		def columnNames(alias: String, cs: List[String]): this.type = {
 			cols = cols ::: cs.map((if (alias != null) alias + "." else "") + escapeNamesStrategy.escapeColumnNames(_))
 			this
 		}
@@ -233,7 +236,9 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		private var fromClause: FromClause = null
 		private var whereBuilder: WhereBuilder = null
 
-		def from(fromClause: FromClause) = {
+		def from(table: String): this.type = from(Table(table))
+
+		def from(fromClause: FromClause): this.type = {
 			this.fromClause = fromClause
 			this
 		}
@@ -293,12 +298,19 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		private var columnAndValues = List[(String, Any)]()
 		private var where: WhereBuilder = null
 
+		def table(name: String): this.type = table(Table(name))
+
 		def table(table: Table): this.type = {
 			this.table = table
 			this
 		}
 
-		def set(columnAndValues: List[(String, Any)]) = {
+		def setColumnsAndValues(columnAndValues: List[(SimpleColumn, Any)]): this.type =
+			set(columnAndValues.map {
+				case (c, v) => (c.name, v)
+			})
+
+		def set(columnAndValues: List[(String, Any)]): this.type = {
 			this.columnAndValues = columnAndValues
 			this
 		}
@@ -309,12 +321,16 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			this
 		}
 
+		def results = Result(toSql, toValues)
+
 		def toSql = "update %s\nset %s\n%s".format(table.toSql,
 			columnAndValues.map {
 				case (c, v) =>
 					escapeNamesStrategy.escapeColumnNames(c) + " = ?"
-			},
+			}.mkString(","),
 			where.toSql
 		)
+
+		def toValues = columnAndValues.map(_._2) ::: where.toValues
 	}
 }

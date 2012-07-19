@@ -36,12 +36,12 @@ class Oracle(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: Ty
 	override def beforeStartOfQuery[PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], columns: List[SimpleColumn]) =
 		if (queryConfig.offset.isDefined || queryConfig.limit.isDefined) {
 			val nq = new sqlBuilder.SqlSelectBuilder
-			nq.columns(null, List("*"))
+			nq.columnNames(null, List("*"))
 
 			val iq = new sqlBuilder.SqlSelectBuilder
 			nq.from(iq)
 
-			iq.columns(null, "rownum as rn$" :: columns.map(_.name))
+			iq.columnNames(null, "rownum as rn$" :: columns.map(_.name))
 			iq.from(q)
 			//			sql append "select * from (\n"
 			//			sql append "select " append commaSeparatedListOfSimpleTypeColumns(",", columns) append ",rownum as rn$ from ("
