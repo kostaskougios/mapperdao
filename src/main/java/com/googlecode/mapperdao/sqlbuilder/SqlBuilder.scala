@@ -199,7 +199,10 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			if (fromClause == null) throw new IllegalStateException("fromClause is null")
 			val s = new StringBuilder("select ")
 			s append cols.map(n => escapeNamesStrategy.escapeColumnNames(n)).mkString(",") append "\n"
-			s append "from " append fromClause.toSql append "\n"
+			s append "from " append (fromClause match {
+				case t: Table => t.toSql
+				case s: SqlSelectBuilder => "(" + s.toSql + ") as t"
+			}) append "\n"
 			innerJoins.reverse.foreach { j =>
 				s append j.toSql append "\n"
 			}

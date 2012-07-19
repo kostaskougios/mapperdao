@@ -21,6 +21,22 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers {
 	val p = ProductEntity
 	val attr = AttributeEntity
 
+	test("query with limits (offset only)") {
+		createTables
+		val a0 = mapperDao.insert(AttributeEntity, Attribute(100, "size", "46'"))
+		val a1 = mapperDao.insert(AttributeEntity, Attribute(101, "size", "50'"))
+		val a2 = mapperDao.insert(AttributeEntity, Attribute(102, "colour", "black"))
+		val a3 = mapperDao.insert(AttributeEntity, Attribute(103, "colour", "white"))
+
+		val p0 = mapperDao.insert(ProductEntity, Product(1, "TV 1", Set(a0, a2)))
+		val p1 = mapperDao.insert(ProductEntity, Product(2, "TV 2", Set(a1, a2)))
+		val p2 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
+		val p3 = mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
+
+		val qc = QueryConfig(offset = Some(2))
+		(select from p).toList(qc).toSet should be === Set(p2, p3)
+	}
+
 	test("query with skip") {
 		createTables
 		val a0 = mapperDao.insert(AttributeEntity, Attribute(100, "size", "46'"))
@@ -63,22 +79,6 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers {
 		q(c).toList.toSet should be === Set(p2, p3)
 		q(d).toList.toSet should be === Set(p2, p4)
 		qn(d).toList.toSet should be === Set(p1, p2, p3)
-	}
-
-	test("query with limits (offset only)") {
-		createTables
-		val a0 = mapperDao.insert(AttributeEntity, Attribute(100, "size", "46'"))
-		val a1 = mapperDao.insert(AttributeEntity, Attribute(101, "size", "50'"))
-		val a2 = mapperDao.insert(AttributeEntity, Attribute(102, "colour", "black"))
-		val a3 = mapperDao.insert(AttributeEntity, Attribute(103, "colour", "white"))
-
-		val p0 = mapperDao.insert(ProductEntity, Product(1, "TV 1", Set(a0, a2)))
-		val p1 = mapperDao.insert(ProductEntity, Product(2, "TV 2", Set(a1, a2)))
-		val p2 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
-		val p3 = mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
-
-		val qc = QueryConfig(offset = Some(2))
-		(select from p).toList(qc).toSet should be === Set(p2, p3)
 	}
 
 	test("query with limits (limit only)") {
