@@ -62,8 +62,7 @@ class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager:
 		if (queryConfig.hasRange) {
 			val nq = new sqlBuilder.SqlSelectBuilder
 			nq.columnNames(null, List("*"))
-			nq.from(q)
-			//sql append "select * from (\n"
+			nq.from(q, "t")
 			nq
 		} else q
 
@@ -72,8 +71,6 @@ class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager:
 			val offset = queryConfig.offset.getOrElse(0l) + 1
 			val w = sqlBuilder.Between(null, "Row", offset, (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue))
 			q.where(w)
-			//			sql append "\n) as t\nwhere Row between " append offset append " and "
-			//			sql append (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue)
 			q
 		} else q
 

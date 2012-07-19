@@ -127,6 +127,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 	class SqlSelectBuilder extends FromClause {
 		private var cols = List[String]()
 		private var fromClause: FromClause = null
+		private var fromClauseAlias: String = null
 		private var innerJoins = List[InnerJoinBuilder]()
 		private var orderByBuilder: Option[OrderByBuilder] = None
 		private var atTheEnd = List[String]()
@@ -147,6 +148,11 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			this
 		}
 		def from(table: String): this.type = from(table, null, null)
+		def from(fromClause: SqlSelectBuilder, alias: String): this.type = {
+			from(fromClause)
+			fromClauseAlias = alias
+			this
+		}
 
 		def from(table: String, alias: String, hints: String): this.type = {
 			if (fromClause != null) throw new IllegalStateException("from already called for %s".format(from))
@@ -194,14 +200,16 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 
 		def result = Result(toSql, toValues)
 
-		def toValues = innerJoins.map { _.toValues }.flatten ::: whereBuilder.map(_.toValues).getOrElse(Nil)
+		def toValues = innerJoins.map { _.toValues }.flatten ::: fromClause.toValues ::: whereBuilder.map(_.toValues).getOrElse(Nil)
 		def toSql = {
 			if (fromClause == null) throw new IllegalStateException("fromClause is null")
 			val s = new StringBuilder("select ")
 			s append cols.map(n => escapeNamesStrategy.escapeColumnNames(n)).mkString(",") append "\n"
 			s append "from " append (fromClause match {
 				case t: Table => t.toSql
-				case s: SqlSelectBuilder => "(" + s.toSql + ") as t"
+				case s: SqlSelectBuilder =>
+					val fromPar = "(" + s.toSql + ")"
+					if (fromClauseAlias == null) fromPar else fromPar + " as " + fromClauseAlias
 			}) append "\n"
 			innerJoins.reverse.foreach { j =>
 				s append j.toSql append "\n"
@@ -231,7 +239,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		})
 
 	case class OrderByExpression(column: String, ascDesc: String) {
-		def toSql = column + " " + ascDesc
+		def toSql = escapeNamesStrategy.escapeColumnNames(column) + " " + ascDesc
 	}
 	class OrderByBuilder(expressions: List[OrderByExpression]) {
 		def toSql = "order by %s".format(expressions.map(_.toSql).mkString(","))

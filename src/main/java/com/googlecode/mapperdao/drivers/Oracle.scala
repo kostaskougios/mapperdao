@@ -43,6 +43,7 @@ class Oracle(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: Ty
 
 			iq.columnNames(null, "rownum as rn$" :: columns.map(_.name))
 			iq.from(q)
+			nq
 			//			sql append "select * from (\n"
 			//			sql append "select " append commaSeparatedListOfSimpleTypeColumns(",", columns) append ",rownum as rn$ from ("
 		} else q
