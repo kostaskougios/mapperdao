@@ -166,6 +166,11 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			this
 		}
 
+		def where(alias: String, columnsAndValues: List[(SimpleColumn, Any)], op: String) =
+			whereAll(alias, columnsAndValues.map {
+				case (c, v) => (c.name, v)
+			}, op)
+
 		def where(alias: String, column: String, op: String, value: Any) = {
 			if (whereBuilder.isDefined) throw new IllegalStateException("where already defined")
 			whereBuilder = Some(new WhereBuilder(Clause(alias, column, op, value)))
@@ -256,10 +261,13 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			this
 		}
 
-		def where(whereBuilder: WhereBuilder) = {
+		def where(whereBuilder: WhereBuilder): this.type = {
 			this.whereBuilder = whereBuilder
 			this
 		}
+
+		def where(columnsAndValues: List[(SimpleColumn, Any)], op: String): this.type =
+			where(whereAllColumns(null, columnsAndValues, "="))
 
 		def result = Result(toSql, toValues)
 
@@ -274,8 +282,13 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		private var cvs: List[(SimpleColumn, Any)] = Nil
 		private var css: List[(SimpleColumn, String)] = Nil
 
-		def into(table: Table) = {
+		def into(table: Table): this.type = {
 			this.table = table;
+			this
+		}
+
+		def into(table: String): this.type = {
+			into(Table(table))
 			this
 		}
 
@@ -333,6 +346,9 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			this.where = where
 			this
 		}
+
+		def where(columnsAndValues: List[(SimpleColumn, Any)], op: String): this.type =
+			where(whereAllColumns(null, columnsAndValues, op))
 
 		def results = Result(toSql, toValues)
 
