@@ -17,19 +17,62 @@ class ManyToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 	if (Setup.database != "h2") {
 		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(UserEntity, AccountEntity))
 
-		test("insert") {
+		test("insert and select") {
+			createTables()
+
+			noise
+			noise
+
+			val acc1 = Account(1500, "Mr X1")
+			val acc2 = Account(1600, "Mr X2")
+
+			val u = User("ref1", "user X", Set(acc1, acc2))
+			val inserted = mapperDao.insert(UserEntity, u)
+			inserted should be === u
+
+			val selected = mapperDao.select(UserEntity, List(inserted.id, inserted.reference)).get
+			selected should be === inserted
+		}
+
+		test("update, remove") {
 			createTables()
 
 			// add some noise
-			mapperDao.insert(UserEntity, User("ref1", "user X", Set(Account(50, "Noise1"), Account(51, "Noise2"), Account(52, "Noise3"))))
+			noise
+			noise
 
 			// and now the real thing
 			val acc1 = Account(1500, "Mr X1")
 			val acc2 = Account(1600, "Mr X2")
 
-			mapperDao.insert(UserEntity, User("ref1", "user X", Set(acc1, acc2)))
+			val inserted = mapperDao.insert(UserEntity, User("ref1", "user X", Set(acc1, acc2)))
+			val upd = inserted.copy(accounts = inserted.accounts.filterNot(_ == acc2))
+			val updated = mapperDao.update(UserEntity, inserted, upd)
+			updated should be === upd
+
+			mapperDao.select(UserEntity, List(updated.id, updated.reference)).get should be === updated
 		}
 
+		test("update, add") {
+			createTables()
+
+			// add some noise
+			noise
+			noise
+
+			// and now the real thing
+			val acc1 = Account(1500, "Mr X1")
+			val acc2 = Account(1600, "Mr X2")
+
+			val inserted = mapperDao.insert(UserEntity, User("ref1", "user X", Set(acc1)))
+			val upd = inserted.copy(accounts = Set(acc1, acc2))
+			val updated = mapperDao.update(UserEntity, inserted, upd)
+			updated should be === upd
+
+			mapperDao.select(UserEntity, List(updated.id, updated.reference)).get should be === updated
+		}
+
+		def noise = mapperDao.insert(UserEntity, User("refX", "user X", Set(Account(50, "Noise1"), Account(51, "Noise2"), Account(52, "Noise3"))))
 		def createTables() =
 			{
 				Setup.dropAllTables(jdbc)
