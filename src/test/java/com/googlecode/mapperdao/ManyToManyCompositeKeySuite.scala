@@ -15,9 +15,40 @@ import org.scalatest.matchers.ShouldMatchers
 class ManyToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 
 	if (Setup.database != "h2") {
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(UserEntity, AccountEntity))
+		implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(UserEntity, AccountEntity))
 
-		test("insert and select") {
+		// aliases
+		val ue = UserEntity
+		val ae = AccountEntity
+
+		test("query") {
+			createTables()
+
+			// add some noise
+			noise
+			noise
+
+			// and now the real thing
+
+			val inserted1 = mapperDao.insert(UserEntity, User("ref1", "user X1", Set(Account(1500, "Mr XA"), Account(1600, "Mr XA"))))
+			val inserted2 = mapperDao.insert(UserEntity, User("ref2", "user X2", Set(Account(1500, "Mr XB"), Account(1700, "Mr XB"))))
+
+			import Query._
+
+			(select
+				from ue
+				join (ue, ue.accounts, ae)
+				where ae.serial === 1500
+			).toList.toSet should be === Set(inserted1, inserted2)
+
+			(select
+				from ue
+				join (ue, ue.accounts, ae)
+				where ae.serial === 1700
+			).toList.toSet should be === Set(inserted2)
+		}
+
+		test("insert, select and delete") {
 			createTables()
 
 			noise
@@ -32,6 +63,10 @@ class ManyToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 
 			val selected = mapperDao.select(UserEntity, List(inserted.id, inserted.reference)).get
 			selected should be === inserted
+
+			mapperDao.delete(UserEntity, selected)
+
+			mapperDao.select(UserEntity, List(inserted.id, inserted.reference)) should be(None)
 		}
 
 		test("update, remove") {
