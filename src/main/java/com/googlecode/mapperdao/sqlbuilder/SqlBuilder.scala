@@ -31,23 +31,28 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 	}
 
 	case class Clause(
-			alias: String, column: String,
-			op: String,
-			value: Any) extends Expression {
+		alias: String, column: String,
+		op: String,
+		value: Any) extends Expression {
 
+		private def isNull = value == null && op == "="
 		override def toSql = {
 			val sb = new StringBuilder
 			if (alias != null) sb append (alias) append (".")
-			sb append escapeNamesStrategy.escapeColumnNames(column) append " " append op append " ?"
+			sb append escapeNamesStrategy.escapeColumnNames(column) append " "
+			if (isNull)
+				sb append "is null"
+			else
+				sb append op append " ?"
 			sb.toString
 		}
 
-		override def toValues = List(value)
+		override def toValues = if (isNull) Nil else List(value)
 	}
 	case class NonValueClause(
-			leftAlias: String, left: String,
-			op: String,
-			rightAlias: String, right: String) extends Expression {
+		leftAlias: String, left: String,
+		op: String,
+		rightAlias: String, right: String) extends Expression {
 
 		override def toSql = {
 			val sb = new StringBuilder
