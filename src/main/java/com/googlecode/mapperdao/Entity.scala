@@ -44,6 +44,11 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 
 	override def toString = "%s(%s,%s)".format(getClass.getSimpleName, table, clz.getName)
 
+	private def keysDuringDeclaration = persistedColumns.collect {
+		case ColumnInfo(pk: PK, _, _) => pk
+	} ::: columns.collect {
+		case ColumnInfo(pk: PK, _, _) => pk
+	}
 	/**
 	 * converts a function T=>Option[F] to T=>F
 	 */
@@ -264,13 +269,23 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 			extends GetterDefinition with OnlyForQueryDefinition {
 		val clz = Entity.this.clz
 		private var linkTable = if (reverse) referenced.clz.getSimpleName + "_" + clz.getSimpleName else clz.getSimpleName + "_" + referenced.clz.getSimpleName
-		private var leftColumn = clz.getSimpleName.toLowerCase + "_id"
-		private var rightColumn = referenced.clz.getSimpleName.toLowerCase + "_id"
+
+		/**
+		 * create the columns based on default naming conventions
+		 */
+		private var leftColumn = keysDuringDeclaration.map(pk => clz.getSimpleName.toLowerCase + "_" + pk.name)
+		private var rightColumn = referenced match {
+			case ee: ExternalEntity[_] => List(referenced.clz.getSimpleName.toLowerCase + "_id")
+			case _ => referenced.keysDuringDeclaration.map(pk => referenced.clz.getSimpleName.toLowerCase + "_" + pk.name)
+		}
+
+		if (leftColumn.isEmpty) throw new IllegalStateException("%s didn't declare any primary keys or pk declaration after manytomany declarations".format(clz))
+		if (rightColumn.isEmpty) throw new IllegalStateException("%s didn't declare any primary keys or pk declaration after manytomany declarations".format(referenced.clz))
 
 		def join(linkTable: String, leftColumn: String, rightColumn: String) = {
 			this.linkTable = linkTable
-			this.leftColumn = leftColumn
-			this.rightColumn = rightColumn
+			this.leftColumn = List(leftColumn)
+			this.rightColumn = List(rightColumn)
 			this
 		}
 
@@ -278,7 +293,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 			{
 				val ci = ColumnInfoTraversableManyToMany[T, FPC, FT](
 					ManyToMany(
-						LinkTable(linkTable, List(Column(leftColumn)), List(Column(rightColumn))),
+						LinkTable(linkTable, leftColumn.map(Column(_)), rightColumn.map(Column(_))),
 						TypeRef(createAlias, referenced)
 					),
 					columnToValue,

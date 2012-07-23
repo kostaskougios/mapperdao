@@ -10,7 +10,7 @@ package com.googlecode.mapperdao
 
 case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _]], extraColumnInfosPersisted: List[ColumnInfoBase[T with PC, _]], val unusedPKs: List[UnusedColumn[T, _]]) {
 
-	val columns: List[ColumnBase] = columnInfosPlain.map(_.column) ::: extraColumnInfosPersisted.map(_.column)
+	val columns: List[ColumnBase] = extraColumnInfosPersisted.map(_.column) ::: columnInfosPlain.map(_.column)
 	// the primary keys for this table
 	val primaryKeys: List[PK] = columns.collect {
 		case pk: PK => pk
