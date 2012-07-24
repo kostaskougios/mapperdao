@@ -32,8 +32,18 @@ class OneToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 			mapperDao.select(HouseEntity, List(inserted.id, inserted.address)).get should be === inserted
 		}
 
-		test("update") {
-			true should be === false
+		test("update, remove") {
+			createTables()
+
+			noise
+			noise
+
+			val inserted = mapperDao.insert(HouseEntity, House("London", Set(Door("kitchen"), Door("bathroom"))))
+			val upd = inserted.copy(doors = inserted.doors.filter(_.location == "kitchen"))
+			val updated = mapperDao.update(HouseEntity, inserted, upd)
+			updated should be === upd
+			val selected = mapperDao.select(HouseEntity, List(inserted.id, inserted.address)).get
+			selected should be === updated
 		}
 
 		def noise = mapperDao.insert(HouseEntity, House("Paris", Set(Door("livingroom"), Door("balcony"))))
