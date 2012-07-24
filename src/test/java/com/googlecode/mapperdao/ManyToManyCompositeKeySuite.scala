@@ -120,6 +120,8 @@ class ManyToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 	case class User(reference: String, name: String, accounts: Set[Account])
 	case class Account(serial: Long, name: String)
 
+	// we need to take special care for oracle which doesn't
+	// seem to like "User" table (quoted or not).
 	object UserEntity extends Entity[IntId, User](if (database == "oracle") "UserX" else "User") {
 		val id = key("id") sequence (
 			if (database == "oracle") Some("UserSeq") else None

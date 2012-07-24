@@ -391,7 +391,8 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 			extends GetterDefinition
 			with OnlyForQueryDefinition {
 		val clz = Entity.this.clz
-		private var fkcols = List(clz.getSimpleName.toLowerCase + "_id")
+		private var fkcols = keysDuringDeclaration.map(clz.getSimpleName.toLowerCase + "_" + _.name)
+		if (fkcols.isEmpty) throw new IllegalStateException("couldn't find any declared keys for %s, are keys declared before this onetomany?".format(clz))
 
 		def foreignkey(fk: String) = {
 			fkcols = List(fk)
