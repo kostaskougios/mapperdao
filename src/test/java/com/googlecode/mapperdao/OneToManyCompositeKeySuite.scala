@@ -18,7 +18,43 @@ class OneToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 	if (database != "h2") {
 		implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(HouseEntity, DoorEntity))
 
-		test("insert and select") {
+		// aliases
+		val he = HouseEntity
+		val de = DoorEntity
+
+		test("query") {
+			createTables()
+
+			noise
+			noise
+
+			val h1 = House("London", Set(Door("kitchen"), Door("bathroom")))
+			val h2 = House("London", Set(Door("balcony"), Door("bathroom")))
+
+			mapperDao.insert(HouseEntity, h1)
+			mapperDao.insert(HouseEntity, h2)
+
+			import Query._
+
+			(select
+				from he
+				where he.address === "London"
+			).toSet should be === Set(h1, h2)
+
+			(select
+				from he
+				join (he, he.doors, de)
+				where he.address === "London" and de.location === "balcony"
+			).toList should be === List(h2)
+
+			(select
+				from he
+				join (he, he.doors, de)
+				where he.address === "London" and de.location === "bathroom"
+			).toSet should be === Set(h1, h2)
+		}
+
+		test("insert, select and delete") {
 			createTables()
 
 			noise
@@ -30,6 +66,8 @@ class OneToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 			inserted should be === h
 
 			mapperDao.select(HouseEntity, List(inserted.id, inserted.address)).get should be === inserted
+			mapperDao.delete(HouseEntity, inserted)
+			mapperDao.select(HouseEntity, List(inserted.id, inserted.address)) should be === None
 		}
 
 		test("update, remove") {
@@ -40,6 +78,20 @@ class OneToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 
 			val inserted = mapperDao.insert(HouseEntity, House("London", Set(Door("kitchen"), Door("bathroom"))))
 			val upd = inserted.copy(doors = inserted.doors.filter(_.location == "kitchen"))
+			val updated = mapperDao.update(HouseEntity, inserted, upd)
+			updated should be === upd
+			val selected = mapperDao.select(HouseEntity, List(inserted.id, inserted.address)).get
+			selected should be === updated
+		}
+
+		test("update, add") {
+			createTables()
+
+			noise
+			noise
+
+			val inserted = mapperDao.insert(HouseEntity, House("London", Set(Door("kitchen"))))
+			val upd = inserted.copy(doors = inserted.doors + Door("bathroom"))
 			val updated = mapperDao.update(HouseEntity, inserted, upd)
 			updated should be === upd
 			val selected = mapperDao.select(HouseEntity, List(inserted.id, inserted.address)).get
