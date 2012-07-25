@@ -16,7 +16,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 class MultipleInheritance1TableSuite extends FunSuite with ShouldMatchers {
 
 	if (Setup.database == "h2") {
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ReminderEntity))
+		implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ReminderEntity))
 
 		test("crud for Daily") {
 			createTables()
@@ -28,6 +28,45 @@ class MultipleInheritance1TableSuite extends FunSuite with ShouldMatchers {
 			val updated = mapperDao.update(ReminderEntity, inserted, Daily(14))
 			updated should be === Daily(14)
 			mapperDao.select(ReminderEntity, inserted.id).get should be === Daily(14)
+
+			mapperDao.delete(ReminderEntity, updated)
+			mapperDao.select(ReminderEntity, inserted.id) should be === None
+		}
+
+		test("crud for Weekly") {
+			createTables()
+
+			val inserted = mapperDao.insert(ReminderEntity, Weekly(1, 12))
+			inserted should be === Weekly(1, 12)
+			mapperDao.select(ReminderEntity, inserted.id).get should be === Weekly(1, 12)
+
+			val updated = mapperDao.update(ReminderEntity, inserted, Weekly(2, 14))
+			updated should be === Weekly(2, 14)
+			mapperDao.select(ReminderEntity, inserted.id).get should be === Weekly(2, 14)
+
+			mapperDao.delete(ReminderEntity, updated)
+			mapperDao.select(ReminderEntity, inserted.id) should be === None
+		}
+
+		test("query") {
+			createTables()
+
+			val w1 = mapperDao.insert(ReminderEntity, Weekly(1, 12))
+			val w2 = mapperDao.insert(ReminderEntity, Weekly(1, 13))
+			val d1 = mapperDao.insert(ReminderEntity, Daily(12))
+			val d2 = mapperDao.insert(ReminderEntity, Daily(12))
+
+			import Query._
+			// alias
+			val re = ReminderEntity
+
+			(select
+				from re
+				where re.hourOfDay === 1.toShort).toSet should be === Set(w1, w2)
+
+			(select
+				from re
+				where re.hourOfDay === 12.toShort).toSet should be === Set(d1, d2)
 		}
 
 		def createTables() {
