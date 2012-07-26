@@ -90,7 +90,8 @@ import org.scalatest.FunSuite
 		classOf[javatests.JavaMappingSuite],
 		classOf[ManyToManyCompositeKeySuite],
 		classOf[OneToManyCompositeKeySuite],
-		classOf[MultipleInheritance1TableSuite]
+		classOf[MultipleInheritance1TableSuite],
+		classOf[ManyToOneCompositeKeySuite]
 	//classOf[MultiThreadedQuerySuite]
 	)
 )
