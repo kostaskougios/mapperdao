@@ -438,7 +438,9 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 			extends GetterDefinition
 			with OnlyForQueryDefinition {
 		val clz = Entity.this.clz
-		private var fkcols = List(referenced.clz.getSimpleName.toLowerCase + "_id")
+		private var fkcols = referenced.keysDuringDeclaration map { pk =>
+			referenced.clz.getSimpleName.toLowerCase + "_" + pk.name
+		}
 		def foreignkey(fk: String) = {
 			fkcols = List(fk)
 			this

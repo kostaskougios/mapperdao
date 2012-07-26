@@ -27,6 +27,9 @@ class ManyToOneCompositeKeySuite extends FunSuite with ShouldMatchers {
 			h1i should be === h1
 			val h2i = mapperDao.insert(HouseEntity, h2)
 			h2i should be === h2
+
+			mapperDao.select(HouseEntity, h1i.id).get should be === h1i
+			mapperDao.select(HouseEntity, h2i.id).get should be === h2i
 		}
 
 		def createTables() =
