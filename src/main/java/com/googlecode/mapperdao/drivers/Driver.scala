@@ -176,7 +176,9 @@ abstract class Driver {
 
 			// 1st step is to get the simple values
 			// of this object from the database
-			jdbc.queryForList(result.sql, result.values).map(j => typeManager.correctTypes(tpe.table, j))
+			jdbc.queryForList(result.sql, result.values).map { j =>
+				typeManager.correctTypes(tpe.table, j)
+			}
 		}
 
 	protected def selectSql[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]) =

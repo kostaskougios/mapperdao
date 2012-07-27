@@ -141,16 +141,15 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		val fe = foreign.entity
 		val ftable = fe.tpe.table
 		val columnNames = column.columns.map(_.name)
-		val forT = (columnNames zip ftable.primaryKeyColumnInfosForT.map(_.dataType)).map {
-			case (name, t) =>
-				val v = j(name)
-				(name.toLowerCase, corrections(t)(v))
-		}
-		val forTWithPC = (columnNames zip ftable.primaryKeyColumnInfosForTWithPC.map(_.dataType)).map {
-			case (name, t) =>
-				val v = j(name)
-				(name.toLowerCase, corrections(t)(v))
-		}
-		forT ::: forTWithPC
+		val forT = (columnNames zip (
+			ftable.primaryKeyColumnInfosForTWithPC.map(_.dataType)
+			:::
+			ftable.primaryKeyColumnInfosForT.map(_.dataType))
+		).map {
+				case (name, t) =>
+					val v = j(name)
+					(name.toLowerCase, corrections(t)(v))
+			}
+		forT
 	}
 }

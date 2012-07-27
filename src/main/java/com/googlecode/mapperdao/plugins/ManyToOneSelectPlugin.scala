@@ -33,7 +33,9 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 						// to limit memory usage for lazy loaded
 						val c = cis.column
 						val fe = c.foreign.entity
-						val foreignPKValues = c.columns.map(mtoc => om(mtoc.name))
+						val foreignPKValues = c.columns.map { mtoc =>
+							om(mtoc.name)
+						}
 						entities.justGet[T](fe.clz, foreignPKValues)
 							.map { o =>
 								() => o

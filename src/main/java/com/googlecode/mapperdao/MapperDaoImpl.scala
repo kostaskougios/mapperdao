@@ -305,6 +305,10 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 	 */
 	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], ids: List[Any]): Option[T with PC] =
 		{
+			if (ids == null) throw new NullPointerException("ids can't be null")
+			if (ids.isEmpty) throw new IllegalArgumentException("ids can't be empty")
+			val pkSz = entity.tpe.table.primaryKeysSize
+			if (pkSz != ids.size) throw new IllegalArgumentException("entity has %d keys, can't use %s".format(pkSz, ids))
 			val entityMap = new EntityMap
 			val v = selectInner(entity, selectConfig, ids, entityMap)
 			v
