@@ -18,6 +18,45 @@ class ManyToOneCompositeKeySuite extends FunSuite with ShouldMatchers {
 	if (database != "h2") {
 		implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(CityEntity, HouseEntity))
 
+		// aliases
+		val ce = CityEntity
+		val he = HouseEntity
+
+		test("query") {
+			createTables()
+			val city1 = mapperDao.insert(CityEntity, City("LDN", "London"))
+			val city2 = mapperDao.insert(CityEntity, City("ATH", "Athens"))
+			val h1i = mapperDao.insert(HouseEntity, House("Putney", city1))
+			val h2i = mapperDao.insert(HouseEntity, House("Greenwitch", city1))
+			val h3i = mapperDao.insert(HouseEntity, House("Holargos", city2))
+			val h4i = mapperDao.insert(HouseEntity, House("Pagrati", city2))
+
+			import Query._
+
+			(select
+				from he
+				where he.address === "Putney"
+			).toSet should be === Set(h1i)
+
+			(select
+				from he
+				join (he, he.city, ce)
+				where ce.name === "Athens"
+			).toSet should be === Set(h3i, h4i)
+
+			(select
+				from he
+				join (he, he.city, ce)
+				where ce.name === "London"
+			).toSet should be === Set(h1i, h2i)
+
+			(select
+				from he
+				join (he, he.city, ce)
+				where ce.name === "Athens" and ce.reference === "ATH"
+			).toSet should be === Set(h3i, h4i)
+		}
+
 		test("insert, select and delete") {
 			createTables()
 			val city = mapperDao.insert(CityEntity, City("LDN", "London"))
@@ -29,6 +68,27 @@ class ManyToOneCompositeKeySuite extends FunSuite with ShouldMatchers {
 			h2i should be === h2
 
 			mapperDao.select(HouseEntity, h1i.id).get should be === h1i
+			mapperDao.select(HouseEntity, h2i.id).get should be === h2i
+
+			mapperDao.delete(HouseEntity, h1i.id)
+			mapperDao.select(HouseEntity, h1i.id) should be === None
+			mapperDao.select(HouseEntity, h2i.id).get should be === h2i
+		}
+
+		test("update") {
+			createTables()
+			val city1 = mapperDao.insert(CityEntity, City("LDN", "London"))
+			val city2 = mapperDao.insert(CityEntity, City("ATH", "Athens"))
+			val h1 = House("Putney", city1)
+			val h2 = House("Greenwitch", city1)
+			val h1i = mapperDao.insert(HouseEntity, h1)
+			val h2i = mapperDao.insert(HouseEntity, h2)
+
+			val upd1 = h1.copy(city = city2)
+			val updated1 = mapperDao.update(HouseEntity, h1i, upd1)
+			updated1 should be === upd1
+
+			mapperDao.select(HouseEntity, h1i.id).get should be === updated1
 			mapperDao.select(HouseEntity, h2i.id).get should be === h2i
 		}
 
