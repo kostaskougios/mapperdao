@@ -103,7 +103,8 @@ class OneToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 			{
 				Setup.dropAllTables(jdbc)
 				Setup.queries(this, jdbc).update("ddl")
-				Setup.createSeq(jdbc, "HouseSeq")
+				if (Setup.database == "oracle")
+					Setup.createSeq(jdbc, "HouseSeq")
 			}
 	}
 
