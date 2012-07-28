@@ -113,8 +113,10 @@ class ManyToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 			{
 				Setup.dropAllTables(jdbc)
 				Setup.queries(this, jdbc).update("ddl")
-				Setup.createSeq(jdbc, "UserSeq")
-				Setup.createSeq(jdbc, "account_seq")
+				if (Setup.database == "oracle") {
+					Setup.createSeq(jdbc, "UserSeq")
+					Setup.createSeq(jdbc, "account_seq")
+				}
 			}
 	}
 	case class User(reference: String, name: String, accounts: Set[Account])
