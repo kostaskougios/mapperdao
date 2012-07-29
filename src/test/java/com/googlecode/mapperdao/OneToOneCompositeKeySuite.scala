@@ -5,6 +5,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 import com.googlecode.mapperdao.jdbc.Setup
+import com.googlecode.mapperdao.utils.Helpers
 
 /**
  * @author kostantinos.kougios
@@ -27,6 +28,35 @@ class OneToOneCompositeKeySuite extends FunSuite with ShouldMatchers {
 			inserted should be === i
 
 			mapperDao.select(InventoryEntity, inserted.id).get should be === inserted
+
+			mapperDao.delete(InventoryEntity, inserted.id)
+			mapperDao.select(InventoryEntity, inserted.id) should be === None
+		}
+
+		test("delete associated with cascade") {
+			createTables()
+			noise
+			noise
+			val i = Inventory(Product("rc1"), 5)
+			val inserted = mapperDao.insert(InventoryEntity, i)
+
+			mapperDao.delete(DeleteConfig(propagate = true), ProductEntity, Helpers.asIntId(inserted.product))
+			mapperDao.select(InventoryEntity, inserted.id) should be === None
+		}
+
+		test("update") {
+			createTables()
+			noise
+			noise
+			val i = Inventory(Product("rc1"), 5)
+			val inserted = mapperDao.insert(InventoryEntity, i)
+			inserted should be === i
+
+			val upd = inserted.copy(product = Product("rc2"))
+			val updated = mapperDao.update(InventoryEntity, inserted, upd)
+			updated should be === upd
+
+			mapperDao.select(InventoryEntity, updated.id).get should be === updated
 		}
 
 		def noise = mapperDao.insert(InventoryEntity, Inventory(Product("rcX"), 8))
