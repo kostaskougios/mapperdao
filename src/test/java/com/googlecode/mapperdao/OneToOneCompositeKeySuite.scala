@@ -19,6 +19,32 @@ class OneToOneCompositeKeySuite extends FunSuite with ShouldMatchers {
 	if (database != "h2") {
 		implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(InventoryEntity, ProductEntity))
 
+		// aliases
+		val ie = InventoryEntity
+		val pe = ProductEntity
+
+		test("query") {
+			createTables()
+			noise
+			noise
+			val inserted1 = mapperDao.insert(InventoryEntity, Inventory(Product("rc1"), 5))
+			val inserted2 = mapperDao.insert(InventoryEntity, Inventory(Product("rc2"), 6))
+
+			import Query._
+			(
+				select
+				from ie
+				where ie.stock === 6
+			).toSet should be === Set(inserted2)
+
+			(
+				select
+				from ie
+				join (ie, ie.product, pe)
+				where pe.refCode === "rc2"
+			).toSet should be === Set(inserted2)
+		}
+
 		test("create, select and delete") {
 			createTables()
 			noise
