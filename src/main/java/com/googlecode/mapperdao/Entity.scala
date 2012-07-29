@@ -331,7 +331,9 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 
 	protected class OneToOneBuilder[FPC, FT](referenced: Entity[FPC, FT])
 			extends OnlyForQueryDefinition {
-		private var cols = List(referenced.clz.getSimpleName.toLowerCase + "_id")
+		private var cols = referenced.keysDuringDeclaration.map { k =>
+			referenced.clz.getSimpleName.toLowerCase + "_" + k.name
+		}
 
 		def foreignkey(fk: String) = {
 			cols = List(fk)
