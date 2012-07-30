@@ -71,9 +71,11 @@ class OneToOneCompositeKeySuite extends FunSuite with ShouldMatchers {
 			noise
 			val i = Inventory(Product("rc1"), 5)
 			val inserted = mapperDao.insert(InventoryEntity, i)
+			val productId = Helpers.intIdOf(inserted.product)
 
 			mapperDao.delete(DeleteConfig(propagate = true), ProductEntity, Helpers.asIntId(inserted.product))
 			mapperDao.select(InventoryEntity, inserted.id) should be === None
+			mapperDao.select(ProductEntity, productId, "rc1") should be === None
 		}
 
 		test("update") {
