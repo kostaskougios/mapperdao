@@ -78,20 +78,20 @@ class OneToOneReverseCompositeKeySuite extends FunSuite with ShouldMatchers {
 			mapperDao.select(ProductEntity, productId) should be === None
 		}
 
-		//		test("update") {
-		//			createTables()
-		//			noise
-		//			noise
-		//			val i = Inventory(Product("rc1"), 5)
-		//			val inserted = mapperDao.insert(InventoryEntity, i)
-		//			inserted should be === i
-		//
-		//			val upd = inserted.copy(product = Product("rc2"))
-		//			val updated = mapperDao.update(InventoryEntity, inserted, upd)
-		//			updated should be === upd
-		//
-		//			mapperDao.select(InventoryEntity, updated.id).get should be === updated
-		//		}
+		test("update") {
+			createTables()
+			noise
+			noise
+			val i = Inventory("ref1", Product("rc1", null), 5)
+			val inserted = mapperDao.insert(InventoryEntity, i)
+			inserted should be === i
+
+			val upd = inserted.copy(product = Product("rc2", null))
+			val updated = mapperDao.update(InventoryEntity, inserted, upd)
+			updated should be === upd
+
+			mapperDao.select(InventoryEntity, updated.id, "ref1").get should be === Inventory("ref1", Product("rc2", Inventory("ref1", Product("rc2", null), 5)), 5)
+		}
 
 		def noise = mapperDao.insert(InventoryEntity, Inventory("ref1", Product("a nice & noisy product", null), 8))
 
