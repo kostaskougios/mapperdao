@@ -72,7 +72,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			qe.joins.reverse.foreach { j =>
 				val column = j.column
 				if (column != null) {
-					var foreignEntity = j.foreignEntity
+					val foreignEntity = j.foreignEntity
 					val joinEntity = j.joinEntity
 					j match {
 						case join: Query.Join[_, _, _, PC, T] =>
@@ -89,6 +89,9 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 									q.innerJoin(rightJoin)
 								case oneToOneReverse: OneToOneReverse[_, _] =>
 									val join = oneToOneReverseJoin(aliases, joinEntity, foreignEntity, oneToOneReverse)
+									q.innerJoin(join)
+								case oneToOne: OneToOne[_, _] =>
+									val join = oneToOneJoin(aliases, joinEntity, foreignEntity, oneToOne)
 									q.innerJoin(join)
 							}
 					}
@@ -239,6 +242,23 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 
 			val j = new driver.sqlBuilder.InnerJoinBuilder(foreignTable.name, fAlias, null)
 			(table.primaryKeys zip oneToOneReverse.foreignColumns).foreach {
+				case (left, right) =>
+					j.and(jAlias, left.name, "=", fAlias, right.name)
+			}
+			j
+		}
+
+	private def oneToOneJoin(aliases: QueryDao.Aliases, joinEntity: Entity[_, _], foreignEntity: Entity[_, _], oneToOne: OneToOne[_, _]) =
+		{
+			val tpe = joinEntity.tpe
+			val table = tpe.table
+			val foreignTpe = foreignEntity.tpe
+			val foreignTable = foreignTpe.table
+			val fAlias = aliases(foreignEntity)
+			val jAlias = aliases(joinEntity)
+
+			val j = new driver.sqlBuilder.InnerJoinBuilder(foreignTable.name, fAlias, null)
+			(oneToOne.selfColumns zip foreignTable.primaryKeys) foreach {
 				case (left, right) =>
 					j.and(jAlias, left.name, "=", fAlias, right.name)
 			}

@@ -43,6 +43,12 @@ class OneToOneCompositeKeySuite extends FunSuite with ShouldMatchers {
 				join (ie, ie.product, pe)
 				where pe.refCode === "rc2"
 			).toSet should be === Set(inserted2)
+			(
+				select
+				from ie
+				join (ie, ie.product, pe)
+				where pe.refCode === "rc2" or pe.refCode === "rc1"
+			).toSet should be === Set(inserted1, inserted2)
 		}
 
 		test("create, select and delete") {
