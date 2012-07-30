@@ -40,6 +40,23 @@ class OneToOneReverseCompositeKeySuite extends FunSuite with ShouldMatchers {
 				join (pe, pe.inventory, ie)
 				where pe.inventory === inserted2
 			).toSet should be === Set(Product("product 2", Inventory(100, "rc2", Product("product 2", null), 6)))
+
+			(
+				select
+				from pe
+				join (pe, pe.inventory, ie)
+				where pe.inventory === inserted1
+			).toSet should be === Set(Product("product 1", Inventory(100, "rc1", Product("product 1", null), 5)))
+
+			(
+				select
+				from pe
+				join (pe, pe.inventory, ie)
+				where ie.refCode === "rc1"
+			).toSet should be === Set(
+					Product("product 1", Inventory(100, "rc1", Product("product 1", null), 5)),
+					Product("product 1a", Inventory(101, "rc1", Product("product 1a", null), 5))
+				)
 		}
 
 		test("query") {
