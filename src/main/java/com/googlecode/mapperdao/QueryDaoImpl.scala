@@ -221,6 +221,17 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					}.reduceLeft[driver.sqlBuilder.Expression] { (l, r) =>
 						driver.sqlBuilder.And(l, r)
 					}
+				case OneToOneReverseOperation(left, operand, right) =>
+					val foreignEntity = left.foreign.entity
+					val fTpe = foreignEntity.tpe
+					val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
+					val exprs = fPKColumnAndValues.map {
+						case (c, v) =>
+							driver.sqlBuilder.Clause(aliases(left.foreign.entity), c.name, operand.sql, v)
+					}
+					exprs.reduceLeft[driver.sqlBuilder.Expression] { (l, r) =>
+						driver.sqlBuilder.And(l, r)
+					}
 			}
 
 			wheres.map(_.clauses).map { op =>
