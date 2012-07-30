@@ -83,6 +83,15 @@ object Query {
 	implicit def columnInfoManyToManyOperation[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F]) = new ConvertorManyToMany[T, FPC, F](ci)
 
 	/**
+	 * manages one-to-one expressions
+	 */
+	protected class ConvertorOneToOne[T, FPC, F](ci: ColumnInfoOneToOne[T, FPC, F]) {
+		def ===(v: F) = new OneToOneOperation(ci.column, EQ(), v)
+		def <>(v: F) = new OneToOneOperation(ci.column, NE(), v)
+	}
+	implicit def columnInfoOneToOneOperation[T, FPC, F](ci: ColumnInfoOneToOne[T, FPC, F]) = new ConvertorOneToOne[T, FPC, F](ci)
+
+	/**
 	 * manages one-to-one reverse expressions
 	 */
 	protected class ConvertorOneToOneReverse[T, FPC, F](ci: ColumnInfoOneToOneReverse[T, FPC, F]) {
@@ -272,6 +281,11 @@ case class OneToManyOperation[FPC, F, V](left: OneToMany[FPC, F], operand: Opera
 }
 case class ManyToManyOperation[FPC, F, V](left: ManyToMany[FPC, F], operand: Operand, right: V) extends OpBase {
 	if (right == null) throw new NullPointerException("Value can't be null in many-to-many FK queries. Expression was on %s.".format(left))
+	override def toString = "%s %s %s".format(left, operand, right)
+}
+
+case class OneToOneOperation[FPC, F, V](left: OneToOne[FPC, F], operand: Operand, right: V) extends OpBase {
+	if (right == null) throw new NullPointerException("Value can't be null in one-to-one FK queries. Expression was on %s.".format(left))
 	override def toString = "%s %s %s".format(left, operand, right)
 }
 

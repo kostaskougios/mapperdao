@@ -29,7 +29,7 @@ class OneToOneCompositeKeySuite extends FunSuite with ShouldMatchers {
 			noise
 			val inserted1 = mapperDao.insert(InventoryEntity, Inventory(Product("rc1"), 5))
 			val inserted2 = mapperDao.insert(InventoryEntity, Inventory(Product("rc2"), 6))
-
+			val rc1 = Helpers.asIntId(inserted1.product)
 			import Query._
 			(
 				select
@@ -43,12 +43,21 @@ class OneToOneCompositeKeySuite extends FunSuite with ShouldMatchers {
 				join (ie, ie.product, pe)
 				where pe.refCode === "rc2"
 			).toSet should be === Set(inserted2)
+
 			(
 				select
 				from ie
 				join (ie, ie.product, pe)
 				where pe.refCode === "rc2" or pe.refCode === "rc1"
 			).toSet should be === Set(inserted1, inserted2)
+
+			(
+				select
+				from ie
+				join (ie, ie.product, pe)
+				where ie.product === rc1
+			).toSet should be === Set(inserted1)
+
 		}
 
 		test("create, select and delete") {
