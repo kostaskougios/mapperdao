@@ -5,6 +5,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
+import com.googlecode.mapperdao.utils.Helpers
 
 /**
  * @author kostantinos.kougios
@@ -13,7 +14,23 @@ import org.scalatest.matchers.ShouldMatchers
  */
 @RunWith(classOf[JUnitRunner])
 class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
+	implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
+
+	val p = ProductEntity
+	val i = InventoryEntity
+	test("query on product") {
+		createTables
+
+		import Query._
+		val inventories = for (i <- 0 to 10) yield mapperDao.insert(InventoryEntity, Inventory(10 + i, Product(1 + i), 5 + i))
+		val p2 = Helpers.asIntId(inventories(2).product)
+		(
+			select
+			from i
+			join (i, i.product, p)
+			where i.product === p2
+		).toSet should be === Set(inventories(2))
+	}
 
 	test("update to null") {
 		createTables
