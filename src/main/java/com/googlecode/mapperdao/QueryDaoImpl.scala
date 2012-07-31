@@ -201,6 +201,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					val foreignEntity = left.foreign.entity
 					val fTpe = foreignEntity.tpe
 					val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
+					if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 					val exprs = fPKColumnAndValues.map {
 						case (c, v) =>
 							driver.sqlBuilder.Clause(aliases(c), c.name, operand.sql, v)
@@ -213,6 +214,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					val fTpe = foreignEntity.tpe
 
 					val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
+					if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 					if (fPKColumnAndValues.size != left.linkTable.right.size) throw new IllegalStateException("linktable not having the correct right columns for %s and %s".format(fPKColumnAndValues, left.linkTable.right))
 					val zipped = (fPKColumnAndValues zip left.linkTable.right)
 					zipped.map {
@@ -225,6 +227,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					val foreignEntity = left.foreign.entity
 					val fTpe = foreignEntity.tpe
 					val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
+					if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 					val exprs = fPKColumnAndValues.map {
 						case (c, v) =>
 							driver.sqlBuilder.Clause(aliases(left.foreign.entity), c.name, operand.sql, v)
@@ -236,6 +239,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					val foreignEntity = left.foreign.entity
 					val fTpe = foreignEntity.tpe
 					val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
+					if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 					val exprs = fPKColumnAndValues.map {
 						case (c, v) =>
 							driver.sqlBuilder.Clause(aliases(left.foreign.entity), c.name, operand.sql, v)
