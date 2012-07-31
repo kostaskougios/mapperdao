@@ -13,11 +13,16 @@ trait Transaction {
 	def apply[V](f: TransactionStatus => V): V
 }
 
+/**
+ * please look at https://code.google.com/p/mapperdao/wiki/Transactions for more info and examples
+ */
 object Transaction {
 
 	/**
 	 * see #org.springframework.transaction.TransactionDefinition
-	 * for documentation on propagation levels
+	 * for documentation on propagation levels (PROPAGATION_* fields)
+	 *
+	 * please look at https://code.google.com/p/mapperdao/wiki/Transactions for more info and examples
 	 */
 	object Propagation {
 		sealed protected[Transaction] class Level(val level: Int)
@@ -30,6 +35,12 @@ object Transaction {
 		object Nested extends Level(TransactionDefinition.PROPAGATION_NESTED)
 	}
 
+	/**
+	 * see #org.springframework.transaction.TransactionDefinition
+	 * for documentation on isolation levels (ISOLATION_* fields)
+	 *
+	 * please look at https://code.google.com/p/mapperdao/wiki/Transactions for more info and examples
+	 */
 	object Isolation {
 		sealed protected[Transaction] class Level(val level: Int)
 		object Default extends Level(TransactionDefinition.ISOLATION_DEFAULT)
@@ -40,10 +51,17 @@ object Transaction {
 	}
 	/**
 	 * returns a transaction manager for the provided datasource. 1 transaction manager per datasource
+	 *
+	 * please look at https://code.google.com/p/mapperdao/wiki/Transactions for more info and examples
 	 */
 	def transactionManager(dataSource: DataSource): PlatformTransactionManager = new DataSourceTransactionManager(dataSource)
 	def transactionManager(jdbc: Jdbc): PlatformTransactionManager = transactionManager(jdbc.dataSource)
 
+	/**
+	 * get a transaction with the provided propagation, isolation levels and timeout.
+	 *
+	 * please also look at #hieghest and #default methods
+	 */
 	def get(transactionManager: PlatformTransactionManager, propagation: Propagation.Level, isolation: Isolation.Level, timeOutSec: Int): Transaction =
 		{
 			val td = new DefaultTransactionDefinition

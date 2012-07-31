@@ -8,6 +8,12 @@ import com.googlecode.mapperdao.jdbc.Transaction
 
 /**
  * CRUD with TransactionalCRUD will run CRUD methods within transactions
+ *
+ * Please look at :
+ *
+ * https://code.google.com/p/mapperdao/wiki/CRUDDaos
+ * https://code.google.com/p/mapperdao/wiki/Transactions
+ *
  */
 trait TransactionalCRUD[PC, T, PK] extends CRUD[PC, T, PK] {
 	protected val txManager: PlatformTransactionManager

@@ -21,6 +21,8 @@ import com.googlecode.mapperdao.SimpleEntity
 /**
  * mixin to add CRUD methods to a dao
  *
+ * https://code.google.com/p/mapperdao/wiki/CRUDDaos
+ *
  * @author kostantinos.kougios
  *
  * 30 Aug 2011

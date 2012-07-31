@@ -6,8 +6,10 @@ package com.googlecode.mapperdao
  * 18 Apr 2012
  */
 abstract class LazyLoad {
+	// if true, all relationships will be lazy-loaded
 	def all: Boolean
 
+	// specify which relationships to lazy load, i.e. Set(ProductEntity.attributes) // will lazy load attributes
 	def lazyLoaded: Set[ColumnInfoRelationshipBase[_, _, _, _]]
 
 	def isLazyLoaded(ci: ColumnInfoBase[_, _]) = all || (ci match {
@@ -39,6 +41,8 @@ object LazyLoad {
 	// lazy load all related entities
 	val all = LazyLoadAll
 
+	// specify which relationships to lazy load, i.e. Set(ProductEntity.attributes) // will lazy load attributes
 	def some(lazyLoaded: Set[ColumnInfoRelationshipBase[_, _, _, _]]): LazyLoad = LazyLoadSome(lazyLoaded = lazyLoaded)
+
 	def apply(lazyLoaded: ColumnInfoRelationshipBase[_, _, _, _]*): LazyLoad = LazyLoadSome(lazyLoaded = lazyLoaded.toSet)
 }

@@ -12,6 +12,8 @@ import org.joda.time.chrono.ISOChronology
 /**
  * a factory for simple configuration of mapperdao
  *
+ * please look at https://code.google.com/p/mapperdao/wiki/SetupDaos for documentation and examples
+ *
  * @author kostantinos.kougios
  *
  * 29 Aug 2011

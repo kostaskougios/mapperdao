@@ -6,7 +6,13 @@ import com.googlecode.mapperdao.drivers.SelectHints
  *
  * @param	skip	skip one or more relationships from loading. If skipped, a traversable will
  * 					be empty and a reference to an other entity will be null
- * @param	data	any kind of data
+ * @param	data	any kind of data that will be passed on to Entity.constructor
+ *
+ * @param	lazyLoad	configure lazy loading of related entities. Please see LazyLoad class
+ *
+ * @param	hints	pass on extra hints to the driver (database specific)
+ *
+ * @param	manyToManyCustomLoaders		(optimization) Load many to many relationships manually
  *
  * example: SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
  */
@@ -33,5 +39,6 @@ object SelectConfig {
 
 	def lazyLoad = SelectConfig(lazyLoad = LazyLoad.all)
 
+	// use this to avoid creating instances for the default select config
 	val default = SelectConfig()
 }
