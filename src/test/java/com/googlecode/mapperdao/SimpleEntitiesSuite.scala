@@ -35,7 +35,7 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 		val jp = JobPosition(5, "Developer", date, date - 2.months, 10)
 		val inserted = mapperDao.insert(JobPositionEntity, jp)
 
-		val newV = JobPosition(7, "X", date, date - 2.months, 10)
+		val newV = JobPosition(7, "X", date, date - 2.months, 10, true)
 		val updated = mapperDao.update(JobPositionEntity, inserted, newV)
 		updated should be === newV
 		val s1 = mapperDao.select(JobPositionEntity, 7).get
@@ -110,7 +110,7 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 		createJobPositionTable
 
 		val date = Setup.now
-		val jp = new JobPosition(5, "Developer", date, date, 10)
+		val jp = new JobPosition(5, "Developer", date, date, 10, true)
 		mapperDao.insert(JobPositionEntity, jp) should be === jp
 
 		// now load
@@ -118,7 +118,7 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 		loaded should be === jp
 
 		// update
-		val changed = new JobPosition(5, "Scala Developer", date, date, 7)
+		val changed = new JobPosition(5, "Scala Developer", date, date, 7, false)
 		val afterUpdate = mapperDao.update(JobPositionEntity, loaded, changed).asInstanceOf[Persisted]
 		afterUpdate.mapperDaoValuesMap(JobPositionEntity.name) should be === "Scala Developer"
 		afterUpdate.mapperDaoValuesMap(JobPositionEntity.rank) should be === 7
@@ -187,7 +187,7 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 	 * Also the only reason for this class to be mutable is for testing. In a real application
 	 * it would better be immutable.
 	 */
-	case class JobPosition(var id: Int, var name: String, val start: DateTime, val end: DateTime, var rank: Int) {
+	case class JobPosition(var id: Int, var name: String, val start: DateTime, val end: DateTime, var rank: Int, married: Boolean = false) {
 		// this can have any arbitrary methods, no problem!
 		def daysDiff = (end.getMillis - start.getMillis) / (3600 * 24)
 
@@ -208,9 +208,10 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 		val start = column("start") to (_.start)
 		val end = column("end") to (_.end)
 		val rank = column("rank") to (_.rank)
+		val married = column("married") to (_.married)
 
 		// a function from ValuesMap=>JobPosition that constructs the object.
 		// This means that immutability is possible and even desirable for entities!
-		def constructor(implicit m) = new JobPosition(id, name, start, end, rank) with Persisted
+		def constructor(implicit m) = new JobPosition(id, name, start, end, rank, married) with Persisted
 	}
 }

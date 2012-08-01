@@ -5,5 +5,6 @@ create table JobPosition (
 	start datetime,
 	[end] datetime,
 	rank int not null,
+	married bit not null,
 	primary key (id)
 )

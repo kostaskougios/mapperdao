@@ -86,6 +86,8 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		case i: Int =>
 			val v = i == 1
 			v
+		case bd: java.math.BigDecimal =>
+			bd.intValue == 1
 		case null => null
 	}
 
