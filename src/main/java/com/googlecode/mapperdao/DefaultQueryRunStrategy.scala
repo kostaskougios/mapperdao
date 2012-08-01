@@ -4,6 +4,7 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
 
 /**
  * default, single-threaded, transaction safe query run strategy
+ *
  * @author kostantinos.kougios
  *
  * 6 May 2012
