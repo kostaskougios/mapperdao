@@ -3,7 +3,7 @@ import com.googlecode.mapperdao.utils.LazyActions
 import com.googlecode.mapperdao.utils.MapWithDefault
 
 /**
- * external entities allow loading entities externally via a custom dao or i.e. hibernate,
+ * external entities allow loading entities via a custom dao or i.e. hibernate,
  * a json call, loading it from a file etc.
  *
  * T is the type of the entity.

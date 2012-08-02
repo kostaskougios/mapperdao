@@ -2,14 +2,37 @@ package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.events.Events
 
+/**
+ * The MapperDao is the central trait that allows CRUD operations on entities.
+ *
+ * insert, update, delete and select's can be performed and all these methods
+ * require the entity as a parameter and optionally a configuration for the
+ * operation..
+ *
+ * @author kostantinos.kougios
+ */
 trait MapperDao {
 
-	// insert
+	/**
+	 * insert an entity into the database. The entity and all related non-persisted entities
+	 * will be inserted into the database. All related persisted entities will be updated
+	 * if their state changed.
+	 */
 	def insert[PC, T](entity: Entity[PC, T], o: T): T with PC = insert(defaultUpdateConfig, entity, o)
+	/**
+	 * Will insert the entity into the database and will use the UpdateConfig to decide
+	 * which related entities will be inserted, deleted etc.
+	 */
 	def insert[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T): T with PC
 
-	// update
+	/**
+	 * updates the entity. Non-persisted related entities will be inserted and persisted
+	 * related entities will be updated (if their state changed).
+	 */
 	def update[PC, T](entity: Entity[PC, T], o: T with PC): T with PC = update(defaultUpdateConfig, entity, o)
+	/**
+	 * this updates the entity but allows configuration regarding the update
+	 */
 	def update[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC): T with PC
 
 	def update[PC, T](entity: Entity[PC, T], o: T with PC, newO: T): T with PC = update(defaultUpdateConfig, entity, o, newO)

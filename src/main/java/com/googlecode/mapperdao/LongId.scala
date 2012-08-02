@@ -6,7 +6,9 @@ package com.googlecode.mapperdao
  * have to provide access to it's id. Id access should only provided when necessary, i.e. passing the id as a parameter
  * on a url.
  *
- * use MapperDao.longIdFor(o) to access the id of an entity
+ * The id is accessible for all entities loaded via mapperdao.
+ *
+ * For nested entities, use MapperDao.longIdFor(o) to access the id of an entity
  *
  * @author kostantinos.kougios
  *

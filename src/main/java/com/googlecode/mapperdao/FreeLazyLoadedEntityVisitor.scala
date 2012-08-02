@@ -1,6 +1,11 @@
 package com.googlecode.mapperdao
 
 /**
+ * visits an entity and frees the memory allocated to allow mapperdao to lazy load
+ * related data. After running this, all lazy loaded relationships won't be able to
+ * be loaded but memory is released. Useful if i.e. those entities are cached and
+ * we're sure that we won't need the lazy loaded data.
+ *
  * @author kostantinos.kougios
  *
  * May 24, 2012
