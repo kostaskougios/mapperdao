@@ -1,21 +1,38 @@
 package com.googlecode.mapperdao
 import com.googlecode.mapperdao.drivers.SelectHints
 
+/**
+ *
+ * configures queries.
+ *
+ * A lot of things can be configured when running queries. Related entities can be
+ * skipped from loading in order to speed up the query. Or they can be lazy loaded.
+ *
+ * Offset and limit can be optinally configured if we need to fetch specific rows, i.e
+ * if we want to paginate.
+ *
+ * Multi-threaded loading of related data can also be configured.
+ *
+ * There are several handy factory methods in the companion object.
+ *
+ * @author kostantinos.kougios
+ *
+ */
 case class QueryConfig(
-	// skip relationship from loading? i.e. SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
-	skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
-	// start index of first row, useful for paginating
-	offset: Option[Long] = None,
-	// limit the number of returned rows, useful for paginating
-	limit: Option[Long] = None,
-	data: Option[Any] = None,
-	cacheOptions: CacheOption = CacheOptions.NoCache,
-	lazyLoad: LazyLoad = LazyLoad.none,
-	// run the query in multiple threads to improve performance.
-	// WARNING: multi-threaded runs of queries don't run
-	// within a transaction.
-	multi: MultiThreadedConfig = MultiThreadedConfig.Single,
-	hints: SelectHints = SelectHints.None) {
+		// skip relationship from loading? i.e. SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
+		skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
+		// start index of first row, useful for paginating
+		offset: Option[Long] = None,
+		// limit the number of returned rows, useful for paginating
+		limit: Option[Long] = None,
+		data: Option[Any] = None,
+		cacheOptions: CacheOption = CacheOptions.NoCache,
+		lazyLoad: LazyLoad = LazyLoad.none,
+		// run the query in multiple threads to improve performance.
+		// WARNING: multi-threaded runs of queries don't run
+		// within a transaction.
+		multi: MultiThreadedConfig = MultiThreadedConfig.Single,
+		hints: SelectHints = SelectHints.None) {
 
 	// check parameter validity
 	if (offset.isDefined && offset.get < 0) throw new IllegalArgumentException("offset is " + offset)

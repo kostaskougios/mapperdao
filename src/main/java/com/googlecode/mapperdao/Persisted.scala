@@ -5,7 +5,8 @@ package com.googlecode.mapperdao
  * view this trait only within the constructor() method. Otherwise
  * it is considered mapperdao internal implementation. Exposing the
  * trait to the constructor method could not be avoided (without using
- * runtime proxying)
+ * runtime proxying), other than that it should be hidden from any client
+ * code.
  *
  * @author kostantinos.kougios
  *

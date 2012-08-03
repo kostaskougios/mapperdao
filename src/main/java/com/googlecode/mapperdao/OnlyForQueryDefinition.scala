@@ -10,6 +10,13 @@ package com.googlecode.mapperdao
  */
 trait OnlyForQueryDefinition {
 	protected var onlyForQuery = false
+
+	/**
+	 * declare this column as "only for querying". It won't be fetched
+	 * from the database but it can be used in query where clauses
+	 *
+	 * @return		the builder
+	 */
 	def forQueryOnly(): this.type = {
 		onlyForQuery = true
 		this

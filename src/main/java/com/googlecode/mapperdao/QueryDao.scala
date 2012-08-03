@@ -2,20 +2,80 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.exceptions.QueryException
 import com.googlecode.mapperdao.drivers.Driver
 
+/**
+ * querydao takes care of querying the database and fetching entities using
+ * mapperdao's query DSL which can be imported via import Querry._ .
+ *
+ * There are several methods to query the data and each query can have it's
+ * own QueryConfig which decides how the data will be fetched. I.e. on listing
+ * pages we might want to fetch only the top-level entity and skip related data.
+ * In that case we need to pass the appropriate QueryConfig.
+ *
+ * On a details page we need to load the whole tree of entities and show all
+ * the available information for an entity. In that case we can use the default
+ * QueryConfig.
+ *
+ * @author kostantinos.kougios
+ *
+ */
 trait QueryDao {
 	val defaultQueryConfig = QueryConfig()
 
 	/**
-	 * runs a query and retuns a list of entities
+	 * runs a query and retuns a list of entities.
+	 *
+	 * import Query._
+	 * val qe=(select from ProductEntity where title==="jeans")
+	 * val results=queryDao.query(qe) // list of products
+	 *
+	 * @param	qe		a query
+	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 */
 	def query[PC, T](qe: Query.Where[PC, T]): List[T with PC] = query(qe.queryEntity)
+	/**
+	 * runs a query and retuns a list of entities.
+	 *
+	 * import Query._
+	 * val qe=(select from ProductEntity where title==="jeans")
+	 * val results=queryDao.query(qe) // list of products
+	 *
+	 * @param	queryConfig		configures the query
+	 * @param	qe				a query
+	 * @return	a list of T with PC i.e. List[Product with IntId]
+	 * @see		#QueryConfig
+	 */
 	def query[PC, T](queryConfig: QueryConfig, qe: Query.Where[PC, T]): List[T with PC] = query(queryConfig, qe.queryEntity)
+	/**
+	 * runs a query and retuns a list of entities.
+	 *
+	 * import Query._
+	 * val qe=(select from ProductEntity where title==="jeans")
+	 * val results=queryDao.query(qe) // list of products
+	 *
+	 * @param	qe		a query
+	 * @return	a list of T with PC i.e. List[Product with IntId]
+	 */
 	def query[PC, T](qe: Query.Builder[PC, T]): List[T with PC] = query(defaultQueryConfig, qe)
 
+	/**
+	 * runs a query and retuns a list of entities.
+	 *
+	 * import Query._
+	 * val qe=(select from ProductEntity where title==="jeans")
+	 * val results=queryDao.query(qe) // list of products
+	 *
+	 * @param	queryConfig		configures the query
+	 * @param	qe				a query
+	 * @return	a list of T with PC i.e. List[Product with IntId]
+	 * @see		#QueryConfig
+	 */
 	def query[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]): List[T with PC]
 
 	/**
-	 * counts rows
+	 * counts rows, i.e.
+	 * import Query._
+	 * val qe=(select from ProductEntity where title==="jeans")
+	 * val count=queryDao.count(qe) // the number of jeans
 	 */
 	def count[PC, T](qe: Query.Where[PC, T], queryConfig: QueryConfig): Long = count(queryConfig, qe.queryEntity)
 	def count[PC, T](qe: Query.Where[PC, T]): Long = count(qe, QueryConfig())
@@ -28,8 +88,20 @@ trait QueryDao {
 	 * an IllegalStateException is thrown.
 	 */
 	def querySingleResult[PC, T](qe: Query.Where[PC, T]): Option[T with PC] = querySingleResult(defaultQueryConfig, qe.queryEntity)
+	/**
+	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
+	 * an IllegalStateException is thrown.
+	 */
 	def querySingleResult[PC, T](queryConfig: QueryConfig, qe: Query.Where[PC, T]): Option[T with PC] = querySingleResult(queryConfig, qe.queryEntity)
+	/**
+	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
+	 * an IllegalStateException is thrown.
+	 */
 	def querySingleResult[PC, T](qe: Query.Builder[PC, T]): Option[T with PC] = querySingleResult(defaultQueryConfig, qe)
+	/**
+	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
+	 * an IllegalStateException is thrown.
+	 */
 	def querySingleResult[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]): Option[T with PC] = {
 		val l = query(queryConfig, qe)
 		// l.size might be costly, so we'll test if l is empty first

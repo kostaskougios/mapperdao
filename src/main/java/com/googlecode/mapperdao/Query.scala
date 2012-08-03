@@ -4,6 +4,23 @@ import org.scala_tools.time.Imports.DateTime
 /**
  * query builder and DSL
  *
+ * typical usage is to
+ *
+ * import Query._
+ *
+ * val pe=ProductEntity
+ * val jeans=(select
+ * 		from pe
+ * 		where pe.title==="jeans").toList
+ *
+ * The import makes sure the implicits and builders for the DSL can be used.
+ * All classes of this object are internal API of mapperdao and can not be
+ * used externally.
+ *
+ * Compilation errors sometimes can be tricky to understand but this is common
+ * with DSL's. Please read the examples on the wiki pages or go through the
+ * mapperdao examples / test suites.
+ *
  * @author kostantinos.kougios
  *
  * 15 Aug 2011
