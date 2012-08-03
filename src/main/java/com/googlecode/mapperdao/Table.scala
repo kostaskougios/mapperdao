@@ -3,6 +3,8 @@ package com.googlecode.mapperdao
 /**
  * mapping tables to entities
  *
+ * this is internal mapperdao API.
+ *
  * @author kostantinos.kougios
  *
  * 12 Jul 2011
@@ -26,7 +28,7 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 	}
 
 	val primaryKeysAsColumns = primaryKeys.map(k => Column(k.name)).toSet
-	//val primaryKeyColumns: List[SimpleColumn] = primaryKeys.map(_.column)
+
 	val primaryKeysAsCommaSeparatedList = primaryKeys.map(_.name).mkString(",")
 
 	val simpleTypeColumns = columns.collect {

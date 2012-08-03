@@ -1,6 +1,8 @@
 package com.googlecode.mapperdao
 
 /**
+ * visits an entity and unlinks it from its linked-to-database state.
+ *
  * @author kostantinos.kougios
  *
  * 22 May 2012

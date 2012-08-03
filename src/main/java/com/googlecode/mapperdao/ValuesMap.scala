@@ -12,6 +12,11 @@ import utils.MemoryEfficientMap
 import utils.SynchronizedMemoryEfficientMap
 
 /**
+ * provides values that originate from the database. Those values are used by
+ * Entity.constructor(implicit m:ValuesMap) to construct entities.
+ *
+ * Because ValuesMap is implicit, it can convert columns to their actual values
+ *
  * @author kostantinos.kougios
  *
  * 16 Jul 2011

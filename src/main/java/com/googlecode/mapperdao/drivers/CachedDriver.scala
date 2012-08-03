@@ -11,6 +11,8 @@ import com.googlecode.mapperdao.jdbc.UpdateResult
 import com.googlecode.mapperdao.PK
 
 /**
+ * mixin trait for a Driver that adds caching to Driver's operations.
+ *
  * @author kostantinos.kougios
  *
  * 21 Mar 2012

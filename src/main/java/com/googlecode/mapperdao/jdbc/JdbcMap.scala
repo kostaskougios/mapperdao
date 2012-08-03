@@ -1,7 +1,10 @@
 package com.googlecode.mapperdao.jdbc
 import org.joda.time.DateTime
 import scala.collection.JavaConverters._
+
 /**
+ * a map of database column->value
+ *
  * @author kostantinos.kougios
  *
  * 2 Aug 2011

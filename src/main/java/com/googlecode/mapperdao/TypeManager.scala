@@ -6,6 +6,9 @@ import org.joda.time.DateTime
 /**
  * manages types
  *
+ * Jdbc drivers return different types for different columns, i.e. number(20,0) might return a BigDecimal in some implementations
+ * and a Long in others. This manager takes care of conversions.
+ *
  * @author kostantinos.kougios
  *
  * 30 Jul 2011

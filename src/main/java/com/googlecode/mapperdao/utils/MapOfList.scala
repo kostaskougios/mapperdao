@@ -6,7 +6,7 @@ import scala.collection.mutable.ListBuffer
  *
  * 31 Aug 2011
  */
-class MapOfList[K, V](keyModifier: K => K) extends Traversable[(K, List[V])] {
+private[mapperdao] class MapOfList[K, V](keyModifier: K => K) extends Traversable[(K, List[V])] {
 	val m = new HashMap[K, ListBuffer[V]]
 
 	def update(k: K, v: V) {

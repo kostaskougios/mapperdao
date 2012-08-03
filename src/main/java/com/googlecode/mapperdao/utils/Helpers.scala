@@ -13,21 +13,47 @@ import com.googlecode.mapperdao.Persisted
  */
 object Helpers {
 
+	/**
+	 * tests any instance to find out if it is a persisted one
+	 *
+	 * @param o		the instance of the entity
+	 * @return		true if the entity was loaded or inserted or updated, false if it
+	 * 				is a plain unlinked instance
+	 */
 	def isPersisted(o: Any) = o match {
 		case p: Persisted if (p.mapperDaoValuesMap != null) => true
 		case _ => false
 	}
 
+	/**
+	 * returns the id of an IntId entity or throws an exception if the entity
+	 * is not persisted or not of IntId
+	 */
 	def intIdOf(o: Any): Int = o match {
 		case i: IntId => i.id
 		case _ => throw new IllegalArgumentException("not an IntId : " + o.toString)
 	}
+
+	/**
+	 * returns the id of a LongId entity or throws an exception if the entity
+	 * is not persisted or not of IntId
+	 */
 	def longIdOf(o: Any): Long = o match {
 		case i: LongId => i.id
 		case _ => throw new IllegalArgumentException("not an LongId : " + o.toString)
 	}
 
+	/**
+	 * when loading an IntId entity from the database, the type is T with IntId. If for
+	 * some reason we're sure that the entity T is of IntId, we can easily cast it
+	 * using this utility method
+	 */
 	def asIntId[T](t: T) = t.asInstanceOf[T with IntId]
+	/**
+	 * when loading an LongId entity from the database, the type is T with LongId. If for
+	 * some reason we're sure that the entity T is of LongId, we can easily cast it
+	 * using this utility method
+	 */
 	def asLongId[T](t: T) = t.asInstanceOf[T with LongId]
 
 	/**
@@ -81,10 +107,4 @@ object Helpers {
 				}
 			}
 		}
-
-	private[mapperdao] def listOf2ToTuple(l: List[Any]): (Any, Any) = l match {
-		case k1 :: Nil => (k1, null)
-		case k1 :: k2 :: Nil => (k1, k2)
-		case _ => throw new IllegalArgumentException("list should contain 1 or 2 elements but instead was %s".format(l))
-	}
 }

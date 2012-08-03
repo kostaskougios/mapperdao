@@ -14,6 +14,9 @@ case class UpdateConfig(
 	 */
 	data: Option[Any] = None,
 
+	/**
+	 * max depth of the update: how deep to go into the entity tree during updates
+	 */
 	depth: Int = 1000)
 
 object UpdateConfig {

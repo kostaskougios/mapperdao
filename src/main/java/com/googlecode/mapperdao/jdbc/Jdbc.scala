@@ -30,6 +30,8 @@ import org.joda.time.Chronology
 /**
  * scal-ified JdbcTemplate
  *
+ * This provides access to the database via spring framework's JdbcTemplate class
+ *
  * @author kostantinos.kougios
  *
  * 11 Jul 2011

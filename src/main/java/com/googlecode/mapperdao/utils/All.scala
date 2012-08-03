@@ -5,6 +5,12 @@ import com.googlecode.mapperdao.Entity
 import com.googlecode.mapperdao.QueryDao
 import com.googlecode.mapperdao.QueryConfig
 
+/**
+ * a mixin trait to easily create dao's. It contains common dao methods like "all" which
+ * returns all values for an entity
+ *
+ * @author kostantinos.kougios
+ */
 trait All[PC, T] {
 	// the following must be populated by classes extending this trait
 	protected val queryDao: QueryDao

@@ -5,7 +5,7 @@ package com.googlecode.mapperdao.utils
  *
  * Jan 31, 2012
  */
-class MapWithDefault[K, V](notFoundMsg: String) {
+private[mapperdao] class MapWithDefault[K, V](notFoundMsg: String) {
 	private var m: Map[K, V] = Map()
 	var default: Option[V] = None
 	def +(k: K, v: V) {

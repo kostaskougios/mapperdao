@@ -6,6 +6,8 @@ import com.googlecode.mapperdao.CacheOption
 import net.sf.ehcache.Element
 
 /**
+ * EHCache support for mapperdao
+ *
  * @author kostantinos.kougios
  *
  * 24 Mar 2012
@@ -39,7 +41,6 @@ class CacheUsingEHCache(val cache: net.sf.ehcache.Cache, limitForTraversables: I
 	}
 
 	override def flush(key: List[Any]) {
-		//		println("\n\nremove :" + key)
 		cache.remove(key)
 	}
 }

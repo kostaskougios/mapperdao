@@ -7,7 +7,7 @@ package com.googlecode.mapperdao.utils
  *
  * 29 Jan 2012
  */
-class LazyActions {
+private[mapperdao] class LazyActions {
 	type Action = () => Unit
 	private var actions = List[Action]()
 
