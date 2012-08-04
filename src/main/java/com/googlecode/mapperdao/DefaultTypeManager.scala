@@ -56,6 +56,12 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		case null => null
 	}
 
+	private def toBigDecimal(v: Any) = v match {
+		case bd: BigDecimal => bd
+		case bd: java.math.BigDecimal => BigDecimal(bd)
+		case null => null
+	}
+
 	private def toFloat(v: Any) = v match {
 		case f: Float => f
 		case d: Double => d.toFloat
@@ -100,6 +106,7 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		classOf[Int] -> ((v: Any) => toInt(v)),
 		classOf[java.lang.Integer] -> ((v: Any) => toInt(v)),
 		classOf[Long] -> ((v: Any) => toLong(v)),
+		classOf[BigDecimal] -> ((v: Any) => toBigDecimal(v)),
 		classOf[java.lang.Long] -> ((v: Any) => toLong(v)),
 		classOf[Boolean] -> ((v: Any) => toBoolean(v)),
 		classOf[java.lang.Boolean] -> ((v: Any) => toBoolean(v)),
