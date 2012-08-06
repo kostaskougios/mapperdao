@@ -93,7 +93,8 @@ import org.scalatest.FunSuite
 		classOf[MultipleInheritance1TableSuite],
 		classOf[ManyToOneCompositeKeySuite],
 		classOf[OneToOneCompositeKeySuite],
-		classOf[OneToOneReverseCompositeKeySuite]
+		classOf[OneToOneReverseCompositeKeySuite],
+		classOf[TypesSuite]
 	//classOf[MultiThreadedQuerySuite]
 	)
 )
