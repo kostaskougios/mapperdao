@@ -13,7 +13,7 @@ import com.googlecode.mapperdao.jdbc.Setup
  */
 @RunWith(classOf[JUnitRunner])
 class TypesSuite extends FunSuite with ShouldMatchers {
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry())
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(BDEntity))
 
 	test("string, text, not null") {
 		createTables("bd")
