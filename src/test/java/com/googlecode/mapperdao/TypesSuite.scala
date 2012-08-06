@@ -23,6 +23,13 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		mapperDao.select(BDEntity, 5).get should be === inserted
 	}
 
+	test("bigdecimal, null") {
+		createTables("bd")
+		val inserted = mapperDao.insert(BDEntity, BD(5, big = null))
+		inserted should be === BD(5)
+		mapperDao.select(BDEntity, 5).get should be === inserted
+	}
+
 	test("boolean, true") {
 		createTables("bd")
 		val inserted = mapperDao.insert(BDEntity, BD(5, bool = true))
