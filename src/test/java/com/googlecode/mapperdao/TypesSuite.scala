@@ -15,6 +15,34 @@ import com.googlecode.mapperdao.jdbc.Setup
 class TypesSuite extends FunSuite with ShouldMatchers {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(BDEntity))
 
+	test("optional string, some(x)") {
+		createTables("obd")
+		val inserted = mapperDao.insert(OBDEntity, OBD(5, nvarchar = Some("x")))
+		inserted should be === OBD(5, nvarchar = Some("x"))
+		mapperDao.select(OBDEntity, 5).get should be === inserted
+	}
+
+	test("optional string, none") {
+		createTables("obd")
+		val inserted = mapperDao.insert(OBDEntity, OBD(5, nvarchar = None))
+		inserted should be === OBD(5, nvarchar = None)
+		mapperDao.select(OBDEntity, 5).get should be === inserted
+	}
+
+	test("optional boolean, some(x)") {
+		createTables("obd")
+		val inserted = mapperDao.insert(OBDEntity, OBD(5, bool = Some(true)))
+		inserted should be === OBD(5, bool = Some(true))
+		mapperDao.select(OBDEntity, 5).get should be === inserted
+	}
+
+	test("optional boolean, none") {
+		createTables("obd")
+		val inserted = mapperDao.insert(OBDEntity, OBD(5, bool = None))
+		inserted should be === OBD(5, bool = None)
+		mapperDao.select(OBDEntity, 5).get should be === inserted
+	}
+
 	test("string, text, not null") {
 		createTables("bd")
 		val inserted = mapperDao.insert(BDEntity, BD(5, text = "x"))
@@ -92,5 +120,20 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		val text = column("tx") to (_.text)
 
 		def constructor(implicit m) = new BD(id, big, bool, nvarchar, text) with Persisted
+	}
+
+	case class OBD(
+		id: Int,
+		big: Option[BigDecimal] = None,
+		bool: Option[Boolean] = None,
+		nvarchar: Option[String] = None)
+
+	object OBDEntity extends SimpleEntity[OBD] {
+		val id = key("id") to (_.id)
+		val big = column("big") option (_.big)
+		val bool = column("bool") option (_.bool)
+		val nvarchar = column("nv") option (_.nvarchar)
+
+		def constructor(implicit m) = new OBD(id, big, bool, nvarchar) with Persisted
 	}
 }

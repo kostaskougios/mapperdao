@@ -109,7 +109,10 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	// implicit conversions to be used implicitly into the constructor method.
 	// these shouldn't be explicitly be called.
 	protected implicit def columnToBoolean(ci: ColumnInfo[T, Boolean])(implicit m: ValuesMap): Boolean = m(ci)
-	protected implicit def columnToBooleanOption(ci: ColumnInfo[T, Boolean])(implicit m: ValuesMap): Option[Boolean] = Some(m(ci))
+	protected implicit def columnToBooleanOption(ci: ColumnInfo[T, Boolean])(implicit m: ValuesMap): Option[Boolean] = m(ci).asInstanceOf[Any] match {
+		case null => None
+		case x: Boolean => Some(x)
+	}
 	protected implicit def columnToByte(ci: ColumnInfo[T, Byte])(implicit m: ValuesMap): Byte = m(ci)
 	protected implicit def columnToOptionByte(ci: ColumnInfo[T, Byte])(implicit m: ValuesMap): Option[Byte] = Some(m(ci))
 	protected implicit def columnToShort(ci: ColumnInfo[T, Short])(implicit m: ValuesMap): Short = m(ci)
