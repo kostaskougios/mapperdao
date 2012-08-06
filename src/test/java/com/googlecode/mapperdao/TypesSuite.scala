@@ -15,6 +15,20 @@ import com.googlecode.mapperdao.jdbc.Setup
 class TypesSuite extends FunSuite with ShouldMatchers {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry())
 
+	test("string, text, not null") {
+		createTables("bd")
+		val inserted = mapperDao.insert(BDEntity, BD(5, text = "x"))
+		inserted should be === BD(5, text = "x")
+		mapperDao.select(BDEntity, 5).get should be === inserted
+	}
+
+	test("string, text, null") {
+		createTables("bd")
+		val inserted = mapperDao.insert(BDEntity, BD(5, text = null))
+		inserted should be === BD(5, text = null)
+		mapperDao.select(BDEntity, 5).get should be === inserted
+	}
+
 	test("string, nvarchar, not null") {
 		createTables("bd")
 		val inserted = mapperDao.insert(BDEntity, BD(5, nvarchar = "x"))
@@ -67,14 +81,16 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		id: Int,
 		big: BigDecimal = null,
 		bool: Boolean = false,
-		nvarchar: String = null)
+		nvarchar: String = null,
+		text: String = null)
 
 	object BDEntity extends SimpleEntity[BD] {
 		val id = key("id") to (_.id)
 		val big = column("big") to (_.big)
 		val bool = column("bool") to (_.bool)
 		val nvarchar = column("nv") to (_.nvarchar)
+		val text = column("tx") to (_.text)
 
-		def constructor(implicit m) = new BD(id, big, bool, nvarchar) with Persisted
+		def constructor(implicit m) = new BD(id, big, bool, nvarchar, text) with Persisted
 	}
 }
