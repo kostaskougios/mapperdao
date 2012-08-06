@@ -4,5 +4,6 @@ create table BD (
 	big numeric(40,10),
 	bool boolean,
 	nv nvarchar(50),
+	tx text,
 	primary key (id)
 )
