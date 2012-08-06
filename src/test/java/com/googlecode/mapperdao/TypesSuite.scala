@@ -18,7 +18,7 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 	test("bigdecimal") {
 		createTables("bigdecimal")
 		val big = BigDecimal(500, 5)
-		val inserted = mapperDao.insert(BDEntity, BD(5, big))
+		val inserted = mapperDao.insert(BDEntity, BD(5, big = big))
 		inserted should be === BD(5, big)
 		mapperDao.select(BDEntity, 5).get should be === BD(5, big)
 	}
@@ -28,7 +28,7 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		Setup.queries(this, jdbc).update(ddl)
 	}
 
-	case class BD(id: Int, big: BigDecimal)
+	case class BD(id: Int, big: BigDecimal = null, bool: Boolean = false)
 
 	object BDEntity extends SimpleEntity[BD] {
 		val id = key("id") to (_.id)
