@@ -15,6 +15,20 @@ import com.googlecode.mapperdao.jdbc.Setup
 class TypesSuite extends FunSuite with ShouldMatchers {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(BDEntity))
 
+	test("optional double, some(x)") {
+		createTables("obd")
+		val inserted = mapperDao.insert(OBDEntity, OBD(5, double = Some(3.3d)))
+		inserted should be === OBD(5, double = Some(3.3d))
+		mapperDao.select(OBDEntity, 5).get should be === inserted
+	}
+
+	test("optional double, none") {
+		createTables("obd")
+		val inserted = mapperDao.insert(OBDEntity, OBD(5, double = None))
+		inserted should be === OBD(5, double = None)
+		mapperDao.select(OBDEntity, 5).get should be === inserted
+	}
+
 	test("optional float, some(x)") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, float = Some(3.3f)))
@@ -215,7 +229,8 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		small: Option[Short] = None,
 		int: Option[Int] = None,
 		long: Option[Long] = None,
-		float: Option[Float] = None)
+		float: Option[Float] = None,
+		double: Option[Double] = None)
 
 	object OBDEntity extends SimpleEntity[OBD] {
 		val id = key("id") to (_.id)
@@ -227,6 +242,7 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		val int = column("int") option (_.int)
 		val long = column("long") option (_.long)
 		val float = column("float") option (_.float)
+		val double = column("double") option (_.double)
 
 		def constructor(implicit m) = new OBD(
 			id,
@@ -237,6 +253,7 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 			small,
 			int,
 			long,
-			float) with Persisted
+			float,
+			double) with Persisted
 	}
 }

@@ -176,7 +176,9 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 		if (m.isNull(ci)) None else Some(m(ci))
 
 	protected implicit def columnToDouble(ci: ColumnInfo[T, Double])(implicit m: ValuesMap): Double = m(ci)
-	protected implicit def columnToOptionDouble(ci: ColumnInfo[T, Double])(implicit m: ValuesMap): Option[Double] = Some(m(ci))
+
+	protected implicit def columnToOptionDouble(ci: ColumnInfo[T, Double])(implicit m: ValuesMap): Option[Double] =
+		if (m.isNull(ci)) None else Some(m(ci))
 
 	// many to many : Scala
 	protected implicit def columnTraversableManyToManyToSet[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F])(implicit m: ValuesMap): Set[F] = m(ci).toSet

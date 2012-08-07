@@ -19,5 +19,6 @@ create table OBD (
 	int int,
 	long long,
 	float float,
+	double double,
 	primary key (id)
 )
