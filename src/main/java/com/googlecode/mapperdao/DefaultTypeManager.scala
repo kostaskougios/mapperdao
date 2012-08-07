@@ -86,6 +86,12 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		case b: java.math.BigDecimal => b.shortValue
 		case null => null
 	}
+	private def toByte(v: Any) = v match {
+		case b: Byte => b
+		case s: Short => s.toByte
+		case i: Int => i.toByte
+		case null => null
+	}
 
 	private def toBoolean(v: Any) = v match {
 		case b: Boolean => b
@@ -119,7 +125,8 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		classOf[DateTime] -> ((v: Any) => toDate(v.asInstanceOf[DateTime])),
 		classOf[Date] -> ((v: Any) => toDate(v.asInstanceOf[DateTime])),
 		classOf[Calendar] -> ((v: Any) => toDate(v.asInstanceOf[DateTime])),
-		classOf[String] -> ((v: Any) => v)
+		classOf[String] -> ((v: Any) => v),
+		classOf[Byte] -> ((v: Any) => toByte(v))
 	)
 
 	override def correctTypes[PC, T](table: Table[PC, T], j: JdbcMap) = {

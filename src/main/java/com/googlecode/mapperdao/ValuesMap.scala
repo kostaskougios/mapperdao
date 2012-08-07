@@ -89,6 +89,9 @@ class ValuesMap private (mOrig: scala.collection.Map[String, Any])
 			v
 		}
 
+	def isNull[T, V](column: ColumnInfo[T, V]): Boolean =
+		valueOf[V](column.column.name) == null
+
 	def apply[T, FPC, F](column: ColumnInfoOneToOne[T, FPC, F]): F =
 		{
 			val key = column.column.alias

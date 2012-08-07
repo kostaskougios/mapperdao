@@ -15,6 +15,34 @@ import com.googlecode.mapperdao.jdbc.Setup
 class TypesSuite extends FunSuite with ShouldMatchers {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(BDEntity))
 
+	test("optional byte, some(x)") {
+		createTables("obd")
+		val inserted = mapperDao.insert(OBDEntity, OBD(5, byte = Some(3)))
+		inserted should be === OBD(5, byte = Some(3))
+		mapperDao.select(OBDEntity, 5).get should be === inserted
+	}
+
+	test("optional byte, none") {
+		createTables("obd")
+		val inserted = mapperDao.insert(OBDEntity, OBD(5, byte = None))
+		inserted should be === OBD(5, byte = None)
+		mapperDao.select(OBDEntity, 5).get should be === inserted
+	}
+
+	test("optional bigdecimal, some(x)") {
+		createTables("obd")
+		val inserted = mapperDao.insert(OBDEntity, OBD(5, big = Some(BigDecimal(500, 5))))
+		inserted should be === OBD(5, big = Some(BigDecimal(500, 5)))
+		mapperDao.select(OBDEntity, 5).get should be === inserted
+	}
+
+	test("optional bigdecimal, none") {
+		createTables("obd")
+		val inserted = mapperDao.insert(OBDEntity, OBD(5, big = None))
+		inserted should be === OBD(5, big = None)
+		mapperDao.select(OBDEntity, 5).get should be === inserted
+	}
+
 	test("optional string, some(x)") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, nvarchar = Some("x")))
@@ -126,14 +154,16 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		id: Int,
 		big: Option[BigDecimal] = None,
 		bool: Option[Boolean] = None,
-		nvarchar: Option[String] = None)
+		nvarchar: Option[String] = None,
+		byte: Option[Byte] = None)
 
 	object OBDEntity extends SimpleEntity[OBD] {
 		val id = key("id") to (_.id)
 		val big = column("big") option (_.big)
 		val bool = column("bool") option (_.bool)
 		val nvarchar = column("nv") option (_.nvarchar)
+		val byte = column("bt") option (_.byte)
 
-		def constructor(implicit m) = new OBD(id, big, bool, nvarchar) with Persisted
+		def constructor(implicit m) = new OBD(id, big, bool, nvarchar, byte) with Persisted
 	}
 }
