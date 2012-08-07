@@ -171,7 +171,10 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 		case v => Some(v)
 	}
 	protected implicit def columnToFloat(ci: ColumnInfo[T, Float])(implicit m: ValuesMap): Float = m(ci)
-	protected implicit def columnToOptionFloat(ci: ColumnInfo[T, Float])(implicit m: ValuesMap): Option[Float] = Some(m(ci))
+
+	protected implicit def columnToOptionFloat(ci: ColumnInfo[T, Float])(implicit m: ValuesMap): Option[Float] =
+		if (m.isNull(ci)) None else Some(m(ci))
+
 	protected implicit def columnToDouble(ci: ColumnInfo[T, Double])(implicit m: ValuesMap): Double = m(ci)
 	protected implicit def columnToOptionDouble(ci: ColumnInfo[T, Double])(implicit m: ValuesMap): Option[Double] = Some(m(ci))
 

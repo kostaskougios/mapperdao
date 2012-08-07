@@ -18,5 +18,6 @@ create table OBD (
 	small smallint,
 	int int,
 	long long,
+	float float,
 	primary key (id)
 )
