@@ -90,6 +90,7 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		case b: Byte => b
 		case s: Short => s.toByte
 		case i: Int => i.toByte
+		case bd: java.math.BigDecimal => bd.byteValueExact
 		case null => null
 	}
 

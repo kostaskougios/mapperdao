@@ -19,7 +19,7 @@ import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 class Oracle(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: TypeManager) extends Driver {
 
 	val escapeNamesStrategy = new EscapeNamesStrategy {
-		val invalidColumnNames = Set("select", "where", "group", "start")
+		val invalidColumnNames = Set("select", "where", "group", "start", "long", "float", "double")
 		val invalidTableNames = Set("end", "select", "where", "group", "user")
 
 		override def escapeColumnNames(name: String) = if (invalidColumnNames.contains(name.toLowerCase)) '"' + name + '"'; else name
