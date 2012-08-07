@@ -15,6 +15,20 @@ import com.googlecode.mapperdao.jdbc.Setup
 class TypesSuite extends FunSuite with ShouldMatchers {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(BDEntity))
 
+	test("optional long, some(x)") {
+		createTables("obd")
+		val inserted = mapperDao.insert(OBDEntity, OBD(5, long = Some(3)))
+		inserted should be === OBD(5, long = Some(3))
+		mapperDao.select(OBDEntity, 5).get should be === inserted
+	}
+
+	test("optional long, none") {
+		createTables("obd")
+		val inserted = mapperDao.insert(OBDEntity, OBD(5, long = None))
+		inserted should be === OBD(5, long = None)
+		mapperDao.select(OBDEntity, 5).get should be === inserted
+	}
+
 	test("optional int, some(x)") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, int = Some(3)))
@@ -185,7 +199,8 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		nvarchar: Option[String] = None,
 		byte: Option[Byte] = None,
 		small: Option[Short] = None,
-		int: Option[Int] = None)
+		int: Option[Int] = None,
+		long: Option[Long] = None)
 
 	object OBDEntity extends SimpleEntity[OBD] {
 		val id = key("id") to (_.id)
@@ -195,6 +210,7 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		val byte = column("bt") option (_.byte)
 		val small = column("small") option (_.small)
 		val int = column("int") option (_.int)
+		val long = column("long") option (_.long)
 
 		def constructor(implicit m) = new OBD(
 			id,
@@ -203,6 +219,7 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 			nvarchar,
 			byte,
 			small,
-			int) with Persisted
+			int,
+			long) with Persisted
 	}
 }

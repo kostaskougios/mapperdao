@@ -17,5 +17,6 @@ create table OBD (
 	bt tinyint,
 	small smallint,
 	int int,
+	long long,
 	primary key (id)
 )
