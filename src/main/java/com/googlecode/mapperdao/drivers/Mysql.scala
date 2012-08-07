@@ -18,7 +18,9 @@ import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 class Mysql(override val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: TypeManager) extends Driver {
 
 	val escapeNamesStrategy = new EscapeNamesStrategy {
-		override def escapeColumnNames(name: String) = name
+		val invalidColumnNames = Set("int", "long", "float", "double")
+
+		override def escapeColumnNames(name: String) = if (invalidColumnNames.contains(name)) "`" + name + "`" else name
 		override def escapeTableNames(name: String) = name
 	}
 	val sqlBuilder = new SqlBuilder(escapeNamesStrategy)
