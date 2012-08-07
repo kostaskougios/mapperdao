@@ -15,5 +15,7 @@ create table OBD (
 	bool boolean,
 	nv nvarchar(50),
 	bt tinyint,
+	small smallint,
+	int int,
 	primary key (id)
 )

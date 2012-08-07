@@ -15,6 +15,34 @@ import com.googlecode.mapperdao.jdbc.Setup
 class TypesSuite extends FunSuite with ShouldMatchers {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(BDEntity))
 
+	test("optional int, some(x)") {
+		createTables("obd")
+		val inserted = mapperDao.insert(OBDEntity, OBD(5, int = Some(3)))
+		inserted should be === OBD(5, int = Some(3))
+		mapperDao.select(OBDEntity, 5).get should be === inserted
+	}
+
+	test("optional int, none") {
+		createTables("obd")
+		val inserted = mapperDao.insert(OBDEntity, OBD(5, int = None))
+		inserted should be === OBD(5, int = None)
+		mapperDao.select(OBDEntity, 5).get should be === inserted
+	}
+
+	test("optional short, some(x)") {
+		createTables("obd")
+		val inserted = mapperDao.insert(OBDEntity, OBD(5, small = Some(3)))
+		inserted should be === OBD(5, small = Some(3))
+		mapperDao.select(OBDEntity, 5).get should be === inserted
+	}
+
+	test("optional short, none") {
+		createTables("obd")
+		val inserted = mapperDao.insert(OBDEntity, OBD(5, small = None))
+		inserted should be === OBD(5, small = None)
+		mapperDao.select(OBDEntity, 5).get should be === inserted
+	}
+
 	test("optional byte, some(x)") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, byte = Some(3)))
@@ -155,7 +183,9 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		big: Option[BigDecimal] = None,
 		bool: Option[Boolean] = None,
 		nvarchar: Option[String] = None,
-		byte: Option[Byte] = None)
+		byte: Option[Byte] = None,
+		small: Option[Short] = None,
+		int: Option[Int] = None)
 
 	object OBDEntity extends SimpleEntity[OBD] {
 		val id = key("id") to (_.id)
@@ -163,7 +193,16 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		val bool = column("bool") option (_.bool)
 		val nvarchar = column("nv") option (_.nvarchar)
 		val byte = column("bt") option (_.byte)
+		val small = column("small") option (_.small)
+		val int = column("int") option (_.int)
 
-		def constructor(implicit m) = new OBD(id, big, bool, nvarchar, byte) with Persisted
+		def constructor(implicit m) = new OBD(
+			id,
+			big,
+			bool,
+			nvarchar,
+			byte,
+			small,
+			int) with Persisted
 	}
 }
