@@ -57,7 +57,11 @@ class Jdbc private (val dataSource: DataSource, val chronology: Chronology) {
 					if (counter >= args.length) {
 						"<out of bounds>"
 					} else {
-						val a = args(counter)
+						val a = args(counter) match {
+							case spv: SqlParameterValue =>
+								spv.getValue
+							case x => x
+						}
 						counter += 1
 						a match {
 							case s: String => "'" + s + "'"
@@ -213,11 +217,20 @@ class Jdbc private (val dataSource: DataSource, val chronology: Chronology) {
 		case _ => o
 	}
 
-	private def reverseConvert(o: Any): Any = o match {
-		case t: DateTime => t.toCalendar(null)
-		case d: BigDecimal => d.bigDecimal
-		case i: BigInt => i.bigInteger
-		case _ => o
+	private def reverseConvert(o: Any): Any = {
+		def rc(o: Any) = o match {
+			case t: DateTime => t.toCalendar(null)
+			case d: BigDecimal => d.bigDecimal
+			case i: BigInt => i.bigInteger
+			case _ => o
+		}
+
+		o match {
+			case spv: SqlParameterValue =>
+				val v = rc(spv.getValue)
+				new SqlParameterValue(spv.getSqlType, v)
+			case o => rc(o)
+		}
 	}
 
 }
@@ -227,8 +240,15 @@ object Jdbc {
 
 	private val sqlParamMap: Map[Class[_], Int] = Map(
 		classOf[String] -> Types.VARCHAR,
+		classOf[Calendar] -> Types.TIMESTAMP,
+		classOf[BigDecimal] -> Types.NUMERIC,
+		classOf[Boolean] -> Types.BOOLEAN,
+		classOf[Byte] -> Types.SMALLINT,
+		classOf[Short] -> Types.SMALLINT,
 		classOf[Int] -> Types.INTEGER,
-		classOf[Calendar] -> Types.TIMESTAMP
+		classOf[Long] -> Types.BIGINT,
+		classOf[Float] -> Types.FLOAT,
+		classOf[Double] -> Types.DOUBLE
 	)
 
 	def toSqlParameter(l: List[(Class[_], Any)]): List[SqlParameterValue] = l.map {

@@ -2,6 +2,8 @@ package com.googlecode.mapperdao.sqlbuilder
 
 import com.googlecode.mapperdao.drivers.EscapeNamesStrategy
 import com.googlecode.mapperdao.SimpleColumn
+import org.springframework.jdbc.core.SqlParameterValue
+import com.googlecode.mapperdao.jdbc.Jdbc
 
 /**
  * builds queries, inserts, updates and deletes
@@ -31,9 +33,9 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 	}
 
 	case class Clause(
-		alias: String, column: String,
-		op: String,
-		value: Any) extends Expression {
+			alias: String, column: String,
+			op: String,
+			value: Any) extends Expression {
 
 		private def isNull = value == null && op == "="
 		override def toSql = {
@@ -50,9 +52,9 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		override def toValues = if (isNull) Nil else List(value)
 	}
 	case class NonValueClause(
-		leftAlias: String, left: String,
-		op: String,
-		rightAlias: String, right: String) extends Expression {
+			leftAlias: String, left: String,
+			op: String,
+			rightAlias: String, right: String) extends Expression {
 
 		override def toSql = {
 			val sb = new StringBuilder
@@ -319,7 +321,10 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 				css.map { case (c, s) => s } ::: cvs.map(cv => "?")
 			).mkString(",")
 		)
-		def toValues = cvs.map(_._2)
+		def toValues = Jdbc.toSqlParameter(cvs.map {
+			case (c, v) =>
+				(c.tpe, v)
+		})
 
 		def result = Result(toSql, toValues)
 	}
