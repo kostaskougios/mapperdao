@@ -5,6 +5,8 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
+import org.springframework.jdbc.core.SqlParameterValue
+import java.sql.Types
 /**
  * @author kostantinos.kougios
  *
@@ -13,6 +15,28 @@ import org.scalatest.matchers.ShouldMatchers
 @RunWith(classOf[JUnitRunner])
 class JdbcSuite extends FunSuite with ShouldMatchers {
 	private val jdbc = Setup.setupJdbc
+
+	test("sqlarguments") {
+		createTables
+		val dt = DateTime.now.withMillisOfDay(0)
+		val now = dt.toCalendar(null)
+
+		val args = Jdbc.toSqlParameter(
+			List((classOf[Int], 5), (classOf[String], "kostas"), (classOf[Calendar], now))
+		)
+		jdbc.update("""
+			insert into test_insert(id,name,dt)
+			values(?,?,?)
+		""", args)
+
+		val r = jdbc.queryForList("select * from test_insert")(0)
+		r should be === Map(
+			"ID" -> 5,
+			"NAME" -> "kostas",
+			"DT" -> dt
+		)
+	}
+
 	test("sequences") {
 		Setup.database match {
 			case "postgresql" =>

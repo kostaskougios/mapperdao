@@ -36,4 +36,14 @@ class JdbcMap(map: java.util.Map[String, _]) {
 	def isEmpty: Boolean = map.isEmpty
 
 	override def toString = map.toString
+
+	override def equals(v: Any) = v match {
+		case m: Map[String, _] if (m.size == size) =>
+			m.filter {
+				case (k, v) =>
+					val ov = map.get(k)
+					m(k) != ov && map.containsKey(k)
+			}.isEmpty
+		case _ => false
+	}
 }

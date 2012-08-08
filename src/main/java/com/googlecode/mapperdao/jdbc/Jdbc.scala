@@ -26,6 +26,8 @@ import org.springframework.jdbc.core.SqlTypeValue
 import org.springframework.jdbc.core.JdbcTemplate
 import org.joda.time.DateTime
 import org.joda.time.Chronology
+import java.sql.Types
+import org.springframework.jdbc.core.SqlParameterValue
 
 /**
  * scal-ified JdbcTemplate
@@ -222,4 +224,16 @@ class Jdbc private (val dataSource: DataSource, val chronology: Chronology) {
 
 object Jdbc {
 	def apply(dataSource: DataSource, chronology: Chronology) = new Jdbc(dataSource, chronology)
+
+	private val sqlParamMap: Map[Class[_], Int] = Map(
+		classOf[String] -> Types.VARCHAR,
+		classOf[Int] -> Types.INTEGER,
+		classOf[Calendar] -> Types.TIMESTAMP
+	)
+
+	def toSqlParameter(l: List[(Class[_], Any)]): List[SqlParameterValue] = l.map {
+		case (clz, v) =>
+			val tpe = sqlParamMap(clz)
+			new SqlParameterValue(tpe, v)
+	}
 }
