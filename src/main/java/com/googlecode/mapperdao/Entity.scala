@@ -427,14 +427,20 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 			this
 		}
 
-		def to(columnToValue: T => FT)(implicit mt: Manifest[T], mft: Manifest[FT]): ColumnInfoOneToOne[T, FPC, FT] =
+		def to(columnToValue: T => FT): ColumnInfoOneToOne[T, FPC, FT] =
 			{
-				val ci = ColumnInfoOneToOne(OneToOne(TypeRef(createAlias, referenced), cols.map(Column(_, mft.erasure))), columnToValue)
+				val fPKs = referenced.keysDuringDeclaration
+				if (fPKs.size != cols.size) throw new IllegalStateException("keys don't match foreign keys for %s -> %s".format(cols, referenced))
+				val fkeys = fPKs zip cols
+				val ci = ColumnInfoOneToOne(OneToOne(TypeRef(createAlias, referenced), fkeys.map {
+					case (k, col) =>
+						Column(col, k.tpe)
+				}), columnToValue)
 				if (!onlyForQuery) columns ::= ci
 				ci
 			}
 
-		def option(columnToValue: T => Option[FT])(implicit mt: Manifest[T], mft: Manifest[FT]): ColumnInfoOneToOne[T, FPC, FT] = to(optionToValue(columnToValue))
+		def option(columnToValue: T => Option[FT]): ColumnInfoOneToOne[T, FPC, FT] = to(optionToValue(columnToValue))
 	}
 	/**
 	 * one-to-one reverse, i.e.
@@ -460,9 +466,14 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 			this
 		}
 
-		def to(columnToValue: T => FT)(implicit mt: Manifest[T], mft: Manifest[FT]): ColumnInfoOneToOneReverse[T, FPC, FT] =
+		def to(columnToValue: T => FT): ColumnInfoOneToOneReverse[T, FPC, FT] =
 			{
-				val ci = ColumnInfoOneToOneReverse(OneToOneReverse(TypeRef(createAlias, referenced), fkcols.map(Column(_, mft.erasure))), columnToValue, getterMethod)
+				if (keysDuringDeclaration.size != fkcols.size) throw new IllegalStateException("keys don't match foreign keys for %s -> %s".format(fkcols, referenced))
+				val fkeys = keysDuringDeclaration zip fkcols
+				val ci = ColumnInfoOneToOneReverse(OneToOneReverse(TypeRef(createAlias, referenced), fkeys.map {
+					case (k, col) =>
+						Column(col, k.tpe)
+				}), columnToValue, getterMethod)
 				if (!onlyForQuery) columns ::= ci
 				ci
 			}
