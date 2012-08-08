@@ -35,7 +35,7 @@ class PostgreSql(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager
 	//		}
 
 	override protected def sequenceSelectNextSql(sequenceColumn: ColumnBase): String = sequenceColumn match {
-		case PK(columnName, true, sequence) => "NEXTVAL('%s')".format(sequence.get)
+		case PK(columnName, true, sequence, _) => "NEXTVAL('%s')".format(sequence.get)
 	}
 
 	override def endOfQuery[PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
