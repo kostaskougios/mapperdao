@@ -37,6 +37,24 @@ class JdbcSuite extends FunSuite with ShouldMatchers {
 		)
 	}
 
+	test("sqlarguments with nulls") {
+		createTables
+		val args = Jdbc.toSqlParameter(
+			List((classOf[Int], 5), (classOf[String], null), (classOf[Calendar], null))
+		)
+		jdbc.update("""
+			insert into test_insert(id,name,dt)
+			values(?,?,?)
+		""", args)
+
+		val r = jdbc.queryForList("select * from test_insert")(0)
+		r should be === Map(
+			"ID" -> 5,
+			"NAME" -> null,
+			"DT" -> null
+		)
+	}
+
 	test("sequences") {
 		Setup.database match {
 			case "postgresql" =>
