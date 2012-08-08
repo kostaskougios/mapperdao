@@ -27,7 +27,7 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 		case ci @ ColumnInfo(_: PK, _, _) => ci
 	}
 
-	val primaryKeysAsColumns = primaryKeys.map(k => Column(k.name)).toSet
+	val primaryKeysAsColumns = primaryKeys.map(k => Column(k.name, k.tpe)).toSet
 
 	val primaryKeysAsCommaSeparatedList = primaryKeys.map(_.name).mkString(",")
 
