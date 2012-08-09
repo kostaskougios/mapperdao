@@ -18,8 +18,8 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 
 	test("localTime, not null") {
 		createTables("dates")
-		val time = LocalTime.now
-		val nextHour = LocalTime.now.plusHours(1)
+		val time = DateTime.now.withMillisOfSecond(0).toLocalTime
+		val nextHour = time.plusHours(1)
 		val inserted = mapperDao.insert(DatesEntity, Dates(5, time = time))
 		inserted should be === Dates(5, time = time)
 		val selected = mapperDao.select(DatesEntity, 5).get
