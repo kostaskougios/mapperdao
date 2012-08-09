@@ -249,7 +249,8 @@ object Jdbc {
 		classOf[Long] -> Types.BIGINT,
 		classOf[Float] -> Types.FLOAT,
 		classOf[Double] -> Types.DOUBLE,
-		classOf[DateTime] -> Types.TIMESTAMP
+		classOf[DateTime] -> Types.TIMESTAMP,
+		classOf[java.util.Date] -> Types.TIMESTAMP
 	)
 
 	def toSqlParameter(l: List[(Class[_], Any)]): List[SqlParameterValue] = l.map {
