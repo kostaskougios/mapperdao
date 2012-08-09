@@ -6,6 +6,7 @@ import java.util.Date
 import scala.collection.immutable.ListMap
 import org.joda.time.Chronology
 import org.joda.time.chrono.ISOChronology
+import org.joda.time.LocalDate
 
 /**
  * @author kostantinos.kougios
@@ -109,6 +110,11 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		case t: DateTime => new DateTime(t, chronology)
 	}
 
+	private def toLocalDate(t: DateTime) = t match {
+		case null => null
+		case t: DateTime => t.toLocalDate
+	}
+
 	private val corrections = Map[Class[_], Any => Any](
 		classOf[Int] -> ((v: Any) => toInt(v)),
 		classOf[java.lang.Integer] -> ((v: Any) => toInt(v)),
@@ -124,6 +130,7 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		classOf[Float] -> ((v: Any) => toFloat(v)),
 		classOf[java.lang.Float] -> ((v: Any) => toFloat(v)),
 		classOf[DateTime] -> ((v: Any) => toDate(v.asInstanceOf[DateTime])),
+		classOf[LocalDate] -> ((v: Any) => toLocalDate(v.asInstanceOf[DateTime])),
 		classOf[Date] -> ((v: Any) => toDate(v.asInstanceOf[DateTime])),
 		classOf[Calendar] -> ((v: Any) => toDate(v.asInstanceOf[DateTime])),
 		classOf[String] -> ((v: Any) => v),

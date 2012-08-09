@@ -5,6 +5,7 @@ import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.jdbc.Setup
+import org.scala_tools.time.Imports._
 
 /**
  * @author kostantinos.kougios
@@ -14,6 +15,14 @@ import com.googlecode.mapperdao.jdbc.Setup
 @RunWith(classOf[JUnitRunner])
 class TypesSuite extends FunSuite with ShouldMatchers {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(BDEntity))
+
+	test("datelocal") {
+		createTables("dates")
+		val today = LocalDate.now
+		val inserted = mapperDao.insert(DatesEntity, Dates(5, today))
+		inserted should be === Dates(5, today)
+		mapperDao.select(DatesEntity, 5).get should be === inserted
+	}
 
 	test("optional double, some(x)") {
 		createTables("obd")
@@ -201,6 +210,14 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 	def createTables(ddl: String) = {
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update(ddl)
+	}
+
+	case class Dates(id: Int, dateLocal: LocalDate)
+	object DatesEntity extends SimpleEntity[Dates] {
+		val id = key("id") to (_.id)
+		val dateLocal = column("dateLocal") to (_.dateLocal)
+
+		def constructor(implicit m) = new Dates(id, dateLocal) with Persisted
 	}
 
 	case class BD(

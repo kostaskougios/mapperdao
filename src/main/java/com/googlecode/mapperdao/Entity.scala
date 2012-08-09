@@ -3,6 +3,7 @@ import java.util.Calendar
 import org.joda.time.DateTime
 import java.util.Date
 import scala.collection.JavaConverters._
+import org.joda.time.LocalDate
 
 /**
  * the main class that must be inherited to create entities.
@@ -136,7 +137,10 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 		if (m.isNull(ci)) None else Some(m(ci))
 
 	protected implicit def columnToLongLongId(ci: ColumnInfo[T with LongId, Long])(implicit m: ValuesMap): Long = m(ci)
+
 	protected implicit def columnToDateTime(ci: ColumnInfo[T, DateTime])(implicit m: ValuesMap): DateTime = m(ci)
+	protected implicit def columnToLocalDate(ci: ColumnInfo[T, LocalDate])(implicit m: ValuesMap): LocalDate = m(ci)
+
 	protected implicit def columnToOptionDateTime(ci: ColumnInfo[T, DateTime])(implicit m: ValuesMap): Option[DateTime] = m(ci) match {
 		case null => None
 		case v => Some(v)

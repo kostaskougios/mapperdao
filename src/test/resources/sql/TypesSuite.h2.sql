@@ -22,3 +22,10 @@ create table OBD (
 	double double,
 	primary key (id)
 )
+
+[dates]
+create table Dates (
+	id int not null,
+	dateLocal timestamp,
+	primary key (id)
+)
