@@ -16,7 +16,7 @@ import org.scala_tools.time.Imports._
 class TypesSuite extends FunSuite with ShouldMatchers {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(BDEntity))
 
-	test("datelocal") {
+	test("localDate, not null") {
 		createTables("dates")
 		val today = LocalDate.now
 		val tomorrow = LocalDate.now.plusDays(1)
@@ -29,6 +29,14 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		val updated = mapperDao.update(DatesEntity, selected, upd)
 		updated should be === upd
 		mapperDao.select(DatesEntity, 5).get should be === updated
+	}
+
+	test("localDate, null") {
+		createTables("dates")
+		val inserted = mapperDao.insert(DatesEntity, Dates(5, null))
+		inserted should be === Dates(5, null)
+		val selected = mapperDao.select(DatesEntity, 5).get
+		selected should be === inserted
 	}
 
 	test("localDate, some(x)") {
