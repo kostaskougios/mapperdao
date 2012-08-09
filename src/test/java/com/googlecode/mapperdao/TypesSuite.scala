@@ -31,6 +31,30 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		mapperDao.select(DatesEntity, 5).get should be === updated
 	}
 
+	test("localDate, some(x)") {
+		createTables("dates")
+		val today = LocalDate.now
+		val tomorrow = LocalDate.now.plusDays(1)
+		val inserted = mapperDao.insert(ODatesEntity, ODates(5, Some(today)))
+		inserted should be === ODates(5, Some(today))
+		val selected = mapperDao.select(ODatesEntity, 5).get
+		selected should be === inserted
+
+		val upd = selected.copy(localDate = Some(tomorrow))
+		val updated = mapperDao.update(ODatesEntity, selected, upd)
+		updated should be === upd
+		mapperDao.select(ODatesEntity, 5).get should be === updated
+	}
+
+	test("localDate, none") {
+		createTables("dates")
+		val today = LocalDate.now
+		val inserted = mapperDao.insert(ODatesEntity, ODates(5, None))
+		inserted should be === ODates(5, None)
+		val selected = mapperDao.select(ODatesEntity, 5).get
+		selected should be === inserted
+	}
+
 	test("optional double, some(x)") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, double = Some(3.3d)))
@@ -225,6 +249,14 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		val localDate = column("localDate") to (_.localDate)
 
 		def constructor(implicit m) = new Dates(id, localDate) with Persisted
+	}
+
+	case class ODates(id: Int, localDate: Option[LocalDate])
+	object ODatesEntity extends SimpleEntity[ODates]("dates") {
+		val id = key("id") to (_.id)
+		val localDate = column("localDate") option (_.localDate)
+
+		def constructor(implicit m) = new ODates(id, localDate) with Persisted
 	}
 
 	case class BD(

@@ -145,6 +145,10 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 		case null => None
 		case v => Some(v)
 	}
+	protected implicit def columnToOptionLocalDate(ci: ColumnInfo[T, LocalDate])(implicit m: ValuesMap): Option[LocalDate] = m(ci) match {
+		case null => None
+		case v => Some(v)
+	}
 
 	protected implicit def columnToDate(ci: ColumnInfo[T, Date])(implicit m: ValuesMap): Date =
 		m.date(ci)
