@@ -29,6 +29,7 @@ import org.joda.time.Chronology
 import java.sql.Types
 import org.springframework.jdbc.core.SqlParameterValue
 import org.joda.time.LocalDate
+import org.joda.time.LocalTime
 
 /**
  * scal-ified JdbcTemplate
@@ -221,9 +222,10 @@ class Jdbc private (val dataSource: DataSource, val chronology: Chronology) {
 	private def reverseConvert(o: Any): Any = {
 		def rc(o: Any) = o match {
 			case t: DateTime => t.toCalendar(null)
-			case t: LocalDate => t.toDateTimeAtStartOfDay.toCalendar(null)
 			case d: BigDecimal => d.bigDecimal
 			case i: BigInt => i.bigInteger
+			case t: LocalDate => t.toDateTimeAtStartOfDay.toCalendar(null)
+			case t: LocalTime => new java.sql.Time(t.toDateTimeToday.getMillis)
 			case _ => o
 		}
 
@@ -260,6 +262,7 @@ object Jdbc {
 		classOf[java.lang.Double] -> Types.DOUBLE,
 		classOf[DateTime] -> Types.TIMESTAMP,
 		classOf[LocalDate] -> Types.TIMESTAMP,
+		classOf[LocalTime] -> Types.TIME,
 		classOf[java.util.Date] -> Types.TIMESTAMP
 	)
 

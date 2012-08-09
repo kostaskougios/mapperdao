@@ -16,6 +16,21 @@ import org.scala_tools.time.Imports._
 class TypesSuite extends FunSuite with ShouldMatchers {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(BDEntity))
 
+	test("localTime, not null") {
+		createTables("dates")
+		val time = LocalTime.now
+		val nextHour = LocalTime.now.plusHours(1)
+		val inserted = mapperDao.insert(DatesEntity, Dates(5, time = time))
+		inserted should be === Dates(5, time = time)
+		val selected = mapperDao.select(DatesEntity, 5).get
+		selected should be === inserted
+
+		val upd = selected.copy(time = nextHour)
+		val updated = mapperDao.update(DatesEntity, selected, upd)
+		updated should be === upd
+		mapperDao.select(DatesEntity, 5).get should be === updated
+	}
+
 	test("localDate, not null") {
 		createTables("dates")
 		val today = LocalDate.now
@@ -251,12 +266,14 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		Setup.queries(this, jdbc).update(ddl)
 	}
 
-	case class Dates(id: Int, localDate: LocalDate)
+	case class Dates(id: Int, localDate: LocalDate = null, time: LocalTime = null)
+
 	object DatesEntity extends SimpleEntity[Dates] {
 		val id = key("id") to (_.id)
 		val localDate = column("localDate") to (_.localDate)
+		val time = column("time") to (_.time)
 
-		def constructor(implicit m) = new Dates(id, localDate) with Persisted
+		def constructor(implicit m) = new Dates(id, localDate, time) with Persisted
 	}
 
 	case class ODates(id: Int, localDate: Option[LocalDate])

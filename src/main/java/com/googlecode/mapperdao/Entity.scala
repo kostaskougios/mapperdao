@@ -1,9 +1,13 @@
 package com.googlecode.mapperdao
+
 import java.util.Calendar
-import org.joda.time.DateTime
 import java.util.Date
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+import scala.collection.JavaConverters.seqAsJavaListConverter
+import scala.collection.JavaConverters.setAsJavaSetConverter
+import org.joda.time.DateTime
 import org.joda.time.LocalDate
+import org.joda.time.LocalTime
 
 /**
  * the main class that must be inherited to create entities.
@@ -140,6 +144,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 
 	protected implicit def columnToDateTime(ci: ColumnInfo[T, DateTime])(implicit m: ValuesMap): DateTime = m(ci)
 	protected implicit def columnToLocalDate(ci: ColumnInfo[T, LocalDate])(implicit m: ValuesMap): LocalDate = m(ci)
+	protected implicit def columnToLocalTime(ci: ColumnInfo[T, LocalTime])(implicit m: ValuesMap): LocalTime = m(ci)
 
 	protected implicit def columnToOptionDateTime(ci: ColumnInfo[T, DateTime])(implicit m: ValuesMap): Option[DateTime] = m(ci) match {
 		case null => None
