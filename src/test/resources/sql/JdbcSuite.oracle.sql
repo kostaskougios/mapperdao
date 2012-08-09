@@ -1,6 +1,6 @@
 [ddl]
 create table test_insert (
-	id integer not null,
+	id int not null,
 	name varchar(100),
 	dt timestamp,
 	primary key (id)

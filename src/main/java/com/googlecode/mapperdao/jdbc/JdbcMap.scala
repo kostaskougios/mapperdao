@@ -42,7 +42,8 @@ class JdbcMap(map: java.util.Map[String, _]) {
 			m.filter {
 				case (k, v) =>
 					val ov = map.get(k)
-					m(k) != ov && map.containsKey(k)
+					val b = m(k) != ov && map.containsKey(k)
+					b
 			}.isEmpty
 		case _ => false
 	}

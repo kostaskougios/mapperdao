@@ -31,7 +31,7 @@ class JdbcSuite extends FunSuite with ShouldMatchers {
 
 		val r = jdbc.queryForList("select * from test_insert")(0)
 		r should be === Map(
-			"ID" -> 5,
+			"ID" -> r("id"),
 			"NAME" -> "kostas",
 			"DT" -> dt
 		)
@@ -49,7 +49,7 @@ class JdbcSuite extends FunSuite with ShouldMatchers {
 
 		val r = jdbc.queryForList("select * from test_insert")(0)
 		r should be === Map(
-			"ID" -> 5,
+			"ID" -> r("id"),
 			"NAME" -> null,
 			"DT" -> null
 		)
