@@ -19,9 +19,16 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 	test("datelocal") {
 		createTables("dates")
 		val today = LocalDate.now
+		val tomorrow = LocalDate.now.plusDays(1)
 		val inserted = mapperDao.insert(DatesEntity, Dates(5, today))
 		inserted should be === Dates(5, today)
-		mapperDao.select(DatesEntity, 5).get should be === inserted
+		val selected = mapperDao.select(DatesEntity, 5).get
+		selected should be === inserted
+
+		val upd = selected.copy(localDate = tomorrow)
+		val updated = mapperDao.update(DatesEntity, selected, upd)
+		updated should be === upd
+		mapperDao.select(DatesEntity, 5).get should be === updated
 	}
 
 	test("optional double, some(x)") {
@@ -212,12 +219,12 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		Setup.queries(this, jdbc).update(ddl)
 	}
 
-	case class Dates(id: Int, dateLocal: LocalDate)
+	case class Dates(id: Int, localDate: LocalDate)
 	object DatesEntity extends SimpleEntity[Dates] {
 		val id = key("id") to (_.id)
-		val dateLocal = column("dateLocal") to (_.dateLocal)
+		val localDate = column("localDate") to (_.localDate)
 
-		def constructor(implicit m) = new Dates(id, dateLocal) with Persisted
+		def constructor(implicit m) = new Dates(id, localDate) with Persisted
 	}
 
 	case class BD(

@@ -26,6 +26,6 @@ create table OBD (
 [dates]
 create table Dates (
 	id int not null,
-	dateLocal timestamp,
+	localDate timestamp,
 	primary key (id)
 )
