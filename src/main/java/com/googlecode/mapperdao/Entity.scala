@@ -573,13 +573,25 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 			fkcols = cs
 			this
 		}
-		def to(columnToValue: T => FT)(implicit mft: Manifest[FT]): ColumnInfoManyToOne[T, FPC, FT] =
+		def to(columnToValue: T => FT): ColumnInfoManyToOne[T, FPC, FT] =
 			{
-				val ci = ColumnInfoManyToOne(ManyToOne(fkcols.map(Column(_, mft.erasure)), TypeRef(createAlias, referenced)), columnToValue, getterMethod)
+				if (referenced.keysDuringDeclaration.size != fkcols.size) throw new IllegalArgumentException("the number of foreign columns doesn't match the number of keys for %s => %s".format(referenced.keysDuringDeclaration, fkcols))
+				val keys = referenced.keysDuringDeclaration zip fkcols
+
+				val ci = ColumnInfoManyToOne(
+					ManyToOne(
+						keys.map {
+							case (k, c) =>
+								Column(c, k.tpe)
+						},
+						TypeRef(createAlias, referenced)),
+					columnToValue,
+					getterMethod
+				)
 				if (!onlyForQuery) columns ::= ci
 				ci
 			}
-		def option(columnToValue: T => Option[FT])(implicit mft: Manifest[FT]): ColumnInfoManyToOne[T, FPC, FT] =
+		def option(columnToValue: T => Option[FT]): ColumnInfoManyToOne[T, FPC, FT] =
 			to(optionToValue(columnToValue))
 	}
 
