@@ -515,29 +515,40 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 			this
 		}
 
-		def to(columnToValue: T => Traversable[FT])(implicit mt: Manifest[T], mft: Manifest[FT]): ColumnInfoTraversableOneToMany[T, FPC, FT] =
+		def to(columnToValue: T => Traversable[FT]): ColumnInfoTraversableOneToMany[T, FPC, FT] =
 			{
-				val ci = ColumnInfoTraversableOneToMany[T, FPC, FT](OneToMany(TypeRef(createAlias, referenced), fkcols.map(Column(_, mft.erasure))), columnToValue, getterMethod)
+				if (keysDuringDeclaration.size != fkcols.size) throw new IllegalArgumentException("foreign keys declaration not correct, foreign keys %s , declared %s".format(referenced.keysDuringDeclaration, fkcols))
+				val fkeys = keysDuringDeclaration zip fkcols
+				val ci = ColumnInfoTraversableOneToMany[T, FPC, FT](
+					OneToMany(
+						TypeRef(createAlias, referenced),
+						fkeys.map {
+							case (k, c) =>
+								Column(c, k.tpe)
+						}
+					),
+					columnToValue,
+					getterMethod)
 				if (!onlyForQuery) columns ::= ci
 				ci
 			}
-		def tojava(columnToValue: T => java.lang.Iterable[FT])(implicit mt: Manifest[T], mft: Manifest[FT]): ColumnInfoTraversableOneToMany[T, FPC, FT] =
+		def tojava(columnToValue: T => java.lang.Iterable[FT]): ColumnInfoTraversableOneToMany[T, FPC, FT] =
 			to((ctv: T) => columnToValue(ctv).asScala)
 
-		def tostring(columnToValue: T => Traversable[String])(implicit mt: Manifest[T]): ColumnInfoTraversableOneToMany[T, FPC, FT] =
-			to((t: T) => { columnToValue(t).map(StringValue(_)).asInstanceOf[Traversable[FT]] })(mt, Manifest.classType(classOf[String]))
+		def tostring(columnToValue: T => Traversable[String]): ColumnInfoTraversableOneToMany[T, FPC, FT] =
+			to((t: T) => { columnToValue(t).map(StringValue(_)).asInstanceOf[Traversable[FT]] })
 
-		def toint(columnToValue: T => Traversable[Int])(implicit mt: Manifest[T], mft: Manifest[FT]): ColumnInfoTraversableOneToMany[T, FPC, FT] =
-			to((t: T) => { columnToValue(t).map(IntValue(_)).asInstanceOf[Traversable[FT]] })(mt, Manifest.classType(classOf[Int]))
+		def toint(columnToValue: T => Traversable[Int]): ColumnInfoTraversableOneToMany[T, FPC, FT] =
+			to((t: T) => { columnToValue(t).map(IntValue(_)).asInstanceOf[Traversable[FT]] })
 
-		def tofloat(columnToValue: T => Traversable[Float])(implicit mt: Manifest[T], mft: Manifest[FT]): ColumnInfoTraversableOneToMany[T, FPC, FT] =
-			to((t: T) => { columnToValue(t).map(FloatValue(_)).asInstanceOf[Traversable[FT]] })(mt, Manifest.classType(classOf[Float]))
+		def tofloat(columnToValue: T => Traversable[Float]): ColumnInfoTraversableOneToMany[T, FPC, FT] =
+			to((t: T) => { columnToValue(t).map(FloatValue(_)).asInstanceOf[Traversable[FT]] })
 
-		def todouble(columnToValue: T => Traversable[Double])(implicit mt: Manifest[T], mft: Manifest[FT]): ColumnInfoTraversableOneToMany[T, FPC, FT] =
-			to((t: T) => { columnToValue(t).map(DoubleValue(_)).asInstanceOf[Traversable[FT]] })(mt, Manifest.classType(classOf[Double]))
+		def todouble(columnToValue: T => Traversable[Double]): ColumnInfoTraversableOneToMany[T, FPC, FT] =
+			to((t: T) => { columnToValue(t).map(DoubleValue(_)).asInstanceOf[Traversable[FT]] })
 
-		def tolong(columnToValue: T => Traversable[Long])(implicit mt: Manifest[T], mft: Manifest[FT]): ColumnInfoTraversableOneToMany[T, FPC, FT] =
-			to((t: T) => { columnToValue(t).map(LongValue(_)).asInstanceOf[Traversable[FT]] })(mt, Manifest.classType(classOf[Long]))
+		def tolong(columnToValue: T => Traversable[Long]): ColumnInfoTraversableOneToMany[T, FPC, FT] =
+			to((t: T) => { columnToValue(t).map(LongValue(_)).asInstanceOf[Traversable[FT]] })
 	}
 
 	/**
