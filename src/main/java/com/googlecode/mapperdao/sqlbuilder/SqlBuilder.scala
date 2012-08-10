@@ -77,7 +77,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 
 	trait FromClause {
 		def toSql: String
-		def toValues: List[Any]
+		def toValues: List[SqlParameterValue]
 	}
 
 	case class Table(table: String, alias: String = null, hints: String = null) extends FromClause {
@@ -209,7 +209,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 
 		def result = Result(toSql, toValues)
 
-		def toValues = innerJoins.map { _.toValues }.flatten ::: fromClause.toValues ::: whereBuilder.map(_.toValues).getOrElse(Nil)
+		def toValues: List[SqlParameterValue] = innerJoins.map { _.toValues }.flatten ::: fromClause.toValues ::: whereBuilder.map(_.toValues).getOrElse(Nil)
 		def toSql = {
 			if (fromClause == null) throw new IllegalStateException("fromClause is null")
 			val s = new StringBuilder("select ")
