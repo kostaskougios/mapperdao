@@ -271,7 +271,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		def result = Result(toSql, toValues)
 
 		def toSql = "delete from %s %s".format(fromClause.toSql, whereBuilder.toSql)
-		def toValues = whereBuilder.toValues
+		def toValues: List[SqlParameterValue] = whereBuilder.toValues
 
 		override def toString = "DeleteBuilder(%s)".format(toSql)
 	}
@@ -313,7 +313,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 				css.map { case (c, s) => s } ::: cvs.map(cv => "?")
 			).mkString(",")
 		)
-		def toValues = Jdbc.toSqlParameter(cvs.map {
+		def toValues: List[SqlParameterValue] = Jdbc.toSqlParameter(cvs.map {
 			case (c, v) =>
 				(c.tpe, v)
 		})
