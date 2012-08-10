@@ -19,7 +19,7 @@ import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 class Derby(override val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: TypeManager) extends Driver {
 
 	val escapeNamesStrategy = new EscapeNamesStrategy {
-		val invalidColumnNames = Set("end", "select", "where", "group", "year", "no")
+		val invalidColumnNames = Set("end", "select", "where", "group", "year", "no", "int", "float", "double")
 		val invalidTableNames = Set("end", "select", "where", "group", "user", "User")
 		override def escapeColumnNames(name: String) = if (invalidColumnNames.contains(name)) '"' + name + '"'; else name
 		override def escapeTableNames(name: String) = if (invalidTableNames.contains(name)) '"' + name + '"'; else name
