@@ -83,12 +83,79 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			selectedAgain1 should be === updated1
 		}
 
+		test("querying") {
+			createTables()
+			val role1 = mapperDao.insert(RoleTypeEntity, roleType1)
+			val role2 = mapperDao.insert(RoleTypeEntity, roleType2)
+			val role3 = mapperDao.insert(RoleTypeEntity, roleType3)
+			val inserted1 = mapperDao.insert(PersonEntity,
+				Person("kostas.kougios", "kostas", "kougios", Set(
+					SinglePartyRole(
+						role1,
+						Some(from),
+						Some(to)
+					),
+					SinglePartyRole(
+						role2,
+						Some(from),
+						None
+					)
+				)))
+			val inserted2 = mapperDao.insert(
+				PersonEntity,
+				Person("some.other", "some", "other", Set(
+					SinglePartyRole(
+						role1,
+						None,
+						None
+					),
+					SinglePartyRole(
+						role3,
+						None,
+						Some(from)
+					)
+				))
+			)
+
+			import Query._
+			val pe = PersonEntity
+			val spr = SinglePartyRoleEntity
+			val rte = RoleTypeEntity
+
+			(
+				select
+				from pe
+			).toSet(queryDao) should be === Set(inserted1, inserted2)
+
+			(
+				select
+				from pe
+				join (pe, pe.singlePartyRoles, spr)
+				where spr.roleType === role2
+			).toSet(queryDao) should be === Set(inserted1)
+
+			(
+				select
+				from pe
+				join (pe, pe.singlePartyRoles, spr)
+				where spr.roleType === role3
+			).toSet(queryDao) should be === Set(inserted2)
+
+			(
+				select
+				from pe
+				join (pe, pe.singlePartyRoles, spr)
+				join (spr, spr.roleType, rte)
+				where rte.name === "Java Developer"
+			).toSet(queryDao) should be === Set(inserted1)
+		}
+
 		def createTables() = {
 			Setup.dropAllTables(jdbc)
 			Setup.queries(this, jdbc).update("ddl")
 		}
-
 	}
+
 	case class Person(id: String, firstName: String, lastName: String, singlePartyRoles: Set[SinglePartyRole])
 	case class SinglePartyRole(roleType: RoleType, fromDate: Option[DateTime], toDate: Option[DateTime])
 	case class RoleType(name: String, description: Option[String])

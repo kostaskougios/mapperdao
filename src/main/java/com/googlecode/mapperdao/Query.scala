@@ -185,8 +185,12 @@ object Query {
 		def toList(implicit queryDao: QueryDao): List[T with PC] = toList(QueryConfig.default)(queryDao)
 		def toList(queryConfig: QueryConfig)(implicit queryDao: QueryDao): List[T with PC] = queryDao.query(queryConfig, this)
 
+		def toSet(implicit queryDao: QueryDao): Set[T with PC] = toSet(QueryConfig.default)(queryDao)
+		def toSet(queryConfig: QueryConfig)(implicit queryDao: QueryDao): Set[T with PC] = queryDao.query(queryConfig, this).toSet
+
 		override def toString = "select from %s join %s where %s".format(entity, joins, wheres)
 	}
+
 	sealed abstract class AscDesc {
 		val sql: String
 	}
