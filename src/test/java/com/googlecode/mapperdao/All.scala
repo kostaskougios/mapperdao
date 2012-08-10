@@ -94,7 +94,8 @@ import org.scalatest.FunSuite
 		classOf[ManyToOneCompositeKeySuite],
 		classOf[OneToOneCompositeKeySuite],
 		classOf[OneToOneReverseCompositeKeySuite],
-		classOf[TypesSuite]
+		classOf[TypesSuite],
+		classOf[UseCasePersonAndRolesSuite]
 	//classOf[MultiThreadedQuerySuite]
 	)
 )
