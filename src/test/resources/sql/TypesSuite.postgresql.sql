@@ -27,5 +27,6 @@ create table OBD (
 create table Dates (
 	id int not null,
 	localDate timestamp,
+	time time,
 	primary key (id)
 )

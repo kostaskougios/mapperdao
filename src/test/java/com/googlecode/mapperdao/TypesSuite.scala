@@ -277,7 +277,7 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 	}
 
 	case class ODates(id: Int, localDate: Option[LocalDate])
-	object ODatesEntity extends SimpleEntity[ODates]("dates") {
+	object ODatesEntity extends SimpleEntity[ODates]("Dates") {
 		val id = key("id") to (_.id)
 		val localDate = column("localDate") option (_.localDate)
 
