@@ -17,7 +17,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 
 	trait Expression {
 		def toSql: String
-		def toValues: List[Any]
+		def toValues: List[SqlParameterValue]
 	}
 	abstract class Combine extends Expression {
 		val left: Expression
@@ -33,7 +33,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 	}
 
 	case class Clause(
-			alias: String, column: String,
+			alias: String, column: SimpleColumn,
 			op: String,
 			value: Any) extends Expression {
 
@@ -41,7 +41,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		override def toSql = {
 			val sb = new StringBuilder
 			if (alias != null) sb append (alias) append (".")
-			sb append escapeNamesStrategy.escapeColumnNames(column) append " "
+			sb append escapeNamesStrategy.escapeColumnNames(column.name) append " "
 			if (isNull)
 				sb append "is null"
 			else
@@ -49,7 +49,9 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			sb.toString
 		}
 
-		override def toValues = if (isNull) Nil else List(value)
+		override def toValues = if (isNull) Nil else List(
+			Jdbc.toSqlParameter(column.tpe, value)
+		)
 	}
 	case class NonValueClause(
 			leftAlias: String, left: String,
@@ -68,9 +70,9 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		override def toValues = Nil
 	}
 
-	case class Between(alias: String, column: String, left: Any, right: Any) extends Expression {
-		override def toSql = escapeNamesStrategy.escapeColumnNames(column) + " " + (if (alias != null) alias else "") + " between ? and ?"
-		override def toValues = left :: right :: Nil
+	case class Between(alias: String, column: SimpleColumn, left: Any, right: Any) extends Expression {
+		override def toSql = escapeNamesStrategy.escapeColumnNames(column.name) + " " + (if (alias != null) alias else "") + " between ? and ?"
+		override def toValues = Jdbc.toSqlParameter(column.tpe, left) :: Jdbc.toSqlParameter(column.tpe, right) :: Nil
 	}
 
 	trait FromClause {
@@ -167,18 +169,13 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			this
 		}
 
-		def whereAll(alias: String, columnsAndValues: List[(String, Any)], op: String) = {
+		def where(alias: String, columnsAndValues: List[(SimpleColumn, Any)], op: String) = {
 			if (whereBuilder.isDefined) throw new IllegalStateException("where already defined")
 			whereBuilder = Some(SqlBuilder.this.whereAll(alias, columnsAndValues, op))
 			this
 		}
 
-		def where(alias: String, columnsAndValues: List[(SimpleColumn, Any)], op: String) =
-			whereAll(alias, columnsAndValues.map {
-				case (c, v) => (c.name, v)
-			}, op)
-
-		def where(alias: String, column: String, op: String, value: Any) = {
+		def where(alias: String, column: SimpleColumn, op: String, value: Any) = {
 			if (whereBuilder.isDefined) throw new IllegalStateException("where already defined")
 			whereBuilder = Some(new WhereBuilder(Clause(alias, column, op, value)))
 			this
@@ -235,12 +232,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		override def toString = "SqlSelectBuilder(" + toSql + ")"
 	}
 
-	def whereAllColumns(alias: String, columnsAndValues: List[(SimpleColumn, Any)], op: String): WhereBuilder =
-		whereAll(alias, columnsAndValues.map {
-			case (c, v) => (c.name, v)
-		}, op)
-
-	def whereAll(alias: String, columnsAndValues: List[(String, Any)], op: String): WhereBuilder =
+	def whereAll(alias: String, columnsAndValues: List[(SimpleColumn, Any)], op: String): WhereBuilder =
 		new WhereBuilder(columnsAndValues.foldLeft[Expression](null) {
 			case (prevClause, (column, value)) =>
 				val clause = Clause(alias, column, op, value)
@@ -274,7 +266,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		}
 
 		def where(columnsAndValues: List[(SimpleColumn, Any)], op: String): this.type =
-			where(whereAllColumns(null, columnsAndValues, "="))
+			where(whereAll(null, columnsAndValues, "="))
 
 		def result = Result(toSql, toValues)
 
@@ -331,7 +323,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 
 	case class UpdateBuilder {
 		private var table: Table = null
-		private var columnAndValues = List[(String, Any)]()
+		private var columnAndValues = List[(SimpleColumn, Any)]()
 		private var where: WhereBuilder = null
 
 		def table(name: String): this.type = table(Table(name))
@@ -341,12 +333,7 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			this
 		}
 
-		def setColumnsAndValues(columnAndValues: List[(SimpleColumn, Any)]): this.type =
-			set(columnAndValues.map {
-				case (c, v) => (c.name, v)
-			})
-
-		def set(columnAndValues: List[(String, Any)]): this.type = {
+		def set(columnAndValues: List[(SimpleColumn, Any)]): this.type = {
 			this.columnAndValues = columnAndValues
 			this
 		}
@@ -358,18 +345,22 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		}
 
 		def where(columnsAndValues: List[(SimpleColumn, Any)], op: String): this.type =
-			where(whereAllColumns(null, columnsAndValues, op))
+			where(whereAll(null, columnsAndValues, op))
 
 		def results = Result(toSql, toValues)
 
 		def toSql = "update %s\nset %s\n%s".format(table.toSql,
 			columnAndValues.map {
 				case (c, v) =>
-					escapeNamesStrategy.escapeColumnNames(c) + " = ?"
+					escapeNamesStrategy.escapeColumnNames(c.name) + " = ?"
 			}.mkString(","),
 			where.toSql
 		)
 
-		def toValues = columnAndValues.map(_._2) ::: where.toValues
+		def toValues = Jdbc.toSqlParameter(
+			columnAndValues.map {
+				case (c, v) =>
+					(c.tpe, v)
+			}) ::: where.toValues
 	}
 }

@@ -10,6 +10,7 @@ import com.googlecode.mapperdao.QueryConfig
 import com.googlecode.mapperdao.TypeManager
 import com.googlecode.mapperdao.SimpleColumn
 import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
+import com.googlecode.mapperdao.Column
 
 /**
  * mapperdao driver for Sql Server
@@ -66,10 +67,11 @@ class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager:
 			nq
 		} else q
 
+	private val row = Column("Row", classOf[Long])
 	override def endOfQuery[PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
 		if (queryConfig.hasRange) {
 			val offset = queryConfig.offset.getOrElse(0l) + 1
-			val w = sqlBuilder.Between(null, "Row", offset, (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue))
+			val w = sqlBuilder.Between(null, row, offset, (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue))
 			q.where(w)
 			q
 		} else q

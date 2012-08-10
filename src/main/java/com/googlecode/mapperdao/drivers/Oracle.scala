@@ -10,6 +10,7 @@ import com.googlecode.mapperdao.QueryConfig
 import com.googlecode.mapperdao.Query
 import com.googlecode.mapperdao.TypeManager
 import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
+import com.googlecode.mapperdao.Column
 
 /**
  * @author kostantinos.kougios
@@ -48,14 +49,16 @@ class Oracle(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: Ty
 			//			sql append "select " append commaSeparatedListOfSimpleTypeColumns(",", columns) append ",rownum as rn$ from ("
 		} else q
 
+	private val rn = Column("rn$", classOf[Long])
+	private val rownum = Column("rownum", classOf[Long])
 	override def endOfQuery[PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
 		if (queryConfig.offset.isDefined || queryConfig.limit.isDefined) {
 			val offset = queryConfig.offset.getOrElse(0l)
 
-			q.where(null, "rn$", ">", offset)
+			q.where(null, rn, ">", offset)
 			q.from match {
 				case iq: sqlBuilder.SqlSelectBuilder =>
-					iq.where(null, "rownum", "<=", (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset else Long.MaxValue))
+					iq.where(null, rownum, "<=", (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset else Long.MaxValue))
 			}
 			q
 			//			sql append "\n) where rownum<=" append (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset else Long.MaxValue)

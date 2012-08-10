@@ -108,7 +108,7 @@ abstract class Driver {
 		{
 			val s = new sqlBuilder.UpdateBuilder
 			s.table(tpe.table.name)
-			s.setColumnsAndValues(args)
+			s.set(args)
 			s.where(pkArgs, "=")
 			s
 		}
@@ -126,7 +126,7 @@ abstract class Driver {
 		{
 			val s = new sqlBuilder.UpdateBuilder
 			s.table(tpe.table.name)
-			s.setColumnsAndValues(foreignKeys)
+			s.set(foreignKeys)
 			s.where(pkArgs, "=")
 			s
 		}

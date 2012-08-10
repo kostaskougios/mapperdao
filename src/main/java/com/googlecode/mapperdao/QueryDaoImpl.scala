@@ -168,7 +168,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 						case rc: SimpleColumn =>
 							driver.sqlBuilder.NonValueClause(aliases(o.left), o.left.name, o.operand.sql, aliases(rc), rc.name)
 						case _ =>
-							driver.sqlBuilder.Clause(aliases(o.left), o.left.name, o.operand.sql, o.right)
+							driver.sqlBuilder.Clause(aliases(o.left), o.left, o.operand.sql, o.right)
 					}
 				case and: AndOp =>
 					driver.sqlBuilder.And(inner(and.left), inner(and.right))
@@ -191,7 +191,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 						if (left.columns.size != fPKs.size) throw new IllegalStateException("foreign keys %s don't match foreign key columns %s".format(fPKs, left.columns))
 						left.columns zip fPKs map {
 							case (c, v) =>
-								driver.sqlBuilder.Clause(aliases(c), c.name, operand.sql, v)
+								driver.sqlBuilder.Clause(aliases(c), c, operand.sql, v)
 						}
 					}
 					exprs.reduceLeft { (l, r) =>
@@ -204,7 +204,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 					val exprs = fPKColumnAndValues.map {
 						case (c, v) =>
-							driver.sqlBuilder.Clause(aliases(c), c.name, operand.sql, v)
+							driver.sqlBuilder.Clause(aliases(c), c, operand.sql, v)
 					}
 					exprs.reduceLeft[driver.sqlBuilder.Expression] { (l, r) =>
 						driver.sqlBuilder.And(l, r)
@@ -219,7 +219,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					val zipped = (fPKColumnAndValues zip left.linkTable.right)
 					zipped.map {
 						case ((c, v), ltr) =>
-							driver.sqlBuilder.Clause(aliases(left.linkTable), ltr.name, operand.sql, v)
+							driver.sqlBuilder.Clause(aliases(left.linkTable), ltr, operand.sql, v)
 					}.reduceLeft[driver.sqlBuilder.Expression] { (l, r) =>
 						driver.sqlBuilder.And(l, r)
 					}
@@ -230,7 +230,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 					val exprs = fPKColumnAndValues.map {
 						case (c, v) =>
-							driver.sqlBuilder.Clause(aliases(left.foreign.entity), c.name, operand.sql, v)
+							driver.sqlBuilder.Clause(aliases(left.foreign.entity), c, operand.sql, v)
 					}
 					exprs.reduceLeft[driver.sqlBuilder.Expression] { (l, r) =>
 						driver.sqlBuilder.And(l, r)
@@ -242,7 +242,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 					val exprs = fPKColumnAndValues.map {
 						case (c, v) =>
-							driver.sqlBuilder.Clause(aliases(left.foreign.entity), c.name, operand.sql, v)
+							driver.sqlBuilder.Clause(aliases(left.foreign.entity), c, operand.sql, v)
 					}
 					exprs.reduceLeft[driver.sqlBuilder.Expression] { (l, r) =>
 						driver.sqlBuilder.And(l, r)

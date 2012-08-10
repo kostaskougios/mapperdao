@@ -268,7 +268,10 @@ object Jdbc {
 
 	def toSqlParameter(l: List[(Class[_], Any)]): List[SqlParameterValue] = l.map {
 		case (clz, v) =>
-			val tpe = sqlParamMap(clz)
-			new SqlParameterValue(tpe, v)
+			toSqlParameter(clz, v)
+	}
+	def toSqlParameter(tpe: Class[_], value: Any): SqlParameterValue = {
+		val t = sqlParamMap(tpe)
+		new SqlParameterValue(t, value)
 	}
 }
