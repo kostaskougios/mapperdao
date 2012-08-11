@@ -115,13 +115,31 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			val updated = mapperDao.update(InterPartyRelationshipEntity, selected, upd)
 			updated should be === upd
 
+			val reselected = queryDao.querySingleResult(
+				(
+					select
+					from ipr
+					where ipr.from === person1 and ipr.to === person1
+				)
+			).get
+			reselected should be === updated
+
+			mapperDao.delete(InterPartyRelationshipEntity, reselected)
+
 			queryDao.querySingleResult(
 				(
 					select
 					from ipr
 					where ipr.from === person1 and ipr.to === person1
 				)
-			).get should be === updated
+			) should be === None
+
+			// make sure we didn't delete the other one
+			(
+				select
+				from ipr
+				where ipr.from === person2 and ipr.to === person1
+			).toSet(queryDao) should be === Set(ipr2)
 		}
 
 		test("crud") {
