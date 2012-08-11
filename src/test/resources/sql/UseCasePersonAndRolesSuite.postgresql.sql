@@ -29,3 +29,18 @@ CREATE TABLE singlepartyrole
       REFERENCES roletype (name) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
 )
+;
+CREATE TABLE interpartyrelationship
+(
+  from_id character varying(40) NOT NULL,
+  to_id character varying(40) NOT NULL,
+  fromdate timestamp with time zone,
+  todate timestamp with time zone,
+  CONSTRAINT pk_ipr PRIMARY KEY (from_id , to_id ),
+  CONSTRAINT fk_ipr_from FOREIGN KEY (from_id)
+      REFERENCES person (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT fk_ipr_to FOREIGN KEY (to_id)
+      REFERENCES person (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)

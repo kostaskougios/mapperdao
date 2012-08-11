@@ -16,8 +16,22 @@ import com.googlecode.mapperdao.jdbc.Setup
 class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 
 	if (Setup.database == "postgresql") {
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(RoleTypeEntity, PersonEntity, SinglePartyRoleEntity))
+		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(
+			TypeRegistry(
+				RoleTypeEntity,
+				PersonEntity,
+				SinglePartyRoleEntity,
+				InterPartyRelationshipEntity
+			)
+		)
 
+		// aliases for queries
+		val pe = PersonEntity
+		val spr = SinglePartyRoleEntity
+		val rte = RoleTypeEntity
+		val ipr = InterPartyRelationshipEntity
+
+		// test data
 		val roleType1 = RoleType("Scala Developer", Some("A Scala Software Developer"))
 		val roleType2 = RoleType("Java Developer", Some("A Java Software Developer"))
 		val roleType3 = RoleType("Groovy Developer", Some("A Groovy Software Developer"))
@@ -25,45 +39,79 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 		val from = DateTime.now
 		val to = DateTime.now.plusDays(1)
 
-		test("crud") {
-			createTables()
+		// create test roles
+		def persistRoles = (
+			mapperDao.insert(RoleTypeEntity, roleType1),
+			mapperDao.insert(RoleTypeEntity, roleType2),
+			mapperDao.insert(RoleTypeEntity, roleType3)
+		)
 
-			val role1 = mapperDao.insert(RoleTypeEntity, roleType1)
-			val role2 = mapperDao.insert(RoleTypeEntity, roleType2)
-			val role3 = mapperDao.insert(RoleTypeEntity, roleType3)
-
-			val person1 = Person("kostas.kougios", "kostas", "kougios", Set(
-				SinglePartyRole(
-					role1,
-					Some(from),
-					Some(to)
-				),
-				SinglePartyRole(
-					role2,
-					Some(from),
-					None
-				)
-			))
-
-			val inserted1 = mapperDao.insert(PersonEntity, person1)
-			inserted1 should be === person1
-
-			// noise
-			mapperDao.insert(
-				PersonEntity,
-				Person("some.other", "some", "other", Set(
+		// create test people
+		def people(role1: RoleType, role2: RoleType, role3: RoleType) = (
+			mapperDao.insert(PersonEntity,
+				Person("kostas.kougios", "kostas", "kougios", Set(
 					SinglePartyRole(
 						role1,
-						None,
-						None
+						Some(from),
+						Some(to)
 					),
 					SinglePartyRole(
-						role3,
-						None,
-						Some(from)
+						role2,
+						Some(from),
+						None
 					)
 				))
-			)
+			),
+				mapperDao.insert(PersonEntity,
+					Person("some.other", "some", "other", Set(
+						SinglePartyRole(
+							role1,
+							None,
+							None
+						),
+						SinglePartyRole(
+							role3,
+							None,
+							Some(from)
+						)
+					))
+				)
+		)
+		test("interpartyrelationship") {
+			createTables()
+			val (role1, role2, role3) = persistRoles
+			val (person1, person2) = people(role1, role2, role3)
+			val ipr1 = mapperDao.insert(InterPartyRelationshipEntity, InterPartyRelationship(person1, person2, Some(from), None))
+			val ipr2 = mapperDao.insert(InterPartyRelationshipEntity, InterPartyRelationship(person2, person1, Some(from), Some(to)))
+
+			import Query._
+
+			queryDao.querySingleResult(
+				(
+					select
+					from ipr
+					where ipr.from === person1 and ipr.to === person2
+				)
+			).get should be === ipr1
+
+			(
+				select
+				from ipr
+				where ipr.from === person1 and ipr.to === person2
+			).toSet(queryDao) should be === Set(ipr1)
+
+			(
+				select
+				from ipr
+				where ipr.from === person2 and ipr.to === person1
+			).toSet(queryDao) should be === Set(ipr2)
+		}
+
+		test("crud") {
+			createTables()
+			val (role1, role2, role3) = persistRoles
+			val (inserted1, _) = people(role1, role2, role3)
+
 			val selected1 = mapperDao.select(PersonEntity, inserted1.id).get
 			selected1 should be === inserted1
 
@@ -85,9 +133,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 
 		test("querying") {
 			createTables()
-			val role1 = mapperDao.insert(RoleTypeEntity, roleType1)
-			val role2 = mapperDao.insert(RoleTypeEntity, roleType2)
-			val role3 = mapperDao.insert(RoleTypeEntity, roleType3)
+			val (role1, role2, role3) = persistRoles
 			val inserted1 = mapperDao.insert(PersonEntity,
 				Person("kostas.kougios", "kostas", "kougios", Set(
 					SinglePartyRole(
@@ -118,9 +164,6 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			)
 
 			import Query._
-			val pe = PersonEntity
-			val spr = SinglePartyRoleEntity
-			val rte = RoleTypeEntity
 
 			(
 				select
@@ -159,6 +202,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 	case class Person(id: String, firstName: String, lastName: String, singlePartyRoles: Set[SinglePartyRole])
 	case class SinglePartyRole(roleType: RoleType, fromDate: Option[DateTime], toDate: Option[DateTime])
 	case class RoleType(name: String, description: Option[String])
+	case class InterPartyRelationship(from: Person, to: Person, fromDate: Option[DateTime], toDate: Option[DateTime])
 
 	object RoleTypeEntity extends SimpleEntity[RoleType] {
 		val name = key("name") to (_.name)
@@ -190,5 +234,16 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 		def constructor(implicit m: ValuesMap) = new SinglePartyRole(roleType, fromDate, toDate) with Persisted
 	}
 
+	object InterPartyRelationshipEntity extends SimpleEntity[InterPartyRelationship] {
+		val from = manytoone(PersonEntity) foreignkey ("from_id") to (_.from)
+		val to = manytoone(PersonEntity) foreignkey ("to_id") to (_.to)
+		val fromDate = column("fromDate") option (_.fromDate)
+		val toDate = column("toDate") option (_.toDate)
+
+		declarePrimaryKey(from)
+		declarePrimaryKey(to)
+
+		def constructor(implicit m: ValuesMap) = new InterPartyRelationship(from, to, fromDate, toDate) with Persisted
+	}
 }
 
