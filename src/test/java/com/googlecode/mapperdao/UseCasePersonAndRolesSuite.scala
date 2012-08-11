@@ -86,13 +86,17 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 
 			import Query._
 
-			queryDao.querySingleResult(
+			// various queries to get it back
+
+			val selected = queryDao.querySingleResult(
 				(
 					select
 					from ipr
 					where ipr.from === person1 and ipr.to === person2
 				)
-			).get should be === ipr1
+			).get
+
+			selected should be === ipr1
 
 			(
 				select
@@ -105,6 +109,19 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 				from ipr
 				where ipr.from === person2 and ipr.to === person1
 			).toSet(queryDao) should be === Set(ipr2)
+
+			// now update
+			val upd = selected.copy(to = person1, toDate = Some(to))
+			val updated = mapperDao.update(InterPartyRelationshipEntity, selected, upd)
+			updated should be === upd
+
+			queryDao.querySingleResult(
+				(
+					select
+					from ipr
+					where ipr.from === person1 and ipr.to === person1
+				)
+			).get should be === updated
 		}
 
 		test("crud") {

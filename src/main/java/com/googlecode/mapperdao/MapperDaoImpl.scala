@@ -187,13 +187,24 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			val args = newValuesMap.toListOfSimpleColumnAndValueTuple(columnsChanged) ::: pluginDUR.values
 			if (!args.isEmpty) {
 				val pkArgs = oldValuesMap.toListOfSimpleColumnAndValueTuple(table.primaryKeys) ::: pluginDUR.keys
-				// execute the before update events
-				events.executeBeforeUpdateEvents(tpe, args, pkArgs)
 
-				driver.doUpdate(tpe, args, pkArgs)
+				// we now need to take into account declarePrimaryKeys
+				val unused = if (table.unusedPrimaryKeyColumns.isEmpty)
+					Nil
+				else {
+					val alreadyUsed = pkArgs.map(_._1)
+					val uc = table.unusedPrimaryKeyColumns.filterNot(alreadyUsed.contains(_))
+					oldValuesMap.toListOfSimpleColumnAndValueTuple(uc)
+				}
+
+				val allKeys = pkArgs ::: unused
+				// execute the before update events
+				events.executeBeforeUpdateEvents(tpe, args, allKeys)
+
+				driver.doUpdate(tpe, args, allKeys)
 
 				// execute the after update events
-				events.executeAfterUpdateEvents(tpe, args, pkArgs)
+				events.executeAfterUpdateEvents(tpe, args, allKeys)
 			}
 
 			// update the mock
