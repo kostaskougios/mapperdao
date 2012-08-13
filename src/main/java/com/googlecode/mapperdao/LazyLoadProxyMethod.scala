@@ -15,11 +15,11 @@ import com.googlecode.classgenerator._
 protected class LazyLoadProxyMethod[T](
 	private var toLazyLoad: scala.collection.mutable.Map[ColumnInfoRelationshipBase[T, Any, Any, Any], () => Any],
 	private var methodToCI: Map[String, ColumnInfoRelationshipBase[T, Any, Any, Any]])
-		extends (Args[T with Persisted, Any] => Any) with Persisted {
+	extends (Args[T with Persisted, Any] => Any) with Persisted {
 
 	import LazyLoadProxyMethod._
 	// provide an implementation for the proxied methods
-	private var alreadyCalled = Set.empty[String]
+	private val alreadyCalled = scala.collection.mutable.Set.empty[String]
 
 	def apply(args: Args[T with Persisted, Any]) = {
 		val methodName = args.methodName
