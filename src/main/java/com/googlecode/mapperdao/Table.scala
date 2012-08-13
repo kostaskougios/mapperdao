@@ -10,14 +10,19 @@ package com.googlecode.mapperdao
  * 12 Jul 2011
  */
 
-case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _]], extraColumnInfosPersisted: List[ColumnInfoBase[T with PC, _]], val unusedPKs: List[UnusedColumn[T, _]]) {
+case class Table[PC, T](
+		name: String,
+		columnInfosPlain: List[ColumnInfoBase[T, _]],
+		extraColumnInfosPersisted: List[ColumnInfoBase[T with PC, _]],
+		val unusedPKs: List[UnusedColumn[T, _]]) {
 
 	val columns: List[ColumnBase] = extraColumnInfosPersisted.map(_.column) ::: columnInfosPlain.map(_.column)
 	// the primary keys for this table
 	val primaryKeys: List[PK] = columns.collect {
 		case pk: PK => pk
 	}
-	val primaryKeysSize = (primaryKeys ::: unusedPKs.map(_.columns).flatten).size
+	val primaryKeysAndUnusedKeys = primaryKeys ::: unusedPKs.map(_.columns).flatten
+	val primaryKeysSize = primaryKeysAndUnusedKeys.size
 
 	val primaryKeyColumnInfosForT = columnInfosPlain.collect {
 		case ci @ ColumnInfo(_: PK, _, _) => ci

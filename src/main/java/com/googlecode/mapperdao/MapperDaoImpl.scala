@@ -329,11 +329,26 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 		{
 			val clz = entity.clz
 			val tpe = entity.tpe
-			if (tpe.table.primaryKeys.size != ids.size) throw new IllegalStateException("Primary keys number dont match the number of parameters. Primary keys: %s".format(tpe.table.primaryKeys))
+			if (tpe.table.primaryKeysSize != ids.size) throw new IllegalStateException("Primary keys number dont match the number of parameters. Primary keys: %s".format(tpe.table.primaryKeys))
 
 			entities.get[T with PC](tpe.clz, ids) {
 				try {
-					val args = tpe.table.primaryKeys.zip(ids)
+					val (pks, declared) = ids.splitAt(tpe.table.primaryKeys.size)
+					val pkArgs = tpe.table.primaryKeys.zip(pks)
+					// convert unused keys to their simple values
+					val declaredArgs = (
+						(tpe.table.unusedPKs zip declared) map {
+							case (u, v) =>
+								u.ci match {
+									case ci: ColumnInfoRelationshipBase[PC, T, _, Any] =>
+										val foreign = ci.column.foreign
+										val fentity = foreign.entity
+										val ftable = fentity.tpe.table
+										u.columns zip ftable.toListOfPrimaryKeyValues(v)
+								}
+						}).flatten
+					val args = pkArgs ::: declaredArgs
+
 					events.executeBeforeSelectEvents(tpe, args)
 					val om = driver.doSelect(selectConfig, tpe, args)
 					events.executeAfterSelectEvents(tpe, args)

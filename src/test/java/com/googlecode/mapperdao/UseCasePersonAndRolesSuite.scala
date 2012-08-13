@@ -88,13 +88,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 
 			// various queries to get it back
 
-			val selected = queryDao.querySingleResult(
-				(
-					select
-					from ipr
-					where ipr.from === person1 and ipr.to === person2
-				)
-			).get
+			val selected = mapperDao.select(InterPartyRelationshipEntity, person1, person2).get
 
 			selected should be === ipr1
 
