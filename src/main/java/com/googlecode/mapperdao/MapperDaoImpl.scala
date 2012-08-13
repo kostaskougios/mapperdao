@@ -336,17 +336,22 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 					val (pks, declared) = ids.splitAt(tpe.table.primaryKeys.size)
 					val pkArgs = tpe.table.primaryKeys.zip(pks)
 					// convert unused keys to their simple values
-					val declaredArgs = (
-						(tpe.table.unusedPKs zip declared) map {
-							case (u, v) =>
-								u.ci match {
-									case ci: ColumnInfoRelationshipBase[PC, T, _, Any] =>
-										val foreign = ci.column.foreign
-										val fentity = foreign.entity
-										val ftable = fentity.tpe.table
-										u.columns zip ftable.toListOfPrimaryKeyValues(v)
-								}
-						}).flatten
+					val declaredArgs = if (tpe.table.unusedPKs.isEmpty)
+						Nil
+					else
+						(
+							(tpe.table.unusedPKs zip declared) map {
+								case (u, v) =>
+									u.ci match {
+										case ci: ColumnInfoRelationshipBase[PC, T, _, Any] =>
+											val foreign = ci.column.foreign
+											val fentity = foreign.entity
+											val ftable = fentity.tpe.table
+											u.columns zip ftable.toListOfPrimaryKeyValues(v)
+										case _ => throw new IllegalArgumentException("Please use declarePrimaryKey only for relationships. For normal data please use key(). This occured for entity %s".format(entity.getClass))
+									}
+							}).flatten
+
 					val args = pkArgs ::: declaredArgs
 
 					events.executeBeforeSelectEvents(tpe, args)
