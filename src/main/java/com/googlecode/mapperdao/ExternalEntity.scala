@@ -54,7 +54,7 @@ abstract class ExternalEntity[F](table: String, clz: Class[F]) extends Entity[An
 	def this()(implicit m: ClassManifest[F]) = this(m.erasure.getSimpleName, m.erasure.asInstanceOf[Class[F]])
 	def this(table: String)(implicit m: ClassManifest[F]) = this(table, m.erasure.asInstanceOf[Class[F]])
 
-	private val lazyActions = new LazyActions
+	private val lazyActions = new LazyActions[Unit]
 
 	override def constructor(implicit m) = throw new IllegalStateException("constructor shouldn't be called for ExternalEntity %s".format(clz))
 

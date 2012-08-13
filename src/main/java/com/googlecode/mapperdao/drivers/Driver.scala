@@ -186,9 +186,7 @@ abstract class Driver {
 			val sql = new sqlBuilder.SqlSelectBuilder
 			sql.columns(null,
 				(
-					selectColumns(tpe) ::: tpe.table.unusedPrimaryKeyColumns.collect {
-						case c: SimpleColumn => c
-					}
+					selectColumns(tpe) ::: tpe.table.unusedPKs
 				).distinct
 			)
 			sql.from(tpe.table.name, null, applyHints(selectConfig.hints))

@@ -8,6 +8,7 @@ import scala.collection.JavaConverters.setAsJavaSetConverter
 import org.joda.time.DateTime
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
+import com.googlecode.mapperdao.utils.LazyActions
 
 /**
  * the main class that must be inherited to create entities.
@@ -67,7 +68,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 
 	protected[mapperdao] var persistedColumns = List[ColumnInfoBase[T with PC, _]]()
 	protected[mapperdao] var columns = List[ColumnInfoBase[T, _]]()
-	protected[mapperdao] var unusedPKs = List[UnusedColumn[T, _]]()
+	protected[mapperdao] var unusedPKs = new LazyActions[ColumnInfoBase[Any, Any]]
 	protected[mapperdao] lazy val tpe = {
 		val con: (Option[_], ValuesMap) => T with PC with Persisted = (d, m) => {
 			// construct the object
@@ -76,7 +77,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 			o.mapperDaoValuesMap = m
 			o
 		}
-		Type[PC, T](clz, con, Table[PC, T](table, columns.reverse, persistedColumns, unusedPKs.reverse))
+		Type[PC, T](clz, con, Table[PC, T](table, columns.reverse, persistedColumns, unusedPKs.executeAll.reverse))
 	}
 
 	override def hashCode = table.hashCode
@@ -104,11 +105,19 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	 * key so that mapperdao knows how to update/delete those.
 	 */
 	protected def declarePrimaryKey[V](ci: ColumnInfo[T, V]) {
-		unusedPKs ::= new UnusedColumn(List(ci.column), ci)
+		unusedPKs(() => ci.asInstanceOf[ColumnInfoBase[Any, Any]])
 	}
 
 	protected def declarePrimaryKey[V](ci: ColumnInfoManyToOne[T, _, _]) {
-		unusedPKs ::= new UnusedColumn(ci.column.columns, ci)
+		unusedPKs(() => ci.asInstanceOf[ColumnInfoBase[Any, Any]])
+	}
+
+	/**
+	 * to avoid StackOverflow exceptions due to cyclic-referenced entities, we pass
+	 * this as by-name param
+	 */
+	protected def declarePrimaryKey[F, V](ci: => ColumnInfoTraversableOneToMany[F, _, _]) {
+		unusedPKs(() => ci.asInstanceOf[ColumnInfoBase[Any, Any]])
 	}
 
 	// implicit conversions to be used implicitly into the constructor method.
@@ -545,7 +554,8 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 						}
 					),
 					columnToValue,
-					getterMethod)
+					getterMethod,
+					Entity.this)
 				if (!onlyForQuery) columns ::= ci
 				ci
 			}

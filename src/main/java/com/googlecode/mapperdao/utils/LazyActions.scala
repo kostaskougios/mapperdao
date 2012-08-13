@@ -7,13 +7,13 @@ package com.googlecode.mapperdao.utils
  *
  * 29 Jan 2012
  */
-private[mapperdao] class LazyActions {
-	type Action = () => Unit
+private[mapperdao] class LazyActions[T] {
+	type Action = () => T
 	private var actions = List[Action]()
 
 	def apply(action: Action): Unit = actions = action :: actions
 
-	def executeAll: Unit = actions.foreach { _() }
+	def executeAll: List[T] = actions.map { _() }
 
 	override def toString = "LazyActions(%s)".format(actions)
 }

@@ -7,9 +7,9 @@ import java.util.IdentityHashMap
  * 17 May 2012
  */
 abstract class EntityRelationshipVisitor[R](
-	visitLazyLoaded: Boolean = false,
-	visitUnlinked: Boolean = false,
-	maxDepth: Int = 10) {
+		visitLazyLoaded: Boolean = false,
+		visitUnlinked: Boolean = false,
+		maxDepth: Int = 10) {
 
 	import EntityRelationshipVisitor._
 
@@ -51,7 +51,7 @@ abstract class EntityRelationshipVisitor[R](
 					(ci, simple(ci, v))
 			}
 			else null
-			val r = createR(collected, entity, o)
+			val r = createR(collected.asInstanceOf[List[(ColumnInfoBase[Any, _], Any)]], entity, o)
 			if (r == null)
 				m.put(o, nullReplacement)
 			else

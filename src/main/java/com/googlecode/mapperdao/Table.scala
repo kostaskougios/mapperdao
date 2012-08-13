@@ -14,14 +14,20 @@ case class Table[PC, T](
 		name: String,
 		columnInfosPlain: List[ColumnInfoBase[T, _]],
 		extraColumnInfosPersisted: List[ColumnInfoBase[T with PC, _]],
-		val unusedPKs: List[UnusedColumn[T, _]]) {
+		val unusedPKColumnInfos: List[ColumnInfoBase[Any, Any]]) {
 
 	val columns: List[ColumnBase] = extraColumnInfosPersisted.map(_.column) ::: columnInfosPlain.map(_.column)
 	// the primary keys for this table
 	val primaryKeys: List[PK] = columns.collect {
 		case pk: PK => pk
 	}
-	val primaryKeysAndUnusedKeys = primaryKeys ::: unusedPKs.map(_.columns).flatten
+	val unusedPKs = unusedPKColumnInfos.map {
+		case ci: ColumnInfo[Any, Any] => List(ci.column)
+		case ci: ColumnInfoManyToOne[Any, Any, Any] => ci.column.columns
+		case ci: ColumnInfoTraversableOneToMany[Any, Any, Any] => ci.column.columns
+	}.flatten
+
+	val primaryKeysAndUnusedKeys = primaryKeys ::: unusedPKs
 	val primaryKeysSize = primaryKeysAndUnusedKeys.size
 
 	val primaryKeyColumnInfosForT = columnInfosPlain.collect {
@@ -112,18 +118,17 @@ case class Table[PC, T](
 	def toListOfPrimaryKeyAndValueTuples(o: T): List[(PK, Any)] = toListOfColumnAndValueTuples(primaryKeys, o)
 	def toListOfPrimaryKeySimpleColumnAndValueTuples(o: T): List[(SimpleColumn, Any)] = toListOfColumnAndValueTuples(primaryKeys, o)
 
-	val unusedPrimaryKeyColumns = unusedPKs.map(_.columns).flatten
-
-	def toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(o: T): List[(SimpleColumn, Any)] =
-		unusedPKs.map { u =>
-			u.ci match {
-				case ci: ColumnInfo[_, _] =>
+	def toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(o: Any): List[(SimpleColumn, Any)] =
+		unusedPKColumnInfos.map { ci =>
+			ci match {
+				case ci: ColumnInfo[Any, Any] =>
 					List((ci.column, ci.columnToValue(o)))
 				case ci: ColumnInfoManyToOne[Any, Any, Any] =>
 					val l = ci.columnToValue(o)
 					val fe = ci.column.foreign.entity
 					val pks = fe.tpe.table.toListOfPrimaryKeyValues(l)
 					ci.column.columns zip pks
+				case ci: ColumnInfoRelationshipBase[Any, Any, Any, Any] => Nil
 			}
 		}.flatten
 

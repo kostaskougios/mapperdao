@@ -26,13 +26,15 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				if (!table.primaryKeys.isEmpty) {
 					DuringUpdateResults.empty
 				} else {
-					val unusedPKArgs = table.unusedPKs.map { u =>
-						val co = oldValuesMap.valueOf[Any](u.ci)
-						u.ci match {
+					val unusedPKArgs = table.unusedPKColumnInfos.map { ci =>
+						val co = oldValuesMap.valueOf[Any](ci)
+						ci match {
 							case ci: ColumnInfo[T, Any] =>
 								List((ci.column, co))
 							case ci: ColumnInfoManyToOne[T, Any, Any] =>
-								u.columns zip ci.column.foreign.entity.tpe.table.toListOfPrimaryKeyValues(co)
+								ci.column.columns zip ci.column.foreign.entity.tpe.table.toListOfPrimaryKeyValues(co)
+							case ci: ColumnInfoTraversableOneToMany[Any, Any, Any] =>
+								Nil
 							case _ => NYI()
 						}
 					}.flatten

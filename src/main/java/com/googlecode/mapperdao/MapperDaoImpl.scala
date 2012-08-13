@@ -189,11 +189,11 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 				val pkArgs = oldValuesMap.toListOfSimpleColumnAndValueTuple(table.primaryKeys) ::: pluginDUR.keys
 
 				// we now need to take into account declarePrimaryKeys
-				val unused = if (table.unusedPrimaryKeyColumns.isEmpty)
+				val unused = if (table.unusedPKs.isEmpty)
 					Nil
 				else {
 					val alreadyUsed = pkArgs.map(_._1)
-					val uc = table.unusedPrimaryKeyColumns.filterNot(alreadyUsed.contains(_))
+					val uc = table.unusedPKs.filterNot(alreadyUsed.contains(_))
 					oldValuesMap.toListOfSimpleColumnAndValueTuple(uc)
 				}
 
@@ -340,14 +340,18 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 						Nil
 					else
 						(
-							(tpe.table.unusedPKs zip declared) map {
-								case (u, v) =>
-									u.ci match {
-										case ci: ColumnInfoRelationshipBase[PC, T, _, Any] =>
+							(tpe.table.unusedPKColumnInfos zip declared) map {
+								case (ci, v) =>
+									ci match {
+										case ci: ColumnInfoManyToOne[PC, T, Any] =>
 											val foreign = ci.column.foreign
 											val fentity = foreign.entity
 											val ftable = fentity.tpe.table
-											u.columns zip ftable.toListOfPrimaryKeyValues(v)
+											ci.column.columns zip ftable.toListOfPrimaryKeyValues(v)
+										case ci: ColumnInfoTraversableOneToMany[Any, Any, Any] =>
+											val fentity = ci.entityOfT
+											val ftable = fentity.tpe.table
+											ci.column.columns zip ftable.toListOfPrimaryKeyValues(v)
 										case _ => throw new IllegalArgumentException("Please use declarePrimaryKey only for relationships. For normal data please use key(). This occured for entity %s".format(entity.getClass))
 									}
 							}).flatten
@@ -380,7 +384,10 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			// calculate the id's for this tpe
 			val ids = table.primaryKeys.map { pk => jdbcMap(pk.name) } ::: selectBeforePlugins.map {
 				_.idContribution(tpe, jdbcMap, entities)
-			}.flatten ::: table.unusedPrimaryKeyColumns.collect { case c: SimpleColumn => jdbcMap(c.name) }
+			}.flatten ::: (table.unusedPKColumnInfos.collect {
+				case ci: ColumnInfoManyToOne[Any, Any, Any] =>
+					ci.column.columns.map(c => jdbcMap(c.name))
+			}.flatten)
 			if (ids.isEmpty)
 				throw new IllegalStateException("entity %s without primary key, please use declarePrimaryKeys() to declare the primary key columns of tables into your entity declaration")
 
