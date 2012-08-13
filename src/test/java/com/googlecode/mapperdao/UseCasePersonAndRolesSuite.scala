@@ -15,7 +15,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 @RunWith(classOf[JUnitRunner])
 class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 
-	if (Setup.database == "postgresql") {
+	if (Setup.database == "postgresql" || Setup.database == "h2") {
 		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(
 			TypeRegistry(
 				RoleTypeEntity,

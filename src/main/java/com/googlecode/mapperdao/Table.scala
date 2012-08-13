@@ -17,7 +17,7 @@ case class Table[PC, T](name: String, columnInfosPlain: List[ColumnInfoBase[T, _
 	val primaryKeys: List[PK] = columns.collect {
 		case pk: PK => pk
 	}
-	val primaryKeysSize = primaryKeys.size
+	val primaryKeysSize = (primaryKeys ::: unusedPKs.map(_.columns).flatten).size
 
 	val primaryKeyColumnInfosForT = columnInfosPlain.collect {
 		case ci @ ColumnInfo(_: PK, _, _) => ci
