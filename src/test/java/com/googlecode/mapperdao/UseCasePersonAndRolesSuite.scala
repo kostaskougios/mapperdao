@@ -78,6 +78,30 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 				)
 		)
 
+		test("crud") {
+			createTables()
+			val (role1, role2, role3) = persistRoles
+			val (inserted1, _) = people(role1, role2, role3)
+
+			val selected1 = mapperDao.select(PersonEntity, inserted1.id).get
+			selected1 should be === inserted1
+
+			val updated1 = mapperDao.update(
+				PersonEntity,
+				selected1,
+				Person("kostas.kougios", "kostas", "updated",
+					selected1.singlePartyRoles.filter(_.roleType == role2) +
+						SinglePartyRole(
+							role3,
+							Some(from),
+							Some(to)
+						)
+				)
+			)
+			val selectedAgain1 = mapperDao.select(PersonEntity, inserted1.id).get
+			selectedAgain1 should be === updated1
+		}
+
 		test("InterPartyRelationshipEntity") {
 			createTables()
 			val (role1, role2, role3) = persistRoles
@@ -184,30 +208,6 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 
 			// make sure we deleted only relevant data
 			mapperDao.select(PersonEntity, "some.other").get should be === person2
-		}
-
-		test("crud") {
-			createTables()
-			val (role1, role2, role3) = persistRoles
-			val (inserted1, _) = people(role1, role2, role3)
-
-			val selected1 = mapperDao.select(PersonEntity, inserted1.id).get
-			selected1 should be === inserted1
-
-			val updated1 = mapperDao.update(
-				PersonEntity,
-				selected1,
-				Person("kostas.kougios", "kostas", "updated",
-					selected1.singlePartyRoles.filter(_.roleType == role2) +
-						SinglePartyRole(
-							role3,
-							Some(from),
-							Some(to)
-						)
-				)
-			)
-			val selectedAgain1 = mapperDao.select(PersonEntity, inserted1.id).get
-			selectedAgain1 should be === updated1
 		}
 
 		test("querying") {

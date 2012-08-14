@@ -134,6 +134,7 @@ case class Table[PC, T](
 							ci.column.columns map { c =>
 								(c, p.mapperDaoValuesMap.columnValue[Any](c))
 							}
+						case _ => Nil
 					}
 
 				case ci: ColumnInfoRelationshipBase[Any, Any, Any, Any] => Nil
