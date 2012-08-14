@@ -166,7 +166,12 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		}.flatten
 
 		val unused = table.unusedPKs.map { pk =>
-			(pk.name, j(pk.name))
+			val v = j(pk.name)
+
+			(
+				pk.name,
+				corrections(pk.tpe)(v)
+			)
 		}
 		val dm = sts ::: ecil ::: related ::: unused
 		new DatabaseValues(ListMap.empty ++ dm)

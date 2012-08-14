@@ -14,20 +14,20 @@ import org.scalatest.matchers.ShouldMatchers
 class DeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, PriceEntity))
 
-	test("entity without PK's remove all items from collection") {
+	test("entity without PK's remove 2 items from collection") {
 		createTables
 		val p = mapperDao.insert(ProductEntity, Product("x", Set(Price("GBP", 5, 7), Price("EUR", 5, 6), Price("EUR", 7, 8), Price("USD", 9, 10))))
-		val newP = new Product(p.title, Set())
+		val newP = new Product(p.title, p.prices.filterNot(_.currency == "EUR"))
 		val updated = mapperDao.update(ProductEntity, p, newP)
 		updated should be === newP
 		val loaded = mapperDao.select(ProductEntity, updated.id).get
 		loaded should be === updated
 	}
 
-	test("entity without PK's remove 2 items from collection") {
+	test("entity without PK's remove all items from collection") {
 		createTables
 		val p = mapperDao.insert(ProductEntity, Product("x", Set(Price("GBP", 5, 7), Price("EUR", 5, 6), Price("EUR", 7, 8), Price("USD", 9, 10))))
-		val newP = new Product(p.title, p.prices.filterNot(_.currency == "EUR"))
+		val newP = new Product(p.title, Set())
 		val updated = mapperDao.update(ProductEntity, p, newP)
 		updated should be === newP
 		val loaded = mapperDao.select(ProductEntity, updated.id).get
@@ -94,7 +94,6 @@ class DeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 		// the unitprice doesn't make sense to be a PK, but we have it so that we can do extra tests
 		declarePrimaryKey(currency)
 		declarePrimaryKey(unitPrice)
-		//val pks = declarePrimaryKeys("currency", "product_id", "unitprice")
 
 		def constructor(implicit m) = new Price(currency, unitPrice, salePrice) with Persisted
 	}
