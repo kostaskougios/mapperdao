@@ -93,6 +93,28 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			reloaded should be === updated
 		}
 
+		test("SinglePartyRoleEntity from a query") {
+			createTables()
+			val (role1, role2, role3) = persistRoles
+			val (person1, person2) = people(role1, role2, role3)
+
+			import Query._
+			val l = (
+				select
+				from pe
+				join (pe, pe.singlePartyRoles, spr)
+				where spr.roleType === role2
+			).toList(queryDao)
+			l.size should be === 1
+			val spr1 = l.head.singlePartyRoles.filter(_.roleType == role1).head
+
+			val upd = spr1.copy(roleType = role3)
+			val updated = mapperDao.update(SinglePartyRoleEntity, spr1, upd)
+			updated should be === upd
+			val reloaded = mapperDao.select(SinglePartyRoleEntity, role3, person1).get
+			reloaded should be === updated
+		}
+
 		test("InterPartyRelationshipEntity") {
 			createTables()
 			val (role1, role2, role3) = persistRoles
@@ -277,7 +299,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 		val toDate = column("toDate") option (_.toDate)
 
 		declarePrimaryKey(roleType)
-		declarePrimaryKey(PersonEntity.singlePartyRoles)
+		val person = declarePrimaryKey(PersonEntity.singlePartyRoles)
 
 		def constructor(implicit m: ValuesMap) = new SinglePartyRole(roleType, fromDate, toDate) with Persisted
 	}
