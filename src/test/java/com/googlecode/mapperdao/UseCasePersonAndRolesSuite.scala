@@ -86,10 +86,10 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			val spr1 = mapperDao.select(SinglePartyRoleEntity, role1, person1).get
 			Set(spr1) should be === person1.singlePartyRoles.filter(_.roleType == role1)
 
-			val upd = spr1.copy(roleType = role2)
+			val upd = spr1.copy(roleType = role3)
 			val updated = mapperDao.update(SinglePartyRoleEntity, spr1, upd)
 			updated should be === upd
-			val reloaded = mapperDao.select(SinglePartyRoleEntity, role2, person1).get
+			val reloaded = mapperDao.select(SinglePartyRoleEntity, role3, person1).get
 			reloaded should be === updated
 		}
 

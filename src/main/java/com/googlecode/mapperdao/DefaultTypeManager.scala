@@ -164,7 +164,11 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 			case ci: ColumnInfoOneToOne[T, _, _] =>
 				columnToCorrectedValue(ci.column, ci.column.foreign, j)
 		}.flatten
-		val dm = sts ::: ecil ::: related
+
+		val unused = table.unusedPKs.map { pk =>
+			(pk.name, j(pk.name))
+		}
+		val dm = sts ::: ecil ::: related ::: unused
 		new DatabaseValues(ListMap.empty ++ dm)
 	}
 
