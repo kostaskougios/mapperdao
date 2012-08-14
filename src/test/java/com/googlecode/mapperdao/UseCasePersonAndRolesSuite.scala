@@ -78,7 +78,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 				)
 		)
 
-		test("SinglePartyRoleEntity") {
+		test("SinglePartyRoleEntity RUD") {
 			createTables()
 			val (role1, role2, role3) = persistRoles
 			val (person1, person2) = people(role1, role2, role3)
@@ -91,9 +91,15 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			updated should be === upd
 			val reloaded = mapperDao.select(SinglePartyRoleEntity, role3, person1).get
 			reloaded should be === updated
+
+			mapperDao.delete(SinglePartyRoleEntity, reloaded)
+			mapperDao.select(SinglePartyRoleEntity, role3, person1) should be(None)
+
+			// make sure we deleted only relevant data
+			mapperDao.select(PersonEntity, "some.other").get should be === person2
 		}
 
-		test("SinglePartyRoleEntity from a query") {
+		test("SinglePartyRoleEntity from a query, UD") {
 			createTables()
 			val (role1, role2, role3) = persistRoles
 			val (person1, person2) = people(role1, role2, role3)
@@ -113,6 +119,11 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			updated should be === upd
 			val reloaded = mapperDao.select(SinglePartyRoleEntity, role3, person1).get
 			reloaded should be === updated
+			mapperDao.delete(SinglePartyRoleEntity, reloaded)
+			mapperDao.select(SinglePartyRoleEntity, role3, person1) should be(None)
+
+			// make sure we deleted only relevant data
+			mapperDao.select(PersonEntity, "some.other").get should be === person2
 		}
 
 		test("InterPartyRelationshipEntity") {

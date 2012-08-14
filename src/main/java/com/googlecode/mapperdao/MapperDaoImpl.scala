@@ -496,7 +496,10 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 				)
 
 				val unusedPKColumns = table.unusedPKs.filterNot(unusedColumn => keyValues0.map(_._1).contains(unusedColumn))
-				val keyValues = keyValues0 ::: table.toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(o)
+				val unused = unusedPKColumns.map { c =>
+					(c, persisted.mapperDaoValuesMap.columnValue[Any](c))
+				}
+				val keyValues = keyValues0 ::: unused ::: table.toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(o)
 				// call all the before-delete plugins
 				beforeDeletePlugins.foreach {
 					_.before(entity, deleteConfig, events, persisted, keyValues, entityMap)
