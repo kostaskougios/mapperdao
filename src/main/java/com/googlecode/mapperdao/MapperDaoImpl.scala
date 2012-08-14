@@ -382,12 +382,13 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			val tpe = entity.tpe
 			val table = tpe.table
 			// calculate the id's for this tpe
-			val ids = table.primaryKeys.map { pk => jdbcMap(pk.name) } ::: selectBeforePlugins.map {
+			val pkIds = table.primaryKeys.map { pk => jdbcMap(pk.name) } ::: selectBeforePlugins.map {
 				_.idContribution(tpe, jdbcMap, entities)
-			}.flatten ::: (table.unusedPKColumnInfos.collect {
-				case ci: ColumnInfoManyToOne[Any, Any, Any] =>
-					ci.column.columns.map(c => jdbcMap(c.name))
-			}.flatten)
+			}.flatten
+			val unusedIds = table.unusedPKs.map { pk =>
+				jdbcMap(pk.name)
+			}
+			val ids = pkIds ::: unusedIds
 			if (ids.isEmpty)
 				throw new IllegalStateException("entity %s without primary key, please use declarePrimaryKeys() to declare the primary key columns of tables into your entity declaration")
 

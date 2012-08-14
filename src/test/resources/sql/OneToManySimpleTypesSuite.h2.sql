@@ -8,7 +8,8 @@ create table Product (
 create table ProductTags (
 	product_id int not null,
 	tag varchar(30) not null,
-	foreign key (product_id) references Product(id) on delete cascade
+	foreign key (product_id) references Product(id) on delete cascade,
+	primary key (tag,product_id)
 )
 
 [create-tables-int]

@@ -18,18 +18,18 @@ class OneToManySimpleTypesSuite extends FunSuite with ShouldMatchers {
 	val typeRegistry = TypeRegistry(ProductEntity, ProductEntityI)
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(typeRegistry)
 
-	test("insert") {
-		createTables("create-tables-string")
-		val product = Product("test", Set("tag1", "tag2", "tag3"))
-		val inserted = mapperDao.insert(ProductEntity, product)
-		inserted should be === product
-	}
-
 	test("select") {
 		createTables("create-tables-string")
 		val product = Product("test", Set("tag1", "tag2", "tag3"))
 		val inserted = mapperDao.insert(ProductEntity, product)
 		mapperDao.select(ProductEntity, inserted.id).get should be === product
+	}
+
+	test("insert") {
+		createTables("create-tables-string")
+		val product = Product("test", Set("tag1", "tag2", "tag3"))
+		val inserted = mapperDao.insert(ProductEntity, product)
+		inserted should be === product
 	}
 
 	test("update, remove") {
