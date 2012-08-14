@@ -1,5 +1,4 @@
 [ddl]
-
 CREATE TABLE person
 (
   id varchar(40) NOT NULL,

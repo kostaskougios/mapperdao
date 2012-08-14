@@ -180,7 +180,7 @@
 			<plugin>
 				<groupId>net.alchim31.maven</groupId>
 				<artifactId>scala-maven-plugin</artifactId>
-				<version>3.0.2</version>
+				<version>3.0.1</version>
 				<configuration>
 					<scalaVersion>${scala.version}</scalaVersion>
 					<args>

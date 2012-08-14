@@ -27,6 +27,11 @@ case class Table[PC, T](
 		case ci: ColumnInfoTraversableOneToMany[Any, Any, Any] => ci.column.columns
 	}.flatten
 
+	val unusedInTablePKs = unusedPKColumnInfos.map {
+		case ci: ColumnInfo[Any, Any] => List(ci.column)
+		case ci: ColumnInfoManyToOne[Any, Any, Any] => ci.column.columns
+	}.flatten
+
 	val primaryKeysAndUnusedKeys = primaryKeys ::: unusedPKs
 	val primaryKeysSize = primaryKeysAndUnusedKeys.size
 
