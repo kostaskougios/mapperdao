@@ -162,6 +162,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 				where ipr.from === person2 and ipr.to === person1
 			).toSet(queryDao) should be === Set(ipr2)
 		}
+
 		test("SinglePartyRoleEntity RUD") {
 			createTables()
 			val (role1, role2, role3) = persistRoles
@@ -309,7 +310,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 		val toDate = column("toDate") option (_.toDate)
 
 		declarePrimaryKey(roleType)
-		val person = declarePrimaryKey(PersonEntity.singlePartyRoles)
+		declarePrimaryKey(PersonEntity.singlePartyRoles)
 
 		def constructor(implicit m: ValuesMap) = new SinglePartyRole(roleType, fromDate, toDate) with Persisted
 	}
