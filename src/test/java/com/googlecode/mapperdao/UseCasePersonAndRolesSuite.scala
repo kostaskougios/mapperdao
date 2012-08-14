@@ -78,54 +78,6 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 				)
 		)
 
-		test("SinglePartyRoleEntity RUD") {
-			createTables()
-			val (role1, role2, role3) = persistRoles
-			val (person1, person2) = people(role1, role2, role3)
-
-			val spr1 = mapperDao.select(SinglePartyRoleEntity, role1, person1).get
-			Set(spr1) should be === person1.singlePartyRoles.filter(_.roleType == role1)
-
-			val upd = spr1.copy(roleType = role3)
-			val updated = mapperDao.update(SinglePartyRoleEntity, spr1, upd)
-			updated should be === upd
-			val reloaded = mapperDao.select(SinglePartyRoleEntity, role3, person1).get
-			reloaded should be === updated
-
-			mapperDao.delete(SinglePartyRoleEntity, reloaded)
-			mapperDao.select(SinglePartyRoleEntity, role3, person1) should be(None)
-
-			// make sure we deleted only relevant data
-			mapperDao.select(PersonEntity, "some.other").get should be === person2
-		}
-
-		test("SinglePartyRoleEntity from a query, UD") {
-			createTables()
-			val (role1, role2, role3) = persistRoles
-			val (person1, person2) = people(role1, role2, role3)
-
-			import Query._
-			val l = (
-				select
-				from pe
-				join (pe, pe.singlePartyRoles, spr)
-				where spr.roleType === role2
-			).toList(queryDao)
-			l.size should be === 1
-			val spr1 = l.head.singlePartyRoles.filter(_.roleType == role1).head
-
-			val upd = spr1.copy(roleType = role3)
-			val updated = mapperDao.update(SinglePartyRoleEntity, spr1, upd)
-			updated should be === upd
-			val reloaded = mapperDao.select(SinglePartyRoleEntity, role3, person1).get
-			reloaded should be === updated
-			mapperDao.delete(SinglePartyRoleEntity, reloaded)
-			mapperDao.select(SinglePartyRoleEntity, role3, person1) should be(None)
-
-			// make sure we deleted only relevant data
-			mapperDao.select(PersonEntity, "some.other").get should be === person2
-		}
-
 		test("InterPartyRelationshipEntity") {
 			createTables()
 			val (role1, role2, role3) = persistRoles
@@ -185,6 +137,53 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 				from ipr
 				where ipr.from === person2 and ipr.to === person1
 			).toSet(queryDao) should be === Set(ipr2)
+		}
+		test("SinglePartyRoleEntity RUD") {
+			createTables()
+			val (role1, role2, role3) = persistRoles
+			val (person1, person2) = people(role1, role2, role3)
+
+			val spr1 = mapperDao.select(SinglePartyRoleEntity, role1, person1).get
+			Set(spr1) should be === person1.singlePartyRoles.filter(_.roleType == role1)
+
+			val upd = spr1.copy(roleType = role3)
+			val updated = mapperDao.update(SinglePartyRoleEntity, spr1, upd)
+			updated should be === upd
+			val reloaded = mapperDao.select(SinglePartyRoleEntity, role3, person1).get
+			reloaded should be === updated
+
+			mapperDao.delete(SinglePartyRoleEntity, reloaded)
+			mapperDao.select(SinglePartyRoleEntity, role3, person1) should be(None)
+
+			// make sure we deleted only relevant data
+			mapperDao.select(PersonEntity, "some.other").get should be === person2
+		}
+
+		test("SinglePartyRoleEntity from a query, UD") {
+			createTables()
+			val (role1, role2, role3) = persistRoles
+			val (person1, person2) = people(role1, role2, role3)
+
+			import Query._
+			val l = (
+				select
+				from pe
+				join (pe, pe.singlePartyRoles, spr)
+				where spr.roleType === role2
+			).toList(queryDao)
+			l.size should be === 1
+			val spr1 = l.head.singlePartyRoles.filter(_.roleType == role1).head
+
+			val upd = spr1.copy(roleType = role3)
+			val updated = mapperDao.update(SinglePartyRoleEntity, spr1, upd)
+			updated should be === upd
+			val reloaded = mapperDao.select(SinglePartyRoleEntity, role3, person1).get
+			reloaded should be === updated
+			mapperDao.delete(SinglePartyRoleEntity, reloaded)
+			mapperDao.select(SinglePartyRoleEntity, role3, person1) should be(None)
+
+			// make sure we deleted only relevant data
+			mapperDao.select(PersonEntity, "some.other").get should be === person2
 		}
 
 		test("crud") {

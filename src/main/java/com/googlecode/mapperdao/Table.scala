@@ -128,6 +128,14 @@ case class Table[PC, T](
 					val fe = ci.column.foreign.entity
 					val pks = fe.tpe.table.toListOfPrimaryKeyValues(l)
 					ci.column.columns zip pks
+				case ci: ColumnInfoTraversableOneToMany[Any, Any, Any] =>
+					o match {
+						case p: Persisted =>
+							ci.column.columns map { c =>
+								(c, p.mapperDaoValuesMap.columnValue[Any](c))
+							}
+					}
+
 				case ci: ColumnInfoRelationshipBase[Any, Any, Any, Any] => Nil
 			}
 		}.flatten

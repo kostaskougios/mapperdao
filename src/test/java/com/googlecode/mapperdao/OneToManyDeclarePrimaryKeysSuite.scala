@@ -16,6 +16,19 @@ class OneToManyDeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 	if (Setup.database == "h2") {
 		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(HouseEntity, PersonEntity))
 
+		test("update, remove") {
+			createTables()
+			val SW = mapperDao.insert(PostCodeEntity, PostCode("SW"))
+			val SE = mapperDao.insert(PostCodeEntity, PostCode("SE"))
+
+			val inserted = mapperDao.insert(PersonEntity, Person("kostas", Set(House("address1", SW), House("address2", SE))))
+			val u = Person("kostas updated", inserted.owns - House("address2", SE))
+			val updated = mapperDao.update(PersonEntity, inserted, u)
+			updated should be === u
+
+			mapperDao.select(PersonEntity, inserted.id).get should be === updated
+		}
+
 		test("update, update") {
 			createTables()
 			val SW = mapperDao.insert(PostCodeEntity, PostCode("SW"))
@@ -42,19 +55,6 @@ class OneToManyDeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 			val SE = mapperDao.insert(PostCodeEntity, PostCode("SE"))
 			val inserted = mapperDao.insert(PersonEntity, Person("kostas", Set(House("address1", SW))))
 			val u = Person("kostas updated", inserted.owns + House("address2", SE))
-			val updated = mapperDao.update(PersonEntity, inserted, u)
-			updated should be === u
-
-			mapperDao.select(PersonEntity, inserted.id).get should be === updated
-		}
-
-		test("update, remove") {
-			createTables()
-			val SW = mapperDao.insert(PostCodeEntity, PostCode("SW"))
-			val SE = mapperDao.insert(PostCodeEntity, PostCode("SE"))
-
-			val inserted = mapperDao.insert(PersonEntity, Person("kostas", Set(House("address1", SW), House("address2", SE))))
-			val u = Person("kostas updated", inserted.owns - House("address2", SE))
 			val updated = mapperDao.update(PersonEntity, inserted, u)
 			updated should be === u
 
