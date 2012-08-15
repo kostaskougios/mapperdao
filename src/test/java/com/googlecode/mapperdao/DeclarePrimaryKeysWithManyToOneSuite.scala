@@ -52,6 +52,38 @@ class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with ShouldMatchers 
 		mapperDao.select(LinkedPeopleEntity, p2, p3).get should be === lp2Inserted
 	}
 
+	test("queries") {
+		createTables()
+
+		val p1 = mapperDao.insert(PersonEntity, person1)
+		val p2 = mapperDao.insert(PersonEntity, person2)
+		val p3 = mapperDao.insert(PersonEntity, person3)
+
+		val lp1 = mapperDao.insert(LinkedPeopleEntity, LinkedPeople(p1, p2, "these like each other"))
+		val lp2 = mapperDao.insert(LinkedPeopleEntity, LinkedPeople(p2, p3, "p2 likes p3"))
+		val lp3 = mapperDao.insert(LinkedPeopleEntity, LinkedPeople(p1, p3, "p1 likes p3 too"))
+
+		import Query._
+		val lpe = LinkedPeopleEntity
+		(
+			select
+			from lpe
+			where lpe.from === p1
+		).toSet(queryDao) should be === Set(lp1, lp3)
+		(
+			select
+			from lpe
+			where lpe.to === p3
+		).toSet(queryDao) should be === Set(lp2, lp3)
+
+		(
+			select
+			from lpe
+			where lpe.from === p1 and lpe.to === p3
+		).toSet(queryDao) should be === Set(lp3)
+
+	}
+
 	def createTables() {
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
