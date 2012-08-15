@@ -50,7 +50,7 @@ class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 							}
 							val columns = cis.column.columns.filterNot(c => table.primaryKeysAsColumns.contains(c))
 							if (!columns.isEmpty && columns.size != cis.column.columns.size) throw new IllegalStateException("only some of the primary keys were declared for %s, and those primary keys overlap manyToOne relationship declaration".format(tpe))
-							extraArgs :::= columns zip ftpe.table.toListOfPrimaryKeyValues(v)
+							extraArgs = extraArgs ::: (columns zip ftpe.table.toListOfPrimaryKeyValues(v))
 							v
 						} else null
 						modified(cis.column.alias) = v
