@@ -14,13 +14,38 @@ import com.googlecode.mapperdao.jdbc.Setup
  */
 @RunWith(classOf[JUnitRunner])
 class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with ShouldMatchers {
+	val LinkedPeopleEntity = PersonEntity.LinkedPeopleEntity
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, LinkedPeopleEntity))
 
 	val person1 = Person("person1@example.com", "Mr Person One")
 	val person2 = Person("person2@example.com", "Mrs Person Two")
 	val person3 = Person("person3@example.com", "Mr Person Three")
 
-	test("crud") {
+	test("crud on PersonEntity") {
+		createTables()
+		val p1 = mapperDao.insert(PersonEntity, person1)
+		val p2 = mapperDao.insert(PersonEntity, person2)
+		val p3 = mapperDao.insert(PersonEntity, person3)
+
+		// noise
+		val p2updated = mapperDao.update(PersonEntity, p2, p2.copy(linked = Set(LinkedPeople(p2, p1, "p2 likes p1"), LinkedPeople(p2, p2, "p2 likes self"))))
+
+		val upd = p3.copy(linked = Set(LinkedPeople(p3, p2, "p3 likes p2")))
+		val updated = mapperDao.update(PersonEntity, p3, upd)
+		updated should be === upd
+
+		val selected = mapperDao.select(PersonEntity, person3.email).get
+		selected should be === updated
+		selected.linked should be === updated.linked // please see Person.equals as why this is necessary
+
+		mapperDao.delete(PersonEntity, selected)
+
+		val p2selected = mapperDao.select(PersonEntity, person2.email).get
+		p2selected should be === p2updated
+		p2selected.linked should be === p2updated.linked
+	}
+
+	test("crud straight on LinkedPeopleEntity") {
 		createTables()
 
 		val p1 = mapperDao.insert(PersonEntity, person1)
@@ -89,21 +114,34 @@ class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with ShouldMatchers 
 		Setup.queries(this, jdbc).update("ddl")
 	}
 
-	case class Person(email: String, name: String)
+	case class Person(email: String, name: String, linked: Set[LinkedPeople] = Set()) {
+		// for this test, we match only against email and name
+		override def equals(o: Any) = o match {
+			case Person(e, n, _) =>
+				email == e && name == n
+			case _ => false
+		}
+
+		override def hashCode = name.hashCode
+	}
 	case class LinkedPeople(from: Person, to: Person, note: String)
 
 	object PersonEntity extends SimpleEntity[Person] {
+
 		val email = key("email") to (_.email)
 		val name = column("name") to (_.name)
 
+		val LinkedPeopleEntity = new LinkedPeopleEntityDecl(this) // avoid the cyclic stack overflow
+		val linked = onetomany(LinkedPeopleEntity) foreignkey ("from_id") to (_.linked)
+
 		def constructor(implicit m: ValuesMap) = {
-			new Person(email, name) with Persisted
+			new Person(email, name, linked) with Persisted
 		}
 	}
 
-	object LinkedPeopleEntity extends SimpleEntity[LinkedPeople] {
-		val from = manytoone(PersonEntity) foreignkey ("from_id") to (_.from)
-		val to = manytoone(PersonEntity) foreignkey ("to_id") to (_.to)
+	class LinkedPeopleEntityDecl(pe: PersonEntity.type) extends SimpleEntity[LinkedPeople] {
+		val from = manytoone(pe) foreignkey ("from_id") to (_.from)
+		val to = manytoone(pe) foreignkey ("to_id") to (_.to)
 		val note = column("note") to (_.note)
 
 		declarePrimaryKey(from)
