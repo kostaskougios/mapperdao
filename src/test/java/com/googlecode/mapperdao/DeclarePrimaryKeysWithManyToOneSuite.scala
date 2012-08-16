@@ -20,29 +20,49 @@ class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with ShouldMatchers 
 	val person1 = Person("person1@example.com", "Mr Person One")
 	val person2 = Person("person2@example.com", "Mrs Person Two")
 	val person3 = Person("person3@example.com", "Mr Person Three")
+	val person4 = Person("person4@example.com", "Mr Person Four")
 
 	test("crud on PersonEntity") {
 		createTables()
 		val p1 = mapperDao.insert(PersonEntity, person1)
 		val p2 = mapperDao.insert(PersonEntity, person2)
 		val p3 = mapperDao.insert(PersonEntity, person3)
+		val p4 = mapperDao.insert(PersonEntity, person4)
 
 		// noise
-		val p2updated = mapperDao.update(PersonEntity, p2, p2.copy(linked = Set(LinkedPeople(p2, p1, "p2 likes p1"), LinkedPeople(p2, p2, "p2 likes self"))))
+		val p2updated = mapperDao.update(PersonEntity, p2,
+			p2.copy(
+				linked = Set(
+					LinkedPeople(p2, p1, "p2 likes p1")
+				),
+				linkedToMe = Set(
+					LinkedPeople(p4, p2, "p4 likes p2")
+				)
+			)
+		)
 
-		val upd = p3.copy(linked = Set(LinkedPeople(p3, p2, "p3 likes p2")))
+		val upd = p3.copy(
+			linked = Set(
+				LinkedPeople(p3, p2, "p3 likes p2")
+			),
+			linkedToMe = Set(
+				LinkedPeople(p4, p3, "p4 likes p3")
+			)
+		)
 		val updated = mapperDao.update(PersonEntity, p3, upd)
 		updated should be === upd
 
 		val selected = mapperDao.select(PersonEntity, person3.email).get
 		selected should be === updated
 		selected.linked should be === updated.linked // please see Person.equals as why this is necessary
+		selected.linkedToMe should be === updated.linkedToMe
 
 		mapperDao.delete(PersonEntity, selected)
 
 		val p2selected = mapperDao.select(PersonEntity, person2.email).get
 		p2selected should be === p2updated
 		p2selected.linked should be === p2updated.linked
+		p2selected.linkedToMe should be === p2updated.linkedToMe
 	}
 
 	test("crud straight on LinkedPeopleEntity") {
@@ -114,10 +134,12 @@ class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with ShouldMatchers 
 		Setup.queries(this, jdbc).update("ddl")
 	}
 
-	case class Person(email: String, name: String, linked: Set[LinkedPeople] = Set()) {
+	case class Person(email: String, name: String,
+			linked: Set[LinkedPeople] = Set(),
+			linkedToMe: Set[LinkedPeople] = Set()) {
 		// for this test, we match only against email and name
 		override def equals(o: Any) = o match {
-			case Person(e, n, _) =>
+			case Person(e, n, _, _) =>
 				email == e && name == n
 			case _ => false
 		}
@@ -133,9 +155,10 @@ class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with ShouldMatchers 
 
 		val LinkedPeopleEntity = new LinkedPeopleEntityDecl(this) // avoid the cyclic stack overflow
 		val linked = onetomany(LinkedPeopleEntity) foreignkey ("from_id") to (_.linked)
+		val linkedToMe = onetomany(LinkedPeopleEntity) foreignkey ("to_id") to (_.linkedToMe)
 
 		def constructor(implicit m: ValuesMap) = {
-			new Person(email, name, linked) with Persisted
+			new Person(email, name, linked, linkedToMe) with Persisted
 		}
 	}
 
