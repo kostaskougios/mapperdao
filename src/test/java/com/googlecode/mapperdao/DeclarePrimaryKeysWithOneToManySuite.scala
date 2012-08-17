@@ -54,6 +54,13 @@ class DeclarePrimaryKeysWithOneToManySuite extends FunSuite with ShouldMatchers 
 				LinkedPeople(p2, "good chap this p2"),
 				LinkedPeople(p3, "hi p3")
 			)
+		(
+			select
+			from lpe
+			where lpe.from === p2
+		).toSet(queryDao) should be === Set(
+				LinkedPeople(p3, "I like p3")
+			)
 	}
 
 	test("rud") {
