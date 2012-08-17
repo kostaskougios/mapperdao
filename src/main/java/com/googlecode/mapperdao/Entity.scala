@@ -116,8 +116,9 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	 * to avoid StackOverflow exceptions due to cyclic-referenced entities, we pass
 	 * this as by-name param
 	 */
-	protected def declarePrimaryKey[F, V](ci: => ColumnInfoTraversableOneToMany[F, _, V]) {
+	protected def declarePrimaryKey[F](ci: => ColumnInfoTraversableOneToMany[F, PC, T]) = {
 		unusedPKs(() => ci.asInstanceOf[ColumnInfoBase[Any, Any]])
+		new ColumnInfoTraversableOneToManyDeclaredPrimaryKey(ci)
 	}
 
 	// implicit conversions to be used implicitly into the constructor method.

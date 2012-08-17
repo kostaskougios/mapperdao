@@ -16,6 +16,8 @@ class DeclarePrimaryKeysWithOneToManySuite extends FunSuite with ShouldMatchers 
 	val LinkedPeopleEntity = PersonEntity.LinkedPeopleEntity
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, LinkedPeopleEntity))
 
+	val lpe = LinkedPeopleEntity
+
 	def testData = {
 		val person1 = Person("person1@m.com", "Person One", Set())
 		val person2 = Person("person2@m.com", "Person Two", Set())
@@ -37,6 +39,21 @@ class DeclarePrimaryKeysWithOneToManySuite extends FunSuite with ShouldMatchers 
 		))
 
 		(p1u, p2u, p3)
+	}
+
+	test("query") {
+		createTables()
+		val (p1, p2, p3) = testData
+
+		import Query._
+		(
+			select
+			from lpe
+			where lpe.from === p1
+		).toSet(queryDao) should be === Set(
+				LinkedPeople(p2, "good chap this p2"),
+				LinkedPeople(p3, "hi p3")
+			)
 	}
 
 	test("rud") {
@@ -91,7 +108,7 @@ class DeclarePrimaryKeysWithOneToManySuite extends FunSuite with ShouldMatchers 
 		val to = manytoone(pe) foreignkey ("to_id") to (_.to)
 		val note = column("note") to (_.note)
 
-		declarePrimaryKey(PersonEntity.linked)
+		val from = declarePrimaryKey(PersonEntity.linked)
 		declarePrimaryKey(to)
 
 		def constructor(implicit m: ValuesMap) =

@@ -149,6 +149,9 @@ object QueryDao {
 					entity.persistedColumns.foreach { ci =>
 						aliases.put(ci.column, v)
 					}
+					entity.tpe.table.unusedPKs.foreach { c =>
+						aliases.put(c, v)
+					}
 					v
 				}
 			}

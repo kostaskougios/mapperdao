@@ -90,6 +90,15 @@ object Query {
 	}
 	implicit def columnInfoOneToManyOperation[T, FPC, F](ci: ColumnInfoTraversableOneToMany[T, FPC, F]) = new ConvertorOneToMany[T, FPC, F](ci)
 
+	protected class ConvertorOneToManyDeclaredPrimaryKey[F, TPC, T](
+			ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[F, TPC, T]) {
+		def ===(v: F) = new OneToManyDeclaredPrimaryKeyOperation(ci.declaredColumnInfo.column, EQ(), v, ci.declaredColumnInfo.entityOfT)
+		def <>(v: F) = new OneToManyDeclaredPrimaryKeyOperation(ci.declaredColumnInfo.column, NE(), v, ci.declaredColumnInfo.entityOfT)
+	}
+	implicit def columnInfoOneToManyForDeclaredPrimaryKeyOperation[F, TPC, T](
+		ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[F, TPC, T]) =
+		new ConvertorOneToManyDeclaredPrimaryKey[F, TPC, T](ci)
+
 	/**
 	 * manages many-to-many expressions
 	 */
@@ -300,6 +309,16 @@ case class OneToManyOperation[FPC, F, V](left: OneToMany[FPC, F], operand: Opera
 	if (right == null) throw new NullPointerException("Value can't be null in one-to-many FK queries. Expression was on %s.".format(left))
 	override def toString = "%s %s %s".format(left, operand, right)
 }
+
+case class OneToManyDeclaredPrimaryKeyOperation[FPC, F, T](
+		left: OneToMany[FPC, F],
+		operand: Operand,
+		right: T,
+		entityOfT: Entity[_, T]) extends OpBase {
+	if (right == null) throw new NullPointerException("Value can't be null in one-to-many FK queries. Expression was on %s.".format(left))
+	override def toString = "%s %s %s".format(left, operand, right)
+}
+
 case class ManyToManyOperation[FPC, F, V](left: ManyToMany[FPC, F], operand: Operand, right: V) extends OpBase {
 	if (right == null) throw new NullPointerException("Value can't be null in many-to-many FK queries. Expression was on %s.".format(left))
 	override def toString = "%s %s %s".format(left, operand, right)
