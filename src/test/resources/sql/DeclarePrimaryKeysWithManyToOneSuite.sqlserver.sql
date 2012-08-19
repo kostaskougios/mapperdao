@@ -11,5 +11,19 @@ create table LinkedPeople (
 	note varchar(100),
 	primary key (from_id,to_id),
 	constraint FK_LinkedPeople_From foreign key (from_id) references Person(email) on delete cascade,
-	constraint FK_LinkedPeople_To foreign key (to_id) references Person(email) 
+	constraint FK_LinkedPeople_To foreign key (to_id) references Person(email)
 )
+;
+create trigger LinkedPeople_TO
+on Person
+instead of delete
+as
+begin
+	DELETE	
+	FROM Linkedpeople
+	where to_id in (select email from deleted)
+
+	DELETE	
+	FROM Person
+	where email in (select email from deleted)
+end
