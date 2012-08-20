@@ -91,7 +91,6 @@ class DeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 		val currency = column("currency") to (_.currency)
 		val unitPrice = column("unitprice") to (_.unitPrice)
 		val salePrice = column("saleprice") to (_.salePrice)
-		// the unitprice doesn't make sense to be a PK, but we have it so that we can do extra tests
 		declarePrimaryKey(currency)
 		declarePrimaryKey(unitPrice)
 
