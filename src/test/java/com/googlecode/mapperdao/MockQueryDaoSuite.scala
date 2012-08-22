@@ -28,6 +28,7 @@ class MockQueryDaoSuite extends FunSuite with ShouldMatchers {
 			override def query[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]): List[T with PC] = {
 				results.asInstanceOf[List[T with PC]]
 			}
+			override def lowLevelQuery[PC, T](queryConfig: QueryConfig, entity: Entity[PC, T], sql: String, args: List[Any]) = Nil
 		}
 
 		// the test

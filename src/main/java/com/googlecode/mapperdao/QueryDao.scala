@@ -19,7 +19,7 @@ import com.googlecode.mapperdao.drivers.Driver
  *
  */
 trait QueryDao {
-	val defaultQueryConfig = QueryConfig()
+	val defaultQueryConfig = QueryConfig.default
 
 	/**
 	 * runs a query and retuns a list of entities.
@@ -110,6 +110,55 @@ trait QueryDao {
 		else l.headOption
 	}
 
+	/**
+	 * low level query where client code provides the sql and a list of arguments.
+	 *
+	 * Please note: Don't use this, better use the Query DSL. Use this method only
+	 * if the query dsl doesn't provide the flexibility that is needed.
+	 *
+	 * @params	entity				the entity that the query is for, i.e. ProductEntity
+	 * @params	sql					the sql to execute. This must be in the form of
+	 * 								prepared statement and fetch only the columns needed
+	 * 								by the entity. Examples:
+	 *
+	 * 								select * from attribute where name=?
+	 *
+	 * 								select p.*
+	 * 								from product p
+	 * 								inner join product_attribute pa on pa.product_id=p.id
+	 * 								inner join attribute a on pa.attribute_id = a.id
+	 * 								where a.value=?
+	 * 								(please note only the entity's columns are fetched : select p.*)
+	 *
+	 * @params	args				a list of arguments
+	 */
+	def lowLevelQuery[PC, T](entity: Entity[PC, T], sql: String, args: List[Any]): List[T with PC] =
+		lowLevelQuery(defaultQueryConfig, entity, sql, args)
+
+	/**
+	 * low level query where client code provides the sql and a list of arguments.
+	 *
+	 * Please note: Don't use this, better use the Query DSL. Use this method only
+	 * if the query dsl doesn't provide the flexibility that is needed.
+	 *
+	 * @params	queryConfig			the QueryConfig to use for this query
+	 * @params	entity				the entity that the query is for, i.e. ProductEntity
+	 * @params	sql					the sql to execute. This must be in the form of
+	 * 								prepared statement and fetch only the columns needed
+	 * 								by the entity. Examples:
+	 *
+	 * 								select * from attribute where name=?
+	 *
+	 * 								select p.*
+	 * 								from product p
+	 * 								inner join product_attribute pa on pa.product_id=p.id
+	 * 								inner join attribute a on pa.attribute_id = a.id
+	 * 								where a.value=?
+	 * 								(please note only the entity's columns are fetched : select p.*)
+	 *
+	 * @params	args				a list of arguments
+	 */
+	def lowLevelQuery[PC, T](queryConfig: QueryConfig, entity: Entity[PC, T], sql: String, args: List[Any]): List[T with PC]
 }
 
 object QueryDao {

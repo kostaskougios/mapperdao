@@ -25,6 +25,9 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			queryInner(queryConfig, qe.entity, r.sql, r.values)
 		}
 
+	def lowLevelQuery[PC, T](queryConfig: QueryConfig, entity: Entity[PC, T], sql: String, args: List[Any]): List[T with PC] =
+		queryInner(queryConfig, entity, sql, args)
+
 	private def queryInner[PC, T](queryConfig: QueryConfig, entity: Entity[PC, T], sql: String, args: List[Any]) = {
 		try {
 			val lm = driver.queryForList(queryConfig, entity.tpe, sql, args)
