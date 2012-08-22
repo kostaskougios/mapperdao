@@ -350,7 +350,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 			{
 				val tpe = m.erasure.asInstanceOf[Class[V]]
 				val ci = ColumnInfo[T, V](Column(column, tpe), columnToValue, tpe)
-				if (!onlyForQuery) columns ::= ci
+				if (!onlyForQuery) columns ::= ci else onlyForQueryColumns ::= ci
 				ci
 			}
 
