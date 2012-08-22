@@ -98,7 +98,8 @@ import org.scalatest.FunSuite
 		classOf[UseCasePersonAndRolesSuite],
 		classOf[DeclarePrimaryKeysWithManyToOneSuite],
 		classOf[DeclarePrimaryKeysWithOneToManySuite],
-		classOf[LowLevelQuerySuite]
+		classOf[LowLevelQuerySuite],
+		classOf[ForQueryOnlySuite]
 	//classOf[MultiThreadedQuerySuite]
 	)
 )

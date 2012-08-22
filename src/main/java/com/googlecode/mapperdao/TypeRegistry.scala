@@ -13,14 +13,18 @@ final class TypeRegistry private (entities: List[Entity[_, _]]) {
 
 	entities.foreach { entity =>
 		entity.init
-		entity.tpe.table.columns.foreach { c =>
+		val columns = entity.onlyForQueryColumns.map { ci =>
+			ci.column
+		} ::: entity.tpe.table.columns
+		columns.foreach { c =>
 			columnsToEntity.put(c, entity)
 		}
 	}
 
 	def entityOf(column: ColumnBase): Entity[_, _] = {
 		val e = columnsToEntity.get(column)
-		if (e == null) throw new IllegalArgumentException("can't find entity for column %s, is entity registered with this type registry?".format(column))
+		if (e == null)
+			throw new IllegalArgumentException("can't find entity for column %s, is entity registered with this type registry?".format(column))
 		e
 	}
 
