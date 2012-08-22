@@ -22,17 +22,21 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 		{
 			if (qe == null) throw new NullPointerException("qe can't be null")
 			val r = sqlAndArgs(queryConfig, qe).result
-			try {
-				val lm = driver.queryForList(queryConfig, qe.entity.tpe, r.sql, r.values)
-
-				queryConfig.multi.runStrategy.run(mapperDao, qe, queryConfig, lm)
-			} catch {
-				case e =>
-					val extra = "\n------\nThe query:%s\nThe arguments:%s\n------\n".format(r.sql, r.values)
-					val msg = "An error occured during execution of query %s.\nQuery Information:%s\nIssue:\n%s".format(qe, extra, e.getMessage)
-					throw new QueryException(msg, e)
-			}
+			queryInner(queryConfig, qe.entity, r.sql, r.values)
 		}
+
+	private def queryInner[PC, T](queryConfig: QueryConfig, entity: Entity[PC, T], sql: String, args: List[Any]) = {
+		try {
+			val lm = driver.queryForList(queryConfig, entity.tpe, sql, args)
+
+			queryConfig.multi.runStrategy.run(mapperDao, entity, queryConfig, lm)
+		} catch {
+			case e =>
+				val extra = "\n------\nThe query:%s\nThe arguments:%s\n------\n".format(sql, args)
+				val msg = "An error occured during execution of query %s.\nQuery Information:%s\nIssue:\n%s".format(sql, extra, e.getMessage)
+				throw new QueryException(msg, e)
+		}
+	}
 
 	def count[PC, T](queryConfig: QueryConfig, qe: Query.Builder[PC, T]): Long =
 		{

@@ -11,10 +11,10 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
  */
 private[mapperdao] class DefaultQueryRunStrategy extends QueryRunStrategy {
 
-	override def run[PC, T](mapperDao: MapperDaoImpl, qe: Query.Builder[PC, T], queryConfig: QueryConfig, lm: List[DatabaseValues]) = {
+	override def run[PC, T](mapperDao: MapperDaoImpl, entity: Entity[PC, T], queryConfig: QueryConfig, lm: List[DatabaseValues]) = {
 		val entityMap = new EntityMap
 		val selectConfig = SelectConfig.from(queryConfig)
-		val v = mapperDao.toEntities(lm, qe.entity, selectConfig, entityMap)
+		val v = mapperDao.toEntities(lm, entity, selectConfig, entityMap)
 		v
 	}
 }
