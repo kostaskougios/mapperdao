@@ -9,10 +9,14 @@ import com.googlecode.mapperdao.QueryConfig
  * a mixin trait to easily create dao's. It contains common dao methods like "all" which
  * returns all values for an entity
  *
+ * T is the entity type, i.e. Product
+ * T with PC is the persisted type, i.e. Product with IntId. PC can be AnyRef
+ * 		if T's type doesn't change when persisted.
+ *
  * @author kostantinos.kougios
  */
 trait All[PC, T] {
-	// the following must be populated by classes extending this trait
+	// the following must be overriden by classes extending this trait
 	protected val queryDao: QueryDao
 	protected val entity: Entity[PC, T]
 

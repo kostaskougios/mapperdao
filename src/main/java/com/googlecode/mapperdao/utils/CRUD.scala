@@ -23,6 +23,11 @@ import com.googlecode.mapperdao.SimpleEntity
  *
  * https://code.google.com/p/mapperdao/wiki/CRUDDaos
  *
+ * T is the entity type, i.e. Product
+ * T with PC is the persisted type, i.e. Product with IntId. PC can be AnyRef
+ * 		if T's type doesn't change when persisted.
+ * PK is the type of the key, i.e. Int or String
+ *
  * @author kostantinos.kougios
  *
  * 30 Aug 2011
@@ -31,7 +36,7 @@ trait CRUD[PC, T, PK] {
 	protected val mapperDao: MapperDao
 	protected val entity: Entity[PC, T]
 
-	// override these to change the defaults
+	// override these to customise them
 	protected val selectConfig = SelectConfig.default
 	protected val updateConfig = UpdateConfig.default
 	protected val deleteConfig = DeleteConfig.default
