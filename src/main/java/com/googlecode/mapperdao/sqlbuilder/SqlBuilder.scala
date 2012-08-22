@@ -121,6 +121,11 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		def toValues = e.toValues
 
 		override def toString = toSql
+
+		override def equals(o: Any) = o match {
+			case jb: InnerJoinBuilder => jb.toSql == toSql
+			case _ => false
+		}
 	}
 
 	class WhereBuilder(e: Expression) {
@@ -193,7 +198,8 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		}
 
 		def innerJoin(ijb: InnerJoinBuilder) = {
-			innerJoins = ijb :: innerJoins
+			if (!innerJoins.contains(ijb))
+				innerJoins = ijb :: innerJoins
 			this
 		}
 		def innerJoin(table: String, alias: String, hints: String) = {
