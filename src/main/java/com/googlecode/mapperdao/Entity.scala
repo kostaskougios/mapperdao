@@ -113,6 +113,10 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 		unusedPKs(() => ci.asInstanceOf[ColumnInfoBase[Any, Any]])
 	}
 
+	protected def declarePrimaryKey[V](ci: ColumnInfoOneToOne[T, _, _]) {
+		unusedPKs(() => ci.asInstanceOf[ColumnInfoBase[Any, Any]])
+	}
+
 	/**
 	 * to avoid StackOverflow exceptions due to cyclic-referenced entities, we pass
 	 * this as by-name param
