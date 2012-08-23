@@ -594,6 +594,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	protected class ManyToOneBuilder[FPC, FT](referenced: Entity[FPC, FT])
 			extends GetterDefinition
 			with OnlyForQueryDefinition {
+
 		val clz = Entity.this.clz
 		private var fkcols = referenced.keysDuringDeclaration map { pk =>
 			referenced.clz.getSimpleName.toLowerCase + "_" + pk.name
