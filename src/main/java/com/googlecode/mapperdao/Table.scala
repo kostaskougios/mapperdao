@@ -25,6 +25,7 @@ case class Table[PC, T](
 		case ci: ColumnInfo[Any, Any] => List(ci.column)
 		case ci: ColumnInfoManyToOne[Any, Any, Any] => ci.column.columns
 		case ci: ColumnInfoTraversableOneToMany[Any, Any, Any] => ci.column.columns
+		case ci: ColumnInfoOneToOne[Any, Any, Any] => ci.column.columns
 	}.flatten
 
 	val primaryKeysAndUnusedKeys = primaryKeys ::: unusedPKs
@@ -136,6 +137,11 @@ case class Table[PC, T](
 							}
 						case _ => Nil
 					}
+				case ci: ColumnInfoOneToOne[Any, Any, Any] =>
+					val l = ci.columnToValue(o)
+					val fe = ci.column.foreign.entity
+					val pks = fe.tpe.table.toListOfPrimaryKeyValues(l)
+					ci.column.columns zip pks
 
 				case ci: ColumnInfoRelationshipBase[Any, Any, Any, Any] => Nil
 			}

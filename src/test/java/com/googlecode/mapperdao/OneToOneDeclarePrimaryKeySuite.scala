@@ -12,30 +12,57 @@ import com.googlecode.mapperdao.utils.Helpers
  */
 @RunWith(classOf[JUnitRunner])
 class OneToOneDeclarePrimaryKeySuite extends FunSuite with ShouldMatchers {
-	implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
+	if (Setup.database == "h2") {
+		implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
 
-	val p = ProductEntity
-	val i = InventoryEntity
-	test("query on product") {
-		createTables
+		val p = ProductEntity
+		val i = InventoryEntity
 
-		import Query._
-		val inventories = for (i <- 0 to 10) yield mapperDao.insert(InventoryEntity, Inventory(Product(1 + i), 5 + i))
-		val p2 = Helpers.asIntId(inventories(2).product)
-		(
-			select
-			from i
-			join (i, i.product, p)
-			where i.product === p2
-		).toSet should be === Set(inventories(2))
-	}
+		test("crud") {
+			createTables
+			val i5 = mapperDao.insert(InventoryEntity, Inventory(Product(1), 5))
+			val i6 = mapperDao.insert(InventoryEntity, Inventory(Product(2), 6))
 
-	def createTables =
-		{
-			Setup.dropAllTables(jdbc)
-			Setup.queries(this, jdbc).update("ddl")
+			val si5 = mapperDao.select(InventoryEntity, i5.product).get
+			val ui5 = mapperDao.update(InventoryEntity, si5, si5.copy(stock = 15))
+			ui5 should be === Inventory(Product(1), 15)
+
+			val rsi5 = mapperDao.select(InventoryEntity, i5.product).get
+			rsi5 should be === ui5
+
+			mapperDao.delete(InventoryEntity, rsi5)
+			mapperDao.select(InventoryEntity, i5.product) should be(None)
+
+			mapperDao.select(InventoryEntity, i6.product).get should be === i6
 		}
 
+		test("query on product") {
+			createTables
+
+			import Query._
+			val inventories = for (i <- 0 to 10) yield mapperDao.insert(InventoryEntity, Inventory(Product(1 + i), 5 + i))
+			val p2 = Helpers.asIntId(inventories(2).product)
+			(
+				select
+				from i
+				join (i, i.product, p)
+				where i.product === p2
+			).toSet should be === Set(inventories(2))
+
+			(
+				select
+				from i
+				where i.stock <= 7
+			).toSet should be === Set(inventories(0), inventories(1), inventories(2))
+
+		}
+
+		def createTables =
+			{
+				Setup.dropAllTables(jdbc)
+				Setup.queries(this, jdbc).update("ddl")
+			}
+	}
 	case class Inventory(val product: Product, val stock: Int)
 	case class Product(val id: Int)
 
