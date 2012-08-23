@@ -194,7 +194,10 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 						}
 					} else {
 						val fTpe = left.foreign.entity.tpe
-						val fPKs = fTpe.table.toListOfPrimaryKeyValues(right)
+
+						val fPKs =
+							fTpe.table.toListOfPrimaryKeyValues(right) ::: fTpe.table.toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(right)
+
 						if (left.columns.size != fPKs.size) throw new IllegalStateException("foreign keys %s don't match foreign key columns %s".format(fPKs, left.columns))
 						left.columns zip fPKs map {
 							case (c, v) =>
@@ -207,7 +210,8 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 				case OneToManyOperation(left: OneToMany[_, _], operand: Operand, right: Any) =>
 					val foreignEntity = left.foreign.entity
 					val fTpe = foreignEntity.tpe
-					val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
+					val fPKColumnAndValues =
+						fTpe.table.toListOfPrimaryKeyAndValueTuples(right) ::: fTpe.table.toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(right)
 					if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 					val exprs = fPKColumnAndValues.map {
 						case (c, v) =>
@@ -220,7 +224,9 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					val foreignEntity = left.foreign.entity
 					val fTpe = foreignEntity.tpe
 
-					val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
+					val fPKColumnAndValues =
+						fTpe.table.toListOfPrimaryKeyAndValueTuples(right) ::: fTpe.table.toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(right)
+
 					if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 					if (fPKColumnAndValues.size != left.linkTable.right.size) throw new IllegalStateException("linktable not having the correct right columns for %s and %s".format(fPKColumnAndValues, left.linkTable.right))
 					val zipped = (fPKColumnAndValues zip left.linkTable.right)
@@ -233,7 +239,9 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 				case OneToOneOperation(left, operand, right) =>
 					val foreignEntity = left.foreign.entity
 					val fTpe = foreignEntity.tpe
-					val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
+					val fPKColumnAndValues =
+						fTpe.table.toListOfPrimaryKeyAndValueTuples(right) ::: fTpe.table.toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(right)
+
 					if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 					val exprs = fPKColumnAndValues.map {
 						case (c, v) =>
@@ -245,7 +253,9 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 				case OneToOneReverseOperation(left, operand, right) =>
 					val foreignEntity = left.foreign.entity
 					val fTpe = foreignEntity.tpe
-					val fPKColumnAndValues = fTpe.table.toListOfPrimaryKeyAndValueTuples(right)
+					val fPKColumnAndValues =
+						fTpe.table.toListOfPrimaryKeyAndValueTuples(right) ::: fTpe.table.toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(right)
+
 					if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 					val exprs = fPKColumnAndValues.map {
 						case (c, v) =>

@@ -19,9 +19,27 @@ class UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite extends FunSuite with 
 	if (Setup.database == "h2") {
 		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(TagEntity, SimpleProductEntity))
 
-		test("crud") {
+		val te = TagEntity
+		val spe = SimpleProductEntity
+
+		test("query forQueryOnly column") {
 			createTables()
-			mapperDao.insert(TagEntity, Tag("laptop", Product("lapt100", "SuperFast 1000")))
+			val l1 = mapperDao.insert(TagEntity, Tag("laptop", Product("lapt100", "SuperFast 1000")))
+			val l2 = mapperDao.insert(TagEntity, Tag("laptop", Product("lapt101", "SlowAsHell 2000")))
+			val nt1 = mapperDao.insert(TagEntity, Tag("nettop", Product("nettp1", "Nettop 1200")))
+
+			import Query._
+			(
+				select
+				from spe
+				where spe.tags === l1
+			).toSet(queryDao) should be === Set(l1.product)
+			(
+				select
+				from spe
+				join (spe, spe.tags, te)
+				where te.tag === "laptop"
+			).toSet(queryDao) should be === Set(l1.product, l2.product)
 		}
 
 		def createTables() =
