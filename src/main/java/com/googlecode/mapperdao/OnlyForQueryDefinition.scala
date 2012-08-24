@@ -2,7 +2,7 @@ package com.googlecode.mapperdao
 
 /**
  * declares if a mapping is only used in queries and mapperdao
- * should skip fetching or updating data
+ * should skip fetching or updating this column
  *
  * @author kostantinos.kougios
  *
@@ -13,7 +13,7 @@ trait OnlyForQueryDefinition {
 
 	/**
 	 * declare this column as "only for querying". It won't be fetched
-	 * from the database but it can be used in query where clauses
+	 * from the database but it can be used in queries
 	 *
 	 * @return		the builder
 	 */
