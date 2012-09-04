@@ -41,7 +41,9 @@ private[mapperdao] class LazyLoadManager {
 		val (proxyClz, methodToCI) = classCache.synchronized {
 			classCache.get(key).getOrElse {
 				val methods = lazyRelationships.map(ci =>
-					ci.getterMethod.getOrElse(throw new IllegalStateException("please define getter method on entity for %s".format(ci.column))).getterMethod
+					ci.getterMethod.getOrElse(
+						throw new IllegalStateException("please define getter method on entity %s . %s".format(entity.getClass.getName, ci.column))
+					).getterMethod
 				).toSet
 				if (methods.isEmpty)
 					throw new IllegalStateException("can't lazy load class that doesn't declare any getters for relationships. Entity: %s".format(clz))

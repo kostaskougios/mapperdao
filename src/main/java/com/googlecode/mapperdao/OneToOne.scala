@@ -4,5 +4,5 @@ case class OneToOne[FPC, F](val foreign: TypeRef[FPC, F], selfColumns: List[Colu
 	def alias = foreign.alias
 
 	override def columns: List[Column] = selfColumns
-	override def toString = "OneToOne(%s,%s)".format(foreign.entity.getClass.getSimpleName, selfColumns.map(_.name).mkString(","))
+	override def toString = "onetoone(%s) foreignkey (%s)".format(foreign.entity.getClass.getSimpleName, selfColumns.map(_.name).mkString(","))
 }
