@@ -19,8 +19,6 @@ class OneToOneEntityLazyLoader[T](
 		foreignKeyValues: List[Any]) extends (() => Any) {
 	def apply =
 		{
-			// redeclare some variables to avoid capturing
-			// them and using extra memory
 			val c = ci.column
 			val fe = c.foreign.entity
 			val ftpe = fe.tpe
