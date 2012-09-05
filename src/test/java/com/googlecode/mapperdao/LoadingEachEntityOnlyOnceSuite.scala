@@ -8,6 +8,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.events.InsertEvent
 import com.googlecode.mapperdao.events.SelectEvent
+import org.scalatest.BeforeAndAfter
 
 /**
  * @author kostantinos.kougios
@@ -15,11 +16,15 @@ import com.googlecode.mapperdao.events.SelectEvent
  * 5 Sep 2012
  */
 @RunWith(classOf[JUnitRunner])
-class LoadingEachEntityOnlyOnceSuite extends FunSuite with ShouldMatchers {
+class LoadingEachEntityOnlyOnceSuite extends FunSuite with ShouldMatchers with BeforeAndAfter {
 	import CommonEntities._
 
 	if (Setup.database == "h2") {
 		var timesLoaded = Map[Class[_], Int]()
+
+		before {
+			timesLoaded = Map()
+		}
 
 		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(
 			TypeRegistry(CompanyEntity, PersonEntity),
