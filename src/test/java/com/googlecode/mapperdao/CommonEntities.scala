@@ -43,6 +43,11 @@ object CommonEntities {
 	/**
 	 * many to one
 	 */
+	def createPersonCompany(jdbc: Jdbc) = {
+		Setup.dropAllTables(jdbc)
+		Setup.commonEntitiesQueries(jdbc).update("person-company")
+	}
+
 	case class Person(val name: String, val company: Company)
 	case class Company(val name: String)
 
