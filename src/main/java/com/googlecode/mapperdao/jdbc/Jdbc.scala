@@ -266,6 +266,8 @@ object Jdbc {
 		classOf[java.util.Date] -> Types.TIMESTAMP
 	)
 
+	def isPrimitiveJdbcType(tpe: Class[_]) = sqlParamMap.contains(tpe)
+
 	def toSqlParameter(l: List[(Class[_], Any)]): List[SqlParameterValue] = l.map {
 		case (clz, v) =>
 			toSqlParameter(clz, v)

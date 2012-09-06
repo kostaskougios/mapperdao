@@ -4,6 +4,9 @@ import com.googlecode.mapperdao.drivers.EscapeNamesStrategy
 import com.googlecode.mapperdao.SimpleColumn
 import org.springframework.jdbc.core.SqlParameterValue
 import com.googlecode.mapperdao.jdbc.Jdbc
+import com.googlecode.mapperdao.SqlFunctionValue
+import com.googlecode.mapperdao.ColumnInfo
+import com.googlecode.mapperdao.QueryDao
 
 /**
  * builds queries, inserts, updates and deletes
@@ -68,6 +71,39 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 		}
 
 		override def toValues = Nil
+	}
+
+	case class FunctionClause[R](
+			aliases: QueryDao.Aliases,
+			left: SqlFunctionValue[R],
+			op: String,
+			right: Any) extends Expression {
+
+		if (right == null) throw new NullPointerException("right-part of expression can't be null, for " + left)
+
+		private val rightValues = right match {
+			case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) => List(Jdbc.toSqlParameter(right.getClass, right))
+			case _ => Nil
+		}
+		val leftValues = left.values.collect {
+			case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) =>
+				Jdbc.toSqlParameter(v.getClass, v)
+		}
+		override def toSql = {
+			val sb = new StringBuilder(left.name) append '('
+			sb append left.values.map {
+				case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) =>
+					"?"
+			}.mkString(",")
+			sb append ')' append op
+			sb append (right match {
+				case v if (Jdbc.isPrimitiveJdbcType(right.getClass)) => "?"
+				case ci: ColumnInfo[_, _] => aliases(ci.column) + "." + ci.column.name
+			})
+			sb.toString
+		}
+
+		override def toValues = leftValues ::: rightValues
 	}
 
 	case class Between(alias: String, column: SimpleColumn, left: Any, right: Any) extends Expression {

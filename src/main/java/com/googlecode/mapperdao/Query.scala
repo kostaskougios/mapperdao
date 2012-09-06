@@ -341,3 +341,4 @@ case class AndOp(left: OpBase, right: OpBase) extends OpBase {
 case class OrOp(left: OpBase, right: OpBase) extends OpBase {
 	override def toString = "(%s or %s)".format(left, right)
 }
+
