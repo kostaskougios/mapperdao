@@ -25,7 +25,7 @@ create table Product_Attribute (
 create table Company(
 	id serial not null,
 	name varchar(40) not null,
-	primary key (id),
+	primary key (id)
 )
 ;
 create table Person(
