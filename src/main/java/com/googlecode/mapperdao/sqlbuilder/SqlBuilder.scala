@@ -76,15 +76,18 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 	case class FunctionClause[R](
 			aliases: QueryDao.Aliases,
 			left: SqlFunctionValue[R],
-			op: String,
+			op: Option[String],
 			right: Any) extends Expression {
 
-		if (right == null) throw new NullPointerException("right-part of expression can't be null, for " + left)
+		if (op.isDefined && right == null) throw new NullPointerException("right-part of expression can't be null, for " + left)
 
-		private val rightValues = right match {
-			case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) => List(Jdbc.toSqlParameter(right.getClass, right))
-			case _ => Nil
-		}
+		private val rightValues = if (op.isDefined)
+			right match {
+				case null => throw new NullPointerException("null values not allowed as function parameters")
+				case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) => List(Jdbc.toSqlParameter(right.getClass, right))
+				case _ => Nil
+			}
+		else Nil
 		val leftValues = left.values.collect {
 			case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) =>
 				Jdbc.toSqlParameter(v.getClass, v)
@@ -94,12 +97,16 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			sb append left.values.map {
 				case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) =>
 					"?"
-			}.mkString(",")
-			sb append ')' append op
-			sb append (right match {
-				case v if (Jdbc.isPrimitiveJdbcType(right.getClass)) => "?"
 				case ci: ColumnInfo[_, _] => aliases(ci.column) + "." + ci.column.name
-			})
+			}.mkString(",")
+			sb append ')'
+			if (op.isDefined) {
+				sb append op.get
+				sb append (right match {
+					case v if (Jdbc.isPrimitiveJdbcType(right.getClass)) => "?"
+					case ci: ColumnInfo[_, _] => aliases(ci.column) + "." + ci.column.name
+				})
+			}
 			sb.toString
 		}
 

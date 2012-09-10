@@ -275,7 +275,9 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 						driver.sqlBuilder.And(l, r)
 					}
 				case SqlFunctionOp(left, operand, right) =>
-					driver.sqlBuilder.FunctionClause(aliases, left, operand.sql, right)
+					driver.sqlBuilder.FunctionClause(aliases, left, Some(operand.sql), right)
+				case SqlFunctionBoolOp(left) =>
+					driver.sqlBuilder.FunctionClause(aliases, left, None, null)
 			}
 
 			wheres.map(_.clauses).map { op =>
