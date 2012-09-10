@@ -79,6 +79,9 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			op: Option[String],
 			right: Any) extends Expression {
 
+		def this(aliases: QueryDao.Aliases,
+			left: SqlFunctionValue[R]) = this(aliases, left, None, null)
+
 		if (op.isDefined && right == null) throw new NullPointerException("right-part of expression can't be null, for " + left)
 
 		private val rightValues = if (op.isDefined)

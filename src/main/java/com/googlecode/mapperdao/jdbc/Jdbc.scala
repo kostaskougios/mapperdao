@@ -274,6 +274,8 @@ object Jdbc {
 	}
 	def toSqlParameter(tpe: Class[_], value: Any): SqlParameterValue = {
 		val t = sqlParamMap(tpe)
-		new SqlParameterValue(t, value)
+		new SqlParameterValue(t, value) {
+			override def toString = value.toString
+		}
 	}
 }
