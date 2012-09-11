@@ -53,6 +53,8 @@ LANGUAGE plpgsql VOLATILE;
 			createHusbandWife(jdbc)
 			val h1 = mapperDao.insert(HusbandEntity, Husband("husb1", Wife("wife1")))
 			val h2 = mapperDao.insert(HusbandEntity, Husband("husb2", Wife("wife2")))
+			(select
+				from he)
 		}
 
 		test("query using function with many-to-one value") {
