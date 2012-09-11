@@ -7,6 +7,12 @@ package com.googlecode.mapperdao
  */
 protected case class SqlFunctionValue[R](name: String, values: List[Any]) {
 	def ===(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, EQ(), v.v)
+	def !=(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, NE(), v.v)
+	def >(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, GT(), v.v)
+	def >=(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, GE(), v.v)
+	def <(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, LT(), v.v)
+	def <=(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, LE(), v.v)
+	def like(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, LIKE(), v.v)
 }
 
 object SqlFunctionValue {
@@ -37,4 +43,5 @@ class SqlFunctionArg[V](val v: Any)
 object SqlFunctionArg {
 	implicit def anyToArg[T](v: T) = new SqlFunctionArg[T](v)
 	implicit def columnInfoToArg[T](v: ColumnInfo[_, T]) = new SqlFunctionArg[T](v)
+	implicit def columnInfoManyToOneToArg[V, T, FPC, FT](v: ColumnInfoManyToOne[T, FPC, FT]) = new SqlFunctionArg[V](v)
 }
