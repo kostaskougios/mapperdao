@@ -7,6 +7,7 @@ import com.googlecode.mapperdao.jdbc.Jdbc
 import com.googlecode.mapperdao.SqlFunctionValue
 import com.googlecode.mapperdao.ColumnInfo
 import com.googlecode.mapperdao.QueryDao
+import com.googlecode.mapperdao.ColumnInfoManyToOne
 
 /**
  * builds queries, inserts, updates and deletes
@@ -101,6 +102,10 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 				case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) =>
 					"?"
 				case ci: ColumnInfo[_, _] => aliases(ci.column) + "." + ci.column.name
+				case ci: ColumnInfoManyToOne[_, _, _] =>
+					ci.column.columns.map { c =>
+						aliases(ci.column) + "." + c.name
+					}.mkString(",")
 			}.mkString(",")
 			sb append ')'
 			if (op.isDefined) {

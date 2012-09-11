@@ -55,11 +55,12 @@ LANGUAGE plpgsql VOLATILE;
 			val p2b = mapperDao.insert(PersonEntity, Person("person 1 - b", cb))
 
 			import Query._
-			(
+			val r = (
 				select
 				from pe
 				where addFunction(pe.company, 2) > 3
-			).toSet(queryDao) should be === Set(p1b, p2b)
+			).toSet(queryDao)
+			r should be === Set(p1b, p2b)
 		}
 
 		test("query using expression, literal param literal comparison value positive") {
