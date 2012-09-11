@@ -16,7 +16,12 @@ class SqlFunctionSuite extends FunSuite with ShouldMatchers {
 	import CommonEntities._
 
 	if (Setup.database == "postgresql") {
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(CompanyEntity, PersonEntity))
+		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(
+			CompanyEntity,
+			PersonEntity,
+			HusbandEntity,
+			WifeEntity
+		))
 		val ce = CompanyEntity
 		val pe = PersonEntity
 
@@ -43,6 +48,31 @@ LANGUAGE plpgsql VOLATILE;
 
 		val companyAFunction = SqlFunction.with1Arg[String, Boolean]("companyA")
 		val addFunction = SqlFunction.with2Args[Int, Int, Int]("add")
+
+		test("query with one-to-one param") {
+			createHusbandWife(jdbc)
+			val h1 = mapperDao.insert(HusbandEntity, Husband("husb1", Wife("wife1")))
+			val h2 = mapperDao.insert(HusbandEntity, Husband("husb2", Wife("wife2")))
+		}
+
+		test("query using function with many-to-one value") {
+			createPersonCompany(jdbc)
+			val ca = mapperDao.insert(CompanyEntity, Company("company A"))
+			val cb = mapperDao.insert(CompanyEntity, Company("company B"))
+
+			val p1a = mapperDao.insert(PersonEntity, Person("person 1 - a", ca))
+			val p2a = mapperDao.insert(PersonEntity, Person("person 2 - a", ca))
+			val p1b = mapperDao.insert(PersonEntity, Person("person 1 - b", cb))
+			val p2b = mapperDao.insert(PersonEntity, Person("person 1 - b", cb))
+
+			import Query._
+			val r = (
+				select
+				from pe
+				where addFunction(1, 1) > pe.company
+			).toSet(queryDao)
+			r should be === Set(p1a, p2a)
+		}
 
 		test("query using function with many-to-one param") {
 			createPersonCompany(jdbc)
