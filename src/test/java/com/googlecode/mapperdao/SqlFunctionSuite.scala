@@ -50,6 +50,19 @@ LANGUAGE plpgsql VOLATILE;
 		val companyAFunction = SqlFunction.with1Arg[String, Boolean]("companyA")
 		val addFunction = SqlFunction.with2Args[Int, Int, Int]("add")
 
+		test("query with one-to-one value") {
+			createHusbandWife(jdbc)
+			val h1 = mapperDao.insert(HusbandEntity, Husband("husb1", 30, Wife("wife1", 29)))
+			val h2 = mapperDao.insert(HusbandEntity, Husband("husb2", 25, Wife("wife2", 20)))
+
+			import Query._
+			val r = (select
+				from he
+				where addFunction(1, 1) === he.wife
+			).toSet(queryDao)
+			r should be === Set(h2)
+		}
+
 		test("query with one-to-one param") {
 			createHusbandWife(jdbc)
 			val h1 = mapperDao.insert(HusbandEntity, Husband("husb1", 30, Wife("wife1", 29)))
@@ -61,7 +74,6 @@ LANGUAGE plpgsql VOLATILE;
 				where addFunction(he.wife, 1) === 2
 			).toSet(queryDao)
 			r should be === Set(h1)
-
 		}
 
 		test("query using function with many-to-one value") {

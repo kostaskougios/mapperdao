@@ -123,6 +123,11 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 						ci.column.columns.map { c =>
 							aliases(ci.column) + "." + c.name
 						}.mkString(",")
+					case ci: ColumnInfoOneToOne[_, _, _] =>
+						if (ci.column.columns.size > 1) throw new IllegalArgumentException("can't use a multi-column-primary-key one-to-one in the right part of a function comparison : " + ci.column.columns)
+						ci.column.columns.map { c =>
+							aliases(ci.column) + "." + c.name
+						}.mkString(",")
 				})
 			}
 			sb.toString
