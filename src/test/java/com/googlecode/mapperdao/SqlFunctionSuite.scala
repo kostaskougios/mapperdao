@@ -15,6 +15,8 @@ import com.googlecode.mapperdao.jdbc.Setup
 class SqlFunctionSuite extends FunSuite with ShouldMatchers {
 	import CommonEntities._
 
+	// TODO: nested function calls
+
 	if (Setup.database == "postgresql") {
 		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(
 			CompanyEntity,
