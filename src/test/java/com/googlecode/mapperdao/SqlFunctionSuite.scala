@@ -24,6 +24,7 @@ class SqlFunctionSuite extends FunSuite with ShouldMatchers {
 		))
 		val ce = CompanyEntity
 		val pe = PersonEntity
+		val he = HusbandEntity
 
 		jdbc.update("""
 CREATE or replace FUNCTION companyA(IN cname varchar(50)) RETURNS boolean AS
@@ -51,10 +52,16 @@ LANGUAGE plpgsql VOLATILE;
 
 		test("query with one-to-one param") {
 			createHusbandWife(jdbc)
-			val h1 = mapperDao.insert(HusbandEntity, Husband("husb1", Wife("wife1")))
-			val h2 = mapperDao.insert(HusbandEntity, Husband("husb2", Wife("wife2")))
-			(select
-				from he)
+			val h1 = mapperDao.insert(HusbandEntity, Husband("husb1", 30, Wife("wife1", 29)))
+			val h2 = mapperDao.insert(HusbandEntity, Husband("husb2", 25, Wife("wife2", 20)))
+
+			import Query._
+			val r = (select
+				from he
+				where addFunction(he.wife, 1) === 2
+			).toSet(queryDao)
+			r should be === Set(h1)
+
 		}
 
 		test("query using function with many-to-one value") {

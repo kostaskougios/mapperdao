@@ -8,6 +8,7 @@ import com.googlecode.mapperdao.SqlFunctionValue
 import com.googlecode.mapperdao.ColumnInfo
 import com.googlecode.mapperdao.QueryDao
 import com.googlecode.mapperdao.ColumnInfoManyToOne
+import com.googlecode.mapperdao.ColumnInfoOneToOne
 
 /**
  * builds queries, inserts, updates and deletes
@@ -103,6 +104,10 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 					"?"
 				case ci: ColumnInfo[_, _] => aliases(ci.column) + "." + ci.column.name
 				case ci: ColumnInfoManyToOne[_, _, _] =>
+					ci.column.columns.map { c =>
+						aliases(ci.column) + "." + c.name
+					}.mkString(",")
+				case ci: ColumnInfoOneToOne[_, _, _] =>
 					ci.column.columns.map { c =>
 						aliases(ci.column) + "." + c.name
 					}.mkString(",")

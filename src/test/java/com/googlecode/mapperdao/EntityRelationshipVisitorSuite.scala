@@ -71,7 +71,7 @@ class EntityRelationshipVisitorSuite extends FunSuite with ShouldMatchers {
 
 	test("visit one to one") {
 		val visitor = new Visitor
-		val o = Husband("k", new Wife("t"))
+		val o = Husband("k", 40, new Wife("t", 39))
 		visitor.visit(HusbandEntity, o) match {
 			case vo: Husband =>
 				vo should not be eq(o)
