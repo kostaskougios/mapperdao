@@ -24,11 +24,51 @@ object SqlFunctionValue {
 protected class SqlFunctionValue1[V1, R](name: String) {
 	def apply(v1: SqlFunctionArg[V1]) = SqlFunctionValue[R](name, List(v1.v))
 }
+
 /**
  * function with 2 parameters
  */
 protected class SqlFunctionValue2[V1, V2, R](name: String) {
-	def apply(v1: SqlFunctionArg[V1], v2: SqlFunctionArg[V2]) = SqlFunctionValue[R](name, List(v1.v, v2.v))
+	def apply(
+		v1: SqlFunctionArg[V1],
+		v2: SqlFunctionArg[V2]) =
+		SqlFunctionValue[R](name, List(v1.v, v2.v))
+}
+
+/**
+ * function with 3 parameters
+ */
+protected class SqlFunctionValue3[V1, V2, V3, R](name: String) {
+	def apply(
+		v1: SqlFunctionArg[V1],
+		v2: SqlFunctionArg[V2],
+		v3: SqlFunctionArg[V3]) =
+		SqlFunctionValue[R](name, List(v1.v, v2.v, v3.v))
+}
+
+/**
+ * function with 4 parameters
+ */
+protected class SqlFunctionValue4[V1, V2, V3, V4, R](name: String) {
+	def apply(
+		v1: SqlFunctionArg[V1],
+		v2: SqlFunctionArg[V2],
+		v3: SqlFunctionArg[V3],
+		v4: SqlFunctionArg[V4]) =
+		SqlFunctionValue[R](name, List(v1.v, v2.v, v3.v, v4.v))
+}
+
+/**
+ * function with 5 parameters
+ */
+protected class SqlFunctionValue5[V1, V2, V3, V4, V5, R](name: String) {
+	def apply(
+		v1: SqlFunctionArg[V1],
+		v2: SqlFunctionArg[V2],
+		v3: SqlFunctionArg[V3],
+		v4: SqlFunctionArg[V4],
+		v5: SqlFunctionArg[V5]) =
+		SqlFunctionValue[R](name, List(v1.v, v2.v, v3.v, v4.v, v5.v))
 }
 
 case class SqlFunctionOp[V, R](left: SqlFunctionValue[R], operand: Operand, right: V) extends OpBase
