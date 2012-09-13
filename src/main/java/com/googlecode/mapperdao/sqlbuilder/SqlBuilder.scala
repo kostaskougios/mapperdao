@@ -93,19 +93,20 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 				case _ => Nil
 			}
 		else Nil
-		val leftValues = left.values.collect {
-			case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) =>
-				Jdbc.toSqlParameter(v.getClass, v)
-		}
 
-		override def toSql = {
+		private def functionToValues[T](v: SqlFunctionValue[T]): List[SqlParameterValue] =
+			v.values.collect {
+				case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) =>
+					List(Jdbc.toSqlParameter(v.getClass, v))
+				case iv: SqlFunctionValue[_] =>
+					functionToValues(iv)
+			}.flatten
 
-			def functionToSql[T](v: SqlFunctionValue[T]) = {
-				""
-			}
+		private val leftValues = functionToValues(left)
 
-			val sb = new StringBuilder(left.name) append '('
-			sb append left.values.map {
+		private def functionToSql[T](v: SqlFunctionValue[T]): String = {
+			val sb = new StringBuilder(v.name) append '('
+			sb append v.values.map {
 				case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) =>
 					"?"
 				case ci: ColumnInfo[_, _] => aliases(ci.column) + "." + ci.column.name
@@ -117,10 +118,15 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 					ci.column.columns.map { c =>
 						aliases(ci.column) + "." + c.name
 					}.mkString(",")
-				case v: SqlFunctionValue[_] =>
-					functionToSql(v)
+				case iv: SqlFunctionValue[_] =>
+					functionToSql(iv)
 			}.mkString(",")
 			sb append ')'
+			sb.toString
+		}
+
+		override def toSql = {
+			val sb = new StringBuilder(functionToSql(left))
 			if (op.isDefined) {
 				sb append op.get
 				sb append (right match {

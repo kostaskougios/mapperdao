@@ -68,11 +68,12 @@ LANGUAGE plpgsql VOLATILE;
 			val cb = mapperDao.insert(CompanyEntity, Company("company B"))
 
 			import Query._
-			(
+			val r = (
 				select
 				from ce
 				where addFunction(1, subFunction(10, 9)) === cb.id
-			).toSet(queryDao) should be === Set(ca)
+			).toSet(queryDao)
+			r should be === Set(ca, cb)
 		}
 
 		test("query with one-to-one value") {
