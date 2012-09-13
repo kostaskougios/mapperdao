@@ -97,7 +97,13 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 			case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) =>
 				Jdbc.toSqlParameter(v.getClass, v)
 		}
+
 		override def toSql = {
+
+			def functionToSql[T](v: SqlFunctionValue[T]) = {
+				""
+			}
+
 			val sb = new StringBuilder(left.name) append '('
 			sb append left.values.map {
 				case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) =>
@@ -111,6 +117,8 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 					ci.column.columns.map { c =>
 						aliases(ci.column) + "." + c.name
 					}.mkString(",")
+				case v: SqlFunctionValue[_] =>
+					functionToSql(v)
 			}.mkString(",")
 			sb append ')'
 			if (op.isDefined) {

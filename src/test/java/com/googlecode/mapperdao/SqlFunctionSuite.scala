@@ -15,8 +15,6 @@ import com.googlecode.mapperdao.jdbc.Setup
 class SqlFunctionSuite extends FunSuite with ShouldMatchers {
 	import CommonEntities._
 
-	// TODO: nested function calls
-
 	if (Setup.database == "postgresql") {
 		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(
 			CompanyEntity,
@@ -49,8 +47,33 @@ $$
 LANGUAGE plpgsql VOLATILE;
 """)
 
+		jdbc.update("""
+CREATE or replace FUNCTION sub(IN v int, IN howMany int) RETURNS int AS
+$$
+begin
+	return v - howMany;
+end
+$$
+
+LANGUAGE plpgsql VOLATILE;
+""")
+
 		val companyAFunction = SqlFunction.with1Arg[String, Boolean]("companyA")
 		val addFunction = SqlFunction.with2Args[Int, Int, Int]("add")
+		val subFunction = SqlFunction.with2Args[Int, Int, Int]("sub")
+
+		test("query with nested function") {
+			createPersonCompany(jdbc)
+			val ca = mapperDao.insert(CompanyEntity, Company("company A"))
+			val cb = mapperDao.insert(CompanyEntity, Company("company B"))
+
+			import Query._
+			(
+				select
+				from ce
+				where addFunction(1, subFunction(10, 9)) === cb.id
+			).toSet(queryDao) should be === Set(ca)
+		}
 
 		test("query with one-to-one value") {
 			createHusbandWife(jdbc)

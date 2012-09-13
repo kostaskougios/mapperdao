@@ -31,5 +31,5 @@ object SqlFunction {
 	 * 5 arg function. V1,V2,V3,V4,V5 are the types of the args
 	 * and R the return type
 	 */
-	def with4Args[V1, V2, V3, V4, V5, R](name: String) = new SqlFunctionValue5[V1, V2, V3, V4, V5, R](name)
+	def with5Args[V1, V2, V3, V4, V5, R](name: String) = new SqlFunctionValue5[V1, V2, V3, V4, V5, R](name)
 }
