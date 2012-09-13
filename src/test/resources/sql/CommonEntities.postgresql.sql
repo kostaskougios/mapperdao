@@ -27,3 +27,10 @@ create table Husband(
 	wife_id int not null,
 	constraint FK_Husband_Wife foreign key (wife_id) references Wife(id)
 )
+
+[image]
+create table Image(
+	id serial primary key,
+	name varchar(20) not null,
+	data bytea not null
+)

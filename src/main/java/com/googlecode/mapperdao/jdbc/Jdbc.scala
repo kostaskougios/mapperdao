@@ -30,6 +30,7 @@ import java.sql.Types
 import org.springframework.jdbc.core.SqlParameterValue
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
+import org.springframework.jdbc.core.support.SqlLobValue
 
 /**
  * scal-ified JdbcTemplate
@@ -275,7 +276,8 @@ object Jdbc {
 	}
 	def toSqlParameter(tpe: Class[_], value: Any): SqlParameterValue = {
 		val t = sqlParamMap(tpe)
-		new SqlParameterValue(t, value) {
+		val v = if (t == Types.BLOB) new SqlLobValue(value.asInstanceOf[Array[Byte]]) else value
+		new SqlParameterValue(t, v) {
 			override def toString = value.toString
 		}
 	}

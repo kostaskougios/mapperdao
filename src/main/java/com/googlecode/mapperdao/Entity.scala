@@ -295,6 +295,8 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 		case v => Some(v)
 	}
 
+	protected implicit def columnToByteArray(ci: ColumnInfo[T, Array[Byte]])(implicit m: ValuesMap): Array[Byte] = m(ci)
+
 	/**
 	 * dsl for declaring columns
 	 */

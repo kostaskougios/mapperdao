@@ -17,8 +17,8 @@ import org.scalatest.matchers.ShouldMatchers
 @RunWith(classOf[JUnitRunner])
 class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
-	test("delete by id") {
 
+	test("delete by id") {
 		createJobPositionTable
 
 		val date = Setup.now
