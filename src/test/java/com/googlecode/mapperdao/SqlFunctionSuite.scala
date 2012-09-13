@@ -76,6 +76,20 @@ LANGUAGE plpgsql VOLATILE;
 			r should be === Set(ca, cb)
 		}
 
+		test("query with nested function and column parameter") {
+			createPersonCompany(jdbc)
+			val ca = mapperDao.insert(CompanyEntity, Company("company A"))
+			val cb = mapperDao.insert(CompanyEntity, Company("company B"))
+
+			import Query._
+			val r = (
+				select
+				from ce
+				where addFunction(1, subFunction(2, ce.id)) === 2
+			).toSet(queryDao)
+			r should be === Set(ca)
+		}
+
 		test("query with one-to-one value") {
 			createHusbandWife(jdbc)
 			val h1 = mapperDao.insert(HusbandEntity, Husband("husb1", 30, Wife("wife1", 29)))
