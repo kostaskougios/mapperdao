@@ -263,7 +263,8 @@ object Jdbc {
 		classOf[DateTime] -> Types.TIMESTAMP,
 		classOf[LocalDate] -> Types.TIMESTAMP,
 		classOf[LocalTime] -> Types.TIME,
-		classOf[java.util.Date] -> Types.TIMESTAMP
+		classOf[java.util.Date] -> Types.TIMESTAMP,
+		classOf[Array[Byte]] -> Types.BLOB
 	)
 
 	def isPrimitiveJdbcType(tpe: Class[_]) = sqlParamMap.contains(tpe)

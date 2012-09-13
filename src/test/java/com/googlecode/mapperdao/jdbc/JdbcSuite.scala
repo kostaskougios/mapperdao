@@ -7,6 +7,7 @@ import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 import org.springframework.jdbc.core.SqlParameterValue
 import java.sql.Types
+import org.springframework.jdbc.core.support.SqlLobValue
 /**
  * @author kostantinos.kougios
  *
@@ -15,6 +16,25 @@ import java.sql.Types
 @RunWith(classOf[JUnitRunner])
 class JdbcSuite extends FunSuite with ShouldMatchers {
 	private val jdbc = Setup.setupJdbc
+
+	test("blob, byte array") {
+		createTables
+		val data = Array[Byte](5, 10, 15)
+		val args = Jdbc.toSqlParameter(
+			List(
+				(classOf[Int], 5),
+				(classOf[String], "kostas"),
+				(classOf[Array[Byte]], new SqlLobValue(data))
+			)
+		)
+		jdbc.update("""
+			insert into test_blob(id,name,data)
+			values(?,?,?)
+		""", args)
+
+		val r = jdbc.queryForList("select * from test_blob")
+		r.head("data") should be === data
+	}
 
 	test("sqlarguments") {
 		createTables

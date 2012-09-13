@@ -13,3 +13,9 @@ CREATE TABLE test_generatedkeys
 	dt timestamp with time zone,
 	primary key (id)
 )
+;
+create table test_blob (
+	id serial primary key,
+	name varchar(100),
+	data bytea not null
+)
