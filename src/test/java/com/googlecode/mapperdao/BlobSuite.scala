@@ -16,6 +16,7 @@ class BlobSuite extends FunSuite with ShouldMatchers {
 	import CommonEntities._
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ImageEntity))
+	val ie = ImageEntity
 
 	test("CRUD") {
 		createImage(jdbc)
@@ -37,4 +38,23 @@ class BlobSuite extends FunSuite with ShouldMatchers {
 		mapperDao.select(ImageEntity, inserted.id) should be === None
 	}
 
+	test("query") {
+		createImage(jdbc)
+
+		val im1 = Image("tree1", Array(5, 6, 7))
+		val i1 = mapperDao.insert(ImageEntity, im1)
+		val im2 = Image("tree2", Array(15, 16))
+		val i2 = mapperDao.insert(ImageEntity, im2)
+
+		import Query._
+
+		val l = (
+			select
+			from ie
+			orderBy (ie.id, asc)
+		).toList(queryDao)
+
+		l.head.data.toList should be === im1.data.toList
+		l.tail.head.data.toList should be === im2.data.toList
+	}
 }
