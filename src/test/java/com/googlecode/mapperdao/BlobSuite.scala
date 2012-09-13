@@ -26,6 +26,15 @@ class BlobSuite extends FunSuite with ShouldMatchers {
 
 		val selected = mapperDao.select(ImageEntity, inserted.id).get
 		selected.data.toList should be === inserted.data.toList
+
+		val uim1 = im1.copy(data = Array(15, 16, 17, 18))
+		val updated = mapperDao.update(ImageEntity, inserted, uim1)
+		updated should be === uim1
+
+		mapperDao.select(ImageEntity, inserted.id).get.data.toList should be === uim1.data.toList
+
+		mapperDao.delete(ImageEntity, updated)
+		mapperDao.select(ImageEntity, inserted.id) should be === None
 	}
 
 }
