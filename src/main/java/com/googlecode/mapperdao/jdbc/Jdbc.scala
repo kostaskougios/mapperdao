@@ -31,6 +31,8 @@ import org.springframework.jdbc.core.SqlParameterValue
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
 import org.springframework.jdbc.core.support.SqlLobValue
+import java.io.InputStream
+import com.googlecode.mapperdao.Blob
 
 /**
  * scal-ified JdbcTemplate
@@ -243,40 +245,45 @@ class Jdbc private (val dataSource: DataSource, val chronology: Chronology) {
 object Jdbc {
 	def apply(dataSource: DataSource, chronology: Chronology) = new Jdbc(dataSource, chronology)
 
-	private val sqlParamMap: Map[Class[_], Int] = Map(
-		classOf[String] -> Types.VARCHAR,
-		classOf[Calendar] -> Types.TIMESTAMP,
-		classOf[BigDecimal] -> Types.NUMERIC,
-		classOf[Boolean] -> Types.BIT,
-		classOf[java.lang.Boolean] -> Types.BIT,
-		classOf[Byte] -> Types.SMALLINT,
-		classOf[java.lang.Byte] -> Types.SMALLINT,
-		classOf[Short] -> Types.SMALLINT,
-		classOf[java.lang.Short] -> Types.SMALLINT,
-		classOf[Int] -> Types.INTEGER,
-		classOf[java.lang.Integer] -> Types.INTEGER,
-		classOf[Long] -> Types.BIGINT,
-		classOf[java.lang.Long] -> Types.BIGINT,
-		classOf[Float] -> Types.FLOAT,
-		classOf[java.lang.Float] -> Types.FLOAT,
-		classOf[Double] -> Types.DOUBLE,
-		classOf[java.lang.Double] -> Types.DOUBLE,
-		classOf[DateTime] -> Types.TIMESTAMP,
-		classOf[LocalDate] -> Types.TIMESTAMP,
-		classOf[LocalTime] -> Types.TIME,
-		classOf[java.util.Date] -> Types.TIMESTAMP,
-		classOf[Array[Byte]] -> Types.BLOB
-	)
+	private def sqlParam(clz: Class[_]): Int =
+		if (clz == classOf[String]) Types.VARCHAR
+		else if (clz == classOf[Int]) Types.INTEGER
+		else if (clz == classOf[java.lang.Integer]) Types.INTEGER
+		else if (clz == classOf[Long]) Types.BIGINT
+		else if (clz == classOf[java.lang.Long]) Types.BIGINT
+		else if (clz == classOf[Float]) Types.FLOAT
+		else if (clz == classOf[java.lang.Float]) Types.FLOAT
+		else if (clz == classOf[Double]) Types.DOUBLE
+		else if (clz == classOf[java.lang.Double]) Types.DOUBLE
+		else if (clz == classOf[DateTime]) Types.TIMESTAMP
+		else if (clz == classOf[Calendar]) Types.TIMESTAMP
+		else if (clz == classOf[BigDecimal]) Types.NUMERIC
+		else if (clz == classOf[Boolean]) Types.BIT
+		else if (clz == classOf[java.lang.Boolean]) Types.BIT
+		else if (clz == classOf[Byte]) Types.SMALLINT
+		else if (clz == classOf[java.lang.Byte]) Types.SMALLINT
+		else if (clz == classOf[Short]) Types.SMALLINT
+		else if (clz == classOf[java.lang.Short]) Types.SMALLINT
+		else if (clz == classOf[LocalDate]) Types.TIMESTAMP
+		else if (clz == classOf[LocalTime]) Types.TIME
+		else if (clz == classOf[java.util.Date]) Types.TIMESTAMP
+		else if (clz == classOf[Array[Byte]] || clz == classOf[Blob]) Types.BLOB
+		else Types.OTHER
 
-	def isPrimitiveJdbcType(tpe: Class[_]) = sqlParamMap.contains(tpe)
+	def isPrimitiveJdbcType(tpe: Class[_]) = sqlParam(tpe) != Types.OTHER
 
 	def toSqlParameter(l: List[(Class[_], Any)]): List[SqlParameterValue] = l.map {
 		case (clz, v) =>
 			toSqlParameter(clz, v)
 	}
 	def toSqlParameter(tpe: Class[_], value: Any): SqlParameterValue = {
-		val t = sqlParamMap(tpe)
-		val v = if (t == Types.BLOB) new SqlLobValue(value.asInstanceOf[Array[Byte]]) else value
+		val t = sqlParam(tpe)
+		if (t == Types.OTHER) throw new IllegalArgumentException("unknown type " + tpe)
+		val v = if (t == Types.BLOB) {
+			if (tpe == classOf[Array[Byte]])
+				new SqlLobValue(value.asInstanceOf[Array[Byte]])
+			else value.asInstanceOf[Blob].toSqlLobValue
+		} else value
 		new SqlParameterValue(t, v) {
 			override def toString = value.toString
 		}
