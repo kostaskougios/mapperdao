@@ -15,46 +15,50 @@ import com.googlecode.mapperdao.jdbc.Setup
 class BlobSuite extends FunSuite with ShouldMatchers {
 	import CommonEntities._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ImageEntity))
-	val ie = ImageEntity
+	// blobs are not currently supported for derby
+	if (Setup.database != "derby") {
 
-	test("CRUD") {
-		createImage(jdbc)
+		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ImageEntity))
+		val ie = ImageEntity
 
-		val im1 = Image("tree", Array(5, 6, 7))
-		val inserted = mapperDao.insert(ImageEntity, im1)
-		inserted should be === im1
+		test("CRUD") {
+			createImage(jdbc)
 
-		val selected = mapperDao.select(ImageEntity, inserted.id).get
-		selected.data.toList should be === inserted.data.toList
+			val im1 = Image("tree", Array(5, 6, 7))
+			val inserted = mapperDao.insert(ImageEntity, im1)
+			inserted should be === im1
 
-		val uim1 = im1.copy(data = Array(15, 16, 17, 18))
-		val updated = mapperDao.update(ImageEntity, inserted, uim1)
-		updated should be === uim1
+			val selected = mapperDao.select(ImageEntity, inserted.id).get
+			selected.data.toList should be === inserted.data.toList
 
-		mapperDao.select(ImageEntity, inserted.id).get.data.toList should be === uim1.data.toList
+			val uim1 = im1.copy(data = Array(15, 16, 17, 18))
+			val updated = mapperDao.update(ImageEntity, inserted, uim1)
+			updated should be === uim1
 
-		mapperDao.delete(ImageEntity, updated)
-		mapperDao.select(ImageEntity, inserted.id) should be === None
-	}
+			mapperDao.select(ImageEntity, inserted.id).get.data.toList should be === uim1.data.toList
 
-	test("query") {
-		createImage(jdbc)
+			mapperDao.delete(ImageEntity, updated)
+			mapperDao.select(ImageEntity, inserted.id) should be === None
+		}
 
-		val im1 = Image("tree1", Array(5, 6, 7))
-		val i1 = mapperDao.insert(ImageEntity, im1)
-		val im2 = Image("tree2", Array(15, 16))
-		val i2 = mapperDao.insert(ImageEntity, im2)
+		test("query") {
+			createImage(jdbc)
 
-		import Query._
+			val im1 = Image("tree1", Array(5, 6, 7))
+			val i1 = mapperDao.insert(ImageEntity, im1)
+			val im2 = Image("tree2", Array(15, 16))
+			val i2 = mapperDao.insert(ImageEntity, im2)
 
-		val l = (
-			select
-			from ie
-			orderBy (ie.id, asc)
-		).toList(queryDao)
+			import Query._
 
-		l.head.data.toList should be === im1.data.toList
-		l.tail.head.data.toList should be === im2.data.toList
+			val l = (
+				select
+				from ie
+				orderBy (ie.id, asc)
+			).toList(queryDao)
+
+			l.head.data.toList should be === im1.data.toList
+			l.tail.head.data.toList should be === im2.data.toList
+		}
 	}
 }

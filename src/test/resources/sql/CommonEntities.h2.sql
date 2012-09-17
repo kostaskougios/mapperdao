@@ -35,3 +35,10 @@ create table Person(
 	primary key (id),
 	foreign key (company_id) references Company(id) on delete cascade on update cascade
 )
+
+[image]
+create table Image(
+	id serial primary key,
+	name varchar(20) not null,
+	data blob not null
+)
