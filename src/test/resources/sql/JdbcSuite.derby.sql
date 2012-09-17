@@ -12,3 +12,10 @@ CREATE TABLE test_generatedkeys (
 	dt timestamp,
 	primary key (id)
 )
+;
+create table test_blob (
+	id int NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+	name varchar(100),
+	data blob not null,
+	primary key (id)
+)

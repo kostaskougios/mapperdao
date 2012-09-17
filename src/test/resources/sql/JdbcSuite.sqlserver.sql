@@ -13,3 +13,9 @@ CREATE TABLE test_generatedkeys
 	dt datetime,
 	primary key (id)
 )
+;
+create table test_blob (
+	id int NOT NULL identity(1,1) primary key,
+	name varchar(100),
+	data varBinary(MAX) not null
+)

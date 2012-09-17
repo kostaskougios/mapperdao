@@ -19,3 +19,15 @@ before insert on test_generatedkeys for each row
 begin
 	select myseq.nextval into :new.id from dual;
 end;
+;
+create table test_blob (
+	id number NOT NULL,
+	name varchar(100),
+	data blob not null
+)
+;
+create or replace trigger test_blob_autonumber
+before insert on test_blob for each row
+begin
+	select myseq.nextval into :new.id from dual;
+end;

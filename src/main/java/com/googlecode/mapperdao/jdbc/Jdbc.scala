@@ -281,7 +281,9 @@ object Jdbc {
 		if (t == Types.OTHER) throw new IllegalArgumentException("unknown type " + tpe)
 		val v = if (t == Types.BLOB) {
 			if (tpe == classOf[Array[Byte]])
-				new SqlLobValue(value.asInstanceOf[Array[Byte]])
+				new SqlLobValue(value.asInstanceOf[Array[Byte]]) {
+					override def toString = "<blob>"
+				}
 			else value.asInstanceOf[Blob].toSqlLobValue
 		} else value
 		new SqlParameterValue(t, v) {

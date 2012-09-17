@@ -13,3 +13,9 @@ CREATE TABLE test_generatedkeys
 	dt timestamp,
 	primary key (id)
 )
+;
+create table test_blob (
+	id serial primary key,
+	name varchar(100),
+	data binary not null
+)
