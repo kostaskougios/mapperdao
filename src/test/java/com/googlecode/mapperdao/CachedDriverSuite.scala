@@ -30,7 +30,7 @@ class CachedDriverSuite extends FunSuite with ShouldMatchers {
 			override def escapeColumnNames(name: String) = name
 			override def escapeTableNames(name: String) = name
 		}
-		val sqlBuilder = new SqlBuilder(escapeNamesStrategy)
+		val sqlBuilder = new SqlBuilder(this, escapeNamesStrategy)
 
 		override def doSelect[PC, T](selectConfig: SelectConfig, tpe: Type[PC, T], where: List[(SimpleColumn, Any)]): List[DatabaseValues] = Nil
 

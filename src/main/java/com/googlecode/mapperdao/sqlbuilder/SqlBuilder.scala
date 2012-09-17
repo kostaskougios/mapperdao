@@ -9,16 +9,18 @@ import com.googlecode.mapperdao.ColumnInfo
 import com.googlecode.mapperdao.QueryDao
 import com.googlecode.mapperdao.ColumnInfoManyToOne
 import com.googlecode.mapperdao.ColumnInfoOneToOne
+import com.googlecode.mapperdao.drivers.Driver
 
 /**
- * builds queries, inserts, updates and deletes
+ * builds queries, inserts, updates and deletes. This is a thread-safe factory, 1 instance can be reused
+ * to create builders.
  *
  * @author kostantinos.kougios
  *
  * 8 Jul 2012
  */
 
-private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
+private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeNamesStrategy) {
 
 	trait Expression {
 		def toSql: String
@@ -104,8 +106,10 @@ private[mapperdao] class SqlBuilder(escapeNamesStrategy: EscapeNamesStrategy) {
 
 		private val leftValues = functionToValues(left)
 
+		private def functionCall(v: SqlFunctionValue[_]) = driver.functionCallPrependUser.map(_ + ".").getOrElse("") + v.name
+
 		private def functionToSql[T](v: SqlFunctionValue[T]): String = {
-			val sb = new StringBuilder(v.name) append '('
+			val sb = new StringBuilder(functionCall(v)) append '('
 			sb append v.values.map {
 				case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) =>
 					"?"

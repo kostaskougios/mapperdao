@@ -162,62 +162,65 @@ class SqlFunctionSuite extends FunSuite with ShouldMatchers {
 			).toSet(queryDao) should be === Set(ca)
 		}
 
-		test("query using boolean function, literal param positive") {
-			createPersonCompany(jdbc)
-			val ca = mapperDao.insert(CompanyEntity, Company("company A"))
-			val cb = mapperDao.insert(CompanyEntity, Company("company B"))
+		// sqlserver doesn't support bool type
+		if (Setup.database != "sqlserver") {
+			test("query using boolean function, literal param positive") {
+				createPersonCompany(jdbc)
+				val ca = mapperDao.insert(CompanyEntity, Company("company A"))
+				val cb = mapperDao.insert(CompanyEntity, Company("company B"))
 
-			import Query._
-			(
-				select
-				from ce
-				where companyAFunction("company A")
-			).toSet(queryDao) should be === Set(ca, cb)
-		}
+				import Query._
+				(
+					select
+					from ce
+					where companyAFunction("company A")
+				).toSet(queryDao) should be === Set(ca, cb)
+			}
 
-		test("query using boolean function, literal param negative") {
-			createPersonCompany(jdbc)
-			val ca = mapperDao.insert(CompanyEntity, Company("company A"))
-			val cb = mapperDao.insert(CompanyEntity, Company("company B"))
+			test("query using boolean function, literal param negative") {
+				createPersonCompany(jdbc)
+				val ca = mapperDao.insert(CompanyEntity, Company("company A"))
+				val cb = mapperDao.insert(CompanyEntity, Company("company B"))
 
-			import Query._
-			(
-				select
-				from ce
-				where companyAFunction("company XX")
-			).toSet(queryDao) should be === Set()
-		}
+				import Query._
+				(
+					select
+					from ce
+					where companyAFunction("company XX")
+				).toSet(queryDao) should be === Set()
+			}
 
-		test("query using boolean function, columninfo param") {
-			createPersonCompany(jdbc)
-			val ca = mapperDao.insert(CompanyEntity, Company("company A"))
-			mapperDao.insert(CompanyEntity, Company("company B"))
+			test("query using boolean function, columninfo param") {
+				createPersonCompany(jdbc)
+				val ca = mapperDao.insert(CompanyEntity, Company("company A"))
+				mapperDao.insert(CompanyEntity, Company("company B"))
 
-			import Query._
-			(
-				select
-				from ce
-				where companyAFunction(ce.name)
-			).toSet(queryDao) should be === Set(ca)
-		}
+				import Query._
+				(
+					select
+					from ce
+					where companyAFunction(ce.name)
+				).toSet(queryDao) should be === Set(ca)
+			}
 
-		test("query using boolean function with join") {
-			createPersonCompany(jdbc)
-			val ca = mapperDao.insert(CompanyEntity, Company("company A"))
-			val cb = mapperDao.insert(CompanyEntity, Company("company B"))
+			test("query using boolean function with join") {
+				createPersonCompany(jdbc)
+				val ca = mapperDao.insert(CompanyEntity, Company("company A"))
+				val cb = mapperDao.insert(CompanyEntity, Company("company B"))
 
-			val p1a = mapperDao.insert(PersonEntity, Person("person 1 - a", ca))
-			val p2a = mapperDao.insert(PersonEntity, Person("person 2 - a", ca))
-			val p1b = mapperDao.insert(PersonEntity, Person("person 1 - b", cb))
-			val p2b = mapperDao.insert(PersonEntity, Person("person 1 - b", cb))
+				val p1a = mapperDao.insert(PersonEntity, Person("person 1 - a", ca))
+				val p2a = mapperDao.insert(PersonEntity, Person("person 2 - a", ca))
+				val p1b = mapperDao.insert(PersonEntity, Person("person 1 - b", cb))
+				val p2b = mapperDao.insert(PersonEntity, Person("person 1 - b", cb))
 
-			import Query._
-			(
-				select
-				from pe
-				join (pe, pe.company, ce)
-				where companyAFunction(ce.name)
-			).toSet(queryDao) should be === Set(p1a, p2a)
+				import Query._
+				(
+					select
+					from pe
+					join (pe, pe.company, ce)
+					where companyAFunction(ce.name)
+				).toSet(queryDao) should be === Set(p1a, p2a)
+			}
 		}
 	}
 }

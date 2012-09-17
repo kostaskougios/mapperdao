@@ -24,7 +24,7 @@ class PostgreSql(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager
 		override def escapeColumnNames(name: String) = if (invalidColumnNames.contains(name.toLowerCase)) '"' + name + '"'; else name
 		override def escapeTableNames(name: String) = if (invalidTableNames.contains(name.toLowerCase)) '"' + name + '"'; else name
 	}
-	val sqlBuilder = new SqlBuilder(escapeNamesStrategy)
+	val sqlBuilder = new SqlBuilder(this, escapeNamesStrategy)
 
 	//	override protected def insertSql[PC, T](tpe: Type[PC, T], args: List[(SimpleColumn, Any)]): String =
 	//		{

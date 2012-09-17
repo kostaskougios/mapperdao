@@ -337,6 +337,14 @@ abstract class Driver {
 	def queryForLong(queryConfig: QueryConfig, sql: String, args: List[Any]): Long = jdbc.queryForLong(sql, args)
 	/**
 	 * =====================================================================================
+	 * sql-function related methods
+	 * =====================================================================================
+	 */
+
+	def functionCallPrependUser: Option[String] = None
+
+	/**
+	 * =====================================================================================
 	 * standard methods
 	 * =====================================================================================
 	 */
