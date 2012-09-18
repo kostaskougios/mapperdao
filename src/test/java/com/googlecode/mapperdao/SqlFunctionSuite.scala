@@ -162,8 +162,8 @@ class SqlFunctionSuite extends FunSuite with ShouldMatchers {
 			).toSet(queryDao) should be === Set(ca)
 		}
 
-		// sqlserver doesn't support bool type
-		if (Setup.database != "sqlserver") {
+		// sqlserver/oracle dont support bool type
+		if (Setup.database != "sqlserver" && Setup.database != "oracle") {
 			test("query using boolean function, literal param positive") {
 				createPersonCompany(jdbc)
 				val ca = mapperDao.insert(CompanyEntity, Company("company A"))
