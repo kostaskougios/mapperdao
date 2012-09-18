@@ -247,26 +247,19 @@ object Jdbc {
 
 	private def sqlParam(clz: Class[_]): Int =
 		if (clz == classOf[String]) Types.VARCHAR
-		else if (clz == classOf[Int]) Types.INTEGER
-		else if (clz == classOf[java.lang.Integer]) Types.INTEGER
-		else if (clz == classOf[Long]) Types.BIGINT
-		else if (clz == classOf[java.lang.Long]) Types.BIGINT
-		else if (clz == classOf[Float]) Types.FLOAT
-		else if (clz == classOf[java.lang.Float]) Types.FLOAT
-		else if (clz == classOf[Double]) Types.DOUBLE
-		else if (clz == classOf[java.lang.Double]) Types.DOUBLE
-		else if (clz == classOf[DateTime]) Types.TIMESTAMP
-		else if (clz == classOf[Calendar]) Types.TIMESTAMP
+		else if (clz == classOf[Int] || clz == classOf[java.lang.Integer]) Types.INTEGER
+		else if (clz == classOf[Long] || clz == classOf[java.lang.Long]) Types.BIGINT
+		else if (clz == classOf[Float] || clz == classOf[java.lang.Float]) Types.FLOAT
+		else if (clz == classOf[Double] || clz == classOf[java.lang.Double]) Types.DOUBLE
+		else if (clz == classOf[DateTime]
+			|| clz == classOf[Calendar]
+			|| clz == classOf[java.util.Date]) Types.TIMESTAMP
 		else if (clz == classOf[BigDecimal]) Types.NUMERIC
-		else if (clz == classOf[Boolean]) Types.BIT
-		else if (clz == classOf[java.lang.Boolean]) Types.BIT
-		else if (clz == classOf[Byte]) Types.SMALLINT
-		else if (clz == classOf[java.lang.Byte]) Types.SMALLINT
-		else if (clz == classOf[Short]) Types.SMALLINT
-		else if (clz == classOf[java.lang.Short]) Types.SMALLINT
+		else if (clz == classOf[Boolean] || clz == classOf[java.lang.Boolean]) Types.BIT
+		else if (clz == classOf[Byte] || clz == classOf[java.lang.Byte]) Types.SMALLINT
+		else if (clz == classOf[Short] || clz == classOf[java.lang.Short]) Types.SMALLINT
 		else if (clz == classOf[LocalDate]) Types.TIMESTAMP
 		else if (clz == classOf[LocalTime]) Types.TIME
-		else if (clz == classOf[java.util.Date]) Types.TIMESTAMP
 		else if (clz == classOf[Array[Byte]] || clz == classOf[Blob]) Types.BLOB
 		else Types.OTHER
 
