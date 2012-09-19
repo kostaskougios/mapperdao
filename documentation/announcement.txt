@@ -1,0 +1,22 @@
+Hi all,
+
+I am happy to announce the release of mapperdao 1.0.0.rc14. This version includes ...........................
+
+MapperDao is an ORM library for scala and java with drivers for the following databases:
+
+    oracle
+    postgresql
+    mysql
+    derby
+    sql server
+    h2 
+
+Tutorial: http://mapperdao-examples.googlecode.com/files/tutorial1.4.pdf
+
+MapperDao supports all common relationships (one-to-many, many-to-one, many-to-many, one-to-one), key-less or composite keyed entities and a type-safe DSL for querying the data which resembles sql. Summary of features can be found at at https://code.google.com/p/mapperdao/wiki/Summary
+
+    The library can be found at https://code.google.com/p/mapperdao/
+    Documentation can be found at the wiki : https://code.google.com/p/mapperdao/wiki/TableOfContents
+    a pdf tutorial can be found at http://mapperdao-examples.googlecode.com/files/tutorial1.4.pdf
+    sample code can be found at https://code.google.com/p/mapperdao-examples/
+    the discussion group is at http://groups.google.com/group/mapperdao
