@@ -73,6 +73,12 @@ trait MapperDao {
 	 */
 	def update[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC, newO: T): T with PC
 
+	def insertOrUpdate[PC, T](
+		updateConfig: UpdateConfig,
+		entity: Entity[PC, T],
+		o: T,
+		ids: List[Any]): T with PC
+
 	/**
 	 * select an entity by it's ID
 	 *

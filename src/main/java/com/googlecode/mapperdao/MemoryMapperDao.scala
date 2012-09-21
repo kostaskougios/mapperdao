@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.ConcurrentHashMap
 import exceptions.PersistException
 import org.joda.time.chrono.ISOChronology
+import com.googlecode.mapperdao.utils.NYI
 
 /**
  * a memory implementation of the MapperDao interface, useful for testing
@@ -112,6 +113,12 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 		val key = entity.clz :: ids
 		m.remove(key)
 	}
+
+	override def insertOrUpdate[PC, T](
+		updateConfig: UpdateConfig,
+		entity: Entity[PC, T],
+		o: T,
+		ids: List[Any]): T with PC = NYI()
 
 	override def toString = "MemoryMapperDao(%s)".format(m)
 }

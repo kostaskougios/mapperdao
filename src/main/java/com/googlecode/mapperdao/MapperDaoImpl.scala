@@ -9,6 +9,7 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.plugins.SelectMock
 import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.utils.Equality
+import com.googlecode.mapperdao.utils.NYI
 
 /**
  * @author kostantinos.kougios
@@ -552,6 +553,14 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 		unlinkVisitor.visit(entity, o)
 		unlinkVisitor.unlink(o)
 		o
+	}
+
+	override def insertOrUpdate[PC, T](
+		updateConfig: UpdateConfig,
+		entity: Entity[PC, T],
+		o: T,
+		ids: List[Any]): T with PC = {
+		NYI()
 	}
 
 	/**
