@@ -73,28 +73,17 @@ trait MapperDao {
 	 */
 	def update[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC, newO: T): T with PC
 
-	def insertOrUpdate[PC, T](
+	def insertOrUpdate[ID, PC <: DeclaredIds[ID], T](
 		entity: Entity[PC, T],
 		o: T,
-		idO: Option[Any]): T with PC = insertOrUpdate(
-		entity,
-		o,
-		if (idO.isDefined)
-			List(idO.get)
-		else Nil
-	)
+		ids: ID): T with PC = insertOrUpdate(defaultSelectConfig, defaultUpdateConfig, entity, o, ids)
 
-	def insertOrUpdate[PC, T](
-		entity: Entity[PC, T],
-		o: T,
-		ids: List[Any]): T with PC = insertOrUpdate(defaultSelectConfig, defaultUpdateConfig, entity, o, ids)
-
-	def insertOrUpdate[PC, T](
+	def insertOrUpdate[ID, PC <: DeclaredIds[ID], T](
 		selectConfig: SelectConfig,
 		updateConfig: UpdateConfig,
 		entity: Entity[PC, T],
 		o: T,
-		ids: List[Any]): T with PC
+		ids: ID): T with PC
 
 	/**
 	 * select an entity by it's ID

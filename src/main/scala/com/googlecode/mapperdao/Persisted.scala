@@ -12,7 +12,7 @@ package com.googlecode.mapperdao
  *
  * 17 Jul 2011
  */
-trait Persisted {
+protected trait Persisted {
 
 	// to avoid naming conflicts, all these field names start with "mapperDao" 
 	@transient
