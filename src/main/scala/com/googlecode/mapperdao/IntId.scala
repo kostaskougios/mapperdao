@@ -12,6 +12,6 @@ package com.googlecode.mapperdao
  *
  * 3 Aug 2011
  */
-trait IntId {
+trait IntId extends DeclaredIds[Int] {
 	val id: Int
 }

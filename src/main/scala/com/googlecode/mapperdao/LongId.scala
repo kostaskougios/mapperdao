@@ -13,6 +13,6 @@ package com.googlecode.mapperdao
  *
  * 5 Aug 2011
  */
-trait LongId {
+trait LongId extends DeclaredIds[Long] {
 	val id: Long
 }
