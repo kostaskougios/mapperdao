@@ -559,9 +559,9 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 		updateConfig: UpdateConfig,
 		entity: Entity[PC, T],
 		o: T,
-		ids: List[Any]): T with PC = {
-		NYI()
-	}
+		ids: List[Any]): T with PC = if (ids.isEmpty) {
+		insert(updateConfig, entity, o)
+	} else NYI()
 
 	/**
 	 * ===================================================================================
