@@ -556,12 +556,18 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 	}
 
 	override def insertOrUpdate[PC, T](
+		selectConfig: SelectConfig,
 		updateConfig: UpdateConfig,
 		entity: Entity[PC, T],
 		o: T,
-		ids: List[Any]): T with PC = if (ids.isEmpty) {
-		insert(updateConfig, entity, o)
-	} else NYI()
+		ids: List[Any]): T with PC =
+		if (ids.isEmpty) {
+			insert(updateConfig, entity, o)
+		} else select(selectConfig, entity, ids) match {
+			case None => insert(updateConfig, entity, o)
+			case Some(oldO) =>
+				update(updateConfig, entity, oldO, o)
+		}
 
 	/**
 	 * ===================================================================================

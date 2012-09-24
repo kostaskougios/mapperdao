@@ -77,7 +77,6 @@ trait MapperDao {
 		entity: Entity[PC, T],
 		o: T,
 		idO: Option[Any]): T with PC = insertOrUpdate(
-		defaultUpdateConfig,
 		entity,
 		o,
 		if (idO.isDefined)
@@ -88,9 +87,10 @@ trait MapperDao {
 	def insertOrUpdate[PC, T](
 		entity: Entity[PC, T],
 		o: T,
-		ids: List[Any]): T with PC = insertOrUpdate(defaultUpdateConfig, entity, o, ids)
+		ids: List[Any]): T with PC = insertOrUpdate(defaultSelectConfig, defaultUpdateConfig, entity, o, ids)
 
 	def insertOrUpdate[PC, T](
+		selectConfig: SelectConfig,
 		updateConfig: UpdateConfig,
 		entity: Entity[PC, T],
 		o: T,

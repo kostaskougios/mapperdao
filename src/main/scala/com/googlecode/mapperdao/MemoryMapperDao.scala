@@ -115,6 +115,7 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 	}
 
 	override def insertOrUpdate[PC, T](
+		selectConfig: SelectConfig,
 		updateConfig: UpdateConfig,
 		entity: Entity[PC, T],
 		o: T,
