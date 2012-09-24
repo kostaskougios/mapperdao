@@ -33,5 +33,15 @@ class InsertOrUpdateSuite extends FunSuite with ShouldMatchers {
 			inserted should be === person
 			mapperDao.select(PersonEntity, inserted.id).get should be === inserted
 		}
+
+		test("insertOrUpdate for existing entity") {
+			createPersonCompany(jdbc)
+			val person = Person("person 1", company)
+			val inserted = mapperDao.insert(PersonEntity, person)
+			val upd = Person("person 1 updated", inserted.company)
+			val updated = mapperDao.insertOrUpdate(PersonEntity, upd, Some(inserted.id))
+			updated should be === upd
+			mapperDao.select(PersonEntity, inserted.id).get should be === updated
+		}
 	}
 }
