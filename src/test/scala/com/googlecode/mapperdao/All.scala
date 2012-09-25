@@ -101,7 +101,7 @@ import org.scalatest.FunSuite
 		classOf[LoadingEachEntityOnlyOnceSuite],
 		classOf[SqlFunctionSuite],
 		classOf[BlobSuite],
-		classOf[InsertOrUpdateSuite]
+		classOf[MergeSuite]
 	//classOf[MultiThreadedQuerySuite]
 	)
 )
