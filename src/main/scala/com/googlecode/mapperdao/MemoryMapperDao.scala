@@ -114,12 +114,12 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 		m.remove(key)
 	}
 
-	override def insertOrUpdate[PC, T](
+	override def merge[ID, PC <: DeclaredIds[ID], T](
 		selectConfig: SelectConfig,
 		updateConfig: UpdateConfig,
 		entity: Entity[PC, T],
 		o: T,
-		ids: List[Any]): T with PC = NYI()
+		ids: ID): T with PC = NYI()
 
 	override def toString = "MemoryMapperDao(%s)".format(m)
 }
