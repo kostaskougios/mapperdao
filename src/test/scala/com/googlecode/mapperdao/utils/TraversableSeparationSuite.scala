@@ -4,9 +4,10 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
-import com.googlecode.mapperdao.SimpleEntity
+import com.googlecode.mapperdao.Entity
 import com.googlecode.mapperdao.StringEntity
 import com.googlecode.mapperdao.Persisted
+import com.googlecode.mapperdao.IntId
 
 /**
  * @author kostantinos.kougios
@@ -72,8 +73,8 @@ class TraversableSeparationSuite extends FunSuite with ShouldMatchers {
 	}
 
 	case class X(id: Int)
-	object XEntity extends SimpleEntity[X] {
-		def constructor(implicit m) = new X(1) with Persisted
+	object XEntity extends Entity[IntId, X] {
+		def constructor(implicit m) = new X(1) with IntId
 	}
 
 	val stringEntity = StringEntity.oneToMany("", "", "")

@@ -6,6 +6,7 @@ import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 import org.scala_tools.time.Imports._
 import com.googlecode.mapperdao.jdbc.Setup
+import com.googlecode.mapperdao.utils.Helpers
 
 /**
  * @author kostantinos.kougios
@@ -198,7 +199,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			val spr1 = l.head.singlePartyRoles.filter(_.roleType == role1).head
 
 			val upd = spr1.copy(roleType = role3)
-			val updated = mapperDao.update(SinglePartyRoleEntity, spr1, upd)
+			val updated = mapperDao.update(SinglePartyRoleEntity, Helpers.asNoId(spr1), upd)
 			updated should be === upd
 			val reloaded = mapperDao.select(SinglePartyRoleEntity, role3, person1).get
 			reloaded should be === updated
@@ -282,27 +283,27 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 	case class RoleType(name: String, description: Option[String])
 	case class InterPartyRelationship(from: Person, to: Person, fromDate: Option[DateTime], toDate: Option[DateTime])
 
-	object RoleTypeEntity extends SimpleEntity[RoleType] {
+	object RoleTypeEntity extends Entity[IntId, RoleType] {
 		val name = key("name") to (_.name)
 		val description = column("description") option (_.description)
 
 		def constructor(implicit m: ValuesMap) = {
-			new RoleType(name, description) with Persisted
+			new RoleType(name, description) with IntId
 		}
 	}
 
-	object PersonEntity extends SimpleEntity[Person] {
+	object PersonEntity extends Entity[IntId, Person] {
 		val id = key("id") to (_.id)
 		val firstName = column("firstname") to (_.firstName)
 		val lastName = column("lastname") to (_.lastName)
 		val singlePartyRoles = onetomany(SinglePartyRoleEntity) to (_.singlePartyRoles)
 
 		def constructor(implicit m: ValuesMap) = {
-			new Person(id, firstName, lastName, singlePartyRoles) with Persisted
+			new Person(id, firstName, lastName, singlePartyRoles) with IntId
 		}
 	}
 
-	object SinglePartyRoleEntity extends SimpleEntity[SinglePartyRole] {
+	object SinglePartyRoleEntity extends Entity[NoId, SinglePartyRole] {
 		val roleType = manytoone(RoleTypeEntity) to (_.roleType)
 		val fromDate = column("fromDate") option (_.fromDate)
 		val toDate = column("toDate") option (_.toDate)
@@ -310,10 +311,10 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 		declarePrimaryKey(roleType)
 		declarePrimaryKey(PersonEntity.singlePartyRoles)
 
-		def constructor(implicit m: ValuesMap) = new SinglePartyRole(roleType, fromDate, toDate) with Persisted
+		def constructor(implicit m: ValuesMap) = new SinglePartyRole(roleType, fromDate, toDate) with NoId
 	}
 
-	object InterPartyRelationshipEntity extends SimpleEntity[InterPartyRelationship] {
+	object InterPartyRelationshipEntity extends Entity[NoId, InterPartyRelationship] {
 		val from = manytoone(PersonEntity) foreignkey ("from_id") to (_.from)
 		val to = manytoone(PersonEntity) foreignkey ("to_id") to (_.to)
 		val fromDate = column("fromDate") option (_.fromDate)
@@ -322,7 +323,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 		declarePrimaryKey(from)
 		declarePrimaryKey(to)
 
-		def constructor(implicit m: ValuesMap) = new InterPartyRelationship(from, to, fromDate, toDate) with Persisted
+		def constructor(implicit m: ValuesMap) = new InterPartyRelationship(from, to, fromDate, toDate) with NoId
 	}
 }
 

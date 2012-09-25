@@ -2,6 +2,7 @@ package com.googlecode.mapperdao.utils
 import com.googlecode.mapperdao.IntId
 import com.googlecode.mapperdao.LongId
 import com.googlecode.mapperdao.Persisted
+import com.googlecode.mapperdao.NoId
 
 /**
  * useful methods for real life applications that use
@@ -43,6 +44,12 @@ object Helpers {
 		case _ => throw new IllegalArgumentException("not an LongId : " + o.toString)
 	}
 
+	/**
+	 * when loading an NoId entity from the database, the type is T with NoId. If for
+	 * some reason we're sure that the entity T is of NoId, we can easily cast it
+	 * using this utility method
+	 */
+	def asNoId[T](t: T) = t.asInstanceOf[T with NoId]
 	/**
 	 * when loading an IntId entity from the database, the type is T with IntId. If for
 	 * some reason we're sure that the entity T is of IntId, we can easily cast it

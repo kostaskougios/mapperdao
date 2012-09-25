@@ -27,7 +27,7 @@ class DaoMixinsSuite extends FunSuite with ShouldMatchers {
 		protected val queryDao = DaoMixinsSuite.this.queryDao
 		protected val mapperDao = DaoMixinsSuite.this.mapperDao
 	}
-	object ProductDaoTransactional extends TransactionalSimpleCRUD[Product, Long] with SimpleAll[Product] {
+	object ProductDaoTransactional extends TransactionalCRUD[Long, LongId, Product] with SimpleAll[Product] {
 		protected val entity = ProductEntity
 		protected val queryDao = DaoMixinsSuite.this.queryDao
 		protected val mapperDao = DaoMixinsSuite.this.mapperDao

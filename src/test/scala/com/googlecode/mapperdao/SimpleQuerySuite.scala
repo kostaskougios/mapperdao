@@ -299,11 +299,11 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers {
 
 	case class JobPosition(val id: Int, var name: String, val start: DateTime)
 
-	object JobPositionEntity extends SimpleEntity[JobPosition] {
+	object JobPositionEntity extends Entity[IntId, JobPosition] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val start = column("start") to (_.start)
 
-		def constructor(implicit m) = new JobPosition(id, name, start) with Persisted
+		def constructor(implicit m) = new JobPosition(id, name, start) with IntId
 	}
 }

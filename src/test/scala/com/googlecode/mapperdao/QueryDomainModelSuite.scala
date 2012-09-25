@@ -15,19 +15,19 @@ class QueryDomainModelSuite extends FunSuite with ShouldMatchers {
 	case class Product(val id: Int, val name: String, val attributes: Set[Attribute])
 	case class Attribute(val id: Int, val name: String, val value: String)
 
-	object ProductEntity extends SimpleEntity[Product] {
+	object ProductEntity extends Entity[IntId, Product] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
-		def constructor(implicit m) = new Product(id, name, attributes) with Persisted
+		def constructor(implicit m) = new Product(id, name, attributes) with IntId
 	}
 
-	object AttributeEntity extends SimpleEntity[Attribute] {
+	object AttributeEntity extends Entity[IntId, Attribute] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m) = new Attribute(id, name, value) with Persisted
+		def constructor(implicit m) = new Attribute(id, name, value) with IntId
 	}
 
 	val prod = ProductEntity

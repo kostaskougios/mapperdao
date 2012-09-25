@@ -6,6 +6,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
+import com.googlecode.mapperdao.utils.Helpers
 
 /**
  * this is a self contained spec, all test entities, mapping are contained within this spec
@@ -67,7 +68,7 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 		var updated: JobPosition = inserted
 		def doUpdate(from: JobPosition, to: JobPosition) =
 			{
-				updated = mapperDao.update(JobPositionEntity, from, to)
+				updated = mapperDao.update(JobPositionEntity, Helpers.asIntId(from), to)
 				updated should be === to
 				mapperDao.select(JobPositionEntity, 5).get should be === to
 				mapperDao.select(JobPositionEntity, 5).get should be === updated
@@ -199,7 +200,7 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 	 * Mapping for JobPosition class
 	 * ============================================================================================================
 	 */
-	object JobPositionEntity extends SimpleEntity[JobPosition] {
+	object JobPositionEntity extends Entity[IntId, JobPosition] {
 		// now a description of the table and it's columns follows.
 		// each column is followed by a function JobPosition=>Any, that
 		// returns the value of the property for that column.
@@ -212,6 +213,6 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 
 		// a function from ValuesMap=>JobPosition that constructs the object.
 		// This means that immutability is possible and even desirable for entities!
-		def constructor(implicit m) = new JobPosition(id, name, start, end, rank, married) with Persisted
+		def constructor(implicit m) = new JobPosition(id, name, start, end, rank, married) with IntId
 	}
 }

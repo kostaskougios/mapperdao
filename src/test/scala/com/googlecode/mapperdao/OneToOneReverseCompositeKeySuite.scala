@@ -138,13 +138,13 @@ object OneToOneReverseCompositeKeySuite {
 	case class Inventory(id: Int, refCode: String, product: Product, stock: Int)
 	case class Product(name: String, inventory: Inventory)
 
-	object InventoryEntity extends SimpleEntity[Inventory] {
+	object InventoryEntity extends Entity[IntId, Inventory] {
 		val id = key("id") to (_.id)
 		val refCode = key("refCode") to (_.refCode)
 		val product = onetoone(ProductEntity) to (_.product)
 		val stock = column("stock") to (_.stock)
 
-		def constructor(implicit m) = new Inventory(id, refCode, product, stock) with Persisted
+		def constructor(implicit m) = new Inventory(id, refCode, product, stock) with IntId
 	}
 
 	object ProductEntity extends Entity[IntId, Product] {
@@ -154,7 +154,7 @@ object OneToOneReverseCompositeKeySuite {
 		val name = column("name") to (_.name)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 
-		def constructor(implicit m) = new Product(name, inventory) with Persisted with IntId {
+		def constructor(implicit m) = new Product(name, inventory) with IntId {
 			val id: Int = ProductEntity.id
 		}
 	}

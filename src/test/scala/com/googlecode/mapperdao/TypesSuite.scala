@@ -268,20 +268,20 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 
 	case class Dates(id: Int, localDate: LocalDate = null, time: LocalTime = null)
 
-	object DatesEntity extends SimpleEntity[Dates] {
+	object DatesEntity extends Entity[IntId, Dates] {
 		val id = key("id") to (_.id)
 		val localDate = column("localDate") to (_.localDate)
 		val time = column("time") to (_.time)
 
-		def constructor(implicit m) = new Dates(id, localDate, time) with Persisted
+		def constructor(implicit m) = new Dates(id, localDate, time) with IntId
 	}
 
 	case class ODates(id: Int, localDate: Option[LocalDate])
-	object ODatesEntity extends SimpleEntity[ODates]("Dates") {
+	object ODatesEntity extends Entity[IntId, ODates]("Dates") {
 		val id = key("id") to (_.id)
 		val localDate = column("localDate") option (_.localDate)
 
-		def constructor(implicit m) = new ODates(id, localDate) with Persisted
+		def constructor(implicit m) = new ODates(id, localDate) with IntId
 	}
 
 	case class BD(
@@ -291,14 +291,14 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		nvarchar: String = null,
 		text: String = null)
 
-	object BDEntity extends SimpleEntity[BD] {
+	object BDEntity extends Entity[IntId, BD] {
 		val id = key("id") to (_.id)
 		val big = column("big") to (_.big)
 		val bool = column("bool") to (_.bool)
 		val nvarchar = column("nv") to (_.nvarchar)
 		val text = column("tx") to (_.text)
 
-		def constructor(implicit m) = new BD(id, big, bool, nvarchar, text) with Persisted
+		def constructor(implicit m) = new BD(id, big, bool, nvarchar, text) with IntId
 	}
 
 	case class OBD(
@@ -313,7 +313,7 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		float: Option[Float] = None,
 		double: Option[Double] = None)
 
-	object OBDEntity extends SimpleEntity[OBD] {
+	object OBDEntity extends Entity[IntId, OBD] {
 		val id = key("id") to (_.id)
 		val big = column("big") option (_.big)
 		val bool = column("bool") option (_.bool)
@@ -335,6 +335,6 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 			int,
 			long,
 			float,
-			double) with Persisted
+			double) with IntId
 	}
 }

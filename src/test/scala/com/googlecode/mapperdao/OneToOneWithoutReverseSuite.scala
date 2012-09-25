@@ -45,7 +45,7 @@ class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
 		test("update id of related") {
 			createTables
 			val inserted = mapperDao.insert(InventoryEntity, Inventory(10, Product(1), 5))
-			val updatedProduct = mapperDao.update(ProductEntity, inserted.product, Product(7))
+			val updatedProduct = mapperDao.update(ProductEntity, Helpers.asIntId(inserted.product), Product(7))
 			updatedProduct should be === Product(7)
 			mapperDao.select(InventoryEntity, 10).get should be === Inventory(10, Product(7), 5)
 		}
@@ -113,17 +113,17 @@ class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
 	case class Inventory(val id: Int, val product: Product, val stock: Int)
 	case class Product(val id: Int)
 
-	object InventoryEntity extends SimpleEntity[Inventory] {
+	object InventoryEntity extends Entity[IntId, Inventory] {
 		val id = key("id") to (_.id)
 		val product = onetoone(ProductEntity) to (_.product)
 		val stock = column("stock") to (_.stock)
 
-		def constructor(implicit m) = new Inventory(id, product, stock) with Persisted
+		def constructor(implicit m) = new Inventory(id, product, stock) with IntId
 	}
 
-	object ProductEntity extends SimpleEntity[Product] {
+	object ProductEntity extends Entity[IntId, Product] {
 		val id = key("id") to (_.id)
 
-		def constructor(implicit m) = new Product(id) with Persisted
+		def constructor(implicit m) = new Product(id) with IntId
 	}
 }

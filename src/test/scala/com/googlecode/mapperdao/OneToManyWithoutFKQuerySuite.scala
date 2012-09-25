@@ -57,20 +57,20 @@ class OneToManyWithoutFKQuerySuite extends FunSuite with ShouldMatchers {
 		}
 	}
 
-	object InfoEntity extends SimpleEntity[Info] {
+	object InfoEntity extends Entity[NoId, Info] {
 		val title = column("title") to (_.title)
 		val loc = manytoone(LocationEntity) to (_.loc)
 
 		declarePrimaryKey(loc)
 
-		def constructor(implicit m) = new Info(title, loc) with Persisted
+		def constructor(implicit m) = new Info(title, loc) with NoId
 	}
 
-	object ProductEntity extends SimpleEntity[Product] {
+	object ProductEntity extends Entity[IntId, Product] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val infos = onetomany(InfoEntity) to (_.infos)
 
-		def constructor(implicit m) = new Product(id, name, infos) with Persisted
+		def constructor(implicit m) = new Product(id, name, infos) with IntId
 	}
 }

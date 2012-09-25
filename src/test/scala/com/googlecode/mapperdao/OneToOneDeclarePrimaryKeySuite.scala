@@ -66,18 +66,18 @@ class OneToOneDeclarePrimaryKeySuite extends FunSuite with ShouldMatchers {
 	case class Inventory(val product: Product, val stock: Int)
 	case class Product(val id: Int)
 
-	object InventoryEntity extends SimpleEntity[Inventory] {
+	object InventoryEntity extends Entity[NoId, Inventory] {
 		val product = onetoone(ProductEntity) to (_.product)
 		val stock = column("stock") to (_.stock)
 
 		declarePrimaryKey(product)
 
-		def constructor(implicit m) = new Inventory(product, stock) with Persisted
+		def constructor(implicit m) = new Inventory(product, stock) with NoId
 	}
 
-	object ProductEntity extends SimpleEntity[Product] {
+	object ProductEntity extends Entity[IntId, Product] {
 		val id = key("id") to (_.id)
 
-		def constructor(implicit m) = new Product(id) with Persisted
+		def constructor(implicit m) = new Product(id) with IntId
 	}
 }

@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao.utils
 import com.googlecode.mapperdao.IntId
 import com.googlecode.mapperdao.LongId
+import com.googlecode.mapperdao.StringId
 
 /**
  * provides CRUD methods for entities with IntId
@@ -51,4 +52,4 @@ trait LongIdCRUD[T] extends CRUD[Long, LongId, T] {
  */
 trait IntIdAll[T] extends All[IntId, T]
 trait LongIdAll[T] extends All[LongId, T]
-trait SimpleAll[T] extends All[AnyRef, T]
+trait StringAll[T] extends All[StringId, T]

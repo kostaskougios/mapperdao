@@ -5,6 +5,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
+import com.googlecode.mapperdao.utils.Helpers
 
 /**
  * this spec is self contained, all entities, mapping are contained in this class
@@ -29,7 +30,7 @@ class OneToManySuite extends FunSuite with ShouldMatchers {
 		val person = new Person(3, "Kostas", "K", Set(House(1, "London"), House(2, "Rhodes")), 16, List(jp1, jp2, jp3))
 		val inserted = mapperDao.insert(PersonEntity, person)
 		val house = inserted.owns.find(_.id == 1).get
-		mapperDao.update(HouseEntity, house, House(5, "London"))
+		mapperDao.update(HouseEntity, Helpers.asIntId(house), House(5, "London"))
 		mapperDao.select(PersonEntity, 3).get should be === Person(3, "Kostas", "K", Set(House(5, "London"), House(2, "Rhodes")), 16, List(jp1, jp2, jp3))
 	}
 
@@ -63,7 +64,7 @@ class OneToManySuite extends FunSuite with ShouldMatchers {
 		var updated: Person = inserted
 		def doUpdate(from: Person, to: Person) =
 			{
-				updated = mapperDao.update(PersonEntity, from, to)
+				updated = mapperDao.update(PersonEntity, Helpers.asIntId(from), to)
 				updated should be === to
 				mapperDao.select(PersonEntity, 3).get should be === updated
 				mapperDao.select(PersonEntity, 3).get should be === to
@@ -71,7 +72,7 @@ class OneToManySuite extends FunSuite with ShouldMatchers {
 		doUpdate(updated, new Person(3, "Changed", "K", updated.owns, 18, updated.positions.filterNot(_ == jp1)))
 		doUpdate(updated, new Person(3, "Changed Again", "Surname changed too", updated.owns.filter(_.address == "London"), 18, jp5 :: updated.positions.filterNot(jp ⇒ jp == jp1 || jp == jp3)))
 
-		mapperDao.delete(PersonEntity, updated)
+		mapperDao.delete(PersonEntity, Helpers.asIntId(updated))
 		mapperDao.select(PersonEntity, updated.id) should be(None)
 	}
 
@@ -222,7 +223,7 @@ object OneToManySpec {
 	 * Mapping for JobPosition class
 	 * ============================================================================================================
 	 */
-	object JobPositionEntity extends SimpleEntity[JobPosition] {
+	object JobPositionEntity extends Entity[IntId, JobPosition] {
 
 		// now a description of the table and it's columns follows.
 		// each column is followed by a function JobPosition=>T, that
@@ -231,16 +232,16 @@ object OneToManySpec {
 		val name = column("name") to (_.name) // _.name : JobPosition => Any . Function that maps the column to the value of the object
 		val rank = column("rank") to (_.rank)
 
-		def constructor(implicit m) = new JobPosition(id, name, rank) with Persisted
+		def constructor(implicit m) = new JobPosition(id, name, rank) with IntId
 	}
 
-	object HouseEntity extends SimpleEntity[House] {
+	object HouseEntity extends Entity[IntId, House] {
 		val id = key("id") to (_.id)
 		val address = column("address") to (_.address)
 
-		def constructor(implicit m) = new House(id, address) with Persisted
+		def constructor(implicit m) = new House(id, address) with IntId
 	}
-	object PersonEntity extends SimpleEntity[Person] {
+	object PersonEntity extends Entity[IntId, Person] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val surname = column("surname") to (_.surname)
@@ -255,6 +256,6 @@ object OneToManySpec {
 		 */
 		val jobPositions = onetomany(JobPositionEntity) to (_.positions)
 
-		def constructor(implicit m) = new Person(id, name, surname, houses, age, m(jobPositions).toList.sortWith(_.id < _.id)) with Persisted
+		def constructor(implicit m) = new Person(id, name, surname, houses, age, m(jobPositions).toList.sortWith(_.id < _.id)) with IntId
 	}
 }

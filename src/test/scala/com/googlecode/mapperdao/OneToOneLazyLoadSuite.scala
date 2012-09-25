@@ -124,10 +124,10 @@ class OneToOneLazyLoadSuite extends FunSuite with ShouldMatchers {
 	case class Inventory(var stock: Int)
 	case class Product(var inventory: Inventory, val x: Int)
 
-	object InventoryEntity extends SimpleEntity[Inventory] {
+	object InventoryEntity extends Entity[NoId, Inventory] {
 		val stock = column("stock") to (_.stock)
 
-		def constructor(implicit m) = new Inventory(stock) with Persisted
+		def constructor(implicit m) = new Inventory(stock) with NoId
 	}
 
 	object ProductEntity extends Entity[LongId, Product] {
@@ -135,8 +135,8 @@ class OneToOneLazyLoadSuite extends FunSuite with ShouldMatchers {
 		val inventory = onetoonereverse(InventoryEntity) getter ("inventory") to (_.inventory)
 		val x = column("x") to (_.x)
 
-		def constructor(implicit m) = new Product(inventory, x) with LongId with Persisted {
-			val id: Long = ProductEntity.id
+		def constructor(implicit m) = new Product(inventory, x) with LongId {
+			val id = ProductEntity.id
 		}
 	}
 }
