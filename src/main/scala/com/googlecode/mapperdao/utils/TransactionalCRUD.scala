@@ -26,7 +26,7 @@ trait TransactionalCRUD[ID, PC <: DeclaredIds[ID], T] extends CRUD[ID, PC, T] {
 	 */
 	protected def prepareTransaction: Transaction = Transaction.get(txManager, Propagation.Nested, Isolation.ReadCommited, -1)
 
-	def retrieve(pk: ID): Option[T with PC] = prepareTransaction { () =>
+	override def retrieve(pk: ID): Option[T with PC] = prepareTransaction { () =>
 		super.retrieve(pk)
 	}
 

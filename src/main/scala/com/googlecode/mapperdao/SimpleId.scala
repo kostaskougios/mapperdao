@@ -13,6 +13,9 @@ trait NoId extends DeclaredIds[Nothing]
 trait StringId extends DeclaredIds[String] {
 }
 
+trait CustomIntId extends DeclaredIds[Int]
+trait CustomLongId extends DeclaredIds[Long]
+
 trait StringAndStringIds extends DeclaredIds[(String, String)] {
 }
 

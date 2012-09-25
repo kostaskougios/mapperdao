@@ -1,8 +1,11 @@
 package com.googlecode.mapperdao.utils
+
 import com.googlecode.mapperdao.IntId
+import com.googlecode.mapperdao.CustomIntId
 import com.googlecode.mapperdao.LongId
-import com.googlecode.mapperdao.Persisted
+import com.googlecode.mapperdao.CustomLongId
 import com.googlecode.mapperdao.NoId
+import com.googlecode.mapperdao.Persisted
 
 /**
  * useful methods for real life applications that use
@@ -56,12 +59,14 @@ object Helpers {
 	 * using this utility method
 	 */
 	def asIntId[T](t: T) = t.asInstanceOf[T with IntId]
+	def asCustomIntId[T](t: T) = t.asInstanceOf[T with CustomIntId]
 	/**
 	 * when loading an LongId entity from the database, the type is T with LongId. If for
 	 * some reason we're sure that the entity T is of LongId, we can easily cast it
 	 * using this utility method
 	 */
 	def asLongId[T](t: T) = t.asInstanceOf[T with LongId]
+	def asCustomLongId[T](t: T) = t.asInstanceOf[T with CustomLongId]
 
 	/**
 	 * merges oldSet and newSet items, keeping all unmodified

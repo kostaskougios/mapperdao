@@ -11,7 +11,7 @@ import com.googlecode.mapperdao.LongId
  * For entities with IntId, this helps create transactional daos and mixes in
  * the CRUD methods
  */
-trait TransactionalIntIdCRUD[T] extends IntIdCRUD[T] with TransactionalCRUD[IntId, T, Int]
+trait TransactionalIntIdCRUD[T] extends IntIdCRUD[T] with TransactionalCRUD[Int, IntId, T]
 
 /**
  * For entities with LongId, this helps create transactional daos and mixes in
@@ -19,4 +19,4 @@ trait TransactionalIntIdCRUD[T] extends IntIdCRUD[T] with TransactionalCRUD[IntI
  *
  *  T is the entity type, i.e. Product
  */
-trait TransactionalLongIdCRUD[T] extends LongIdCRUD[T] with TransactionalCRUD[LongId, T, Long]
+trait TransactionalLongIdCRUD[T] extends LongIdCRUD[T] with TransactionalCRUD[Long, LongId, T]

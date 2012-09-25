@@ -136,7 +136,7 @@ class OneToOneLazyLoadSuite extends FunSuite with ShouldMatchers {
 		val x = column("x") to (_.x)
 
 		def constructor(implicit m) = new Product(inventory, x) with LongId {
-			val id = ProductEntity.id
+			val id: Long = ProductEntity.id
 		}
 	}
 }

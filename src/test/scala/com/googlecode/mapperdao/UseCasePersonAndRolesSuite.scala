@@ -283,24 +283,22 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 	case class RoleType(name: String, description: Option[String])
 	case class InterPartyRelationship(from: Person, to: Person, fromDate: Option[DateTime], toDate: Option[DateTime])
 
-	object RoleTypeEntity extends Entity[IntId, RoleType] {
+	object RoleTypeEntity extends Entity[NoId, RoleType] {
 		val name = key("name") to (_.name)
 		val description = column("description") option (_.description)
 
-		def constructor(implicit m: ValuesMap) = {
-			new RoleType(name, description) with IntId
-		}
+		def constructor(implicit m: ValuesMap) =
+			new RoleType(name, description) with NoId
 	}
 
-	object PersonEntity extends Entity[IntId, Person] {
+	object PersonEntity extends Entity[StringId, Person] {
 		val id = key("id") to (_.id)
 		val firstName = column("firstname") to (_.firstName)
 		val lastName = column("lastname") to (_.lastName)
 		val singlePartyRoles = onetomany(SinglePartyRoleEntity) to (_.singlePartyRoles)
 
-		def constructor(implicit m: ValuesMap) = {
-			new Person(id, firstName, lastName, singlePartyRoles) with IntId
-		}
+		def constructor(implicit m: ValuesMap) =
+			new Person(id, firstName, lastName, singlePartyRoles) with StringId
 	}
 
 	object SinglePartyRoleEntity extends Entity[NoId, SinglePartyRole] {

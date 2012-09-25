@@ -106,10 +106,10 @@ object OneToOneMutableTwoWaySpec {
 		def constructor(implicit m) = new Inventory(product, stock) with NoId
 	}
 
-	object ProductEntity extends Entity[IntId, Product] {
+	object ProductEntity extends Entity[CustomIntId, Product] {
 		val id = key("id") to (_.id)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 
-		def constructor(implicit m) = new Product(id, inventory) with IntId
+		def constructor(implicit m) = new Product(id, inventory) with CustomIntId
 	}
 }
