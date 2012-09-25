@@ -198,29 +198,6 @@ trait MapperDao {
 	}
 
 	/**
-	 * links non-persisted entities to the database provided that
-	 * the entity has a correct primary key.
-	 *
-	 * I.e. if you are able to fully recreate the entity (including it's primary keys)
-	 * say after posting a form, making sure the entity has the correct database values,
-	 * then you can link it back to mapperdao via the link() method. Then the linked entity
-	 * can be used for updates as if it was loaded from the database. This way a select()
-	 * can be avoided.
-	 *
-	 * Extra care should be taken to match the linked entity with the data stored in the
-	 * database, otherwise an update can corrupt the data.
-	 *
-	 * The linked entity and all related entities should match the data stored in the
-	 * database.
-	 *
-	 * val dog=new Dog("Jerry")
-	 * val linkedDog=dao.link(dog,5)
-	 *
-	 * mapperDao.update(DogEntity,linkedDog,new Dog("Updated name"))
-	 */
-	def link[ID, PC <: DeclaredIds[ID], T](entity: Entity[PC, T], o: T, id: ID): T with PC = throw new IllegalStateException("Not supported")
-
-	/**
 	 * unlinks an entity from mapperdao. The entity is not tracked for changes and can't
 	 * be used in updates or deletes. The extra memory used by mapperdao is released.
 	 *
@@ -230,7 +207,7 @@ trait MapperDao {
 
 	/**
 	 * releases the objects used to store state for lazy loading to occur, freeing memory
-	 * but lazy loaded relattionships will not be loaded
+	 * but lazy loaded relationships will not be loaded if their fields are accessed.
 	 */
 	def unlinkLazyLoadMemoryData[PC, T](entity: Entity[PC, T], o: Any) {
 		val visitor = new FreeLazyLoadedEntityVisitor

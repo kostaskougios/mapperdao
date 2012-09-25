@@ -25,7 +25,8 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 			val updated = mapperDao.update(ProductEntity, inserted, Product(5, "blue jean", inserted.attributes))
 			updated should be === Product(5, "blue jean", inserted.attributes)
 
-			mapperDao.select(ProductEntity, 5).get should be === Product(5, "blue jean", inserted.attributes)
+			val selected = mapperDao.select(ProductEntity, 5).get
+			selected should be === Product(5, "blue jean", inserted.attributes)
 			mapperDao.select(ProductEntity, 2) should be(None)
 		}
 

@@ -83,23 +83,8 @@ trait CRUD[ID, PC <: DeclaredIds[ID], T] {
 	def delete(id: ID): Unit = mapperDao.delete(entity, id.asInstanceOf[AnyVal])
 
 	/**
-	 * links non-persisted entities to the database provided that
-	 * the entity has a correct primary key.
-	 *
-	 * I.e. if you are able to fully recreate the entity (including it's primary keys)
-	 * say after posting a form, making sure the entity matches the database values,
-	 * then you can link it back to mapperdao via the link() method. Then the linked entity
-	 * can be used for updates, like if it was loaded from the database. This way a select()
-	 * can be avoided.
-	 *
-	 * val dog=new Dog("Jerry")
-	 * val linkedDog=dao.link(dog)
-	 */
-	def link(o: T, id: ID): T = mapperDao.link(entity, o, id)
-
-	/**
 	 * unlinks an entity from mapperdao. The entity is not tracked for changes and can't
-	 * be used in updates or deletes.
+	 * be used in updates or deletes. This can free up some memory
 	 */
 	def unlink(o: T): T = mapperDao.unlink(entity, o)
 }

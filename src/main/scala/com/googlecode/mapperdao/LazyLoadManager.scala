@@ -86,21 +86,23 @@ private[mapperdao] class LazyLoadManager {
 			.interface[LazyLoaded]
 			.implementFromTrait[LazyLoaded](false)
 			.implementFromTrait[Persisted](false)
+
 		if (hasIntId(constructedClz)) {
 			b.interface[IntId]
 			b.field("private int id;")
 			b.methodWithSrc("""
-			public int id() {
-				return id;
-			}""")
+					public int id() {
+						return id;
+					}""")
 		} else if (hasLongId(constructedClz)) {
 			b.interface[LongId]
 			b.field("private long id;")
 			b.methodWithSrc("""
-			public long id() {
-				return id;
-			}""")
+					public long id() {
+						return id;
+					}""")
 		}
+
 		b.overrideMethods(methods)
 			.overrideSettersIfExist(originalClz, methods)
 
