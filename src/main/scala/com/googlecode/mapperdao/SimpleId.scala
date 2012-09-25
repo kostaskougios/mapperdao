@@ -13,6 +13,9 @@ trait NoId extends DeclaredIds[Nothing]
 trait StringId extends DeclaredIds[String] {
 }
 
+trait StringAndStringIds extends DeclaredIds[(String, String)] {
+}
+
 trait IntAutoAndStringId extends DeclaredIds[(Int, String)] {
 	val id: Int
 }

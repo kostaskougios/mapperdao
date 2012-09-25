@@ -124,14 +124,14 @@ object CommonEntities {
 	case class Husband(name: String, age: Int, wife: Wife)
 	case class Wife(name: String, age: Int)
 
-	object HusbandEntity extends SimpleEntity[Husband] {
+	object HusbandEntity extends Entity[NoId, Husband] {
 		val name = column("name") to (_.name)
 		val age = column("age") to (_.age)
 		val wife = onetoone(WifeEntity) to (_.wife)
 
 		declarePrimaryKey(wife)
 
-		def constructor(implicit m) = new Husband(name, age, wife) with Persisted
+		def constructor(implicit m) = new Husband(name, age, wife) with NoId
 	}
 
 	object WifeEntity extends Entity[IntId, Wife] {

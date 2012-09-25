@@ -20,20 +20,20 @@ class LinkSuite extends FunSuite with ShouldMatchers {
 
 		test("unlink") {
 			val c = Cat(5, "pussy cat", None)
-			val linked = mapperDao.link(CatEntity, c)
+			val linked = mapperDao.link(CatEntity, c, 5)
 			mapperDao.unlink(CatEntity, linked)
 			isPersisted(linked) should be(false)
 		}
 
 		test("linked, simple entity") {
 			val c = Cat(5, "pussy cat", None)
-			val linked = mapperDao.link(CatEntity, c)
+			val linked = mapperDao.link(CatEntity, c, 5)
 			linked should be === c
 
 			isPersisted(linked) should be(true)
 
 			val cc = Cat(6, "child cat", Some(c))
-			val linkedc = mapperDao.link(CatEntity, cc)
+			val linkedc = mapperDao.link(CatEntity, cc, 6)
 			linkedc should be === cc
 			isPersisted(linkedc) should be(true)
 		}
@@ -41,7 +41,7 @@ class LinkSuite extends FunSuite with ShouldMatchers {
 		test("linked end to end, simple entity") {
 			createTables("simple")
 			mapperDao.insert(CatEntity, Cat(5, "pussy cat", None))
-			val linked = mapperDao.link(CatEntity, Cat(5, "pussy cat", None))
+			val linked = mapperDao.link(CatEntity, Cat(5, "pussy cat", None), 5)
 
 			val uc = Cat(5, "updated", Some(Cat(7, "child", None)))
 			mapperDao.update(CatEntity, linked, uc)
@@ -75,14 +75,14 @@ class LinkSuite extends FunSuite with ShouldMatchers {
 
 		test("linked, LongId") {
 			val c = CatLId("pussy cat", None)
-			val linked = mapperDao.link(CatLIdEntity, c, 5)
+			val linked = mapperDao.link(CatLIdEntity, c, 5l)
 			linked should be === c
 			linked.id should be === 5
 
 			isPersisted(linked) should be(true)
 
 			val cc = CatLId("child cat", Some(c))
-			val linkedc = mapperDao.link(CatLIdEntity, cc, 6)
+			val linkedc = mapperDao.link(CatLIdEntity, cc, 6l)
 			linkedc should be === cc
 			isPersisted(linkedc) should be(true)
 			linkedc.id should be === 6
@@ -106,12 +106,12 @@ class LinkSuite extends FunSuite with ShouldMatchers {
 	}
 
 	case class Cat(id: Int, name: String, parent: Option[Cat])
-	object CatEntity extends SimpleEntity[Cat] {
+	object CatEntity extends Entity[IntId, Cat] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val parent = onetoone(this) foreignkey ("parent_id") option (_.parent)
 
-		def constructor(implicit m) = new Cat(id, name, parent) with Persisted
+		def constructor(implicit m) = new Cat(id, name, parent) with IntId
 	}
 
 	case class CatIId(name: String, parent: Option[CatIId])
@@ -120,7 +120,7 @@ class LinkSuite extends FunSuite with ShouldMatchers {
 		val name = column("name") to (_.name)
 		val parent = onetoone(this) foreignkey ("parent_id") option (_.parent)
 
-		def constructor(implicit m) = new CatIId(name, parent) with Persisted with IntId {
+		def constructor(implicit m) = new CatIId(name, parent) with IntId {
 			val id: Int = CatIIdEntity.id
 		}
 	}
@@ -131,7 +131,7 @@ class LinkSuite extends FunSuite with ShouldMatchers {
 		val name = column("name") to (_.name)
 		val parent = onetoone(this) foreignkey ("parent_id") option (_.parent)
 
-		def constructor(implicit m) = new CatLId(name, parent) with Persisted with LongId {
+		def constructor(implicit m) = new CatLId(name, parent) with LongId {
 			val id: Long = CatLIdEntity.id
 		}
 	}

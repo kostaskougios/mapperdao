@@ -1,10 +1,10 @@
 package com.googlecode.mapperdao.utils
 
 import org.springframework.transaction.PlatformTransactionManager
-
 import com.googlecode.mapperdao.jdbc.Transaction.Isolation
 import com.googlecode.mapperdao.jdbc.Transaction.Propagation
 import com.googlecode.mapperdao.jdbc.Transaction
+import com.googlecode.mapperdao.DeclaredIds
 
 /**
  * CRUD with TransactionalCRUD will run CRUD methods within transactions
@@ -19,12 +19,16 @@ import com.googlecode.mapperdao.jdbc.Transaction
  * 		if T's type doesn't change when persisted.
  * PK is the type of the key, i.e. Int or String
  */
-trait TransactionalCRUD[PC, T, PK] extends CRUD[PC, T, PK] {
+trait TransactionalCRUD[ID, PC <: DeclaredIds[ID], T] extends CRUD[ID, PC, T] {
 	protected val txManager: PlatformTransactionManager
 	/**
 	 * override this to change type of transaction that will occur and it's timeout
 	 */
 	protected def prepareTransaction: Transaction = Transaction.get(txManager, Propagation.Nested, Isolation.ReadCommited, -1)
+
+	def retrieve(pk: ID): Option[T with PC] = prepareTransaction { () =>
+		super.retrieve(pk)
+	}
 
 	override def create(t: T): T with PC = prepareTransaction { () =>
 		super.create(t)
@@ -42,7 +46,7 @@ trait TransactionalCRUD[PC, T, PK] extends CRUD[PC, T, PK] {
 		super.delete(t)
 	}
 
-	override def delete(id: PK): Unit = prepareTransaction { () =>
+	override def delete(id: ID): Unit = prepareTransaction { () =>
 		super.delete(id)
 	}
 }

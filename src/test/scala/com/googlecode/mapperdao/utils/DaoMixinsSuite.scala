@@ -22,7 +22,7 @@ class DaoMixinsSuite extends FunSuite with ShouldMatchers {
 
 	val txManager = Transaction.transactionManager(jdbc)
 
-	object ProductDao extends SimpleCRUD[Product, Long] with SimpleAll[Product] {
+	object ProductDao extends CRUD[Long, LongId, Product] with SimpleAll[Product] {
 		protected val entity = ProductEntity
 		protected val queryDao = DaoMixinsSuite.this.queryDao
 		protected val mapperDao = DaoMixinsSuite.this.mapperDao
@@ -110,19 +110,19 @@ object DaoMixinsSpec {
 	case class Product(val id: Long, val name: String, val attributes: Set[Attribute])
 	case class Attribute(val id: Int, val name: String, val value: String)
 
-	object ProductEntity extends SimpleEntity[Product] {
+	object ProductEntity extends Entity[LongId, Product] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
 
-		def constructor(implicit m: ValuesMap) = new Product(id, name, attributes) with Persisted
+		def constructor(implicit m: ValuesMap) = new Product(id, name, attributes) with LongId
 	}
 
-	object AttributeEntity extends SimpleEntity[Attribute] {
+	object AttributeEntity extends Entity[IntId, Attribute] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m: ValuesMap) = new Attribute(id, name, value) with Persisted
+		def constructor(implicit m: ValuesMap) = new Attribute(id, name, value) with IntId
 	}
 }

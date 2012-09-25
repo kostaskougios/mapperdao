@@ -87,13 +87,13 @@ class DeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 			val id: Int = ProductEntity.id
 		}
 	}
-	object PriceEntity extends SimpleEntity[Price] {
+	object PriceEntity extends Entity[NoId, Price] {
 		val currency = column("currency") to (_.currency)
 		val unitPrice = column("unitprice") to (_.unitPrice)
 		val salePrice = column("saleprice") to (_.salePrice)
 		declarePrimaryKey(currency)
 		declarePrimaryKey(unitPrice)
 
-		def constructor(implicit m) = new Price(currency, unitPrice, salePrice) with Persisted
+		def constructor(implicit m) = new Price(currency, unitPrice, salePrice) with NoId
 	}
 }
