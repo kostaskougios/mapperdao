@@ -52,13 +52,13 @@ class NullValuesSuite extends FunSuite with ShouldMatchers {
 
 	case class Values(id: Int, i: java.lang.Integer, l: java.lang.Long, f: java.lang.Float, d: java.lang.Double)
 
-	object ValuesEntity extends SimpleEntity[Values] {
+	object ValuesEntity extends Entity[IntId, Values] {
 		val id = key("id") to (_.id)
 		val i = column("i") to (_.i)
 		val l = column("l") to (_.l)
 		val f = column("f") to (_.f)
 		val d = column("d") to (_.d)
 
-		def constructor(implicit m) = new Values(id, i, l, f, d) with Persisted
+		def constructor(implicit m) = new Values(id, i, l, f, d) with IntId
 	}
 }

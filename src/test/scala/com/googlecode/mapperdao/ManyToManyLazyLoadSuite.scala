@@ -236,27 +236,27 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 	case class Attribute(val id: Int, val name: String, val value: String)
 	case class Property(val id: Int, val name: String, val value: String)
 
-	object ProductEntity extends SimpleEntity[Product] {
+	object ProductEntity extends Entity[IntId, Product] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) getter ("attributes") to (_.attributes)
 		val properties = manytomany(PropertyEntity) getter ("properties") to (_.properties)
-		def constructor(implicit m) = new Product(id, name, attributes, properties) with Persisted
+		def constructor(implicit m) = new Product(id, name, attributes, properties) with IntId
 	}
 
-	object AttributeEntity extends SimpleEntity[Attribute] {
+	object AttributeEntity extends Entity[IntId, Attribute] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m) = new Attribute(id, name, value) with Persisted
+		def constructor(implicit m) = new Attribute(id, name, value) with IntId
 	}
 
-	object PropertyEntity extends SimpleEntity[Property] {
+	object PropertyEntity extends Entity[IntId, Property] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m) = new Property(id, name, value) with Persisted
+		def constructor(implicit m) = new Property(id, name, value) with IntId
 	}
 }

@@ -96,19 +96,19 @@ object ManyToOneAndOneToManyCyclicSpec {
 	case class Person(val id: Int, val name: String, val company: Company)
 	case class Company(val id: Int, val name: String, employees: List[Person])
 
-	object PersonEntity extends SimpleEntity[Person] {
+	object PersonEntity extends Entity[IntId, Person] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val company = manytoone(CompanyEntity) to (_.company)
 
-		def constructor(implicit m) = new Person(id, name, company) with Persisted
+		def constructor(implicit m) = new Person(id, name, company) with IntId
 	}
 
-	object CompanyEntity extends SimpleEntity[Company] {
+	object CompanyEntity extends Entity[IntId, Company] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val employees = onetomany(PersonEntity) to (_.employees)
-		def constructor(implicit m) = new Company(id, name, employees) with Persisted
+		def constructor(implicit m) = new Company(id, name, employees) with IntId
 	}
 
 }

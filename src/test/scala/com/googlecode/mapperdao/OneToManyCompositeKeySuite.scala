@@ -118,16 +118,16 @@ class OneToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 		val address = key("address") to (_.address)
 		val doors = onetomany(DoorEntity) to (_.doors)
 
-		def constructor(implicit m) = new House(address, doors) with IntId with Persisted {
+		def constructor(implicit m) = new House(address, doors) with IntId {
 			val id: Int = HouseEntity.id
 		}
 	}
 
-	object DoorEntity extends SimpleEntity[Door] {
+	object DoorEntity extends Entity[NoId, Door] {
 		val location = column("location") to (_.location)
 
 		declarePrimaryKey(location)
 
-		def constructor(implicit m) = new Door(location) with Persisted
+		def constructor(implicit m) = new Door(location) with NoId
 	}
 }

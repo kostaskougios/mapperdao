@@ -21,10 +21,10 @@ class MemoryMapperDaoSuite extends FunSuite with ShouldMatchers {
 		}
 	}
 	case class JobPositionKey(val id: String, val name: String)
-	object JobPositionEntityKey extends SimpleEntity[JobPositionKey] {
+	object JobPositionEntityKey extends Entity[StringId, JobPositionKey] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
-		def constructor(implicit m) = new JobPositionKey(id, name) with Persisted
+		def constructor(implicit m) = new JobPositionKey(id, name) with StringId
 	}
 
 	val typeRegistry = TypeRegistry(JobPositionEntity, JobPositionEntityKey)

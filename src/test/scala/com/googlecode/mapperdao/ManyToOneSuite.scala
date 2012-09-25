@@ -5,6 +5,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
+import com.googlecode.mapperdao.utils.Helpers
 
 /**
  * @author kostantinos.kougios
@@ -25,7 +26,7 @@ class ManyToOneSuite extends FunSuite with ShouldMatchers {
 			val person = Person(2, "Kostas", company, house)
 
 			val inserted = mapperDao.insert(PersonEntity, person)
-			mapperDao.update(HouseEntity, inserted.lives, House(7, "Rhodes,Greece"))
+			mapperDao.update(HouseEntity, Helpers.asIntId(inserted.lives), House(7, "Rhodes,Greece"))
 			mapperDao.select(PersonEntity, 2).get should be === Person(2, "Kostas", company, House(7, "Rhodes,Greece"))
 		}
 	}
@@ -174,25 +175,25 @@ object ManyToOneSpec {
 	case class Company(val id: Int, val name: String)
 	case class House(val id: Int, val address: String)
 
-	object PersonEntity extends SimpleEntity[Person] {
+	object PersonEntity extends Entity[IntId, Person] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val company = manytoone(CompanyEntity) to (_.company)
 		val lives = manytoone(HouseEntity) to (_.lives)
 
-		def constructor(implicit m) = new Person(id, name, company, lives) with Persisted
+		def constructor(implicit m) = new Person(id, name, company, lives) with IntId
 	}
 
-	object CompanyEntity extends SimpleEntity[Company] {
+	object CompanyEntity extends Entity[IntId, Company] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 
-		def constructor(implicit m) = new Company(id, name) with Persisted
+		def constructor(implicit m) = new Company(id, name) with IntId
 	}
 
-	object HouseEntity extends SimpleEntity[House] {
+	object HouseEntity extends Entity[IntId, House] {
 		val id = key("id") to (_.id)
 		val address = column("address") to (_.address)
-		def constructor(implicit m) = new House(id, address) with Persisted
+		def constructor(implicit m) = new House(id, address) with IntId
 	}
 }

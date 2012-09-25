@@ -85,20 +85,20 @@ object ManyToManyQueryWithAliasesSuite {
 	case class Product(val id: Int, val name: String, val attributes: Set[Attribute])
 	case class Attribute(val id: Int, val name: String, val value: String)
 
-	class AttributeEntityBase extends SimpleEntity("Attribute", classOf[Attribute]) {
+	class AttributeEntityBase extends Entity[IntId, Attribute]("Attribute", classOf[Attribute]) {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m) = new Attribute(id, name, value) with Persisted
+		def constructor(implicit m) = new Attribute(id, name, value) with IntId
 	}
 
-	class ProductEntityBase extends SimpleEntity("Product", classOf[Product]) {
+	class ProductEntityBase extends Entity[IntId, Product]("Product", classOf[Product]) {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
 
-		def constructor(implicit m) = new Product(id, name, attributes) with Persisted
+		def constructor(implicit m) = new Product(id, name, attributes) with IntId
 	}
 	val AttributeEntity = new AttributeEntityBase
 	val ProductEntity = new ProductEntityBase

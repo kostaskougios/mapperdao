@@ -89,26 +89,26 @@ object ManyToOneSelfJoinQuerySpec {
 	case class House(val id: Int, val name: String, val address: Address)
 	case class Address(val id: Int, val postCode: String)
 
-	object PersonEntity extends SimpleEntity[Person] {
+	object PersonEntity extends Entity[IntId, Person] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val lives = manytoone(HouseEntity) foreignkey "lives_id" to (_.lives)
-		def constructor(implicit m) = new Person(id, name, lives) with Persisted
+		def constructor(implicit m) = new Person(id, name, lives) with IntId
 	}
 
-	class HouseEntityBase extends SimpleEntity[House] {
+	class HouseEntityBase extends Entity[IntId, House] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val address = manytoone(AddressEntity) to (_.address)
 
-		def constructor(implicit m) = new House(id, name, address) with Persisted
+		def constructor(implicit m) = new House(id, name, address) with IntId
 	}
 
 	val HouseEntity = new HouseEntityBase
 
-	object AddressEntity extends SimpleEntity[Address] {
+	object AddressEntity extends Entity[IntId, Address] {
 		val id = key("id") to (_.id)
 		val postCode = column("postcode") to (_.postCode)
-		def constructor(implicit m) = new Address(id, postCode) with Persisted
+		def constructor(implicit m) = new Address(id, postCode) with IntId
 	}
 }
