@@ -7,11 +7,12 @@ case class LongValue(val value: Long) extends SimpleTypeValue[Long, LongValue] {
 	def compareTo(o: LongValue): Int = value.compare(o.value)
 }
 
-protected class LongEntityOTM(table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[LongValue](table, classOf[LongValue]) {
+protected class LongEntityOTM(table: String, fkColumn: String, soleColumn: String)
+		extends Entity[NoId, LongValue](table, classOf[LongValue]) {
 	val value = column(soleColumn) to (_.value)
 	//	declarePrimaryKey(fkColumn) { _ => None }
 	declarePrimaryKey(value)
-	def constructor(implicit m: ValuesMap) = new LongValue(value) with Persisted
+	def constructor(implicit m: ValuesMap) = new LongValue(value) with NoId
 }
 
 abstract class LongEntityManyToManyBase[PC](table: String, soleColumn: String) extends Entity[PC, LongValue](table, classOf[LongValue]) {

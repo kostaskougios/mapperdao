@@ -7,12 +7,13 @@ case class DoubleValue(val value: Double) extends SimpleTypeValue[Double, Double
 	def compareTo(o: DoubleValue): Int = value.compare(o.value)
 }
 
-protected class DoubleEntityOTM(table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[DoubleValue](table, classOf[DoubleValue]) {
+protected class DoubleEntityOTM(table: String, fkColumn: String, soleColumn: String)
+		extends Entity[NoId, DoubleValue](table, classOf[DoubleValue]) {
 	val value = column(soleColumn) to (_.value)
 	//declarePrimaryKey(fkColumn) { _ => None }
 	declarePrimaryKey(value)
 
-	def constructor(implicit m: ValuesMap) = new DoubleValue(value) with Persisted
+	def constructor(implicit m: ValuesMap) = new DoubleValue(value) with NoId
 }
 
 abstract class DoubleEntityManyToManyBase[PC](table: String, soleColumn: String) extends Entity[PC, DoubleValue](table, classOf[DoubleValue]) {

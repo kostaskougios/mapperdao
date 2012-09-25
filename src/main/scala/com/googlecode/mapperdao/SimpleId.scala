@@ -8,6 +8,8 @@ package com.googlecode.mapperdao
 trait SimpleId[T] extends DeclaredIds[T] {
 }
 
+trait NoId extends DeclaredIds[Nothing]
+
 trait StringId extends DeclaredIds[String] {
 }
 

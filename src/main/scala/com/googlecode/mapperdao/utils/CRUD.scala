@@ -16,7 +16,7 @@ import com.googlecode.mapperdao.QueryConfig
 import com.googlecode.mapperdao.SelectConfig
 import com.googlecode.mapperdao.UpdateConfig
 import com.googlecode.mapperdao.DeleteConfig
-import com.googlecode.mapperdao.SimpleEntity
+import com.googlecode.mapperdao.DeclaredIds
 
 /**
  * mixin to add CRUD methods to a dao
@@ -32,7 +32,7 @@ import com.googlecode.mapperdao.SimpleEntity
  *
  * 30 Aug 2011
  */
-trait CRUD[PC, T, PK] {
+trait CRUD[ID, PC <: DeclaredIds[ID], T] {
 	protected val mapperDao: MapperDao
 	protected val entity: Entity[PC, T]
 
@@ -67,7 +67,7 @@ trait CRUD[PC, T, PK] {
 	 * @param id		the id
 	 * @return			Option[T] or None
 	 */
-	def retrieve(pk: PK): Option[T with PC] = mapperDao.select(selectConfig, entity, pk)
+	def retrieve(pk: ID): Option[T with PC] = mapperDao.select(selectConfig, entity, pk)
 
 	/**
 	 * delete a persisted entity
@@ -80,7 +80,22 @@ trait CRUD[PC, T, PK] {
 	 * The delete will cascade to related entities only if there are cascade constraints
 	 * on the foreign keys in the database.
 	 */
-	def delete(id: PK): Unit = mapperDao.delete(entity, id.asInstanceOf[AnyVal])
+	def delete(id: ID): Unit = mapperDao.delete(entity, id.asInstanceOf[AnyVal])
+
+	/**
+	 * links non-persisted entities to the database provided that
+	 * the entity has a correct primary key.
+	 *
+	 * I.e. if you are able to fully recreate the entity (including it's primary keys)
+	 * say after posting a form, making sure the entity matches the database values,
+	 * then you can link it back to mapperdao via the link() method. Then the linked entity
+	 * can be used for updates, like if it was loaded from the database. This way a select()
+	 * can be avoided.
+	 *
+	 * val dog=new Dog("Jerry")
+	 * val linkedDog=dao.link(dog)
+	 */
+	def link(o: T, id: ID): T = mapperDao.link(entity, o, id)
 
 	/**
 	 * unlinks an entity from mapperdao. The entity is not tracked for changes and can't

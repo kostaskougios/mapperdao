@@ -7,12 +7,13 @@ case class FloatValue(val value: Float) extends SimpleTypeValue[Float, FloatValu
 	def compareTo(o: FloatValue): Int = value.compare(o.value)
 }
 
-protected class FloatEntityOTM(table: String, fkColumn: String, soleColumn: String) extends SimpleEntity[FloatValue](table, classOf[FloatValue]) {
+protected class FloatEntityOTM(table: String, fkColumn: String, soleColumn: String)
+		extends Entity[NoId, FloatValue](table, classOf[FloatValue]) {
 	val value = column(soleColumn) to (_.value)
 	//	declarePrimaryKey(fkColumn) { _ => None }
 	declarePrimaryKey(value)
 
-	def constructor(implicit m: ValuesMap) = new FloatValue(value) with Persisted
+	def constructor(implicit m: ValuesMap) = new FloatValue(value) with NoId
 }
 
 abstract class FloatEntityManyToManyBase[PC](table: String, soleColumn: String) extends Entity[PC, FloatValue](table, classOf[FloatValue]) {
