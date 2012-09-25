@@ -88,6 +88,7 @@ private[mapperdao] class LazyLoadManager {
 			.implementFromTrait[Persisted](false)
 
 		if (hasIntId(constructedClz)) {
+			guardIdField(constructedClz)
 			b.interface[IntId]
 			b.field("private int id;")
 			b.methodWithSrc("""
@@ -95,6 +96,7 @@ private[mapperdao] class LazyLoadManager {
 						return id;
 					}""")
 		} else if (hasLongId(constructedClz)) {
+			guardIdField(constructedClz)
 			b.interface[LongId]
 			b.field("private long id;")
 			b.methodWithSrc("""
@@ -107,6 +109,10 @@ private[mapperdao] class LazyLoadManager {
 			.overrideSettersIfExist(originalClz, methods)
 
 		b.get
+	}
+
+	private def guardIdField(constructedClz: Class[_]) {
+		if (reflectionManager.fields(constructedClz).find(_.getName == "id").isDefined) throw new IllegalStateException(constructedClz.getName + " already contains a field 'id'")
 	}
 
 	private def hasIntId(clz: Class[_]) = classOf[IntId].isAssignableFrom(clz)
