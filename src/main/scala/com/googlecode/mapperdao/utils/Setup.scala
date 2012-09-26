@@ -100,7 +100,7 @@ object Setup {
 		dataSource: DataSource,
 		entities: List[Entity[_, _]],
 		cache: Option[Cache],
-		events: Events): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		events: Events = new Events): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(database, dataSource, TypeRegistry(entities), cache, ISOChronology.getInstance, events)
 
 	def apply(
