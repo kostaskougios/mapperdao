@@ -120,7 +120,7 @@ object UseCaseFileSystemSuite {
 		// merge them into a node list:
 		def constructor(implicit m) = {
 			val fList = m(files).toList ++ m(archives).toList
-			new Directory(uri, parent, fList) with Persisted with IntId {
+			new Directory(uri, parent, fList)  with IntId {
 				val id: Int = DirectoryEntity.id
 			}
 		}
@@ -133,7 +133,7 @@ object UseCaseFileSystemSuite {
 	object FileEntity extends FileNodeEntity(classOf[File]) {
 		val fileType = column("fileType") to (_.fileType)
 
-		def constructor(implicit m) = new File(uri, parent, fileType) with Persisted with IntId {
+		def constructor(implicit m) = new File(uri, parent, fileType)  with IntId {
 			val id: Int = FileEntity.id
 		}
 	}
@@ -141,7 +141,7 @@ object UseCaseFileSystemSuite {
 	object ArchiveEntity extends FileNodeEntity(classOf[Archive]) {
 		val zipType = column("zipType") to (_.zipType)
 
-		def constructor(implicit m) = new Archive(uri, parent, zipType) with Persisted with IntId {
+		def constructor(implicit m) = new Archive(uri, parent, zipType)  with IntId {
 			val id: Int = ArchiveEntity.id
 		}
 	}

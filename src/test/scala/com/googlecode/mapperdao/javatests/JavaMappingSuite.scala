@@ -76,7 +76,7 @@ class JavaMappingSuite extends FunSuite with ShouldMatchers {
 		val attributes = manytomany(AttributeEntity) tojava (_.getAttributes)
 
 		def constructor(implicit m) = {
-			val p = new Product with IntId with Persisted {
+			val p = new Product with IntId {
 				val id: Int = ProductEntityMTM.id
 			}
 			p.setName(name)
@@ -91,7 +91,7 @@ class JavaMappingSuite extends FunSuite with ShouldMatchers {
 		val attributes = onetomany(AttributeEntity) tojava (_.getAttributes)
 
 		def constructor(implicit m) = {
-			val p = new Product with IntId with Persisted {
+			val p = new Product with IntId {
 				val id: Int = ProductEntityMTM.id
 			}
 			p.setName(name)
@@ -106,7 +106,7 @@ class JavaMappingSuite extends FunSuite with ShouldMatchers {
 		val value = column("value") to (_.getValue)
 
 		def constructor(implicit m) = {
-			val a = new Attribute(name, value) with IntId with Persisted {
+			val a = new Attribute(name, value) with IntId {
 				val id: Int = AttributeEntity.id
 			}
 			a.setName(name)

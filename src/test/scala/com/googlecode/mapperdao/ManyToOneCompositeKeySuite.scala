@@ -113,7 +113,7 @@ class ManyToOneCompositeKeySuite extends FunSuite with ShouldMatchers {
 		val reference = key("reference") to (_.reference)
 		val name = column("name") to (_.name)
 
-		def constructor(implicit m) = new City(reference, name) with IntId with Persisted {
+		def constructor(implicit m) = new City(reference, name) with IntId  {
 			val id: Int = CityEntity.id
 		}
 	}
@@ -125,7 +125,7 @@ class ManyToOneCompositeKeySuite extends FunSuite with ShouldMatchers {
 		val address = column("address") to (_.address)
 		val city = manytoone(CityEntity) to (_.city)
 
-		def constructor(implicit m) = new House(address, city) with IntId with Persisted {
+		def constructor(implicit m) = new House(address, city) with IntId  {
 			val id: Int = HouseEntity.id
 		}
 	}

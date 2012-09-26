@@ -83,7 +83,7 @@ class DeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 		val title = column("title") to (_.title)
 		val prices = onetomany(PriceEntity) to (_.prices)
 
-		def constructor(implicit m) = new Product(title, prices) with IntId with Persisted {
+		def constructor(implicit m) = new Product(title, prices) with IntId  {
 			val id: Int = ProductEntity.id
 		}
 	}

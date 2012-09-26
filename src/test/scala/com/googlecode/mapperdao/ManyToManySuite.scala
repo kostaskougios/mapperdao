@@ -68,7 +68,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		mapperDao.select(AttributeEntity, 7).get should be === Attribute(7, "size", "medium")
 	}
 
-	test("insert tree of entities with persisted leaf entities") {
+	test("insert tree of entities  leaf entities") {
 		createTables
 		val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
 		val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))

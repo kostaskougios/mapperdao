@@ -105,14 +105,14 @@ class MultipleInheritance1TableSuite extends FunSuite with ShouldMatchers {
 		}
 
 		def constructor(implicit m) = m(t) match {
-			case 0 => new Daily(hourOfDay) with IntId with Persisted {
+			case 0 => new Daily(hourOfDay) with IntId  {
 				val id: Int = ReminderEntity.id
 			}
 			case 1 =>
-				new Weekly(hourOfDay, dayOfWeek) with IntId with Persisted {
+				new Weekly(hourOfDay, dayOfWeek) with IntId  {
 					val id: Int = ReminderEntity.id
 				}
-			case 2 => new RemindOnce(time) with IntId with Persisted {
+			case 2 => new RemindOnce(time) with IntId  {
 				val id: Int = ReminderEntity.id
 			}
 		}

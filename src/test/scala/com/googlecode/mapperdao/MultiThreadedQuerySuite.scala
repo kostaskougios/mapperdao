@@ -76,7 +76,7 @@ class MultiThreadedQuerySuite extends FunSuite with ShouldMatchers {
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
 
-		def constructor(implicit m) = new Product(name, attributes) with IntId with Persisted {
+		def constructor(implicit m) = new Product(name, attributes) with IntId  {
 			val id: Int = ProductEntity.id
 		}
 	}
@@ -86,7 +86,7 @@ class MultiThreadedQuerySuite extends FunSuite with ShouldMatchers {
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m) = new Attribute(name, value) with Persisted with IntId {
+		def constructor(implicit m) = new Attribute(name, value)  with IntId {
 			val id: Int = AttributeEntity.id
 		}
 	}

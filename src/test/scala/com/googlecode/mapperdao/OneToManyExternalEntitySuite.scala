@@ -71,7 +71,7 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 		val name = column("name") to (_.name)
 		val owns = onetomany(HouseEntity) to (_.owns)
 
-		def constructor(implicit m) = new Person(name, owns) with Persisted with IntId {
+		def constructor(implicit m) = new Person(name, owns)  with IntId {
 			val id: Int = PersonEntity.id
 		}
 	}

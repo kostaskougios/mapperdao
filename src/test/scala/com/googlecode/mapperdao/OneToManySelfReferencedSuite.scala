@@ -109,7 +109,7 @@ object OneToManySelfReferencedSpec {
 		val name = column("name") to (_.name)
 		val friends = onetomany(PersonEntity) foreignkey "friend_id" to (_.friends)
 
-		def constructor(implicit m) = new Person(name, friends) with Persisted with IntId {
+		def constructor(implicit m) = new Person(name, friends)  with IntId {
 			val id: Int = aid
 		}
 	}

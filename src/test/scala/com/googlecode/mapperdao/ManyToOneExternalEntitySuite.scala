@@ -90,7 +90,7 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 		val name = column("name") to (_.name)
 		val house = manytoone(HouseEntity) to (_.house)
 
-		def constructor(implicit m) = new Person(name, house) with Persisted with IntId {
+		def constructor(implicit m) = new Person(name, house)  with IntId {
 			val id: Int = PersonEntity.id
 		}
 
