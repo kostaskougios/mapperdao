@@ -17,9 +17,11 @@ trait IntIdCRUD[T] extends CRUD[Int, IntId, T]
  */
 trait LongIdCRUD[T] extends CRUD[Long, LongId, T]
 
+trait StringIdCRUD[T] extends CRUD[String, StringId, T]
+
 /**
  * these mixin traits add querying methods to a dao. Please see the All trait
  */
 trait IntIdAll[T] extends All[IntId, T]
 trait LongIdAll[T] extends All[LongId, T]
-trait StringAll[T] extends All[StringId, T]
+trait StringIdAll[T] extends All[StringId, T]
