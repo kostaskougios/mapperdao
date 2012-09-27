@@ -194,7 +194,7 @@ trait MapperDao {
 	 * get the long id of an entity. The entity must be of LongId
 	 */
 	def longIdOf(o: AnyRef): Long = o match {
-		case iid: LongId => iid.id
+		case iid: SurrogateLongId => iid.id
 	}
 
 	/**

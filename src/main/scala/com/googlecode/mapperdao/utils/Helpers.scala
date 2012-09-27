@@ -2,7 +2,7 @@ package com.googlecode.mapperdao.utils
 
 import com.googlecode.mapperdao.SurrogateIntId
 import com.googlecode.mapperdao.CustomIntId
-import com.googlecode.mapperdao.LongId
+import com.googlecode.mapperdao.SurrogateLongId
 import com.googlecode.mapperdao.CustomLongId
 import com.googlecode.mapperdao.NoId
 import com.googlecode.mapperdao.Persisted
@@ -43,7 +43,7 @@ object Helpers {
 	 * is not persisted or not of IntId
 	 */
 	def longIdOf(o: Any): Long = o match {
-		case i: LongId => i.id
+		case i: SurrogateLongId => i.id
 		case _ => throw new IllegalArgumentException("not an LongId : " + o.toString)
 	}
 
@@ -65,7 +65,7 @@ object Helpers {
 	 * some reason we're sure that the entity T is of LongId, we can easily cast it
 	 * using this utility method
 	 */
-	def asLongId[T](t: T) = t.asInstanceOf[T with LongId]
+	def asSurrogateLongId[T](t: T) = t.asInstanceOf[T with SurrogateLongId]
 	def asCustomLongId[T](t: T) = t.asInstanceOf[T with CustomLongId]
 
 	/**

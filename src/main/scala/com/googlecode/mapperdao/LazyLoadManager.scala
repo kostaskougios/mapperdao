@@ -97,7 +97,7 @@ private[mapperdao] class LazyLoadManager {
 					}""")
 		} else if (hasLongId(constructedClz)) {
 			guardIdField(originalClz)
-			b.interface[LongId]
+			b.interface[SurrogateLongId]
 			b.field("private long id;")
 			b.methodWithSrc("""
 					public long id() {
@@ -117,7 +117,7 @@ private[mapperdao] class LazyLoadManager {
 	}
 
 	private def hasIntId(clz: Class[_]) = classOf[SurrogateIntId].isAssignableFrom(clz)
-	private def hasLongId(clz: Class[_]) = classOf[LongId].isAssignableFrom(clz)
+	private def hasLongId(clz: Class[_]) = classOf[SurrogateLongId].isAssignableFrom(clz)
 
 	def isLazyLoaded[PC, T](lazyLoad: LazyLoad, entity: Entity[PC, T]) =
 		(lazyLoad.all || lazyLoad.isAnyColumnLazyLoaded(entity.tpe.table.relationshipColumnInfos.toSet)) && !entity.tpe.table.relationshipColumnInfos.isEmpty

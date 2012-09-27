@@ -155,7 +155,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	protected implicit def columnToOptionLong(ci: ColumnInfo[T, Long])(implicit m: ValuesMap): Option[Long] =
 		if (m.isNull(ci)) None else Some(m(ci))
 
-	protected implicit def columnToLongLongId(ci: ColumnInfo[T with LongId, Long])(implicit m: ValuesMap): Long = m(ci)
+	protected implicit def columnToLongLongId(ci: ColumnInfo[T with SurrogateLongId, Long])(implicit m: ValuesMap): Long = m(ci)
 
 	protected implicit def columnToDateTime(ci: ColumnInfo[T, DateTime])(implicit m: ValuesMap): DateTime = m(ci)
 	protected implicit def columnToLocalDate(ci: ColumnInfo[T, LocalDate])(implicit m: ValuesMap): LocalDate = m(ci)
