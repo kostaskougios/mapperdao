@@ -14,12 +14,15 @@ trait NaturalStringId extends DeclaredIds[String]
 trait NaturalIntId extends DeclaredIds[Int]
 trait NaturalLongId extends DeclaredIds[Long]
 
+trait NaturalIntAndNaturalIntIds extends DeclaredIds[(Int, Int)]
+trait NaturalIntAndNaturalLongIds extends DeclaredIds[(Int, Long)]
+
 trait NaturalStringAndStringIds extends DeclaredIds[(String, String)]
 
-trait IntAutoAndStringId extends DeclaredIds[(Int, String)] {
+trait SurrogateIntAndNaturalStringId extends DeclaredIds[(Int, String)] {
 	val id: Int
 }
 
-trait IntAutoAndLongId extends DeclaredIds[(Int, Long)] {
+trait SurrogateIntAndNaturalLongId extends DeclaredIds[(Int, Long)] {
 	val id: Int
 }
