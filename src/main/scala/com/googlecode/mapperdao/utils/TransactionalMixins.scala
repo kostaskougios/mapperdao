@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao.utils
 
-import com.googlecode.mapperdao.SurrogateIntId
-import com.googlecode.mapperdao.SurrogateLongId
+import com.googlecode.mapperdao._
 
 /**
  * https://code.google.com/p/mapperdao/wiki/CRUDDaos
@@ -20,3 +19,7 @@ trait TransactionalSurrogateIntIdCRUD[T] extends SurrogateIntIdCRUD[T] with Tran
  *  T is the entity type, i.e. Product
  */
 trait TransactionalSurrogateLongIdCRUD[T] extends SurrogateLongIdCRUD[T] with TransactionalCRUD[Long, SurrogateLongId, T]
+
+trait TransactionalNaturalIntIdCRUD[T] extends NaturalIntIdCRUD[T] with TransactionalCRUD[Int, NaturalIntId, T]
+trait TransactionalNaturalLongIdCRUD[T] extends NaturalLongIdCRUD[T] with TransactionalCRUD[Long, NaturalLongId, T]
+trait TransactionalNaturalStringIdCRUD[T] extends NaturalStringIdCRUD[T] with TransactionalCRUD[String, NaturalStringId, T]
