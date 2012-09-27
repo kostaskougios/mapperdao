@@ -84,11 +84,11 @@ class TwoPrimaryKeysSimpleSuite extends FunSuite with ShouldMatchers {
 
 	case class User(val name: String, val surname: String, val age: Int)
 
-	object UserEntity extends Entity[StringAndStringIds, User] {
+	object UserEntity extends Entity[NaturalStringAndStringIds, User] {
 		val name = key("name") to (_.name)
 		val surname = key("surname") to (_.surname)
 		val age = column("age") to (_.age)
 
-		def constructor(implicit m) = new User(name, surname, age) with StringAndStringIds
+		def constructor(implicit m) = new User(name, surname, age) with NaturalStringAndStringIds
 	}
 }

@@ -1,9 +1,9 @@
 package com.googlecode.mapperdao.utils
 
 import com.googlecode.mapperdao.SurrogateIntId
-import com.googlecode.mapperdao.CustomIntId
+import com.googlecode.mapperdao.NaturalIntId
 import com.googlecode.mapperdao.SurrogateLongId
-import com.googlecode.mapperdao.CustomLongId
+import com.googlecode.mapperdao.NaturalLongId
 import com.googlecode.mapperdao.NoId
 import com.googlecode.mapperdao.Persisted
 
@@ -59,14 +59,14 @@ object Helpers {
 	 * using this utility method
 	 */
 	def asSurrogateIntId[T](t: T) = t.asInstanceOf[T with SurrogateIntId]
-	def asCustomIntId[T](t: T) = t.asInstanceOf[T with CustomIntId]
+	def asCustomIntId[T](t: T) = t.asInstanceOf[T with NaturalIntId]
 	/**
 	 * when loading an LongId entity from the database, the type is T with LongId. If for
 	 * some reason we're sure that the entity T is of LongId, we can easily cast it
 	 * using this utility method
 	 */
 	def asSurrogateLongId[T](t: T) = t.asInstanceOf[T with SurrogateLongId]
-	def asCustomLongId[T](t: T) = t.asInstanceOf[T with CustomLongId]
+	def asCustomLongId[T](t: T) = t.asInstanceOf[T with NaturalLongId]
 
 	/**
 	 * merges oldSet and newSet items, keeping all unmodified

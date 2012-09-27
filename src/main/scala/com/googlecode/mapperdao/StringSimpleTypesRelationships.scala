@@ -8,11 +8,11 @@ case class StringValue(val value: String) extends SimpleTypeValue[String, String
 }
 
 protected class StringEntityOneToMany(table: String, fkColumn: String, soleColumn: String)
-		extends Entity[StringId, StringValue](table, classOf[StringValue]) {
+		extends Entity[NaturalStringId, StringValue](table, classOf[StringValue]) {
 	val value = column(soleColumn) to (_.value)
 
 	declarePrimaryKey(value)
-	def constructor(implicit m: ValuesMap) = new StringValue(value) with StringId
+	def constructor(implicit m: ValuesMap) = new StringValue(value) with NaturalStringId
 }
 
 abstract class StringEntityManyToManyBase[PC](table: String, soleColumn: String)

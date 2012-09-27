@@ -99,7 +99,7 @@ class DeclarePrimaryKeysWithOneToManySuite extends FunSuite with ShouldMatchers 
 	}
 	case class LinkedPeople(to: Person, note: String)
 
-	object PersonEntity extends Entity[StringId, Person] {
+	object PersonEntity extends Entity[NaturalStringId, Person] {
 
 		val email = key("email") to (_.email)
 		val name = column("name") to (_.name)
@@ -108,7 +108,7 @@ class DeclarePrimaryKeysWithOneToManySuite extends FunSuite with ShouldMatchers 
 		val linked = onetomany(LinkedPeopleEntity) foreignkey ("from_id") to (_.linked)
 
 		def constructor(implicit m: ValuesMap) =
-			new Person(email, name, linked) with StringId
+			new Person(email, name, linked) with NaturalStringId
 	}
 
 	class LinkedPeopleEntityDecl(pe: PersonEntity.type) extends Entity[NoId, LinkedPeople] {

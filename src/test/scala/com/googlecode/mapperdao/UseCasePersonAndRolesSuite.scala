@@ -291,14 +291,14 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			new RoleType(name, description) with NoId
 	}
 
-	object PersonEntity extends Entity[StringId, Person] {
+	object PersonEntity extends Entity[NaturalStringId, Person] {
 		val id = key("id") to (_.id)
 		val firstName = column("firstname") to (_.firstName)
 		val lastName = column("lastname") to (_.lastName)
 		val singlePartyRoles = onetomany(SinglePartyRoleEntity) to (_.singlePartyRoles)
 
 		def constructor(implicit m: ValuesMap) =
-			new Person(id, firstName, lastName, singlePartyRoles) with StringId
+			new Person(id, firstName, lastName, singlePartyRoles) with NaturalStringId
 	}
 
 	object SinglePartyRoleEntity extends Entity[NoId, SinglePartyRole] {

@@ -200,7 +200,7 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 	 * Mapping for JobPosition class
 	 * ============================================================================================================
 	 */
-	object JobPositionEntity extends Entity[CustomIntId, JobPosition] {
+	object JobPositionEntity extends Entity[NaturalIntId, JobPosition] {
 		// now a description of the table and it's columns follows.
 		// each column is followed by a function JobPosition=>Any, that
 		// returns the value of the property for that column.
@@ -213,6 +213,6 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 
 		// a function from ValuesMap=>JobPosition that constructs the object.
 		// This means that immutability is possible and even desirable for entities!
-		def constructor(implicit m) = new JobPosition(id, name, start, end, rank, married) with CustomIntId
+		def constructor(implicit m) = new JobPosition(id, name, start, end, rank, married) with NaturalIntId
 	}
 }

@@ -5,19 +5,16 @@ package com.googlecode.mapperdao
  *
  * 24 Sep 2012
  */
-trait SimpleId[T] extends DeclaredIds[T] {
-}
+trait SimpleId[T] extends DeclaredIds[T]
 
 trait NoId extends DeclaredIds[Nothing]
 
-trait StringId extends DeclaredIds[String] {
-}
+trait NaturalStringId extends DeclaredIds[String]
 
-trait CustomIntId extends DeclaredIds[Int]
-trait CustomLongId extends DeclaredIds[Long]
+trait NaturalIntId extends DeclaredIds[Int]
+trait NaturalLongId extends DeclaredIds[Long]
 
-trait StringAndStringIds extends DeclaredIds[(String, String)] {
-}
+trait NaturalStringAndStringIds extends DeclaredIds[(String, String)]
 
 trait IntAutoAndStringId extends DeclaredIds[(Int, String)] {
 	val id: Int
