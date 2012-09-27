@@ -7,7 +7,7 @@ import org.scalatest.matchers.ShouldMatchers
 import com.googlecode.mapperdao.Entity
 import com.googlecode.mapperdao.StringEntity
 import com.googlecode.mapperdao.Persisted
-import com.googlecode.mapperdao.IntId
+import com.googlecode.mapperdao.SurrogateIntId
 
 /**
  * @author kostantinos.kougios
@@ -73,8 +73,8 @@ class TraversableSeparationSuite extends FunSuite with ShouldMatchers {
 	}
 
 	case class X(id: Int)
-	object XEntity extends Entity[IntId, X] {
-		def constructor(implicit m) = new X(1) with IntId
+	object XEntity extends Entity[SurrogateIntId, X] {
+		def constructor(implicit m) = new X(1) with SurrogateIntId
 	}
 
 	val stringEntity = StringEntity.oneToMany("", "", "")

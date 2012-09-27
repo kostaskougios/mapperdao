@@ -41,7 +41,7 @@ class OneToOneDeclarePrimaryKeySuite extends FunSuite with ShouldMatchers {
 
 			import Query._
 			val inventories = for (i <- 0 to 10) yield mapperDao.insert(InventoryEntity, Inventory(Product(1 + i), 5 + i))
-			val p2 = Helpers.asIntId(inventories(2).product)
+			val p2 = Helpers.asSurrogateIntId(inventories(2).product)
 			(
 				select
 				from i
@@ -75,9 +75,9 @@ class OneToOneDeclarePrimaryKeySuite extends FunSuite with ShouldMatchers {
 		def constructor(implicit m) = new Inventory(product, stock) with NoId
 	}
 
-	object ProductEntity extends Entity[IntId, Product] {
+	object ProductEntity extends Entity[SurrogateIntId, Product] {
 		val id = key("id") to (_.id)
 
-		def constructor(implicit m) = new Product(id) with IntId
+		def constructor(implicit m) = new Product(id) with SurrogateIntId
 	}
 }

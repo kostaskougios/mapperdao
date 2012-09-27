@@ -1,5 +1,5 @@
 package com.googlecode.mapperdao.utils
-import com.googlecode.mapperdao.IntId
+import com.googlecode.mapperdao.SurrogateIntId
 import com.googlecode.mapperdao.LongId
 import com.googlecode.mapperdao.StringId
 
@@ -8,7 +8,7 @@ import com.googlecode.mapperdao.StringId
  *
  * @see CRUD
  */
-trait IntIdCRUD[T] extends CRUD[Int, IntId, T]
+trait IntIdCRUD[T] extends CRUD[Int, SurrogateIntId, T]
 
 /**
  * provides CRUD methods for entities with LongId
@@ -22,6 +22,6 @@ trait StringIdCRUD[T] extends CRUD[String, StringId, T]
 /**
  * these mixin traits add querying methods to a dao. Please see the All trait
  */
-trait IntIdAll[T] extends All[IntId, T]
+trait IntIdAll[T] extends All[SurrogateIntId, T]
 trait LongIdAll[T] extends All[LongId, T]
 trait StringIdAll[T] extends All[StringId, T]

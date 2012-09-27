@@ -118,11 +118,11 @@ object DaoMixinsSpec {
 		def constructor(implicit m: ValuesMap) = new Product(id, name, attributes) with LongId
 	}
 
-	object AttributeEntity extends Entity[IntId, Attribute] {
+	object AttributeEntity extends Entity[SurrogateIntId, Attribute] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m: ValuesMap) = new Attribute(id, name, value) with IntId
+		def constructor(implicit m: ValuesMap) = new Attribute(id, name, value) with SurrogateIntId
 	}
 }

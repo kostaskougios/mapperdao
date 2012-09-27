@@ -4,8 +4,6 @@ import com.googlecode.mapperdao.MapperDao
 import com.googlecode.mapperdao.Entity
 import com.googlecode.mapperdao.QueryDao
 import com.googlecode.mapperdao.Query
-import com.googlecode.mapperdao.IntId
-import com.googlecode.mapperdao.LongId
 import org.springframework.transaction.PlatformTransactionManager
 import com.googlecode.mapperdao.jdbc.Transaction
 import Transaction._

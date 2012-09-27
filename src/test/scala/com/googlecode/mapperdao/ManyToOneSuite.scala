@@ -26,7 +26,7 @@ class ManyToOneSuite extends FunSuite with ShouldMatchers {
 			val person = Person(2, "Kostas", company, house)
 
 			val inserted = mapperDao.insert(PersonEntity, person)
-			mapperDao.update(HouseEntity, Helpers.asIntId(inserted.lives), House(7, "Rhodes,Greece"))
+			mapperDao.update(HouseEntity, Helpers.asSurrogateIntId(inserted.lives), House(7, "Rhodes,Greece"))
 			mapperDao.select(PersonEntity, 2).get should be === Person(2, "Kostas", company, House(7, "Rhodes,Greece"))
 		}
 	}
@@ -175,25 +175,25 @@ object ManyToOneSpec {
 	case class Company(val id: Int, val name: String)
 	case class House(val id: Int, val address: String)
 
-	object PersonEntity extends Entity[IntId, Person] {
+	object PersonEntity extends Entity[SurrogateIntId, Person] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val company = manytoone(CompanyEntity) to (_.company)
 		val lives = manytoone(HouseEntity) to (_.lives)
 
-		def constructor(implicit m) = new Person(id, name, company, lives) with IntId
+		def constructor(implicit m) = new Person(id, name, company, lives) with SurrogateIntId
 	}
 
-	object CompanyEntity extends Entity[IntId, Company] {
+	object CompanyEntity extends Entity[SurrogateIntId, Company] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 
-		def constructor(implicit m) = new Company(id, name) with IntId
+		def constructor(implicit m) = new Company(id, name) with SurrogateIntId
 	}
 
-	object HouseEntity extends Entity[IntId, House] {
+	object HouseEntity extends Entity[SurrogateIntId, House] {
 		val id = key("id") to (_.id)
 		val address = column("address") to (_.address)
-		def constructor(implicit m) = new House(id, address) with IntId
+		def constructor(implicit m) = new House(id, address) with SurrogateIntId
 	}
 }

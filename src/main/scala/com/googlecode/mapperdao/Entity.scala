@@ -148,7 +148,7 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	protected implicit def columnToOptionInt(ci: ColumnInfo[T, Int])(implicit m: ValuesMap): Option[Int] =
 		if (m.isNull(ci)) None else Some(m(ci))
 
-	protected implicit def columnToIntIntId(ci: ColumnInfo[T with IntId, Int])(implicit m: ValuesMap): Int = m(ci)
+	protected implicit def columnToIntIntId(ci: ColumnInfo[T with SurrogateIntId, Int])(implicit m: ValuesMap): Int = m(ci)
 
 	protected implicit def columnToLong(ci: ColumnInfo[T, Long])(implicit m: ValuesMap): Long = m(ci)
 

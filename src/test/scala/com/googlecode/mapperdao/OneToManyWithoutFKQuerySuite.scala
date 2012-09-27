@@ -66,11 +66,11 @@ class OneToManyWithoutFKQuerySuite extends FunSuite with ShouldMatchers {
 		def constructor(implicit m) = new Info(title, loc) with NoId
 	}
 
-	object ProductEntity extends Entity[IntId, Product] {
+	object ProductEntity extends Entity[SurrogateIntId, Product] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val infos = onetomany(InfoEntity) to (_.infos)
 
-		def constructor(implicit m) = new Product(id, name, infos) with IntId
+		def constructor(implicit m) = new Product(id, name, infos) with SurrogateIntId
 	}
 }

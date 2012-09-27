@@ -187,7 +187,7 @@ trait MapperDao {
 	 * get the int id of an entity. The entity must be of IntId.
 	 */
 	def intIdOf(o: AnyRef): Int = o match {
-		case iid: IntId => iid.id
+		case iid: SurrogateIntId => iid.id
 	}
 
 	/**

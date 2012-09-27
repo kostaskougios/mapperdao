@@ -99,7 +99,7 @@ class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 	case class Product(val name: String, val attributes: Set[Attribute])
 	case class Attribute(val name: String, val value: String)
 
-	object ProductEntity extends Entity[IntId, Product]("Product", classOf[Product]) {
+	object ProductEntity extends Entity[SurrogateIntId, Product]("Product", classOf[Product]) {
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("ProductSeq")
 			case _ => None
@@ -107,11 +107,11 @@ class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
 
-		def constructor(implicit m) = new Product(name, attributes)  with IntId {
+		def constructor(implicit m) = new Product(name, attributes) with SurrogateIntId {
 			val id: Int = ProductEntity.id // we explicitly convert this to an int because mysql serial values are always BigInteger (a bug maybe?)
 		}
 	}
-	object AttributeEntity extends Entity[IntId, Attribute]("Attribute", classOf[Attribute]) {
+	object AttributeEntity extends Entity[SurrogateIntId, Attribute]("Attribute", classOf[Attribute]) {
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("AttributeSeq")
 			case _ => None
@@ -119,7 +119,7 @@ class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m) = new Attribute(name, value)  with IntId {
+		def constructor(implicit m) = new Attribute(name, value) with SurrogateIntId {
 			val id: Int = AttributeEntity.id // we explicitly convert this to an int because mysql serial values are always BigInteger (a bug maybe?)
 		}
 	}

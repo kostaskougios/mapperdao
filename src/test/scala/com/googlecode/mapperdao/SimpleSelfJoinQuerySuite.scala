@@ -51,11 +51,11 @@ class SimpleSelfJoinQuerySuite extends FunSuite with ShouldMatchers {
 		}
 	case class JobPosition(val id: Int, var name: String, val start: DateTime)
 
-	class JobPositionEntityBase extends Entity[IntId, JobPosition] {
+	class JobPositionEntityBase extends Entity[SurrogateIntId, JobPosition] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val start = column("start") to (_.start)
 
-		def constructor(implicit m) = new JobPosition(id, name, start) with IntId
+		def constructor(implicit m) = new JobPosition(id, name, start) with SurrogateIntId
 	}
 }

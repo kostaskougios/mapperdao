@@ -17,12 +17,12 @@ import org.scalatest.matchers.ShouldMatchers
 class DateAndCalendarSuite extends FunSuite with ShouldMatchers {
 
 	case class DC(id: Int, date: Date, calendar: Calendar)
-	object DCEntity extends Entity[IntId, DC] {
+	object DCEntity extends Entity[SurrogateIntId, DC] {
 		val id = key("id") to (_.id)
 		val date = column("dt") to (_.date)
 		val calendar = column("cal") to (_.calendar)
 
-		def constructor(implicit m) = new DC(id, date, calendar) with IntId
+		def constructor(implicit m) = new DC(id, date, calendar) with SurrogateIntId
 	}
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(DCEntity))
 

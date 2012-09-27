@@ -101,7 +101,7 @@ object OneToManySelfReferencedSpec {
 
 	case class Person(val name: String, val friends: Set[Person])
 
-	object PersonEntity extends Entity[IntId, Person]("Person", classOf[Person]) {
+	object PersonEntity extends Entity[SurrogateIntId, Person]("Person", classOf[Person]) {
 		val aid = key("id") sequence (Setup.database match {
 			case "oracle" => Some("myseq")
 			case _ => None
@@ -109,7 +109,7 @@ object OneToManySelfReferencedSpec {
 		val name = column("name") to (_.name)
 		val friends = onetomany(PersonEntity) foreignkey "friend_id" to (_.friends)
 
-		def constructor(implicit m) = new Person(name, friends)  with IntId {
+		def constructor(implicit m) = new Person(name, friends) with SurrogateIntId {
 			val id: Int = aid
 		}
 	}

@@ -25,7 +25,7 @@ class ManyToManyCustomLoaderSuite extends FunSuite with ShouldMatchers {
 					selectConfig.data match {
 						case Some('replaced) =>
 							List(
-								new Attribute("x", "y") with IntId {
+								new Attribute("x", "y") with SurrogateIntId {
 									val id = 5
 								}
 							)

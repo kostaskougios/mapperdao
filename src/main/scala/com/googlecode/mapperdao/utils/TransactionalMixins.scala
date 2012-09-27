@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao.utils
 
-import com.googlecode.mapperdao.IntId
+import com.googlecode.mapperdao.SurrogateIntId
 import com.googlecode.mapperdao.LongId
 
 /**
@@ -11,7 +11,7 @@ import com.googlecode.mapperdao.LongId
  * For entities with IntId, this helps create transactional daos and mixes in
  * the CRUD methods
  */
-trait TransactionalIntIdCRUD[T] extends IntIdCRUD[T] with TransactionalCRUD[Int, IntId, T]
+trait TransactionalIntIdCRUD[T] extends IntIdCRUD[T] with TransactionalCRUD[Int, SurrogateIntId, T]
 
 /**
  * For entities with LongId, this helps create transactional daos and mixes in

@@ -89,7 +89,7 @@ private[mapperdao] class LazyLoadManager {
 
 		if (hasIntId(constructedClz)) {
 			guardIdField(originalClz)
-			b.interface[IntId]
+			b.interface[SurrogateIntId]
 			b.field("private int id;")
 			b.methodWithSrc("""
 					public int id() {
@@ -116,7 +116,7 @@ private[mapperdao] class LazyLoadManager {
 			throw new IllegalStateException(constructedClz.getName + " already contains a field 'id'")
 	}
 
-	private def hasIntId(clz: Class[_]) = classOf[IntId].isAssignableFrom(clz)
+	private def hasIntId(clz: Class[_]) = classOf[SurrogateIntId].isAssignableFrom(clz)
 	private def hasLongId(clz: Class[_]) = classOf[LongId].isAssignableFrom(clz)
 
 	def isLazyLoaded[PC, T](lazyLoad: LazyLoad, entity: Entity[PC, T]) =

@@ -170,28 +170,28 @@ object ManyToOneQuerySpec {
 	case class House(val id: Int, val name: String, val address: Address)
 	case class Address(val id: Int, val postCode: String)
 
-	object PersonEntity extends Entity[IntId, Person] {
+	object PersonEntity extends Entity[SurrogateIntId, Person] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val lives = manytoone(HouseEntity) foreignkey "lives_id" to (_.lives)
 
-		def constructor(implicit m) = new Person(id, name, lives) with IntId
+		def constructor(implicit m) = new Person(id, name, lives) with SurrogateIntId
 	}
 
-	class HouseEntityBase extends Entity[IntId, House] {
+	class HouseEntityBase extends Entity[SurrogateIntId, House] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val address = manytoone(AddressEntity) to (_.address)
 
-		def constructor(implicit m) = new House(id, name, address) with IntId
+		def constructor(implicit m) = new House(id, name, address) with SurrogateIntId
 	}
 
 	val HouseEntity = new HouseEntityBase
 
-	object AddressEntity extends Entity[IntId, Address] {
+	object AddressEntity extends Entity[SurrogateIntId, Address] {
 		val id = key("id") to (_.id)
 		val postCode = column("postcode") to (_.postCode)
 
-		def constructor(implicit m) = new Address(id, postCode) with IntId
+		def constructor(implicit m) = new Address(id, postCode) with SurrogateIntId
 	}
 }

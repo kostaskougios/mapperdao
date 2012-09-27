@@ -23,7 +23,7 @@ class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
 
 		import Query._
 		val inventories = for (i <- 0 to 10) yield mapperDao.insert(InventoryEntity, Inventory(10 + i, Product(1 + i), 5 + i))
-		val p2 = Helpers.asIntId(inventories(2).product)
+		val p2 = Helpers.asSurrogateIntId(inventories(2).product)
 		(
 			select
 			from i
@@ -45,7 +45,7 @@ class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
 		test("update id of related") {
 			createTables
 			val inserted = mapperDao.insert(InventoryEntity, Inventory(10, Product(1), 5))
-			val updatedProduct = mapperDao.update(ProductEntity, Helpers.asIntId(inserted.product), Product(7))
+			val updatedProduct = mapperDao.update(ProductEntity, Helpers.asSurrogateIntId(inserted.product), Product(7))
 			updatedProduct should be === Product(7)
 			mapperDao.select(InventoryEntity, 10).get should be === Inventory(10, Product(7), 5)
 		}
@@ -113,17 +113,17 @@ class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
 	case class Inventory(val id: Int, val product: Product, val stock: Int)
 	case class Product(val id: Int)
 
-	object InventoryEntity extends Entity[IntId, Inventory] {
+	object InventoryEntity extends Entity[SurrogateIntId, Inventory] {
 		val id = key("id") to (_.id)
 		val product = onetoone(ProductEntity) to (_.product)
 		val stock = column("stock") to (_.stock)
 
-		def constructor(implicit m) = new Inventory(id, product, stock) with IntId
+		def constructor(implicit m) = new Inventory(id, product, stock) with SurrogateIntId
 	}
 
-	object ProductEntity extends Entity[IntId, Product] {
+	object ProductEntity extends Entity[SurrogateIntId, Product] {
 		val id = key("id") to (_.id)
 
-		def constructor(implicit m) = new Product(id) with IntId
+		def constructor(implicit m) = new Product(id) with SurrogateIntId
 	}
 }
