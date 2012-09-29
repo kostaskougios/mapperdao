@@ -32,10 +32,10 @@ trait With2Ids[ID1, ID2] extends DeclaredIds[(ID1, ID2)]
 trait With3Ids[ID1, ID2, ID3] extends DeclaredIds[(ID1, ID2, ID3)]
 
 /**
- * Classes (mutable or immutable) with integer id's can mix this trait so that the id can be accessed when required.
+ * Classes (mutable or immutable) mapped to tables with surrogate integer id can mix this trait so that the id can be accessed when required.
  * Note that the id is not part of a domain model but rather part of the database. So a clean domain model class doesn't
- * have to provide access to it's id. But when the entity is loaded from the database, then it becomes
- * a T with IntId.
+ * have to provide access to it's id. But when the entity is loaded from the database, then the id becomes available as the entity
+ * becomes a T with IntId.
  *
  * Typically this will be used when declaring the entity, i.e. object ProductEntity extends Entity[SurrogateIntId,Product]
  *
@@ -48,10 +48,10 @@ trait SurrogateIntId extends DeclaredIds[Int] {
 }
 
 /**
- * Classes (mutable or immutable) with long id's can mix this trait so that the id can be accessed when required.
+ * Classes (mutable or immutable) mapped to tables with surrogate long id can mix this trait so that the id can be accessed when required.
  * Note that the id is not part of a domain model but rather part of the database. So a clean domain model class doesn't
- * have to provide access to it's id. But when the entity is loaded from the database, then it becomes
- * a T with SurrogateLongId.
+ * have to provide access to it's id. But when the entity is loaded from the database, then the id is available as the
+ * entity becomes a T with SurrogateLongId.
  *
  * For nested entities, use mapperDao.longIdFor(o) or Helpers.longIdFor(o)
  * to access the id of an entity.
