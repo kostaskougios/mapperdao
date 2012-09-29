@@ -99,17 +99,17 @@ object Setup {
 		database: Database.DriverConfiguration,
 		dataSource: DataSource,
 		entities: List[Entity[_, _]],
-		cache: Option[Cache],
+		cache: Option[Cache] = None,
 		events: Events = new Events): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
-		apply(database, dataSource, TypeRegistry(entities), cache, ISOChronology.getInstance, events)
+		create(database, dataSource, TypeRegistry(entities), cache, ISOChronology.getInstance, events)
 
-	def apply(
+	def create(
 		database: Database.DriverConfiguration,
 		dataSource: DataSource,
 		typeRegistry: TypeRegistry,
-		cache: Option[Cache],
-		chronology: Chronology,
-		events: Events): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		cache: Option[Cache] = None,
+		chronology: Chronology = ISOChronology.getInstance,
+		events: Events = new Events): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		{
 			val typeManager = new DefaultTypeManager(chronology)
 			val jdbc = Jdbc(dataSource, chronology)
