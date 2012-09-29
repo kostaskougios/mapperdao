@@ -68,7 +68,7 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 		var updated: JobPosition = inserted
 		def doUpdate(from: JobPosition, to: JobPosition) =
 			{
-				updated = mapperDao.update(JobPositionEntity, Helpers.asCustomIntId(from), to)
+				updated = mapperDao.update(JobPositionEntity, Helpers.asNaturalIntId(from), to)
 				updated should be === to
 				mapperDao.select(JobPositionEntity, 5).get should be === to
 				mapperDao.select(JobPositionEntity, 5).get should be === updated

@@ -23,17 +23,17 @@ class OneToOneDeclarePrimaryKeySuite extends FunSuite with ShouldMatchers {
 			val i5 = mapperDao.insert(InventoryEntity, Inventory(Product(1), 5))
 			val i6 = mapperDao.insert(InventoryEntity, Inventory(Product(2), 6))
 
-			val si5 = mapperDao.select(InventoryEntity, i5.product).get
+			val si5 = mapperDao.select(InventoryEntity, Helpers.asNaturalIntId(i5.product)).get
 			val ui5 = mapperDao.update(InventoryEntity, si5, si5.copy(stock = 15))
 			ui5 should be === Inventory(Product(1), 15)
 
-			val rsi5 = mapperDao.select(InventoryEntity, i5.product).get
+			val rsi5 = mapperDao.select(InventoryEntity, Helpers.asNaturalIntId(i5.product)).get
 			rsi5 should be === ui5
 
 			mapperDao.delete(InventoryEntity, rsi5)
-			mapperDao.select(InventoryEntity, i5.product) should be(None)
+			mapperDao.select(InventoryEntity, Helpers.asNaturalIntId(i5.product)) should be(None)
 
-			mapperDao.select(InventoryEntity, i6.product).get should be === i6
+			mapperDao.select(InventoryEntity, Helpers.asNaturalIntId(i6.product)).get should be === i6
 		}
 
 		test("query on product") {
@@ -66,18 +66,18 @@ class OneToOneDeclarePrimaryKeySuite extends FunSuite with ShouldMatchers {
 	case class Inventory(val product: Product, val stock: Int)
 	case class Product(val id: Int)
 
-	object InventoryEntity extends Entity[NoId, Inventory] {
+	object InventoryEntity extends Entity[With1Id[Product with NaturalIntId], Inventory] {
 		val product = onetoone(ProductEntity) to (_.product)
 		val stock = column("stock") to (_.stock)
 
 		declarePrimaryKey(product)
 
-		def constructor(implicit m) = new Inventory(product, stock) with NoId
+		def constructor(implicit m) = new Inventory(product, stock) with With1Id[Product with NaturalIntId]
 	}
 
-	object ProductEntity extends Entity[SurrogateIntId, Product] {
+	object ProductEntity extends Entity[NaturalIntId, Product] {
 		val id = key("id") to (_.id)
 
-		def constructor(implicit m) = new Product(id) with SurrogateIntId
+		def constructor(implicit m) = new Product(id) with NaturalIntId
 	}
 }

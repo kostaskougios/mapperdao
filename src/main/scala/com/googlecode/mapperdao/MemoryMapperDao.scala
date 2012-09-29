@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap
 import exceptions.PersistException
 import org.joda.time.chrono.ISOChronology
 import com.googlecode.mapperdao.utils.NYI
+import com.googlecode.mapperdao.utils.Helpers
 
 /**
  * a memory implementation of the MapperDao interface, useful for testing
@@ -85,15 +86,17 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 	}
 
 	// select
-	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], ids: List[Any]): Option[T with PC] = {
-		val key = entity.clz :: ids
-		val e = m.get(key)
-		if (e == null) None else {
-			val tpe = entity.tpe
-			val modified = ValuesMap.fromEntity(typeManager, tpe, e.asInstanceOf[T]).toMutableMap
-			Some(tpe.constructor(selectConfig.data, ValuesMap.fromMap(modified)))
+	override def select[ID, PC <: DeclaredIds[ID], T](selectConfig: SelectConfig, entity: Entity[PC, T], id: ID) =
+		{
+			val ids = Helpers.idToList(id)
+			val key = entity.clz :: ids
+			val e = m.get(key)
+			if (e == null) None else {
+				val tpe = entity.tpe
+				val modified = ValuesMap.fromEntity(typeManager, tpe, e.asInstanceOf[T]).toMutableMap
+				Some(tpe.constructor(selectConfig.data, ValuesMap.fromMap(modified)))
+			}
 		}
-	}
 
 	// delete
 	def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T = {

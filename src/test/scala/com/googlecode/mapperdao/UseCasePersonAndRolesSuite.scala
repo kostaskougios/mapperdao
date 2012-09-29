@@ -113,10 +113,10 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			import Query._
 
 			// various queries to get it back
-			val selected = mapperDao.select(InterPartyRelationshipEntity, person1, person2).get
+			val selected = mapperDao.select(InterPartyRelationshipEntity, (person1, person2)).get
 			selected should be === ipr1
 
-			mapperDao.select(InterPartyRelationshipEntity, person2, person1).get should be === ipr2
+			mapperDao.select(InterPartyRelationshipEntity, (person2, person1)).get should be === ipr2
 
 			(
 				select
@@ -167,17 +167,17 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			val (role1, role2, role3) = persistRoles
 			val (person1, person2) = people(role1, role2, role3)
 
-			val spr1 = mapperDao.select(SinglePartyRoleEntity, role1, person1).get
+			val spr1 = mapperDao.select(SinglePartyRoleEntity, (role1, person1)).get
 			Set(spr1) should be === person1.singlePartyRoles.filter(_.roleType == role1)
 
 			val upd = spr1.copy(roleType = role3)
 			val updated = mapperDao.update(SinglePartyRoleEntity, spr1, upd)
 			updated should be === upd
-			val reloaded = mapperDao.select(SinglePartyRoleEntity, role3, person1).get
+			val reloaded = mapperDao.select(SinglePartyRoleEntity, (role3, person1)).get
 			reloaded should be === updated
 
 			mapperDao.delete(SinglePartyRoleEntity, reloaded)
-			mapperDao.select(SinglePartyRoleEntity, role3, person1) should be(None)
+			mapperDao.select(SinglePartyRoleEntity, (role3, person1)) should be(None)
 
 			// make sure we deleted only relevant data
 			mapperDao.select(PersonEntity, "some.other").get should be === person2
@@ -196,15 +196,15 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 				where spr.roleType === role2
 			).toList(queryDao)
 			l.size should be === 1
-			val spr1 = l.head.singlePartyRoles.filter(_.roleType == role1).head
+			val spr1 = l.head.singlePartyRoles.filter(_.roleType == role1).head.asInstanceOf[SinglePartyRole with SPRKey]
 
 			val upd = spr1.copy(roleType = role3)
-			val updated = mapperDao.update(SinglePartyRoleEntity, Helpers.asNoId(spr1), upd)
+			val updated = mapperDao.update(SinglePartyRoleEntity, spr1, upd)
 			updated should be === upd
-			val reloaded = mapperDao.select(SinglePartyRoleEntity, role3, person1).get
+			val reloaded = mapperDao.select(SinglePartyRoleEntity, (role3, person1)).get
 			reloaded should be === updated
 			mapperDao.delete(SinglePartyRoleEntity, reloaded)
-			mapperDao.select(SinglePartyRoleEntity, role3, person1) should be(None)
+			mapperDao.select(SinglePartyRoleEntity, (role3, person1)) should be(None)
 
 			// make sure we deleted only relevant data
 			mapperDao.select(PersonEntity, "some.other").get should be === person2
@@ -283,12 +283,12 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 	case class RoleType(name: String, description: Option[String])
 	case class InterPartyRelationship(from: Person, to: Person, fromDate: Option[DateTime], toDate: Option[DateTime])
 
-	object RoleTypeEntity extends Entity[NoId, RoleType] {
+	object RoleTypeEntity extends Entity[NaturalStringId, RoleType] {
 		val name = key("name") to (_.name)
 		val description = column("description") option (_.description)
 
 		def constructor(implicit m: ValuesMap) =
-			new RoleType(name, description) with NoId
+			new RoleType(name, description) with NaturalStringId
 	}
 
 	object PersonEntity extends Entity[NaturalStringId, Person] {
@@ -301,7 +301,8 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			new Person(id, firstName, lastName, singlePartyRoles) with NaturalStringId
 	}
 
-	object SinglePartyRoleEntity extends Entity[NoId, SinglePartyRole] {
+	type SPRKey = With2Ids[RoleType with NaturalStringId, Person with NaturalStringId]
+	object SinglePartyRoleEntity extends Entity[SPRKey, SinglePartyRole] {
 		val roleType = manytoone(RoleTypeEntity) to (_.roleType)
 		val fromDate = column("fromDate") option (_.fromDate)
 		val toDate = column("toDate") option (_.toDate)
@@ -309,10 +310,10 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 		declarePrimaryKey(roleType)
 		declarePrimaryKey(PersonEntity.singlePartyRoles)
 
-		def constructor(implicit m: ValuesMap) = new SinglePartyRole(roleType, fromDate, toDate) with NoId
+		def constructor(implicit m: ValuesMap) = new SinglePartyRole(roleType, fromDate, toDate) with With2Ids[RoleType with NaturalStringId, Person with NaturalStringId]
 	}
 
-	object InterPartyRelationshipEntity extends Entity[NoId, InterPartyRelationship] {
+	object InterPartyRelationshipEntity extends Entity[With2Ids[Person with NaturalStringId, Person with NaturalStringId], InterPartyRelationship] {
 		val from = manytoone(PersonEntity) foreignkey ("from_id") to (_.from)
 		val to = manytoone(PersonEntity) foreignkey ("to_id") to (_.to)
 		val fromDate = column("fromDate") option (_.fromDate)
@@ -321,7 +322,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 		declarePrimaryKey(from)
 		declarePrimaryKey(to)
 
-		def constructor(implicit m: ValuesMap) = new InterPartyRelationship(from, to, fromDate, toDate) with NoId
+		def constructor(implicit m: ValuesMap) = new InterPartyRelationship(from, to, fromDate, toDate) with With2Ids[Person with NaturalStringId, Person with NaturalStringId]
 	}
 }
 

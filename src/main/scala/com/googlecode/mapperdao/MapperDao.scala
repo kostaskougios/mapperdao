@@ -93,20 +93,7 @@ trait MapperDao {
 	 * @return			Option[T with PC] or None, i.e. Some(Product with IntId) if the id
 	 * 					exists.
 	 */
-	def select[PC, T](entity: Entity[PC, T], id: Any): Option[T with PC] = select(entity, List(id))
-	def select[PC, T](entity: Entity[PC, T], id1: Any, id2: Any): Option[T with PC] = select(entity, List(id1, id2))
-	def select[PC, T](entity: Entity[PC, T], id1: Any, id2: Any, id3: Any): Option[T with PC] = select(entity, List(id1, id2, id3))
-
-	/**
-	 * select an entity by it's ID's
-	 *
-	 * @param entity	the entity, i.e. ProductEntity
-	 * @param ids		a list of ids for the entity. The number of elements should match
-	 * 					the number of primary keys of the entity
-	 * @return			Option[T with PC] or None, i.e. Some(Product with IntId) if the id's
-	 * 					exist.
-	 */
-	def select[PC, T](entity: Entity[PC, T], ids: List[Any]): Option[T with PC] = select(defaultSelectConfig, entity, ids)
+	def select[ID, PC <: DeclaredIds[ID], T](entity: Entity[PC, T], id: ID): Option[T with PC] = select(defaultSelectConfig, entity, id)
 
 	/**
 	 * select an entity with configuration of what will be loaded, lazy loaded, caching etc..
@@ -120,22 +107,7 @@ trait MapperDao {
 	 *
 	 * @see 	#SelectConfig for all available configuration parameters
 	 */
-	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], id: Any): Option[T with PC] = select(selectConfig, entity, List(id))
-
-	/**
-	 * select an entity with configuration of what will be loaded, lazy loaded, caching etc..
-	 * i.e.
-	 * SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
-	 *
-	 * @param	selectConfig	the configuration for this select
-	 * @param	entity			the entity to load i.e. ProductEntity
-	 * @param	ids				the ids of the entity, the size of the list should match
-	 * 							the number of keys of the entity
-	 * @return	Option[T with PC] i.e. Some(Product with IntId)
-	 *
-	 * @see 	#SelectConfig for all available configuration parameters
-	 */
-	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], ids: List[Any]): Option[T with PC]
+	def select[ID, PC <: DeclaredIds[ID], T](selectConfig: SelectConfig, entity: Entity[PC, T], id: ID): Option[T with PC]
 
 	// default configurations, can be overriden
 	protected val defaultSelectConfig = SelectConfig.default

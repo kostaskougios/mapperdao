@@ -5,6 +5,7 @@ import org.junit.runner.RunWith
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
+import com.googlecode.mapperdao.utils.Helpers
 
 /**
  * @author kostantinos.kougios
@@ -27,18 +28,18 @@ class UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite extends FunSuite with 
 			val l1 = mapperDao.insert(TagEntity, Tag("laptop", Product("lapt100", "SuperFast 1000")))
 			val l2 = mapperDao.insert(TagEntity, Tag("laptop", Product("lapt101", "SlowAsHell 2000")))
 
-			val sl1 = mapperDao.select(TagEntity, l1.tag, l1.product).get
+			val sl1 = mapperDao.select(TagEntity, (l1.tag, Helpers.asNaturalStringId(l1.product))).get
 
 			val ul1 = mapperDao.update(TagEntity, sl1, sl1.copy(tag = "changed"))
 			ul1 should be === Tag("changed", Product("lapt100", "SuperFast 1000"))
 
-			val rsl1 = mapperDao.select(TagEntity, ul1.tag, ul1.product).get
+			val rsl1 = mapperDao.select(TagEntity, (ul1.tag, Helpers.asNaturalStringId(ul1.product))).get
 			rsl1 should be === ul1
 
 			mapperDao.delete(TagEntity, rsl1)
-			mapperDao.select(TagEntity, ul1.tag, ul1.product) should be(None)
+			mapperDao.select(TagEntity, (ul1.tag, Helpers.asNaturalStringId(ul1.product))) should be(None)
 
-			mapperDao.select(TagEntity, l2.tag, l2.product).get should be === l2
+			mapperDao.select(TagEntity, (l2.tag, Helpers.asNaturalStringId(l2.product))).get should be === l2
 		}
 
 		test("query forQueryOnly column") {
@@ -73,13 +74,13 @@ object UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite {
 	case class Tag(tag: String, product: Product)
 	case class Product(refCode: String, name: String)
 
-	object TagEntity extends Entity[NaturalStringId, Tag] {
+	object TagEntity extends Entity[With2Ids[String, Product with NaturalStringId], Tag] {
 		val tag = key("tag") to (_.tag)
 		val product = manytoone(SimpleProductEntity) to (_.product)
 
 		declarePrimaryKey(product)
 
-		def constructor(implicit m: ValuesMap) = new Tag(tag, product) with NaturalStringId
+		def constructor(implicit m: ValuesMap) = new Tag(tag, product) with With2Ids[String, Product with NaturalStringId]
 	}
 
 	trait ProductEntity[T <: Product] extends Entity[NaturalStringId, T] {

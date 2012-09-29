@@ -62,12 +62,12 @@ class ManyToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 			val inserted = mapperDao.insert(UserEntity, u)
 			inserted should be === u
 
-			val selected = mapperDao.select(UserEntity, List(inserted.id, inserted.reference)).get
+			val selected = mapperDao.select(UserEntity, (inserted.id, inserted.reference)).get
 			selected should be === inserted
 
 			mapperDao.delete(UserEntity, selected)
 
-			mapperDao.select(UserEntity, List(inserted.id, inserted.reference)) should be(None)
+			mapperDao.select(UserEntity, (inserted.id, inserted.reference)) should be(None)
 		}
 
 		test("update, remove") {
@@ -86,7 +86,7 @@ class ManyToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 			val updated = mapperDao.update(UserEntity, inserted, upd)
 			updated should be === upd
 
-			mapperDao.select(UserEntity, List(updated.id, updated.reference)).get should be === updated
+			mapperDao.select(UserEntity, (updated.id, updated.reference)).get should be === updated
 		}
 
 		test("update, add") {
@@ -105,7 +105,7 @@ class ManyToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 			val updated = mapperDao.update(UserEntity, inserted, upd)
 			updated should be === upd
 
-			mapperDao.select(UserEntity, List(updated.id, updated.reference)).get should be === updated
+			mapperDao.select(UserEntity, (updated.id, updated.reference)).get should be === updated
 		}
 
 		def noise = mapperDao.insert(UserEntity, User("refX", "user X", Set(Account(50, "Noise1"), Account(51, "Noise2"), Account(52, "Noise3"))))

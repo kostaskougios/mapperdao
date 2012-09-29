@@ -82,10 +82,10 @@ class OneToOneReverseCompositeKeySuite extends FunSuite with ShouldMatchers {
 			val inserted = mapperDao.insert(InventoryEntity, i)
 			inserted should be === i
 
-			mapperDao.select(InventoryEntity, inserted.id, inserted.refCode).get should be === Inventory(100, "ref1", Product("product 1", Inventory(100, "ref1", Product("product 1", null), 5)), 5)
+			mapperDao.select(InventoryEntity, (inserted.id, inserted.refCode)).get should be === Inventory(100, "ref1", Product("product 1", Inventory(100, "ref1", Product("product 1", null), 5)), 5)
 
 			mapperDao.delete(InventoryEntity, inserted)
-			mapperDao.select(InventoryEntity, inserted.id, inserted.refCode) should be === None
+			mapperDao.select(InventoryEntity, (inserted.id, inserted.refCode)) should be === None
 		}
 
 		test("delete associated with cascade") {
@@ -97,7 +97,7 @@ class OneToOneReverseCompositeKeySuite extends FunSuite with ShouldMatchers {
 			val productId = Helpers.intIdOf(inserted.product)
 
 			mapperDao.delete(DeleteConfig(propagate = true), ProductEntity, Helpers.asSurrogateIntId(inserted.product))
-			mapperDao.select(InventoryEntity, inserted.id, inserted.refCode) should be === None
+			mapperDao.select(InventoryEntity, (inserted.id, inserted.refCode)) should be === None
 			mapperDao.select(ProductEntity, productId) should be === None
 		}
 
@@ -113,7 +113,7 @@ class OneToOneReverseCompositeKeySuite extends FunSuite with ShouldMatchers {
 			val updated = mapperDao.update(InventoryEntity, inserted, upd)
 			updated should be === upd
 
-			mapperDao.select(InventoryEntity, updated.id, "ref1").get should be === Inventory(100, "ref1", Product("rc2", Inventory(100, "ref1", Product("rc2", null), 5)), 5)
+			mapperDao.select(InventoryEntity, (updated.id, "ref1")).get should be === Inventory(100, "ref1", Product("rc2", Inventory(100, "ref1", Product("rc2", null), 5)), 5)
 		}
 
 		def noise = {
@@ -138,13 +138,13 @@ object OneToOneReverseCompositeKeySuite {
 	case class Inventory(id: Int, refCode: String, product: Product, stock: Int)
 	case class Product(name: String, inventory: Inventory)
 
-	object InventoryEntity extends Entity[SurrogateIntId, Inventory] {
+	object InventoryEntity extends Entity[NaturalIntAndNaturalStringIds, Inventory] {
 		val id = key("id") to (_.id)
 		val refCode = key("refCode") to (_.refCode)
 		val product = onetoone(ProductEntity) to (_.product)
 		val stock = column("stock") to (_.stock)
 
-		def constructor(implicit m) = new Inventory(id, refCode, product, stock) with SurrogateIntId
+		def constructor(implicit m) = new Inventory(id, refCode, product, stock) with NaturalIntAndNaturalStringIds
 	}
 
 	object ProductEntity extends Entity[SurrogateIntId, Product] {

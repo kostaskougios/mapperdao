@@ -65,9 +65,9 @@ class OneToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 			val inserted = mapperDao.insert(HouseEntity, h)
 			inserted should be === h
 
-			mapperDao.select(HouseEntity, List(inserted.id, inserted.address)).get should be === inserted
+			mapperDao.select(HouseEntity, inserted.id).get should be === inserted
 			mapperDao.delete(HouseEntity, inserted)
-			mapperDao.select(HouseEntity, List(inserted.id, inserted.address)) should be === None
+			mapperDao.select(HouseEntity, inserted.id) should be === None
 		}
 
 		test("update, remove") {
@@ -80,7 +80,7 @@ class OneToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 			val upd = inserted.copy(doors = inserted.doors.filter(_.location == "kitchen"))
 			val updated = mapperDao.update(HouseEntity, inserted, upd)
 			updated should be === upd
-			val selected = mapperDao.select(HouseEntity, List(inserted.id, inserted.address)).get
+			val selected = mapperDao.select(HouseEntity, inserted.id).get
 			selected should be === updated
 		}
 
@@ -94,7 +94,7 @@ class OneToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 			val upd = inserted.copy(doors = inserted.doors + Door("bathroom"))
 			val updated = mapperDao.update(HouseEntity, inserted, upd)
 			updated should be === upd
-			val selected = mapperDao.select(HouseEntity, List(inserted.id, inserted.address)).get
+			val selected = mapperDao.select(HouseEntity, inserted.id).get
 			selected should be === updated
 		}
 

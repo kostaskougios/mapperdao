@@ -10,6 +10,7 @@ import com.googlecode.mapperdao.plugins.SelectMock
 import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.utils.Equality
 import com.googlecode.mapperdao.utils.NYI
+import com.googlecode.mapperdao.utils.Helpers
 
 /**
  * @author kostantinos.kougios
@@ -315,10 +316,10 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 	 *
 	 * SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
 	 */
-	def select[PC, T](selectConfig: SelectConfig, entity: Entity[PC, T], ids: List[Any]): Option[T with PC] =
+	override def select[ID, PC <: DeclaredIds[ID], T](selectConfig: SelectConfig, entity: Entity[PC, T], id: ID) =
 		{
-			if (ids == null) throw new NullPointerException("ids can't be null")
-			if (ids.isEmpty) throw new IllegalArgumentException("ids can't be empty")
+			if (id == null) throw new NullPointerException("ids can't be null")
+			val ids = Helpers.idToList(id)
 			val pkSz = entity.tpe.table.primaryKeysSize
 			if (pkSz != ids.size) throw new IllegalArgumentException("entity has %d keys, can't use these keys: %s".format(pkSz, ids))
 			val entityMap = new EntityMap

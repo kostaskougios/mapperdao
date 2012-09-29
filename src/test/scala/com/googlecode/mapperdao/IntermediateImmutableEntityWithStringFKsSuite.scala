@@ -25,7 +25,7 @@ class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite with Should
 		}
 		val inserted = insert(EmployeeEntity, e)
 
-		val im = select(WorkedAtEntity, "e01", "c01").get
+		val im = select(WorkedAtEntity, ("e01", "c01")).get
 		update(WorkedAtEntity, im, WorkedAt(im.employee, Company("c03", "company3"), 2000))
 
 		val selected = select(EmployeeEntity, inserted.no).get

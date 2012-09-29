@@ -79,7 +79,7 @@ class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with ShouldMatchers 
 		// add some noise
 		val lp2Inserted = mapperDao.insert(LinkedPeopleEntity, LinkedPeople(p2, p3, "p2 likes p3"))
 
-		val selected = mapperDao.select(LinkedPeopleEntity, p1, p2).get
+		val selected = mapperDao.select(LinkedPeopleEntity, (p1, p2)).get
 		selected should be === lp1Inserted
 
 		val upd = selected.copy(from = p3, note = "now p3 likes p2")
@@ -87,14 +87,14 @@ class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with ShouldMatchers 
 		updated should be === upd
 
 		// verify the update
-		mapperDao.select(LinkedPeopleEntity, p1, p2) should be(None)
-		val reselected = mapperDao.select(LinkedPeopleEntity, p3, p2).get
+		mapperDao.select(LinkedPeopleEntity, (p1, p2)) should be(None)
+		val reselected = mapperDao.select(LinkedPeopleEntity, (p3, p2)).get
 		reselected should be === updated
 
 		// now delete
 		mapperDao.delete(LinkedPeopleEntity, reselected)
-		mapperDao.select(LinkedPeopleEntity, p3, p2) should be(None)
-		mapperDao.select(LinkedPeopleEntity, p2, p3).get should be === lp2Inserted
+		mapperDao.select(LinkedPeopleEntity, (p3, p2)) should be(None)
+		mapperDao.select(LinkedPeopleEntity, (p2, p3)).get should be === lp2Inserted
 	}
 
 	test("queries") {
@@ -162,7 +162,7 @@ class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with ShouldMatchers 
 		}
 	}
 
-	class LinkedPeopleEntityDecl(pe: PersonEntity.type) extends Entity[NoId, LinkedPeople] {
+	class LinkedPeopleEntityDecl(pe: PersonEntity.type) extends Entity[With2Ids[Person with NaturalStringId, Person with NaturalStringId], LinkedPeople] {
 		val from = manytoone(pe) foreignkey ("from_id") to (_.from)
 		val to = manytoone(pe) foreignkey ("to_id") to (_.to)
 		val note = column("note") to (_.note)
@@ -170,7 +170,7 @@ class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with ShouldMatchers 
 		declarePrimaryKey(from)
 		declarePrimaryKey(to)
 
-		def constructor(implicit m: ValuesMap) = new LinkedPeople(from, to, note) with NoId
+		def constructor(implicit m: ValuesMap) = new LinkedPeople(from, to, note) with With2Ids[Person with NaturalStringId, Person with NaturalStringId]
 	}
 }
 

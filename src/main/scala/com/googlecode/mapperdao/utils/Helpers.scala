@@ -6,6 +6,7 @@ import com.googlecode.mapperdao.SurrogateLongId
 import com.googlecode.mapperdao.NaturalLongId
 import com.googlecode.mapperdao.NoId
 import com.googlecode.mapperdao.Persisted
+import com.googlecode.mapperdao.NaturalStringId
 
 /**
  * useful methods for real life applications that use
@@ -59,14 +60,16 @@ object Helpers {
 	 * using this utility method
 	 */
 	def asSurrogateIntId[T](t: T) = t.asInstanceOf[T with SurrogateIntId]
-	def asCustomIntId[T](t: T) = t.asInstanceOf[T with NaturalIntId]
+	def asNaturalIntId[T](t: T) = t.asInstanceOf[T with NaturalIntId]
 	/**
 	 * when loading an LongId entity from the database, the type is T with LongId. If for
 	 * some reason we're sure that the entity T is of LongId, we can easily cast it
 	 * using this utility method
 	 */
 	def asSurrogateLongId[T](t: T) = t.asInstanceOf[T with SurrogateLongId]
-	def asCustomLongId[T](t: T) = t.asInstanceOf[T with NaturalLongId]
+	def asNaturalLongId[T](t: T) = t.asInstanceOf[T with NaturalLongId]
+
+	def asNaturalStringId[T](t: T) = t.asInstanceOf[T with NaturalStringId]
 
 	/**
 	 * merges oldSet and newSet items, keeping all unmodified
@@ -119,4 +122,10 @@ object Helpers {
 				}
 			}
 		}
+
+	def idToList[ID](id: ID): List[Any] = id match {
+		case (a1, a2) => List(a1, a2)
+		case (a1, a2, a3) => List(a1, a2, a3)
+		case a => List(a)
+	}
 }

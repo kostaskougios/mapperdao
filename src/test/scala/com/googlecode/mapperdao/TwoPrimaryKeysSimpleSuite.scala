@@ -29,8 +29,8 @@ class TwoPrimaryKeysSimpleSuite extends FunSuite with ShouldMatchers {
 		val u1 = mapperDao.insert(UserEntity, User("Some", "Body", 20))
 		val u2 = mapperDao.insert(UserEntity, User("An", "Other", 25))
 
-		mapperDao.select(UserEntity, "Some", "Body").get should be === u1
-		mapperDao.select(UserEntity, "An", "Other").get should be === u2
+		mapperDao.select(UserEntity, ("Some", "Body")).get should be === u1
+		mapperDao.select(UserEntity, ("An", "Other")).get should be === u2
 	}
 
 	test("update") {
@@ -46,11 +46,11 @@ class TwoPrimaryKeysSimpleSuite extends FunSuite with ShouldMatchers {
 		val uu2 = mapperDao.update(UserEntity, iu2, u2updated)
 		uu2 should be === u2updated
 
-		mapperDao.select(UserEntity, "SomeX", "BodyX").get should be === uu1
-		mapperDao.select(UserEntity, "AnX", "OtherX").get should be === uu2
+		mapperDao.select(UserEntity, ("SomeX", "BodyX")).get should be === uu1
+		mapperDao.select(UserEntity, ("AnX", "OtherX")).get should be === uu2
 
-		mapperDao.select(UserEntity, "Some", "Body") should be(None)
-		mapperDao.select(UserEntity, "An", "Other") should be(None)
+		mapperDao.select(UserEntity, ("Some", "Body")) should be(None)
+		mapperDao.select(UserEntity, ("An", "Other")) should be(None)
 	}
 
 	test("delete") {
@@ -58,8 +58,8 @@ class TwoPrimaryKeysSimpleSuite extends FunSuite with ShouldMatchers {
 		mapperDao.insert(UserEntity, User("A", "B", 25))
 		val inserted = mapperDao.insert(UserEntity, User("Some", "Body", 20))
 		mapperDao.delete(UserEntity, inserted)
-		mapperDao.select(UserEntity, "Some", "Body") should be(None)
-		mapperDao.select(UserEntity, "A", "B").get should be === User("A", "B", 25)
+		mapperDao.select(UserEntity, ("Some", "Body")) should be(None)
+		mapperDao.select(UserEntity, ("A", "B")).get should be === User("A", "B", 25)
 	}
 
 	test("query") {

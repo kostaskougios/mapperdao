@@ -67,20 +67,20 @@ class DeclarePrimaryKeysWithOneToManySuite extends FunSuite with ShouldMatchers 
 		createTables()
 		val (p1, p2, p3) = testData
 
-		mapperDao.select(LinkedPeopleEntity, p1, p2).get should be === LinkedPeople(p2, "good chap this p2")
-		mapperDao.select(LinkedPeopleEntity, p1, p3).get should be === LinkedPeople(p3, "hi p3")
-		val slp2 = mapperDao.select(LinkedPeopleEntity, p2, p3).get
+		mapperDao.select(LinkedPeopleEntity, (p1, p2)).get should be === LinkedPeople(p2, "good chap this p2")
+		mapperDao.select(LinkedPeopleEntity, (p1, p3)).get should be === LinkedPeople(p3, "hi p3")
+		val slp2 = mapperDao.select(LinkedPeopleEntity, (p2, p3)).get
 		slp2 should be === LinkedPeople(p3, "I like p3")
 
 		mapperDao.update(LinkedPeopleEntity, slp2, LinkedPeople(p1, "now I like p1"))
-		val rslp2 = mapperDao.select(LinkedPeopleEntity, p2, p1).get
+		val rslp2 = mapperDao.select(LinkedPeopleEntity, (p2, p1)).get
 		rslp2 should be === LinkedPeople(p1, "now I like p1")
 
 		mapperDao.delete(LinkedPeopleEntity, rslp2)
-		mapperDao.select(LinkedPeopleEntity, p2, p1) should be(None)
+		mapperDao.select(LinkedPeopleEntity, (p2, p1)) should be(None)
 
-		mapperDao.select(LinkedPeopleEntity, p1, p2).get should be === LinkedPeople(p2, "good chap this p2")
-		mapperDao.select(LinkedPeopleEntity, p1, p3).get should be === LinkedPeople(p3, "hi p3")
+		mapperDao.select(LinkedPeopleEntity, (p1, p2)).get should be === LinkedPeople(p2, "good chap this p2")
+		mapperDao.select(LinkedPeopleEntity, (p1, p3)).get should be === LinkedPeople(p3, "hi p3")
 	}
 
 	def createTables() {
@@ -111,7 +111,7 @@ class DeclarePrimaryKeysWithOneToManySuite extends FunSuite with ShouldMatchers 
 			new Person(email, name, linked) with NaturalStringId
 	}
 
-	class LinkedPeopleEntityDecl(pe: PersonEntity.type) extends Entity[NoId, LinkedPeople] {
+	class LinkedPeopleEntityDecl(pe: PersonEntity.type) extends Entity[With2Ids[Person with NaturalStringId, Person with NaturalStringId], LinkedPeople] {
 		val to = manytoone(pe) foreignkey ("to_id") to (_.to)
 		val note = column("note") to (_.note)
 
@@ -119,7 +119,7 @@ class DeclarePrimaryKeysWithOneToManySuite extends FunSuite with ShouldMatchers 
 		declarePrimaryKey(to)
 
 		def constructor(implicit m: ValuesMap) =
-			new LinkedPeople(to, note) with NoId
+			new LinkedPeople(to, note) with With2Ids[Person with NaturalStringId, Person with NaturalStringId]
 	}
 }
 

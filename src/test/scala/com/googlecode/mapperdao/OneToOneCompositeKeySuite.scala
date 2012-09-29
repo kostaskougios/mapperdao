@@ -84,7 +84,7 @@ class OneToOneCompositeKeySuite extends FunSuite with ShouldMatchers {
 
 			mapperDao.delete(DeleteConfig(propagate = true), ProductEntity, Helpers.asSurrogateIntId(inserted.product))
 			mapperDao.select(InventoryEntity, inserted.id) should be === None
-			mapperDao.select(ProductEntity, productId, "rc1") should be === None
+			mapperDao.select(ProductEntity, productId) should be === None
 		}
 
 		test("update") {
