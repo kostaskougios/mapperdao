@@ -660,4 +660,6 @@ abstract class Entity[PC, T](protected[mapperdao] val table: String, protected[m
 	}
 
 	// ===================== /Java section ================================
+
+	def toPersistedType(t: T): T with PC = t.asInstanceOf[T with PC]
 }

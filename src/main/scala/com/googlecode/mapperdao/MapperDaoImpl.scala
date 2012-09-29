@@ -470,8 +470,9 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			mock
 		}
 
-	override def delete[PC, T](entity: Entity[PC, T], ids: List[AnyVal]): Unit =
+	override def delete[ID, PC <: DeclaredIds[ID], T](entity: Entity[PC, T], id: ID): Unit =
 		{
+			val ids = Helpers.idToList(id)
 			val tpe = entity.tpe
 			val table = tpe.table
 			val pks = table.primaryKeys

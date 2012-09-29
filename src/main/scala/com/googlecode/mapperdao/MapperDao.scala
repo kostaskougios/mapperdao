@@ -147,8 +147,7 @@ trait MapperDao {
 	 * delete(deleteConfig, entity, o). (In any case to do the same at the database level,
 	 * queries would be required in order to delete the related data)
 	 */
-	def delete[PC, T](entity: Entity[PC, T], id: AnyVal): Unit = delete(entity, List(id))
-	def delete[PC, T](entity: Entity[PC, T], ids: List[AnyVal]): Unit
+	def delete[ID, PC <: DeclaredIds[ID], T](entity: Entity[PC, T], id: ID): Unit
 
 	/**
 	 * unlinks an entity from mapperdao. The entity is not tracked for changes and can't

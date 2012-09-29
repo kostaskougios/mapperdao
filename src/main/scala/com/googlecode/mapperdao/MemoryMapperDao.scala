@@ -99,7 +99,7 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 		}
 
 	// delete
-	def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T = {
+	override def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T = {
 		val tpe = entity.tpe
 		val table = tpe.table
 		val pks = table.toListOfPrimaryKeyValues(o)
@@ -108,7 +108,8 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 		o
 	}
 
-	def delete[PC, T](entity: Entity[PC, T], ids: List[AnyVal]): Unit = {
+	override def delete[ID, PC <: DeclaredIds[ID], T](entity: Entity[PC, T], id: ID): Unit = {
+		val ids = Helpers.idToList(id)
 		val tpe = entity.tpe
 		val table = tpe.table
 		val pks = table.primaryKeys

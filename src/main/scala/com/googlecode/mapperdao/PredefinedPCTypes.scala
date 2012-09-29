@@ -27,6 +27,14 @@ trait SurrogateIntAndNaturalLongId extends DeclaredIds[(Int, Long)] {
 	val id: Int
 }
 
+trait SurrogateLongAndNaturalStringId extends DeclaredIds[(Long, String)] {
+	val id: Long
+}
+
+trait SurrogateLongAndNaturalLongId extends DeclaredIds[(Long, Long)] {
+	val id: Long
+}
+
 trait With1Id[ID1] extends DeclaredIds[ID1]
 trait With2Ids[ID1, ID2] extends DeclaredIds[(ID1, ID2)]
 trait With3Ids[ID1, ID2, ID3] extends DeclaredIds[(ID1, ID2, ID3)]
