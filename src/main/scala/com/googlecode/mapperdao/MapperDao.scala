@@ -151,25 +151,6 @@ trait MapperDao {
 	def delete[PC, T](entity: Entity[PC, T], ids: List[AnyVal]): Unit
 
 	/**
-	 * ===================================================================================
-	 * ID helper methods
-	 * ===================================================================================
-	 */
-	/**
-	 * get the int id of an entity. The entity must be of IntId.
-	 */
-	def intIdOf(o: AnyRef): Int = o match {
-		case iid: SurrogateIntId => iid.id
-	}
-
-	/**
-	 * get the long id of an entity. The entity must be of LongId
-	 */
-	def longIdOf(o: AnyRef): Long = o match {
-		case iid: SurrogateLongId => iid.id
-	}
-
-	/**
 	 * unlinks an entity from mapperdao. The entity is not tracked for changes and can't
 	 * be used in updates or deletes. The extra memory used by mapperdao is released.
 	 *

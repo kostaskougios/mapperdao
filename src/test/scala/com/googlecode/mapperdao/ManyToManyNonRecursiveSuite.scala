@@ -5,6 +5,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
+import com.googlecode.mapperdao.utils.Helpers
 
 /**
  * @author kostantinos.kougios
@@ -69,7 +70,7 @@ class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 
 		// attributes->product should also work
 		val colour = inserted.attributes.toList.filter(_.name == "colour").head
-		val loadedAttribute = mapperDao.select(AttributeEntity, mapperDao.intIdOf(colour)).get
+		val loadedAttribute = mapperDao.select(AttributeEntity, Helpers.intIdOf(colour)).get
 		loadedAttribute should be === Attribute("colour", "blue")
 	}
 
