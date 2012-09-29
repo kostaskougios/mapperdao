@@ -5,7 +5,6 @@ package com.googlecode.mapperdao
  *
  * 24 Sep 2012
  */
-//trait SimpleId[T] extends DeclaredIds[T]
 
 trait NoId extends DeclaredIds[Nothing]
 
