@@ -34,6 +34,16 @@ class DaoMixinsSuite extends FunSuite with ShouldMatchers {
 		protected val txManager = DaoMixinsSuite.this.txManager
 	}
 
+	test("merge for transactional dao, positive") {
+		createTables
+		val p1 = ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, "name10", "value10"))))
+
+		val mp = Product(1, "product1X", p1.attributes)
+		val merged = ProductDaoTransactional.merge(mp, 1)
+		merged should be === mp
+		ProductDaoTransactional.retrieve(1).get should be === merged
+	}
+
 	test("delete by id") {
 		createTables
 		val p1 = ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, "name10", "value10"))))

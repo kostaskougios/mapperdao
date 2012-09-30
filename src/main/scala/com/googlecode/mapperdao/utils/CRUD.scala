@@ -51,6 +51,9 @@ trait CRUD[ID, PC <: DeclaredIds[ID], T] {
 	 * The method heavily relies on object equality to assess which entities will be updated.
 	 */
 	def update(t: T with PC): T with PC = mapperDao.update(updateConfig, entity, t)
+
+	def merge(t: T, id: ID): T with PC = mapperDao.merge(selectConfig, updateConfig, entity, t, id)
+
 	/**
 	 * update an immutable entity. The entity must have been retrieved from the database. Because immutables can't change, a new instance
 	 * of the entity must be created with the new values prior to calling this method. Values that didn't change should be copied from o.

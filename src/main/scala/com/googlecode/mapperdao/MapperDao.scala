@@ -76,14 +76,14 @@ trait MapperDao {
 	def merge[ID, PC <: DeclaredIds[ID], T](
 		entity: Entity[PC, T],
 		o: T,
-		ids: ID): T with PC = merge(defaultSelectConfig, defaultUpdateConfig, entity, o, ids)
+		id: ID): T with PC = merge(defaultSelectConfig, defaultUpdateConfig, entity, o, id)
 
 	def merge[ID, PC <: DeclaredIds[ID], T](
 		selectConfig: SelectConfig,
 		updateConfig: UpdateConfig,
 		entity: Entity[PC, T],
 		o: T,
-		ids: ID): T with PC
+		id: ID): T with PC
 
 	/**
 	 * select an entity by it's ID

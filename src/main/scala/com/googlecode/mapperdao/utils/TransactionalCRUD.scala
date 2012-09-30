@@ -42,6 +42,10 @@ trait TransactionalCRUD[ID, PC <: DeclaredIds[ID], T] extends CRUD[ID, PC, T] {
 		super.update(oldValue, newValue)
 	}
 
+	override def merge(t: T, id: ID): T with PC = prepareTransaction { () =>
+		super.merge(t, id)
+	}
+
 	override def delete(t: T with PC): T = prepareTransaction { () =>
 		super.delete(t)
 	}
