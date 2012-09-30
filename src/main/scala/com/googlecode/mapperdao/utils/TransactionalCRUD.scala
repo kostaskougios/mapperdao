@@ -15,9 +15,8 @@ import com.googlecode.mapperdao.DeclaredIds
  * https://code.google.com/p/mapperdao/wiki/Transactions
  *
  * T is the entity type, i.e. Product
- * T with PC is the persisted type, i.e. Product with IntId. PC can be AnyRef
- * 		if T's type doesn't change when persisted.
- * PK is the type of the key, i.e. Int or String
+ * PC is the key type, i.e. SurrogateIntId.
+ * ID is the type of the key, i.e. Int or String
  */
 trait TransactionalCRUD[ID, PC <: DeclaredIds[ID], T] extends CRUD[ID, PC, T] {
 	protected val txManager: PlatformTransactionManager

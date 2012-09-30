@@ -79,14 +79,14 @@ class OneToManyDeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 		}
 	}
 
-	object HouseEntity extends Entity[NoId, House] {
+	object HouseEntity extends Entity[With2Ids[String, PostCode with SurrogateIntId], House] {
 		val address = column("address") to (_.address)
 		val postCode = manytoone(PostCodeEntity) to (_.postCode)
 
 		declarePrimaryKey(address)
 		declarePrimaryKey(postCode)
 
-		def constructor(implicit m) = new House(address, postCode) with NoId
+		def constructor(implicit m) = new House(address, postCode) with With2Ids[String, PostCode with SurrogateIntId]
 	}
 
 	object PersonEntity extends Entity[SurrogateIntId, Person] {
