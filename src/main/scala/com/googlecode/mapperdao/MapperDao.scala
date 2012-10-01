@@ -156,14 +156,4 @@ trait MapperDao {
 	 * Use this i.e. when you want to store the entity in a session.
 	 */
 	def unlink[PC, T](entity: Entity[PC, T], o: T): T = throw new IllegalStateException("Not supported")
-
-	/**
-	 * releases the objects used to store state for lazy loading to occur, freeing memory
-	 * but lazy loaded relationships will not be loaded if their fields are accessed.
-	 */
-	def unlinkLazyLoadMemoryData[PC, T](entity: Entity[PC, T], o: Any) {
-		val visitor = new FreeLazyLoadedEntityVisitor
-		visitor.visit(entity, o)
-		visitor.free(o)
-	}
 }

@@ -5,6 +5,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 import com.googlecode.classgenerator.ReflectionManager
+import com.googlecode.mapperdao.utils.Helpers
 
 /**
  * @author kostantinos.kougios
@@ -74,7 +75,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 			val inserted = mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2), Set(p1, p2)))
 
 			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad.all), ProductEntity, 2).get
-			mapperDao.unlinkLazyLoadMemoryData(ProductEntity, selected)
+			Helpers.unlinkLazyLoadMemoryData(ProductEntity, selected)
 			// use reflection to detect that the field wasn't set
 			val r1: Set[Attribute] = reflectionManager.get("attributes", selected)
 			r1 should be(Set())
