@@ -19,7 +19,15 @@ import com.googlecode.mapperdao.DeclaredIds
 class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends DuringUpdate {
 	private val nullList = List(null, null, null, null, null)
 
-	def during[PC <: DeclaredIds[_], T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
+	def during[ID, PC <: DeclaredIds[ID], T](
+		updateConfig: UpdateConfig,
+		entity: Entity[ID, PC, T],
+		o: T,
+		oldValuesMap: ValuesMap,
+		newValuesMap: ValuesMap,
+		entityMap: UpdateEntityMap,
+		modified: scala.collection.mutable.Map[String, Any],
+		modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
@@ -27,7 +35,7 @@ class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 			var values = List[(Column, Any)]()
 			var keys = List[(Column, Any)]()
 			table.oneToOneColumnInfos.filterNot(updateConfig.skip.contains(_)).foreach { ci =>
-				val fe = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
+				val fe = ci.column.foreign.entity.asInstanceOf[Entity[Any, DeclaredIds[Any], Any]]
 				val ftpe = fe.tpe
 				val fo = newValuesMap.valueOf[Any](ci)
 
@@ -40,7 +48,7 @@ class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 					val (value, t) = fo match {
 						case p: Persisted if (p.mapperDaoMock) =>
 							(p, false) //mock object shouldn't contribute to column updates
-						case p: Persisted =>
+						case p: DeclaredIds[Any] =>
 							entityMap.down(o, ci, entity)
 							val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
 							entityMap.up

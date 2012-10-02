@@ -19,12 +19,12 @@ import com.googlecode.mapperdao.DeclaredIds
 class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeManager, driver: Driver, mapperDao: MapperDaoImpl) extends DuringUpdate with PostUpdate {
 	private val emptyDUR = new DuringUpdateResults(Nil, Nil)
 
-	override def during[PC <: DeclaredIds[_], T](updateConfig: UpdateConfig, entity: Entity[PC, T], o1: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
+	override def during[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o1: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
-			val UpdateInfo(parent, parentColumnInfo, parentEntity) = entityMap.peek[Any, Any, T, Any, Any]
+			val UpdateInfo(parent, parentColumnInfo, parentEntity) = entityMap.peek[Any, DeclaredIds[Any], Any, T, Any, DeclaredIds[Any], Any]
 			if (parent != null) {
 				parentColumnInfo match {
-					case otor: ColumnInfoOneToOneReverse[_, _, T] =>
+					case otor: ColumnInfoOneToOneReverse[_, _, _, T] =>
 						val parentTpe = parentEntity.tpe
 						new DuringUpdateResults(Nil, otor.column.foreignColumns zip parentTpe.table.toListOfPrimaryKeyValues(parent))
 					case _ => emptyDUR
@@ -32,7 +32,15 @@ class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeM
 			} else emptyDUR
 		}
 
-	def after[PC <: DeclaredIds[_], T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
+	def after[ID, PC <: DeclaredIds[ID], T](
+		updateConfig: UpdateConfig,
+		entity: Entity[ID, PC, T],
+		o: T,
+		mockO: T with PC,
+		oldValuesMap: ValuesMap,
+		newValuesMap: ValuesMap,
+		entityMap: UpdateEntityMap,
+		modified: MapOfList[String, Any]) =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
@@ -42,17 +50,17 @@ class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeM
 				val c = ci.column
 
 				c.foreign.entity match {
-					case ee: ExternalEntity[Any] =>
-						val handler = ee.oneToOneOnUpdateMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[T, _, Any]])
+					case ee: ExternalEntity[Any, Any] =>
+						val handler = ee.oneToOneOnUpdateMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[T, _, _, Any]])
 							.asInstanceOf[ee.OnUpdateOneToOneReverse[T]]
 						handler(UpdateExternalOneToOneReverse(updateConfig, o, fo))
-					case fe: Entity[Any, Any] =>
+					case fe: Entity[Any, DeclaredIds[Any], Any] =>
 						val ftpe = fe.tpe
 						if (fo != null) {
 							val v = fo match {
-								case p: Persisted =>
+								case p: DeclaredIds[Any] =>
 									entityMap.down(mockO, ci, entity)
-									mapperDao.updateInner(updateConfig, fe, fo, entityMap)
+									mapperDao.updateInner(updateConfig, fe, p, entityMap)
 									entityMap.up
 								case newO =>
 									entityMap.down(mockO, ci, entity)
@@ -61,7 +69,7 @@ class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeM
 										mapperDao.insertInner(updateConfig, fe, fo, entityMap)
 									} else {
 										val nVM = ValuesMap.fromEntity(typeManager, ftpe, fo)
-										mapperDao.updateInner(updateConfig, fe, oldV.asInstanceOf[Persisted], fo, entityMap)
+										mapperDao.updateInner(updateConfig, fe, oldV.asInstanceOf[DeclaredIds[Any]], fo, entityMap)
 									}
 									entityMap.up
 							}

@@ -1,17 +1,7 @@
 package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao.drivers.Driver
-import com.googlecode.mapperdao.ColumnInfoOneToOneReverse
-import com.googlecode.mapperdao.Entity
-import com.googlecode.mapperdao.EntityMap
-import com.googlecode.mapperdao.ExternalEntity
-import com.googlecode.mapperdao.MapperDaoImpl
-import com.googlecode.mapperdao.SelectConfig
-import com.googlecode.mapperdao.SelectExternalOneToOneReverse
-import com.googlecode.mapperdao.SelectInfo
-import com.googlecode.mapperdao.Type
-import com.googlecode.mapperdao.TypeRegistry
-import com.googlecode.mapperdao.DatabaseValues
+import com.googlecode.mapperdao._
 
 /**
  * @author kostantinos.kougios
@@ -20,12 +10,12 @@ import com.googlecode.mapperdao.DatabaseValues
  */
 class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect {
 
-	override def idContribution[PC, T](tpe: Type[PC, T], om: DatabaseValues, entities: EntityMap) =
+	override def idContribution[ID, PC, T](tpe: Type[ID, PC, T], om: DatabaseValues, entities: EntityMap) =
 		{
 			val SelectInfo(parentTpe, parentCI, parentJdbcMap) = entities.peek
 			if (parentTpe != null) {
 				parentCI match {
-					case _: ColumnInfoOneToOneReverse[_, _, _] =>
+					case _: ColumnInfoOneToOneReverse[_, _, _, _] =>
 						// we need to contribute the parent's id's to the entity's id 
 						parentTpe.table.primaryKeys.map(c => parentJdbcMap(c.name))
 					case _ => Nil
@@ -33,17 +23,17 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 			} else Nil
 		}
 
-	override def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: DatabaseValues, entities: EntityMap) =
+	override def before[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T], selectConfig: SelectConfig, om: DatabaseValues, entities: EntityMap) =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
 			// one to one reverse
 			table.oneToOneReverseColumnInfos.filterNot(selectConfig.skip(_)).map { ci =>
 				val v = ci.column.foreign.entity match {
-					case ee: ExternalEntity[Any] =>
+					case ee: ExternalEntity[Any, Any] =>
 						() => {
 							val foreignIds = tpe.table.primaryKeys.map { pk => om(pk.name) }
-							ee.oneToOneOnSelectMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[_, _, Any]])(SelectExternalOneToOneReverse(selectConfig, foreignIds))
+							ee.oneToOneOnSelectMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[_, _, _, Any]])(SelectExternalOneToOneReverse(selectConfig, foreignIds))
 						}
 					case _ =>
 						// try to capture as few variables as possible

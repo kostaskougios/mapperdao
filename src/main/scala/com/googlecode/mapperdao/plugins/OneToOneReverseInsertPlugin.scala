@@ -44,7 +44,7 @@ class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperD
 			else Nil
 		}
 
-	override def after[ID, PC, T](
+	override def after[ID, PC <: DeclaredIds[ID], T](
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, PC, T],
 		o: T,
