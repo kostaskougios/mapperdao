@@ -8,7 +8,7 @@
 	<groupId>com.googlecode.mapperdao</groupId>
 	<artifactId>mapperdao</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0.0.rc15-SNAPSHOT</version>
+	<version>1.0.0.rc15-${scala.version}-SNAPSHOT</version>
 	<name>mapperdao</name>
 	<description><![CDATA[
 	MapperDao is an ORM library for the scala language. https://code.google.com/p/mapperdao/ 
@@ -67,15 +67,15 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.googlecode.classgenerator</groupId>
-			<artifactId>classgenerator</artifactId>
-			<version>0.6.4</version>
-		</dependency>
-		<dependency>
 			<groupId>commons-dbcp</groupId>
 			<artifactId>commons-dbcp</artifactId>
 			<version>1.4</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.classgenerator</groupId>
+			<artifactId>classgenerator</artifactId>
+			<version>0.6.5-${scala.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>postgresql</groupId>
@@ -138,12 +138,6 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.10</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.scalatest</groupId>
-			<artifactId>scalatest_2.9.2</artifactId>
-			<version>2.0.M4</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -225,7 +219,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>2.1.2</version>
+				<version>2.2</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -346,6 +340,49 @@
 		</plugins>
 	</build>
 	<profiles>
+		<profile>
+			<id>scala2.9</id>
+			<properties>
+				<scala.version>2.9.2</scala.version>
+			</properties>
+			<activation>
+				<property>
+					<name>!exclude</name>
+				</property>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.scalatest</groupId>
+					<artifactId>scalatest_2.9.2</artifactId>
+					<version>2.0.M4</version>
+					<scope>test</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>scala2.10</id>
+			<properties>
+				<scala.version>2.10.0-M7</scala.version>
+			</properties>
+			<activation>
+				<property>
+					<name>exclude</name>
+				</property>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.scalatest</groupId>
+					<artifactId>scalatest_2.10.0-M7</artifactId>
+					<version>2.0.M4-2.10.0-M7-B1</version>
+				</dependency>
+				<dependency>
+					<groupId>org.scala-lang</groupId>
+					<artifactId>scala-actors</artifactId>
+					<version>2.10.0-M7</version>
+					<scope>test</scope>
+				</dependency>
+			</dependencies>
+		</profile>
 		<profile>
 			<id>sonatype-deploy</id>
 			<build>

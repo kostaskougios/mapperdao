@@ -526,7 +526,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 				// return the object
 				o
 			} catch {
-				case e => throw new PersistException("An error occured during delete of entity %s with value %s".format(entity, o), e)
+				case e: Throwable => throw new PersistException("An error occured during delete of entity %s with value %s".format(entity, o), e)
 			}
 		case _ => throw new IllegalArgumentException("can't delete an object that is not persisted: " + o);
 	}

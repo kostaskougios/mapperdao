@@ -1,0 +1,4 @@
+# run all tests for all scala supported versions
+
+mvn -P scala2.10 -Dexclude clean test 
+mvn -P scala2.9 clean test 

@@ -13,7 +13,7 @@ private[mapperdao] class MapOfList[K, V](keyModifier: K => K) extends Traversabl
 		val key = keyModifier(k)
 		val l = m.getOrElse(key, ListBuffer())
 		if (l.isEmpty) m.put(key, l)
-		l + v
+		l += v
 	}
 
 	override def foreach[U](f: ((K, List[V])) => U): Unit =

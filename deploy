@@ -1,3 +1,4 @@
 # deploy mapperdao after all tests run
 
-mvn -P sonatype-deploy -DskipTests=true clean source:jar scala:doc-jar package deploy 
+mvn -DskipTests -P scala2.10,sonatype-deploy -Dexclude clean source:jar scala:doc-jar package deploy 
+mvn -DskipTests -P scala2.9,sonatype-deploy clean source:jar scala:doc-jar package deploy 
