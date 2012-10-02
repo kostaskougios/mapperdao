@@ -180,6 +180,7 @@
 						<arg>-target:jvm-1.5</arg>
 						<arg>-Xexperimental</arg>
 						<arg>-optimize</arg>
+						<arg>-unchecked</arg>
 					</args>
 					<charset>${project.build.sourceEncoding}</charset>
 					<jvmArgs>
