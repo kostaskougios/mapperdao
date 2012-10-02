@@ -31,7 +31,7 @@ object Setup {
 	 */
 	def postGreSql(
 		dataSource: DataSource,
-		entities: List[Entity[_, _]],
+		entities: List[Entity[_, _, _]],
 		cache: Option[Cache] = None,
 		events: Events = new Events): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.PostgreSql, dataSource, entities, cache, events)
@@ -42,7 +42,7 @@ object Setup {
 	 */
 	def mysql(
 		dataSource: DataSource,
-		entities: List[Entity[_, _]],
+		entities: List[Entity[_, _, _]],
 		cache: Option[Cache] = None,
 		events: Events = new Events): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.Mysql, dataSource, entities, cache, events)
@@ -53,7 +53,7 @@ object Setup {
 	 */
 	def oracle(
 		dataSource: DataSource,
-		entities: List[Entity[_, _]],
+		entities: List[Entity[_, _, _]],
 		cache: Option[Cache] = None,
 		events: Events = new Events): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.Oracle, dataSource, entities, cache, events)
@@ -64,7 +64,7 @@ object Setup {
 	 */
 	def derby(
 		dataSource: DataSource,
-		entities: List[Entity[_, _]],
+		entities: List[Entity[_, _, _]],
 		cache: Option[Cache] = None,
 		events: Events = new Events): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.Derby, dataSource, entities, cache, events)
@@ -75,7 +75,7 @@ object Setup {
 	 */
 	def sqlServer(
 		dataSource: DataSource,
-		entities: List[Entity[_, _]],
+		entities: List[Entity[_, _, _]],
 		cache: Option[Cache] = None,
 		events: Events = new Events): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.SqlServer, dataSource, entities, cache, events)
@@ -86,7 +86,7 @@ object Setup {
 	 */
 	def h2(
 		dataSource: DataSource,
-		entities: List[Entity[_, _]],
+		entities: List[Entity[_, _, _]],
 		cache: Option[Cache] = None,
 		events: Events = new Events): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.H2, dataSource, entities, cache, events)
@@ -98,7 +98,7 @@ object Setup {
 	def apply(
 		database: Database.DriverConfiguration,
 		dataSource: DataSource,
-		entities: List[Entity[_, _]],
+		entities: List[Entity[_, _, _]],
 		cache: Option[Cache] = None,
 		events: Events = new Events): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		create(database, dataSource, TypeRegistry(entities), cache, ISOChronology.getInstance, events)

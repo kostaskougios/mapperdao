@@ -114,11 +114,11 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 				case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) =>
 					"?"
 				case ci: ColumnInfo[_, _] => aliases(ci.column) + "." + ci.column.name
-				case ci: ColumnInfoManyToOne[_, _, _] =>
+				case ci: ColumnInfoManyToOne[_, _, _, _] =>
 					ci.column.columns.map { c =>
 						aliases(ci.column) + "." + c.name
 					}.mkString(",")
-				case ci: ColumnInfoOneToOne[_, _, _] =>
+				case ci: ColumnInfoOneToOne[_, _, _, _] =>
 					ci.column.columns.map { c =>
 						aliases(ci.column) + "." + c.name
 					}.mkString(",")
@@ -136,12 +136,12 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 				sb append (right match {
 					case v if (Jdbc.isPrimitiveJdbcType(right.getClass)) => "?"
 					case ci: ColumnInfo[_, _] => aliases(ci.column) + "." + ci.column.name
-					case ci: ColumnInfoManyToOne[_, _, _] =>
+					case ci: ColumnInfoManyToOne[_, _, _, _] =>
 						if (ci.column.columns.size > 1) throw new IllegalArgumentException("can't use a multi-column-primary-key many-to-one in the right part of a function comparison : " + ci.column.columns)
 						ci.column.columns.map { c =>
 							aliases(ci.column) + "." + c.name
 						}.mkString(",")
-					case ci: ColumnInfoOneToOne[_, _, _] =>
+					case ci: ColumnInfoOneToOne[_, _, _, _] =>
 						if (ci.column.columns.size > 1) throw new IllegalArgumentException("can't use a multi-column-primary-key one-to-one in the right part of a function comparison : " + ci.column.columns)
 						ci.column.columns.map { c =>
 							aliases(ci.column) + "." + c.name

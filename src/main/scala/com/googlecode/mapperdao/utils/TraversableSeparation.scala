@@ -14,7 +14,7 @@ import com.googlecode.mapperdao.Persisted
  * 6 Sep 2011
  */
 protected[mapperdao] object TraversableSeparation {
-	def separate[T](entity: Entity[_, T], oldT: Traversable[T], newT: Traversable[T]) =
+	def separate[T](entity: Entity[_, _, T], oldT: Traversable[T], newT: Traversable[T]) =
 		{
 			if (oldT.isEmpty)
 				(newT, Nil, Nil)

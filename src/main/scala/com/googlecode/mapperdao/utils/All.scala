@@ -15,10 +15,10 @@ import com.googlecode.mapperdao.QueryConfig
  *
  * @author kostantinos.kougios
  */
-trait All[PC, T] {
+trait All[ID, PC, T] {
 	// the following must be overriden by classes extending this trait
 	protected val queryDao: QueryDao
-	protected val entity: Entity[PC, T]
+	protected val entity: Entity[ID, PC, T]
 
 	// override these as necessary
 	protected val queryConfig = QueryConfig.default

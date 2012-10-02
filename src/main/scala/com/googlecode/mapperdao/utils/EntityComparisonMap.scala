@@ -14,7 +14,7 @@ import com.googlecode.mapperdao.SimpleTypeValue
  *
  * 30 Apr 2012
  */
-protected class EntityComparisonMap[PC, T](entity: Entity[PC, T], keyMode: EntityComparisonMap.EqualsMode[T]) {
+protected class EntityComparisonMap[ID, PC, T](entity: Entity[ID, PC, T], keyMode: EntityComparisonMap.EqualsMode[T]) {
 	private val table = entity.tpe.table
 	private var m = Map[Any, T]()
 
@@ -34,7 +34,7 @@ protected object EntityComparisonMap {
 	abstract class EqualsMode[T] {
 		def key(o: T): Any
 	}
-	class EntityEquals[T](entity: Entity[_, T]) extends EqualsMode[T] {
+	class EntityEquals[T](entity: Entity[_, _, T]) extends EqualsMode[T] {
 		override def key(o: T) = o match {
 			case p: Persisted =>
 				val table = entity.tpe.table

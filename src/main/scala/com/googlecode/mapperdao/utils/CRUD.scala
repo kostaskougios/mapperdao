@@ -31,7 +31,7 @@ import com.googlecode.mapperdao.DeclaredIds
  */
 trait CRUD[ID, PC <: DeclaredIds[ID], T] {
 	protected val mapperDao: MapperDao
-	protected val entity: Entity[PC, T]
+	protected val entity: Entity[ID, PC, T]
 
 	// override these to customise them
 	protected val selectConfig = SelectConfig.default
