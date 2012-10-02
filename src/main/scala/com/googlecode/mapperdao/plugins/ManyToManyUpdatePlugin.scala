@@ -30,8 +30,8 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 			table.manyToManyColumnInfos
 				.filterNot(updateConfig.skip.contains(_))
 				.foreach { ci =>
-					val newValues = newValuesMap.valueOf[Traversable[Any]](ci)
-					val oldValues = oldValuesMap.valueOf[Traversable[DeclaredIds[Any]]](ci)
+					val newValues = newValuesMap.valueOf(ci)
+					val oldValues = oldValuesMap.valueOf(ci).asInstanceOf[Traversable[DeclaredIds[Any]]]
 
 					val manyToMany = ci.column
 					val pkLeft = oldValuesMap.toListOfColumnValue(table.primaryKeys)

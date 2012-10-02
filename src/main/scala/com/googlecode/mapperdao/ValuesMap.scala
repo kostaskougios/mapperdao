@@ -48,7 +48,7 @@ class ValuesMap private (mOrig: scala.collection.Map[String, Any])
 		v.asInstanceOf[T]
 	}
 
-	protected[mapperdao] def valueOf[T](ci: ColumnInfoBase[_, _]): T = valueOf(ci.column.alias)
+	protected[mapperdao] def valueOf[V](ci: ColumnInfoBase[_, V]): V = valueOf(ci.column.alias)
 
 	protected[mapperdao] def valueOf[T](column: String): T = {
 		// to avoid lazy loading twice in 2 separate threads, and avoid corrupting the map, we need to sync

@@ -15,7 +15,15 @@ import com.googlecode.mapperdao.DeclaredIds
  */
 class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends DuringUpdate {
 
-	override def during[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
+	override def during[ID, PC <: DeclaredIds[ID], T](
+		updateConfig: UpdateConfig,
+		entity: Entity[ID, PC, T],
+		o: T,
+		oldValuesMap: ValuesMap,
+		newValuesMap: ValuesMap,
+		entityMap: UpdateEntityMap,
+		modified: scala.collection.mutable.Map[String, Any],
+		modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
@@ -31,7 +39,7 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 							case null => null //throw new NullPointerException("unexpected null for primary entity on ManyToOne mapping, for entity %s.".format(o))
 							case p: DeclaredIds[Any] =>
 								entityMap.down(o, cis, entity)
-								val newV = mapperDao.updateInner(updateConfig, fe, v, entityMap)
+								val newV = mapperDao.updateInner(updateConfig, fe, p, entityMap)
 								entityMap.up
 								newV
 							case _ =>
