@@ -192,9 +192,16 @@ object Query {
 			joinEntity: Entity[JID, JPC, JT],
 			ci: ColumnInfoRelationshipBase[JT, _, FID, FPC, FT],
 			foreignEntity: Entity[FID, FPC, FT]) = {
-			val j = new Join(this, joinEntity, ci, foreignEntity)
+			val j = new Join(this, joinEntity, ci, foreignEntity, null, null)
 			joins ::= j.asInstanceOf[Join[Any, DeclaredIds[Any], Any, Any, DeclaredIds[Any], Any, ID, PC, T]]
 			this
+		}
+
+		def join[JID, JPC <: DeclaredIds[JID], JT](entity: Entity[JID, JPC, JT]) = {
+			val on = new JoinOn(this)
+			val j = new Join(this, null, null, null, entity, on)
+			joins ::= j.asInstanceOf[Join[Any, DeclaredIds[Any], Any, Any, DeclaredIds[Any], Any, ID, PC, T]]
+			on
 		}
 
 		def toList(implicit queryDao: QueryDao): List[T with PC] = toList(QueryConfig.default)(queryDao)
@@ -216,15 +223,21 @@ object Query {
 		val sql = "desc"
 	}
 
+	/**
+	 * TODO: refactor Join into 2 separate hierarchies, one for join(p,p.attributes,a) and one for join p on ...
+	 */
 	protected[mapperdao] class Join[JID, JPC <: DeclaredIds[JID], JT, FID, FPC <: DeclaredIds[FID], FT, QID, QPC <: DeclaredIds[QID], QT](
 			queryEntity: Builder[QID, QPC, QT],
 			val joinEntity: Entity[JID, JPC, JT],
 			val ci: ColumnInfoRelationshipBase[JT, _, FID, FPC, FT],
-			val foreignEntity: Entity[FID, FPC, FT]) {
-		protected[mapperdao] var entity: Entity[QID, QPC, QT] = _
+			val foreignEntity: Entity[FID, FPC, FT],
+			// for join on functionality
+			val entity: Entity[JID, JPC, JT],
+			val on: JoinOn[QID, QPC, QT]) {
+		//protected[mapperdao] var entity: Entity[QID, QPC, QT] = _
 		//		protected[mapperdao] var foreignEntity: Entity[FID, FPC, FT] = _
 		//		protected[mapperdao] var joinEntity: Entity[JID, JPC, JT] = _
-		protected[mapperdao] var on: JoinOn[QID, QPC, QT] = _
+		//protected[mapperdao] var on: JoinOn[QID, QPC, QT] = _
 
 		//		def apply(
 		//			joinEntity: Entity[JID, JPC, JT],

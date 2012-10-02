@@ -175,7 +175,7 @@ object ManyToOneSpec {
 	case class Company(val id: Int, val name: String)
 	case class House(val id: Int, val address: String)
 
-	object PersonEntity extends Entity[SurrogateIntId, Person] {
+	object PersonEntity extends Entity[Int, SurrogateIntId, Person] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val company = manytoone(CompanyEntity) to (_.company)
@@ -184,14 +184,14 @@ object ManyToOneSpec {
 		def constructor(implicit m) = new Person(id, name, company, lives) with SurrogateIntId
 	}
 
-	object CompanyEntity extends Entity[SurrogateIntId, Company] {
+	object CompanyEntity extends Entity[Int, SurrogateIntId, Company] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 
 		def constructor(implicit m) = new Company(id, name) with SurrogateIntId
 	}
 
-	object HouseEntity extends Entity[SurrogateIntId, House] {
+	object HouseEntity extends Entity[Int, SurrogateIntId, House] {
 		val id = key("id") to (_.id)
 		val address = column("address") to (_.address)
 		def constructor(implicit m) = new House(id, address) with SurrogateIntId
