@@ -82,10 +82,10 @@ private[mapperdao] class LazyLoadManager {
 
 	private def createProxyClz(constructedClz: Class[_], originalClz: Class[_], methods: Set[Method]) = {
 		val b = classManager.buildNewSubclass(originalClz)
-			.interface[Persisted]
+			.interface[DeclaredIds[_]]
 			.interface[LazyLoaded]
 			.implementFromTrait[LazyLoaded](false)
-			.implementFromTrait[Persisted](false)
+			.implementFromTrait[DeclaredIds[_]](false)
 
 		if (hasIntId(constructedClz)) {
 			guardIdField(originalClz)
