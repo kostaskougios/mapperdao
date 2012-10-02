@@ -8,7 +8,7 @@ case class FloatValue(val value: Float) extends SimpleTypeValue[Float, FloatValu
 }
 
 protected class FloatEntityOTM(table: String, fkColumn: String, soleColumn: String)
-		extends Entity[Nothing, NoId, FloatValue](table, classOf[FloatValue]) {
+		extends Entity[Unit, NoId, FloatValue](table, classOf[FloatValue]) {
 	val value = column(soleColumn) to (_.value)
 	//	declarePrimaryKey(fkColumn) { _ => None }
 	declarePrimaryKey(value)

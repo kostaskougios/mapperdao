@@ -101,7 +101,7 @@ object OneToManySelfReferencedSpec {
 
 	case class Person(val name: String, val friends: Set[Person])
 
-	object PersonEntity extends Entity[SurrogateIntId, Person]("Person", classOf[Person]) {
+	object PersonEntity extends Entity[Int, SurrogateIntId, Person]("Person", classOf[Person]) {
 		val aid = key("id") sequence (Setup.database match {
 			case "oracle" => Some("myseq")
 			case _ => None

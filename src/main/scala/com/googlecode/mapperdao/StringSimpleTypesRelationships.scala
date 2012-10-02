@@ -8,7 +8,7 @@ case class StringValue(val value: String) extends SimpleTypeValue[String, String
 }
 
 protected class StringEntityOneToMany(table: String, fkColumn: String, soleColumn: String)
-		extends Entity[Nothing, NoId, StringValue](table, classOf[StringValue]) {
+		extends Entity[Unit, NoId, StringValue](table, classOf[StringValue]) {
 	val value = column(soleColumn) to (_.value)
 
 	declarePrimaryKey(value)

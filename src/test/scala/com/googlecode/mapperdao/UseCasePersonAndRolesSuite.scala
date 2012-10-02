@@ -283,7 +283,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 	case class RoleType(name: String, description: Option[String])
 	case class InterPartyRelationship(from: Person, to: Person, fromDate: Option[DateTime], toDate: Option[DateTime])
 
-	object RoleTypeEntity extends Entity[NaturalStringId, RoleType] {
+	object RoleTypeEntity extends Entity[String, NaturalStringId, RoleType] {
 		val name = key("name") to (_.name)
 		val description = column("description") option (_.description)
 
@@ -291,7 +291,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			new RoleType(name, description) with NaturalStringId
 	}
 
-	object PersonEntity extends Entity[NaturalStringId, Person] {
+	object PersonEntity extends Entity[String, NaturalStringId, Person] {
 		val id = key("id") to (_.id)
 		val firstName = column("firstname") to (_.firstName)
 		val lastName = column("lastname") to (_.lastName)
@@ -301,8 +301,10 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			new Person(id, firstName, lastName, singlePartyRoles) with NaturalStringId
 	}
 
-	type SPRKey = With2Ids[RoleType with NaturalStringId, Person with NaturalStringId]
-	object SinglePartyRoleEntity extends Entity[SPRKey, SinglePartyRole] {
+	type RNSI = RoleType with NaturalStringId
+	type PNSI = Person with NaturalStringId
+	type SPRKey = With2Ids[RNSI, PNSI]
+	object SinglePartyRoleEntity extends Entity[(RNSI, PNSI), SPRKey, SinglePartyRole] {
 		val roleType = manytoone(RoleTypeEntity) to (_.roleType)
 		val fromDate = column("fromDate") option (_.fromDate)
 		val toDate = column("toDate") option (_.toDate)
@@ -310,10 +312,10 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 		declarePrimaryKey(roleType)
 		declarePrimaryKey(PersonEntity.singlePartyRoles)
 
-		def constructor(implicit m: ValuesMap) = new SinglePartyRole(roleType, fromDate, toDate) with With2Ids[RoleType with NaturalStringId, Person with NaturalStringId]
+		def constructor(implicit m: ValuesMap) = new SinglePartyRole(roleType, fromDate, toDate) with SPRKey
 	}
 
-	object InterPartyRelationshipEntity extends Entity[With2Ids[Person with NaturalStringId, Person with NaturalStringId], InterPartyRelationship] {
+	object InterPartyRelationshipEntity extends Entity[(PNSI, PNSI), With2Ids[PNSI, PNSI], InterPartyRelationship] {
 		val from = manytoone(PersonEntity) foreignkey ("from_id") to (_.from)
 		val to = manytoone(PersonEntity) foreignkey ("to_id") to (_.to)
 		val fromDate = column("fromDate") option (_.fromDate)
@@ -322,7 +324,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 		declarePrimaryKey(from)
 		declarePrimaryKey(to)
 
-		def constructor(implicit m: ValuesMap) = new InterPartyRelationship(from, to, fromDate, toDate) with With2Ids[Person with NaturalStringId, Person with NaturalStringId]
+		def constructor(implicit m: ValuesMap) = new InterPartyRelationship(from, to, fromDate, toDate) with With2Ids[PNSI, PNSI]
 	}
 }
 

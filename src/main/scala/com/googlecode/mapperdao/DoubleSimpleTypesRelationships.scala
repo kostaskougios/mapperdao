@@ -8,7 +8,7 @@ case class DoubleValue(val value: Double) extends SimpleTypeValue[Double, Double
 }
 
 protected class DoubleEntityOTM(table: String, fkColumn: String, soleColumn: String)
-		extends Entity[Nothing, NoId, DoubleValue](table, classOf[DoubleValue]) {
+		extends Entity[Unit, NoId, DoubleValue](table, classOf[DoubleValue]) {
 	val value = column(soleColumn) to (_.value)
 	declarePrimaryKey(value)
 

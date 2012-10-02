@@ -50,7 +50,7 @@ class ValuesMapSuite extends FunSuite with ShouldMatchers {
 	}
 
 	case class Type(cal: Calendar, dt: Date, joda: DateTime)
-	object TypeEntity extends Entity[NoId, Type] {
+	object TypeEntity extends Entity[Unit, NoId, Type] {
 		val cal = column("cal") to (_.cal)
 		val dt = column("dt") to (_.dt)
 		val joda = column("joda") to (_.joda)

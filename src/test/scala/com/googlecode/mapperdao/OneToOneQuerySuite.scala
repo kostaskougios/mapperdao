@@ -102,14 +102,14 @@ class OneToOneQuerySuite extends FunSuite with ShouldMatchers {
 	case class Inventory(val stock: Int, val sold: Int)
 	case class Product(val id: Int, val inventory: Inventory)
 
-	class InventoryEntityBase extends Entity[NoId, Inventory] {
+	class InventoryEntityBase extends Entity[Unit, NoId, Inventory] {
 		val stock = column("stock") to (_.stock)
 		val sold = column("sold") to (_.sold)
 
 		def constructor(implicit m) = new Inventory(stock, sold) with NoId
 	}
 
-	class ProductEntityBase extends Entity[SurrogateIntId, Product] {
+	class ProductEntityBase extends Entity[Int, SurrogateIntId, Product] {
 		val id = key("id") to (_.id)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 

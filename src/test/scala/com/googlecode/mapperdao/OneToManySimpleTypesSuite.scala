@@ -89,7 +89,7 @@ object OneToManySimpleTypesSpecString {
 
 	val TagsEntity = StringEntity.oneToMany("ProductTags", "product_id", "tag")
 
-	object ProductEntity extends Entity[SurrogateIntId, Product] {
+	object ProductEntity extends Entity[Int, SurrogateIntId, Product] {
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("ProductSeq")
 			case _ => None
@@ -117,7 +117,7 @@ object OneToManySimpleTypesSpecInt {
 	case class ProductI(name: String, tags: Set[Int])
 
 	val TagsEntityI = IntEntity.oneToMany("ProductTagsI", "producti_id", "intTag")
-	object ProductEntityI extends Entity[SurrogateIntId, ProductI] {
+	object ProductEntityI extends Entity[Int, SurrogateIntId, ProductI] {
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("ProductSeq")
 			case _ => None

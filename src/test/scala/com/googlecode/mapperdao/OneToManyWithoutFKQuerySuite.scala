@@ -40,7 +40,7 @@ class OneToManyWithoutFKQuerySuite extends FunSuite with ShouldMatchers {
 	case class Info(val title: String, loc: Location)
 	case class Location(id: Int, name: String)
 
-	object LocationEntity extends ExternalEntity[Location] {
+	object LocationEntity extends ExternalEntity[Int, Location] {
 		val id = key("id") to (_.id)
 
 		onInsertManyToOne { i =>
@@ -57,16 +57,16 @@ class OneToManyWithoutFKQuerySuite extends FunSuite with ShouldMatchers {
 		}
 	}
 
-	object InfoEntity extends Entity[NoId, Info] {
+	object InfoEntity extends Entity[Location, With1Id[Location], Info] {
 		val title = column("title") to (_.title)
 		val loc = manytoone(LocationEntity) to (_.loc)
 
 		declarePrimaryKey(loc)
 
-		def constructor(implicit m) = new Info(title, loc) with NoId
+		def constructor(implicit m) = new Info(title, loc) with With1Id[Location]
 	}
 
-	object ProductEntity extends Entity[SurrogateIntId, Product] {
+	object ProductEntity extends Entity[Int, SurrogateIntId, Product] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val infos = onetomany(InfoEntity) to (_.infos)

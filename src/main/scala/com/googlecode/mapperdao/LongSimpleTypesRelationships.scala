@@ -8,7 +8,7 @@ case class LongValue(val value: Long) extends SimpleTypeValue[Long, LongValue] {
 }
 
 protected class LongEntityOTM(table: String, fkColumn: String, soleColumn: String)
-		extends Entity[Nothing, NoId, LongValue](table, classOf[LongValue]) {
+		extends Entity[Unit, NoId, LongValue](table, classOf[LongValue]) {
 	val value = column(soleColumn) to (_.value)
 	//	declarePrimaryKey(fkColumn) { _ => None }
 	declarePrimaryKey(value)

@@ -124,7 +124,7 @@ object CommonEntities {
 	case class Husband(name: String, age: Int, wife: Wife)
 	case class Wife(name: String, age: Int)
 
-	object HusbandEntity extends Entity[Nothing, NoId, Husband] {
+	object HusbandEntity extends Entity[Unit, NoId, Husband] {
 		val name = column("name") to (_.name)
 		val age = column("age") to (_.age)
 		val wife = onetoone(WifeEntity) to (_.wife)

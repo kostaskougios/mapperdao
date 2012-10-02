@@ -8,7 +8,7 @@ case class IntValue(val value: Int) extends SimpleTypeValue[Int, IntValue] {
 }
 
 protected class IntEntityOTM(table: String, fkColumn: String, soleColumn: String)
-		extends Entity[Nothing, NoId, IntValue](table, classOf[IntValue]) {
+		extends Entity[Unit, NoId, IntValue](table, classOf[IntValue]) {
 	val value = column(soleColumn) to (_.value)
 	//	declarePrimaryKey(fkColumn) { _ => None }
 	declarePrimaryKey(value)
