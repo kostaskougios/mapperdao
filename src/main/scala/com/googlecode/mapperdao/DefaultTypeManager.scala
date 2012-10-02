@@ -150,7 +150,7 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		classOf[Array[Byte]] -> ((v: Any) => toByteArray(v))
 	)
 
-	override def correctTypes[PC <: DeclaredIds[_], T](table: Table[_, PC, T], j: JdbcMap) = {
+	override def correctTypes[ID, PC <: DeclaredIds[ID], T](table: Table[_, PC, T], j: JdbcMap) = {
 		val ecil = table.extraColumnInfosPersisted.map {
 			case ci: ColumnInfo[T, _] =>
 				val column = ci.column

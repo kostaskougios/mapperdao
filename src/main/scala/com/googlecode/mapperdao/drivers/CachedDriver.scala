@@ -1,14 +1,7 @@
 package com.googlecode.mapperdao.drivers
-import com.googlecode.mapperdao.SelectConfig
-import com.googlecode.mapperdao.SimpleColumn
 import com.googlecode.mapperdao.jdbc.JdbcMap
-import com.googlecode.mapperdao.Type
-import com.googlecode.mapperdao.CacheOptions
-import com.googlecode.mapperdao.ManyToMany
-import com.googlecode.mapperdao.QueryConfig
-import com.googlecode.mapperdao.ColumnBase
 import com.googlecode.mapperdao.jdbc.UpdateResult
-import com.googlecode.mapperdao.PK
+import com.googlecode.mapperdao._
 
 /**
  * mixin trait for a Driver that adds caching to Driver's operations.
@@ -20,7 +13,7 @@ import com.googlecode.mapperdao.PK
 trait CachedDriver extends Driver {
 	val cache: Cache
 
-	override def doSelect[ID, PC, T](selectConfig: SelectConfig, tpe: Type[ID, PC, T], where: List[(SimpleColumn, Any)]) = {
+	override def doSelect[ID, PC <: DeclaredIds[ID], T](selectConfig: SelectConfig, tpe: Type[ID, PC, T], where: List[(SimpleColumn, Any)]) = {
 		val key = tpe.table.name :: where
 		selectConfig.cacheOptions match {
 			case CacheOptions.NoCache =>
@@ -33,7 +26,7 @@ trait CachedDriver extends Driver {
 				}
 		}
 	}
-	override def doSelectManyToMany[ID, PC, T, FID, FPC, F](
+	override def doSelectManyToMany[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](
 		selectConfig: SelectConfig,
 		tpe: Type[ID, PC, T],
 		ftpe: Type[FID, FPC, F],
@@ -53,7 +46,7 @@ trait CachedDriver extends Driver {
 
 		}
 	}
-	override def queryForList[ID, PC, T](queryConfig: QueryConfig, tpe: Type[ID, PC, T], sql: String, args: List[Any]) = {
+	override def queryForList[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, tpe: Type[ID, PC, T], sql: String, args: List[Any]) = {
 		val key = List("query", sql, args)
 		queryConfig.cacheOptions match {
 			case CacheOptions.NoCache =>
@@ -80,7 +73,7 @@ trait CachedDriver extends Driver {
 		}
 	}
 
-	override def doUpdate[ID, PC, T](tpe: Type[ID, PC, T], args: List[(SimpleColumn, Any)], pkArgs: List[(SimpleColumn, Any)]): UpdateResult = {
+	override def doUpdate[ID, PC <: DeclaredIds[ID], T](tpe: Type[ID, PC, T], args: List[(SimpleColumn, Any)], pkArgs: List[(SimpleColumn, Any)]): UpdateResult = {
 		val u = super.doUpdate(tpe, args, pkArgs)
 
 		val table = tpe.table
@@ -96,7 +89,7 @@ trait CachedDriver extends Driver {
 		u
 	}
 
-	override def doDeleteManyToManyRef[ID, PC, T, PID, PR, R](
+	override def doDeleteManyToManyRef[ID, PC <: DeclaredIds[ID], T, PID, PR <: DeclaredIds[PID], R](
 		tpe: Type[ID, PC, T],
 		ftpe: Type[PID, PR, R],
 		manyToMany: ManyToMany[_, _, _],
@@ -108,7 +101,7 @@ trait CachedDriver extends Driver {
 		u
 	}
 
-	override def doInsertManyToMany[ID, PC, T, FID, FPC, F](
+	override def doInsertManyToMany[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](
 		tpe: Type[ID, PC, T],
 		manyToMany: ManyToMany[FID, FPC, F],
 		left: List[Any],
@@ -126,7 +119,7 @@ trait CachedDriver extends Driver {
 		u
 	}
 
-	override def doDelete[ID, PC, T](tpe: Type[ID, PC, T], whereColumnValues: List[(SimpleColumn, Any)]) = {
+	override def doDelete[ID, PC <: DeclaredIds[ID], T](tpe: Type[ID, PC, T], whereColumnValues: List[(SimpleColumn, Any)]) = {
 		super.doDelete(tpe, whereColumnValues)
 		val key = tpe.table.name :: whereColumnValues
 		cache.flush(key)

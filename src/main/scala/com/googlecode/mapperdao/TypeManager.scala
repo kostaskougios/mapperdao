@@ -21,5 +21,5 @@ trait TypeManager {
 	 */
 	def toActualType(tpe: Class[_], o: Any): Any
 
-	def correctTypes[ID, PC, T](table: Table[ID, PC, T], j: JdbcMap): DatabaseValues
+	def correctTypes[ID, PC <: DeclaredIds[ID], T](table: Table[ID, PC, T], j: JdbcMap): DatabaseValues
 }

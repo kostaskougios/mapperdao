@@ -41,11 +41,11 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 								def apply = {
 									val c = ci.column
 									val fe = c.foreign.entity
-									val ftpe = fe.tpe.asInstanceOf[Type[Any, Any, Any]]
+									val ftpe = fe.tpe.asInstanceOf[Type[Any, DeclaredIds[Any], Any]]
 
 									val ids = tpe.table.primaryKeys.map { pk => om(pk.name) }
 									val keys = c.linkTable.left zip ids
-									val allIds = driver.doSelectManyToManyForExternalEntity(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any, Any]], keys)
+									val allIds = driver.doSelectManyToManyForExternalEntity(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, DeclaredIds[Any], Any]], keys)
 
 									val handler = ee.manyToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, _, Any]])
 									handler(SelectExternalManyToMany(selectConfig, allIds))

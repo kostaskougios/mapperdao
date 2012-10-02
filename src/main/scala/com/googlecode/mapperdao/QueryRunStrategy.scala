@@ -10,5 +10,5 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
  * 6 May 2012
  */
 trait QueryRunStrategy {
-	def run[ID, PC, T](mapperDao: MapperDaoImpl, entity: Entity[ID, PC, T], queryConfig: QueryConfig, lm: List[DatabaseValues]): List[T with PC]
+	def run[ID, PC <: DeclaredIds[ID], T](mapperDao: MapperDaoImpl, entity: Entity[ID, PC, T], queryConfig: QueryConfig, lm: List[DatabaseValues]): List[T with PC]
 }

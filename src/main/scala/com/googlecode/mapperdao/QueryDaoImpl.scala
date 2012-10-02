@@ -18,17 +18,17 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 
 	import QueryDao._
 
-	def query[ID, PC, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): List[T with PC] =
+	def query[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): List[T with PC] =
 		{
 			if (qe == null) throw new NullPointerException("qe can't be null")
 			val r = sqlAndArgs(queryConfig, qe).result
 			queryInner(queryConfig, qe.entity, r.sql, r.values)
 		}
 
-	def lowLevelQuery[ID, PC, T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], sql: String, args: List[Any]): List[T with PC] =
+	def lowLevelQuery[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], sql: String, args: List[Any]): List[T with PC] =
 		queryInner(queryConfig, entity, sql, args)
 
-	private def queryInner[ID, PC, T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], sql: String, args: List[Any]) = {
+	private def queryInner[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], sql: String, args: List[Any]) = {
 		try {
 			val lm = driver.queryForList(queryConfig, entity.tpe, sql, args)
 
@@ -41,7 +41,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 		}
 	}
 
-	def count[ID, PC, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): Long =
+	def count[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): Long =
 		{
 			if (qe == null) throw new NullPointerException("qe can't be null")
 			val aliases = new Aliases(typeRegistry)
@@ -55,7 +55,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			driver.queryForLong(queryConfig, r.sql, r.values)
 		}
 
-	private def sqlAndArgs[ID, PC, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]) =
+	private def sqlAndArgs[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]) =
 		{
 			val e = qe.entity
 			val tpe = e.tpe
@@ -73,7 +73,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			outer
 		}
 
-	private def joins[ID, PC, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], aliases: Aliases) =
+	private def joins[ID, PC <: DeclaredIds[ID], T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], aliases: Aliases) =
 		{
 			// iterate through the joins in the correct order
 			qe.joins.reverse.foreach { j =>
@@ -82,7 +82,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					val foreignEntity = j.foreignEntity
 					val joinEntity = j.joinEntity
 					j match {
-						case join: Query.Join[_, _, _, _, PC, T] =>
+						case join: Query.Join[_, _, _, _, _, _, ID, PC, T] =>
 							join.column match {
 								case manyToOne: ManyToOne[_, _, _] =>
 									val join = manyToOneJoin(aliases, joinEntity, foreignEntity, manyToOne)
@@ -133,14 +133,14 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			}
 		}
 
-	private def whereAndArgs[ID, PC, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], aliases: Aliases) =
+	private def whereAndArgs[ID, PC <: DeclaredIds[ID], T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], aliases: Aliases) =
 		// append the where clause and get the list of arguments
 		if (!qe.wheres.isEmpty) {
 			val e = queryExpressions(aliases, qe.wheres)
 			q.where(e)
 		}
 
-	private def orderBy[ID, PC, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], aliases: Aliases) =
+	private def orderBy[ID, PC <: DeclaredIds[ID], T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], aliases: Aliases) =
 		if (!qe.order.isEmpty) {
 			val orderColumns = qe.order.map { case (ci, ascDesc) => (ci.column, ascDesc) }
 			if (driver.shouldCreateOrderByClause(queryConfig)) {
@@ -154,7 +154,9 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			}
 		}
 
-	private def joinTable(aliases: QueryDao.Aliases, join: Query.Join[_, _, Entity[_, _, _], _, _, _]) =
+	private def joinTable[JID, JPC <: DeclaredIds[JID], JT, FID, FPC <: DeclaredIds[FID], FT, QID, QPC <: DeclaredIds[QID], QT](
+		aliases: QueryDao.Aliases,
+		join: Query.Join[JID, JPC, JT, FID, FPC, FT, QID, QPC, QT]) =
 		{
 			val jEntity = join.entity
 			val jTable = jEntity.tpe.table
@@ -167,7 +169,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 		}
 
 	// creates the sql and params for expressions (i.e. id=5 and name='x')
-	private def queryExpressions[ID, PC, T](aliases: QueryDao.Aliases, wheres: List[Query.Where[ID, PC, T]]): driver.sqlBuilder.Expression =
+	private def queryExpressions[ID, PC <: DeclaredIds[ID], T](aliases: QueryDao.Aliases, wheres: List[Query.Where[ID, PC, T]]): driver.sqlBuilder.Expression =
 		{
 			def inner(op: OpBase): driver.sqlBuilder.Expression = op match {
 				case o: Operation[_] =>
@@ -288,10 +290,10 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 		}
 
 	// creates the join for one-to-one-reverse
-	private def oneToOneReverseJoin(
+	private def oneToOneReverseJoin[JID, JPC <: DeclaredIds[JID], JT, FID, FPC <: DeclaredIds[FID], FT](
 		aliases: QueryDao.Aliases,
-		joinEntity: Entity[_, _, _],
-		foreignEntity: Entity[_, _, _],
+		joinEntity: Entity[JID, JPC, JT],
+		foreignEntity: Entity[FID, FPC, FT],
 		oneToOneReverse: OneToOneReverse[_, _, _]) =
 		{
 			val tpe = joinEntity.tpe
@@ -309,10 +311,10 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			j
 		}
 
-	private def oneToOneJoin(
+	private def oneToOneJoin[JID, JPC <: DeclaredIds[JID], JT, FID, FPC <: DeclaredIds[FID], FT](
 		aliases: QueryDao.Aliases,
-		joinEntity: Entity[_, _, _],
-		foreignEntity: Entity[_, _, _],
+		joinEntity: Entity[JID, JPC, JT],
+		foreignEntity: Entity[FID, FPC, FT],
 		oneToOne: OneToOne[_, _, _]) =
 		{
 			val tpe = joinEntity.tpe
@@ -331,10 +333,10 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 		}
 
 	// creates the join for many-to-one
-	private def manyToOneJoin(
+	private def manyToOneJoin[JID, JPC <: DeclaredIds[JID], JT, FID, FPC <: DeclaredIds[FID], FT](
 		aliases: QueryDao.Aliases,
-		joinEntity: Entity[_, _, _],
-		foreignEntity: Entity[_, _, _],
+		joinEntity: Entity[JID, JPC, JT],
+		foreignEntity: Entity[FID, FPC, FT],
 		manyToOne: ManyToOne[_, _, _]) =
 		{
 			val foreignTable = foreignEntity.tpe.table
@@ -350,10 +352,10 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 		}
 
 	// creates the join for one-to-many
-	private def oneToManyJoin(
+	private def oneToManyJoin[JID, JPC <: DeclaredIds[JID], JT, FID, FPC <: DeclaredIds[FID], FT](
 		aliases: QueryDao.Aliases,
-		joinEntity: Entity[_, _, _],
-		foreignEntity: Entity[_, _, _],
+		joinEntity: Entity[JID, JPC, JT],
+		foreignEntity: Entity[FID, FPC, FT],
 		oneToMany: OneToMany[_, _, _]) =
 		{
 			val joinTpe = joinEntity.tpe
@@ -371,10 +373,10 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 		}
 
 	// creates the join for one-to-many
-	private def manyToManyJoin(
+	private def manyToManyJoin[JID, JPC <: DeclaredIds[JID], JT, FID, FPC <: DeclaredIds[FID], FT](
 		aliases: QueryDao.Aliases,
-		joinEntity: Entity[_, _, _],
-		foreignEntity: Entity[_, _, _],
+		joinEntity: Entity[JID, JPC, JT],
+		foreignEntity: Entity[FID, FPC, FT],
 		manyToMany: ManyToMany[_, _, _]) =
 		{
 			val joinTpe = joinEntity.tpe
@@ -406,7 +408,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 	 * aggregate methods
 	 * =====================================================================================
 	 */
-	private def countSql[ID, PC, T](q: driver.sqlBuilder.SqlSelectBuilder, aliases: QueryDao.Aliases, entity: Entity[ID, PC, T]): Unit =
+	private def countSql[ID, PC <: DeclaredIds[ID], T](q: driver.sqlBuilder.SqlSelectBuilder, aliases: QueryDao.Aliases, entity: Entity[ID, PC, T]): Unit =
 		{
 			val table = entity.tpe.table
 			val alias = aliases(entity)

@@ -31,7 +31,7 @@ trait QueryDao {
 	 * @param	qe		a query
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 */
-	def query[ID, PC, T](qe: Query.Where[ID, PC, T]): List[T with PC] = query(qe.queryEntity)
+	def query[ID, PC <: DeclaredIds[ID], T](qe: Query.Where[ID, PC, T]): List[T with PC] = query(qe.queryEntity)
 	/**
 	 * runs a query and retuns a list of entities.
 	 *
@@ -44,7 +44,7 @@ trait QueryDao {
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 * @see		#QueryConfig
 	 */
-	def query[ID, PC, T](queryConfig: QueryConfig, qe: Query.Where[ID, PC, T]): List[T with PC] = query(queryConfig, qe.queryEntity)
+	def query[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, qe: Query.Where[ID, PC, T]): List[T with PC] = query(queryConfig, qe.queryEntity)
 	/**
 	 * runs a query and retuns a list of entities.
 	 *
@@ -55,7 +55,7 @@ trait QueryDao {
 	 * @param	qe		a query
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 */
-	def query[ID, PC, T](qe: Query.Builder[ID, PC, T]): List[T with PC] = query(defaultQueryConfig, qe)
+	def query[ID, PC <: DeclaredIds[ID], T](qe: Query.Builder[ID, PC, T]): List[T with PC] = query(defaultQueryConfig, qe)
 
 	/**
 	 * runs a query and retuns a list of entities.
@@ -69,7 +69,7 @@ trait QueryDao {
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 * @see		#QueryConfig
 	 */
-	def query[ID, PC, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): List[T with PC]
+	def query[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): List[T with PC]
 
 	/**
 	 * counts rows, i.e.
@@ -77,32 +77,32 @@ trait QueryDao {
 	 * val qe=(select from ProductEntity where title==="jeans")
 	 * val count=queryDao.count(qe) // the number of jeans
 	 */
-	def count[ID, PC, T](qe: Query.Where[ID, PC, T], queryConfig: QueryConfig): Long = count(queryConfig, qe.queryEntity)
-	def count[ID, PC, T](qe: Query.Where[ID, PC, T]): Long = count(qe, QueryConfig())
-	def count[ID, PC, T](qe: Query.Builder[ID, PC, T]): Long = count(QueryConfig(), qe)
+	def count[ID, PC <: DeclaredIds[ID], T](qe: Query.Where[ID, PC, T], queryConfig: QueryConfig): Long = count(queryConfig, qe.queryEntity)
+	def count[ID, PC <: DeclaredIds[ID], T](qe: Query.Where[ID, PC, T]): Long = count(qe, QueryConfig())
+	def count[ID, PC <: DeclaredIds[ID], T](qe: Query.Builder[ID, PC, T]): Long = count(QueryConfig(), qe)
 
-	def count[ID, PC, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): Long
+	def count[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): Long
 
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, PC, T](qe: Query.Where[ID, PC, T]): Option[T with PC] = querySingleResult(defaultQueryConfig, qe.queryEntity)
+	def querySingleResult[ID, PC <: DeclaredIds[ID], T](qe: Query.Where[ID, PC, T]): Option[T with PC] = querySingleResult(defaultQueryConfig, qe.queryEntity)
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, PC, T](queryConfig: QueryConfig, qe: Query.Where[ID, PC, T]): Option[T with PC] = querySingleResult(queryConfig, qe.queryEntity)
+	def querySingleResult[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, qe: Query.Where[ID, PC, T]): Option[T with PC] = querySingleResult(queryConfig, qe.queryEntity)
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, PC, T](qe: Query.Builder[ID, PC, T]): Option[T with PC] = querySingleResult(defaultQueryConfig, qe)
+	def querySingleResult[ID, PC <: DeclaredIds[ID], T](qe: Query.Builder[ID, PC, T]): Option[T with PC] = querySingleResult(defaultQueryConfig, qe)
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, PC, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): Option[T with PC] = {
+	def querySingleResult[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): Option[T with PC] = {
 		val l = query(queryConfig, qe)
 		// l.size might be costly, so we'll test if l is empty first
 		if (l.isEmpty) None
@@ -132,7 +132,7 @@ trait QueryDao {
 	 *
 	 * @params	args				a list of arguments
 	 */
-	def lowLevelQuery[ID, PC, T](entity: Entity[ID, PC, T], sql: String, args: List[Any]): List[T with PC] =
+	def lowLevelQuery[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T], sql: String, args: List[Any]): List[T with PC] =
 		lowLevelQuery(defaultQueryConfig, entity, sql, args)
 
 	/**
@@ -158,7 +158,7 @@ trait QueryDao {
 	 *
 	 * @params	args				a list of arguments
 	 */
-	def lowLevelQuery[ID, PC, T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], sql: String, args: List[Any]): List[T with PC]
+	def lowLevelQuery[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], sql: String, args: List[Any]): List[T with PC]
 }
 
 object QueryDao {
@@ -177,7 +177,7 @@ object QueryDao {
 			v
 		}
 
-		def apply[ID, PC, T](entity: Entity[ID, PC, T]): String =
+		def apply[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T]): String =
 			{
 				val v = aliases.get(entity)
 				if (v != null) v else {

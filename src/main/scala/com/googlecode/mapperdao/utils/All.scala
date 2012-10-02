@@ -1,9 +1,6 @@
 package com.googlecode.mapperdao.utils
 
-import com.googlecode.mapperdao.Query
-import com.googlecode.mapperdao.Entity
-import com.googlecode.mapperdao.QueryDao
-import com.googlecode.mapperdao.QueryConfig
+import com.googlecode.mapperdao._
 
 /**
  * a mixin trait to easily create dao's. It contains common dao methods like "all" which
@@ -15,7 +12,7 @@ import com.googlecode.mapperdao.QueryConfig
  *
  * @author kostantinos.kougios
  */
-trait All[ID, PC, T] {
+trait All[ID, PC <: DeclaredIds[ID], T] {
 	// the following must be overriden by classes extending this trait
 	protected val queryDao: QueryDao
 	protected val entity: Entity[ID, PC, T]

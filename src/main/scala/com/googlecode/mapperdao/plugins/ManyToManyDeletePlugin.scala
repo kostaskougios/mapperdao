@@ -2,23 +2,13 @@ package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.events.Events
-import com.googlecode.mapperdao.ColumnInfoTraversableManyToMany
-import com.googlecode.mapperdao.Persisted
-import com.googlecode.mapperdao.DeleteConfig
-import com.googlecode.mapperdao.DeleteExternalManyToMany
-import com.googlecode.mapperdao.Entity
-import com.googlecode.mapperdao.ExternalEntity
-import com.googlecode.mapperdao.MapperDaoImpl
-import com.googlecode.mapperdao.SimpleColumn
-import com.googlecode.mapperdao.Type
-import com.googlecode.mapperdao.UpdateEntityMap
-import com.googlecode.mapperdao.ColumnBase
+import com.googlecode.mapperdao._
 
 class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDaoImpl) extends BeforeDelete {
 
 	override def idColumnValueContribution[ID, PC, T](tpe: Type[ID, PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, entityMap: UpdateEntityMap): List[(SimpleColumn, Any)] = Nil
 
-	override def before[ID, PC, T](entity: Entity[ID, PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(ColumnBase, Any)], entityMap: UpdateEntityMap) =
+	override def before[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(ColumnBase, Any)], entityMap: UpdateEntityMap) =
 		if (deleteConfig.propagate) {
 			val tpe = entity.tpe
 			tpe.table.manyToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach { ci =>

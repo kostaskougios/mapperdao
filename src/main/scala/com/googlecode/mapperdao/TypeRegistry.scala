@@ -9,7 +9,7 @@ import java.util.IdentityHashMap
  * 25 Jul 2011
  */
 final class TypeRegistry private (entities: List[Entity[_, _, _]]) {
-	private val columnsToEntity = new IdentityHashMap[ColumnBase, Entity[_, _, _]]
+	private val columnsToEntity = new IdentityHashMap[ColumnBase, Entity[Any, DeclaredIds[Any], Any]]
 
 	entities.foreach { entity =>
 		entity.init
@@ -17,11 +17,11 @@ final class TypeRegistry private (entities: List[Entity[_, _, _]]) {
 			ci.column
 		} ::: entity.tpe.table.columns
 		columns.foreach { c =>
-			columnsToEntity.put(c, entity)
+			columnsToEntity.put(c, entity.asInstanceOf[Entity[Any, DeclaredIds[Any], Any]])
 		}
 	}
 
-	def entityOf(column: ColumnBase): Entity[_, _, _] = {
+	def entityOf(column: ColumnBase): Entity[Any, DeclaredIds[Any], Any] = {
 		val e = columnsToEntity.get(column)
 		if (e == null)
 			throw new IllegalArgumentException("can't find entity for column %s, is entity registered with this type registry?".format(column))

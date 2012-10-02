@@ -1,16 +1,9 @@
 package com.googlecode.mapperdao.drivers
 
 import com.googlecode.mapperdao.jdbc.Jdbc
-import com.googlecode.mapperdao.TypeRegistry
-import com.googlecode.mapperdao.ColumnBase
 import com.googlecode.mapperdao.jdbc.UpdateResultWithGeneratedKeys
-import com.googlecode.mapperdao.QueryDao
-import com.googlecode.mapperdao.Query
-import com.googlecode.mapperdao.QueryConfig
-import com.googlecode.mapperdao.TypeManager
-import com.googlecode.mapperdao.SimpleColumn
 import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
-import com.googlecode.mapperdao.Column
+import com.googlecode.mapperdao._
 
 /**
  * mapperdao driver for Sql Server
@@ -44,7 +37,7 @@ class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager:
 	 * ) as t
 	 * where Row between 3 and 5
 	 */
-	override def queryAfterSelect[ID, PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]) =
+	override def queryAfterSelect[ID, PC <: DeclaredIds[ID], T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]) =
 		if (queryConfig.hasRange) {
 			val sb = new StringBuilder("ROW_NUMBER() over (order by ")
 			val entity = qe.entity

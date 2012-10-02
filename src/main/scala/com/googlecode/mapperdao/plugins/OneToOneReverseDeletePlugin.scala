@@ -9,7 +9,7 @@ class OneToOneReverseDeletePlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 
 	override def idColumnValueContribution[ID, PC, T](tpe: Type[ID, PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, entityMap: UpdateEntityMap): List[(SimpleColumn, Any)] = Nil
 
-	override def before[ID, PC, T](
+	override def before[ID, PC <: DeclaredIds[ID], T](
 		entity: Entity[ID, PC, T],
 		deleteConfig: DeleteConfig,
 		events: Events,

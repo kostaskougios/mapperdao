@@ -9,6 +9,6 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
  *
  * 30 May 2012
  */
-case class CustomLoader[T, FID, FPC, FT](
+case class CustomLoader[T, FID, FPC <: DeclaredIds[FID], FT](
 	ci: ColumnInfoTraversableManyToMany[T, FID, FPC, FT],
 	loader: (SelectConfig, List[JdbcMap]) => List[FT with FPC])
