@@ -383,7 +383,7 @@ abstract class Entity[ID, +PC <: DeclaredIds[ID], T](protected[mapperdao] val ta
 		 */
 		private var leftColumns = keysDuringDeclaration.map(pk => clz.getSimpleName.toLowerCase + "_" + pk.name)
 		private var rightColumns = referenced match {
-			case ee: ExternalEntity[_] => List(referenced.clz.getSimpleName.toLowerCase + "_id")
+			case ee: ExternalEntity[_, _] => List(referenced.clz.getSimpleName.toLowerCase + "_id")
 			case _ => referenced.keysDuringDeclaration.map(pk => referenced.clz.getSimpleName.toLowerCase + "_" + pk.name)
 		}
 

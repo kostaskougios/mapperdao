@@ -15,21 +15,21 @@ import com.googlecode.mapperdao.DeclaredIds
  */
 class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends DuringUpdate {
 
-	override def during[PC <: DeclaredIds[_], T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
+	override def during[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
 			val mtoColumnInfos = table.manyToOneColumnInfos.filterNot(updateConfig.skip.contains(_))
 			mtoColumnInfos.foreach { cis =>
-				val v = newValuesMap.valueOf[Any](cis)
+				val v = newValuesMap.valueOf(cis)
 
 				cis.column.foreign.entity match {
-					case ee: ExternalEntity[Any] =>
+					case ee: ExternalEntity[Any, Any] =>
 						modified(cis.column.alias) = v
-					case fe: Entity[Any, Any] =>
-						val newV = v match {
+					case fe: Entity[Any, DeclaredIds[Any], Any] =>
+						val newV = v.asInstanceOf[AnyRef] match {
 							case null => null //throw new NullPointerException("unexpected null for primary entity on ManyToOne mapping, for entity %s.".format(o))
-							case p: Persisted =>
+							case p: DeclaredIds[Any] =>
 								entityMap.down(o, cis, entity)
 								val newV = mapperDao.updateInner(updateConfig, fe, v, entityMap)
 								entityMap.up
@@ -49,13 +49,13 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			val mtoArgsV = manyToOneChanged.map(mto => (mto, mto.foreign.entity, newValuesMap.valueOf[Any](mto.alias))).map {
 				case (column, entity, entityO) =>
 					entity match {
-						case ee: ExternalEntity[Any] =>
+						case ee: ExternalEntity[Any, Any] =>
 							val cis = table.columnToColumnInfoMap(column)
 							val v = cis.columnToValue(o)
-							val handler = ee.manyToOneOnUpdateMap(cis.asInstanceOf[ColumnInfoManyToOne[_, _, Any]])
+							val handler = ee.manyToOneOnUpdateMap(cis.asInstanceOf[ColumnInfoManyToOne[_, _, _, Any]])
 								.asInstanceOf[ee.OnUpdateManyToOne[T]]
 							handler(UpdateExternalManyToOne(updateConfig, o, v)).values
-						case e: Entity[Any, Any] =>
+						case e: Entity[Any, DeclaredIds[Any], Any] =>
 							e.tpe.table.toListOfPrimaryKeyValues(entityO)
 					}
 			}.flatten

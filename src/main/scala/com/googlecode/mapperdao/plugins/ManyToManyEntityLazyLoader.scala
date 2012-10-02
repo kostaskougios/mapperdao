@@ -17,13 +17,13 @@ import com.googlecode.mapperdao.DeclaredIds
  *
  * 26 May 2012
  */
-class ManyToManyEntityLazyLoader[PC <: DeclaredIds[_], T, FPC <: DeclaredIds[_], F](
+class ManyToManyEntityLazyLoader[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](
 	mapperDao: MapperDaoImpl,
 	selectConfig: SelectConfig,
-	entity: Entity[PC, T],
+	entity: Entity[ID, PC, T],
 	entityMap: EntityMap,
 	om: DatabaseValues,
-	ci: ColumnInfoTraversableManyToMany[T, FPC, F])
+	ci: ColumnInfoTraversableManyToMany[T, FID, FPC, F])
 		extends LazyLoader {
 	def apply =
 		{

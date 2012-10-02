@@ -487,40 +487,41 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 		deleted
 	}
 
-	private[mapperdao] def deleteInner[ID, PC <: DeclaredIds[ID], T](deleteConfig: DeleteConfig, entity: Entity[ID, PC, T], o: T with PC, entityMap: UpdateEntityMap): T = o match {
-		case persisted: T with PC with Persisted =>
-			if (persisted.mapperDaoDiscarded) throw new IllegalArgumentException("can't operate on an object twice. An object that was updated/deleted must be discarded and replaced by the return value of update(), i.e. onew=update(o) or just be disposed if it was deleted. The offending object was : " + o);
-			//persisted.mapperDaoDiscarded = true
+	private[mapperdao] def deleteInner[ID, PC <: DeclaredIds[ID], T](
+		deleteConfig: DeleteConfig,
+		entity: Entity[ID, PC, T],
+		o: T with PC,
+		entityMap: UpdateEntityMap): T = {
+		if (o.mapperDaoDiscarded) throw new IllegalArgumentException("can't operate on an object twice. An object that was updated/deleted must be discarded and replaced by the return value of update(), i.e. onew=update(o) or just be disposed if it was deleted. The offending object was : " + o);
 
-			val tpe = entity.tpe
-			val table = tpe.table
+		val tpe = entity.tpe
+		val table = tpe.table
 
-			try {
-				val keyValues0 = table.toListOfPrimaryKeySimpleColumnAndValueTuples(o) ::: beforeDeletePlugins.flatMap(
-					_.idColumnValueContribution(tpe, deleteConfig, events, persisted, entityMap)
-				)
+		try {
+			val keyValues0 = table.toListOfPrimaryKeySimpleColumnAndValueTuples(o) ::: beforeDeletePlugins.flatMap(
+				_.idColumnValueContribution(tpe, deleteConfig, events, o, entityMap)
+			)
 
-				val keyValues = keyValues0 ::: table.toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(o)
-				// call all the before-delete plugins
-				beforeDeletePlugins.foreach {
-					_.before(entity, deleteConfig, events, persisted, keyValues, entityMap)
-				}
-
-				// execute the before-delete events
-				events.executeBeforeDeleteEvents(tpe, keyValues, o)
-
-				// do the actual delete database op
-				driver.doDelete(tpe, keyValues)
-
-				// execute the after-delete events
-				events.executeAfterDeleteEvents(tpe, keyValues, o)
-
-				// return the object
-				o
-			} catch {
-				case e: Throwable => throw new PersistException("An error occured during delete of entity %s with value %s".format(entity, o), e)
+			val keyValues = keyValues0 ::: table.toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(o)
+			// call all the before-delete plugins
+			beforeDeletePlugins.foreach {
+				_.before(entity, deleteConfig, events, o, keyValues, entityMap)
 			}
-		case _ => throw new IllegalArgumentException("can't delete an object that is not persisted: " + o);
+
+			// execute the before-delete events
+			events.executeBeforeDeleteEvents(tpe, keyValues, o)
+
+			// do the actual delete database op
+			driver.doDelete(tpe, keyValues)
+
+			// execute the after-delete events
+			events.executeAfterDeleteEvents(tpe, keyValues, o)
+
+			// return the object
+			o
+		} catch {
+			case e: Throwable => throw new PersistException("An error occured during delete of entity %s with value %s".format(entity, o), e)
+		}
 	}
 
 	override def unlink[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T], o: T): T = {

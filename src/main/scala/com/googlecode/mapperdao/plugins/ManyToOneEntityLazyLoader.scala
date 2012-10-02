@@ -12,10 +12,10 @@ import com.googlecode.mapperdao.DeclaredIds
  *
  * 27 May 2012
  */
-class ManyToOneEntityLazyLoader[T](
+class ManyToOneEntityLazyLoader[T, FID, FPC <: DeclaredIds[FID], F](
 	mapperDao: MapperDaoImpl,
 	selectConfig: SelectConfig,
-	cis: ColumnInfoManyToOne[T, _, _],
+	cis: ColumnInfoManyToOne[T, FID, FPC, F],
 	down: EntityMap,
 	om: DatabaseValues)
 		extends LazyLoader {

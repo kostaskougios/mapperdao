@@ -22,7 +22,7 @@ import com.googlecode.mapperdao.DeclaredIds
  */
 class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends PostUpdate {
 
-	override def after[PC <: DeclaredIds[_], T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
+	override def after[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
@@ -37,16 +37,16 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 					val pkLeft = oldValuesMap.toListOfColumnValue(table.primaryKeys)
 					val pkArgs = manyToMany.linkTable.left zip pkLeft
 
-					val fentity = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
+					val fentity = ci.column.foreign.entity.asInstanceOf[Entity[Any, DeclaredIds[Any], Any]]
 
 					val (added, intersection, removed) = TraversableSeparation.separate(fentity, oldValues, newValues)
 
-					val fe = manyToMany.foreign.entity.asInstanceOf[Entity[Any, Any]]
+					val fe = manyToMany.foreign.entity.asInstanceOf[Entity[Any, DeclaredIds[Any], Any]]
 					val ftpe = fe.tpe
 
 					manyToMany.foreign.entity match {
-						case ee: ExternalEntity[Any] =>
-							val handler = ee.manyToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
+						case ee: ExternalEntity[Any, Any] =>
+							val handler = ee.manyToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, _, Any]])
 								.asInstanceOf[ee.OnUpdateManyToMany[T]]
 							// delete the removed ones
 							removed.foreach { p =>
@@ -80,16 +80,10 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 							// update those that remained in the updated traversable
 							intersection.foreach {
 								case (oldV, newV) =>
-									val newItem = oldV match {
-										case p: Persisted =>
-											entityMap.down(mockO, ci, entity)
-											mapperDao.updateInner(updateConfig, fe, oldV, newV, entityMap)
-											entityMap.up
-											p
-										case _ =>
-											throw new IllegalStateException("Object not persisted but still exists in intersection of old and new collections. Please use the persisted entity when modifying the collection. The not persisted object is %s.".format(newV))
-									}
-									modified(manyToMany.alias) = newItem
+									entityMap.down(mockO, ci, entity)
+									mapperDao.updateInner(updateConfig, fe, oldV, newV, entityMap)
+									entityMap.up
+									modified(manyToMany.alias) = oldV
 							}
 
 							// update the added ones
@@ -98,7 +92,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 									case p: Persisted => p
 									case n =>
 										entityMap.down(mockO, ci, entity)
-										val inserted = mapperDao.insertInner[Any, Any](updateConfig, fe, n, entityMap)
+										val inserted = mapperDao.insertInner(updateConfig, fe, n, entityMap)
 										entityMap.up
 										inserted
 								}

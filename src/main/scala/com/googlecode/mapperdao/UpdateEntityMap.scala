@@ -15,7 +15,10 @@ protected class UpdateEntityMap {
 			if (g == null) None else Option(g.asInstanceOf[PC with T with Persisted])
 		}
 
-	def down[PID, PPC <: DeclaredIds[PID], PT, V, FID, FPC <: DeclaredIds[FID], F](o: PT, ci: ColumnInfoRelationshipBase[PT, V, FID, FPC, F], parentEntity: Entity[PID, PPC, PT]): Unit =
+	def down[PID, PPC <: DeclaredIds[PID], PT, V, FID, FPC <: DeclaredIds[FID], F](
+		o: PT,
+		ci: ColumnInfoRelationshipBase[PT, V, FID, FPC, F],
+		parentEntity: Entity[PID, PPC, PT]): Unit =
 		stack = stack.push(UpdateInfo(o, ci, parentEntity))
 
 	def peek[PID, PPC <: DeclaredIds[PID], PT, V, FID, FPC <: DeclaredIds[FID], F] =

@@ -9,17 +9,23 @@ import com.googlecode.mapperdao._
 
 class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeDelete {
 
-	override def idColumnValueContribution[PC <: DeclaredIds[_], T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, entityMap: UpdateEntityMap): List[(SimpleColumn, Any)] = {
-		val UpdateInfo(parentO, ci, parentEntity) = entityMap.peek[Any, Any, Traversable[T], Any, T]
+	override def idColumnValueContribution[ID, PC <: DeclaredIds[ID], T](tpe: Type[ID, PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, entityMap: UpdateEntityMap): List[(SimpleColumn, Any)] = {
+		val UpdateInfo(parentO, ci, parentEntity) = entityMap.peek[Any, DeclaredIds[Any], Any, Traversable[T], Any, DeclaredIds[Any], T]
 		ci match {
-			case oneToMany: ColumnInfoTraversableOneToMany[_, _, T] =>
+			case oneToMany: ColumnInfoTraversableOneToMany[_, _, _, T] =>
 				val parentTpe = parentEntity.tpe
 				oneToMany.column.foreignColumns zip parentTpe.table.toListOfPrimaryKeyValues(parentO)
 			case _ => Nil
 		}
 	}
 
-	override def before[PC <: DeclaredIds[_], T](entity: Entity[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(ColumnBase, Any)], entityMap: UpdateEntityMap) =
+	override def before[ID, PC <: DeclaredIds[ID], T](
+		entity: Entity[ID, PC, T],
+		deleteConfig: DeleteConfig,
+		events: Events,
+		o: T with PC,
+		keyValues: List[(ColumnBase, Any)],
+		entityMap: UpdateEntityMap) =
 		if (deleteConfig.propagate) {
 			val tpe = entity.tpe
 			tpe.table.oneToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach { cis =>
@@ -30,14 +36,14 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				val fOTraversable = cis.columnToValue(o)
 
 				cis.column.foreign.entity match {
-					case ee: ExternalEntity[Any] =>
-						val handler = ee.oneToManyOnDeleteMap(cis.asInstanceOf[ColumnInfoTraversableOneToMany[T, _, Any]])
+					case ee: ExternalEntity[Any, Any] =>
+						val handler = ee.oneToManyOnDeleteMap(cis.asInstanceOf[ColumnInfoTraversableOneToMany[T, _, _, Any]])
 							.asInstanceOf[ee.OnDeleteOneToMany[T]]
 						handler(DeleteExternalOneToMany(deleteConfig, o, fOTraversable))
 
-					case fe: Entity[Any, Any] =>
+					case fe: Entity[Any, DeclaredIds[Any], Any] =>
 						if (fOTraversable != null) fOTraversable.foreach { fO =>
-							val fOPersisted = fO.asInstanceOf[Persisted]
+							val fOPersisted = fO.asInstanceOf[DeclaredIds[Any]]
 							if (!fOPersisted.mapperDaoMock) {
 								mapperDao.delete(deleteConfig, fe, fOPersisted)
 							}

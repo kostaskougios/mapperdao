@@ -16,10 +16,10 @@ import com.googlecode.mapperdao.utils.NYI
 class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 		extends PostUpdate with DuringUpdate {
 
-	def during[PC <: DeclaredIds[_], T](updateConfig: UpdateConfig, entity: Entity[PC, T], o1: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]) = {
-		val ui = entityMap.peek[Any, Any, Traversable[Any], Any, Any]
+	def during[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o1: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]) = {
+		val ui = entityMap.peek[Any, DeclaredIds[Any], Any, Traversable[Any], Any, DeclaredIds[Any], Any]
 		ui.ci match {
-			case _: ColumnInfoTraversableOneToMany[Any, Any, Any] =>
+			case _: ColumnInfoTraversableOneToMany[Any, Any, DeclaredIds[Any], Any] =>
 				val tpe = entity.tpe
 				val table = tpe.table
 
@@ -31,9 +31,9 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 						ci match {
 							case ci: ColumnInfo[T, Any] =>
 								List((ci.column, co))
-							case ci: ColumnInfoManyToOne[T, Any, Any] =>
+							case ci: ColumnInfoManyToOne[T, Any, DeclaredIds[Any], Any] =>
 								ci.column.columns zip ci.column.foreign.entity.tpe.table.toListOfPrimaryKeyValues(co)
-							case ci: ColumnInfoTraversableOneToMany[Any, Any, Any] =>
+							case ci: ColumnInfoTraversableOneToMany[Any, Any, DeclaredIds[Any], Any] =>
 								Nil
 							case _ => NYI()
 						}
@@ -52,7 +52,15 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			case _ => DuringUpdateResults.empty
 		}
 	}
-	def after[PC <: DeclaredIds[_], T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
+	def after[ID, PC <: DeclaredIds[ID], T](
+		updateConfig: UpdateConfig,
+		entity: Entity[ID, PC, T],
+		o: T,
+		mockO: T with PC,
+		oldValuesMap: ValuesMap,
+		newValuesMap: ValuesMap,
+		entityMap: UpdateEntityMap,
+		modified: MapOfList[String, Any]) =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
@@ -65,21 +73,21 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				// we'll get the 2 traversables and update the database
 				// based on their differences
 				val newValues = t.toList
-				val oldValues = oldValuesMap.seq[Any](oneToMany.foreign.alias)
+				val oldValues = oldValuesMap.seq[DeclaredIds[Any]](oneToMany.foreign.alias)
 
-				val fentity = ci.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
+				val fentity = ci.column.foreign.entity.asInstanceOf[Entity[Any, DeclaredIds[Any], Any]]
 				val (added, intersection, removed) = TraversableSeparation.separate(fentity, oldValues, newValues)
 
 				ci.column.foreign.entity match {
-					case ee: ExternalEntity[Any] =>
+					case ee: ExternalEntity[Any, Any] =>
 
-						val handler = ee.oneToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[T, _, Any]])
+						val handler = ee.oneToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[T, _, _, Any]])
 							.asInstanceOf[ee.OnUpdateOneToMany[T]]
 						handler(UpdateExternalOneToMany(updateConfig, o, added, intersection.map(_._2), removed))
 						t.foreach { newItem =>
 							modified(oneToMany.alias) = newItem
 						}
-					case fe: Entity[Any, Any] =>
+					case fe: Entity[Any, DeclaredIds[Any], Any] =>
 
 						// update the removed ones
 						removed.foreach { item =>
@@ -100,8 +108,8 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 						added.foreach { item =>
 							entityMap.down(mockO, ci, entity)
 							val newItem: Any = item match {
-								case p: Persisted =>
-									mapperDao.updateInner(updateConfig, fe, item, entityMap)
+								case p: DeclaredIds[Any] =>
+									mapperDao.updateInner(updateConfig, fe, p, entityMap)
 								case _ =>
 									mapperDao.insertInner(updateConfig, fe, item, entityMap)
 							}

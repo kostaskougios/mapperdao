@@ -15,7 +15,13 @@ import com.googlecode.mapperdao.DeclaredIds
  */
 class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeInsert {
 
-	override def before[PPC <: DeclaredIds[_], PT, PC <: DeclaredIds[_], T, V, FPC <: DeclaredIds[_], F](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], updateInfo: UpdateInfo[PPC, PT, V, FPC, F]): List[(Column, Any)] =
+	override def before[PID, PPC <: DeclaredIds[PID], PT, ID, PC <: DeclaredIds[ID], T, V, FID, FPC <: DeclaredIds[FID], F](
+		updateConfig: UpdateConfig,
+		entity: Entity[ID, PC, T],
+		o: T, mockO: T with PC,
+		entityMap: UpdateEntityMap,
+		modified: scala.collection.mutable.Map[String, Any],
+		updateInfo: UpdateInfo[PID, PPC, PT, V, FID, FPC, F]): List[(Column, Any)] =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
@@ -25,20 +31,19 @@ class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				val fo = cis.columnToValue(o)
 
 				cis.column.foreign.entity match {
-					case ee: ExternalEntity[Any] =>
+					case ee: ExternalEntity[Any, Any] =>
 						val columns = cis.column.columns.filterNot(table.primaryKeys.contains(_))
-						val handler = ee.manyToOneOnInsertMap(cis.asInstanceOf[ColumnInfoManyToOne[T, _, Any]])
+						val handler = ee.manyToOneOnInsertMap(cis.asInstanceOf[ColumnInfoManyToOne[T, _, _, Any]])
 							.asInstanceOf[ee.OnInsertManyToOne[T]]
 						val fKeyValues = handler(InsertExternalManyToOne(updateConfig, o, fo))
 						extraArgs :::= columns zip fKeyValues.values
 						modified(cis.column.alias) = fo
-					case _ =>
-						val fe = cis.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
+					case fe: Entity[Any, DeclaredIds[Any], Any] =>
 						val ftpe = fe.tpe
 						val v = if (fo != null) {
 							val v = fo match {
 								case null => null
-								case p: Persisted =>
+								case p: DeclaredIds[Any] =>
 									entityMap.down(mockO, cis, entity)
 									val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
 									entityMap.up

@@ -13,13 +13,13 @@ import com.googlecode.mapperdao.DeclaredIds
  *
  * 27 May 2012
  */
-class OneToManyEntityLazyLoader[PC <: DeclaredIds[_], T](
+class OneToManyEntityLazyLoader[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](
 	mapperDao: MapperDaoImpl,
 	selectConfig: SelectConfig,
-	entity: Entity[PC, T],
+	entity: Entity[ID, PC, T],
 	down: EntityMap,
 	om: DatabaseValues,
-	ci: ColumnInfoTraversableOneToMany[T, _, _])
+	ci: ColumnInfoTraversableOneToMany[T, FID, FPC, F])
 		extends LazyLoader {
 
 	private val m = om.map

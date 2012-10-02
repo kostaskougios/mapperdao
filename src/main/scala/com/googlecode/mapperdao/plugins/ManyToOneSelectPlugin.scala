@@ -13,20 +13,20 @@ import com.googlecode.mapperdao.events.Events
  */
 class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeSelect with SelectMock {
 
-	override def idContribution[PC, T](tpe: Type[PC, T], om: DatabaseValues, entities: EntityMap) = Nil
+	override def idContribution[ID, PC, T](tpe: Type[ID, PC, T], om: DatabaseValues, entities: EntityMap) = Nil
 
-	override def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: DatabaseValues, entities: EntityMap) =
+	override def before[ID, PC, T](entity: Entity[ID, PC, T], selectConfig: SelectConfig, om: DatabaseValues, entities: EntityMap) =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
 			// many to one
 			table.manyToOneColumnInfos.filterNot(selectConfig.skip(_)).map { cis =>
 				val v = cis.column.foreign.entity match {
-					case ee: ExternalEntity[Any] =>
+					case ee: ExternalEntity[Any, Any] =>
 						() => {
 							val c = cis.column
 							val foreignPKValues = c.columns.map(mtoc => om(mtoc.name))
-							ee.manyToOneOnSelectMap(cis.asInstanceOf[ColumnInfoManyToOne[_, _, Any]])(SelectExternalManyToOne(selectConfig, foreignPKValues))
+							ee.manyToOneOnSelectMap(cis.asInstanceOf[ColumnInfoManyToOne[_, _, _, Any]])(SelectExternalManyToOne(selectConfig, foreignPKValues))
 						}
 					case _ =>
 						// try to capture as few variables as possible
@@ -48,7 +48,7 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			}
 		}
 
-	override def updateMock[PC, T](entity: Entity[PC, T], mods: scala.collection.mutable.Map[String, Any]) {
+	override def updateMock[ID, PC, T](entity: Entity[ID, PC, T], mods: scala.collection.mutable.Map[String, Any]) {
 		mods ++= entity.tpe.table.manyToOneColumns.map(c => (c.alias -> null))
 	}
 }

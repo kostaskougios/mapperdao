@@ -94,14 +94,14 @@ case class Table[ID, PC <: DeclaredIds[ID], T](
 		case c: ColumnInfoOneToOneReverse[T, _, DeclaredIds[Any], _] => c
 	}
 
-	val oneToManyColumnInfos: List[ColumnInfoTraversableOneToMany[T, _, DeclaredIds[Any], _]] = columnInfosPlain.collect {
-		case c: ColumnInfoTraversableOneToMany[T, _, DeclaredIds[Any], _] => c
+	val oneToManyColumnInfos: List[ColumnInfoTraversableOneToMany[T, Any, DeclaredIds[Any], _]] = columnInfosPlain.collect {
+		case c: ColumnInfoTraversableOneToMany[T, Any, DeclaredIds[Any], _] => c
 	}
-	val manyToOneColumnInfos: List[ColumnInfoManyToOne[T, _, DeclaredIds[Any], _]] = columnInfosPlain.collect {
-		case c: ColumnInfoManyToOne[T, _, DeclaredIds[Any], _] => c
+	val manyToOneColumnInfos: List[ColumnInfoManyToOne[T, Any, DeclaredIds[Any], _]] = columnInfosPlain.collect {
+		case c: ColumnInfoManyToOne[T, Any, DeclaredIds[Any], _] => c
 	}
-	val manyToManyColumnInfos: List[ColumnInfoTraversableManyToMany[T, _, DeclaredIds[Any], _]] = columnInfosPlain.collect {
-		case c: ColumnInfoTraversableManyToMany[T, _, DeclaredIds[Any], _] => c
+	val manyToManyColumnInfos: List[ColumnInfoTraversableManyToMany[T, Any, DeclaredIds[Any], _]] = columnInfosPlain.collect {
+		case c: ColumnInfoTraversableManyToMany[T, Any, DeclaredIds[Any], _] => c
 	}
 
 	val columnToColumnInfoMap: Map[ColumnBase, ColumnInfoBase[T, _]] = columnInfosPlain.map(ci => (ci.column, ci)).toMap
