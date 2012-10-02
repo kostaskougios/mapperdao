@@ -20,7 +20,7 @@ import com.googlecode.mapperdao.drivers.SelectHints
  */
 case class QueryConfig(
 		// skip relationship from loading? i.e. SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
-		skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
+		skip: Set[ColumnInfoRelationshipBase[_, _, _, _, _]] = Set(),
 		// start index of first row, useful for paginating
 		offset: Option[Long] = None,
 		// limit the number of returned rows, useful for paginating
@@ -63,7 +63,7 @@ object QueryConfig {
 		pageNumber: Long,
 		rowsPerPage: Long,
 		cacheOptions: CacheOption = CacheOptions.NoCache,
-		skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
+		skip: Set[ColumnInfoRelationshipBase[_, _, _, _, _]] = Set(),
 		lazyLoad: LazyLoad = LazyLoad.none): QueryConfig = {
 		if (pageNumber < 1) throw new IllegalArgumentException("pageNumber must be >=1")
 		if (rowsPerPage < 1) throw new IllegalArgumentException("rowsPerPage must be >=1")

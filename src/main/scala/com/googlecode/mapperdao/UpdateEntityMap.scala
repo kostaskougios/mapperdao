@@ -6,19 +6,20 @@ import scala.collection.immutable.Stack
 
 protected class UpdateEntityMap {
 	private val m = new IdentityHashMap[Any, Any]
-	private var stack = Stack[UpdateInfo[_, _, _, _, _]]()
+	private var stack = Stack[UpdateInfo[_, _, _, _, _, _, _]]()
 
-	def put[PC, T](v: T, mock: PC with T with Persisted): Unit = m.put(v, mock)
-	def get[PC, T](v: T): Option[PC with T with Persisted] =
+	def put[PC <: DeclaredIds[_], T](v: T, mock: PC with T with Persisted): Unit = m.put(v, mock)
+	def get[PC <: DeclaredIds[_], T](v: T): Option[PC with T with Persisted] =
 		{
 			val g = m.get(v)
 			if (g == null) None else Option(g.asInstanceOf[PC with T with Persisted])
 		}
 
-	def down[PPC, PT, V, FPC, F](o: PT, ci: ColumnInfoRelationshipBase[PT, V, FPC, F], parentEntity: Entity[PPC, PT]): Unit =
+	def down[PID, PPC <: DeclaredIds[PID], PT, V, FID, FPC <: DeclaredIds[FID], F](o: PT, ci: ColumnInfoRelationshipBase[PT, V, FID, FPC, F], parentEntity: Entity[PID, PPC, PT]): Unit =
 		stack = stack.push(UpdateInfo(o, ci, parentEntity))
 
-	def peek[PPC, PT, V, FPC, F] = (if (stack.isEmpty) UpdateInfo(null, null, null) else stack.top).asInstanceOf[UpdateInfo[PPC, PT, V, FPC, F]]
+	def peek[PID, PPC <: DeclaredIds[PID], PT, V, FID, FPC <: DeclaredIds[FID], F] =
+		(if (stack.isEmpty) UpdateInfo(null, null, null) else stack.top).asInstanceOf[UpdateInfo[PID, PPC, PT, V, FID, FPC, F]]
 
 	def up = stack = stack.pop
 
@@ -35,7 +36,7 @@ protected class UpdateEntityMap {
 	}
 }
 
-protected case class UpdateInfo[PPC, PT, V, FPC, F](
+protected case class UpdateInfo[PID, PPC <: DeclaredIds[PID], PT, V, FID, FPC <: DeclaredIds[FID], F](
 	val o: PT,
-	val ci: ColumnInfoRelationshipBase[PT, V, FPC, F],
-	parentEntity: Entity[PPC, PT])
+	val ci: ColumnInfoRelationshipBase[PT, V, FID, FPC, F],
+	parentEntity: Entity[PID, PPC, PT])

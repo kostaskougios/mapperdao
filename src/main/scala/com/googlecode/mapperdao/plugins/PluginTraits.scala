@@ -16,6 +16,7 @@ import com.googlecode.mapperdao.UpdateEntityMap
 import com.googlecode.mapperdao.ValuesMap
 import com.googlecode.mapperdao.ColumnBase
 import com.googlecode.mapperdao.DatabaseValues
+import com.googlecode.mapperdao.DeclaredIds
 
 /**
  * plugins executed before the main entity is inserted
@@ -25,7 +26,14 @@ import com.googlecode.mapperdao.DatabaseValues
  * 31 Aug 2011
  */
 trait BeforeInsert {
-	def before[PPC, PT, PC, T, V, FPC, F](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], updateInfo: UpdateInfo[PPC, PT, V, FPC, F]): List[(Column, Any)]
+	def before[PPC <: DeclaredIds[_], PT, PC <: DeclaredIds[_], T, V, FPC <: DeclaredIds[_], F](
+		updateConfig: UpdateConfig,
+		entity: Entity[PC, T],
+		o: T,
+		mockO: T with PC,
+		entityMap: UpdateEntityMap,
+		modified: scala.collection.mutable.Map[String, Any],
+		updateInfo: UpdateInfo[PPC, PT, V, FPC, F]): List[(Column, Any)]
 }
 
 /**
@@ -36,7 +44,7 @@ trait BeforeInsert {
  * 31 Aug 2011
  */
 trait PostInsert {
-	def after[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): Unit
+	def after[PC <: DeclaredIds[_], T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): Unit
 }
 
 /**
@@ -57,7 +65,7 @@ private[mapperdao] object DuringUpdateResults {
 }
 
 trait DuringUpdate {
-	def during[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults
+	def during[PC <: DeclaredIds[_], T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults
 }
 
 /**
@@ -68,7 +76,7 @@ trait DuringUpdate {
  * 31 Aug 2011
  */
 trait PostUpdate {
-	def after[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]): Unit
+	def after[PC <: DeclaredIds[_], T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]): Unit
 }
 
 /**
@@ -79,18 +87,18 @@ trait PostUpdate {
  * 31 Aug 2011
  */
 trait BeforeSelect {
-	def idContribution[PC, T](tpe: Type[PC, T], om: DatabaseValues, entities: EntityMap): List[Any]
-	def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: DatabaseValues, entities: EntityMap): List[SelectMod]
+	def idContribution[PC <: DeclaredIds[_], T](tpe: Type[PC, T], om: DatabaseValues, entities: EntityMap): List[Any]
+	def before[PC <: DeclaredIds[_], T](entity: Entity[PC, T], selectConfig: SelectConfig, om: DatabaseValues, entities: EntityMap): List[SelectMod]
 }
 
 trait SelectMock {
-	def updateMock[PC, T](entity: Entity[PC, T], mods: scala.collection.mutable.Map[String, Any])
+	def updateMock[PC <: DeclaredIds[_], T](entity: Entity[PC, T], mods: scala.collection.mutable.Map[String, Any])
 }
 
 /**
  * plugins executed before deleting an entity
  */
 trait BeforeDelete {
-	def idColumnValueContribution[PC, T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, entityMap: UpdateEntityMap): List[(SimpleColumn, Any)]
-	def before[PC, T](entity: Entity[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(ColumnBase, Any)], entityMap: UpdateEntityMap): Unit
+	def idColumnValueContribution[PC <: DeclaredIds[_], T](tpe: Type[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, entityMap: UpdateEntityMap): List[(SimpleColumn, Any)]
+	def before[PC <: DeclaredIds[_], T](entity: Entity[PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(ColumnBase, Any)], entityMap: UpdateEntityMap): Unit
 }

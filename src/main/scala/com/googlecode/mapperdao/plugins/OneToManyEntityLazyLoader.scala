@@ -6,13 +6,14 @@ import com.googlecode.mapperdao.ColumnInfoTraversableOneToMany
 import com.googlecode.mapperdao.Entity
 import com.googlecode.mapperdao.EntityMap
 import com.googlecode.mapperdao.DatabaseValues
+import com.googlecode.mapperdao.DeclaredIds
 
 /**
  * @author kostantinos.kougios
  *
  * 27 May 2012
  */
-class OneToManyEntityLazyLoader[PC, T](
+class OneToManyEntityLazyLoader[PC <: DeclaredIds[_], T](
 	mapperDao: MapperDaoImpl,
 	selectConfig: SelectConfig,
 	entity: Entity[PC, T],

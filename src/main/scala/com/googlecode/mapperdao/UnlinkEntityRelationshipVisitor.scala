@@ -8,19 +8,19 @@ package com.googlecode.mapperdao
  * 22 May 2012
  */
 class UnlinkEntityRelationshipVisitor extends EntityRelationshipVisitor(visitLazyLoaded = false, visitUnlinked = false) {
-	override def manyToMany[T, F](ci: ColumnInfoTraversableManyToMany[T, _, F], traversable: Traversable[F], collected: Traversable[Any]) = {
+	override def manyToMany[T, F](ci: ColumnInfoTraversableManyToMany[T, _, _, F], traversable: Traversable[F], collected: Traversable[Any]) = {
 		traversable.foreach(unlink(_))
 	}
-	override def oneToMany[T, F](ci: ColumnInfoTraversableOneToMany[T, _, F], traversable: Traversable[F], collected: Traversable[Any]) = {
+	override def oneToMany[T, F](ci: ColumnInfoTraversableOneToMany[T, _, _, F], traversable: Traversable[F], collected: Traversable[Any]) = {
 		traversable.foreach(unlink(_))
 	}
-	override def manyToOne[T, F](ci: ColumnInfoManyToOne[T, _, F], foreign: F) = {
+	override def manyToOne[T, F](ci: ColumnInfoManyToOne[T, _, _, F], foreign: F) = {
 		unlink(foreign)
 	}
-	override def oneToOne[T, F](ci: ColumnInfoOneToOne[T, _, _], foreign: F) = {
+	override def oneToOne[T, F](ci: ColumnInfoOneToOne[T, _, _, _], foreign: F) = {
 		unlink(foreign)
 	}
-	override def oneToOneReverse[T, F](ci: ColumnInfoOneToOneReverse[T, _, _], foreign: F) = {
+	override def oneToOneReverse[T, F](ci: ColumnInfoOneToOneReverse[T, _, _, _], foreign: F) = {
 		unlink(foreign)
 	}
 

@@ -31,12 +31,12 @@ class ValuesMap private (mOrig: scala.collection.Map[String, Any])
 
 	def contains(c: ColumnBase) = containsMEM(c.alias)
 
-	def columnValue[T](ci: ColumnInfoRelationshipBase[_, _, _, _]): T = columnValue(ci.column.alias)
+	def columnValue[T](ci: ColumnInfoRelationshipBase[_, _, _, _, _]): T = columnValue(ci.column.alias)
 
 	/**
 	 * returns true if the relationship is not yet loaded
 	 */
-	def isLoaded(ci: ColumnInfoRelationshipBase[_, _, _, _]): Boolean = columnValue[Any](ci) match {
+	def isLoaded(ci: ColumnInfoRelationshipBase[_, _, _, _, _]): Boolean = columnValue[Any](ci) match {
 		case _: (() => Any) => false
 		case _ => true
 	}
@@ -71,7 +71,7 @@ class ValuesMap private (mOrig: scala.collection.Map[String, Any])
 			putMEM(key, v)
 		}
 
-	private[mapperdao] def update[T, V](column: ColumnInfoRelationshipBase[T, _, _, _], v: V): Unit =
+	private[mapperdao] def update[T, V](column: ColumnInfoRelationshipBase[T, _, _, _, _], v: V): Unit =
 		{
 			val key = column.column.alias
 			putMEM(key, v)
@@ -92,31 +92,31 @@ class ValuesMap private (mOrig: scala.collection.Map[String, Any])
 	def isNull[T, V](column: ColumnInfo[T, V]): Boolean =
 		valueOf[V](column.column.name) == null
 
-	def apply[T, FPC, F](column: ColumnInfoOneToOne[T, FPC, F]): F =
+	def apply[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoOneToOne[T, FID, FPC, F]): F =
 		{
 			val key = column.column.alias
 			valueOf[F](key)
 		}
 
-	def apply[T, FPC, F](column: ColumnInfoOneToOneReverse[T, FPC, F]): F =
+	def apply[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoOneToOneReverse[T, FID, FPC, F]): F =
 		{
 			val key = column.column.alias
 			valueOf[F](key)
 		}
 
-	def apply[T, FPC, F](column: ColumnInfoTraversableOneToMany[T, FPC, F]): Traversable[F] =
+	def apply[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableOneToMany[T, FID, FPC, F]): Traversable[F] =
 		{
 			val key = column.column.alias
 			valueOf[Traversable[F]](key)
 		}
 
-	def apply[T, FPC, F](column: ColumnInfoTraversableManyToMany[T, FPC, F]): Traversable[F] =
+	def apply[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableManyToMany[T, FID, FPC, F]): Traversable[F] =
 		{
 			val key = column.column.alias
 			valueOf[Traversable[F]](key)
 		}
 
-	def apply[T, FPC, F](column: ColumnInfoManyToOne[T, FPC, F]) =
+	def apply[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoManyToOne[T, FID, FPC, F]) =
 		{
 			val key = column.column.alias
 			valueOf[F](key)
@@ -158,11 +158,11 @@ class ValuesMap private (mOrig: scala.collection.Map[String, Any])
 	def boolean[T](column: ColumnInfo[T, java.lang.Boolean]): java.lang.Boolean =
 		valueOf[java.lang.Boolean](column.column.name)
 
-	def mutableHashSet[T, FPC, F](column: ColumnInfoTraversableManyToMany[T, FPC, F]): scala.collection.mutable.HashSet[F] = new scala.collection.mutable.HashSet ++ apply(column)
-	def mutableLinkedList[T, FPC, F](column: ColumnInfoTraversableManyToMany[T, FPC, F]): scala.collection.mutable.LinkedList[F] = new scala.collection.mutable.LinkedList ++ apply(column)
+	def mutableHashSet[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableManyToMany[T, FID, FPC, F]): scala.collection.mutable.HashSet[F] = new scala.collection.mutable.HashSet ++ apply(column)
+	def mutableLinkedList[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableManyToMany[T, FID, FPC, F]): scala.collection.mutable.LinkedList[F] = new scala.collection.mutable.LinkedList ++ apply(column)
 
-	def mutableHashSet[T, FPC, F](column: ColumnInfoTraversableOneToMany[T, FPC, F]): scala.collection.mutable.HashSet[F] = new scala.collection.mutable.HashSet ++ apply(column)
-	def mutableLinkedList[T, FPC, F](column: ColumnInfoTraversableOneToMany[T, FPC, F]): scala.collection.mutable.LinkedList[F] = new scala.collection.mutable.LinkedList ++ apply(column)
+	def mutableHashSet[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableOneToMany[T, FID, FPC, F]): scala.collection.mutable.HashSet[F] = new scala.collection.mutable.HashSet ++ apply(column)
+	def mutableLinkedList[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableOneToMany[T, FID, FPC, F]): scala.collection.mutable.LinkedList[F] = new scala.collection.mutable.LinkedList ++ apply(column)
 
 	/**
 	 * the following methods do a conversion
@@ -181,16 +181,16 @@ class ValuesMap private (mOrig: scala.collection.Map[String, Any])
 	protected[mapperdao] def toListOfColumnAndValueTuple(columns: List[ColumnBase]) = columns.map(c => (c, getMEM(c.alias)))
 	protected[mapperdao] def toListOfSimpleColumnAndValueTuple(columns: List[SimpleColumn]) = columns.map(c => (c, getMEM(c.alias)))
 	protected[mapperdao] def toListOfColumnValue(columns: List[ColumnBase]) = columns.map(c => getMEM(c.alias))
-	protected[mapperdao] def isSimpleColumnsChanged[PC, T](tpe: Type[PC, T], from: ValuesMap): Boolean =
+	protected[mapperdao] def isSimpleColumnsChanged[ID, PC <: DeclaredIds[ID], T](tpe: Type[ID, PC, T], from: ValuesMap): Boolean =
 		tpe.table.simpleTypeColumnInfos.exists { ci =>
 			!Equality.isEqual(apply(ci), from.apply(ci))
 		}
 }
 
 object ValuesMap {
-	protected[mapperdao] def fromEntity[PC, T](typeManager: TypeManager, tpe: Type[PC, T], o: T): ValuesMap = fromEntity(typeManager, tpe, o, true)
+	protected[mapperdao] def fromEntity[ID, PC <: DeclaredIds[ID], T](typeManager: TypeManager, tpe: Type[ID, PC, T], o: T): ValuesMap = fromEntity(typeManager, tpe, o, true)
 
-	protected[mapperdao] def fromEntity[PC, T](typeManager: TypeManager, tpe: Type[PC, T], o: T, clone: Boolean): ValuesMap =
+	protected[mapperdao] def fromEntity[ID, PC <: DeclaredIds[ID], T](typeManager: TypeManager, tpe: Type[ID, PC, T], o: T, clone: Boolean): ValuesMap =
 		{
 			val table = tpe.table
 			val nm = new scala.collection.mutable.HashMap[String, Any]

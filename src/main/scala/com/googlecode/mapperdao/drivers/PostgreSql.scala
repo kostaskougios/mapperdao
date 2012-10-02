@@ -26,19 +26,11 @@ class PostgreSql(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager
 	}
 	val sqlBuilder = new SqlBuilder(this, escapeNamesStrategy)
 
-	//	override protected def insertSql[PC, T](tpe: Type[PC, T], args: List[(SimpleColumn, Any)]): String =
-	//		{
-	//			val sql = super.insertSql(tpe, args)
-	//			if (args.isEmpty && tpe.table.simpleTypeSequenceColumns.isEmpty) {
-	//				sql + "\ndefault values"
-	//			} else sql
-	//		}
-
 	override protected def sequenceSelectNextSql(sequenceColumn: ColumnBase): String = sequenceColumn match {
 		case PK(columnName, true, sequence, _) => "NEXTVAL('%s')".format(sequence.get)
 	}
 
-	override def endOfQuery[PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
+	override def endOfQuery[ID, PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]) =
 		{
 			queryConfig.offset.foreach(o => q.appendSql("offset " + o))
 			queryConfig.limit.foreach(l => q.appendSql("limit " + l))

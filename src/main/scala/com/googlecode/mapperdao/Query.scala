@@ -75,63 +75,63 @@ object Query {
 	/**
 	 * manages many-to-one expressions
 	 */
-	protected class ConvertorManyToOne[T, FPC, F](ci: ColumnInfoManyToOne[T, FPC, F]) {
+	protected class ConvertorManyToOne[T, FID, FPC, F](ci: ColumnInfoManyToOne[T, FID, FPC, F]) {
 		def ===(v: F) = new ManyToOneOperation(ci.column, EQ(), v)
 		def <>(v: F) = new ManyToOneOperation(ci.column, NE(), v)
 	}
-	implicit def columnInfoManyToOneOperation[T, FPC, F](ci: ColumnInfoManyToOne[T, FPC, F]) = new ConvertorManyToOne(ci)
+	implicit def columnInfoManyToOneOperation[T, FID, FPC, F](ci: ColumnInfoManyToOne[T, FID, FPC, F]) = new ConvertorManyToOne(ci)
 
 	/**
 	 * manages one-to-many expressions
 	 */
-	protected class ConvertorOneToMany[T, FPC, F](ci: ColumnInfoTraversableOneToMany[T, FPC, F]) {
+	protected class ConvertorOneToMany[T, FID, FPC, F](ci: ColumnInfoTraversableOneToMany[T, FID, FPC, F]) {
 		def ===(v: F) = new OneToManyOperation(ci.column, EQ(), v)
 		def <>(v: F) = new OneToManyOperation(ci.column, NE(), v)
 	}
-	implicit def columnInfoOneToManyOperation[T, FPC, F](ci: ColumnInfoTraversableOneToMany[T, FPC, F]) = new ConvertorOneToMany[T, FPC, F](ci)
+	implicit def columnInfoOneToManyOperation[T, FID, FPC, F](ci: ColumnInfoTraversableOneToMany[T, FID, FPC, F]) = new ConvertorOneToMany[T, FID, FPC, F](ci)
 
-	protected class ConvertorOneToManyDeclaredPrimaryKey[F, TPC, T](
-			ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[F, TPC, T]) {
+	protected class ConvertorOneToManyDeclaredPrimaryKey[F, TID, TPC, T](
+			ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[F, TID, TPC, T]) {
 		def ===(v: F) = new OneToManyDeclaredPrimaryKeyOperation(ci.declaredColumnInfo.column, EQ(), v, ci.declaredColumnInfo.entityOfT)
 		def <>(v: F) = new OneToManyDeclaredPrimaryKeyOperation(ci.declaredColumnInfo.column, NE(), v, ci.declaredColumnInfo.entityOfT)
 	}
-	implicit def columnInfoOneToManyForDeclaredPrimaryKeyOperation[F, TPC, T](
-		ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[F, TPC, T]) =
-		new ConvertorOneToManyDeclaredPrimaryKey[F, TPC, T](ci)
+	implicit def columnInfoOneToManyForDeclaredPrimaryKeyOperation[F, TID, TPC, T](
+		ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[F, TID, TPC, T]) =
+		new ConvertorOneToManyDeclaredPrimaryKey[F, TID, TPC, T](ci)
 
 	/**
 	 * manages many-to-many expressions
 	 */
-	protected class ConvertorManyToMany[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F]) {
+	protected class ConvertorManyToMany[T, FID, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FID, FPC, F]) {
 		def ===(v: F) = new ManyToManyOperation(ci.column, EQ(), v)
 		def <>(v: F) = new ManyToManyOperation(ci.column, NE(), v)
 	}
-	implicit def columnInfoManyToManyOperation[T, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FPC, F]) = new ConvertorManyToMany[T, FPC, F](ci)
+	implicit def columnInfoManyToManyOperation[T, FID, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FID, FPC, F]) = new ConvertorManyToMany[T, FID, FPC, F](ci)
 
 	/**
 	 * manages one-to-one expressions
 	 */
-	protected class ConvertorOneToOne[T, FPC, F](ci: ColumnInfoOneToOne[T, FPC, F]) {
+	protected class ConvertorOneToOne[T, FID, FPC, F](ci: ColumnInfoOneToOne[T, FID, FPC, F]) {
 		def ===(v: F) = new OneToOneOperation(ci.column, EQ(), v)
 		def <>(v: F) = new OneToOneOperation(ci.column, NE(), v)
 	}
-	implicit def columnInfoOneToOneOperation[T, FPC, F](ci: ColumnInfoOneToOne[T, FPC, F]) = new ConvertorOneToOne[T, FPC, F](ci)
+	implicit def columnInfoOneToOneOperation[T, FID, FPC, F](ci: ColumnInfoOneToOne[T, FID, FPC, F]) = new ConvertorOneToOne[T, FID, FPC, F](ci)
 
 	/**
 	 * manages one-to-one reverse expressions
 	 */
-	protected class ConvertorOneToOneReverse[T, FPC, F](ci: ColumnInfoOneToOneReverse[T, FPC, F]) {
+	protected class ConvertorOneToOneReverse[T, FID, FPC, F](ci: ColumnInfoOneToOneReverse[T, FID, FPC, F]) {
 		def ===(v: F) = new OneToOneReverseOperation(ci.column, EQ(), v)
 		def <>(v: F) = new OneToOneReverseOperation(ci.column, NE(), v)
 	}
-	implicit def columnInfoOneToOneReverseOperation[T, FPC, F](ci: ColumnInfoOneToOneReverse[T, FPC, F]) = new ConvertorOneToOneReverse[T, FPC, F](ci)
+	implicit def columnInfoOneToOneReverseOperation[T, FID, FPC, F](ci: ColumnInfoOneToOneReverse[T, FID, FPC, F]) = new ConvertorOneToOneReverse[T, FID, FPC, F](ci)
 
 	// starting point of a query, "select" syntactic sugar
-	def select[PC, T] = new QueryFrom[PC, T]
+	def select[ID, PC, T] = new QueryFrom[ID, PC, T]
 
 	// "from" syntactic sugar
-	protected class QueryFrom[PC, T] {
-		def from(entity: Entity[PC, T]) = new Builder(entity)
+	protected class QueryFrom[ID, PC, T] {
+		def from(entity: Entity[ID, PC, T]) = new Builder(entity)
 	}
 
 	trait OrderBy[Q] { self: Q =>
@@ -170,9 +170,9 @@ object Query {
 	/**
 	 * main query builder, keeps track of all 'where', joins and order by.
 	 */
-	class Builder[PC, T](protected[mapperdao] val entity: Entity[PC, T]) extends OrderBy[Builder[PC, T]] {
-		protected[mapperdao] var wheres = List[Where[PC, T]]()
-		protected[mapperdao] var joins = List[Join[Any, Any, Entity[_, _], PC, T]]()
+	class Builder[ID, PC, T](protected[mapperdao] val entity: Entity[ID, PC, T]) extends OrderBy[Builder[ID, PC, T]] {
+		protected[mapperdao] var wheres = List[Where[ID, PC, T]]()
+		protected[mapperdao] var joins = List[Join[Any, Any, Entity[_, _, _], ID, PC, T]]()
 		protected[mapperdao] var order = List[(ColumnInfo[_, _], AscDesc)]()
 
 		override protected def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)]) {
@@ -185,9 +185,9 @@ object Query {
 			qe
 		}
 
-		def join[JPC, JT, E <: Entity[_, _]] = {
-			val j = new Join[JPC, JT, E, PC, T](this)
-			joins ::= j.asInstanceOf[Join[Any, Any, Entity[_, _], PC, T]]
+		def join[JPC, JT, E <: Entity[_, _, _]] = {
+			val j = new Join[JPC, JT, E, ID, PC, T](this)
+			joins ::= j.asInstanceOf[Join[Any, Any, Entity[_, _, _], ID, PC, T]]
 			j
 		}
 
@@ -210,14 +210,14 @@ object Query {
 		val sql = "desc"
 	}
 
-	protected[mapperdao] class Join[T, F, E <: Entity[_, _], QPC, QT](queryEntity: Builder[QPC, QT]) {
-		protected[mapperdao] var column: ColumnRelationshipBase[_, F] = _
+	protected[mapperdao] class Join[T, F, E <: Entity[_, _, _], QID, QPC, QT](queryEntity: Builder[QID, QPC, QT]) {
+		protected[mapperdao] var column: ColumnRelationshipBase[_, _, F] = _
 		protected[mapperdao] var entity: E = _
 		protected[mapperdao] var foreignEntity: E = _
 		protected[mapperdao] var joinEntity: E = _
-		protected[mapperdao] var on: JoinOn[QPC, QT] = _
+		protected[mapperdao] var on: JoinOn[QID, QPC, QT] = _
 
-		def apply(joinEntity: Entity[_, T], ci: ColumnInfoRelationshipBase[T, _, _, F], foreignEntity: Entity[_, F]) =
+		def apply(joinEntity: Entity[_, _, T], ci: ColumnInfoRelationshipBase[T, _, _, _, F], foreignEntity: Entity[_, _, F]) =
 			{
 				this.column = ci.column
 				this.foreignEntity = foreignEntity.asInstanceOf[E]
@@ -233,8 +233,8 @@ object Query {
 			}
 	}
 
-	protected[mapperdao] class JoinOn[PC, T](protected[mapperdao] val queryEntity: Builder[PC, T]) {
-		protected[mapperdao] var ons = List[Where[PC, T]]()
+	protected[mapperdao] class JoinOn[ID, PC, T](protected[mapperdao] val queryEntity: Builder[ID, PC, T]) {
+		protected[mapperdao] var ons = List[Where[ID, PC, T]]()
 		def on =
 			{
 				val qe = new Where(queryEntity)
@@ -243,7 +243,7 @@ object Query {
 			}
 	}
 
-	protected[mapperdao] class Where[PC, T](protected[mapperdao] val queryEntity: Builder[PC, T]) extends OrderBy[Where[PC, T]] {
+	protected[mapperdao] class Where[ID, PC, T](protected[mapperdao] val queryEntity: Builder[ID, PC, T]) extends OrderBy[Where[ID, PC, T]] {
 		var clauses: OpBase = null
 
 		override def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)]) {
@@ -302,34 +302,34 @@ class OpBase {
 case class Operation[V](left: SimpleColumn, operand: Operand, right: V) extends OpBase {
 	override def toString = "%s %s %s".format(left, operand, right)
 }
-case class ManyToOneOperation[FPC, F, V](left: ManyToOne[FPC, F], operand: Operand, right: V) extends OpBase {
+case class ManyToOneOperation[FID, FPC, F, V](left: ManyToOne[FID, FPC, F], operand: Operand, right: V) extends OpBase {
 	override def toString = "%s %s %s".format(left, operand, right)
 }
-case class OneToManyOperation[FPC, F, V](left: OneToMany[FPC, F], operand: Operand, right: V) extends OpBase {
+case class OneToManyOperation[FID, FPC, F, V](left: OneToMany[FID, FPC, F], operand: Operand, right: V) extends OpBase {
 	if (right == null) throw new NullPointerException("Value can't be null in one-to-many FK queries. Expression was on %s.".format(left))
 	override def toString = "%s %s %s".format(left, operand, right)
 }
 
-case class OneToManyDeclaredPrimaryKeyOperation[FPC, F, T](
-		left: OneToMany[FPC, F],
+case class OneToManyDeclaredPrimaryKeyOperation[FID, FPC, F, T](
+		left: OneToMany[FID, FPC, F],
 		operand: Operand,
 		right: T,
-		entityOfT: Entity[_, T]) extends OpBase {
+		entityOfT: Entity[_, _, T]) extends OpBase {
 	if (right == null) throw new NullPointerException("Value can't be null in one-to-many FK queries. Expression was on %s.".format(left))
 	override def toString = "%s %s %s".format(left, operand, right)
 }
 
-case class ManyToManyOperation[FPC, F, V](left: ManyToMany[FPC, F], operand: Operand, right: V) extends OpBase {
+case class ManyToManyOperation[FID, FPC, F, V](left: ManyToMany[FID, FPC, F], operand: Operand, right: V) extends OpBase {
 	if (right == null) throw new NullPointerException("Value can't be null in many-to-many FK queries. Expression was on %s.".format(left))
 	override def toString = "%s %s %s".format(left, operand, right)
 }
 
-case class OneToOneOperation[FPC, F, V](left: OneToOne[FPC, F], operand: Operand, right: V) extends OpBase {
+case class OneToOneOperation[FID, FPC, F, V](left: OneToOne[FID, FPC, F], operand: Operand, right: V) extends OpBase {
 	if (right == null) throw new NullPointerException("Value can't be null in one-to-one FK queries. Expression was on %s.".format(left))
 	override def toString = "%s %s %s".format(left, operand, right)
 }
 
-case class OneToOneReverseOperation[FPC, F, V](left: OneToOneReverse[FPC, F], operand: Operand, right: V) extends OpBase {
+case class OneToOneReverseOperation[FID, FPC, F, V](left: OneToOneReverse[FID, FPC, F], operand: Operand, right: V) extends OpBase {
 	if (right == null) throw new NullPointerException("Value can't be null in one-to-one FK queries. Expression was on %s.".format(left))
 	override def toString = "%s %s %s".format(left, operand, right)
 }

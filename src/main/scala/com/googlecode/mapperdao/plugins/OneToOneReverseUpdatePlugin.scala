@@ -14,11 +14,12 @@ import com.googlecode.mapperdao.UpdateEntityMap
 import com.googlecode.mapperdao.UpdateExternalOneToOneReverse
 import com.googlecode.mapperdao.UpdateInfo
 import com.googlecode.mapperdao.ValuesMap
+import com.googlecode.mapperdao.DeclaredIds
 
 class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeManager, driver: Driver, mapperDao: MapperDaoImpl) extends DuringUpdate with PostUpdate {
 	private val emptyDUR = new DuringUpdateResults(Nil, Nil)
 
-	override def during[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o1: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
+	override def during[PC <: DeclaredIds[_], T](updateConfig: UpdateConfig, entity: Entity[PC, T], o1: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
 			val UpdateInfo(parent, parentColumnInfo, parentEntity) = entityMap.peek[Any, Any, T, Any, Any]
 			if (parent != null) {
@@ -31,7 +32,7 @@ class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeM
 			} else emptyDUR
 		}
 
-	def after[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
+	def after[PC <: DeclaredIds[_], T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table

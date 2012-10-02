@@ -25,9 +25,9 @@ private[mapperdao] class LazyLoadManager {
 
 	type CacheKey = (Class[_], LazyLoad)
 
-	private val classCache = new scala.collection.mutable.HashMap[CacheKey, (Class[_], Map[String, ColumnInfoRelationshipBase[_, Any, Any, Any]])]
+	private val classCache = new scala.collection.mutable.HashMap[CacheKey, (Class[_], Map[String, ColumnInfoRelationshipBase[_, Any, Any, Any, Any]])]
 
-	def proxyFor[PC, T](constructed: T with PC, entity: Entity[PC, T], lazyLoad: LazyLoad, vm: ValuesMap): T with PC = {
+	def proxyFor[ID, PC, T](constructed: T with PC, entity: Entity[ID, PC, T], lazyLoad: LazyLoad, vm: ValuesMap): T with PC = {
 		if (constructed == null) throw new NullPointerException("constructed can't be null")
 
 		val clz = entity.clz
@@ -50,7 +50,7 @@ private[mapperdao] class LazyLoadManager {
 				val proxyClz = createProxyClz(constructedClz, clz, methods)
 
 				val methodToCI = lazyRelationships.map { ci =>
-					(ci.getterMethod.get.getterMethod.getName, ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, Any]])
+					(ci.getterMethod.get.getterMethod.getName, ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, Any, Any]])
 				}.toMap
 				val r = (proxyClz, methodToCI)
 				classCache.put(key, r)
@@ -71,10 +71,10 @@ private[mapperdao] class LazyLoadManager {
 
 		// memory optimization for unlinked entities
 		val toLazyLoad = ListMap.empty ++ lazyRelationships.map { ci =>
-			(ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, Any]], vm.columnValue[() => Any](ci))
+			(ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, Any, Any]], vm.columnValue[() => Any](ci))
 		}.toMap
 
-		val llpm = new LazyLoadProxyMethod[T](toLazyLoad, methodToCI.asInstanceOf[Map[String, ColumnInfoRelationshipBase[T, Any, Any, Any]]])
+		val llpm = new LazyLoadProxyMethod[T](toLazyLoad, methodToCI.asInstanceOf[Map[String, ColumnInfoRelationshipBase[T, Any, Any, Any, Any]]])
 		llpm.mapperDaoValuesMap = vm
 		instance.methodImplementation(llpm)
 		instance
@@ -119,7 +119,7 @@ private[mapperdao] class LazyLoadManager {
 	private def hasIntId(clz: Class[_]) = classOf[SurrogateIntId].isAssignableFrom(clz)
 	private def hasLongId(clz: Class[_]) = classOf[SurrogateLongId].isAssignableFrom(clz)
 
-	def isLazyLoaded[PC, T](lazyLoad: LazyLoad, entity: Entity[PC, T]) =
+	def isLazyLoaded(lazyLoad: LazyLoad, entity: Entity[_, _, _]) =
 		(lazyLoad.all || lazyLoad.isAnyColumnLazyLoaded(entity.tpe.table.relationshipColumnInfos.toSet)) && !entity.tpe.table.relationshipColumnInfos.isEmpty
 }
 

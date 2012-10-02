@@ -13,6 +13,7 @@ import com.googlecode.mapperdao.UpdateConfig
 import com.googlecode.mapperdao.UpdateEntityMap
 import com.googlecode.mapperdao.UpdateExternalManyToMany
 import com.googlecode.mapperdao.ValuesMap
+import com.googlecode.mapperdao.DeclaredIds
 
 /**
  * @author kostantinos.kougios
@@ -21,7 +22,7 @@ import com.googlecode.mapperdao.ValuesMap
  */
 class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends PostUpdate {
 
-	override def after[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
+	override def after[PC <: DeclaredIds[_], T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table

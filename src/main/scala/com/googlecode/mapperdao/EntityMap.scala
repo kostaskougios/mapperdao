@@ -12,8 +12,8 @@ import scala.collection.mutable.{ HashMap => TMap }
  * 7 Aug 2011
  */
 private[mapperdao] case class EntityMap(
-	private val m: TMap[List[Any], Option[_]] = TMap(),
-	private val parent: SelectInfo[_, _, _, _, _] = SelectInfo(null, null, null)) {
+		private val m: TMap[List[Any], Option[_]] = TMap(),
+		private val parent: SelectInfo[_, _, _, _, _, _, _] = SelectInfo(null, null, null)) {
 
 	protected def key(clz: Class[_], ids: List[Any]) = clz :: ids
 
@@ -48,16 +48,16 @@ private[mapperdao] case class EntityMap(
 		}.asInstanceOf[Option[T]]
 	}
 
-	def down[PC, T, V, FPC, F](selectConfig: SelectConfig, tpe: Type[PC, T], ci: ColumnInfoRelationshipBase[T, V, FPC, F], dv: DatabaseValues): EntityMap =
+	def down[ID, PC, T, V, FID, FPC, F](selectConfig: SelectConfig, tpe: Type[ID, PC, T], ci: ColumnInfoRelationshipBase[T, V, FID, FPC, F], dv: DatabaseValues): EntityMap =
 		copy(parent = SelectInfo(tpe, ci, dv))
 
-	def peek[PC, T, V, FPC, F] =
-		parent.asInstanceOf[SelectInfo[PC, T, V, FPC, F]]
+	def peek[ID, PC, T, V, FID, FPC, F] =
+		parent.asInstanceOf[SelectInfo[ID, PC, T, V, FID, FPC, F]]
 
 	override def toString = "EntityMapImpl(%s)".format(m.toString)
 }
 
-protected case class SelectInfo[PC, T, V, FPC, F](
-	val tpe: Type[PC, T],
-	val ci: ColumnInfoRelationshipBase[T, V, FPC, F],
+protected case class SelectInfo[ID, PC, T, V, FID, FPC, F](
+	val tpe: Type[ID, PC, T],
+	val ci: ColumnInfoRelationshipBase[T, V, FID, FPC, F],
 	val databaseValues: DatabaseValues)

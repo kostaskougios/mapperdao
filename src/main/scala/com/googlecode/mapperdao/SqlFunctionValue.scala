@@ -83,8 +83,8 @@ class SqlFunctionArg[V](val v: Any)
 object SqlFunctionArg {
 	implicit def anyToArg[T](v: T) = new SqlFunctionArg[T](v)
 	implicit def columnInfoToArg[T](v: ColumnInfo[_, T]) = new SqlFunctionArg[T](v)
-	implicit def columnInfoManyToOneToArg[V, T, FPC, FT](v: ColumnInfoManyToOne[T, FPC, FT]) = new SqlFunctionArg[V](v)
-	implicit def columnInfoOneToOneToArg[V, T, FPC, FT](v: ColumnInfoOneToOne[T, FPC, FT]) = new SqlFunctionArg[V](v)
+	implicit def columnInfoManyToOneToArg[V, T, FID, FPC, FT](v: ColumnInfoManyToOne[T, FID, FPC, FT]) = new SqlFunctionArg[V](v)
+	implicit def columnInfoOneToOneToArg[V, T, FID, FPC, FT](v: ColumnInfoOneToOne[T, FID, FPC, FT]) = new SqlFunctionArg[V](v)
 
 	// function implicits
 	implicit def functionToArg[R](v: SqlFunctionValue[R]) = new SqlFunctionArg[R](v)

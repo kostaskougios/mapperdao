@@ -5,6 +5,7 @@ import com.googlecode.mapperdao.MapperDaoImpl
 import com.googlecode.mapperdao.EntityMap
 import com.googlecode.mapperdao.SelectConfig$
 import com.googlecode.mapperdao.SelectConfig
+import com.googlecode.mapperdao.DeclaredIds
 
 /**
  * @author kostantinos.kougios

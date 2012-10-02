@@ -12,7 +12,11 @@ import java.util.concurrent.ConcurrentHashMap
  */
 private[mapperdao] class ParQueryRunStrategy extends QueryRunStrategy {
 
-	override def run[PC, T](mapperDao: MapperDaoImpl, entity: Entity[PC, T], queryConfig: QueryConfig, lm: List[DatabaseValues]) = {
+	override def run[ID, PC <: DeclaredIds[ID], T](
+		mapperDao: MapperDaoImpl,
+		entity: Entity[ID, PC, T],
+		queryConfig: QueryConfig,
+		lm: List[DatabaseValues]) = {
 		// a global cache for fully loaded entities
 		val globalL1 = new ConcurrentHashMap[List[Any], Option[_]]
 		val selectConfig = SelectConfig.from(queryConfig)

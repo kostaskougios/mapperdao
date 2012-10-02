@@ -34,7 +34,7 @@ class Oracle(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: Ty
 		case PK(columnName, true, sequence, _) => "%s.nextval".format(sequence.get)
 	}
 
-	override def beforeStartOfQuery[PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T], columns: List[SimpleColumn]) =
+	override def beforeStartOfQuery[ID, PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]) =
 		if (queryConfig.offset.isDefined || queryConfig.limit.isDefined) {
 			val nq = new sqlBuilder.SqlSelectBuilder
 			nq.columnNames(null, List("*"))
@@ -51,7 +51,7 @@ class Oracle(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: Ty
 
 	private val rn = Column("rn$", classOf[Long])
 	private val rownum = Column("rownum", classOf[Long])
-	override def endOfQuery[PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
+	override def endOfQuery[ID, PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]) =
 		if (queryConfig.offset.isDefined || queryConfig.limit.isDefined) {
 			val offset = queryConfig.offset.getOrElse(0l)
 

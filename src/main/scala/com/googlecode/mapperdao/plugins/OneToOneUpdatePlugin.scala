@@ -9,6 +9,7 @@ import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.UpdateConfig
 import com.googlecode.mapperdao.UpdateEntityMap
 import com.googlecode.mapperdao.ValuesMap
+import com.googlecode.mapperdao.DeclaredIds
 
 /**
  * @author kostantinos.kougios
@@ -18,7 +19,7 @@ import com.googlecode.mapperdao.ValuesMap
 class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends DuringUpdate {
 	private val nullList = List(null, null, null, null, null)
 
-	def during[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
+	def during[PC <: DeclaredIds[_], T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table

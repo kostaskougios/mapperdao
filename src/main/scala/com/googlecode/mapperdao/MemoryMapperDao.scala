@@ -32,7 +32,7 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 	private val m = new ConcurrentHashMap[List[Any], Persisted]
 
 	// insert
-	def insert[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T): T with PC =
+	override def insert[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T): T with PC =
 		{
 			if (o == null) throw new NullPointerException("o must not be null")
 			if (entity == null) throw new NullPointerException("entity must not be null")
@@ -58,7 +58,7 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 		}
 
 	// update
-	def update[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC): T with PC = {
+	override def update[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T with PC): T with PC = {
 		if (o == null) throw new NullPointerException("o must not be null")
 		if (entity == null) throw new NullPointerException("entity must not be null")
 		val tpe = entity.tpe
@@ -71,7 +71,7 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 		e
 	}
 	// update immutable
-	def update[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T with PC, newO: T): T with PC = {
+	override def update[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T with PC, newO: T): T with PC = {
 		if (o == null) throw new NullPointerException("o must not be null")
 		if (entity == null) throw new NullPointerException("entity must not be null")
 		val tpe = entity.tpe
@@ -86,7 +86,7 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 	}
 
 	// select
-	override def select[ID, PC <: DeclaredIds[ID], T](selectConfig: SelectConfig, entity: Entity[PC, T], id: ID) =
+	override def select[ID, PC <: DeclaredIds[ID], T](selectConfig: SelectConfig, entity: Entity[ID, PC, T], id: ID) =
 		{
 			val ids = Helpers.idToList(id)
 			val key = entity.clz :: ids
@@ -99,7 +99,7 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 		}
 
 	// delete
-	override def delete[PC, T](deleteConfig: DeleteConfig, entity: Entity[PC, T], o: T with PC): T = {
+	override def delete[ID, PC <: DeclaredIds[ID], T](deleteConfig: DeleteConfig, entity: Entity[ID, PC, T], o: T with PC): T = {
 		val tpe = entity.tpe
 		val table = tpe.table
 		val pks = table.toListOfPrimaryKeyValues(o)
@@ -108,7 +108,7 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 		o
 	}
 
-	override def delete[ID, PC <: DeclaredIds[ID], T](entity: Entity[PC, T], id: ID): Unit = {
+	override def delete[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T], id: ID): Unit = {
 		val ids = Helpers.idToList(id)
 		val tpe = entity.tpe
 		val table = tpe.table
@@ -121,7 +121,7 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 	override def merge[ID, PC <: DeclaredIds[ID], T](
 		selectConfig: SelectConfig,
 		updateConfig: UpdateConfig,
-		entity: Entity[PC, T],
+		entity: Entity[ID, PC, T],
 		o: T,
 		ids: ID): T with PC = NYI()
 

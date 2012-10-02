@@ -12,6 +12,7 @@ import com.googlecode.mapperdao.SelectExternalManyToMany
 import com.googlecode.mapperdao.Type
 import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.DatabaseValues
+import com.googlecode.mapperdao.DeclaredIds
 
 /**
  * @author kostantinos.kougios
@@ -20,14 +21,15 @@ import com.googlecode.mapperdao.DatabaseValues
  */
 class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect with SelectMock {
 
-	override def idContribution[PC, T](tpe: Type[PC, T], om: DatabaseValues, entities: EntityMap) = Nil
+	override def idContribution[PC <: DeclaredIds[_], T](tpe: Type[PC, T], om: DatabaseValues, entities: EntityMap) = Nil
 
-	override def before[PC, T](entity: Entity[PC, T], selectConfig: SelectConfig, om: DatabaseValues, entities: EntityMap) =
+	override def before[PC <: DeclaredIds[_], T](entity: Entity[PC, T], selectConfig: SelectConfig, om: DatabaseValues, entities: EntityMap) =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
 			// many to many
-			table.manyToManyColumnInfos.map { ci =>
+			table.manyToManyColumnInfos.map { ciu =>
+				val ci = ciu.asInstanceOf[ColumnInfoTraversableManyToMany[T, DeclaredIds[_], _]]
 				val mtmR = if (selectConfig.skip(ci)) {
 					() => Nil
 				} else {
@@ -58,7 +60,7 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 			}
 		}
 
-	override def updateMock[PC, T](entity: Entity[PC, T], mods: scala.collection.mutable.Map[String, Any]) {
+	override def updateMock[PC <: DeclaredIds[_], T](entity: Entity[PC, T], mods: scala.collection.mutable.Map[String, Any]) {
 		mods ++= entity.tpe.table.manyToManyColumns.map(c => (c.alias -> List()))
 	}
 }

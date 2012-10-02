@@ -11,14 +11,23 @@ import com.googlecode.mapperdao.TypeManager
 import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.UpdateConfig
 import com.googlecode.mapperdao.UpdateEntityMap
+import com.googlecode.mapperdao.DeclaredIds
+import com.googlecode.mapperdao.DeclaredIds
 
 /**
  * @author kostantinos.kougios
  *
  * 31 Aug 2011
  */
-class ManyToManyInsertPlugin(typeManager: TypeManager, typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends PostInsert {
-	override def after[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): Unit =
+class ManyToManyInsertPlugin(typeManager: TypeManager, typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl)
+		extends PostInsert {
+	override def after[PC <: DeclaredIds[_], T](
+		updateConfig: UpdateConfig,
+		entity: Entity[PC, T],
+		o: T, mockO: T with PC,
+		entityMap: UpdateEntityMap,
+		modified: scala.collection.mutable.Map[String, Any],
+		modifiedTraversables: MapOfList[String, Any]): Unit =
 		{
 			val table = entity.tpe.table
 			// many to many

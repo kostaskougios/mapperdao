@@ -33,7 +33,7 @@ class H2(override val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManage
 		case PK(columnName, true, sequence, _) => "NEXTVAL('%s')".format(sequence.get)
 	}
 
-	override def endOfQuery[PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[PC, T]) =
+	override def endOfQuery[ID, PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]) =
 		{
 			queryConfig.limit.foreach(l => q.appendSql("limit " + l))
 			queryConfig.offset.foreach { o =>

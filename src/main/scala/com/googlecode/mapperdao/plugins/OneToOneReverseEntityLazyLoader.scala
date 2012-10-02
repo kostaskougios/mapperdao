@@ -6,13 +6,14 @@ import com.googlecode.mapperdao.MapperDaoImpl
 import com.googlecode.mapperdao.SelectConfig
 import com.googlecode.mapperdao.DatabaseValues
 import com.googlecode.mapperdao.EntityMap
+import com.googlecode.mapperdao.DeclaredIds
 
 /**
  * @author kostantinos.kougios
  *
  * 29 May 2012
  */
-class OneToOneReverseEntityLazyLoader[PC, T](
+class OneToOneReverseEntityLazyLoader[PC <: DeclaredIds[_], T](
 		selectConfig: SelectConfig,
 		mapperDao: MapperDaoImpl,
 		entity: Entity[PC, T],

@@ -6,6 +6,7 @@ import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.utils.Helpers
 import com.googlecode.mapperdao.events.Events
+import com.googlecode.mapperdao.DeclaredIds
 
 /**
  * @author kostantinos.kougios
@@ -14,7 +15,7 @@ import com.googlecode.mapperdao.events.Events
  */
 class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends DuringUpdate {
 
-	override def during[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
+	override def during[PC <: DeclaredIds[_], T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table

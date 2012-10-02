@@ -4,7 +4,7 @@ case class UpdateConfig(
 	/**
 	 * skip updating related configs, i.e. Set(ProductEntity.attributes)
 	 */
-	skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
+	skip: Set[ColumnInfoRelationshipBase[_, _, _, _, _]] = Set(),
 	/**
 	 * some updates require deleting related data. This deleteConfig will be used
 	 */
