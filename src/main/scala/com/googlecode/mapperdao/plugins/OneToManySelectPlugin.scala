@@ -16,7 +16,7 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 	override def idContribution[ID, PC, T](tpe: Type[ID, PC, T], om: DatabaseValues, entities: EntityMap) = {
 		val peek = entities.peek[ID, PC, T, Traversable[Any], Any, DeclaredIds[Any], Any]
 		peek.ci match {
-			case ci: ColumnInfoTraversableOneToMany[T, Any, DeclaredIds[Any], Any] =>
+			case ci: ColumnInfoTraversableOneToMany[_, _, T, Any, DeclaredIds[Any], Any] =>
 				val parentTable = peek.tpe.table
 				val parentValues = peek.databaseValues
 				val ids = ci.column.columns zip parentTable.primaryKeys.map { column => parentValues(column.name) }
@@ -41,7 +41,7 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 								val ids = table.primaryKeys.map { pk =>
 									om(pk.name)
 								}
-								ee.oneToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, _, Any]])(SelectExternalOneToMany(selectConfig, ids))
+								ee.oneToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, _, _, _, Any]])(SelectExternalOneToMany(selectConfig, ids))
 							}
 						case _: Entity[Any, DeclaredIds[Any], Any] =>
 							// try to capture as few variables as possible

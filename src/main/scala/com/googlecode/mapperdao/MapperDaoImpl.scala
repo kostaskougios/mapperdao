@@ -346,7 +346,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 											val fentity = foreign.entity
 											val ftable = fentity.tpe.table
 											ci.column.columns zip ftable.toListOfPrimaryKeyValues(v)
-										case ci: ColumnInfoTraversableOneToMany[Any, Any, Any, Any] =>
+										case ci: ColumnInfoTraversableOneToMany[_, _, Any, Any, Any, Any] =>
 											val fentity = ci.entityOfT
 											val ftable = fentity.tpe.table
 											ci.column.columns zip ftable.toListOfPrimaryKeyValues(v)
@@ -433,7 +433,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 					(ci.column.alias, if (ll) Nil else vm.valueOf(ci))
 				case mto: ColumnInfoManyToOne[_, _, _, _] =>
 					(ci.column.alias, if (ll) null else vm.valueOf(ci))
-				case mtm: ColumnInfoTraversableOneToMany[_, _, _, _] =>
+				case mtm: ColumnInfoTraversableOneToMany[_, _, _, _, _, _] =>
 					(ci.column.alias, if (ll) Nil else vm.valueOf(ci))
 				case otor: ColumnInfoOneToOneReverse[_, _, _, _] =>
 					(ci.column.alias, if (ll) null else vm.valueOf(ci))

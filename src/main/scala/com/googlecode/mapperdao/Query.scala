@@ -84,20 +84,22 @@ object Query {
 	/**
 	 * manages one-to-many expressions
 	 */
-	protected class ConvertorOneToMany[T, FID, FPC, F](ci: ColumnInfoTraversableOneToMany[T, FID, FPC, F]) {
+	protected class ConvertorOneToMany[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](
+			ci: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F]) {
 		def ===(v: F) = new OneToManyOperation(ci.column, EQ(), v)
 		def <>(v: F) = new OneToManyOperation(ci.column, NE(), v)
 	}
-	implicit def columnInfoOneToManyOperation[T, FID, FPC, F](ci: ColumnInfoTraversableOneToMany[T, FID, FPC, F]) = new ConvertorOneToMany[T, FID, FPC, F](ci)
+	implicit def columnInfoOneToManyOperation[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](
+		ci: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F]) = new ConvertorOneToMany(ci)
 
-	protected class ConvertorOneToManyDeclaredPrimaryKey[F, TID, TPC, T](
-			ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[F, TID, TPC, T]) {
+	protected class ConvertorOneToManyDeclaredPrimaryKey[FID, FPC <: DeclaredIds[FID], F, TID, TPC <: DeclaredIds[TID], T](
+			ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[FID, FPC, F, TID, TPC, T]) {
 		def ===(v: F) = new OneToManyDeclaredPrimaryKeyOperation(ci.declaredColumnInfo.column, EQ(), v, ci.declaredColumnInfo.entityOfT)
 		def <>(v: F) = new OneToManyDeclaredPrimaryKeyOperation(ci.declaredColumnInfo.column, NE(), v, ci.declaredColumnInfo.entityOfT)
 	}
-	implicit def columnInfoOneToManyForDeclaredPrimaryKeyOperation[F, TID, TPC, T](
-		ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[F, TID, TPC, T]) =
-		new ConvertorOneToManyDeclaredPrimaryKey[F, TID, TPC, T](ci)
+	implicit def columnInfoOneToManyForDeclaredPrimaryKeyOperation[FID, FPC <: DeclaredIds[FID], F, TID, TPC <: DeclaredIds[TID], T](
+		ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[FID, FPC, F, TID, TPC, T]) =
+		new ConvertorOneToManyDeclaredPrimaryKey[FID, FPC, F, TID, TPC, T](ci)
 
 	/**
 	 * manages many-to-many expressions

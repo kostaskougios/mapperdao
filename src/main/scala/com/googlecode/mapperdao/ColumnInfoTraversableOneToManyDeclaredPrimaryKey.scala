@@ -10,10 +10,10 @@ package com.googlecode.mapperdao
  *
  * 17 Aug 2012
  */
-class ColumnInfoTraversableOneToManyDeclaredPrimaryKey[F, TID, TPC <: DeclaredIds[TID], T](
+class ColumnInfoTraversableOneToManyDeclaredPrimaryKey[FID, FPC <: DeclaredIds[FID], F, TID, TPC <: DeclaredIds[TID], T](
 		// due to recursing declarations of the ci's, we
 		// pass this by-name
-		ci: => ColumnInfoTraversableOneToMany[F, TID, TPC, T]) {
+		ci: => ColumnInfoTraversableOneToMany[FID, FPC, F, TID, TPC, T]) {
 	def declaredColumnInfo = ci
 }
 

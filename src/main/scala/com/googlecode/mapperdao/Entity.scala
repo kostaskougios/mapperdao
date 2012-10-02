@@ -121,7 +121,7 @@ abstract class Entity[ID, +PC <: DeclaredIds[ID], T](protected[mapperdao] val ta
 	 * to avoid StackOverflow exceptions due to cyclic-referenced entities, we pass
 	 * this as by-name param
 	 */
-	protected def declarePrimaryKey[F](ci: => ColumnInfoTraversableOneToMany[F, ID, PC, T]) = {
+	protected def declarePrimaryKey[FID, FPC <: DeclaredIds[FID], F](ci: => ColumnInfoTraversableOneToMany[FID, FPC, F, ID, PC, T]) = {
 		unusedPKs(() => ci.asInstanceOf[ColumnInfoBase[Any, Any]])
 		new ColumnInfoTraversableOneToManyDeclaredPrimaryKey(ci)
 	}
@@ -226,35 +226,35 @@ abstract class Entity[ID, +PC <: DeclaredIds[ID], T](protected[mapperdao] val ta
 	}
 
 	// one to many : Scala
-	protected implicit def columnTraversableOneToManyList[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableOneToMany[T, FID, FPC, F])(implicit m: ValuesMap): List[F] = m(ci).toList
-	protected implicit def columnTraversableOneToManySet[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableOneToMany[T, FID, FPC, F])(implicit m: ValuesMap): Set[F] = m(ci).toSet
-	protected implicit def columnTraversableOneToManyIndexedSeq[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableOneToMany[T, FID, FPC, F])(implicit m: ValuesMap): IndexedSeq[F] = m(ci).toIndexedSeq
-	protected implicit def columnTraversableOneToManyArray[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableOneToMany[T, FID, FPC, F])(implicit m: ValuesMap, e: ClassManifest[F]): Array[F] = m(ci).toArray
+	protected implicit def columnTraversableOneToManyList[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F])(implicit m: ValuesMap): List[F] = m(ci).toList
+	protected implicit def columnTraversableOneToManySet[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F])(implicit m: ValuesMap): Set[F] = m(ci).toSet
+	protected implicit def columnTraversableOneToManyIndexedSeq[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F])(implicit m: ValuesMap): IndexedSeq[F] = m(ci).toIndexedSeq
+	protected implicit def columnTraversableOneToManyArray[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F])(implicit m: ValuesMap, e: ClassManifest[F]): Array[F] = m(ci).toArray
 
 	// simple typec entities, one-to-many
-	protected implicit def columnTraversableOneToManyListStringEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[T, EID, EPC, StringValue])(implicit m: ValuesMap): List[String] =
+	protected implicit def columnTraversableOneToManyListStringEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, StringValue])(implicit m: ValuesMap): List[String] =
 		m(ci).map(_.value).toList
-	protected implicit def columnTraversableOneToManySetStringEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[T, EID, EPC, StringValue])(implicit m: ValuesMap): Set[String] =
+	protected implicit def columnTraversableOneToManySetStringEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, StringValue])(implicit m: ValuesMap): Set[String] =
 		m(ci).map(_.value).toSet
 
-	protected implicit def columnTraversableOneToManyListIntEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[T, EID, EPC, IntValue])(implicit m: ValuesMap): List[Int] =
+	protected implicit def columnTraversableOneToManyListIntEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, IntValue])(implicit m: ValuesMap): List[Int] =
 		m(ci).map(_.value).toList
-	protected implicit def columnTraversableOneToManySetIntEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[T, EID, EPC, IntValue])(implicit m: ValuesMap): Set[Int] =
+	protected implicit def columnTraversableOneToManySetIntEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, IntValue])(implicit m: ValuesMap): Set[Int] =
 		m(ci).map(_.value).toSet
 
-	protected implicit def columnTraversableOneToManyListLongEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[T, EID, EPC, LongValue])(implicit m: ValuesMap): List[Long] =
+	protected implicit def columnTraversableOneToManyListLongEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, LongValue])(implicit m: ValuesMap): List[Long] =
 		m(ci).map(_.value).toList
-	protected implicit def columnTraversableOneToManySetLongEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[T, EID, EPC, LongValue])(implicit m: ValuesMap): Set[Long] =
+	protected implicit def columnTraversableOneToManySetLongEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, LongValue])(implicit m: ValuesMap): Set[Long] =
 		m(ci).map(_.value).toSet
 
-	protected implicit def columnTraversableOneToManyListFloatEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[T, EID, EPC, FloatValue])(implicit m: ValuesMap): List[Float] =
+	protected implicit def columnTraversableOneToManyListFloatEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, FloatValue])(implicit m: ValuesMap): List[Float] =
 		m(ci).map(_.value).toList
-	protected implicit def columnTraversableOneToManySetFloatEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[T, EID, EPC, FloatValue])(implicit m: ValuesMap): Set[Float] =
+	protected implicit def columnTraversableOneToManySetFloatEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, FloatValue])(implicit m: ValuesMap): Set[Float] =
 		m(ci).map(_.value).toSet
 
-	protected implicit def columnTraversableOneToManyListDoubleEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[T, EID, EPC, DoubleValue])(implicit m: ValuesMap): List[Double] =
+	protected implicit def columnTraversableOneToManyListDoubleEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, DoubleValue])(implicit m: ValuesMap): List[Double] =
 		m(ci).map(_.value).toList
-	protected implicit def columnTraversableOneToManySetDoubleEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[T, EID, EPC, DoubleValue])(implicit m: ValuesMap): Set[Double] =
+	protected implicit def columnTraversableOneToManySetDoubleEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, DoubleValue])(implicit m: ValuesMap): Set[Double] =
 		m(ci).map(_.value).toSet
 
 	// simple typec entities, many-to-many
@@ -549,11 +549,11 @@ abstract class Entity[ID, +PC <: DeclaredIds[ID], T](protected[mapperdao] val ta
 			this
 		}
 
-		def to(columnToValue: T => Traversable[FT]): ColumnInfoTraversableOneToMany[T, FID, FPC, FT] =
+		def to(columnToValue: T => Traversable[FT]): ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, FT] =
 			{
 				if (keysDuringDeclaration.size != fkcols.size) throw new IllegalArgumentException("foreign keys declaration not correct, foreign keys %s , declared %s".format(referenced.keysDuringDeclaration, fkcols))
 				val fkeys = keysDuringDeclaration zip fkcols
-				val ci = ColumnInfoTraversableOneToMany[T, FID, FPC, FT](
+				val ci = ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, FT](
 					OneToMany(
 						TypeRef(createAlias, referenced),
 						fkeys.map {
@@ -567,22 +567,22 @@ abstract class Entity[ID, +PC <: DeclaredIds[ID], T](protected[mapperdao] val ta
 				if (!onlyForQuery) columns ::= ci else onlyForQueryColumns ::= ci
 				ci
 			}
-		def tojava(columnToValue: T => java.lang.Iterable[FT]): ColumnInfoTraversableOneToMany[T, FID, FPC, FT] =
+		def tojava(columnToValue: T => java.lang.Iterable[FT]): ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, FT] =
 			to((ctv: T) => columnToValue(ctv).asScala)
 
-		def tostring(columnToValue: T => Traversable[String]): ColumnInfoTraversableOneToMany[T, FID, FPC, FT] =
+		def tostring(columnToValue: T => Traversable[String]): ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, FT] =
 			to((t: T) => { columnToValue(t).map(StringValue(_)).asInstanceOf[Traversable[FT]] })
 
-		def toint(columnToValue: T => Traversable[Int]): ColumnInfoTraversableOneToMany[T, FID, FPC, FT] =
+		def toint(columnToValue: T => Traversable[Int]): ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, FT] =
 			to((t: T) => { columnToValue(t).map(IntValue(_)).asInstanceOf[Traversable[FT]] })
 
-		def tofloat(columnToValue: T => Traversable[Float]): ColumnInfoTraversableOneToMany[T, FID, FPC, FT] =
+		def tofloat(columnToValue: T => Traversable[Float]): ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, FT] =
 			to((t: T) => { columnToValue(t).map(FloatValue(_)).asInstanceOf[Traversable[FT]] })
 
-		def todouble(columnToValue: T => Traversable[Double]): ColumnInfoTraversableOneToMany[T, FID, FPC, FT] =
+		def todouble(columnToValue: T => Traversable[Double]): ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, FT] =
 			to((t: T) => { columnToValue(t).map(DoubleValue(_)).asInstanceOf[Traversable[FT]] })
 
-		def tolong(columnToValue: T => Traversable[Long]): ColumnInfoTraversableOneToMany[T, FID, FPC, FT] =
+		def tolong(columnToValue: T => Traversable[Long]): ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, FT] =
 			to((t: T) => { columnToValue(t).map(LongValue(_)).asInstanceOf[Traversable[FT]] })
 	}
 
@@ -650,11 +650,11 @@ abstract class Entity[ID, +PC <: DeclaredIds[ID], T](protected[mapperdao] val ta
 		case v => v.toList.asJava
 	}
 	// one to many : Java
-	protected implicit def columnTraversableOneToManyJList[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableOneToMany[T, FID, FPC, F])(implicit m: ValuesMap): java.util.List[F] = m(ci) match {
+	protected implicit def columnTraversableOneToManyJList[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F])(implicit m: ValuesMap): java.util.List[F] = m(ci) match {
 		case null => null
 		case v => v.toList.asJava
 	}
-	protected implicit def columnTraversableOneToManyJSet[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableOneToMany[T, FID, FPC, F])(implicit m: ValuesMap): java.util.Set[F] = m(ci) match {
+	protected implicit def columnTraversableOneToManyJSet[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F])(implicit m: ValuesMap): java.util.Set[F] = m(ci) match {
 		case null => null
 		case v => v.toSet.asJava
 	}

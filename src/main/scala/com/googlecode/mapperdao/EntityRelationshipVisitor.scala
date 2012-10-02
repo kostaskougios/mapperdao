@@ -33,7 +33,7 @@ abstract class EntityRelationshipVisitor[R](
 					// convert to list to avoid problems with java collections
 					val l = fo.toList.map { t => visit(ci.column.foreign.entity, t, currDepth + 1) }
 					(ci, manyToMany(ci, fo, l))
-				case ci: ColumnInfoTraversableOneToMany[Any, _, _, _] if (isLoaded(vmo, ci)) =>
+				case ci: ColumnInfoTraversableOneToMany[_, _, Any, _, _, _] if (isLoaded(vmo, ci)) =>
 					val fo = ci.columnToValue(o)
 					// convert to list to avoid problems with java collections
 					val l = fo.toList.map { t => visit(ci.column.foreign.entity, t, currDepth + 1) }
@@ -61,7 +61,7 @@ abstract class EntityRelationshipVisitor[R](
 		result
 	}
 	def manyToMany[T, F](ci: ColumnInfoTraversableManyToMany[T, _, _, F], traversable: Traversable[F], collected: Traversable[Any]): Any = {}
-	def oneToMany[T, F](ci: ColumnInfoTraversableOneToMany[T, _, _, F], traversable: Traversable[F], collected: Traversable[Any]): Any = {}
+	def oneToMany[T, F](ci: ColumnInfoTraversableOneToMany[_, _, T, _, _, F], traversable: Traversable[F], collected: Traversable[Any]): Any = {}
 	def manyToOne[T, F](ci: ColumnInfoManyToOne[T, _, _, F], foreign: F): Any = {}
 	def oneToOne[T, F](ci: ColumnInfoOneToOne[T, _, _, _], foreign: F): Any = {}
 	def oneToOneReverse[T, F](ci: ColumnInfoOneToOneReverse[T, _, _, _], foreign: F): Any = {}

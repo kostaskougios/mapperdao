@@ -11,7 +11,7 @@ class UnlinkEntityRelationshipVisitor extends EntityRelationshipVisitor(visitLaz
 	override def manyToMany[T, F](ci: ColumnInfoTraversableManyToMany[T, _, _, F], traversable: Traversable[F], collected: Traversable[Any]) = {
 		traversable.foreach(unlink(_))
 	}
-	override def oneToMany[T, F](ci: ColumnInfoTraversableOneToMany[T, _, _, F], traversable: Traversable[F], collected: Traversable[Any]) = {
+	override def oneToMany[T, F](ci: ColumnInfoTraversableOneToMany[_, _, T, _, _, F], traversable: Traversable[F], collected: Traversable[Any]) = {
 		traversable.foreach(unlink(_))
 	}
 	override def manyToOne[T, F](ci: ColumnInfoManyToOne[T, _, _, F], foreign: F) = {

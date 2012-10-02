@@ -19,7 +19,7 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 	def during[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o1: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]) = {
 		val ui = entityMap.peek[Any, DeclaredIds[Any], Any, Traversable[Any], Any, DeclaredIds[Any], Any]
 		ui.ci match {
-			case _: ColumnInfoTraversableOneToMany[Any, Any, DeclaredIds[Any], Any] =>
+			case _: ColumnInfoTraversableOneToMany[_, _, Any, Any, DeclaredIds[Any], Any] =>
 				val tpe = entity.tpe
 				val table = tpe.table
 
@@ -33,7 +33,7 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 								List((ci.column, co))
 							case ci: ColumnInfoManyToOne[T, Any, DeclaredIds[Any], Any] =>
 								ci.column.columns zip ci.column.foreign.entity.tpe.table.toListOfPrimaryKeyValues(co)
-							case ci: ColumnInfoTraversableOneToMany[Any, Any, DeclaredIds[Any], Any] =>
+							case ci: ColumnInfoTraversableOneToMany[_, _, Any, Any, DeclaredIds[Any], Any] =>
 								Nil
 							case _ => NYI()
 						}
@@ -81,7 +81,7 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 				ci.column.foreign.entity match {
 					case ee: ExternalEntity[Any, Any] =>
 
-						val handler = ee.oneToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[T, _, _, Any]])
+						val handler = ee.oneToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, T, _, _, Any]])
 							.asInstanceOf[ee.OnUpdateOneToMany[T]]
 						handler(UpdateExternalOneToMany(updateConfig, o, added, intersection.map(_._2), removed))
 						t.foreach { newItem =>

@@ -104,7 +104,7 @@ class ValuesMap private (mOrig: scala.collection.Map[String, Any])
 			valueOf[F](key)
 		}
 
-	def apply[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableOneToMany[T, FID, FPC, F]): Traversable[F] =
+	def apply[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F]): Traversable[F] =
 		{
 			val key = column.column.alias
 			valueOf[Traversable[F]](key)
@@ -161,8 +161,8 @@ class ValuesMap private (mOrig: scala.collection.Map[String, Any])
 	def mutableHashSet[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableManyToMany[T, FID, FPC, F]): scala.collection.mutable.HashSet[F] = new scala.collection.mutable.HashSet ++ apply(column)
 	def mutableLinkedList[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableManyToMany[T, FID, FPC, F]): scala.collection.mutable.LinkedList[F] = new scala.collection.mutable.LinkedList ++ apply(column)
 
-	def mutableHashSet[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableOneToMany[T, FID, FPC, F]): scala.collection.mutable.HashSet[F] = new scala.collection.mutable.HashSet ++ apply(column)
-	def mutableLinkedList[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableOneToMany[T, FID, FPC, F]): scala.collection.mutable.LinkedList[F] = new scala.collection.mutable.LinkedList ++ apply(column)
+	def mutableHashSet[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F]): scala.collection.mutable.HashSet[F] = new scala.collection.mutable.HashSet ++ apply(column)
+	def mutableLinkedList[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F]): scala.collection.mutable.LinkedList[F] = new scala.collection.mutable.LinkedList ++ apply(column)
 
 	/**
 	 * the following methods do a conversion

@@ -72,7 +72,7 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 						traversable.foreach {
 							modifiedTraversables(cName) = _
 						}
-						val handler = ee.oneToManyOnInsertMap(cis.asInstanceOf[ColumnInfoTraversableOneToMany[T, _, _, Any]])
+						val handler = ee.oneToManyOnInsertMap(cis.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, T, _, _, Any]])
 							.asInstanceOf[ee.OnInsertOneToMany[T]]
 						handler(InsertExternalOneToMany(updateConfig, o, traversable))
 

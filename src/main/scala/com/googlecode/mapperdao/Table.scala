@@ -24,7 +24,7 @@ case class Table[ID, PC <: DeclaredIds[ID], T](
 	val unusedPKs = unusedPKColumnInfos.map {
 		case ci: ColumnInfo[Any, Any] => List(ci.column)
 		case ci: ColumnInfoManyToOne[Any, Any, Any, Any] => ci.column.columns
-		case ci: ColumnInfoTraversableOneToMany[Any, Any, Any, Any] => ci.column.columns
+		case ci: ColumnInfoTraversableOneToMany[Any, Any, Any, Any, Any, Any] => ci.column.columns
 		case ci: ColumnInfoOneToOne[Any, Any, Any, Any] => ci.column.columns
 	}.flatten
 
@@ -94,8 +94,8 @@ case class Table[ID, PC <: DeclaredIds[ID], T](
 		case c: ColumnInfoOneToOneReverse[T, Any, DeclaredIds[Any], _] => c
 	}
 
-	val oneToManyColumnInfos: List[ColumnInfoTraversableOneToMany[T, Any, DeclaredIds[Any], _]] = columnInfosPlain.collect {
-		case c: ColumnInfoTraversableOneToMany[T, Any, DeclaredIds[Any], _] => c
+	val oneToManyColumnInfos: List[ColumnInfoTraversableOneToMany[ID, PC, T, Any, DeclaredIds[Any], _]] = columnInfosPlain.collect {
+		case c: ColumnInfoTraversableOneToMany[ID, PC, T, Any, DeclaredIds[Any], _] => c
 	}
 	val manyToOneColumnInfos: List[ColumnInfoManyToOne[T, Any, DeclaredIds[Any], _]] = columnInfosPlain.collect {
 		case c: ColumnInfoManyToOne[T, Any, DeclaredIds[Any], _] => c
@@ -111,8 +111,8 @@ case class Table[ID, PC <: DeclaredIds[ID], T](
 		case c: ColumnInfoTraversableManyToMany[T, _, _, _] => (c.column, c)
 	}.toMap
 
-	val oneToManyToColumnInfoMap: Map[ColumnBase, ColumnInfoTraversableOneToMany[T, _, DeclaredIds[Any], _]] = columnInfosPlain.collect {
-		case c: ColumnInfoTraversableOneToMany[T, _, DeclaredIds[Any], _] => (c.column, c)
+	val oneToManyToColumnInfoMap: Map[ColumnBase, ColumnInfoTraversableOneToMany[ID, PC, T, _, DeclaredIds[Any], _]] = columnInfosPlain.collect {
+		case c: ColumnInfoTraversableOneToMany[ID, PC, T, _, DeclaredIds[Any], _] => (c.column, c)
 	}.toMap
 
 	def toListOfPrimaryKeyValues(o: T): List[Any] = toListOfPrimaryKeyAndValueTuples(o).map(_._2)
@@ -129,7 +129,7 @@ case class Table[ID, PC <: DeclaredIds[ID], T](
 					val fe = ci.column.foreign.entity
 					val pks = fe.tpe.table.toListOfPrimaryKeyValues(l)
 					ci.column.columns zip pks
-				case ci: ColumnInfoTraversableOneToMany[Any, Any, Any, Any] =>
+				case ci: ColumnInfoTraversableOneToMany[Any, Any, Any, Any, Any, Any] =>
 					o match {
 						case p: Persisted =>
 							ci.column.columns map { c =>

@@ -19,7 +19,7 @@ class OneToManyEntityLazyLoader[ID, PC <: DeclaredIds[ID], T, FID, FPC <: Declar
 	entity: Entity[ID, PC, T],
 	down: EntityMap,
 	om: DatabaseValues,
-	ci: ColumnInfoTraversableOneToMany[T, FID, FPC, F])
+	ci: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F])
 		extends LazyLoader {
 
 	private val m = om.map
