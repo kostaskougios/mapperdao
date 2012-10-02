@@ -12,11 +12,11 @@ import com.googlecode.mapperdao.DeclaredIds
  *
  * 29 May 2012
  */
-class OneToOneEntityLazyLoader[T](
+class OneToOneEntityLazyLoader[T, FID, FPC <: DeclaredIds[FID], F](
 		selectConfig: SelectConfig,
 		mapperDao: MapperDaoImpl,
 		down: EntityMap,
-		ci: ColumnInfoOneToOne[T, _, _],
+		ci: ColumnInfoOneToOne[T, FID, FPC, F],
 		foreignKeyValues: List[Any]) extends (() => Any) {
 	def apply =
 		{

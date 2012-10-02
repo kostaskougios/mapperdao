@@ -22,12 +22,19 @@ import com.googlecode.mapperdao.DeclaredIds
  */
 class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeInsert with PostInsert {
 
-	override def before[PPC <: DeclaredIds[_], PT, PC <: DeclaredIds[_], T, V, FPC <: DeclaredIds[_], F](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], updateInfo: UpdateInfo[PPC, PT, V, FPC, F]): List[(Column, Any)] =
+	override def before[PID, PPC <: DeclaredIds[PID], PT, ID, PC <: DeclaredIds[ID], T, V, FID, FPC <: DeclaredIds[FID], F](
+		updateConfig: UpdateConfig,
+		entity: Entity[ID, PC, T],
+		o: T,
+		mockO: T with PC,
+		entityMap: UpdateEntityMap,
+		modified: scala.collection.mutable.Map[String, Any],
+		updateInfo: UpdateInfo[PID, PPC, PT, V, FID, FPC, F]): List[(Column, Any)] =
 		{
 			val UpdateInfo(parent, parentColumnInfo, parentEntity) = updateInfo
 			if (parent != null)
 				parentColumnInfo.column match {
-					case oto: OneToOneReverse[FPC, F] =>
+					case oto: OneToOneReverse[FID, FPC, F] =>
 						val parentTpe = parentEntity.tpe
 						val parentTable = parentTpe.table
 						val parentKeysAndValues = parent.asInstanceOf[Persisted].mapperDaoValuesMap.toListOfColumnAndValueTuple(parentTable.primaryKeys)
@@ -37,7 +44,14 @@ class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperD
 			else Nil
 		}
 
-	override def after[PC, T](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): Unit =
+	override def after[ID, PC, T](
+		updateConfig: UpdateConfig,
+		entity: Entity[ID, PC, T],
+		o: T,
+		mockO: T with PC,
+		entityMap: UpdateEntityMap,
+		modified: scala.collection.mutable.Map[String, Any],
+		modifiedTraversables: MapOfList[String, Any]): Unit =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
@@ -45,16 +59,16 @@ class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperD
 			table.oneToOneReverseColumnInfos.foreach { cis =>
 
 				cis.column.foreign.entity match {
-					case ee: ExternalEntity[Any] =>
+					case ee: ExternalEntity[Any, Any] =>
 						val fo = cis.columnToValue(o)
 						modified(cis.column.alias) = fo
-						val handler = ee.oneToOneOnInsertMap(cis.asInstanceOf[ColumnInfoOneToOneReverse[T, _, Any]]).asInstanceOf[ee.OnInsertOneToOneReverse[T]]
+						val handler = ee.oneToOneOnInsertMap(cis.asInstanceOf[ColumnInfoOneToOneReverse[T, _, _, Any]]).asInstanceOf[ee.OnInsertOneToOneReverse[T]]
 						handler(InsertExternalOneToOneReverse(updateConfig, o, fo))
-					case fe: Entity[Any, Any] =>
+					case fe: Entity[Any, DeclaredIds[Any], Any] =>
 						val fo = cis.columnToValue(o)
 						val v = fo match {
 							case null => null
-							case p: Persisted =>
+							case p: DeclaredIds[Any] =>
 								entityMap.down(mockO, cis, entity)
 								val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
 								entityMap.up

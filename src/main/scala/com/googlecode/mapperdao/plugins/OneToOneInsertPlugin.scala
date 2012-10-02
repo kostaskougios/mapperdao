@@ -17,20 +17,27 @@ import com.googlecode.mapperdao.DeclaredIds
  */
 class OneToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeInsert {
 
-	override def before[PPC <: DeclaredIds[_], PT, PC <: DeclaredIds[_], T, V, FPC <: DeclaredIds[_], F](updateConfig: UpdateConfig, entity: Entity[PC, T], o: T, mockO: T with PC, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], updateInfo: UpdateInfo[PPC, PT, V, FPC, F]): List[(Column, Any)] =
+	override def before[PID, PPC <: DeclaredIds[PID], PT, ID, PC <: DeclaredIds[ID], T, V, FID, FPC <: DeclaredIds[FID], F](
+		updateConfig: UpdateConfig,
+		entity: Entity[ID, PC, T],
+		o: T,
+		mockO: T with PC,
+		entityMap: UpdateEntityMap,
+		modified: scala.collection.mutable.Map[String, Any],
+		updateInfo: UpdateInfo[PID, PPC, PT, V, FID, FPC, F]): List[(Column, Any)] =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
 			// one-to-one
 			table.oneToOneColumnInfos.map { cis =>
-				val fe = cis.column.foreign.entity.asInstanceOf[Entity[Any, Any]]
+				val fe = cis.column.foreign.entity.asInstanceOf[Entity[Any, DeclaredIds[Any], Any]]
 				val ftpe = fe.tpe
 				val fo = cis.columnToValue(o)
 				var l: List[(Column, Any)] = null
 				val v = if (fo != null) {
 					val r = fo match {
 						case null => null
-						case p: Persisted =>
+						case p: DeclaredIds[Any] =>
 							entityMap.down(o, cis, entity)
 							val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
 							entityMap.up

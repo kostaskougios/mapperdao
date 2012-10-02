@@ -87,11 +87,11 @@ case class Table[ID, PC <: DeclaredIds[ID], T](
 		case c: ManyToMany[Any, Any, Any] => c
 	}
 
-	val oneToOneColumnInfos: List[ColumnInfoOneToOne[T, _, DeclaredIds[Any], _]] = columnInfosPlain.collect {
-		case c: ColumnInfoOneToOne[T, _, DeclaredIds[Any], _] => c
+	val oneToOneColumnInfos: List[ColumnInfoOneToOne[T, Any, DeclaredIds[Any], _]] = columnInfosPlain.collect {
+		case c: ColumnInfoOneToOne[T, Any, DeclaredIds[Any], _] => c
 	}
-	val oneToOneReverseColumnInfos: List[ColumnInfoOneToOneReverse[T, _, DeclaredIds[Any], _]] = columnInfosPlain.collect {
-		case c: ColumnInfoOneToOneReverse[T, _, DeclaredIds[Any], _] => c
+	val oneToOneReverseColumnInfos: List[ColumnInfoOneToOneReverse[T, Any, DeclaredIds[Any], _]] = columnInfosPlain.collect {
+		case c: ColumnInfoOneToOneReverse[T, Any, DeclaredIds[Any], _] => c
 	}
 
 	val oneToManyColumnInfos: List[ColumnInfoTraversableOneToMany[T, Any, DeclaredIds[Any], _]] = columnInfosPlain.collect {

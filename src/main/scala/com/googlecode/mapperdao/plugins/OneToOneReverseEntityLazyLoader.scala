@@ -13,13 +13,13 @@ import com.googlecode.mapperdao.DeclaredIds
  *
  * 29 May 2012
  */
-class OneToOneReverseEntityLazyLoader[PC <: DeclaredIds[_], T](
+class OneToOneReverseEntityLazyLoader[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](
 		selectConfig: SelectConfig,
 		mapperDao: MapperDaoImpl,
-		entity: Entity[PC, T],
+		entity: Entity[ID, PC, T],
 		om: DatabaseValues,
 		down: EntityMap,
-		ci: ColumnInfoOneToOneReverse[T, _, _]) extends (() => Any) {
+		ci: ColumnInfoOneToOneReverse[T, FID, FPC, F]) extends (() => Any) {
 	def apply =
 		{
 			val tpe = entity.tpe
