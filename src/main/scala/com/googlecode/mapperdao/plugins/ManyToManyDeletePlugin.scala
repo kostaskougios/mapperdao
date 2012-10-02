@@ -6,9 +6,18 @@ import com.googlecode.mapperdao._
 
 class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDaoImpl) extends BeforeDelete {
 
-	override def idColumnValueContribution[ID, PC, T](tpe: Type[ID, PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, entityMap: UpdateEntityMap): List[(SimpleColumn, Any)] = Nil
+	override def idColumnValueContribution[ID, PC <: DeclaredIds[ID], T](
+		tpe: Type[ID, PC, T],
+		deleteConfig: DeleteConfig,
+		events: Events, o: T with PC,
+		entityMap: UpdateEntityMap): List[(SimpleColumn, Any)] = Nil
 
-	override def before[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, keyValues: List[(ColumnBase, Any)], entityMap: UpdateEntityMap) =
+	override def before[ID, PC <: DeclaredIds[ID], T](
+		entity: Entity[ID, PC, T],
+		deleteConfig: DeleteConfig,
+		events: Events, o: T with PC,
+		keyValues: List[(ColumnBase, Any)],
+		entityMap: UpdateEntityMap) =
 		if (deleteConfig.propagate) {
 			val tpe = entity.tpe
 			tpe.table.manyToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach { ci =>

@@ -10,7 +10,10 @@ import com.googlecode.mapperdao._
  */
 class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect with SelectMock {
 
-	override def idContribution[ID, PC, T](tpe: Type[ID, PC, T], om: DatabaseValues, entities: EntityMap) = Nil
+	override def idContribution[ID, PC <: DeclaredIds[ID], T](
+		tpe: Type[ID, PC, T],
+		om: DatabaseValues,
+		entities: EntityMap) = Nil
 
 	override def before[ID, PC <: DeclaredIds[ID], T](
 		entity: Entity[ID, PC, T],
@@ -38,7 +41,9 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 			}
 		}
 
-	override def updateMock[ID, PC, T](entity: Entity[ID, PC, T], mods: scala.collection.mutable.Map[String, Any]) {
+	override def updateMock[ID, PC <: DeclaredIds[ID], T](
+		entity: Entity[ID, PC, T],
+		mods: scala.collection.mutable.Map[String, Any]) {
 		mods ++= entity.tpe.table.oneToOneColumns.map(c => (c.alias -> null))
 	}
 }

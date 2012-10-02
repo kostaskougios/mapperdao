@@ -51,7 +51,7 @@ import com.googlecode.mapperdao.utils.LazyActions
  *
  * 13 Aug 2011
  */
-abstract class Entity[ID, +PC <: DeclaredIds[ID], T](protected[mapperdao] val table: String, protected[mapperdao] val clz: Class[T]) {
+abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val table: String, protected[mapperdao] val clz: Class[T]) {
 
 	def this(table: String)(implicit m: ClassManifest[T]) = this(table, m.erasure.asInstanceOf[Class[T]])
 	def this()(implicit m: ClassManifest[T]) = this(m.erasure.getSimpleName, m.erasure.asInstanceOf[Class[T]])

@@ -13,8 +13,8 @@ import com.googlecode.classgenerator._
  * 26 May 2012
  */
 protected class LazyLoadProxyMethod[T](
-	private var toLazyLoad: scala.collection.mutable.Map[ColumnInfoRelationshipBase[T, Any, Any, Any, Any], () => Any],
-	private var methodToCI: Map[String, ColumnInfoRelationshipBase[T, Any, Any, Any, Any]])
+	private var toLazyLoad: scala.collection.mutable.Map[ColumnInfoRelationshipBase[T, Any, Any, DeclaredIds[Any], Any], () => Any],
+	private var methodToCI: Map[String, ColumnInfoRelationshipBase[T, Any, Any, DeclaredIds[Any], Any]])
 		extends (Args[T with Persisted, Any] => Any) with Persisted {
 
 	import LazyLoadProxyMethod._

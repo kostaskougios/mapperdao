@@ -2,15 +2,8 @@ package com.googlecode.mapperdao.drivers
 
 import com.googlecode.mapperdao.jdbc.Jdbc
 import com.googlecode.mapperdao.jdbc.UpdateResultWithGeneratedKeys
-import com.googlecode.mapperdao.ColumnBase
-import com.googlecode.mapperdao.SimpleColumn
-import com.googlecode.mapperdao.TypeRegistry
-import com.googlecode.mapperdao.PK
-import com.googlecode.mapperdao.QueryConfig
-import com.googlecode.mapperdao.Query
-import com.googlecode.mapperdao.TypeManager
 import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
-import com.googlecode.mapperdao.Column
+import com.googlecode.mapperdao._
 
 /**
  * @author kostantinos.kougios
@@ -34,7 +27,7 @@ class Oracle(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: Ty
 		case PK(columnName, true, sequence, _) => "%s.nextval".format(sequence.get)
 	}
 
-	override def beforeStartOfQuery[ID, PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]) =
+	override def beforeStartOfQuery[ID, PC <: DeclaredIds[ID], T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]) =
 		if (queryConfig.offset.isDefined || queryConfig.limit.isDefined) {
 			val nq = new sqlBuilder.SqlSelectBuilder
 			nq.columnNames(null, List("*"))
@@ -51,7 +44,7 @@ class Oracle(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: Ty
 
 	private val rn = Column("rn$", classOf[Long])
 	private val rownum = Column("rownum", classOf[Long])
-	override def endOfQuery[ID, PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]) =
+	override def endOfQuery[ID, PC <: DeclaredIds[ID], T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]) =
 		if (queryConfig.offset.isDefined || queryConfig.limit.isDefined) {
 			val offset = queryConfig.offset.getOrElse(0l)
 

@@ -150,7 +150,7 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		classOf[Array[Byte]] -> ((v: Any) => toByteArray(v))
 	)
 
-	override def correctTypes[ID, PC <: DeclaredIds[ID], T](table: Table[_, PC, T], j: JdbcMap) = {
+	override def correctTypes[ID, PC <: DeclaredIds[ID], T](table: Table[ID, PC, T], j: JdbcMap) = {
 		val ecil = table.extraColumnInfosPersisted.map {
 			case ci: ColumnInfo[T, _] =>
 				val column = ci.column
@@ -183,7 +183,9 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		new DatabaseValues(ListMap.empty ++ dm)
 	}
 
-	private def columnToCorrectedValue(column: ColumnRelationshipBase[_, _, _], foreign: TypeRef[_, _, _], j: JdbcMap) = {
+	private def columnToCorrectedValue[FID, FPC <: DeclaredIds[FID], F](
+		column: ColumnRelationshipBase[FID, FPC, F],
+		foreign: TypeRef[FID, FPC, F], j: JdbcMap) = {
 		val fe = foreign.entity
 		val ftable = fe.tpe.table
 		val columnNames = column.columns.map(_.name)

@@ -65,26 +65,26 @@ case class Table[ID, PC <: DeclaredIds[ID], T](
 		case ci: ColumnInfoRelationshipBase[T, _, _, _, _] => ci
 	}
 
-	val oneToOneColumns: List[OneToOne[Any, Any, Any]] = columns.collect {
-		case c: OneToOne[Any, Any, Any] => c
+	val oneToOneColumns: List[OneToOne[Any, DeclaredIds[Any], Any]] = columns.collect {
+		case c: OneToOne[Any, DeclaredIds[Any], Any] => c
 	}
 
-	val oneToOneReverseColumns: List[OneToOneReverse[Any, Any, Any]] = columns.collect {
-		case c: OneToOneReverse[Any, Any, Any] => c
+	val oneToOneReverseColumns: List[OneToOneReverse[Any, DeclaredIds[Any], Any]] = columns.collect {
+		case c: OneToOneReverse[Any, DeclaredIds[Any], Any] => c
 	}
 
-	val oneToManyColumns: List[OneToMany[Any, Any, Any]] = columns.collect {
-		case c: OneToMany[Any, Any, Any] => c
+	val oneToManyColumns: List[OneToMany[Any, DeclaredIds[Any], Any]] = columns.collect {
+		case c: OneToMany[Any, DeclaredIds[Any], Any] => c
 	}
-	val manyToOneColumns: List[ManyToOne[_, _, _]] = columns.collect {
-		case mto: ManyToOne[_, _, _] => mto
+	val manyToOneColumns: List[ManyToOne[Any, DeclaredIds[Any], Any]] = columns.collect {
+		case mto: ManyToOne[Any, DeclaredIds[Any], Any] => mto
 	}
 	val manyToOneColumnsFlattened: List[Column] = columns.collect {
 		case ManyToOne(columns: List[Column], _) => columns
 	}.flatten
 
-	val manyToManyColumns: List[ManyToMany[Any, Any, Any]] = columns.collect {
-		case c: ManyToMany[Any, Any, Any] => c
+	val manyToManyColumns: List[ManyToMany[Any, DeclaredIds[Any], Any]] = columns.collect {
+		case c: ManyToMany[Any, DeclaredIds[Any], Any] => c
 	}
 
 	val oneToOneColumnInfos: List[ColumnInfoOneToOne[T, Any, DeclaredIds[Any], _]] = columnInfosPlain.collect {
@@ -111,8 +111,8 @@ case class Table[ID, PC <: DeclaredIds[ID], T](
 		case c: ColumnInfoTraversableManyToMany[T, _, _, _] => (c.column, c)
 	}.toMap
 
-	val oneToManyToColumnInfoMap: Map[ColumnBase, ColumnInfoTraversableOneToMany[ID, PC, T, _, DeclaredIds[Any], _]] = columnInfosPlain.collect {
-		case c: ColumnInfoTraversableOneToMany[ID, PC, T, _, DeclaredIds[Any], _] => (c.column, c)
+	val oneToManyToColumnInfoMap: Map[ColumnBase, ColumnInfoTraversableOneToMany[ID, PC, T, Any, DeclaredIds[Any], _]] = columnInfosPlain.collect {
+		case c: ColumnInfoTraversableOneToMany[ID, PC, T, Any, DeclaredIds[Any], _] => (c.column, c)
 	}.toMap
 
 	def toListOfPrimaryKeyValues(o: T): List[Any] = toListOfPrimaryKeyAndValueTuples(o).map(_._2)
@@ -124,12 +124,12 @@ case class Table[ID, PC <: DeclaredIds[ID], T](
 			ci match {
 				case ci: ColumnInfo[Any, Any] =>
 					List((ci.column, ci.columnToValue(o)))
-				case ci: ColumnInfoManyToOne[Any, Any, Any, Any] =>
+				case ci: ColumnInfoManyToOne[Any, Any, DeclaredIds[Any], Any] =>
 					val l = ci.columnToValue(o)
 					val fe = ci.column.foreign.entity
 					val pks = fe.tpe.table.toListOfPrimaryKeyValues(l)
 					ci.column.columns zip pks
-				case ci: ColumnInfoTraversableOneToMany[Any, Any, Any, Any, Any, Any] =>
+				case ci: ColumnInfoTraversableOneToMany[Any, DeclaredIds[Any], Any, Any, DeclaredIds[Any], Any] =>
 					o match {
 						case p: Persisted =>
 							ci.column.columns map { c =>
@@ -137,7 +137,7 @@ case class Table[ID, PC <: DeclaredIds[ID], T](
 							}
 						case _ => Nil
 					}
-				case ci: ColumnInfoOneToOne[Any, Any, Any, Any] =>
+				case ci: ColumnInfoOneToOne[Any, Any, DeclaredIds[Any], Any] =>
 					val l = ci.columnToValue(o)
 					val fe = ci.column.foreign.entity
 					val pks = fe.tpe.table.toListOfPrimaryKeyValues(l)

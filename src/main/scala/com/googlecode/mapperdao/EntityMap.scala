@@ -13,7 +13,7 @@ import scala.collection.mutable.{ HashMap => TMap }
  */
 private[mapperdao] case class EntityMap(
 		private val m: TMap[List[Any], Option[_]] = TMap(),
-		private val parent: SelectInfo[_, _, _, _, _, _, _] = SelectInfo(null, null, null)) {
+		private val parent: SelectInfo[Any, DeclaredIds[Any], Any, Any, Any, DeclaredIds[Any], Any] = SelectInfo(null, null, null)) {
 
 	protected def key(clz: Class[_], ids: List[Any]) = clz :: ids
 
@@ -48,16 +48,20 @@ private[mapperdao] case class EntityMap(
 		}.asInstanceOf[Option[T]]
 	}
 
-	def down[ID, PC, T, V, FID, FPC, F](selectConfig: SelectConfig, tpe: Type[ID, PC, T], ci: ColumnInfoRelationshipBase[T, V, FID, FPC, F], dv: DatabaseValues): EntityMap =
-		copy(parent = SelectInfo(tpe, ci, dv))
+	def down[ID, PC <: DeclaredIds[ID], T, V, FID, FPC <: DeclaredIds[FID], F](
+		selectConfig: SelectConfig,
+		tpe: Type[ID, PC, T],
+		ci: ColumnInfoRelationshipBase[T, V, FID, FPC, F],
+		dv: DatabaseValues): EntityMap =
+		copy(parent = SelectInfo(tpe.asInstanceOf[Type[Any, com.googlecode.mapperdao.DeclaredIds[Any], Any]], ci.asInstanceOf[ColumnInfoRelationshipBase[Any, Any, Any, DeclaredIds[Any], Any]], dv))
 
-	def peek[ID, PC, T, V, FID, FPC, F] =
+	def peek[ID, PC <: DeclaredIds[ID], T, V, FID, FPC <: DeclaredIds[FID], F] =
 		parent.asInstanceOf[SelectInfo[ID, PC, T, V, FID, FPC, F]]
 
 	override def toString = "EntityMapImpl(%s)".format(m.toString)
 }
 
-protected case class SelectInfo[ID, PC, T, V, FID, FPC, F](
+protected case class SelectInfo[ID, PC <: DeclaredIds[ID], T, V, FID, FPC <: DeclaredIds[FID], F](
 	val tpe: Type[ID, PC, T],
 	val ci: ColumnInfoRelationshipBase[T, V, FID, FPC, F],
 	val databaseValues: DatabaseValues)

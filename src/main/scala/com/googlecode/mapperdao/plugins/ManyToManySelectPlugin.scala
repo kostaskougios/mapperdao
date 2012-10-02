@@ -21,9 +21,16 @@ import com.googlecode.mapperdao.DeclaredIds
  */
 class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect with SelectMock {
 
-	override def idContribution[ID, PC <: DeclaredIds[ID], T](tpe: Type[ID, PC, T], om: DatabaseValues, entities: EntityMap) = Nil
+	override def idContribution[ID, PC <: DeclaredIds[ID], T](
+		tpe: Type[ID, PC, T],
+		om: DatabaseValues,
+		entities: EntityMap) = Nil
 
-	override def before[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T], selectConfig: SelectConfig, om: DatabaseValues, entities: EntityMap) =
+	override def before[ID, PC <: DeclaredIds[ID], T](
+		entity: Entity[ID, PC, T],
+		selectConfig: SelectConfig,
+		om: DatabaseValues,
+		entities: EntityMap) =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table

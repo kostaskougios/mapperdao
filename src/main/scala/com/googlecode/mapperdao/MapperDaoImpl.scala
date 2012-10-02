@@ -323,7 +323,11 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			v
 		}
 
-	private[mapperdao] def selectInner[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T], selectConfig: SelectConfig, ids: List[Any], entities: EntityMap): Option[T with PC] =
+	private[mapperdao] def selectInner[ID, PC <: DeclaredIds[ID], T](
+		entity: Entity[ID, PC, T],
+		selectConfig: SelectConfig,
+		ids: List[Any],
+		entities: EntityMap): Option[T with PC] =
 		{
 			val clz = entity.clz
 			val tpe = entity.tpe
@@ -341,16 +345,16 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 							(tpe.table.unusedPKColumnInfos zip declared) map {
 								case (ci, v) =>
 									ci match {
-										case ci: ColumnInfoManyToOne[PC, Any, T, Any] =>
+										case ci: ColumnInfoManyToOne[T, Any, DeclaredIds[Any], Any] =>
 											val foreign = ci.column.foreign
 											val fentity = foreign.entity
 											val ftable = fentity.tpe.table
 											ci.column.columns zip ftable.toListOfPrimaryKeyValues(v)
-										case ci: ColumnInfoTraversableOneToMany[_, _, Any, Any, Any, Any] =>
+										case ci: ColumnInfoTraversableOneToMany[Any, DeclaredIds[Any], Any, Any, DeclaredIds[Any], Any] =>
 											val fentity = ci.entityOfT
 											val ftable = fentity.tpe.table
 											ci.column.columns zip ftable.toListOfPrimaryKeyValues(v)
-										case ci: ColumnInfoOneToOne[PC, Any, T, Any] =>
+										case ci: ColumnInfoOneToOne[T, Any, DeclaredIds[Any], Any] =>
 											val foreign = ci.column.foreign
 											val fentity = foreign.entity
 											val ftable = fentity.tpe.table

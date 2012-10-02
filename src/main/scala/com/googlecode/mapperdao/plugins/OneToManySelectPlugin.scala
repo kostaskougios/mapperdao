@@ -13,7 +13,10 @@ import com.googlecode.mapperdao._
  */
 class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect with SelectMock {
 
-	override def idContribution[ID, PC, T](tpe: Type[ID, PC, T], om: DatabaseValues, entities: EntityMap) = {
+	override def idContribution[ID, PC <: DeclaredIds[ID], T](
+		tpe: Type[ID, PC, T],
+		om: DatabaseValues,
+		entities: EntityMap) = {
 		val peek = entities.peek[ID, PC, T, Traversable[Any], Any, DeclaredIds[Any], Any]
 		peek.ci match {
 			case ci: ColumnInfoTraversableOneToMany[_, _, T, Any, DeclaredIds[Any], Any] =>
@@ -25,7 +28,10 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 		}
 	}
 
-	override def before[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T], selectConfig: SelectConfig, om: DatabaseValues, entities: EntityMap) =
+	override def before[ID, PC <: DeclaredIds[ID], T](
+		entity: Entity[ID, PC, T],
+		selectConfig: SelectConfig,
+		om: DatabaseValues, entities: EntityMap) =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
@@ -53,7 +59,9 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 			}
 		}
 
-	override def updateMock[ID, PC, T](entity: Entity[ID, PC, T], mods: scala.collection.mutable.Map[String, Any]) {
+	override def updateMock[ID, PC <: DeclaredIds[ID], T](
+		entity: Entity[ID, PC, T],
+		mods: scala.collection.mutable.Map[String, Any]) {
 		mods ++= entity.tpe.table.oneToManyColumns.map(c => (c.alias -> List()))
 	}
 }

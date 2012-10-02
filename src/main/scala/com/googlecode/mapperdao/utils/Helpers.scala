@@ -129,7 +129,7 @@ object Helpers {
 	 * releases the objects used to store state for lazy loading to occur, freeing memory
 	 * but lazy loaded relationships will not be loaded if their fields are accessed.
 	 */
-	def unlinkLazyLoadMemoryData[ID, PC, T](entity: Entity[ID, PC, T], o: Any) {
+	def unlinkLazyLoadMemoryData[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T], o: Any) {
 		val visitor = new FreeLazyLoadedEntityVisitor
 		visitor.visit(entity, o)
 		visitor.free(o)

@@ -9,7 +9,12 @@ import com.googlecode.mapperdao._
 
 class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeDelete {
 
-	override def idColumnValueContribution[ID, PC <: DeclaredIds[ID], T](tpe: Type[ID, PC, T], deleteConfig: DeleteConfig, events: Events, o: T with PC with Persisted, entityMap: UpdateEntityMap): List[(SimpleColumn, Any)] = {
+	override def idColumnValueContribution[ID, PC <: DeclaredIds[ID], T](
+		tpe: Type[ID, PC, T],
+		deleteConfig: DeleteConfig,
+		events: Events,
+		o: T with PC,
+		entityMap: UpdateEntityMap): List[(SimpleColumn, Any)] = {
 		val UpdateInfo(parentO, ci, parentEntity) = entityMap.peek[Any, DeclaredIds[Any], Any, Traversable[T], Any, DeclaredIds[Any], T]
 		ci match {
 			case oneToMany: ColumnInfoTraversableOneToMany[_, _, _, _, _, T] =>

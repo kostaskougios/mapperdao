@@ -52,7 +52,7 @@ class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager:
 			q.columnNames(null, List(sql))
 		}
 
-	override def beforeStartOfQuery[ID, PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]) =
+	override def beforeStartOfQuery[ID, PC <: DeclaredIds[ID], T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]) =
 		if (queryConfig.hasRange) {
 			val nq = new sqlBuilder.SqlSelectBuilder
 			nq.columnNames(null, List("*"))
@@ -61,7 +61,7 @@ class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager:
 		} else q
 
 	private val row = Column("Row", classOf[Long])
-	override def endOfQuery[ID, PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]) =
+	override def endOfQuery[ID, PC <: DeclaredIds[ID], T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]) =
 		if (queryConfig.hasRange) {
 			val offset = queryConfig.offset.getOrElse(0l) + 1
 			val w = sqlBuilder.Between(null, row, offset, (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue))

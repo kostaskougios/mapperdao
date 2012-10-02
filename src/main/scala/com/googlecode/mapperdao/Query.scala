@@ -109,7 +109,7 @@ object Query {
 		def ===(v: F) = new ManyToManyOperation(ci.column, EQ(), v)
 		def <>(v: F) = new ManyToManyOperation(ci.column, NE(), v)
 	}
-	implicit def columnInfoManyToManyOperation[T, FID, FPC, F](ci: ColumnInfoTraversableManyToMany[T, FID, FPC, F]) = new ConvertorManyToMany[T, FID, FPC, F](ci)
+	implicit def columnInfoManyToManyOperation[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableManyToMany[T, FID, FPC, F]) = new ConvertorManyToMany[T, FID, FPC, F](ci)
 
 	/**
 	 * manages one-to-one expressions
@@ -118,7 +118,7 @@ object Query {
 		def ===(v: F) = new OneToOneOperation(ci.column, EQ(), v)
 		def <>(v: F) = new OneToOneOperation(ci.column, NE(), v)
 	}
-	implicit def columnInfoOneToOneOperation[T, FID, FPC, F](ci: ColumnInfoOneToOne[T, FID, FPC, F]) = new ConvertorOneToOne[T, FID, FPC, F](ci)
+	implicit def columnInfoOneToOneOperation[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoOneToOne[T, FID, FPC, F]) = new ConvertorOneToOne[T, FID, FPC, F](ci)
 
 	/**
 	 * manages one-to-one reverse expressions
@@ -127,10 +127,10 @@ object Query {
 		def ===(v: F) = new OneToOneReverseOperation(ci.column, EQ(), v)
 		def <>(v: F) = new OneToOneReverseOperation(ci.column, NE(), v)
 	}
-	implicit def columnInfoOneToOneReverseOperation[T, FID, FPC, F](ci: ColumnInfoOneToOneReverse[T, FID, FPC, F]) = new ConvertorOneToOneReverse[T, FID, FPC, F](ci)
+	implicit def columnInfoOneToOneReverseOperation[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoOneToOneReverse[T, FID, FPC, F]) = new ConvertorOneToOneReverse[T, FID, FPC, F](ci)
 
 	// starting point of a query, "select" syntactic sugar
-	def select[ID, PC, T] = new QueryFrom[ID, PC, T]
+	def select[ID, PC <: DeclaredIds[ID], T] = new QueryFrom[ID, PC, T]
 
 	// "from" syntactic sugar
 	protected class QueryFrom[ID, PC <: DeclaredIds[ID], T] {
@@ -314,11 +314,11 @@ case class OneToManyOperation[FID, FPC <: DeclaredIds[FID], F, V](left: OneToMan
 	override def toString = "%s %s %s".format(left, operand, right)
 }
 
-case class OneToManyDeclaredPrimaryKeyOperation[FID, FPC <: DeclaredIds[FID], F, T](
+case class OneToManyDeclaredPrimaryKeyOperation[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](
 		left: OneToMany[FID, FPC, F],
 		operand: Operand,
 		right: T,
-		entityOfT: Entity[_, _, T]) extends OpBase {
+		entityOfT: Entity[ID, PC, T]) extends OpBase {
 	if (right == null) throw new NullPointerException("Value can't be null in one-to-many FK queries. Expression was on %s.".format(left))
 	override def toString = "%s %s %s".format(left, operand, right)
 }

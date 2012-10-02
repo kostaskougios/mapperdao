@@ -115,12 +115,12 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 				case and: OrOp =>
 					joins(and.left)
 					joins(and.right)
-				case OneToManyOperation(left: OneToMany[_, _, _], operand: Operand, right: Any) =>
+				case OneToManyOperation(left: OneToMany[Any, DeclaredIds[Any], _], operand: Operand, right: Any) =>
 					val entity = typeRegistry.entityOf(left)
 					val foreignEntity = left.foreign.entity
 					q.innerJoin(oneToManyJoin(aliases, entity, foreignEntity, left))
 
-				case ManyToManyOperation(left: ManyToMany[_, _, _], operand: Operand, right: Any) =>
+				case ManyToManyOperation(left: ManyToMany[Any, DeclaredIds[Any], _], operand: Operand, right: Any) =>
 					val foreignEntity = left.foreign.entity
 					val entity = typeRegistry.entityOf(left)
 					val List(leftJ, rightJ) = manyToManyJoin(aliases, entity, foreignEntity, left)

@@ -1,8 +1,6 @@
 package com.googlecode.mapperdao.utils
 
-import com.googlecode.mapperdao.Entity
-import com.googlecode.mapperdao.Persisted
-import com.googlecode.mapperdao.SimpleTypeValue
+import com.googlecode.mapperdao._
 
 /**
  * a map that holds entities. Persisted entities
@@ -14,7 +12,9 @@ import com.googlecode.mapperdao.SimpleTypeValue
  *
  * 30 Apr 2012
  */
-protected class EntityComparisonMap[ID, PC, T](entity: Entity[ID, PC, T], keyMode: EntityComparisonMap.EqualsMode[T]) {
+protected class EntityComparisonMap[ID, PC <: DeclaredIds[ID], T](
+		entity: Entity[ID, PC, T],
+		keyMode: EntityComparisonMap.EqualsMode[T]) {
 	private val table = entity.tpe.table
 	private var m = Map[Any, T]()
 
