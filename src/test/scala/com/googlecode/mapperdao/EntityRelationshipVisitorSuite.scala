@@ -18,7 +18,7 @@ class EntityRelationshipVisitorSuite extends FunSuite with ShouldMatchers {
 	class Visitor extends EntityRelationshipVisitor[Any](visitLazyLoaded = true, visitUnlinked = true) {
 		override def manyToMany[T, F](ci: ColumnInfoTraversableManyToMany[T, _, _, F], traversable: Traversable[F], collected: Traversable[Any]) =
 			collected
-		override def oneToMany[T, F](ci: ColumnInfoTraversableOneToMany[T, _, _, _, _, F], traversable: Traversable[F], collected: Traversable[Any]) =
+		override def oneToMany[T, F](ci: ColumnInfoTraversableOneToMany[_, _, T, _, _, F], traversable: Traversable[F], collected: Traversable[Any]) =
 			collected
 		override def manyToOne[T, F](ci: ColumnInfoManyToOne[T, _, _, F], foreign: F) =
 			foreign

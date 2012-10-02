@@ -120,7 +120,7 @@ object DaoMixinsSpec {
 	case class Product(val id: Long, val name: String, val attributes: Set[Attribute])
 	case class Attribute(val id: Int, val name: String, val value: String)
 
-	object ProductEntity extends Entity[SurrogateLongId, Product] {
+	object ProductEntity extends Entity[Long, SurrogateLongId, Product] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
@@ -128,7 +128,7 @@ object DaoMixinsSpec {
 		def constructor(implicit m: ValuesMap) = new Product(id, name, attributes) with SurrogateLongId
 	}
 
-	object AttributeEntity extends Entity[SurrogateIntId, Attribute] {
+	object AttributeEntity extends Entity[Int, SurrogateIntId, Attribute] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
