@@ -6,7 +6,7 @@ package com.googlecode.mapperdao
  * 24 Sep 2012
  */
 
-trait NoId extends DeclaredIds[Nothing]
+trait NoId extends DeclaredIds[Unit]
 
 trait NaturalStringId extends DeclaredIds[String]
 

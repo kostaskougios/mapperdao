@@ -188,10 +188,13 @@ object Query {
 			qe
 		}
 
-		def join[JID, JPC <: DeclaredIds[JID], JT, FID, FPC <: DeclaredIds[FID], FT] = {
-			val j = new Join[JID, JPC, JT, FID, FPC, FT, ID, PC, T](this)
+		def join[JID, JPC <: DeclaredIds[JID], JT, FID, FPC <: DeclaredIds[FID], FT](
+			joinEntity: Entity[JID, JPC, JT],
+			ci: ColumnInfoRelationshipBase[JT, _, FID, FPC, FT],
+			foreignEntity: Entity[FID, FPC, FT]) = {
+			val j = new Join(this, joinEntity, ci, foreignEntity)
 			joins ::= j.asInstanceOf[Join[Any, DeclaredIds[Any], Any, Any, DeclaredIds[Any], Any, ID, PC, T]]
-			j
+			this
 		}
 
 		def toList(implicit queryDao: QueryDao): List[T with PC] = toList(QueryConfig.default)(queryDao)
@@ -214,27 +217,32 @@ object Query {
 	}
 
 	protected[mapperdao] class Join[JID, JPC <: DeclaredIds[JID], JT, FID, FPC <: DeclaredIds[FID], FT, QID, QPC <: DeclaredIds[QID], QT](
-			queryEntity: Builder[QID, QPC, QT]) {
-		protected[mapperdao] var column: ColumnRelationshipBase[JID, JPC, JT] = _
+			queryEntity: Builder[QID, QPC, QT],
+			val joinEntity: Entity[JID, JPC, JT],
+			val ci: ColumnInfoRelationshipBase[JT, _, FID, FPC, FT],
+			val foreignEntity: Entity[FID, FPC, FT]) {
 		protected[mapperdao] var entity: Entity[QID, QPC, QT] = _
-		protected[mapperdao] var foreignEntity: Entity[FID, FPC, FT] = _
-		protected[mapperdao] var joinEntity: Entity[JID, JPC, JT] = _
+		//		protected[mapperdao] var foreignEntity: Entity[FID, FPC, FT] = _
+		//		protected[mapperdao] var joinEntity: Entity[JID, JPC, JT] = _
 		protected[mapperdao] var on: JoinOn[QID, QPC, QT] = _
 
-		def apply(joinEntity: Entity[JID, JPC, JT], ci: ColumnInfoRelationshipBase[QT, JT, JID, JPC, JT], foreignEntity: Entity[FID, FPC, FT]) =
-			{
-				this.column = ci.column
-				this.foreignEntity = foreignEntity
-				this.joinEntity = joinEntity
-				queryEntity
-			}
+		//		def apply(
+		//			joinEntity: Entity[JID, JPC, JT],
+		//			ci: ColumnInfoRelationshipBase[QT, _, JID, JPC, JT],
+		//			foreignEntity: Entity[FID, FPC, FT]) =
+		//			{
+		//				this.column = ci.column
+		//				this.foreignEntity = foreignEntity
+		//				this.joinEntity = joinEntity
+		//				queryEntity
+		//			}
 
-		def apply(entity: Entity[QID, QPC, QT]) =
-			{
-				this.entity = entity;
-				on = new JoinOn(queryEntity)
-				on
-			}
+		//		def apply(entity: Entity[QID, QPC, QT]) =
+		//			{
+		//				this.entity = entity;
+		//				on = new JoinOn(queryEntity)
+		//				on
+		//			}
 	}
 
 	protected[mapperdao] class JoinOn[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val queryEntity: Builder[ID, PC, T]) {

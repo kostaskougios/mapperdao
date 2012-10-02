@@ -74,7 +74,7 @@ class DeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 	case class Product(val title: String, val prices: Set[Price])
 	case class Price(val currency: String, val unitPrice: Double, val salePrice: Double)
 
-	object ProductEntity extends Entity[SurrogateIntId, Product] {
+	object ProductEntity extends Entity[Int, SurrogateIntId, Product] {
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("ProductSeq")
 			case _ => None
@@ -87,7 +87,7 @@ class DeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 			val id: Int = ProductEntity.id
 		}
 	}
-	object PriceEntity extends Entity[NoId, Price] {
+	object PriceEntity extends Entity[Unit, NoId, Price] {
 		val currency = column("currency") to (_.currency)
 		val unitPrice = column("unitprice") to (_.unitPrice)
 		val salePrice = column("saleprice") to (_.salePrice)

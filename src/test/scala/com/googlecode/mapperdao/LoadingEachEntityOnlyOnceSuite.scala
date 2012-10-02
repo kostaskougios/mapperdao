@@ -31,11 +31,11 @@ class LoadingEachEntityOnlyOnceSuite extends FunSuite with ShouldMatchers with B
 			events = new Events(
 				selectEvents = List(
 					new SelectEvent {
-						override def before[PC, T](tpe: Type[PC, T], where: List[(SimpleColumn, Any)]) = {
+						override def before[ID, PC <: DeclaredIds[ID], T](tpe: Type[ID, PC, T], where: List[(SimpleColumn, Any)]) = {
 							val times = timesLoaded.getOrElse(tpe.clz, 0) + 1
 							timesLoaded += tpe.clz -> times
 						}
-						override def after[PC, T](tpe: Type[PC, T], where: List[(SimpleColumn, Any)]) = {}
+						override def after[ID, PC <: DeclaredIds[ID], T](tpe: Type[ID, PC, T], where: List[(SimpleColumn, Any)]) = {}
 					}
 				)
 			)

@@ -199,19 +199,19 @@ class CachingEndToEndSuite extends FunSuite with ShouldMatchers {
 	case class Product(val id: Int, val name: String, val attributes: Set[Attribute])
 	case class Attribute(val id: Int, val name: String, val value: String)
 
-	object ProductEntity extends Entity[SurrogateIntId, Product] {
+	object ProductEntity extends Entity[Int, NaturalIntId, Product] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
-		def constructor(implicit m) = new Product(id, name, attributes) with SurrogateIntId
+		def constructor(implicit m) = new Product(id, name, attributes) with NaturalIntId
 	}
 
-	object AttributeEntity extends Entity[SurrogateIntId, Attribute] {
+	object AttributeEntity extends Entity[Int, NaturalIntId, Attribute] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m) = new Attribute(id, name, value) with SurrogateIntId
+		def constructor(implicit m) = new Attribute(id, name, value) with NaturalIntId
 	}
 
 	/**
@@ -220,7 +220,7 @@ class CachingEndToEndSuite extends FunSuite with ShouldMatchers {
 	case class Person(var name: String, owns: Set[House])
 	case class House(val address: String)
 
-	object HouseEntity extends Entity[SurrogateIntId, House] {
+	object HouseEntity extends Entity[Int, SurrogateIntId, House] {
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" =>
 				Some("HouseSeq")
@@ -233,7 +233,7 @@ class CachingEndToEndSuite extends FunSuite with ShouldMatchers {
 		}
 	}
 
-	object PersonEntity extends Entity[SurrogateIntId, Person] {
+	object PersonEntity extends Entity[Int, SurrogateIntId, Person] {
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" =>
 				Some("PersonSeq")

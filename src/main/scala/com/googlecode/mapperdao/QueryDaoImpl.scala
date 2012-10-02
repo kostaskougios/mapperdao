@@ -77,13 +77,13 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 		{
 			// iterate through the joins in the correct order
 			qe.joins.reverse.foreach { j =>
-				val column = j.column
+				val column = j.ci.column
 				if (column != null) {
 					val foreignEntity = j.foreignEntity
 					val joinEntity = j.joinEntity
 					j match {
 						case join: Query.Join[_, _, _, _, _, _, ID, PC, T] =>
-							join.column match {
+							join.ci.column match {
 								case manyToOne: ManyToOne[_, _, _] =>
 									val join = manyToOneJoin(aliases, joinEntity, foreignEntity, manyToOne)
 									q.innerJoin(join)
