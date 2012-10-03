@@ -18,6 +18,15 @@ import com.googlecode.mapperdao.NoId
 @RunWith(classOf[JUnitRunner])
 class TraversableSeparationSuite extends FunSuite with ShouldMatchers {
 
+	test("intersect") {
+		val left = List(xwith(1), xwith(2), xwith(3))
+		val right = List(X(0)) ::: left.filterNot(_ == X(2)) ::: List(X(4), X(5))
+		val (added, intersect, removed) = TraversableSeparation.separate(XEntity, left, right)
+		intersect should be === List((X(1), X(1)), (X(3), X(3)))
+		intersect.head._1 should be theSameInstanceAs (left.head)
+		intersect.tail.head._1 should be theSameInstanceAs (left.tail.tail.head)
+	}
+
 	test("added") {
 		val left = List(xwith(1), xwith(2))
 		val air = TraversableSeparation.separate(XEntity, left, left ::: List(X(3), X(4)))
@@ -28,14 +37,6 @@ class TraversableSeparationSuite extends FunSuite with ShouldMatchers {
 		val left = List()
 		val air = TraversableSeparation.separate(XEntity, left, left ::: List(X(3), X(4)))
 		air._1 should be === List(X(3), X(4))
-	}
-
-	test("intersect") {
-		val left = List(xwith(1), xwith(2), xwith(3))
-		val (added, intersect, removed) = TraversableSeparation.separate(XEntity, left, List(X(0)) ::: left.filterNot(_ == X(2)) ::: List(X(4), X(5)))
-		intersect should be === List((X(1), X(1)), (X(3), X(3)))
-		intersect.head._1 should be theSameInstanceAs (left.head)
-		intersect.tail.head._1 should be theSameInstanceAs (left.tail.tail.head)
 	}
 
 	test("intersect, left is empty") {
@@ -77,7 +78,8 @@ class TraversableSeparationSuite extends FunSuite with ShouldMatchers {
 	def xwith(id: Int) = new X(id) with NaturalIntId
 
 	object XEntity extends Entity[Int, NaturalIntId, X] {
-		def constructor(implicit m) = new X(1) with NaturalIntId
+		val id = key("id") to (_.id)
+		def constructor(implicit m) = new X(id) with NaturalIntId
 	}
 
 	val stringEntity = StringEntity.oneToMany("", "", "")

@@ -92,7 +92,7 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 						// update the removed ones
 						removed.foreach { item =>
 							entityMap.down(mockO, ci, entity)
-							mapperDao.deleteInner(updateConfig.deleteConfig, fe, item, entityMap)
+							mapperDao.deleteInner(updateConfig.deleteConfig, fe, item.asInstanceOf[DeclaredIds[Any]], entityMap)
 							entityMap.up
 						}
 
