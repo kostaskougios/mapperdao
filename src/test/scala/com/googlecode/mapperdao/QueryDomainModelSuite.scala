@@ -40,10 +40,12 @@ class QueryDomainModelSuite extends FunSuite with ShouldMatchers {
 
 	test("join, joinEntity, foreignEntity, column") {
 		val q = select from prod join (prod, prod.attributes, attr)
-		val j = q.joins.head
-		j.joinEntity should equal(prod)
-		j.foreignEntity should equal(attr)
-		j.ci.column should equal(prod.attributes.column)
+		val j = q.joins.head match {
+			case Query.Join(joinEntity, ci, foreignEntity) =>
+				joinEntity should equal(prod)
+				foreignEntity should equal(attr)
+				ci.column should equal(prod.attributes.column)
+		}
 	}
 
 }

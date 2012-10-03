@@ -58,8 +58,8 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 
 	/**
 	 * overriding any of these entity-constructors is mandatory. These
-	 * should return an instance of T with PC with Persisted, i.e.
-	 * an instance of Product with IntId with Persisted
+	 * should return an instance of T with PC, i.e.
+	 * an instance of Product with SurrogateIntId
 	 */
 	def constructor(implicit m: ValuesMap): T with PC with Persisted
 	def constructor(implicit data: Option[_], m: ValuesMap): T with PC with Persisted = constructor(m)

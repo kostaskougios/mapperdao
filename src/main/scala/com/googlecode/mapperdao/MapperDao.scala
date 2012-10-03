@@ -78,6 +78,22 @@ trait MapperDao {
 	 */
 	def update[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T with PC, newO: T): T with PC
 
+	/**
+	 * merges o with the database value according to id. If id exists in the database, an update
+	 * will be performed (this means that there will be a select before an update). Otherwise,
+	 * an insert of o will be done.
+	 *
+	 * Please note no special rules for the id are taken into account. I.e. if id=-1 the select will
+	 * be done and if there is no value then an insert will be performed. So it is adviced if
+	 * o is not persisted, to manually insert it, i.e.
+	 *
+	 * if(id==-1) mapperDao.insert(MyEntity,o) else mapperDao.merge(MyEntity,o,id)
+	 *
+	 * @param entity		the entity of o
+	 * @param o				the entity instance
+	 * @param id			the id
+	 * @return				the merged instance
+	 */
 	def merge[ID, PC <: DeclaredIds[ID], T](
 		entity: Entity[ID, PC, T],
 		o: T,

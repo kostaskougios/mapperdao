@@ -76,36 +76,30 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 	private def joins[ID, PC <: DeclaredIds[ID], T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], aliases: Aliases) =
 		{
 			// iterate through the joins in the correct order
-			qe.joins.reverse.foreach { j =>
-				if (j.ci != null) {
-					val column = j.ci.column
-					val foreignEntity = j.foreignEntity
-					val joinEntity = j.joinEntity
-					j match {
-						case join: Query.Join[_, _, _, _, _, _, ID, PC, T] =>
-							join.ci.column match {
-								case manyToOne: ManyToOne[_, _, _] =>
-									val join = manyToOneJoin(aliases, joinEntity, foreignEntity, manyToOne)
-									q.innerJoin(join)
-								case oneToMany: OneToMany[_, _, _] =>
-									val join = oneToManyJoin(aliases, joinEntity, foreignEntity, oneToMany)
-									q.innerJoin(join)
-								case manyToMany: ManyToMany[_, _, _] =>
-									val List(leftJoin, rightJoin) = manyToManyJoin(aliases, joinEntity, foreignEntity, manyToMany)
-									q.innerJoin(leftJoin)
-									q.innerJoin(rightJoin)
-								case oneToOneReverse: OneToOneReverse[_, _, _] =>
-									val join = oneToOneReverseJoin(aliases, joinEntity, foreignEntity, oneToOneReverse)
-									q.innerJoin(join)
-								case oneToOne: OneToOne[_, _, _] =>
-									val join = oneToOneJoin(aliases, joinEntity, foreignEntity, oneToOne)
-									q.innerJoin(join)
-							}
+			qe.joins.reverse.foreach {
+				case Query.Join(joinEntity, ci, foreignEntity) =>
+					val column = ci.column
+					column match {
+						case manyToOne: ManyToOne[_, _, _] =>
+							val join = manyToOneJoin(aliases, joinEntity, foreignEntity, manyToOne)
+							q.innerJoin(join)
+						case oneToMany: OneToMany[_, _, _] =>
+							val join = oneToManyJoin(aliases, joinEntity, foreignEntity, oneToMany)
+							q.innerJoin(join)
+						case manyToMany: ManyToMany[_, _, _] =>
+							val List(leftJoin, rightJoin) = manyToManyJoin(aliases, joinEntity, foreignEntity, manyToMany)
+							q.innerJoin(leftJoin)
+							q.innerJoin(rightJoin)
+						case oneToOneReverse: OneToOneReverse[_, _, _] =>
+							val join = oneToOneReverseJoin(aliases, joinEntity, foreignEntity, oneToOneReverse)
+							q.innerJoin(join)
+						case oneToOne: OneToOne[_, _, _] =>
+							val join = oneToOneJoin(aliases, joinEntity, foreignEntity, oneToOne)
+							q.innerJoin(join)
 					}
-				} else {
+				case j: Query.SJoin[Any, DeclaredIds[Any], Any, Any, DeclaredIds[Any], Any, Any, DeclaredIds[Any], Any] =>
 					val joined = joinTable(aliases, j)
 					q.innerJoin(joined)
-				}
 			}
 
 			def joins(op: OpBase): Unit = op match {
@@ -156,7 +150,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 
 	private def joinTable[JID, JPC <: DeclaredIds[JID], JT, FID, FPC <: DeclaredIds[FID], FT, QID, QPC <: DeclaredIds[QID], QT](
 		aliases: QueryDao.Aliases,
-		join: Query.Join[JID, JPC, JT, FID, FPC, FT, QID, QPC, QT]) =
+		join: Query.SJoin[JID, JPC, JT, FID, FPC, FT, QID, QPC, QT]) =
 		{
 			val jEntity = join.entity
 			val jTable = jEntity.tpe.table

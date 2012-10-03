@@ -35,8 +35,7 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 			val tpe = entity.tpe
 			val table = tpe.table
 			// many to many
-			table.manyToManyColumnInfos.map { ciu =>
-				val ci = ciu.asInstanceOf[ColumnInfoTraversableManyToMany[T, Any, DeclaredIds[Any], _]]
+			table.manyToManyColumnInfos.map { ci =>
 				val mtmR = if (selectConfig.skip(ci)) {
 					() => Nil
 				} else {

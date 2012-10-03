@@ -22,7 +22,15 @@ import com.googlecode.mapperdao.DeclaredIds
  */
 class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends PostUpdate {
 
-	override def after[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T, mockO: T with PC, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: MapOfList[String, Any]) =
+	override def after[ID, PC <: DeclaredIds[ID], T](
+		updateConfig: UpdateConfig,
+		entity: Entity[ID, PC, T],
+		o: T,
+		mockO: T with PC,
+		oldValuesMap: ValuesMap,
+		newValuesMap: ValuesMap,
+		entityMap: UpdateEntityMap,
+		modified: MapOfList[String, Any]) =
 		{
 			val tpe = entity.tpe
 			val table = tpe.table
