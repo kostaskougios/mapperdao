@@ -248,8 +248,7 @@
 						</goals>
 						<configuration>
 							<skip>false</skip>
-							<argLine>-Ddatabase=h2</argLine>
-							<argLine>-Dlogback.configurationFile=logback-mvn-test.xml</argLine>
+							<argLine>-Ddatabase=h2 -Dlogback.configurationFile=logback-mvn-test.xml</argLine>
 							<includes>
 								<include>**/*Spec.class</include>
 								<include>**/*Suite.class</include>
@@ -264,8 +263,7 @@
 						</goals>
 						<configuration>
 							<skip>false</skip>
-							<argLine>-Ddatabase=postgresql</argLine>
-							<argLine>-Dlogback.configurationFile=logback-mvn-test.xml</argLine>
+							<argLine>-Ddatabase=postgresql -Dlogback.configurationFile=logback-mvn-test.xml</argLine>
 							<includes>
 								<include>**/*Spec.class</include>
 								<include>**/*Suite.class</include>
@@ -280,8 +278,7 @@
 						</goals>
 						<configuration>
 							<skip>false</skip>
-							<argLine>-Ddatabase=oracle</argLine>
-							<argLine>-Dlogback.configurationFile=logback-mvn-test.xml</argLine>
+							<argLine>-Ddatabase=oracle -Dlogback.configurationFile=logback-mvn-test.xml</argLine>
 							<includes>
 								<include>**/*Spec.class</include>
 								<include>**/*Suite.class</include>
@@ -296,8 +293,7 @@
 						</goals>
 						<configuration>
 							<skip>false</skip>
-							<argLine>-Ddatabase=derby</argLine>
-							<argLine>-Dlogback.configurationFile=logback-mvn-test.xml</argLine>
+							<argLine>-Ddatabase=derby -Dlogback.configurationFile=logback-mvn-test.xml</argLine>
 							<includes>
 								<include>**/*Spec.class</include>
 								<include>**/*Suite.class</include>
@@ -312,8 +308,7 @@
 						</goals>
 						<configuration>
 							<skip>false</skip>
-							<argLine>-Ddatabase=mysql</argLine>
-							<argLine>-Dlogback.configurationFile=logback-mvn-test.xml</argLine>
+							<argLine>-Ddatabase=mysql -Dlogback.configurationFile=logback-mvn-test.xml</argLine>
 							<includes>
 								<include>**/*Spec.class</include>
 								<include>**/*Suite.class</include>
@@ -328,8 +323,7 @@
 						</goals>
 						<configuration>
 							<skip>false</skip>
-							<argLine>-Ddatabase=sqlserver</argLine>
-							<argLine>-Dlogback.configurationFile=logback-mvn-test.xml</argLine>
+							<argLine>-Ddatabase=sqlserver -Dlogback.configurationFile=logback-mvn-test.xml</argLine>
 							<includes>
 								<include>**/*Suite.class</include>
 							</includes>
