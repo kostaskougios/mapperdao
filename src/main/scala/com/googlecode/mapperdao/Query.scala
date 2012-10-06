@@ -1,5 +1,6 @@
 package com.googlecode.mapperdao
-import org.scala_tools.time.Imports.DateTime
+
+import org.joda.time.DateTime
 
 /**
  * query builder and DSL
