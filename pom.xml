@@ -103,6 +103,7 @@
 			<groupId>org.scala-tools.time</groupId>
 			<artifactId>time_2.9.1</artifactId>
 			<version>0.5</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>
