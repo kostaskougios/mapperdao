@@ -22,6 +22,9 @@ import com.googlecode.mapperdao.utils.{ Setup => S }
 import com.googlecode.mapperdao.utils.Database
 import com.googlecode.mapperdao.drivers.Cache
 import org.joda.time.chrono.ISOChronology
+import javax.sql.DataSource
+import com.googlecode.mapperdao.Entity
+import org.springframework.jdbc.datasource.SingleConnectionDataSource
 
 /**
  * creates an environment for specs
@@ -54,14 +57,31 @@ object Setup {
 
 	def setupMapperDao(typeRegistry: TypeRegistry, events: Events = new Events, cache: Option[Cache] = None) =
 		{
-			val properties = new Properties
-			logger.debug("connecting to %s".format(database))
-			properties.load(getClass.getResourceAsStream("/jdbc.test.%s.properties".format(database)))
+			val properties = loadJdbcProperties
 			val dataSource = BasicDataSourceFactory.createDataSource(properties)
 			val (j, m, q, t) = S.create(Database.byName(database), dataSource, typeRegistry, cache, ISOChronology.getInstance, events)
 			(j, m, q)
 		}
 
+	def loadJdbcProperties = {
+		val properties = new Properties
+		logger.debug("connecting to %s".format(database))
+		properties.load(getClass.getResourceAsStream("/jdbc.test.%s.properties".format(database)))
+		properties
+	}
+
+	def singleConnectionDataSource = {
+		val properties = loadJdbcProperties
+		new SingleConnectionDataSource(
+			properties.getProperty("url"),
+			properties.getProperty("username"),
+			properties.getProperty("password"), true)
+	}
+
+	def from(dataSource: DataSource, entities: List[Entity[_, _, _]]) = {
+		val (j, m, q, t) = S.create(Database.byName(database), dataSource, TypeRegistry(entities))
+		(j, m, q, t)
+	}
 	def dropAllTables(jdbc: Jdbc): Int =
 		{
 			var errors = 0

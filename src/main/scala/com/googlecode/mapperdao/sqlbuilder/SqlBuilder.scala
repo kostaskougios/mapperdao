@@ -390,18 +390,22 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			this
 		}
 
-		def toSql = "insert into %s(%s) values(%s)".format(
-			escapeNamesStrategy.escapeTableNames(table.table),
-			(
+		//insert into %s(%s) values(%s)
+		def toSql = ("insert into " +
+			escapeNamesStrategy.escapeTableNames(table.table)
+			+ "("
+			+ (
 				css.map {
 					case (c, s) => escapeNamesStrategy.escapeColumnNames(c.name)
 				} ::: cvs.map {
 					case (c, v) => escapeNamesStrategy.escapeColumnNames(c.name)
 				}
-			).mkString(","),
-			(
-				css.map { case (c, s) => s } ::: cvs.map(cv => "?")
 			).mkString(",")
+				+ ") values(" +
+				(
+					css.map { case (c, s) => s } ::: cvs.map(cv => "?")
+				).mkString(",")
+					+ ")"
 		)
 		def toValues: List[SqlParameterValue] = Jdbc.toSqlParameter(cvs.map {
 			case (c, v) =>
