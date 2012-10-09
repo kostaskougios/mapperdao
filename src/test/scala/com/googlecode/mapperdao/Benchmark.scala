@@ -23,11 +23,11 @@ object Benchmark extends App {
 	createProductAttribute(jdbc)
 
 	println("warm up...")
-	benchmarkInsert(100)
+	benchmarkInsert(500)
 
 	println("benchmarking...")
 	val start = System.currentTimeMillis
-	benchmarkInsert(1000000)
+	benchmarkInsert(10000)
 	val stop = System.currentTimeMillis
 	println("dt : " + (stop - start))
 
