@@ -40,7 +40,7 @@ class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 				val fo = newValuesMap.valueOf[Any](ci)
 
 				val c = ci.column
-				val oldV: Persisted = oldValuesMap.valueOf(c.alias)
+				val oldV: Persisted = oldValuesMap.valueOf(c)
 				val v = if (fo == null) {
 					values :::= c.selfColumns zip nullList
 					null

@@ -17,19 +17,16 @@ private[mapperdao] trait MemoryEfficientMap[K, V] {
 		val t = (keys.zip(values)).toList.asInstanceOf[Traversable[(K, V)]]
 		scala.collection.mutable.Map.empty ++ t
 	}
-	// override this to transform a key
-	def transformKey(k: K) = k
 
 	def initializeMEM(m: scala.collection.Map[K, V]) {
 		var i = 0
-		val (ks, vs) = m.map { case (k, v) => (transformKey(k), v) }.unzip
+		val (ks, vs) = m.map { case (k, v) => (k, v) }.unzip
 		keys = ks.toArray
 		values = vs.toArray
 	}
 
 	private def findKeyIndex(k: K) = {
-		val tk = transformKey(k)
-		keys.indexWhere(kk => tk == kk)
+		keys.indexWhere(kk => k == kk)
 	}
 	private def findKeyIndexSafe(k: K) = {
 		val idx = findKeyIndex(k)

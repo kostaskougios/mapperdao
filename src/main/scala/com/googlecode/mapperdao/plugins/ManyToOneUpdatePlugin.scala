@@ -54,7 +54,7 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 
 			val mtoColumns = mtoColumnInfos.map(_.column)
 			val manyToOneChanged = mtoColumns.filter(Equality.onlyChanged(_, newValuesMap, oldValuesMap))
-			val mtoArgsV = manyToOneChanged.map(mto => (mto, mto.foreign.entity, newValuesMap.valueOf[Any](mto.alias))).map {
+			val mtoArgsV = manyToOneChanged.map(mto => (mto, mto.foreign.entity, newValuesMap.valueOf[Any](mto))).map {
 				case (column, entity, entityO) =>
 					entity match {
 						case ee: ExternalEntity[Any, Any] =>

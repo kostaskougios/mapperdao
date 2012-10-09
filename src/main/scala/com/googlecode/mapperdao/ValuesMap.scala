@@ -25,13 +25,13 @@ class ValuesMap private (mOrig: scala.collection.Map[String, Any])
 		extends MemoryEfficientMap[String, Any]
 		with SynchronizedMemoryEfficientMap[String, Any] {
 
-	initializeMEM(mOrig)
-
-	override def transformKey(k: String) = k.toLowerCase
+	initializeMEM(mOrig.map {
+		case (k, v) => (k.toLowerCase, v)
+	})
 
 	def contains(c: ColumnBase) = containsMEM(c.alias)
 
-	def columnValue[T](ci: ColumnInfoRelationshipBase[_, _, _, _, _]): T = columnValue(ci.column.alias)
+	def columnValue[T](ci: ColumnInfoRelationshipBase[_, _, _, _, _]): T = columnValue(ci.column.aliasLowerCase)
 
 	/**
 	 * returns true if the relationship is not yet loaded
@@ -41,16 +41,18 @@ class ValuesMap private (mOrig: scala.collection.Map[String, Any])
 		case _ => true
 	}
 
-	def columnValue[T](column: ColumnBase): T = columnValue(column.alias)
+	def columnValue[T](column: ColumnBase): T = columnValue(column.aliasLowerCase)
 
-	def columnValue[T](column: String): T = {
+	private def columnValue[T](column: String): T = {
 		val v = getMEM(column)
 		v.asInstanceOf[T]
 	}
 
-	protected[mapperdao] def valueOf[V](ci: ColumnInfoBase[_, V]): V = valueOf(ci.column.alias)
+	protected[mapperdao] def valueOf[V](ci: ColumnInfoBase[_, V]): V = valueOf(ci.column.aliasLowerCase)
 
-	protected[mapperdao] def valueOf[T](column: String): T = {
+	protected[mapperdao] def valueOf[T](column: ColumnBase): T = valueOf[T](column.aliasLowerCase)
+
+	private def valueOf[T](column: String): T = {
 		// to avoid lazy loading twice in 2 separate threads, and avoid corrupting the map, we need to sync
 		val v = synchronized {
 			getMEMOrElse(column, null) match {
@@ -67,120 +69,108 @@ class ValuesMap private (mOrig: scala.collection.Map[String, Any])
 
 	private[mapperdao] def update[T, V](column: ColumnInfoBase[T, _], v: V): Unit =
 		{
-			val key = column.column.alias
+			val key = column.column.aliasLowerCase
 			putMEM(key, v)
 		}
 
 	private[mapperdao] def update[T, V](column: ColumnInfoRelationshipBase[T, _, _, _, _], v: V): Unit =
 		{
-			val key = column.column.alias
+			val key = column.column.aliasLowerCase
 			putMEM(key, v)
 		}
 
 	def raw[T, V](column: ColumnInfo[T, V]): Option[Any] = {
-		val key = column.column.name
+		val key = column.column.nameLowerCase
 		getMEMOption(key)
 	}
 
 	def apply[T, V](column: ColumnInfo[T, V]): V =
 		{
-			val key = column.column.name
-			val v = valueOf[V](key)
+			val v = valueOf[V](column.column)
 			v
 		}
 
 	def isNull[T, V](column: ColumnInfo[T, V]): Boolean =
-		valueOf[V](column.column.name) == null
+		valueOf[V](column.column) == null
 
 	def apply[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoOneToOne[T, FID, FPC, F]): F =
-		{
-			val key = column.column.alias
-			valueOf[F](key)
-		}
+		valueOf[F](column.column)
 
 	def apply[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoOneToOneReverse[T, FID, FPC, F]): F =
-		{
-			val key = column.column.alias
-			valueOf[F](key)
-		}
+		valueOf[F](column.column)
 
 	def apply[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F]): Traversable[F] =
-		{
-			val key = column.column.alias
-			valueOf[Traversable[F]](key)
-		}
+		valueOf[Traversable[F]](column.column)
 
 	def apply[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableManyToMany[T, FID, FPC, F]): Traversable[F] =
-		{
-			val key = column.column.alias
-			valueOf[Traversable[F]](key)
-		}
+		valueOf[Traversable[F]](column.column)
 
 	def apply[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoManyToOne[T, FID, FPC, F]) =
-		{
-			val key = column.column.alias
-			valueOf[F](key)
-		}
+		valueOf[F](column.column)
 
 	def float[T](column: ColumnInfo[T, java.lang.Float]): java.lang.Float =
-		valueOf[java.lang.Float](column.column.name)
+		valueOf[java.lang.Float](column.column)
 
 	def double[T](column: ColumnInfo[T, java.lang.Double]): java.lang.Double =
-		valueOf[java.lang.Double](column.column.name)
+		valueOf[java.lang.Double](column.column)
 
 	def short[T](column: ColumnInfo[T, java.lang.Short]): java.lang.Short =
-		valueOf[java.lang.Short](column.column.name)
+		valueOf[java.lang.Short](column.column)
 
 	def int[T](column: ColumnInfo[T, java.lang.Integer]): java.lang.Integer =
-		valueOf[java.lang.Integer](column.column.name)
+		valueOf[java.lang.Integer](column.column)
 
 	def long[T](column: ColumnInfo[T, java.lang.Long]): java.lang.Long =
-		valueOf[java.lang.Long](column.column.name)
+		valueOf[java.lang.Long](column.column)
 
 	def bigDecimal[T](column: ColumnInfo[T, BigDecimal]): BigDecimal =
-		valueOf[BigDecimal](column.column.name)
+		valueOf[BigDecimal](column.column)
 
 	def bigInt[T](column: ColumnInfo[T, BigInt]): BigInt =
-		valueOf[BigInt](column.column.name)
+		valueOf[BigInt](column.column)
 
 	def date[T](column: ColumnInfo[T, Date]): Date =
-		valueOf[DateTime](column.column.name) match {
+		valueOf[DateTime](column.column) match {
 			case dt: DateTime => dt.toDate
 			case null => null
 		}
 
 	def calendar[T](column: ColumnInfo[T, Calendar]): Calendar =
-		valueOf[DateTime](column.column.name) match {
+		valueOf[DateTime](column.column) match {
 			case dt: DateTime => dt.toCalendar(Locale.getDefault)
 			case null => null
 		}
 
 	def boolean[T](column: ColumnInfo[T, java.lang.Boolean]): java.lang.Boolean =
-		valueOf[java.lang.Boolean](column.column.name)
+		valueOf[java.lang.Boolean](column.column)
 
-	def mutableHashSet[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableManyToMany[T, FID, FPC, F]): scala.collection.mutable.HashSet[F] = new scala.collection.mutable.HashSet ++ apply(column)
-	def mutableLinkedList[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableManyToMany[T, FID, FPC, F]): scala.collection.mutable.LinkedList[F] = new scala.collection.mutable.LinkedList ++ apply(column)
+	def mutableHashSet[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableManyToMany[T, FID, FPC, F]): scala.collection.mutable.HashSet[F] =
+		new scala.collection.mutable.HashSet ++ apply(column)
+	def mutableLinkedList[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableManyToMany[T, FID, FPC, F]): scala.collection.mutable.LinkedList[F] =
+		new scala.collection.mutable.LinkedList ++ apply(column)
 
-	def mutableHashSet[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F]): scala.collection.mutable.HashSet[F] = new scala.collection.mutable.HashSet ++ apply(column)
-	def mutableLinkedList[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F]): scala.collection.mutable.LinkedList[F] = new scala.collection.mutable.LinkedList ++ apply(column)
+	def mutableHashSet[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F]): scala.collection.mutable.HashSet[F] =
+		new scala.collection.mutable.HashSet ++ apply(column)
+	def mutableLinkedList[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F]): scala.collection.mutable.LinkedList[F] =
+		new scala.collection.mutable.LinkedList ++ apply(column)
 
 	/**
 	 * the following methods do a conversion
 	 */
-	protected[mapperdao] def set[T](column: String): Set[T] = valueOf[Any](column) match {
+	protected[mapperdao] def set[T](column: String): Set[T] = valueOf[Any](column.toLowerCase) match {
 		case t: Traversable[T] => t.toSet
 		case i: java.lang.Iterable[T] => i.asScala.toSet
 	}
-	protected[mapperdao] def seq[T](column: String): Seq[T] = valueOf[Any](column) match {
+	protected[mapperdao] def seq[T](column: String): Seq[T] = valueOf[Any](column.toLowerCase) match {
 		case t: Traversable[T] => t.toSeq
 		case i: java.lang.Iterable[T] => i.asScala.toSeq
 	}
 
 	override def toString = memToString
 
-	protected[mapperdao] def toListOfColumnAndValueTuple(columns: List[ColumnBase]) = columns.map(c => (c, getMEM(c.alias)))
-	protected[mapperdao] def toListOfSimpleColumnAndValueTuple(columns: List[SimpleColumn]) = columns.map(c => (c, getMEM(c.alias)))
-	protected[mapperdao] def toListOfColumnValue(columns: List[ColumnBase]) = columns.map(c => getMEM(c.alias))
+	protected[mapperdao] def toListOfColumnAndValueTuple(columns: List[ColumnBase]) = columns.map(c => (c, getMEM(c.aliasLowerCase)))
+	protected[mapperdao] def toListOfSimpleColumnAndValueTuple(columns: List[SimpleColumn]) = columns.map(c => (c, getMEM(c.aliasLowerCase)))
+	protected[mapperdao] def toListOfColumnValue(columns: List[ColumnBase]) = columns.map(c => getMEM(c.aliasLowerCase))
 	protected[mapperdao] def isSimpleColumnsChanged[ID, PC <: DeclaredIds[ID], T](tpe: Type[ID, PC, T], from: ValuesMap): Boolean =
 		tpe.table.simpleTypeColumnInfos.exists { ci =>
 			!Equality.isEqual(apply(ci), from.apply(ci))
@@ -202,7 +192,7 @@ object ValuesMap {
 			}
 
 			o match {
-				case p: T with Persisted with PC =>
+				case p: T with PC =>
 					// include any auto-generated columns
 					nm ++= table.toPCColumnAliasAndValueMap(table.simpleTypeAutoGeneratedColumns, p).map(e => (e._1, if (clone) deepClone(e._2) else e._2))
 				case _ =>

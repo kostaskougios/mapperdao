@@ -74,7 +74,7 @@ class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeM
 									entityMap.up
 							}
 						} else {
-							val oldV: Any = oldValuesMap.valueOf(c.alias)
+							val oldV: Any = oldValuesMap.valueOf(c)
 							if (oldV != null) {
 								// delete the old value from the database
 								val args = c.foreignColumns zip newValuesMap.toListOfColumnValue(tpe.table.primaryKeys)
