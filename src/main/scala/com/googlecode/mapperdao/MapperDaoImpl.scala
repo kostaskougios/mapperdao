@@ -145,6 +145,7 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 	 */
 	override def insert[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T): T with PC =
 		{
+			if (o == null) throw new NullPointerException("o can't be null")
 			val entityMap = new UpdateEntityMap
 			try {
 				val v = insertInner(updateConfig, entity, o, entityMap)

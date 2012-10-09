@@ -120,6 +120,9 @@ object Helpers {
 		}
 
 	def idToList[ID](id: ID): List[Any] = id match {
+		case i: Int => List(i)
+		case l: Long => List(l)
+		case s: String => List(s)
 		case (a1, a2) => List(a1, a2)
 		case (a1, a2, a3) => List(a1, a2, a3)
 		case a => List(a)
