@@ -336,7 +336,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		def toSql = escapeNamesStrategy.escapeColumnNames(column) + " " + ascDesc
 	}
 	class OrderByBuilder(expressions: List[OrderByExpression]) {
-		def toSql = "order by %s".format(expressions.map(_.toSql).mkString(","))
+		def toSql = "order by " + expressions.map(_.toSql).mkString(",")
 	}
 
 	class DeleteBuilder {
