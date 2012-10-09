@@ -390,11 +390,11 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 			val tpe = entity.tpe
 			val table = tpe.table
 			// calculate the id's for this tpe
-			val pkIds = table.primaryKeys.map { pk => jdbcMap(pk.name) } ::: selectBeforePlugins.map {
+			val pkIds = table.primaryKeys.map { pk => jdbcMap(pk) } ::: selectBeforePlugins.map {
 				_.idContribution(tpe, jdbcMap, entities)
 			}.flatten
 			val unusedIds = table.unusedPKs.map { pk =>
-				jdbcMap(pk.name)
+				jdbcMap(pk)
 			}
 			val ids = pkIds ::: unusedIds
 			if (ids.isEmpty)

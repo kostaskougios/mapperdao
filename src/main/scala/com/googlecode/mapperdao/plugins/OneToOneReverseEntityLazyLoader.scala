@@ -26,7 +26,7 @@ class OneToOneReverseEntityLazyLoader[ID, PC <: DeclaredIds[ID], T, FID, FPC <: 
 			val c = ci.column
 			val fe = c.foreign.entity
 			val ftpe = fe.tpe
-			val ids = tpe.table.primaryKeys.map { pk => om(pk.name) }
+			val ids = tpe.table.primaryKeys.map { pk => om(pk) }
 			val keys = c.foreignColumns.zip(ids)
 			val fom = mapperDao.driver.doSelect(selectConfig, ftpe, keys)
 			val otmL = mapperDao.toEntities(fom, fe, selectConfig, down)

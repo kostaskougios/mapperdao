@@ -20,7 +20,7 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 				parentCI match {
 					case _: ColumnInfoOneToOneReverse[_, _, _, _] =>
 						// we need to contribute the parent's id's to the entity's id 
-						parentTpe.table.primaryKeys.map(c => parentJdbcMap(c.name))
+						parentTpe.table.primaryKeys.map(c => parentJdbcMap(c))
 					case _ => Nil
 				}
 			} else Nil
@@ -39,7 +39,7 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 				val v = ci.column.foreign.entity match {
 					case ee: ExternalEntity[Any, Any] =>
 						() => {
-							val foreignIds = tpe.table.primaryKeys.map { pk => om(pk.name) }
+							val foreignIds = tpe.table.primaryKeys.map { pk => om(pk) }
 							ee.oneToOneOnSelectMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[_, _, _, Any]])(SelectExternalOneToOneReverse(selectConfig, foreignIds))
 						}
 					case _ =>

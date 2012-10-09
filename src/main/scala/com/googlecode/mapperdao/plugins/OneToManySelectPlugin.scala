@@ -22,7 +22,7 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 			case ci: ColumnInfoTraversableOneToMany[_, _, T, Any, DeclaredIds[Any], Any] =>
 				val parentTable = peek.tpe.table
 				val parentValues = peek.databaseValues
-				val ids = ci.column.columns zip parentTable.primaryKeys.map { column => parentValues(column.name) }
+				val ids = ci.column.columns zip parentTable.primaryKeys.map { column => parentValues(column) }
 				ids
 			case _ => Nil
 		}
@@ -45,7 +45,7 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 							() => {
 								val table = tpe.table
 								val ids = table.primaryKeys.map { pk =>
-									om(pk.name)
+									om(pk)
 								}
 								ee.oneToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, _, _, _, Any]])(SelectExternalOneToMany(selectConfig, ids))
 							}

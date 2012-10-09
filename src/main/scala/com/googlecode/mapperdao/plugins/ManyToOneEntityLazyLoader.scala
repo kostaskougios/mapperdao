@@ -23,7 +23,7 @@ class ManyToOneEntityLazyLoader[T, FID, FPC <: DeclaredIds[FID], F](
 		{
 			val c = cis.column
 			val fe = c.foreign.entity
-			val foreignPKValues = c.columns.map(mtoc => om(mtoc.name))
+			val foreignPKValues = c.columns.map(mtoc => om(mtoc))
 
 			val v = mapperDao.selectInner(fe, selectConfig, foreignPKValues, down).getOrElse(null)
 			v

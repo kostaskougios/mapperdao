@@ -30,7 +30,7 @@ class ManyToManyEntityLazyLoader[ID, PC <: DeclaredIds[ID], T, FID, FPC <: Decla
 			val c = ci.column
 			val fe = c.foreign.entity
 			val ftpe = fe.tpe
-			val ids = entity.tpe.table.primaryKeys.map { pk => om(pk.name) }
+			val ids = entity.tpe.table.primaryKeys.map { pk => om(pk) }
 			val keys = c.linkTable.left zip ids
 			val customLoader = selectConfig.loaderFor(ci)
 

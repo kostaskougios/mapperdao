@@ -24,5 +24,5 @@ private[mapperdao] class MapOfList[K, V](keyModifier: K => K) extends Traversabl
 }
 
 object MapOfList {
-	def stringToLowerCaseModifier(key: String) = key.toLowerCase()
+	def stringToLowerCaseModifier(key: String) = key.toLowerCase
 }

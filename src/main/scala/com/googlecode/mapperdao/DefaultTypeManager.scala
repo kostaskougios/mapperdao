@@ -155,12 +155,12 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 			case ci: ColumnInfo[T, _] =>
 				val column = ci.column
 				val v = j(column.name)
-				(column.name.toLowerCase, corrections(ci.dataType)(v))
+				(column.nameLowerCase, corrections(ci.dataType)(v))
 		}
 		val sts = table.simpleTypeColumnInfos.map { ci =>
 			val column = ci.column
 			val v = j(column.name)
-			(column.name.toLowerCase, corrections(ci.dataType)(v))
+			(column.nameLowerCase, corrections(ci.dataType)(v))
 		}
 
 		// related data (if any)
@@ -188,7 +188,7 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		foreign: TypeRef[FID, FPC, F], j: JdbcMap) = {
 		val fe = foreign.entity
 		val ftable = fe.tpe.table
-		val columnNames = column.columns.map(_.name)
+		val columnNames = column.columns.map(_.nameLowerCase)
 		val forT = (columnNames zip (
 			ftable.primaryKeyColumnInfosForTWithPC.map(_.dataType)
 			:::
@@ -196,7 +196,7 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		).map {
 				case (name, t) =>
 					val v = j(name)
-					(name.toLowerCase, corrections(t)(v))
+					(name, corrections(t)(v))
 			}
 		forT
 	}
