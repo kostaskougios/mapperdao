@@ -443,12 +443,16 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 
 		def results = Result(toSql, toValues)
 
-		def toSql = "update %s\nset %s\n%s".format(table.toSql,
-			columnAndValues.map {
+		def toSql = (
+			"update "
+			+ table.toSql
+			+ "\nset "
+			+ columnAndValues.map {
 				case (c, v) =>
 					escapeNamesStrategy.escapeColumnNames(c.name) + " = ?"
-			}.mkString(","),
-			where.toSql
+			}.mkString(",")
+			+ "\n"
+			+ where.toSql
 		)
 
 		def toValues = Jdbc.toSqlParameter(

@@ -27,7 +27,7 @@ object Benchmark extends App {
 	println("will run for %d loops".format(loops))
 	createProductAttribute(jdbc)
 
-	println("warm up...")
+	println("warm up " + args(1))
 	val method = args(1) match {
 		case "insert" =>
 			val m = benchmarkInsert _
