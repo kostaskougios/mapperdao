@@ -166,6 +166,9 @@ case class Table[ID, PC <: DeclaredIds[ID], T](
 
 	def toColumnAliasAndValueMap(columns: List[ColumnBase], o: T): Map[String, Any] = toColumnAndValueMap(columns, o).map(e => (e._1.alias, e._2))
 	def toPCColumnAliasAndValueMap(columns: List[ColumnBase], o: T with PC): Map[String, Any] = toPCColumnAndValueMap(columns, o).map(e => (e._1.alias, e._2))
+
+	val selectColumns = simpleTypeColumns ::: manyToOneColumns.map(_.columns).flatten ::: oneToOneColumns.map(_.selfColumns).flatten
+	val distinctSelectColumnsForSelect = (selectColumns ::: unusedPKs).distinct
 }
 
 case class LinkTable(name: String, left: List[Column], right: List[Column])

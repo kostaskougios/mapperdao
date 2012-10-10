@@ -162,11 +162,7 @@ abstract class Driver {
 	 * SELECT
 	 * =====================================================================================
 	 */
-	def selectColumns[ID, PC <: DeclaredIds[ID], T](tpe: Type[ID, PC, T]): List[SimpleColumn] =
-		{
-			val table = tpe.table
-			table.simpleTypeColumns ::: table.manyToOneColumns.map(_.columns).flatten ::: table.oneToOneColumns.map(_.selfColumns).flatten
-		}
+
 	/**
 	 * default impl of select
 	 */
@@ -185,9 +181,7 @@ abstract class Driver {
 		{
 			val sql = new sqlBuilder.SqlSelectBuilder
 			sql.columns(null,
-				(
-					selectColumns(tpe) ::: tpe.table.unusedPKs
-				).distinct
+				tpe.table.distinctSelectColumnsForSelect
 			)
 			sql.from(tpe.table.name, null, applyHints(selectConfig.hints))
 			sql.where(null, where, "=")
@@ -213,7 +207,7 @@ abstract class Driver {
 			val linkTable = manyToMany.linkTable
 
 			val sql = new sqlBuilder.SqlSelectBuilder
-			val fColumns = selectColumns(ftpe)
+			val fColumns = ftpe.table.selectColumns
 			sql.columns("f", fColumns)
 			sql.from(ftpe.table.name, "f", applyHints(selectConfig.hints))
 			val j = sql.innerJoin(linkTable.name, "l", applyHints(selectConfig.hints))

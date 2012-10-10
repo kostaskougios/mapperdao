@@ -59,7 +59,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 		{
 			val e = qe.entity
 			val tpe = e.tpe
-			val columns = driver.selectColumns(tpe)
+			val columns = tpe.table.selectColumns
 
 			val aliases = new Aliases(typeRegistry)
 
