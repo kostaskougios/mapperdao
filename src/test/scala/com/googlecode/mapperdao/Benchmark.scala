@@ -27,18 +27,21 @@ object Benchmark extends App {
 	println("will run for %d loops".format(loops))
 	createProductAttribute(jdbc)
 
+	println("warm up...")
 	val method = args(1) match {
-		case "insert" => benchmarkInsert _
+		case "insert" =>
+			val m = benchmarkInsert _
+			m(500)
+			m
 		case "select" =>
 			val inserted = mapperDao.insert(ProductEntity, p)
-			benchmarkSelect(inserted.id, _: Int)
+			val m = benchmarkSelect(inserted.id, _: Int)
+			m(500)
+			m
+		case "update" =>
+			benchmarkUpdate(mapperDao.insert(ProductEntity, p), 500)
+			benchmarkUpdate(mapperDao.insert(ProductEntity, p), _: Int)
 	}
-
-	println("warm up...")
-	method(500)
-
-	//	println("press enter for the test to start")
-	//	readLine
 
 	println("benchmarking...")
 	val start = System.currentTimeMillis
@@ -55,6 +58,13 @@ object Benchmark extends App {
 	def benchmarkSelect(id: Int, loops: Int) {
 		for (i <- 0 to loops) {
 			mapperDao.select(ProductEntity, id)
+		}
+	}
+
+	def benchmarkUpdate(inserted: Product with SurrogateIntId, loops: Int) {
+		var old = inserted
+		for (i <- 0 to loops) {
+			old = mapperDao.update(ProductEntity, old, p)
 		}
 	}
 }

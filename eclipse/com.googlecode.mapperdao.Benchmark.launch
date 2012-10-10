@@ -10,7 +10,7 @@
 <mapEntry key="[debug]" value="scala.application.new"/>
 </mapAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.googlecode.mapperdao.Benchmark"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="10000 select"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="10000 update"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="mapperdao"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlogback.configurationFile=logback-mvn-test.xml"/>
 </launchConfiguration>
