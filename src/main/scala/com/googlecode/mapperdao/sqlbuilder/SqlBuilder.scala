@@ -360,8 +360,8 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 
 		def result = Result(toSql, toValues)
 
-		def toSql = "delete from %s %s".format(fromClause.toSql, whereBuilder.toSql)
-		def toValues: List[SqlParameterValue] = whereBuilder.toValues
+		def toSql = "delete from %s %s".format(fromClause.toSql, if (whereBuilder == null) "" else whereBuilder.toSql)
+		def toValues: List[SqlParameterValue] = if (whereBuilder == null) Nil else whereBuilder.toValues
 
 		override def toString = "DeleteBuilder(%s)".format(toSql)
 	}

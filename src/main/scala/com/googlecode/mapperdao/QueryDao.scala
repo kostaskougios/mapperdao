@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao
 import com.googlecode.mapperdao.exceptions.QueryException
 import com.googlecode.mapperdao.drivers.Driver
+import com.googlecode.mapperdao.jdbc.UpdateResult
 
 /**
  * querydao takes care of querying the database and fetching entities using
@@ -160,7 +161,7 @@ trait QueryDao {
 	 */
 	def lowLevelQuery[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], sql: String, args: List[Any]): List[T with PC]
 
-	def delete[ID, PC <: DeclaredIds[ID], T](d: Delete.Where[ID, PC, T]): Long
+	def delete[ID, PC <: DeclaredIds[ID], T](d: Delete.Where[ID, PC, T]): UpdateResult
 
 }
 

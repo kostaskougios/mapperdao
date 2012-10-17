@@ -16,6 +16,6 @@ object Delete {
 	}
 
 	protected[mapperdao] class Where[ID, PC <: DeclaredIds[ID], T](val entity: Entity[ID, PC, T]) {
-		def run(queryDao: QueryDao) = queryDao.delete(this)
+		def run(implicit queryDao: QueryDao) = queryDao.delete(this)
 	}
 }
