@@ -26,52 +26,7 @@ import org.joda.time.DateTime
  *
  * 15 Aug 2011
  */
-object Query {
-	/**
-	 * manages simple type expressions
-	 */
-	protected class Convertor[T, V](t: ColumnInfo[T, V]) {
-		def >(v: V) = new Operation(t.column, GT(), v)
-		def >(v: ColumnInfo[_, V]) = new Operation(t.column, GT(), v.column)
-
-		def >=(v: V) = new Operation(t.column, GE(), v)
-		def >=(v: ColumnInfo[_, V]) = new Operation(t.column, GE(), v.column)
-
-		def <(v: V) = new Operation(t.column, LT(), v)
-		def <(v: ColumnInfo[_, V]) = new Operation(t.column, LT(), v.column)
-
-		def <>(v: V) = new Operation(t.column, NE(), v)
-		def <>(v: ColumnInfo[_, V]) = new Operation(t.column, NE(), v.column)
-
-		def <=(v: V) = new Operation(t.column, LE(), v)
-		def <=(v: ColumnInfo[_, V]) = new Operation(t.column, LE(), v.column)
-
-		def ===(v: V) = new Operation(t.column, EQ(), v)
-		def ===(v: ColumnInfo[_, V]) = new Operation(t.column, EQ(), v.column)
-
-		def like(v: V) = new Operation(t.column, LIKE(), v)
-		def like(v: ColumnInfo[_, V]) = new Operation(t.column, LIKE(), v.column)
-	}
-
-	implicit def columnInfoToOperableString[T](ci: ColumnInfo[T, String]) = new Convertor(ci)
-	implicit def columnInfoToOperableByte[T](ci: ColumnInfo[T, Byte]) = new Convertor(ci)
-	implicit def columnInfoToOperableShort[T](ci: ColumnInfo[T, Short]) = new Convertor(ci)
-	implicit def columnInfoToOperableInt[T](ci: ColumnInfo[T, Int]) = new Convertor(ci)
-	implicit def columnInfoToOperableLong[T](ci: ColumnInfo[T, Long]) = new Convertor(ci)
-	implicit def columnInfoToOperableFloat[T](ci: ColumnInfo[T, Float]) = new Convertor(ci)
-	implicit def columnInfoToOperableDouble[T](ci: ColumnInfo[T, Double]) = new Convertor(ci)
-	implicit def columnInfoToOperableBoolean[T](ci: ColumnInfo[T, Boolean]) = new Convertor(ci)
-	implicit def columnInfoToOperableDateTime[T](ci: ColumnInfo[T, DateTime]) = new Convertor(ci)
-	implicit def columnInfoToOperableBigInt[T](ci: ColumnInfo[T, BigInt]) = new Convertor(ci)
-	implicit def columnInfoToOperableBigDecimal[T](ci: ColumnInfo[T, BigDecimal]) = new Convertor(ci)
-
-	// java
-	implicit def columnInfoToOperableJShort[T](ci: ColumnInfo[T, java.lang.Short]) = new Convertor(ci)
-	implicit def columnInfoToOperableJInteger[T](ci: ColumnInfo[T, java.lang.Integer]) = new Convertor(ci)
-	implicit def columnInfoToOperableJLong[T](ci: ColumnInfo[T, java.lang.Long]) = new Convertor(ci)
-	implicit def columnInfoToOperableJFloat[T](ci: ColumnInfo[T, java.lang.Float]) = new Convertor(ci)
-	implicit def columnInfoToOperableJDouble[T](ci: ColumnInfo[T, java.lang.Double]) = new Convertor(ci)
-	implicit def columnInfoToOperableJBoolean[T](ci: ColumnInfo[T, java.lang.Boolean]) = new Convertor(ci)
+object Query extends SqlImplicitConvertions {
 
 	/**
 	 * manages many-to-one expressions
@@ -280,65 +235,3 @@ object Query {
 		override def toString = "Where(%s)".format(clauses)
 	}
 }
-
-sealed abstract class Operand {
-	def sql: String
-
-	override def toString = "Operand(%s)".format(sql)
-}
-
-case class LT() extends Operand { def sql = "<" }
-case class LE() extends Operand { def sql = "<=" }
-case class EQ() extends Operand { def sql = "=" }
-case class GT() extends Operand { def sql = ">" }
-case class GE() extends Operand { def sql = ">=" }
-case class NE() extends Operand { def sql = "<>" }
-case class LIKE() extends Operand { def sql = "like" }
-
-class OpBase {
-	def and(op: OpBase) = AndOp(this, op)
-	def or(op: OpBase) = OrOp(this, op)
-}
-case class Operation[V](left: SimpleColumn, operand: Operand, right: V) extends OpBase {
-	override def toString = "%s %s %s".format(left, operand, right)
-}
-case class ManyToOneOperation[FID, FPC <: DeclaredIds[FID], F, V](left: ManyToOne[FID, FPC, F], operand: Operand, right: V) extends OpBase {
-	override def toString = "%s %s %s".format(left, operand, right)
-}
-case class OneToManyOperation[FID, FPC <: DeclaredIds[FID], F, V](left: OneToMany[FID, FPC, F], operand: Operand, right: V) extends OpBase {
-	if (right == null) throw new NullPointerException("Value can't be null in one-to-many FK queries. Expression was on %s.".format(left))
-	override def toString = "%s %s %s".format(left, operand, right)
-}
-
-case class OneToManyDeclaredPrimaryKeyOperation[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](
-		left: OneToMany[FID, FPC, F],
-		operand: Operand,
-		right: T,
-		entityOfT: Entity[ID, PC, T]) extends OpBase {
-	if (right == null) throw new NullPointerException("Value can't be null in one-to-many FK queries. Expression was on %s.".format(left))
-	override def toString = "%s %s %s".format(left, operand, right)
-}
-
-case class ManyToManyOperation[FID, FPC <: DeclaredIds[FID], F, V](left: ManyToMany[FID, FPC, F], operand: Operand, right: V) extends OpBase {
-	if (right == null) throw new NullPointerException("Value can't be null in many-to-many FK queries. Expression was on %s.".format(left))
-	override def toString = "%s %s %s".format(left, operand, right)
-}
-
-case class OneToOneOperation[FID, FPC <: DeclaredIds[FID], F, V](left: OneToOne[FID, FPC, F], operand: Operand, right: V) extends OpBase {
-	if (right == null) throw new NullPointerException("Value can't be null in one-to-one FK queries. Expression was on %s.".format(left))
-	override def toString = "%s %s %s".format(left, operand, right)
-}
-
-case class OneToOneReverseOperation[FID, FPC <: DeclaredIds[FID], F, V](left: OneToOneReverse[FID, FPC, F], operand: Operand, right: V) extends OpBase {
-	if (right == null) throw new NullPointerException("Value can't be null in one-to-one FK queries. Expression was on %s.".format(left))
-	override def toString = "%s %s %s".format(left, operand, right)
-}
-
-case class AndOp(left: OpBase, right: OpBase) extends OpBase {
-	override def toString = "(%s and %s)".format(left, right)
-}
-
-case class OrOp(left: OpBase, right: OpBase) extends OpBase {
-	override def toString = "(%s or %s)".format(left, right)
-}
-

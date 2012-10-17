@@ -19,12 +19,7 @@ class DeleteSuite extends FunSuite with ShouldMatchers {
 
 	test("delete all") {
 		createProductAttribute(jdbc)
-
-		val a1 = mapperDao.insert(AttributeEntity, Attribute("colour", "red"))
-		val a2 = mapperDao.insert(AttributeEntity, Attribute("size", "10"))
-
-		val p1 = mapperDao.insert(ProductEntity, Product("cpu", Set(a1)))
-		val p2 = mapperDao.insert(ProductEntity, Product("ram", Set(a2)))
+		createTestData
 
 		import Delete._
 		val pe = ProductEntity
@@ -32,5 +27,26 @@ class DeleteSuite extends FunSuite with ShouldMatchers {
 
 		import Query._
 		(select from pe).toList(queryDao) should be(Nil)
+	}
+
+	test("delete simple where clause") {
+		createProductAttribute(jdbc)
+		val (p1, p2) = createTestData
+
+		import Delete._
+		val pe = ProductEntity
+		//		(delete from pe where pe.name === "cpu").run(queryDao).rowsAffected should be(1)
+		//
+		//		import Query._
+		//		(select from pe).toList(queryDao) should be(List(p2))
+	}
+
+	def createTestData = {
+		val a1 = mapperDao.insert(AttributeEntity, Attribute("colour", "red"))
+		val a2 = mapperDao.insert(AttributeEntity, Attribute("size", "10"))
+
+		val p1 = mapperDao.insert(ProductEntity, Product("cpu", Set(a1)))
+		val p2 = mapperDao.insert(ProductEntity, Product("ram", Set(a2)))
+		(p1, p2)
 	}
 }
