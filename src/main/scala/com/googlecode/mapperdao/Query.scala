@@ -28,63 +28,6 @@ import org.joda.time.DateTime
  */
 object Query extends SqlImplicitConvertions {
 
-	/**
-	 * manages many-to-one expressions
-	 */
-	protected class ConvertorManyToOne[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoManyToOne[T, FID, FPC, F]) {
-		def ===(v: F) = new ManyToOneOperation(ci.column, EQ(), v)
-		def <>(v: F) = new ManyToOneOperation(ci.column, NE(), v)
-	}
-	implicit def columnInfoManyToOneOperation[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoManyToOne[T, FID, FPC, F]) =
-		new ConvertorManyToOne(ci)
-
-	/**
-	 * manages one-to-many expressions
-	 */
-	protected class ConvertorOneToMany[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](
-			ci: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F]) {
-		def ===(v: F) = new OneToManyOperation(ci.column, EQ(), v)
-		def <>(v: F) = new OneToManyOperation(ci.column, NE(), v)
-	}
-	implicit def columnInfoOneToManyOperation[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](
-		ci: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F]) = new ConvertorOneToMany(ci)
-
-	protected class ConvertorOneToManyDeclaredPrimaryKey[FID, FPC <: DeclaredIds[FID], F, TID, TPC <: DeclaredIds[TID], T](
-			ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[FID, FPC, F, TID, TPC, T]) {
-		def ===(v: F) = new OneToManyDeclaredPrimaryKeyOperation(ci.declaredColumnInfo.column, EQ(), v, ci.declaredColumnInfo.entityOfT)
-		def <>(v: F) = new OneToManyDeclaredPrimaryKeyOperation(ci.declaredColumnInfo.column, NE(), v, ci.declaredColumnInfo.entityOfT)
-	}
-	implicit def columnInfoOneToManyForDeclaredPrimaryKeyOperation[FID, FPC <: DeclaredIds[FID], F, TID, TPC <: DeclaredIds[TID], T](
-		ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[FID, FPC, F, TID, TPC, T]) =
-		new ConvertorOneToManyDeclaredPrimaryKey[FID, FPC, F, TID, TPC, T](ci)
-
-	/**
-	 * manages many-to-many expressions
-	 */
-	protected class ConvertorManyToMany[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableManyToMany[T, FID, FPC, F]) {
-		def ===(v: F) = new ManyToManyOperation(ci.column, EQ(), v)
-		def <>(v: F) = new ManyToManyOperation(ci.column, NE(), v)
-	}
-	implicit def columnInfoManyToManyOperation[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableManyToMany[T, FID, FPC, F]) = new ConvertorManyToMany[T, FID, FPC, F](ci)
-
-	/**
-	 * manages one-to-one expressions
-	 */
-	protected class ConvertorOneToOne[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoOneToOne[T, FID, FPC, F]) {
-		def ===(v: F) = new OneToOneOperation(ci.column, EQ(), v)
-		def <>(v: F) = new OneToOneOperation(ci.column, NE(), v)
-	}
-	implicit def columnInfoOneToOneOperation[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoOneToOne[T, FID, FPC, F]) = new ConvertorOneToOne[T, FID, FPC, F](ci)
-
-	/**
-	 * manages one-to-one reverse expressions
-	 */
-	protected class ConvertorOneToOneReverse[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoOneToOneReverse[T, FID, FPC, F]) {
-		def ===(v: F) = new OneToOneReverseOperation(ci.column, EQ(), v)
-		def <>(v: F) = new OneToOneReverseOperation(ci.column, NE(), v)
-	}
-	implicit def columnInfoOneToOneReverseOperation[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoOneToOneReverse[T, FID, FPC, F]) = new ConvertorOneToOneReverse[T, FID, FPC, F](ci)
-
 	// starting point of a query, "select" syntactic sugar
 	def select[ID, PC <: DeclaredIds[ID], T] = new QueryFrom[ID, PC, T]
 
