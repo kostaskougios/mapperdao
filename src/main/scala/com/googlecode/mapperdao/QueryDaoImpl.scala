@@ -409,4 +409,9 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			q.columnNames(null, List("count(*)"))
 			q.from(table.name, alias, null)
 		}
+
+	override def delete[ID, PC <: DeclaredIds[ID], T](d: Delete.Where[ID, PC, T]) = {
+		0
+	}
+
 }

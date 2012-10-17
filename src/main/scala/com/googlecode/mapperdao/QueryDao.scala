@@ -159,6 +159,9 @@ trait QueryDao {
 	 * @params	args				a list of arguments
 	 */
 	def lowLevelQuery[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], sql: String, args: List[Any]): List[T with PC]
+
+	def delete[ID, PC <: DeclaredIds[ID], T](d: Delete.Where[ID, PC, T]): Long
+
 }
 
 object QueryDao {
