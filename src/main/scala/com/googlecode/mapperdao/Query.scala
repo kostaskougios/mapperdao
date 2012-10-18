@@ -141,26 +141,13 @@ object Query extends SqlImplicitConvertions {
 			}
 	}
 
-	protected[mapperdao] class Where[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val queryEntity: Builder[ID, PC, T]) extends OrderBy[Where[ID, PC, T]] {
-		var clauses: OpBase = null
+	protected[mapperdao] class Where[ID, PC <: DeclaredIds[ID], T](
+		protected[mapperdao] val queryEntity: Builder[ID, PC, T])
+			extends OrderBy[Where[ID, PC, T]]
+			with SqlWhereMixins[Where[ID, PC, T]] {
 
 		override def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)]) {
 			queryEntity.order :::= l
-		}
-
-		def apply(op: OpBase) =
-			{
-				clauses = op
-				this
-			}
-
-		def and(op: OpBase) = {
-			clauses = AndOp(clauses, op)
-			this
-		}
-		def or(op: OpBase) = {
-			clauses = OrOp(clauses, op)
-			this
 		}
 
 		def where = {

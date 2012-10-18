@@ -35,10 +35,10 @@ class DeleteSuite extends FunSuite with ShouldMatchers {
 
 		import Delete._
 		val pe = ProductEntity
-		//		(delete from pe where pe.name === "cpu").run(queryDao).rowsAffected should be(1)
-		//
-		//		import Query._
-		//		(select from pe).toList(queryDao) should be(List(p2))
+		(delete from pe where pe.name === "cpu").run(queryDao).rowsAffected should be(1)
+
+		import Query._
+		(select from pe).toList(queryDao) should be(List(p2))
 	}
 
 	def createTestData = {

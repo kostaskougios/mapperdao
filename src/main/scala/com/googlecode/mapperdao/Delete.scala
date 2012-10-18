@@ -3,19 +3,33 @@ package com.googlecode.mapperdao
 /**
  * a DSL to delete data.
  *
- * @author kostantinos.kougios
+ * @author ko]]stantinos.kougios
  *
  * 17 Oct 2012
  */
-object Delete {
+object Delete extends SqlImplicitConvertions {
 	def delete = From
+
+	private[mapperdao] trait DeleteDDL[ID, PC <: DeclaredIds[ID], T] {
+
+		private[mapperdao] val entity: Entity[ID, PC, T]
+
+		def run(implicit queryDao: QueryDao) = queryDao.delete(this)
+	}
 
 	protected object From {
 		def from[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T]) =
-			new Where(entity)
+			new FromOptions(entity)
 	}
 
-	protected[mapperdao] class Where[ID, PC <: DeclaredIds[ID], T](val entity: Entity[ID, PC, T]) {
-		def run(implicit queryDao: QueryDao) = queryDao.delete(this)
+	protected[mapperdao] class FromOptions[ID, PC <: DeclaredIds[ID], T](private[mapperdao] val entity: Entity[ID, PC, T])
+			extends DeleteDDL[ID, PC, T] {
+		def where = new Where(this)
+	}
+
+	protected[mapperdao] class Where[ID, PC <: DeclaredIds[ID], T](private[mapperdao] val fromOptions: FromOptions[ID, PC, T])
+			extends DeleteDDL[ID, PC, T]
+			with SqlWhereMixins[Where[ID, PC, T]] {
+		private[mapperdao] val entity = fromOptions.entity
 	}
 }

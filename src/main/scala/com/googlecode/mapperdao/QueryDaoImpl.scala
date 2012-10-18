@@ -410,7 +410,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			q.from(table.name, alias, null)
 		}
 
-	override def delete[ID, PC <: DeclaredIds[ID], T](d: Delete.Where[ID, PC, T]) = {
+	override def delete[ID, PC <: DeclaredIds[ID], T](d: Delete.DeleteDDL[ID, PC, T]) = {
 		val b = new driver.sqlBuilder.DeleteBuilder
 		val entity = d.entity
 		b.from(driver.sqlBuilder.Table(entity.tpe.table.name, "t"))
