@@ -73,7 +73,7 @@ object Query extends SqlImplicitConvertions {
 	 * main query builder, keeps track of all 'where', joins and order by.
 	 */
 	class Builder[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val entity: Entity[ID, PC, T]) extends OrderBy[Builder[ID, PC, T]] {
-		protected[mapperdao] var wheres = List[Where[ID, PC, T]]()
+		protected[mapperdao] var wheres: Option[Where[ID, PC, T]] = None
 		protected[mapperdao] var joins = List[Any]()
 		protected[mapperdao] var order = List[(ColumnInfo[_, _], AscDesc)]()
 
@@ -83,7 +83,7 @@ object Query extends SqlImplicitConvertions {
 
 		def where = {
 			val qe = new Where(this)
-			wheres ::= qe
+			wheres = Some(qe)
 			qe
 		}
 
@@ -132,11 +132,11 @@ object Query extends SqlImplicitConvertions {
 		val on: JoinOn[QID, QPC, QT])
 
 	protected[mapperdao] class JoinOn[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val queryEntity: Builder[ID, PC, T]) {
-		protected[mapperdao] var ons = List[Where[ID, PC, T]]()
+		protected[mapperdao] var ons: Option[Where[ID, PC, T]] = None
 		def on =
 			{
 				val qe = new Where(queryEntity)
-				ons ::= qe
+				ons = Some(qe)
 				qe
 			}
 	}
@@ -152,7 +152,7 @@ object Query extends SqlImplicitConvertions {
 
 		def where = {
 			val qe = new Where(queryEntity)
-			queryEntity.wheres ::= qe
+			queryEntity.wheres = Some(qe)
 			qe
 		}
 
