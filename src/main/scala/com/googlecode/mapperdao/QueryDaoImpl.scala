@@ -130,7 +130,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 	private def whereAndArgs[ID, PC <: DeclaredIds[ID], T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], aliases: Aliases) =
 		// append the where clause and get the list of arguments
 		if (!qe.wheres.isEmpty) {
-			val e = queryExpressions(aliases, qe.wheres)
+			val e = queryExpressions(aliases, qe.wheres.map(_.clauses))
 			q.where(e)
 		}
 
@@ -156,14 +156,16 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 			val jTable = jEntity.tpe.table
 			val qAlias = aliases(jEntity)
 
-			val e = queryExpressions(aliases, join.on.ons)
+			val e = queryExpressions(aliases, join.on.ons.map(_.clauses))
 			val j = new driver.sqlBuilder.InnerJoinBuilder(jTable.name, qAlias, null)
 			j(e)
 			j
 		}
 
 	// creates the sql and params for expressions (i.e. id=5 and name='x')
-	private def queryExpressions[ID, PC <: DeclaredIds[ID], T](aliases: QueryDao.Aliases, wheres: List[Query.Where[ID, PC, T]]): driver.sqlBuilder.Expression =
+	private def queryExpressions[ID, PC <: DeclaredIds[ID], T](
+		aliases: QueryDao.Aliases,
+		clauses: List[OpBase]): driver.sqlBuilder.Expression =
 		{
 			def inner(op: OpBase): driver.sqlBuilder.Expression = op match {
 				case o: Operation[_] =>
@@ -276,7 +278,7 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					new driver.sqlBuilder.FunctionClause(aliases, left)
 			}
 
-			wheres.map(_.clauses).map { op =>
+			clauses.map { op =>
 				inner(op)
 			}.reduceLeft { (l, r) =>
 				driver.sqlBuilder.And(l, r)
@@ -413,7 +415,15 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 	override def delete[ID, PC <: DeclaredIds[ID], T](d: Delete.DeleteDDL[ID, PC, T]) = {
 		val b = new driver.sqlBuilder.DeleteBuilder
 		val entity = d.entity
-		b.from(driver.sqlBuilder.Table(entity.tpe.table.name, "t"))
+		val aliases = new QueryDao.Aliases(typeRegistry)
+		val tableAlias = aliases(d.entity)
+		b.from(driver.sqlBuilder.Table(entity.tpe.table.name, tableAlias))
+		d match {
+			case f: Delete.FromOptions[_, _, _] =>
+			case w: Delete.Where[_, _, _] =>
+				val we = queryExpressions(aliases, List(w.clauses))
+				b.where(new driver.sqlBuilder.WhereBuilder(we))
+		}
 		val sql = b.toSql
 		val args = b.toValues
 		driver.jdbc.update(sql, args)
