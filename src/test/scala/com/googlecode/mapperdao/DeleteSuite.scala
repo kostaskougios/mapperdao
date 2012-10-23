@@ -17,6 +17,23 @@ class DeleteSuite extends FunSuite with ShouldMatchers {
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
+	test("delete with where referencing related data") {
+		createPersonCompany(jdbc)
+
+		val c1 = mapperDao.insert(CompanyEntity, Company("acme"))
+		val c2 = mapperDao.insert(CompanyEntity, Company("8bit soft"))
+		val p1 = mapperDao.insert(PersonEntity, Person("person1", c1))
+		val p2 = mapperDao.insert(PersonEntity, Person("person2", c1))
+		val p3 = mapperDao.insert(PersonEntity, Person("person2", c2))
+
+		import Delete._
+		val pe = PersonEntity
+		(delete from pe where pe.company === c1).run(queryDao).rowsAffected should be(2)
+		mapperDao.select(pe, p1.id) should be(None)
+		mapperDao.select(pe, p2.id) should be(None)
+		mapperDao.select(pe, p3.id).get should be(p3)
+	}
+
 	test("delete all") {
 		createProductAttribute(jdbc)
 		createTestData

@@ -7,7 +7,8 @@ package com.googlecode.mapperdao
  *
  * 17 Oct 2012
  */
-object Delete extends SqlImplicitConvertions {
+object Delete extends SqlImplicitConvertions
+		with SqlManyToOneImplicitConvertions {
 	def delete = From
 
 	private[mapperdao] trait DeleteDDL[ID, PC <: DeclaredIds[ID], T] {

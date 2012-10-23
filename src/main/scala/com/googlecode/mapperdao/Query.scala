@@ -26,7 +26,9 @@ import org.joda.time.DateTime
  *
  * 15 Aug 2011
  */
-object Query extends SqlImplicitConvertions {
+object Query extends SqlImplicitConvertions
+		with SqlRelatedImplicitConvertions
+		with SqlManyToOneImplicitConvertions {
 
 	// starting point of a query, "select" syntactic sugar
 	def select[ID, PC <: DeclaredIds[ID], T] = new QueryFrom[ID, PC, T]

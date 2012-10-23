@@ -53,7 +53,9 @@ trait SqlImplicitConvertions {
 	implicit def columnInfoToOperableJFloat[T](ci: ColumnInfo[T, java.lang.Float]) = new Convertor(ci)
 	implicit def columnInfoToOperableJDouble[T](ci: ColumnInfo[T, java.lang.Double]) = new Convertor(ci)
 	implicit def columnInfoToOperableJBoolean[T](ci: ColumnInfo[T, java.lang.Boolean]) = new Convertor(ci)
+}
 
+trait SqlManyToOneImplicitConvertions {
 	/**
 	 * manages many-to-one expressions
 	 */
@@ -63,7 +65,9 @@ trait SqlImplicitConvertions {
 	}
 	implicit def columnInfoManyToOneOperation[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoManyToOne[T, FID, FPC, F]) =
 		new ConvertorManyToOne(ci)
+}
 
+trait SqlRelatedImplicitConvertions {
 	/**
 	 * manages one-to-many expressions
 	 */
@@ -110,5 +114,4 @@ trait SqlImplicitConvertions {
 		def <>(v: F) = new OneToOneReverseOperation(ci.column, NE(), v)
 	}
 	implicit def columnInfoOneToOneReverseOperation[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoOneToOneReverse[T, FID, FPC, F]) = new ConvertorOneToOneReverse[T, FID, FPC, F](ci)
-
 }
