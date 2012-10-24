@@ -67,6 +67,17 @@ trait SqlManyToOneImplicitConvertions {
 		new ConvertorManyToOne(ci)
 }
 
+trait SqlOneToOneImplicitConvertions {
+	/**
+	 * manages one-to-one expressions
+	 */
+	protected class ConvertorOneToOne[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoOneToOne[T, FID, FPC, F]) {
+		def ===(v: F) = new OneToOneOperation(ci.column, EQ(), v)
+		def <>(v: F) = new OneToOneOperation(ci.column, NE(), v)
+	}
+	implicit def columnInfoOneToOneOperation[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoOneToOne[T, FID, FPC, F]) = new ConvertorOneToOne[T, FID, FPC, F](ci)
+}
+
 trait SqlRelatedImplicitConvertions {
 	/**
 	 * manages one-to-many expressions
@@ -96,15 +107,6 @@ trait SqlRelatedImplicitConvertions {
 		def <>(v: F) = new ManyToManyOperation(ci.column, NE(), v)
 	}
 	implicit def columnInfoManyToManyOperation[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableManyToMany[T, FID, FPC, F]) = new ConvertorManyToMany[T, FID, FPC, F](ci)
-
-	/**
-	 * manages one-to-one expressions
-	 */
-	protected class ConvertorOneToOne[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoOneToOne[T, FID, FPC, F]) {
-		def ===(v: F) = new OneToOneOperation(ci.column, EQ(), v)
-		def <>(v: F) = new OneToOneOperation(ci.column, NE(), v)
-	}
-	implicit def columnInfoOneToOneOperation[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoOneToOne[T, FID, FPC, F]) = new ConvertorOneToOne[T, FID, FPC, F](ci)
 
 	/**
 	 * manages one-to-one reverse expressions

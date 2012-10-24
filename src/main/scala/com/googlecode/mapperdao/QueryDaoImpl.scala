@@ -236,13 +236,14 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 				case OneToOneOperation(left, operand, right) =>
 					val foreignEntity = left.foreign.entity
 					val fTpe = foreignEntity.tpe
+					val leftKeys = left.columns zip fTpe.table.toListOfPrimaryKeyValues(right)
 					val fPKColumnAndValues =
-						fTpe.table.toListOfPrimaryKeyAndValueTuples(right) ::: fTpe.table.toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(right)
+						leftKeys ::: fTpe.table.toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(right)
 
 					if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 					val exprs = fPKColumnAndValues.map {
 						case (c, v) =>
-							driver.sqlBuilder.Clause(aliases(left.foreign.entity), c, operand.sql, v)
+							driver.sqlBuilder.Clause(aliases(left), c, operand.sql, v)
 					}
 					exprs.reduceLeft[driver.sqlBuilder.Expression] { (l, r) =>
 						driver.sqlBuilder.And(l, r)

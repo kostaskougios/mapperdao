@@ -27,7 +27,6 @@ class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
 		(
 			select
 			from i
-			join (i, i.product, p)
 			where i.product === p2
 		).toSet should be === Set(inventories(2))
 	}
