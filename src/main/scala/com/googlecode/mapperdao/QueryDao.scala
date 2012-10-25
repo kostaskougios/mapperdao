@@ -2,6 +2,7 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.exceptions.QueryException
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.jdbc.UpdateResult
+import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
 
 /**
  * querydao takes care of querying the database and fetching entities using
@@ -224,7 +225,7 @@ object QueryDao {
 			{
 				val v = aliases.get(c)
 				if (v == null)
-					throw new IllegalStateException("key not found:" + c + " , are your aliases correct?")
+					throw new ColumnNotPartOfQueryException(c)
 				v
 			}
 	}
