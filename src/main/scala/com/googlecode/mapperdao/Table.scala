@@ -1,5 +1,7 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.exceptions.ExpectedPersistedEntityException
+
 /**
  * mapping tables to entities
  *
@@ -157,6 +159,7 @@ case class Table[ID, PC <: DeclaredIds[ID], T](
 					val ci = pcColumnToColumnInfoMap(c)
 					(c, ci.columnToValue(pc))
 				case null => (c, null)
+				case t: T => throw new ExpectedPersistedEntityException(t)
 			}
 		}
 	}
