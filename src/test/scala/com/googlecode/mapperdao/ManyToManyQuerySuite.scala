@@ -6,6 +6,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
+import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
 
 /**
  * @author kostantinos.kougios
@@ -20,6 +21,13 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers {
 
 	val p = ProductEntity
 	val attr = AttributeEntity
+
+	test("query with errors, column not part of a query") {
+		createTables
+		intercept[ColumnNotPartOfQueryException] {
+			(select from p where attr.name === "z").toList
+		}
+	}
 
 	test("query with limits (offset only)") {
 		createTables
