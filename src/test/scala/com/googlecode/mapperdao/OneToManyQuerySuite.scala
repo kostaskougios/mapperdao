@@ -5,6 +5,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
+import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
 
 /**
  * @author kostantinos.kougios
@@ -18,6 +19,13 @@ class OneToManyQuerySuite extends FunSuite with ShouldMatchers {
 	val p = PersonEntity
 	val h = HouseEntity
 
+	test("query with errors") {
+		createTables
+		intercept[ColumnNotPartOfQueryException] {
+			import Query._
+			(select from p where h.address === "test").toList(queryDao)
+		}
+	}
 	test("query with limits (offset only)") {
 		createTables
 		val persons = for (i <- 0 to 10) yield mapperDao.insert(PersonEntity, Person(i, "person%d".format(i), Set(House(i * 2, "London"), House(i * 2 + 1, "Paris"))))
