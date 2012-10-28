@@ -170,7 +170,7 @@ object QueryDao {
 	def apply(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl): QueryDao = new QueryDaoImpl(typeRegistry, driver, mapperDao)
 
 	// creates aliases for tables
-	class Aliases(typeRegistry: TypeRegistry) {
+	class Aliases(typeRegistry: TypeRegistry, nullMode: Boolean = false) {
 		private val aliases = new java.util.IdentityHashMap[Any, String]
 		private var aliasCount = new scala.collection.mutable.HashMap[String, Int]
 
@@ -184,7 +184,7 @@ object QueryDao {
 		def apply[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T]): String =
 			{
 				val v = aliases.get(entity)
-				if (v != null) v else {
+				val r = if (v != null) v else {
 					val prefix = entity.table.substring(0, 2)
 
 					val v = prefix.toLowerCase + getCnt(prefix)
@@ -207,18 +207,22 @@ object QueryDao {
 					}
 					v
 				}
+
+				if (nullMode) null else r
 			}
 
 		def apply(linkTable: LinkTable): String =
 			{
 				val v = aliases.get(linkTable)
-				if (v != null) v else {
+				val r = if (v != null) v else {
 					val prefix = linkTable.name.substring(0, 3)
 
 					val v = prefix.toLowerCase + getCnt(prefix)
 					aliases.put(linkTable, v)
 					v
 				}
+
+				if (nullMode) null else r
 			}
 
 		def apply(c: ColumnBase): String =
@@ -226,7 +230,7 @@ object QueryDao {
 				val v = aliases.get(c)
 				if (v == null)
 					throw new ColumnNotPartOfQueryException(c)
-				v
+				if (nullMode) null else v
 			}
 	}
 }
