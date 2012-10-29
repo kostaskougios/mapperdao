@@ -101,7 +101,8 @@ import org.scalatest.FunSuite
 		classOf[SqlFunctionSuite],
 		classOf[BlobSuite],
 		classOf[MergeSuite],
-		classOf[DeleteSuite]
+		classOf[DeleteSuite],
+		classOf[UpdateSuite]
 	//classOf[MultiThreadedQuerySuite]
 	)
 )
