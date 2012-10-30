@@ -20,6 +20,9 @@ class UpdateSuite extends FunSuite with ShouldMatchers {
 	test("update simple") {
 		createProductAttribute(jdbc)
 		val (p1, p2) = createTestData
+		import Update._
+		val pe = ProductEntity
+		(update pe) // set pe.name === "fast cpu"  where pe.name === "cpu"
 	}
 
 	def createTestData = {
@@ -29,9 +32,5 @@ class UpdateSuite extends FunSuite with ShouldMatchers {
 		val p1 = mapperDao.insert(ProductEntity, Product("cpu", Set(a1)))
 		val p2 = mapperDao.insert(ProductEntity, Product("ram", Set(a2)))
 		(p1, p2)
-		
-		import Update._
-		val pe=ProductEntity
-		(update pe set pe.name==="fast cpu" where pe.name==="cpu" )
 	}
 }
