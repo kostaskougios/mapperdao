@@ -22,7 +22,10 @@ class UpdateSuite extends FunSuite with ShouldMatchers {
 		val (p1, p2) = createTestData
 		import Update._
 		val pe = ProductEntity
-		(update pe) // set pe.name === "fast cpu"  where pe.name === "cpu"
+		(update(pe) set pe.name === "fast cpu" where pe.name === "cpu").run(queryDao).rowsAffected should be === 1
+
+		mapperDao.select(ProductEntity, p1.id).get.name should be === "fast cpu"
+		mapperDao.select(ProductEntity, p2.id).get.name should be === "ram"
 	}
 
 	def createTestData = {

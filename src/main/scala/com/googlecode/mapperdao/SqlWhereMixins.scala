@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao
 
 trait SqlClauses[M] { m: M =>
-	var clauses: OpBase = _
+	private[mapperdao] var clauses: OpBase = _
 
 	def apply(op: OpBase) =
 		{

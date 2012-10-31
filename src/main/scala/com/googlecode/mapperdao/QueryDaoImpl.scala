@@ -413,13 +413,25 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 		val b = new driver.sqlBuilder.DeleteBuilder
 		val entity = d.entity
 		val aliases = new QueryDao.Aliases(typeRegistry, true)
-		b.from(driver.sqlBuilder.Table(entity.tpe.table.name, aliases(d.entity)))
+		b.from(driver.sqlBuilder.Table(entity.tpe.table.name, aliases(entity)))
 		d match {
 			case w: Delete.Where[_, _, _] =>
 				val we = queryExpressions(aliases, w.clauses)
 				b.where(new driver.sqlBuilder.WhereBuilder(we))
 			case f: Delete.FromOptions[_, _, _] =>
 		}
+		val sql = b.toSql
+		val args = b.toValues
+		driver.jdbc.update(sql, args)
+	}
+
+	override def update[ID, PC <: DeclaredIds[ID], T](u: Update.Updatable[ID, PC, T]) = {
+		val b = new driver.sqlBuilder.UpdateBuilder
+		val entity = u.entity
+		val aliases = new QueryDao.Aliases(typeRegistry, true)
+		b.table(driver.sqlBuilder.Table(entity.tpe.table.name, aliases(entity)))
+
+		b.set(u.setClauses)
 		val sql = b.toSql
 		val args = b.toValues
 		driver.jdbc.update(sql, args)

@@ -1,18 +1,14 @@
 package com.googlecode.mapperdao
 
 /**
- * Every persisted object must mixin with this trait. Client code
- * view this trait only within the constructor() method. Otherwise
- * it is considered mapperdao internal implementation. Exposing the
- * trait to the constructor method could not be avoided (without using
- * runtime proxying), other than that it should be hidden from any client
- * code.
+ * This is considered mapperdao internal implementation. It is not
+ * needed to mixin this trait in the constructor() method anymore
  *
  * @author kostantinos.kougios
  *
  * 17 Jul 2011
  */
-protected trait Persisted {
+private[mapperdao] trait Persisted {
 
 	// to avoid naming conflicts, all these field names start with "mapperDao" 
 	@transient
