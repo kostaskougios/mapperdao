@@ -452,13 +452,16 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 					escapeNamesStrategy.escapeColumnNames(c.name) + " = ?"
 			}.mkString(",")
 			+ "\n"
-			+ where.toSql
+			+ (if (where != null) where.toSql else "")
 		)
 
-		def toValues = Jdbc.toSqlParameter(
-			columnAndValues.map {
-				case (c, v) =>
-					(c.tpe, v)
-			}) ::: where.toValues
+		def toValues = {
+			val params = Jdbc.toSqlParameter(
+				columnAndValues.map {
+					case (c, v) =>
+						(c.tpe, v)
+				})
+			if (where != null) params ::: where.toValues else params
+		}
 	}
 }

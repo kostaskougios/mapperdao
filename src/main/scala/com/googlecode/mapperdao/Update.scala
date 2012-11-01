@@ -25,7 +25,7 @@ object Update extends SqlImplicitConvertions
 			def run(queryDao: QueryDao) = queryDao.update(this)
 
 			override private[mapperdao] def entity = UpdateStart.this.entity
-			override private[mapperdao] def setClauses = Nil
+			override private[mapperdao] def setClauses = clauses
 
 			class Where extends SqlWhereMixins[Where] with Updatable[ID, PC, T] {
 
@@ -35,14 +35,14 @@ object Update extends SqlImplicitConvertions
 				def run(queryDao: QueryDao) = queryDao.update(this)
 
 				override private[mapperdao] def entity = UpdateStart.this.entity
-				override private[mapperdao] def setClauses = Nil
+				override private[mapperdao] def setClauses = UpdateSet.this.setClauses
 			}
 		}
 	}
 
 	trait Updatable[ID, PC <: DeclaredIds[ID], T] {
 		private[mapperdao] def entity: Entity[ID, PC, T]
-		private[mapperdao] def setClauses: List[(SimpleColumn, Any)]
+		private[mapperdao] def setClauses: OpBase
 
 		def run(queroDao: QueryDao): UpdateResult
 	}
