@@ -433,6 +433,10 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 
 		val we = queryExpressions(aliases, u.setClauses)
 		b.set(we)
+		u.whereClauses.foreach { wc =>
+			val wh = queryExpressions(aliases, wc)
+			b.where(wh)
+		}
 		val sql = b.toSql
 		val args = b.toValues
 		driver.jdbc.update(sql, args)

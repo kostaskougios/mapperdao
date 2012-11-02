@@ -446,6 +446,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			this.where = where
 			this
 		}
+		def where(e: Expression): this.type = where(new WhereBuilder(e))
 
 		def where(columnsAndValues: List[(SimpleColumn, Any)], op: String): this.type =
 			where(whereAll(null, columnsAndValues, op))
