@@ -17,6 +17,17 @@ class UpdateSuite extends FunSuite with ShouldMatchers {
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
+	test("update all") {
+		createProductAttribute(jdbc)
+		val (p1, p2) = createTestData
+		import Update._
+		val pe = ProductEntity
+		(update(pe) set pe.name === "fast cpu").run(queryDao).rowsAffected should be === 2
+
+		mapperDao.select(ProductEntity, p1.id).get.name should be === "fast cpu"
+		mapperDao.select(ProductEntity, p2.id).get.name should be === "fast cpu"
+	}
+
 	test("update simple") {
 		createProductAttribute(jdbc)
 		val (p1, p2) = createTestData
