@@ -26,6 +26,10 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		def toSql: String
 		def toValues: List[SqlParameterValue]
 	}
+	object EmptyExpression extends Expression {
+		def toSql = ""
+		def toValues = Nil
+	}
 	abstract class Combine extends Expression {
 		val left: Expression
 		val right: Expression
@@ -419,6 +423,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		private var table: Table = null
 		private var columnAndValues = List[(SimpleColumn, Any)]()
 		private var where: WhereBuilder = null
+		private var expression: Expression = EmptyExpression
 
 		def table(name: String): this.type = table(Table(name))
 
@@ -427,6 +432,10 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			this
 		}
 
+		def set(e: Expression): this.type = {
+			expression = e
+			this
+		}
 		def set(columnAndValues: List[(SimpleColumn, Any)]): this.type = {
 			this.columnAndValues = columnAndValues
 			this
@@ -451,6 +460,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 				case (c, v) =>
 					escapeNamesStrategy.escapeColumnNames(c.name) + " = ?"
 			}.mkString(",")
+			+ expression.toSql
 			+ "\n"
 			+ (if (where != null) where.toSql else "")
 		)
@@ -460,7 +470,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 				columnAndValues.map {
 					case (c, v) =>
 						(c.tpe, v)
-				})
+				}) ::: expression.toValues
 			if (where != null) params ::: where.toValues else params
 		}
 	}
