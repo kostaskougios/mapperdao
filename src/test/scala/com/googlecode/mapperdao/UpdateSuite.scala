@@ -17,6 +17,28 @@ class UpdateSuite extends FunSuite with ShouldMatchers {
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
+	test("update one-to-one") {
+		createHusbandWife(jdbc)
+		val w3 = mapperDao.insert(WifeEntity, Wife("w3", 25))
+		val h1 = mapperDao.insert(HusbandEntity, Husband("h1", 30, Wife("w1", 29)))
+		val h2 = mapperDao.insert(HusbandEntity, Husband("h2", 40, Wife("w2", 39)))
+
+		import Update._
+		val he = HusbandEntity
+		(
+			update(he)
+			set he.wife === w3
+			where he.age === 30
+		).run(queryDao).rowsAffected should be(1)
+
+		import Query._
+		(
+			select
+			from he
+			where he.name === "h1"
+		).toSet(queryDao) should be(Set(Husband("h1", 30, w3)))
+	}
+
 	test("update many-to-one") {
 		createPersonCompany(jdbc)
 		val c1 = mapperDao.insert(CompanyEntity, Company("c1"))
