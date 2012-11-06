@@ -60,7 +60,7 @@ trait SqlManyToOneImplicitConvertions {
 	 * manages many-to-one expressions
 	 */
 	protected class ConvertorManyToOne[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoManyToOne[T, FID, FPC, F]) {
-		def ===(v: F) = new ManyToOneOperation(ci.column, EQ, v)
+		def ===(v: F) = new ManyToOneOperation(ci.column, EQ, v) with EqualityOperation
 		def <>(v: F) = new ManyToOneOperation(ci.column, NE, v)
 	}
 	implicit def columnInfoManyToOneOperation[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoManyToOne[T, FID, FPC, F]) =
@@ -72,7 +72,7 @@ trait SqlOneToOneImplicitConvertions {
 	 * manages one-to-one expressions
 	 */
 	protected class ConvertorOneToOne[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoOneToOne[T, FID, FPC, F]) {
-		def ===(v: F) = new OneToOneOperation(ci.column, EQ, v)
+		def ===(v: F) = new OneToOneOperation(ci.column, EQ, v) with EqualityOperation
 		def <>(v: F) = new OneToOneOperation(ci.column, NE, v)
 	}
 	implicit def columnInfoOneToOneOperation[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoOneToOne[T, FID, FPC, F]) = new ConvertorOneToOne[T, FID, FPC, F](ci)

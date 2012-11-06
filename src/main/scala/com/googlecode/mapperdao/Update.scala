@@ -17,7 +17,8 @@ object Update extends SqlImplicitConvertions
 	protected class UpdateStart[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T]) {
 		def set = new UpdateSet
 
-		class UpdateSet extends SqlClauses[UpdateSet, OpBase] with Updatable[ID, PC, T] {
+		class UpdateSet extends SqlClauses[UpdateSet, OpBase with EqualityOperation]
+				with Updatable[ID, PC, T] {
 			def where = new Where
 			/**
 			 * runs the update
@@ -28,7 +29,7 @@ object Update extends SqlImplicitConvertions
 			override private[mapperdao] def setClauses = clauses
 			override private[mapperdao] def whereClauses = None
 
-			class Where extends SqlWhereMixins[Where, OpBase] with Updatable[ID, PC, T] {
+			class Where extends SqlWhereMixins[Where] with Updatable[ID, PC, T] {
 
 				/**
 				 * runs the update
@@ -44,7 +45,7 @@ object Update extends SqlImplicitConvertions
 
 	trait Updatable[ID, PC <: DeclaredIds[ID], T] {
 		private[mapperdao] def entity: Entity[ID, PC, T]
-		private[mapperdao] def setClauses: OpBase //with EqualityOperation
+		private[mapperdao] def setClauses: OpBase with EqualityOperation
 		private[mapperdao] def whereClauses: Option[OpBase]
 
 		def run(queroDao: QueryDao): UpdateResult

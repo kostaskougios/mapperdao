@@ -147,7 +147,7 @@ object Query extends SqlImplicitConvertions
 	protected[mapperdao] class Where[ID, PC <: DeclaredIds[ID], T](
 		protected[mapperdao] val queryEntity: Builder[ID, PC, T])
 			extends OrderBy[Where[ID, PC, T]]
-			with SqlWhereMixins[Where[ID, PC, T], OpBase] {
+			with SqlWhereMixins[Where[ID, PC, T]] {
 
 		override def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)]) {
 			queryEntity.order :::= l
