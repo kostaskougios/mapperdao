@@ -27,8 +27,8 @@ trait SqlImplicitConvertions {
 		def <=(v: V) = new Operation(t.column, LE, v)
 		def <=(v: ColumnInfo[_, V]) = new Operation(t.column, LE, v.column)
 
-		def ===(v: V) = new Operation(t.column, EQ, v)
-		def ===(v: ColumnInfo[_, V]) = new Operation(t.column, EQ, v.column)
+		def ===(v: V) = new Operation(t.column, EQ, v) with EqualityOperation
+		def ===(v: ColumnInfo[_, V]) = new Operation(t.column, EQ, v.column) with EqualityOperation
 
 		def like(v: V) = new Operation(t.column, LIKE, v)
 		def like(v: ColumnInfo[_, V]) = new Operation(t.column, LIKE, v.column)

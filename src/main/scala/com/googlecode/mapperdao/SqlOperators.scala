@@ -22,15 +22,18 @@ case class Operation[V](left: SimpleColumn, operand: Operand, right: V) extends 
 	override def toString = "%s %s %s".format(left, operand, right)
 }
 
-case class EqOperation[V](left: SimpleColumn, right: V) extends OpBase {
-	val operand = EQ
-	override def toString = "%s = %s".format(left, right)
-}
+trait EqualityOperation
 
-case class ManyToOneOperation[FID, FPC <: DeclaredIds[FID], F, V](left: ManyToOne[FID, FPC, F], operand: Operand, right: V) extends OpBase {
+case class ManyToOneOperation[FID, FPC <: DeclaredIds[FID], F, V](
+		left: ManyToOne[FID, FPC, F],
+		operand: Operand,
+		right: V) extends OpBase {
 	override def toString = "%s %s %s".format(left, operand, right)
 }
-case class OneToManyOperation[FID, FPC <: DeclaredIds[FID], F, V](left: OneToMany[FID, FPC, F], operand: Operand, right: V) extends OpBase {
+case class OneToManyOperation[FID, FPC <: DeclaredIds[FID], F, V](
+		left: OneToMany[FID, FPC, F],
+		operand: Operand,
+		right: V) extends OpBase {
 	if (right == null) throw new NullPointerException("Value can't be null in one-to-many FK queries. Expression was on %s.".format(left))
 	override def toString = "%s %s %s".format(left, operand, right)
 }

@@ -1,9 +1,9 @@
 package com.googlecode.mapperdao
 
-trait SqlClauses[M] { m: M =>
+trait SqlClauses[M, OP <: OpBase] { m: M =>
 	private[mapperdao] var clauses: OpBase = _
 
-	def apply(op: OpBase) =
+	def apply(op: OP) =
 		{
 			clauses = op
 			m
@@ -14,7 +14,7 @@ trait SqlClauses[M] { m: M =>
  *
  * 18 Oct 2012
  */
-trait SqlWhereMixins[M] extends SqlClauses[M] { m: M =>
+trait SqlWhereMixins[M, OP <: OpBase] extends SqlClauses[M, OP] { m: M =>
 
 	def and(op: OpBase) = {
 		clauses = AndOp(clauses, op)

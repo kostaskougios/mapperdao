@@ -31,7 +31,7 @@ object Delete extends SqlImplicitConvertions
 
 	protected[mapperdao] class Where[ID, PC <: DeclaredIds[ID], T](private[mapperdao] val fromOptions: FromOptions[ID, PC, T])
 			extends DeleteDDL[ID, PC, T]
-			with SqlWhereMixins[Where[ID, PC, T]] {
+			with SqlWhereMixins[Where[ID, PC, T], OpBase] {
 		private[mapperdao] val entity = fromOptions.entity
 	}
 }
