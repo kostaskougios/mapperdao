@@ -183,8 +183,8 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					val exprs = if (right == null) {
 						left.columns map { c =>
 							val r = operand match {
-								case EQ() => "null"
-								case NE() => "not null"
+								case EQ => "null"
+								case NE => "not null"
 								case _ => throw new IllegalArgumentException("operand %s not valid when right hand parameter is null.".format(operand))
 							}
 							driver.sqlBuilder.NonValueClause(aliases(c), c.name, "is", null, r)

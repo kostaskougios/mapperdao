@@ -6,13 +6,13 @@ package com.googlecode.mapperdao
  * 6 Sep 2012
  */
 protected case class SqlFunctionValue[R](name: String, values: List[Any]) {
-	def ===(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, EQ(), v.v)
-	def !=(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, NE(), v.v)
-	def >(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, GT(), v.v)
-	def >=(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, GE(), v.v)
-	def <(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, LT(), v.v)
-	def <=(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, LE(), v.v)
-	def like(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, LIKE(), v.v)
+	def ===(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, EQ, v.v)
+	def !=(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, NE, v.v)
+	def >(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, GT, v.v)
+	def >=(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, GE, v.v)
+	def <(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, LT, v.v)
+	def <=(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, LE, v.v)
+	def like(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, LIKE, v.v)
 }
 
 object SqlFunctionValue {

@@ -6,13 +6,13 @@ sealed abstract class Operand {
 	override def toString = "Operand(%s)".format(sql)
 }
 
-case class LT() extends Operand { def sql = "<" }
-case class LE() extends Operand { def sql = "<=" }
-case class EQ() extends Operand { def sql = "=" }
-case class GT() extends Operand { def sql = ">" }
-case class GE() extends Operand { def sql = ">=" }
-case class NE() extends Operand { def sql = "<>" }
-case class LIKE() extends Operand { def sql = "like" }
+case object LT extends Operand { def sql = "<" }
+case object LE extends Operand { def sql = "<=" }
+case object EQ extends Operand { def sql = "=" }
+case object GT extends Operand { def sql = ">" }
+case object GE extends Operand { def sql = ">=" }
+case object NE extends Operand { def sql = "<>" }
+case object LIKE extends Operand { def sql = "like" }
 
 class OpBase {
 	def and(op: OpBase) = AndOp(this, op)
@@ -21,6 +21,12 @@ class OpBase {
 case class Operation[V](left: SimpleColumn, operand: Operand, right: V) extends OpBase {
 	override def toString = "%s %s %s".format(left, operand, right)
 }
+
+case class EqOperation[V](left: SimpleColumn, right: V) extends OpBase {
+	val operand = EQ
+	override def toString = "%s = %s".format(left, right)
+}
+
 case class ManyToOneOperation[FID, FPC <: DeclaredIds[FID], F, V](left: ManyToOne[FID, FPC, F], operand: Operand, right: V) extends OpBase {
 	override def toString = "%s %s %s".format(left, operand, right)
 }
