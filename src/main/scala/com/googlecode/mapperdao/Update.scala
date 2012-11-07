@@ -29,6 +29,11 @@ object Update extends SqlImplicitConvertions
 			override private[mapperdao] def setClauses = clauses
 			override private[mapperdao] def whereClauses = None
 
+			def apply(op1: OpBase with EqualityOperation, op2: OpBase with EqualityOperation) = {
+				clauses = CommaOp(op1, op2)
+				this
+			}
+
 			class Where extends SqlWhereMixins[Where] with Updatable[ID, PC, T] {
 
 				/**

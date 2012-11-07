@@ -18,6 +18,7 @@ class OpBase {
 	def and(op: OpBase) = AndOp(this, op)
 	def or(op: OpBase) = OrOp(this, op)
 }
+
 case class Operation[V](left: SimpleColumn, operand: Operand, right: V) extends OpBase {
 	override def toString = "%s %s %s".format(left, operand, right)
 }
@@ -70,3 +71,6 @@ case class OrOp(left: OpBase, right: OpBase) extends OpBase {
 	override def toString = "(%s or %s)".format(left, right)
 }
 
+case class CommaOp(head: OpBase, tail: OpBase) extends OpBase with EqualityOperation {
+	override def toString = "(%s , %s)".format(head, head)
+}
