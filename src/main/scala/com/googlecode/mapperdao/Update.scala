@@ -29,8 +29,56 @@ object Update extends SqlImplicitConvertions
 			override private[mapperdao] def setClauses = clauses
 			override private[mapperdao] def whereClauses = None
 
-			def apply(op1: OpBase with EqualityOperation, op2: OpBase with EqualityOperation) = {
+			// 2 setters
+			def apply(
+				op1: OpBase with EqualityOperation,
+				op2: OpBase with EqualityOperation) = {
 				clauses = CommaOp(op1 :: op2 :: Nil)
+				this
+			}
+
+			// 3 setters
+			def apply(
+				op1: OpBase with EqualityOperation,
+				op2: OpBase with EqualityOperation,
+				op3: OpBase with EqualityOperation) = {
+				clauses = CommaOp(op1 :: op2 :: op3 :: Nil)
+				this
+			}
+			// 4 setters
+			def apply(
+				op1: OpBase with EqualityOperation,
+				op2: OpBase with EqualityOperation,
+				op3: OpBase with EqualityOperation,
+				op4: OpBase with EqualityOperation) = {
+				clauses = CommaOp(op1 :: op2 :: op3 :: op4 :: Nil)
+				this
+			}
+			// 5 setters
+			def apply(
+				op1: OpBase with EqualityOperation,
+				op2: OpBase with EqualityOperation,
+				op3: OpBase with EqualityOperation,
+				op4: OpBase with EqualityOperation,
+				op5: OpBase with EqualityOperation) = {
+				clauses = CommaOp(op1 :: op2 :: op3 :: op4 :: op5 :: Nil)
+				this
+			}
+			// 6 setters
+			def apply(
+				op1: OpBase with EqualityOperation,
+				op2: OpBase with EqualityOperation,
+				op3: OpBase with EqualityOperation,
+				op4: OpBase with EqualityOperation,
+				op5: OpBase with EqualityOperation,
+				op6: OpBase with EqualityOperation) = {
+				clauses = CommaOp(op1 :: op2 :: op3 :: op4 :: op5 :: op6 :: Nil)
+				this
+			}
+
+			// any number of setters via a list
+			def apply(ops: List[OpBase with EqualityOperation]) = {
+				clauses = CommaOp(ops)
 				this
 			}
 
