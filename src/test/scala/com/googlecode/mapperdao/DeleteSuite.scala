@@ -36,12 +36,18 @@ class DeleteSuite extends FunSuite with ShouldMatchers {
 		val h1 = mapperDao.insert(HusbandEntity, Husband("husband1", 30, Wife("wife1", 30)))
 		val h2 = mapperDao.insert(HusbandEntity, Husband("husband2", 29, Wife("wife2", 29)))
 
-		import Delete._
 		val he = HusbandEntity
-		(delete from he where he.wife === h1.wife).run(queryDao).rowsAffected should be(1)
-		import Query._
-		(select from he where he.name === "husband1").toList(queryDao) should be(Nil)
-		(select from he where he.name === "husband2").toList(queryDao) should be(List(h2))
+
+		{
+			import Delete._
+			(delete from he where he.wife === h1.wife).run(queryDao).rowsAffected should be(1)
+		}
+
+		{
+			import Query._
+			(select from he where he.name === "husband1").toList(queryDao) should be(Nil)
+			(select from he where he.name === "husband2").toList(queryDao) should be(List(h2))
+		}
 	}
 
 	test("delete with where referencing related many-to-one") {

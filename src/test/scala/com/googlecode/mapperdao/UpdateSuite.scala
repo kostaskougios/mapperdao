@@ -21,20 +21,25 @@ class UpdateSuite extends FunSuite with ShouldMatchers {
 		createHusbandWife(jdbc)
 		val h1 = mapperDao.insert(HusbandEntity, Husband("h1", 30, Wife("w1", 29)))
 		val h2 = mapperDao.insert(HusbandEntity, Husband("h2", 40, Wife("w2", 39)))
-		import Update._
 		val he = HusbandEntity
-		(
-			update(he)
-			set (he.name === "x", he.age === 29)
-			where he.age === 30
-		).run(queryDao).rowsAffected should be(1)
 
-		import Query._
-		(
-			select
-			from he
-			where he.name === "x"
-		).toSet(queryDao) should be(Set(Husband("x", 29, Wife("w1", 29))))
+		{
+			import Update._
+			(
+				update(he)
+				set (he.name === "x", he.age === 29)
+				where he.age === 30
+			).run(queryDao).rowsAffected should be(1)
+		}
+
+		{
+			import Query._
+			(
+				select
+				from he
+				where he.name === "x"
+			).toSet(queryDao) should be(Set(Husband("x", 29, Wife("w1", 29))))
+		}
 	}
 
 	test("update 3 columns") {
@@ -42,23 +47,28 @@ class UpdateSuite extends FunSuite with ShouldMatchers {
 		val w3 = mapperDao.insert(WifeEntity, Wife("w3", 25))
 		val h1 = mapperDao.insert(HusbandEntity, Husband("h1", 30, Wife("w1", 29)))
 		val h2 = mapperDao.insert(HusbandEntity, Husband("h2", 40, Wife("w2", 39)))
-		import Update._
 		val he = HusbandEntity
-		(
-			update(he)
-			set (
-				he.name === "x",
-				he.age === 29,
-				he.wife === w3
-			) where he.age === 30
-		).run(queryDao).rowsAffected should be(1)
 
-		import Query._
-		(
-			select
-			from he
-			where he.name === "x"
-		).toSet(queryDao) should be(Set(Husband("x", 29, Wife("w3", 25))))
+		{
+			import Update._
+			(
+				update(he)
+				set (
+					he.name === "x",
+					he.age === 29,
+					he.wife === w3
+				) where he.age === 30
+			).run(queryDao).rowsAffected should be(1)
+		}
+
+		{
+			import Query._
+			(
+				select
+				from he
+				where he.name === "x"
+			).toSet(queryDao) should be(Set(Husband("x", 29, Wife("w3", 25))))
+		}
 	}
 
 	test("update one-to-one") {
@@ -67,20 +77,25 @@ class UpdateSuite extends FunSuite with ShouldMatchers {
 		val h1 = mapperDao.insert(HusbandEntity, Husband("h1", 30, Wife("w1", 29)))
 		val h2 = mapperDao.insert(HusbandEntity, Husband("h2", 40, Wife("w2", 39)))
 
-		import Update._
 		val he = HusbandEntity
-		(
-			update(he)
-			set he.wife === w3
-			where he.age === 30
-		).run(queryDao).rowsAffected should be(1)
 
-		import Query._
-		(
-			select
-			from he
-			where he.name === "h1"
-		).toSet(queryDao) should be(Set(Husband("h1", 30, w3)))
+		{
+			import Update._
+			(
+				update(he)
+				set he.wife === w3
+				where he.age === 30
+			).run(queryDao).rowsAffected should be(1)
+		}
+
+		{
+			import Query._
+			(
+				select
+				from he
+				where he.name === "h1"
+			).toSet(queryDao) should be(Set(Husband("h1", 30, w3)))
+		}
 	}
 
 	test("update many-to-one") {

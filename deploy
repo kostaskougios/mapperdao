@@ -1,4 +1,13 @@
 # deploy after all tests run
 
+V="1.0.0.rc16"
+SS="-SNAPSHOT"
+echo "Version is $V , snapshot: $SS"
+
+mvn versions:set -DnewVersion=$V-2.10.0-RC1$SS
 mvn -DskipTests -P scala2.10,sonatype-deploy -Dexclude clean source:jar scala:doc-jar package deploy || { exit 1; }
+
+mvn versions:set -DnewVersion=$V-2.9.2$SS
 mvn -DskipTests -P scala2.9,sonatype-deploy clean source:jar scala:doc-jar package deploy || { exit 1; }
+
+mvn versions:revert
