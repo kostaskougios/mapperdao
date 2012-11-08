@@ -30,7 +30,7 @@ object Update extends SqlImplicitConvertions
 			override private[mapperdao] def whereClauses = None
 
 			def apply(op1: OpBase with EqualityOperation, op2: OpBase with EqualityOperation) = {
-				clauses = CommaOp(op1, op2)
+				clauses = CommaOp(op1 :: op2 :: Nil)
 				this
 			}
 

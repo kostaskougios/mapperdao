@@ -42,6 +42,10 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		override def toSql = "(" + left.toSql + ") or (" + right.toSql + ")"
 		override def toValues = left.toValues ::: right.toValues
 	}
+	case class Comma(expressions: List[Expression]) extends Expression {
+		override def toSql = expressions.map(_.toSql).mkString(",")
+		override def toValues = expressions.map(_.toValues).flatten
+	}
 
 	case class Clause(
 			alias: String, column: SimpleColumn,

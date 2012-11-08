@@ -179,6 +179,9 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					driver.sqlBuilder.And(inner(left), inner(right))
 				case OrOp(left, right) =>
 					driver.sqlBuilder.Or(inner(left), inner(right))
+				case CommaOp(ops) =>
+					val expressions = ops.map(inner(_))
+					driver.sqlBuilder.Comma(expressions)
 				case ManyToOneOperation(left, operand, right) =>
 					val exprs = if (right == null) {
 						left.columns map { c =>

@@ -71,6 +71,6 @@ case class OrOp(left: OpBase, right: OpBase) extends OpBase {
 	override def toString = "(%s or %s)".format(left, right)
 }
 
-case class CommaOp(head: OpBase, tail: OpBase) extends OpBase with EqualityOperation {
-	override def toString = "(%s , %s)".format(head, head)
+case class CommaOp(ops: List[OpBase]) extends OpBase with EqualityOperation {
+	override def toString = "(%s)".format(ops.mkString(","))
 }
