@@ -17,24 +17,25 @@ object Update extends SqlImplicitConvertions
 	protected class UpdateStart[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T]) {
 		def set = new UpdateSet
 
-		class UpdateSet extends SqlClauses[UpdateSet, OpBase with EqualityOperation]
-				with Updatable[ID, PC, T] {
-			def where = new Where
-			/**
-			 * runs the update
-			 */
-			def run(queryDao: QueryDao) = queryDao.update(this)
+		class UpdateSet extends Updatable[ID, PC, T] {
+			private[mapperdao] var clauses: OpBase with EqualityOperation = _
 
 			override private[mapperdao] def entity = UpdateStart.this.entity
 			override private[mapperdao] def setClauses = clauses
 			override private[mapperdao] def whereClauses = None
 
+			// 1 setter
+			def apply(
+				op1: OpBase with EqualityOperation) = {
+				clauses = CommaOp(op1 :: Nil)
+				WhereKeyword
+			}
 			// 2 setters
 			def apply(
 				op1: OpBase with EqualityOperation,
 				op2: OpBase with EqualityOperation) = {
 				clauses = CommaOp(op1 :: op2 :: Nil)
-				this
+				WhereKeyword
 			}
 
 			// 3 setters
@@ -43,7 +44,7 @@ object Update extends SqlImplicitConvertions
 				op2: OpBase with EqualityOperation,
 				op3: OpBase with EqualityOperation) = {
 				clauses = CommaOp(op1 :: op2 :: op3 :: Nil)
-				this
+				WhereKeyword
 			}
 			// 4 setters
 			def apply(
@@ -52,7 +53,7 @@ object Update extends SqlImplicitConvertions
 				op3: OpBase with EqualityOperation,
 				op4: OpBase with EqualityOperation) = {
 				clauses = CommaOp(op1 :: op2 :: op3 :: op4 :: Nil)
-				this
+				WhereKeyword
 			}
 			// 5 setters
 			def apply(
@@ -62,7 +63,7 @@ object Update extends SqlImplicitConvertions
 				op4: OpBase with EqualityOperation,
 				op5: OpBase with EqualityOperation) = {
 				clauses = CommaOp(op1 :: op2 :: op3 :: op4 :: op5 :: Nil)
-				this
+				WhereKeyword
 			}
 			// 6 setters
 			def apply(
@@ -73,17 +74,24 @@ object Update extends SqlImplicitConvertions
 				op5: OpBase with EqualityOperation,
 				op6: OpBase with EqualityOperation) = {
 				clauses = CommaOp(op1 :: op2 :: op3 :: op4 :: op5 :: op6 :: Nil)
-				this
+				WhereKeyword
 			}
 
 			// any number of setters via a list
 			def apply(ops: List[OpBase with EqualityOperation]) = {
 				clauses = CommaOp(ops)
-				this
+				WhereKeyword
+			}
+
+			object WhereKeyword {
+				def where = new Where
+				/**
+				 * runs the update
+				 */
+				def run(queryDao: QueryDao) = queryDao.update(UpdateSet.this)
 			}
 
 			class Where extends SqlWhereMixins[Where] with Updatable[ID, PC, T] {
-
 				/**
 				 * runs the update
 				 */
@@ -100,7 +108,5 @@ object Update extends SqlImplicitConvertions
 		private[mapperdao] def entity: Entity[ID, PC, T]
 		private[mapperdao] def setClauses: OpBase with EqualityOperation
 		private[mapperdao] def whereClauses: Option[OpBase]
-
-		def run(queroDao: QueryDao): UpdateResult
 	}
 }
