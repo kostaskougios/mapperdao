@@ -158,6 +158,12 @@
 			<version>1.2</version>
 		</dependency>
 	</dependencies>
+	<repositories>
+		<repository>
+			<id>sonatype.releases</id>
+			<url>http://oss.sonatype.org/content/repositories/releases/</url>
+		</repository>
+	</repositories>
 	<build>
 		<plugins>
 			<!-- Ensures we are compiling at 1.7 level -->
