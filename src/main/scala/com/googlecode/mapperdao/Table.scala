@@ -155,10 +155,11 @@ case class Table[ID, PC <: DeclaredIds[ID], T](
 			if (o == null) (c, null) else (c, ctco.get.columnToValue(o))
 		} else {
 			o match {
+				case null =>
+					(c, null)
 				case pc: T with PC =>
 					val ci = pcColumnToColumnInfoMap(c)
 					(c, ci.columnToValue(pc))
-				case null => (c, null)
 				case t: T => throw new ExpectedPersistedEntityException(t)
 			}
 		}
