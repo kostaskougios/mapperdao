@@ -20,6 +20,25 @@ import java.io.InputStream
 class JdbcSuite extends FunSuite with ShouldMatchers {
 	private val jdbc = Setup.setupJdbc
 
+	test("batch insert") {
+		createTables
+		val now = DateTime.now.withMillisOfDay(0)
+		val yesterday = DateTime.now.minusDays(1).withMillisOfDay(0)
+
+		jdbc.batchUpdate("insert into test_generatedkeys(name,dt) values(?,?)", Array(
+			Array(
+				Jdbc.toSqlParameter(classOf[String], "test1"),
+				Jdbc.toSqlParameter(classOf[DateTime], now)
+			),
+			Array(
+				Jdbc.toSqlParameter(classOf[String], "test2"),
+				Jdbc.toSqlParameter(classOf[DateTime], yesterday)
+			)
+		))
+
+		val l = jdbc.queryForList("select * from test_generatedkeys order by id")
+		l.head should be(Map("id" -> 1, "name" -> "test1", "dt" -> now))
+	}
 	//	test("blob, inputstream") {
 	//		createTables
 	//		val data = new Blob(new ByteArrayInputStream(Array[Byte](5, 10, 15)), 3)

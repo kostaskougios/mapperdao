@@ -12,23 +12,24 @@ import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.support.JdbcUtils;
 
 /**
- * @author kostantinos.kougios
+ * taken from spring jdbc and tweaked
  *
  * 14 Nov 2012
  */
 public class BatchUtils
 {
-	public static int[] batchUpdate(JdbcOperations jdbc, String sql, final BatchPreparedStatementSetter pss) throws DataAccessException
+	public static int[] batchUpdate(final JdbcOperations jdbc, final String sql, final BatchPreparedStatementSetter pss) throws DataAccessException
 	{
 
 		return jdbc.execute(sql, new PreparedStatementCallback<int[]>()
 		{
-			public int[] doInPreparedStatement(PreparedStatement ps) throws SQLException
+			@Override
+			public int[] doInPreparedStatement(final PreparedStatement ps) throws SQLException
 			{
 				try
 				{
-					int batchSize = pss.getBatchSize();
-					InterruptibleBatchPreparedStatementSetter ipss = (pss instanceof InterruptibleBatchPreparedStatementSetter ? (InterruptibleBatchPreparedStatementSetter) pss : null);
+					final int batchSize = pss.getBatchSize();
+					final InterruptibleBatchPreparedStatementSetter ipss = (pss instanceof InterruptibleBatchPreparedStatementSetter ? (InterruptibleBatchPreparedStatementSetter) pss : null);
 					if (JdbcUtils.supportsBatchUpdates(ps.getConnection()))
 					{
 						for (int i = 0; i < batchSize; i++)

@@ -13,7 +13,6 @@ import java.util.Calendar
 import java.util.GregorianCalendar
 import org.slf4j.LoggerFactory
 import org.slf4j.Logger
-import com.googlecode.mapperdao.TypeManager
 import org.springframework.jdbc.core.PreparedStatementCreatorFactory
 import org.springframework.jdbc.support.KeyHolder
 import org.springframework.jdbc.core.PreparedStatementCreator
@@ -33,6 +32,8 @@ import org.joda.time.LocalTime
 import org.springframework.jdbc.core.support.SqlLobValue
 import java.io.InputStream
 import com.googlecode.mapperdao.Blob
+import org.springframework.jdbc.core.BatchPreparedStatementSetter
+import com.googlecode.jdbc.BatchUtils
 
 /**
  * scal-ified JdbcTemplate
@@ -51,10 +52,25 @@ class Jdbc private (val dataSource: DataSource, val chronology: Chronology) {
 	private val isDebugEnabled = logger.isDebugEnabled
 	private def seq(args: Any*) = args.toSeq.asInstanceOf[Seq[AnyRef]]
 
+	def batchUpdate(sql: String, args: Array[Array[SqlParameterValue]]) = {
+		val b = new BatchPreparedStatementSetter {
+			def setValues(ps: PreparedStatement, i: Int) = {
+				var idx = 1
+				args(i).foreach { arg =>
+					StatementCreatorUtils.setParameterValue(ps, idx, SqlTypeValue.TYPE_UNKNOWN, reverseConvert(arg))
+					idx += 1
+				}
+
+			}
+			def getBatchSize = args.length
+		}
+
+		BatchUtils.batchUpdate(j, sql, b)
+	}
 	/**
 	 * converts a query and it's arguments to a string, useful for debugging & logging
 	 */
-	def toString(sql: String, args: Seq[_]) =
+	private def toString(sql: String, args: Seq[_]) =
 		{
 			var counter = 0
 			sql.map {
@@ -280,7 +296,7 @@ object Jdbc {
 			else value.asInstanceOf[Blob].toSqlLobValue
 		} else value
 		new SqlParameterValue(t, v) {
-			override def toString = value.toString
+			override def toString = "SqlParameterValue(" + value.toString + ")"
 		}
 	}
 }
