@@ -38,6 +38,7 @@ class JdbcSuite extends FunSuite with ShouldMatchers {
 
 		val l = jdbc.queryForList("select * from test_generatedkeys order by id")
 		l.head should be(Map("id" -> 1, "name" -> "test1", "dt" -> now))
+		l.tail.head should be(Map("id" -> 2, "name" -> "test2", "dt" -> yesterday))
 	}
 	//	test("blob, inputstream") {
 	//		createTables

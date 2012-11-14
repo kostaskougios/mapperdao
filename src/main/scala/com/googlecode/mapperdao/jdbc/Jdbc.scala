@@ -33,7 +33,6 @@ import org.springframework.jdbc.core.support.SqlLobValue
 import java.io.InputStream
 import com.googlecode.mapperdao.Blob
 import org.springframework.jdbc.core.BatchPreparedStatementSetter
-import com.googlecode.jdbc.BatchUtils
 
 /**
  * scal-ified JdbcTemplate
@@ -52,6 +51,8 @@ class Jdbc private (val dataSource: DataSource, val chronology: Chronology) {
 	private val isDebugEnabled = logger.isDebugEnabled
 	private def seq(args: Any*) = args.toSeq.asInstanceOf[Seq[AnyRef]]
 
+	private val batchUtils = new BatchUtils
+
 	def batchUpdate(sql: String, args: Array[Array[SqlParameterValue]]) = {
 		val b = new BatchPreparedStatementSetter {
 			def setValues(ps: PreparedStatement, i: Int) = {
@@ -65,7 +66,7 @@ class Jdbc private (val dataSource: DataSource, val chronology: Chronology) {
 			def getBatchSize = args.length
 		}
 
-		BatchUtils.batchUpdate(j, sql, b)
+		batchUtils.batchUpdate(j, sql, b)
 	}
 	/**
 	 * converts a query and it's arguments to a string, useful for debugging & logging
