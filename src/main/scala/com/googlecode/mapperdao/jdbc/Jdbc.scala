@@ -61,7 +61,6 @@ class Jdbc private (val dataSource: DataSource, val chronology: Chronology) {
 					StatementCreatorUtils.setParameterValue(ps, idx, SqlTypeValue.TYPE_UNKNOWN, reverseConvert(arg))
 					idx += 1
 				}
-
 			}
 			def getBatchSize = args.length
 		}

@@ -6,6 +6,11 @@ import org.springframework.jdbc.core.PreparedStatementCallback
 import java.sql.PreparedStatement
 import org.springframework.jdbc.core.InterruptibleBatchPreparedStatementSetter
 import org.springframework.jdbc.support.JdbcUtils
+import org.springframework.jdbc.core.ColumnMapRowMapper
+import org.springframework.jdbc.core.PreparedStatementCreator
+import java.sql.Connection
+import java.sql.Statement
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author kostantinos.kougios
@@ -13,8 +18,12 @@ import org.springframework.jdbc.support.JdbcUtils
  * Nov 14, 2012
  */
 class BatchUtils {
-	def batchUpdate(jdbc: JdbcOperations, sql: String, pss: BatchPreparedStatementSetter) {
-		jdbc.execute(sql, new PreparedStatementCallback[Array[Int]] {
+	def batchUpdate(jdbc: JdbcOperations, sql: String, pss: BatchPreparedStatementSetter) = {
+		jdbc.execute(new PreparedStatementCreator {
+			override def createPreparedStatement(con: Connection) = {
+				con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
+			}
+		}, new PreparedStatementCallback[BatchResult] {
 			override def doInPreparedStatement(ps: PreparedStatement) = {
 				val batchSize = pss.getBatchSize
 				if (JdbcUtils.supportsBatchUpdates(ps.getConnection)) {
@@ -22,14 +31,18 @@ class BatchUtils {
 						pss.setValues(ps, i)
 						ps.addBatch()
 					}
-					val result = ps.executeBatch()
-					val generatedKeys = ps.getGeneratedKeys()
+					val result = ps.executeBatch
+					val generatedKeys = ps.getGeneratedKeys
+					val rm = new ColumnMapRowMapper
+
+					var idx = 0
+					val keys = new Array[java.util.Map[String, Object]](result.length)
 					while (generatedKeys.next) {
-						val id = generatedKeys.getInt(1)
-						println(id)
+						keys(idx) = rm.mapRow(generatedKeys, idx)
+						idx += 1
 					}
 					generatedKeys.close()
-					result
+					BatchResult(result, keys)
 				} else throw new IllegalStateException("batch updates not supported by this jdbc driver")
 				//					List<Integer> rowsAffected = new ArrayList<Integer>();
 				//					for (int i = 0; i < batchSize; i++)
@@ -51,3 +64,5 @@ class BatchUtils {
 		})
 	}
 }
+
+case class BatchResult(rowsAffected: Array[Int], keys: Array[java.util.Map[String, Object]])

@@ -11,6 +11,8 @@ import org.springframework.jdbc.core.support.SqlLobValue
 import java.io.ByteArrayInputStream
 import com.googlecode.mapperdao.Blob
 import java.io.InputStream
+import scala.collection.JavaConverters._
+
 /**
  * @author kostantinos.kougios
  *
@@ -25,7 +27,7 @@ class JdbcSuite extends FunSuite with ShouldMatchers {
 		val now = DateTime.now.withMillisOfDay(0)
 		val yesterday = DateTime.now.minusDays(1).withMillisOfDay(0)
 
-		jdbc.batchUpdate("insert into test_generatedkeys(name,dt) values(?,?)", Array(
+		val r = jdbc.batchUpdate("insert into test_generatedkeys(name,dt) values(?,?)", Array(
 			Array(
 				Jdbc.toSqlParameter(classOf[String], "test1"),
 				Jdbc.toSqlParameter(classOf[DateTime], now)
@@ -33,12 +35,21 @@ class JdbcSuite extends FunSuite with ShouldMatchers {
 			Array(
 				Jdbc.toSqlParameter(classOf[String], "test2"),
 				Jdbc.toSqlParameter(classOf[DateTime], yesterday)
+			),
+			Array(
+				Jdbc.toSqlParameter(classOf[String], "test3"),
+				Jdbc.toSqlParameter(classOf[DateTime], now)
 			)
 		))
+
+		r.keys(0).asScala should be(
+			Map()
+		)
 
 		val l = jdbc.queryForList("select * from test_generatedkeys order by id")
 		l.head should be(Map("id" -> 1, "name" -> "test1", "dt" -> now))
 		l.tail.head should be(Map("id" -> 2, "name" -> "test2", "dt" -> yesterday))
+		l.tail.tail.head should be(Map("id" -> 3, "name" -> "test3", "dt" -> now))
 	}
 	//	test("blob, inputstream") {
 	//		createTables
