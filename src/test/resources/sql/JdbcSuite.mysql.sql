@@ -7,10 +7,9 @@ create table test_insert (
 )
 ;
 CREATE TABLE test_generatedkeys (
-	id serial NOT NULL,
+	id int primary key auto_increment,
 	name varchar(100),
-	dt datetime,
-	primary key (id)
+	dt datetime
 )
 ;
 create table test_blob (

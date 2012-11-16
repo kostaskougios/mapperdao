@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.PreparedStatementCreator
 import java.sql.Connection
 import java.sql.Statement
 import scala.collection.mutable.ArrayBuffer
+import java.sql.ResultSet
 
 /**
  * @author kostantinos.kougios

@@ -42,9 +42,14 @@ class JdbcSuite extends FunSuite with ShouldMatchers {
 			)
 		))
 
-		r.keys(0).get("id") should be(1)
-		r.keys(1).get("id") should be(2)
-		r.keys(2).get("id") should be(3)
+		val idColumn = Setup.database match {
+			case "postgresql" => "id"
+			case "h2" => "SCOPE_IDENTITY()"
+			case "mysql" => "GENERATED_KEY"
+		}
+		r.keys(0).get(idColumn) should be(1)
+		r.keys(1).get(idColumn) should be(2)
+		r.keys(2).get(idColumn) should be(3)
 
 		val l = jdbc.queryForList("select * from test_generatedkeys order by id")
 		l.head should be(Map("id" -> 1, "name" -> "test1", "dt" -> now))
