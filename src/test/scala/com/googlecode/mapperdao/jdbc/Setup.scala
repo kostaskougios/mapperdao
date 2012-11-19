@@ -43,6 +43,8 @@ object Setup {
 		d
 	}
 
+	def isOracle = database == "oracle"
+
 	def now = DateTime.now.withMillisOfSecond(0)
 
 	private var jdbc: Jdbc = null

@@ -218,7 +218,7 @@ class Jdbc private (val dataSource: DataSource, val chronology: Chronology) {
 						}
 						ps
 					}
-			}, keyHolder);
+			}, keyHolder)
 			val keysM = keyHolder.getKeys
 			val keys = if (keysM == null) Map[String, Any]() else keysM.toMap
 			new UpdateResultWithGeneratedKeys(rowsAffected, keys)
