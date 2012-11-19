@@ -53,7 +53,7 @@ class Jdbc private (val dataSource: DataSource, val chronology: Chronology) {
 	private val batch = new Batch(j)
 
 	def batchUpdate(
-		batchOptions: Batch.Options,
+		batchOptions: BatchOptions,
 		sql: String,
 		args: Array[Array[SqlParameterValue]]) = {
 		val a = args.map { iargs =>
@@ -258,6 +258,7 @@ class Jdbc private (val dataSource: DataSource, val chronology: Chronology) {
 }
 
 object Jdbc {
+
 	def apply(dataSource: DataSource, chronology: Chronology) = new Jdbc(dataSource, chronology)
 
 	private def sqlParam(clz: Class[_]): Int =
