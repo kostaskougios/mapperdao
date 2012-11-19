@@ -52,11 +52,14 @@ class Jdbc private (val dataSource: DataSource, val chronology: Chronology) {
 
 	private val batch = new Batch(j)
 
-	def batchUpdate(sql: String, args: Array[Array[SqlParameterValue]]) = {
+	def batchUpdate(
+		batchOptions: Batch.Options,
+		sql: String,
+		args: Array[Array[SqlParameterValue]]) = {
 		val a = args.map { iargs =>
 			iargs.map(reverseConvert(_))
 		}
-		batch.batchUpdate(sql, a, Batch.WithBatch)
+		batch.batchUpdate(sql, a, batchOptions)
 	}
 	/**
 	 * converts a query and it's arguments to a string, useful for debugging & logging
