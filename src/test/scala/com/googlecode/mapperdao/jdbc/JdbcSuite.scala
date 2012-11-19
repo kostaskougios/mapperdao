@@ -106,6 +106,48 @@ class JdbcSuite extends FunSuite with ShouldMatchers {
 
 	if (Setup.database != "derby") {
 		// spring-jdbc for derby seems to read the blob twice, throwing an exception
+
+		test("blob, batch, byte array") {
+			createTables
+			val batchOptions = BatchOptions(Setup.database match {
+				case "postgresql" | "mysql" =>
+					Batch.WithBatch
+				case "h2" =>
+					Batch.NoBatch
+			}, true)
+			val r = jdbc.batchUpdate(
+				batchOptions,
+				"insert into test_blob(name,data) values(?,?)",
+				Array(
+					Array(
+						Jdbc.toSqlParameter(classOf[String], "test1"),
+						Jdbc.toSqlParameter(classOf[Array[Byte]], Array[Byte](5, 6, 7))
+					),
+					Array(
+						Jdbc.toSqlParameter(classOf[String], "test2"),
+						Jdbc.toSqlParameter(classOf[Array[Byte]], Array[Byte](8, 9, 10))
+					),
+					Array(
+						Jdbc.toSqlParameter(classOf[String], "test3"),
+						Jdbc.toSqlParameter(classOf[Array[Byte]], Array[Byte](15, 16, 17))
+					)
+				))
+
+			val idColumn = Setup.database match {
+				case "postgresql" => "id"
+				case "h2" => "SCOPE_IDENTITY()"
+				case "mysql" => "GENERATED_KEY"
+			}
+			r.keys(0).get(idColumn) should be(1)
+			r.keys(1).get(idColumn) should be(2)
+			r.keys(2).get(idColumn) should be(3)
+
+			val l = jdbc.queryForList("select * from test_blob")
+			l.head("data") should be === Array[Byte](5, 6, 7)
+			l.tail.head("data") should be === Array[Byte](8, 9, 10)
+			l.tail.tail.head("data") should be === Array[Byte](15, 16, 17)
+		}
+
 		test("blob, byte array") {
 			createTables
 			val data = Array[Byte](5, 10, 15)
