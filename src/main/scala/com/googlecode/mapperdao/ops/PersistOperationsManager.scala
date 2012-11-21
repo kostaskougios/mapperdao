@@ -15,7 +15,7 @@ class PersistOperationsManager {
 	def toInsertOps[ID, PC <: DeclaredIds[ID], T](
 		entity: Entity[ID, PC, T],
 		o: T,
-		valuesMap: ValuesMap): PersistOp[ID, PC, T] = {
-
+		valuesMap: ValuesMap): List[PersistOp[ID, PC, T]] = {
+		Nil
 	}
 }

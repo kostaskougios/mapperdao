@@ -12,4 +12,5 @@ import com.googlecode.mapperdao.Entity
  */
 trait PersistOp[ID, PC <: DeclaredIds[ID], T] {
 	val entity: Entity[ID, PC, T]
+	val priority: Int
 }
