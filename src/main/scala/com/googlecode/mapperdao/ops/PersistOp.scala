@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao.ops
 
-import com.googlecode.mapperdao.DeclaredIds
-import com.googlecode.mapperdao.Entity
+import com.googlecode.mapperdao._
 
 /**
  * base for all persist operations
