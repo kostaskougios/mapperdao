@@ -75,7 +75,7 @@ class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperD
 								updated
 							case x =>
 								entityMap.down(mockO, cis, entity)
-								val inserted = mapperDao.insertInner(updateConfig, fe, x, entityMap)
+								val inserted = mapperDao.insertInner(updateConfig, fe, x)
 								entityMap.up
 								inserted
 						}

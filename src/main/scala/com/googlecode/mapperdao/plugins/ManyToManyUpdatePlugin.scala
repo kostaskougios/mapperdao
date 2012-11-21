@@ -100,7 +100,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 									case p: Persisted => p
 									case n =>
 										entityMap.down(mockO, ci, entity)
-										val inserted = mapperDao.insertInner(updateConfig, fe, n, entityMap)
+										val inserted = mapperDao.insertInner(updateConfig, fe, n)
 										entityMap.up
 										inserted
 								}

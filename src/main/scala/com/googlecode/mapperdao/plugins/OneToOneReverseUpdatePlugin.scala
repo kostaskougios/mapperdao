@@ -66,7 +66,7 @@ class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeM
 									entityMap.down(mockO, ci, entity)
 									val oldV = oldValuesMap(ci)
 									if (oldV == null) {
-										mapperDao.insertInner(updateConfig, fe, fo, entityMap)
+										mapperDao.insertInner(updateConfig, fe, fo)
 									} else {
 										val nVM = ValuesMap.fromEntity(typeManager, ftpe, fo)
 										mapperDao.updateInner(updateConfig, fe, oldV.asInstanceOf[DeclaredIds[Any]], fo, entityMap)

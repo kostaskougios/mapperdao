@@ -55,7 +55,7 @@ class ManyToManyInsertPlugin(typeManager: TypeManager, typeRegistry: TypeRegistr
 									nested
 								} else {
 									entityMap.down(mockO, cis, entity)
-									val inserted = mapperDao.insertInner(updateConfig, ne, nested, entityMap)
+									val inserted = mapperDao.insertInner(updateConfig, ne, nested)
 									entityMap.up
 									inserted
 								}

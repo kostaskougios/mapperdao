@@ -50,7 +50,7 @@ class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 									updated
 								case x =>
 									entityMap.down(mockO, cis, entity)
-									val inserted = mapperDao.insertInner(updateConfig, fe, x, entityMap)
+									val inserted = mapperDao.insertInner(updateConfig, fe, x)
 									entityMap.up
 									inserted
 							}

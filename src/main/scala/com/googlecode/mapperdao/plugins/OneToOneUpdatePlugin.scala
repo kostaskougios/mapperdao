@@ -55,7 +55,7 @@ class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 							(updated, true)
 						case x =>
 							entityMap.down(o, ci, entity)
-							val inserted = mapperDao.insertInner(updateConfig, fe, x, entityMap)
+							val inserted = mapperDao.insertInner(updateConfig, fe, x)
 							entityMap.up
 							(inserted, true)
 					}

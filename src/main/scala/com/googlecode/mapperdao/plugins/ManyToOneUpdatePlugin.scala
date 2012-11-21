@@ -44,7 +44,7 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 								newV
 							case _ =>
 								entityMap.down(o, cis, entity)
-								val newV = mapperDao.insertInner(updateConfig, fe, v, entityMap)
+								val newV = mapperDao.insertInner(updateConfig, fe, v)
 								entityMap.up
 								newV
 						}

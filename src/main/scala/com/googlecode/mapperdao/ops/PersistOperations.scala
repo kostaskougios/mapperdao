@@ -16,16 +16,14 @@ class PersistOperations {
 
 	def toInsertOps[ID, PC <: DeclaredIds[ID], T](
 		entity: Entity[ID, PC, T],
-		o: T,
-		valuesMap: ValuesMap): List[PersistOp[ID, PC, T]] = {
-		Nil
+		o: T): List[PersistOp[_, _, _]] = {
+		insert(entity, o, 1000)
 	}
 
 	private def insert[ID, PC <: DeclaredIds[ID], T](
 		entity: Entity[ID, PC, T],
 		o: T,
-		valuesMap: ValuesMap,
-		currentPriority: Int): List[PersistOp[ID, PC, T]] = {
+		currentPriority: Int): List[PersistOp[_, _, _]] = {
 		val op = alreadyProcessed.get(o)
 		if (op == null) {
 			val tpe = entity.tpe

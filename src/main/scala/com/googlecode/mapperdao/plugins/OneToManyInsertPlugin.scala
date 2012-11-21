@@ -90,7 +90,7 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 								} else {
 									// insert
 									entityMap.down(mockO, cis, entity)
-									val inserted = mapperDao.insertInner(updateConfig, fe, nested, entityMap)
+									val inserted = mapperDao.insertInner(updateConfig, fe, nested)
 									entityMap.up
 									inserted
 								}

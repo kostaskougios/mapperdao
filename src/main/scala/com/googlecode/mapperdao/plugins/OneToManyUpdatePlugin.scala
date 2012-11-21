@@ -111,7 +111,7 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 								case p: DeclaredIds[Any] =>
 									mapperDao.updateInner(updateConfig, fe, p, entityMap)
 								case _ =>
-									mapperDao.insertInner(updateConfig, fe, item, entityMap)
+									mapperDao.insertInner(updateConfig, fe, item)
 							}
 							entityMap.up
 							modified(oneToMany.alias) = newItem
