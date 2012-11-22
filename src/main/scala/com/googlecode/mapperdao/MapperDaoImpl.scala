@@ -11,14 +11,18 @@ import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.utils.Equality
 import com.googlecode.mapperdao.utils.NYI
 import com.googlecode.mapperdao.utils.Helpers
-import com.googlecode.mapperdao.ops.PersistOperations
+import com.googlecode.mapperdao.ops._
+import com.googlecode.mapperdao.jdbc.CmdToDatabase
 
 /**
  * @author kostantinos.kougios
  *
  * 13 Jul 2011
  */
-protected final class MapperDaoImpl(val driver: Driver, events: Events, val typeManager: TypeManager) extends MapperDao {
+protected final class MapperDaoImpl(
+		val driver: Driver,
+		events: Events,
+		val typeManager: TypeManager) extends MapperDao {
 	private val typeRegistry = driver.typeRegistry
 	private val lazyLoadManager = new LazyLoadManager
 
@@ -88,8 +92,10 @@ protected final class MapperDaoImpl(val driver: Driver, events: Events, val type
 		o: T): T with PC with Persisted =
 		{
 			if (isPersisted(o)) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o)
-			val po = new PersistOperations
-			val ops = po.toInsertOps(entity, o)
+			val po = new PersistCmdFactory
+			val cmd = po.toInsertCmd(entity, o)
+			val ctd = new CmdToDatabase(driver)
+			ctd.insert(cmd)
 		}
 
 	/**

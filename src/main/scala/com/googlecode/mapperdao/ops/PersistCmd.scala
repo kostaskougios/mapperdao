@@ -9,7 +9,7 @@ import com.googlecode.mapperdao._
  *
  * 21 Nov 2012
  */
-trait PersistOp[ID, PC <: DeclaredIds[ID], T] {
+trait PersistCmd[ID, PC <: DeclaredIds[ID], T] {
 	val entity: Entity[ID, PC, T]
 	val priority: Int
 }
