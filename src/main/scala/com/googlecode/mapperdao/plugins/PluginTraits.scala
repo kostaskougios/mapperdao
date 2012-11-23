@@ -61,46 +61,6 @@ trait PostInsert {
  *
  * 31 Aug 2011
  */
-private[mapperdao] class DuringUpdateResults(val values: List[(SimpleColumn, Any)], val keys: List[(SimpleColumn, Any)]) {
-	def isEmpty = values.isEmpty && keys.isEmpty
-
-	override def toString = "DuringUpdateResults(values: %s, keys: %s)".format(values, keys)
-}
-
-private[mapperdao] object DuringUpdateResults {
-	val empty = new DuringUpdateResults(Nil, Nil)
-}
-
-trait DuringUpdate {
-	def during[ID, PC <: DeclaredIds[ID], T](
-		updateConfig: UpdateConfig,
-		entity: Entity[ID, PC, T],
-		o: T,
-		oldValuesMap: ValuesMap,
-		newValuesMap: ValuesMap,
-		entityMap: UpdateEntityMap,
-		modified: scala.collection.mutable.Map[String, Any],
-		modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults
-}
-
-/**
- * plugins executed after the main entity is updated
- *
- * @author kostantinos.kougios
- *
- * 31 Aug 2011
- */
-trait PostUpdate {
-	def after[ID, PC <: DeclaredIds[ID], T](
-		updateConfig: UpdateConfig,
-		entity: Entity[ID, PC, T],
-		o: T,
-		mockO: T with PC,
-		oldValuesMap: ValuesMap,
-		newValuesMap: ValuesMap,
-		entityMap: UpdateEntityMap,
-		modified: MapOfList[String, Any]): Unit
-}
 
 /**
  * plugins executed before the main entity is created, during select operations

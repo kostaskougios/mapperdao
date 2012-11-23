@@ -16,12 +16,16 @@ class CmdToDatabase(driver: Driver) {
 	private val jdbc = driver.jdbc
 
 	def insert[ID, PC <: DeclaredIds[ID], T](
-		cmd: PersistCmd[ID, PC, T]): T with PC = {
-		null.asInstanceOf[T with PC]
+		cmds: List[PersistCmd[ID, PC, T]]): List[T with PC] = {
+		cmds.map { cmd =>
+			val sql = toSql(cmd)
+		}
+
+		Nil
 	}
 
-	private def collectSqls(cmd: PersistCmd[_, _, _]) = cmd match {
-		case InsertCmd(entity, o, priority, columns) =>
+	private def toSql(cmd: PersistCmd[_, _, _]) = cmd match {
+		case InsertCmd(entity, o, columns) =>
 			driver.insertSql(entity.tpe, columns).result
 	}
 }

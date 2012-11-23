@@ -11,5 +11,4 @@ import com.googlecode.mapperdao._
  */
 trait PersistCmd[ID, PC <: DeclaredIds[ID], T] {
 	val entity: Entity[ID, PC, T]
-	val priority: Int
 }
