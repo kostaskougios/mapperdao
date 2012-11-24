@@ -59,6 +59,11 @@ class Jdbc private (val dataSource: DataSource, val chronology: Chronology) {
 		val a = args.map { iargs =>
 			iargs.map(reverseConvert(_))
 		}
+		if (isDebugEnabled) {
+			a.map { args =>
+				logger.debug(toString(sql, args))
+			}
+		}
 		batch.batchUpdate(sql, a, batchOptions)
 	}
 	/**
