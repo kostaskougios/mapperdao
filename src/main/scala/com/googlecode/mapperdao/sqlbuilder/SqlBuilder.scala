@@ -228,7 +228,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		override def toString = "WhereBuilder(%s)".format(e.toSql)
 	}
 
-	case class Result(sql: String, values: List[Any])
+	case class Result(sql: String, values: List[SqlParameterValue])
 
 	class SqlSelectBuilder extends FromClause {
 		private var cols = List[String]()
