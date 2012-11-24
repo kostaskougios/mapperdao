@@ -5,6 +5,8 @@ import com.googlecode.mapperdao.jdbc.UpdateResultWithGeneratedKeys
 import com.googlecode.mapperdao.jdbc.Jdbc
 import com.googlecode.mapperdao.jdbc.UpdateResult
 import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
+import com.googlecode.mapperdao.jdbc.BatchOptions
+import com.googlecode.mapperdao.jdbc.Batch
 
 /**
  * all database drivers must implement this trait
@@ -17,6 +19,8 @@ abstract class Driver {
 	val jdbc: Jdbc
 	val typeRegistry: TypeRegistry
 	val typeManager: TypeManager
+
+	val batchStrategy = Batch.WithBatch
 
 	/**
 	 * =====================================================================================

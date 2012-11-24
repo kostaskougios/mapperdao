@@ -15,10 +15,21 @@ import com.googlecode.mapperdao.drivers.Driver
 class CmdToDatabase(driver: Driver) {
 	private val jdbc = driver.jdbc
 
+	private case class SqlCmd[ID, PC <: DeclaredIds[ID], T](
+		cmd: PersistCmd[ID, PC, T],
+		sql: driver.sqlBuilder.Result)
+
 	def insert[ID, PC <: DeclaredIds[ID], T](
 		cmds: List[PersistCmd[ID, PC, T]]): List[T with PC] = {
-		cmds.map { cmd =>
+		val sqlCmds = cmds.map { cmd =>
 			val sql = toSql(cmd)
+			SqlCmd(cmd, sql)
+		}
+
+		sqlCmds.groupBy(_.sql.sql).map {
+			case (sql, cmds) =>
+				val bo = BatchOptions(driver.batchStrategy, Array())
+				jdbc.batchUpdate(bo, sql, args)
 		}
 
 		Nil
