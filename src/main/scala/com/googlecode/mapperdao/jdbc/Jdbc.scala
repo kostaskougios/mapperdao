@@ -55,7 +55,7 @@ class Jdbc private (val dataSource: DataSource, val chronology: Chronology) {
 	def batchUpdate(
 		batchOptions: BatchOptions,
 		sql: String,
-		args: Array[Array[SqlParameterValue]]) = {
+		args: Array[Array[SqlParameterValue]]): BatchResult = {
 		val a = args.map { iargs =>
 			iargs.map(reverseConvert(_))
 		}
