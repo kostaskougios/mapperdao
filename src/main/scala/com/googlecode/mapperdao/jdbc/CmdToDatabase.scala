@@ -18,11 +18,13 @@ class CmdToDatabase(driver: Driver) {
 
 	def insert[ID, PC <: DeclaredIds[ID], T](
 		cmds: List[PersistCmd[ID, PC, T]]): List[T with PC] = {
+		// collect the sql and values
 		val sqlCmds = cmds.map { cmd =>
 			val sql = toSql(cmd)
 			(sql.sql, cmd, sql.values.toArray)
 		}
 
+		// run the batch updates
 		val batchResults = sqlCmds.groupBy(_._1).map {
 			case (sql, cmds) =>
 				val entity = cmds.head._2.entity
@@ -33,9 +35,18 @@ class CmdToDatabase(driver: Driver) {
 					case (_, _, values) =>
 						values
 				}.toArray
-				jdbc.batchUpdate(bo, sql, args)
+				val br = jdbc.batchUpdate(bo, sql, args)
+
+				(
+					entity,
+					br.keys zip cmds.map(_._2.o)
+				)
 		}
 
+		// reconstruct the persisted entities
+		batchResults.map {
+			case (entity, (generated, o)) =>
+		}
 		Nil
 	}
 

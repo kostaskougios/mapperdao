@@ -379,7 +379,10 @@ protected final class MapperDaoImpl(
 	 * create a mock of the current entity, to avoid cyclic dependencies
 	 * doing infinite loops.
 	 */
-	private def createMock[ID, PC <: DeclaredIds[ID], T](data: Option[Any], entity: Entity[ID, PC, T], mods: scala.collection.Map[String, Any]): T with PC =
+	private def createMock[ID, PC <: DeclaredIds[ID], T](
+		data: Option[Any],
+		entity: Entity[ID, PC, T],
+		mods: scala.collection.Map[String, Any]): T with PC =
 		{
 			val mockMods = new scala.collection.mutable.HashMap[String, Any] ++ mods
 			mockPlugins.foreach {

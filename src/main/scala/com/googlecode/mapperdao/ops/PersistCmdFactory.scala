@@ -30,6 +30,6 @@ class PersistCmdFactory {
 			alreadyProcessed.put(o, op)
 			op
 		} else
-			AlreadyProcessedCmd(entity)
+			AlreadyProcessedCmd(entity, o)
 	}
 }
