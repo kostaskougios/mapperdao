@@ -312,7 +312,8 @@ abstract class Driver {
 			val alias = aliases(entity)
 
 			q.columns(alias, columns)
-			q.from(tpe.table.name, alias, null)
+			val hints = queryConfig.hints.afterTableName.map(_.hint).mkString
+			q.from(tpe.table.name, alias, hints)
 		}
 
 	def queryAfterSelect[ID, PC <: DeclaredIds[ID], T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]): Unit = {}
