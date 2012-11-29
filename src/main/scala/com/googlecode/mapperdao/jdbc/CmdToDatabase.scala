@@ -13,28 +13,37 @@ import org.springframework.jdbc.core.SqlParameterValue
  *
  * 22 Nov 2012
  */
-class CmdToDatabase(driver: Driver) {
+class CmdToDatabase(
+		updateConfig: UpdateConfig,
+		driver: Driver,
+		typeManager: TypeManager) {
+
 	private val jdbc = driver.jdbc
 
 	private case class Node[ID, PC <: DeclaredIds[ID], T](
-		sql: String,
-		values: List[SqlParameterValue],
-		entity: Entity[ID, PC, T],
-		o: T,
-		children: List[(ColumnInfoRelationshipBase[_, _, _, _, _], Node[_, _, _])],
-		var keys: List[(SimpleColumn, Any)],
-		var newO: Option[T with PC])
+			sql: String,
+			values: List[SqlParameterValue],
+			entity: Entity[ID, PC, T],
+			o: T,
+			children: List[(ColumnInfoRelationshipBase[_, _, _, _, _], Node[_, _, _])],
+			var keys: List[(SimpleColumn, Any)],
+			var newO: Option[T with PC]) {
+
+		def keysToMap = keys.map {
+			case (c, v) => (c.name, v)
+		}.toMap
+	}
 
 	def insert[ID, PC <: DeclaredIds[ID], T](
 		cmds: List[PersistCmd[ID, PC, T]]): List[T with PC] = {
 		// collect the sql and values
-		val sqlCmds = cmds.map { cmd =>
+		val nodes = cmds.map { cmd =>
 			val sql = toSql(cmd)
 			Node(sql.sql, sql.values, cmd.entity, cmd.o, Nil, Nil, None)
 		}
 
 		// run the batch updates
-		val batchResults = sqlCmds.groupBy(_.sql).map {
+		nodes.groupBy(_.sql).foreach {
 			case (sql, nodes) =>
 				val entity = nodes.head.entity
 				val table = entity.tpe.table
@@ -61,10 +70,13 @@ class CmdToDatabase(driver: Driver) {
 		}
 
 		// reconstruct the persisted entities
-		batchResults.map { node =>
-			//				ValuesMap.fromMap(m)
+		val entities = nodes.map { node =>
+			val entity = node.entity
+			val newM = ValuesMap.entityToMap(typeManager, entity.tpe, node.o, false) ++ node.keysToMap
+			val newVM = ValuesMap.fromMap(newM)
+			entity.constructor(updateConfig.data, newVM)
 		}
-		Nil
+		entities
 	}
 
 	private def toSql(cmd: PersistCmd[_, _, _]) = cmd match {

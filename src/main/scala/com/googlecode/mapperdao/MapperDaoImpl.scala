@@ -71,7 +71,7 @@ protected final class MapperDaoImpl(
 				if (isPersisted(o)) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o)
 				po.toInsertCmd(entity, o)
 			}
-			val ctd = new CmdToDatabase(driver)
+			val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 			ctd.insert(cmds)
 		}
 
