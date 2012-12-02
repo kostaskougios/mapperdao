@@ -31,6 +31,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 		val spr = SinglePartyRoleEntity
 		val rte = RoleTypeEntity
 		val ipr = InterPartyRelationshipEntity
+		val ipr1 = new InterPartyRelationshipEntityBase
 
 		// test data
 		val roleType1 = RoleType("Scala Developer", Some("A Scala Software Developer"))
@@ -78,6 +79,42 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 					))
 				)
 		)
+
+		test("self join ===") {
+			createTables()
+			val (role1, role2, role3) = persistRoles
+			val (person1, person2) = people(role1, role2, role3)
+			val i1 = mapperDao.insert(InterPartyRelationshipEntity, InterPartyRelationship(person1, person2, Some(from), None))
+			val i2 = mapperDao.insert(InterPartyRelationshipEntity, InterPartyRelationship(person2, person1, Some(from), Some(to)))
+
+			import Query._
+			val q = (
+				select
+				from ipr
+				join ipr1 on ipr.from === ipr1.to
+				where ipr.to === person1
+			)
+			val r = q.toList(queryDao)
+			r should be(List(i2))
+		}
+
+		test("self join <>") {
+			createTables()
+			val (role1, role2, role3) = persistRoles
+			val (person1, person2) = people(role1, role2, role3)
+			val i1 = mapperDao.insert(InterPartyRelationshipEntity, InterPartyRelationship(person1, person2, Some(from), None))
+			val i2 = mapperDao.insert(InterPartyRelationshipEntity, InterPartyRelationship(person2, person1, Some(from), Some(to)))
+
+			import Query._
+			val q = (
+				select
+				from ipr
+				join ipr1 on ipr.from <> ipr1.to
+				where ipr.to === person1
+			)
+			val r = q.toList(queryDao)
+			r should be(List(i2))
+		}
 
 		test("crud") {
 			createTables()
@@ -315,7 +352,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 		def constructor(implicit m: ValuesMap) = new SinglePartyRole(roleType, fromDate, toDate) with SPRKey
 	}
 
-	object InterPartyRelationshipEntity extends Entity[(PNSI, PNSI), With2Ids[PNSI, PNSI], InterPartyRelationship] {
+	class InterPartyRelationshipEntityBase extends Entity[(PNSI, PNSI), With2Ids[PNSI, PNSI], InterPartyRelationship] {
 		val from = manytoone(PersonEntity) foreignkey ("from_id") to (_.from)
 		val to = manytoone(PersonEntity) foreignkey ("to_id") to (_.to)
 		val fromDate = column("fromDate") option (_.fromDate)
@@ -326,5 +363,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 
 		def constructor(implicit m: ValuesMap) = new InterPartyRelationship(from, to, fromDate, toDate) with With2Ids[PNSI, PNSI]
 	}
+
+	object InterPartyRelationshipEntity extends InterPartyRelationshipEntityBase
 }
 
