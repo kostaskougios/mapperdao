@@ -80,7 +80,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 				)
 		)
 
-		test("self join") {
+		test("self join ===") {
 			createTables()
 			val (role1, role2, role3) = persistRoles
 			val (person1, person2) = people(role1, role2, role3)
@@ -91,7 +91,25 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			val q = (
 				select
 				from ipr
-				join ipr1 on ipr.from === ipr1.to // and ipr.from <> ipr1.from
+				join ipr1 on ipr.from === ipr1.to
+				where ipr.to === person1
+			)
+			val r = q.toList(queryDao)
+			r should be(List(i2))
+		}
+
+		test("self join <>") {
+			createTables()
+			val (role1, role2, role3) = persistRoles
+			val (person1, person2) = people(role1, role2, role3)
+			val i1 = mapperDao.insert(InterPartyRelationshipEntity, InterPartyRelationship(person1, person2, Some(from), None))
+			val i2 = mapperDao.insert(InterPartyRelationshipEntity, InterPartyRelationship(person2, person1, Some(from), Some(to)))
+
+			import Query._
+			val q = (
+				select
+				from ipr
+				join ipr1 on ipr.from <> ipr1.to
 				where ipr.to === person1
 			)
 			val r = q.toList(queryDao)
