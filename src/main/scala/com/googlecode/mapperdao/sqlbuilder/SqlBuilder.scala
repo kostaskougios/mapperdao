@@ -85,6 +85,11 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		override def toValues = Nil
 	}
 
+	class ColumnAndColumnClause(
+		leftAlias: String, leftColumn: SimpleColumn,
+		op: String,
+		rightAlias: String, rightColumn: SimpleColumn) extends NonValueClause(leftAlias, leftColumn.name, op, rightAlias, rightColumn.name)
+
 	case class FunctionClause[R](
 			aliases: QueryDao.Aliases,
 			left: SqlFunctionValue[R],

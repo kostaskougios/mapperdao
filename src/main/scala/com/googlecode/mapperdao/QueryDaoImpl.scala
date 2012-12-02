@@ -183,26 +183,36 @@ final class QueryDaoImpl private[mapperdao] (typeRegistry: TypeRegistry, driver:
 					val expressions = ops.map(inner(_))
 					driver.sqlBuilder.Comma(expressions)
 				case ManyToOneOperation(left, operand, right) =>
-					val exprs = if (right == null) {
-						left.columns map { c =>
-							val r = operand match {
-								case EQ => "null"
-								case NE => "not null"
-								case _ => throw new IllegalArgumentException("operand %s not valid when right hand parameter is null.".format(operand))
+					val exprs = right match {
+						case null =>
+							left.columns map { c =>
+								val r = operand match {
+									case EQ => "null"
+									case NE => "not null"
+									case _ => throw new IllegalArgumentException("operand %s not valid when right hand parameter is null.".format(operand))
+								}
+								driver.sqlBuilder.NonValueClause(aliases(c), c.name, "is", null, r)
 							}
-							driver.sqlBuilder.NonValueClause(aliases(c), c.name, "is", null, r)
-						}
-					} else {
-						val fTpe = left.foreign.entity.tpe
+						case ManyToOne(columns, foreign) =>
+							left.columns zip columns map {
+								case (l, r) =>
+									new driver.sqlBuilder.ColumnAndColumnClause(
+										aliases(l), l,
+										operand.sql,
+										aliases(r), r
+									)
+							}
+						case _ =>
+							val fTpe = left.foreign.entity.tpe
 
-						val fPKs =
-							fTpe.table.toListOfPrimaryKeyValues(right) ::: fTpe.table.toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(right)
+							val fPKs =
+								fTpe.table.toListOfPrimaryKeyValues(right) ::: fTpe.table.toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(right)
 
-						if (left.columns.size != fPKs.size) throw new IllegalStateException("foreign keys %s don't match foreign key columns %s".format(fPKs, left.columns))
-						left.columns zip fPKs map {
-							case (c, v) =>
-								driver.sqlBuilder.Clause(aliases(c), c, operand.sql, v)
-						}
+							if (left.columns.size != fPKs.size) throw new IllegalStateException("foreign keys %s don't match foreign key columns %s".format(fPKs, left.columns))
+							left.columns zip fPKs map {
+								case (c, v) =>
+									driver.sqlBuilder.Clause(aliases(c), c, operand.sql, v)
+							}
 					}
 					exprs.reduceLeft { (l, r) =>
 						driver.sqlBuilder.And(l, r)
