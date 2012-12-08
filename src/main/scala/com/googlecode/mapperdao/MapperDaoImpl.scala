@@ -72,7 +72,7 @@ protected final class MapperDaoImpl(
 				po.toInsertCmd(entity, o)
 			}
 			val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
-			ctd.insert(cmds)
+			ctd.execute(cmds)
 
 			Nil
 		}

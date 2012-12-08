@@ -19,7 +19,4 @@ case class PersistedNode[ID, T](
 		children: List[(ColumnInfoRelationshipBase[_, _, _, _, _], PersistedNode[_, _])],
 		keys: List[(SimpleColumn, Any)]) {
 
-	def keysToMap = keys.map {
-		case (c, v) => (c.name, v)
-	}.toMap
 }
