@@ -11,8 +11,8 @@ import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.utils.Equality
 import com.googlecode.mapperdao.utils.NYI
 import com.googlecode.mapperdao.utils.Helpers
-import com.googlecode.mapperdao.ops._
 import com.googlecode.mapperdao.jdbc.CmdToDatabase
+import com.googlecode.mapperdao.state.persistcmds.PersistCmdFactory
 
 /**
  * @author kostantinos.kougios

@@ -1,10 +1,12 @@
 package com.googlecode.mapperdao.jdbc
 
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.ops._
+import com.googlecode.mapperdao.state.persistcmds._
 import com.googlecode.mapperdao.drivers.Driver
 import org.springframework.jdbc.core.SqlParameterValue
 import com.googlecode.mapperdao.state.persisted._
+import com.googlecode.mapperdao.state.persistcmds.PersistCmd
+import com.googlecode.mapperdao.state.persistcmds.InsertCmd
 
 /**
  * converts commands to database operations, executes

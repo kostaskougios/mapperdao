@@ -1,4 +1,4 @@
-package com.googlecode.mapperdao.ops
+package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
 
