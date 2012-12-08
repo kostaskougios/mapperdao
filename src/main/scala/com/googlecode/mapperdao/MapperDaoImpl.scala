@@ -73,6 +73,8 @@ protected final class MapperDaoImpl(
 			}
 			val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 			ctd.insert(cmds)
+
+			Nil
 		}
 
 	/**
