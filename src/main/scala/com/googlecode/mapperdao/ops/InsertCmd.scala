@@ -12,4 +12,5 @@ import com.googlecode.mapperdao._
 case class InsertCmd[ID, PC <: DeclaredIds[ID], T](
 	entity: Entity[ID, PC, T],
 	o: T,
-	columns: List[(SimpleColumn, Any)]) extends PersistCmd[ID, PC, T]
+	columns: List[(SimpleColumn, Any)],
+	commands: List[PersistCmd[_, _, _]]) extends PersistCmd[ID, PC, T]
