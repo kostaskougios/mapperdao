@@ -4,10 +4,11 @@ import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.ops._
 import com.googlecode.mapperdao.drivers.Driver
 import org.springframework.jdbc.core.SqlParameterValue
+import com.googlecode.mapperdao.state.persisted._
 
 /**
  * converts commands to database operations, executes
- * them and returns the resulting entity
+ * them and returns the resulting persisted nodes.
  *
  * @author kostantinos.kougios
  *
@@ -19,20 +20,6 @@ class CmdToDatabase(
 		typeManager: TypeManager) {
 
 	private val jdbc = driver.jdbc
-
-	private case class PersistedNode[ID, PC <: DeclaredIds[ID], T](
-			sql: String,
-			values: List[SqlParameterValue],
-			entity: Entity[ID, PC, T],
-			o: T,
-			children: List[(ColumnInfoRelationshipBase[_, _, _, _, _], PersistedNode[_, _, _])],
-			var keys: List[(SimpleColumn, Any)],
-			var newO: Option[T with PC]) {
-
-		def keysToMap = keys.map {
-			case (c, v) => (c.name, v)
-		}.toMap
-	}
 
 	def insert[ID, PC <: DeclaredIds[ID], T](
 		cmds: List[PersistCmd[ID, PC, T]]): List[T with PC] = {
