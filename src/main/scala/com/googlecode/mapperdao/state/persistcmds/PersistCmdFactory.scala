@@ -12,14 +12,14 @@ import java.util.IdentityHashMap
  */
 class PersistCmdFactory {
 
-	private val alreadyProcessed = new IdentityHashMap[Any, PersistCmd[_, _, _]]
+	private val alreadyProcessed = new IdentityHashMap[Any, PersistCmd[_, _]]
 
-	def toInsertCmd[ID, PC <: DeclaredIds[ID], T](
-		entity: Entity[ID, PC, T],
-		o: T) = insert(entity, o)
+	def toInsertCmd[ID, T](
+		entity: Entity[ID, _ <: DeclaredIds[ID], T],
+		o: T) = insert(entity.asInstanceOf[Entity[ID, DeclaredIds[ID], T]], o)
 
-	private def insert[ID, PC <: DeclaredIds[ID], T](
-		entity: Entity[ID, PC, T],
+	private def insert[ID, T](
+		entity: Entity[ID, DeclaredIds[ID], T],
 		o: T) = {
 		val op = alreadyProcessed.get(o)
 		if (op == null) {

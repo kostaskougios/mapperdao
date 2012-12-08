@@ -13,10 +13,10 @@ import com.googlecode.mapperdao.Entity
  *
  * Dec 8, 2012
  */
-case class PersistedNode[ID, PC <: DeclaredIds[ID], T](
-		entity: Entity[ID, PC, T],
+case class PersistedNode[ID, T](
+		entity: Entity[ID, DeclaredIds[ID], T],
 		o: T,
-		children: List[(ColumnInfoRelationshipBase[_, _, _, _, _], PersistedNode[_, _, _])],
+		children: List[(ColumnInfoRelationshipBase[_, _, _, _, _], PersistedNode[_, _])],
 		keys: List[(SimpleColumn, Any)]) {
 
 	def keysToMap = keys.map {

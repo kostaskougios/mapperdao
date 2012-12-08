@@ -7,8 +7,8 @@ import com.googlecode.mapperdao._
  *
  * 22 Nov 2012
  */
-case class AlreadyProcessedCmd[ID, PC <: DeclaredIds[ID], T](
-		entity: Entity[ID, PC, T],
-		o: T) extends PersistCmd[ID, PC, T] {
+case class AlreadyProcessedCmd[ID, T](
+		entity: Entity[ID, DeclaredIds[ID], T],
+		o: T) extends PersistCmd[ID, T] {
 	override val commands = Nil
 }

@@ -9,8 +9,8 @@ import com.googlecode.mapperdao._
  *
  * 21 Nov 2012
  */
-trait PersistCmd[ID, PC <: DeclaredIds[ID], T] {
-	val entity: Entity[ID, PC, T]
+trait PersistCmd[ID, T] {
+	val entity: Entity[ID, DeclaredIds[ID], T]
 	val o: T
-	val commands: List[PersistCmd[_, _, _]]
+	val commands: List[PersistCmd[_, _]]
 }

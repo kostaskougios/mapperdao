@@ -23,12 +23,12 @@ class CmdToDatabase(
 
 	private val jdbc = driver.jdbc
 
-	private case class Node(sql: driver.sqlBuilder.Result, cmd: PersistCmd[_, DeclaredIds[_], _], parentCmd: Option[PersistCmd[_, DeclaredIds[_], _]])
+	private case class Node(sql: driver.sqlBuilder.Result, cmd: PersistCmd[_, _], parentCmd: Option[PersistCmd[_, _]])
 
-	private case class CmdKey(cmd: PersistCmd[_, _ <: DeclaredIds[_], _], parentCmd: Option[PersistCmd[_, _ <: DeclaredIds[_], _]], keys: List[(SimpleColumn, Any)])
+	private case class CmdKey(cmd: PersistCmd[_, _], parentCmd: Option[PersistCmd[_, _]], keys: List[(SimpleColumn, Any)])
 
-	def insert[ID, PC <: DeclaredIds[ID], T](
-		cmds: List[PersistCmd[ID, PC, T]]): List[PersistedNode[ID, PC, T]] = {
+	def insert[ID, T](
+		cmds: List[PersistCmd[ID, T]]): List[PersistedNode[ID, T]] = {
 
 		// we need to flatten out the sql's so that we can batch process them
 		// but also keep the tree structure so that we return only PersistedNode's
@@ -37,14 +37,14 @@ class CmdToDatabase(
 		// flatten out the sqls
 		val sqls = cmds.map { cmd =>
 
-			def convert(cmd: PersistCmd[_, DeclaredIds[_], _], parentCmd: Option[PersistCmd[_, DeclaredIds[_], _]]): List[Node] = {
+			def convert(cmd: PersistCmd[_, _], parentCmd: Option[PersistCmd[_, _]]): List[Node] = {
 				val sql = toSql(cmd)
 				Node(sql, cmd, parentCmd) :: (cmd.commands.map { c =>
 					convert(c, Some(cmd))
 				}.flatten)
 			}
 
-			convert(cmd.asInstanceOf[PersistCmd[_, DeclaredIds[_], _]], None)
+			convert(cmd.asInstanceOf[PersistCmd[_, _]], None)
 		}.flatten
 
 		// group the sql's and batch-execute them
@@ -78,7 +78,7 @@ class CmdToDatabase(
 
 		Nil
 	}
-	private def toSql(cmd: PersistCmd[_, _, _]) = cmd match {
+	private def toSql(cmd: PersistCmd[_, _]) = cmd match {
 		case InsertCmd(entity, o, columns, commands) =>
 			driver.insertSql(entity.tpe, columns).result
 	}
