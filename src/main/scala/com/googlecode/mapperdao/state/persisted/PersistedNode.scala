@@ -14,13 +14,10 @@ import com.googlecode.mapperdao.Entity
  * Dec 8, 2012
  */
 case class PersistedNode[ID, PC <: DeclaredIds[ID], T](
-		sql: String,
-		values: List[SqlParameterValue],
 		entity: Entity[ID, PC, T],
 		o: T,
 		children: List[(ColumnInfoRelationshipBase[_, _, _, _, _], PersistedNode[_, _, _])],
-		var keys: List[(SimpleColumn, Any)],
-		var newO: Option[T with PC]) {
+		keys: List[(SimpleColumn, Any)]) {
 
 	def keysToMap = keys.map {
 		case (c, v) => (c.name, v)
