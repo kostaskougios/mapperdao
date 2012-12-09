@@ -138,7 +138,7 @@ protected final class MapperDaoImpl(
 			newE
 		}
 
-	private[mapperdao] def insert[ID, PC <: DeclaredIds[ID], T](
+	override def insert[ID, PC <: DeclaredIds[ID], T](
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, PC, T],
 		os: List[T]): List[T with PC] =
@@ -146,7 +146,7 @@ protected final class MapperDaoImpl(
 			val po = new PersistCmdFactory
 			val cmds = os.map { o =>
 				if (isPersisted(o)) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o)
-				po.toInsertCmd(entity, o)
+				po.toCmd(entity, o)
 			}
 			val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 			val nodes = ctd.execute[ID, PC, T](cmds)
@@ -154,20 +154,6 @@ protected final class MapperDaoImpl(
 			nodes.map { node =>
 				insertInner(updateConfig, node, entityMap)
 			}.asInstanceOf[List[T with PC]]
-		}
-
-	/**
-	 * insert an entity into the database
-	 */
-	override def insert[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T): T with PC =
-		{
-			if (o == null) throw new NullPointerException("o can't be null")
-			try {
-				insert(updateConfig, entity, o :: Nil).head
-			} catch {
-				case e =>
-					throw new PersistException("An error occured during insert of entity %s with value %s.".format(entity, o), e)
-			}
 		}
 
 	/**

@@ -31,8 +31,15 @@ class MemoryMapperDao(typeRegistry: TypeRegistry, typeManager: TypeManager) exte
 	private val idGen = new AtomicLong
 	private val m = new ConcurrentHashMap[List[Any], Persisted]
 
+	def insert[ID, PC <: DeclaredIds[ID], T](
+		updateConfig: UpdateConfig,
+		entity: Entity[ID, PC, T],
+		os: List[T]): List[T with PC] = os map { o =>
+		insertInner(updateConfig, entity, o)
+	}
+
 	// insert
-	override def insert[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T): T with PC =
+	private def insertInner[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T): T with PC =
 		{
 			if (o == null) throw new NullPointerException("o must not be null")
 			if (entity == null) throw new NullPointerException("entity must not be null")

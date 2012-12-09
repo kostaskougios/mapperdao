@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.events.Events
+import com.googlecode.mapperdao.exceptions.PersistException
 
 /**
  * The MapperDao is the central trait that allows CRUD operations on entities.
@@ -34,8 +35,21 @@ trait MapperDao {
 	 * @see 	#UpdateConfig for configuration documentation.
 	 * @see		#insert(entity,o)
 	 */
-	def insert[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T): T with PC
+	def insert[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T): T with PC =
+		{
+			if (o == null) throw new NullPointerException("o can't be null")
+			try {
+				insert(updateConfig, entity, o :: Nil).head
+			} catch {
+				case e =>
+					throw new PersistException("An error occured during insert of entity %s with value %s.".format(entity, o), e)
+			}
+		}
 
+	def insert[ID, PC <: DeclaredIds[ID], T](
+		updateConfig: UpdateConfig,
+		entity: Entity[ID, PC, T],
+		os: List[T]): List[T with PC]
 	/**
 	 * updates a mutable entity. Non-persisted related entities will be inserted and persisted
 	 * related entities will be updated (if their state changed).
