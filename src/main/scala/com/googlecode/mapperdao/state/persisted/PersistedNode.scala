@@ -28,4 +28,11 @@ case class PersistedNode[ID, T](
 		case (c: ColumnInfoTraversableOneToMany[ID, DeclaredIds[ID], T, Any, DeclaredIds[Any], _], n) => (c, n)
 	}
 
+	def oneToOne = children.collect {
+		case (c: ColumnInfoOneToOne[T, Any, DeclaredIds[Any], _], n) => (c, n)
+	}
+
+	def oneToOneReverse = children.collect {
+		case (c: ColumnInfoOneToOneReverse[T, Any, DeclaredIds[Any], _], n) => (c, n)
+	}
 }

@@ -14,6 +14,7 @@ import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.UpdateConfig
 import com.googlecode.mapperdao.UpdateEntityMap
 import com.googlecode.mapperdao.DeclaredIds
+import com.googlecode.mapperdao.state.persisted.PersistedNode
 
 /**
  * @author kostantinos.kougios
@@ -24,8 +25,7 @@ class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperD
 
 	override def before[PID, PPC <: DeclaredIds[PID], PT, ID, PC <: DeclaredIds[ID], T, V, FID, FPC <: DeclaredIds[FID], F](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, PC, T],
-		o: T,
+		node: PersistedNode[ID, T],
 		mockO: T with PC,
 		entityMap: UpdateEntityMap,
 		modified: scala.collection.mutable.Map[String, Any],
@@ -46,41 +46,43 @@ class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperD
 
 	override def after[ID, PC <: DeclaredIds[ID], T](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, PC, T],
-		o: T,
+		node: PersistedNode[ID, T],
 		mockO: T with PC,
 		entityMap: UpdateEntityMap,
 		modified: scala.collection.mutable.Map[String, Any],
 		modifiedTraversables: MapOfList[String, Any]): Unit =
 		{
+			val entity = node.entity
+			val o = node.o
 			val tpe = entity.tpe
 			val table = tpe.table
 			// one-to-one reverse
-			table.oneToOneReverseColumnInfos.foreach { cis =>
+			node.oneToOneReverse.foreach {
+				case (cis, childNode) =>
 
-				cis.column.foreign.entity match {
-					case ee: ExternalEntity[Any, Any] =>
-						val fo = cis.columnToValue(o)
-						modified(cis.column.alias) = fo
-						val handler = ee.oneToOneOnInsertMap(cis.asInstanceOf[ColumnInfoOneToOneReverse[T, _, _, Any]]).asInstanceOf[ee.OnInsertOneToOneReverse[T]]
-						handler(InsertExternalOneToOneReverse(updateConfig, o, fo))
-					case fe: Entity[Any, DeclaredIds[Any], Any] =>
-						val fo = cis.columnToValue(o)
-						val v = fo match {
-							case null => null
-							case p: DeclaredIds[Any] =>
-								entityMap.down(mockO, cis, entity)
-								val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
-								entityMap.up
-								updated
-							case x =>
-								entityMap.down(mockO, cis, entity)
-								val inserted = mapperDao.insertInner(updateConfig, fe, x, entityMap)
-								entityMap.up
-								inserted
-						}
-						modified(cis.column.alias) = v
-				}
+					cis.column.foreign.entity match {
+						case ee: ExternalEntity[Any, Any] =>
+							val fo = cis.columnToValue(o)
+							modified(cis.column.alias) = fo
+							val handler = ee.oneToOneOnInsertMap(cis.asInstanceOf[ColumnInfoOneToOneReverse[T, _, _, Any]]).asInstanceOf[ee.OnInsertOneToOneReverse[T]]
+							handler(InsertExternalOneToOneReverse(updateConfig, o, fo))
+						case fe: Entity[Any, DeclaredIds[Any], Any] =>
+							val fo = cis.columnToValue(o)
+							val v = fo match {
+								case null => null
+								case p: DeclaredIds[Any] =>
+									entityMap.down(mockO, cis, entity)
+									val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
+									entityMap.up
+									updated
+								case x =>
+									entityMap.down(mockO, cis, entity)
+									val inserted = mapperDao.insertInner(updateConfig, childNode, entityMap)
+									entityMap.up
+									inserted
+							}
+							modified(cis.column.alias) = v
+					}
 			}
 		}
 }

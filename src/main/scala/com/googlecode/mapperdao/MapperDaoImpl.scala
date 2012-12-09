@@ -99,7 +99,7 @@ protected final class MapperDaoImpl(
 			entityMap.put(o, mockO)
 
 			val extraArgs = beforeInsertPlugins.map { plugin =>
-				plugin.before(updateConfig, entity, o, mockO, entityMap, modified, updateInfo)
+				plugin.before(updateConfig, node, mockO, entityMap, modified, updateInfo)
 			}.flatten.distinct
 
 			// arguments
