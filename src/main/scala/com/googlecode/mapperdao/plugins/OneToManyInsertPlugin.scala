@@ -6,6 +6,7 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao.utils.TraversableSeparation
 import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.state.persisted.PersistedNode
 
 /**
  * @author kostantinos.kougios
@@ -16,8 +17,8 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 
 	override def before[PID, PPC <: DeclaredIds[PID], PT, ID, PC <: DeclaredIds[ID], T, V, FID, FPC <: DeclaredIds[FID], F](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, PC, T],
-		o: T, mockO: T with PC,
+		node: PersistedNode[ID, T],
+		mockO: T with PC,
 		entityMap: UpdateEntityMap,
 		modified: scala.collection.mutable.Map[String, Any],
 		updateInfo: UpdateInfo[PID, PPC, PT, V, FID, FPC, F]): List[(Column, Any)] =
@@ -25,6 +26,8 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 			val UpdateInfo(parent, parentColumnInfo, parentEntity) = updateInfo
 
 			if (parent != null) {
+				val entity = node.entity
+				val o = node.o
 				val parentColumn = parentColumnInfo.column
 				parentColumn match {
 					case otm: OneToMany[_, _, _] =>
@@ -55,50 +58,53 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 
 	override def after[ID, PC <: DeclaredIds[ID], T](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, PC, T],
-		o: T, mockO: T with PC,
+		node: PersistedNode[ID, T],
+		mockO: T with PC,
 		entityMap: UpdateEntityMap,
 		modified: scala.collection.mutable.Map[String, Any],
 		modifiedTraversables: MapOfList[String, Any]): Unit =
 		{
+			val entity = node.entity
+			val o = node.o
 			val tpe = entity.tpe
 			val table = tpe.table
 			// one to many
-			table.oneToManyColumnInfos.foreach { cis =>
-				val traversable = cis.columnToValue(o)
-				cis.column.foreign.entity match {
-					case ee: ExternalEntity[Any, Any] =>
-						val cName = cis.column.alias
-						traversable.foreach {
-							modifiedTraversables(cName) = _
-						}
-						val handler = ee.oneToManyOnInsertMap(cis.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, T, _, _, Any]])
-							.asInstanceOf[ee.OnInsertOneToMany[T]]
-						handler(InsertExternalOneToMany(updateConfig, o, traversable))
-
-					case fe: Entity[Any, DeclaredIds[Any], Any] =>
-						val ftpe = fe.tpe
-						val newKeyValues = table.primaryKeys.map(c => modified(c.name))
-						if (traversable != null) {
-							traversable.foreach { nested =>
-								val newO = if (mapperDao.isPersisted(nested)) {
-									val OneToMany(foreign: TypeRef[_, _, _], foreignColumns: List[Column]) = cis.column
-									// update
-									val keyArgs = ftpe.table.toListOfColumnAndValueTuples(ftpe.table.primaryKeys, nested)
-									driver.doUpdateOneToManyRef(ftpe, foreignColumns zip newKeyValues, keyArgs)
-									nested
-								} else {
-									// insert
-									entityMap.down(mockO, cis, entity)
-									val inserted = mapperDao.insertInner(updateConfig, fe, nested, entityMap)
-									entityMap.up
-									inserted
-								}
-								val cName = cis.column.alias
-								modifiedTraversables(cName) = newO
+			node.oneToMany.foreach {
+				case (cis, childNode) =>
+					val traversable = cis.columnToValue(o)
+					cis.column.foreign.entity match {
+						case ee: ExternalEntity[Any, Any] =>
+							val cName = cis.column.alias
+							traversable.foreach {
+								modifiedTraversables(cName) = _
 							}
-						}
-				}
+							val handler = ee.oneToManyOnInsertMap(cis.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, T, _, _, Any]])
+								.asInstanceOf[ee.OnInsertOneToMany[T]]
+							handler(InsertExternalOneToMany(updateConfig, o, traversable))
+
+						case fe: Entity[Any, DeclaredIds[Any], Any] =>
+							val ftpe = fe.tpe
+							val newKeyValues = table.primaryKeys.map(c => modified(c.name))
+							if (traversable != null) {
+								traversable.foreach { nested =>
+									val newO = if (mapperDao.isPersisted(nested)) {
+										val OneToMany(foreign: TypeRef[_, _, _], foreignColumns: List[Column]) = cis.column
+										// update
+										val keyArgs = ftpe.table.toListOfColumnAndValueTuples(ftpe.table.primaryKeys, nested)
+										driver.doUpdateOneToManyRef(ftpe, foreignColumns zip newKeyValues, keyArgs)
+										nested
+									} else {
+										// insert
+										entityMap.down(mockO, cis, entity)
+										val inserted = mapperDao.insertInner(updateConfig, childNode, entityMap)
+										entityMap.up
+										inserted
+									}
+									val cName = cis.column.alias
+									modifiedTraversables(cName) = newO
+								}
+							}
+					}
 			}
 		}
 }

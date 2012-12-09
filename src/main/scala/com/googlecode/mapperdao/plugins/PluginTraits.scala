@@ -29,8 +29,7 @@ import com.googlecode.mapperdao.state.persisted.PersistedNode
 trait BeforeInsert {
 	def before[PID, PPC <: DeclaredIds[PID], PT, ID, PC <: DeclaredIds[ID], T, V, FID, FPC <: DeclaredIds[FID], F](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, PC, T],
-		o: T,
+		node: PersistedNode[ID, T],
 		mockO: T with PC,
 		entityMap: UpdateEntityMap,
 		modified: scala.collection.mutable.Map[String, Any],

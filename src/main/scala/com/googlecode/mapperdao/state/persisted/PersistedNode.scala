@@ -1,11 +1,7 @@
 package com.googlecode.mapperdao.state.persisted
 
-import com.googlecode.mapperdao.SimpleColumn
-import com.googlecode.mapperdao.ColumnInfoRelationshipBase
-import com.googlecode.mapperdao.DeclaredIds
+import com.googlecode.mapperdao._
 import org.springframework.jdbc.core.SqlParameterValue
-import com.googlecode.mapperdao.Entity
-import com.googlecode.mapperdao.ColumnInfoTraversableManyToMany
 
 /**
  * after persisting to the storage, all commands are converted to persisted nodes
@@ -23,4 +19,13 @@ case class PersistedNode[ID, T](
 	def manyToMany = children.collect {
 		case (c: ColumnInfoTraversableManyToMany[T, Any, DeclaredIds[Any], _], n) => (c, n)
 	}
+
+	def manyToOne = children.collect {
+		case (c: ColumnInfoManyToOne[T, Any, DeclaredIds[Any], _], n) => (c, n)
+	}
+
+	def oneToMany = children.collect {
+		case (c: ColumnInfoTraversableOneToMany[ID, DeclaredIds[ID], T, Any, DeclaredIds[Any], _], n) => (c, n)
+	}
+
 }
