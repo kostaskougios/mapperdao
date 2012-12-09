@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.SqlParameterValue
 case class PersistedNode[ID, T](
 		entity: Entity[ID, DeclaredIds[ID], T],
 		o: T,
+		newVM: ValuesMap,
 		children: List[(ColumnInfoRelationshipBase[_, _, _, _, _], PersistedNode[_, _])],
 		keys: List[(SimpleColumn, Any)]) {
 

@@ -146,7 +146,7 @@ protected final class MapperDaoImpl(
 			val po = new PersistCmdFactory
 			val cmds = os.map { o =>
 				if (isPersisted(o)) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o)
-				po.toCmd(entity, o)
+				po.toInsertCmd(entity, o)
 			}
 			val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 			val nodes = ctd.execute[ID, PC, T](cmds)
@@ -159,10 +159,15 @@ protected final class MapperDaoImpl(
 	/**
 	 * update an entity
 	 */
-	private def updateInner[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap): T with PC with Persisted =
+	private def updateInner[ID, PC <: DeclaredIds[ID], T](
+		updateConfig: UpdateConfig,
+		node: PersistedNode[ID, T],
+		entityMap: UpdateEntityMap): T with PC with Persisted =
 		{
-			if (oldValuesMap == null)
-				throw new IllegalStateException("old product in inconsistent state. Did you unlink it? For entity %s , value %s".format(entity, o))
+			val entity = node.entity
+			val newValuesMap = node.newVM
+			val oldO = node.o
+			val oldValuesMap = ValuesMap.fromEntity(typeManager, entity.tpe, oldO)
 			val tpe = entity.tpe
 			def changed(column: ColumnBase) = !Equality.isEqual(newValuesMap.valueOf(column), oldValuesMap.valueOf(column))
 			val table = tpe.table
@@ -171,7 +176,7 @@ protected final class MapperDaoImpl(
 
 			// store a mock in the entity map so that we don't process the same instance twice
 			var mockO = createMock(updateConfig.data, entity, modified ++ modifiedTraversables)
-			entityMap.put(o, mockO)
+			entityMap.put(oldO, mockO)
 
 			// first, lets update the simple columns that changed
 
@@ -205,7 +210,7 @@ protected final class MapperDaoImpl(
 
 			// update the mock
 			mockO = createMock(updateConfig.data, entity, modified ++ modifiedTraversables)
-			entityMap.put(o, mockO)
+			entityMap.put(oldO, mockO)
 
 			if (updateConfig.depth > 0) {
 				val newUC = updateConfig.copy(depth = updateConfig.depth - 1)
@@ -214,83 +219,46 @@ protected final class MapperDaoImpl(
 			// done, construct the updated entity
 			val finalValuesMap = ValuesMap.fromMap(modified ++ modifiedTraversables)
 			val v = tpe.constructor(updateConfig.data, finalValuesMap)
-			entityMap.put(o, v)
-			v
+			entityMap.put(oldO, v)
+			v.asInstanceOf[T with PC with Persisted]
 		}
 
-	/**
-	 * update an entity. The entity must have been retrieved from the database and then
-	 * changed prior to calling this method.
-	 * The whole object graph will be updated (if necessary).
-	 */
-	override def update[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T with PC): T with PC =
-		{
-			validatePersisted(o)
-			val entityMap = new UpdateEntityMap
-			try {
-				val v = updateInner(updateConfig, entity, o, entityMap)
-				entityMap.done
-				v
-			} catch {
-				case e: Throwable => throw new PersistException("An error occured during update of entity %s with value %s.".format(entity, o), e)
+	override def update[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], os: List[T with PC]): List[T with PC] = {
+		val osAndNewValues = os.map { o =>
+			o match {
+				case p: Persisted if (p.mapperDaoMock) =>
+					throw new IllegalStateException("Object %s is mock.".format(p))
+				case persisted: Persisted =>
+					val newValuesMap = ValuesMap.fromEntity(typeManager, entity.tpe, o)
+					(o, newValuesMap)
 			}
 		}
-
-	private[mapperdao] def updateInner[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T with PC, entityMap: UpdateEntityMap): T with PC with Persisted =
-		// do a check if a mock is been updated
-		o match {
-			case p: Persisted if (p.mapperDaoMock) =>
-				val v = o.asInstanceOf[T with PC with Persisted]
-				// report an error if mock was changed by the user
-				val tpe = entity.tpe
-				val newVM = ValuesMap.fromEntity(typeManager, tpe, o, false)
-				val oldVM = v.mapperDaoValuesMap
-				if (newVM.isSimpleColumnsChanged(tpe, oldVM)) throw new IllegalStateException("please don't modify mock objects. Object %s is mock and has been modified.".format(p))
-				v
-			case _ =>
-				// if a mock exists in the entity map or already persisted, then return
-				// the existing mock/persisted object
-				entityMap.get[PC, T](o).getOrElse {
-					val persisted = o.asInstanceOf[T with PC with Persisted]
-					val oldValuesMap = persisted.mapperDaoValuesMap
-					val tpe = entity.tpe
-					val newValuesMapPre = ValuesMap.fromEntity(typeManager, tpe, o)
-					val reConstructed = tpe.constructor(updateConfig.data, newValuesMapPre)
-					updateInner(updateConfig, entity, o, oldValuesMap, reConstructed.mapperDaoValuesMap, entityMap)
-				}
-		}
-	/**
-	 * update an immutable entity. The entity must have been retrieved from the database. Because immutables can't change, a new instance
-	 * of the entity must be created with the new values prior to calling this method. Values that didn't change should be copied from o.
-	 * For traversables, the method heavily relies on object equality to assess which entities will be updated. So please copy over
-	 * traversable entities from the old collections to the new ones (but you can instantiate a new collection).
-	 *
-	 * The whole tree will be updated (if necessary).
-	 *
-	 * @param	o		the entity, as retrieved from the database
-	 * @param	newO	the new instance of the entity with modifications. The database will be updated
-	 * 					based on differences between newO and o
-	 * @return			The updated entity. Both o and newO should be disposed (not used) after the call.
-	 */
-	override def update[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T with PC, newO: T): T with PC = {
-		validatePersisted(o)
-		o.mapperDaoDiscarded = true
-		try {
-			val entityMap = new UpdateEntityMap
-			val v = updateInner(updateConfig, entity, o, newO, entityMap)
-			entityMap.done
-			v
-		} catch {
-			case e => throw new PersistException("An error occured during update of entity %s with old value %s and new value %s".format(entity, o, newO), e)
-		}
+		updateProcess(updateConfig, entity, osAndNewValues)
 	}
 
-	private[mapperdao] def updateInner[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T with PC with Persisted, newO: T, entityMap: UpdateEntityMap): T with PC =
-		{
-			val oldValuesMap = o.mapperDaoValuesMap
-			val newValuesMap = ValuesMap.fromEntity(typeManager, entity.tpe, newO)
-			updateInner(updateConfig, entity, newO, oldValuesMap, newValuesMap, entityMap)
+	override def update[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], os: List[(T with PC, T)]): List[T with PC] = {
+		val osAndNewValues = os.map {
+			case (oldO, newO) =>
+				oldO.mapperDaoDiscarded = true
+				val newVM = ValuesMap.fromEntity(typeManager, entity.tpe, newO)
+				(oldO, newVM)
 		}
+		updateProcess(updateConfig, entity, osAndNewValues)
+	}
+
+	private def updateProcess[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], os: List[(T with PC, ValuesMap)]): List[T with PC] = {
+		val po = new PersistCmdFactory
+		val cmds = os.map {
+			case (o, newVM) =>
+				po.toUpdateCmd(entity, o, newVM)
+		}
+		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
+		val nodes = ctd.execute[ID, PC, T](cmds)
+		val entityMap = new UpdateEntityMap
+		nodes.map { node =>
+			updateInner(updateConfig, node, entityMap)
+		}.asInstanceOf[List[T with PC]]
+	}
 
 	private def validatePersisted(persisted: Persisted) {
 		if (persisted.mapperDaoDiscarded) throw new IllegalArgumentException("can't operate on an object twice. An object that was updated/deleted must be discarded and replaced by the return value of update(), i.e. onew=update(o) or just be disposed if it was deleted. The offending object was : " + persisted);

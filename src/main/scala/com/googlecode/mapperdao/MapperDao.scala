@@ -46,10 +46,14 @@ trait MapperDao {
 			}
 		}
 
+	/**
+	 * batch insert many entities
+	 */
 	def insert[ID, PC <: DeclaredIds[ID], T](
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, PC, T],
 		os: List[T]): List[T with PC]
+
 	/**
 	 * updates a mutable entity. Non-persisted related entities will be inserted and persisted
 	 * related entities will be updated (if their state changed).
@@ -68,7 +72,19 @@ trait MapperDao {
 	 * @see 	#UpdateConfig for configuration documentation.
 	 * @see		#update(entity,o)
 	 */
-	def update[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T with PC): T with PC
+	def update[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T with PC): T with PC =
+		{
+			try {
+				update(updateConfig, entity, o :: Nil).head
+			} catch {
+				case e: Throwable => throw new PersistException("An error occured during update of entity %s with value %s.".format(entity, o), e)
+			}
+		}
+
+	/**
+	 * batch update mutable entities
+	 */
+	def update[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], os: List[T with PC]): List[T with PC]
 
 	/**
 	 * update of an immutable entity.
@@ -90,7 +106,18 @@ trait MapperDao {
 	 * @see 	#UpdateConfig for configuration documentation.
 	 * @see		#update(entity,o,newO)
 	 */
-	def update[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T with PC, newO: T): T with PC
+	override def update[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T with PC, newO: T): T with PC = {
+		try {
+			update(updateConfig, entity, List((o, newO))).head
+		} catch {
+			case e => throw new PersistException("An error occured during update of entity %s with old value %s and new value %s".format(entity, o, newO), e)
+		}
+	}
+
+	/**
+	 * batch update immutable entities
+	 */
+	def update[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], os: List[(T with PC, T)]): List[T with PC]
 
 	/**
 	 * merges o with the database value according to id. If id exists in the database, an update

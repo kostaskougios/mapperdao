@@ -168,7 +168,7 @@ class ValuesMap private (mOrig: scala.collection.Map[String, Any])
 
 	override def toString = memToString
 
-	protected[mapperdao] def toListOfColumnAndValueTuple(columns: List[ColumnBase]) = columns.map(c => (c, getMEM(c.aliasLowerCase)))
+	protected[mapperdao] def toListOfColumnAndValueTuple[C <: ColumnBase](columns: List[C]) = columns.map(c => (c, getMEM(c.aliasLowerCase)))
 	protected[mapperdao] def toListOfSimpleColumnAndValueTuple(columns: List[SimpleColumn]) = columns.map(c => (c, getMEM(c.aliasLowerCase)))
 	protected[mapperdao] def toListOfColumnValue(columns: List[ColumnBase]) = columns.map(c => getMEM(c.aliasLowerCase))
 	protected[mapperdao] def isSimpleColumnsChanged[ID, PC <: DeclaredIds[ID], T](tpe: Type[ID, PC, T], from: ValuesMap): Boolean =

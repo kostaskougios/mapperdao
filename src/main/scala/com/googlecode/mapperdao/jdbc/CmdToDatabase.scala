@@ -81,7 +81,12 @@ class CmdToDatabase(
 
 	private def toPersistedNodes[ID, T](nodes: List[Node[ID, T]]) = nodes.map { node =>
 		val cmd = node.cmd
-		PersistedNode(cmd.entity, cmd.o, Nil, node.keys)
+		cmd match {
+			case i: InsertCmd[ID, T] =>
+				PersistedNode(i.entity, i.o, null, Nil, node.keys)
+			case u: UpdateCmd[ID, T] =>
+				PersistedNode(u.entity, u.o, u.oldVM, Nil, node.keys)
+		}
 	}
 
 	private def toNodes[ID, T](
