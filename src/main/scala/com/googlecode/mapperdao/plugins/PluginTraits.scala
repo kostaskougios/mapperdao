@@ -17,6 +17,7 @@ import com.googlecode.mapperdao.ValuesMap
 import com.googlecode.mapperdao.ColumnBase
 import com.googlecode.mapperdao.DatabaseValues
 import com.googlecode.mapperdao.DeclaredIds
+import com.googlecode.mapperdao.state.persisted.PersistedNode
 
 /**
  * plugins executed before the main entity is inserted
@@ -46,8 +47,7 @@ trait BeforeInsert {
 trait PostInsert {
 	def after[ID, PC <: DeclaredIds[ID], T](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, PC, T],
-		o: T,
+		node: PersistedNode[ID, T],
 		mockO: T with PC,
 		entityMap: UpdateEntityMap,
 		modified: scala.collection.mutable.Map[String, Any],

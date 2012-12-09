@@ -75,13 +75,13 @@ protected final class MapperDaoImpl(
 	 * ===================================================================================
 	 */
 
-	private[mapperdao] def insertInner[ID, PC <: DeclaredIds[ID], T](
+	private[mapperdao] def insertInner[ID, T](
 		updateConfig: UpdateConfig,
-		node: PersistedNode[ID, PC, T],
-		entityMap: UpdateEntityMap): T with PC with Persisted =
+		node: PersistedNode[ID, T],
+		entityMap: UpdateEntityMap): T with DeclaredIds[ID] with Persisted =
 		// if a mock exists in the entity map or already persisted, then return
 		// the existing mock/persisted object
-		entityMap.get[PC, T](node.o).getOrElse {
+		entityMap.get[DeclaredIds[ID], T](node.o).getOrElse {
 
 			val o = node.o
 			if (isPersisted(o)) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o);
@@ -92,7 +92,7 @@ protected final class MapperDaoImpl(
 			val modified = ValuesMap.fromEntity(typeManager, tpe, o).toMutableMap
 			val modifiedTraversables = new MapOfList[String, Any](MapOfList.stringToLowerCaseModifier)
 
-			val updateInfo @ UpdateInfo(parent, parentColumnInfo, parentEntity) = entityMap.peek[Any, DeclaredIds[Any], Any, Any, ID, PC, T]
+			val updateInfo @ UpdateInfo(parent, parentColumnInfo, parentEntity) = entityMap.peek[Any, DeclaredIds[Any], Any, Any, ID, DeclaredIds[ID], T]
 
 			// create a mock
 			var mockO = createMock(updateConfig.data, entity, modified ++ modifiedTraversables)
@@ -128,7 +128,7 @@ protected final class MapperDaoImpl(
 			entityMap.put(o, mockO)
 
 			postInsertPlugins.foreach { plugin =>
-				plugin.after(updateConfig, entity, o, mockO, entityMap, modified, modifiedTraversables)
+				plugin.after(updateConfig, node, mockO, entityMap, modified, modifiedTraversables)
 			}
 
 			val finalMods = modified ++ modifiedTraversables
@@ -153,7 +153,7 @@ protected final class MapperDaoImpl(
 			val entityMap = new UpdateEntityMap
 			nodes.map { node =>
 				insertInner(updateConfig, node, entityMap)
-			}
+			}.asInstanceOf[List[T with PC]]
 		}
 
 	/**
