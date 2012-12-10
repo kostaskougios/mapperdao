@@ -265,11 +265,15 @@ protected final class MapperDaoImpl(
 		updateProcess(updateConfig, entity, osAndNewValues)
 	}
 
-	private def updateProcess[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], os: List[(T with PC, ValuesMap)]): List[T with PC] = {
+	private def updateProcess[ID, PC <: DeclaredIds[ID], T](
+		updateConfig: UpdateConfig,
+		entity: Entity[ID, PC, T],
+		os: List[(T with PC, ValuesMap)]): List[T with PC] = {
 		val po = new PersistCmdFactory
 		val cmds = os.map {
 			case (o, newVM) =>
-				po.toUpdateCmd(entity, o, newVM)
+				val oldVM = ValuesMap.fromEntity(typeManager, entity.tpe, o)
+				po.toUpdateCmd(entity, o, oldVM, newVM)
 		}
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 		val nodes = ctd.execute[ID, PC, T](cmds)

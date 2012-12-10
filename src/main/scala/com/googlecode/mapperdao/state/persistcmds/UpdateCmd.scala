@@ -11,5 +11,6 @@ case class UpdateCmd[ID, T](
 	entity: Entity[ID, DeclaredIds[ID], T],
 	o: T,
 	oldVM: ValuesMap,
+	newVM: ValuesMap,
 	columns: List[(SimpleColumn, Any)],
 	commands: List[PersistCmd[_, _]]) extends PersistCmd[ID, T]

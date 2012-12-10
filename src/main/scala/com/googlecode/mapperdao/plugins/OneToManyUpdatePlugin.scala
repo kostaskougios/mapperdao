@@ -7,6 +7,7 @@ import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao.utils.TraversableSeparation
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.utils.NYI
+import com.googlecode.mapperdao.state.persisted.PersistedNode
 
 /**
  * @author kostantinos.kougios
@@ -16,7 +17,14 @@ import com.googlecode.mapperdao.utils.NYI
 class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 		extends PostUpdate with DuringUpdate {
 
-	def during[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o1: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]) = {
+	def during[ID, PC <: DeclaredIds[ID], T](
+		updateConfig: UpdateConfig,
+		node: PersistedNode[ID, T],
+		entityMap: UpdateEntityMap,
+		modified: scala.collection.mutable.Map[String, Any],
+		modifiedTraversables: MapOfList[String, Any]) = {
+		val entity = node.entity
+		val oldValuesMap = node.oldVM
 		val ui = entityMap.peek[Any, DeclaredIds[Any], Any, Traversable[Any], Any, DeclaredIds[Any], Any]
 		ui.ci match {
 			case _: ColumnInfoTraversableOneToMany[_, _, Any, Any, DeclaredIds[Any], Any] =>
@@ -54,69 +62,71 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 	}
 	def after[ID, PC <: DeclaredIds[ID], T](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, PC, T],
-		o: T,
+		node: PersistedNode[ID, T],
 		mockO: T with PC,
-		oldValuesMap: ValuesMap,
-		newValuesMap: ValuesMap,
 		entityMap: UpdateEntityMap,
 		modified: MapOfList[String, Any]) =
 		{
+			val entity = node.entity
+			val newValuesMap = node.newVM
+			val oldValuesMap = node.oldVM
+			val o = node.o
 			val tpe = entity.tpe
 			val table = tpe.table
 
-			table.oneToManyColumnInfos.filterNot(updateConfig.skip.contains(_)).foreach { ci =>
-				val oneToMany = ci.column
-				//val t = ci.columnToValue(o)
-				val t = newValuesMap.valueOf[Traversable[Any]](ci)
+			node.oneToMany.filterNot(t => updateConfig.skip.contains(t._1)).foreach {
+				case (ci, childNode) =>
+					val oneToMany = ci.column
+					//val t = ci.columnToValue(o)
+					val t = newValuesMap.valueOf[Traversable[Any]](ci)
 
-				// we'll get the 2 traversables and update the database
-				// based on their differences
-				val newValues = t.toList
-				val oldValues = oldValuesMap.seq[DeclaredIds[Any]](oneToMany.foreign.alias)
+					// we'll get the 2 traversables and update the database
+					// based on their differences
+					val newValues = t.toList
+					val oldValues = oldValuesMap.seq[DeclaredIds[Any]](oneToMany.foreign.alias)
 
-				val fentity = ci.column.foreign.entity.asInstanceOf[Entity[Any, DeclaredIds[Any], Any]]
-				val (added, intersection, removed) = TraversableSeparation.separate(fentity, oldValues, newValues)
+					val fentity = ci.column.foreign.entity.asInstanceOf[Entity[Any, DeclaredIds[Any], Any]]
+					val (added, intersection, removed) = TraversableSeparation.separate(fentity, oldValues, newValues)
 
-				ci.column.foreign.entity match {
-					case ee: ExternalEntity[Any, Any] =>
+					ci.column.foreign.entity match {
+						case ee: ExternalEntity[Any, Any] =>
 
-						val handler = ee.oneToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, T, _, _, Any]])
-							.asInstanceOf[ee.OnUpdateOneToMany[T]]
-						handler(UpdateExternalOneToMany(updateConfig, o, added, intersection.map(_._2), removed))
-						t.foreach { newItem =>
-							modified(oneToMany.alias) = newItem
-						}
-					case fe: Entity[Any, DeclaredIds[Any], Any] =>
+							val handler = ee.oneToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, T, _, _, Any]])
+								.asInstanceOf[ee.OnUpdateOneToMany[T]]
+							handler(UpdateExternalOneToMany(updateConfig, o, added, intersection.map(_._2), removed))
+							t.foreach { newItem =>
+								modified(oneToMany.alias) = newItem
+							}
+						case fe: Entity[Any, DeclaredIds[Any], Any] =>
 
-						// update the removed ones
-						removed.foreach { item =>
-							entityMap.down(mockO, ci, entity)
-							mapperDao.deleteInner(updateConfig.deleteConfig, fe, item.asInstanceOf[DeclaredIds[Any]], entityMap)
-							entityMap.up
-						}
-
-						// update those that remained in the updated traversable
-						intersection.foreach {
-							case (oldV, newV) =>
+							// update the removed ones
+							removed.foreach { item =>
 								entityMap.down(mockO, ci, entity)
-								val newItem = mapperDao.updateInner(updateConfig, fe, oldV, newV, entityMap)
+								mapperDao.deleteInner(updateConfig.deleteConfig, fe, item.asInstanceOf[DeclaredIds[Any]], entityMap)
+								entityMap.up
+							}
+
+							// update those that remained in the updated traversable
+							intersection.foreach {
+								case (oldV, newV) =>
+									entityMap.down(mockO, ci, entity)
+									val newItem = mapperDao.updateInner(updateConfig, childNode, entityMap)
+									entityMap.up
+									modified(oneToMany.alias) = newItem
+							}
+							// find the added ones
+							added.foreach { item =>
+								entityMap.down(mockO, ci, entity)
+								val newItem: Any = item match {
+									case p: DeclaredIds[Any] =>
+										mapperDao.updateInner(updateConfig, childNode, entityMap)
+									case _ =>
+										mapperDao.insertInner(updateConfig, childNode, entityMap)
+								}
 								entityMap.up
 								modified(oneToMany.alias) = newItem
-						}
-						// find the added ones
-						added.foreach { item =>
-							entityMap.down(mockO, ci, entity)
-							val newItem: Any = item match {
-								case p: DeclaredIds[Any] =>
-									mapperDao.updateInner(updateConfig, fe, p, entityMap)
-								case _ =>
-									mapperDao.insertInner(updateConfig, fe, item, entityMap)
 							}
-							entityMap.up
-							modified(oneToMany.alias) = newItem
-						}
-				}
+					}
 			}
 		}
 }

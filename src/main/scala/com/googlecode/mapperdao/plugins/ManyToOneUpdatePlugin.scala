@@ -7,6 +7,7 @@ import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.utils.Helpers
 import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.DeclaredIds
+import com.googlecode.mapperdao.state.persisted.PersistedNode
 
 /**
  * @author kostantinos.kougios
@@ -17,42 +18,44 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 
 	override def during[ID, PC <: DeclaredIds[ID], T](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, PC, T],
-		o: T,
-		oldValuesMap: ValuesMap,
-		newValuesMap: ValuesMap,
+		node: PersistedNode[ID, T],
 		entityMap: UpdateEntityMap,
 		modified: scala.collection.mutable.Map[String, Any],
 		modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
+			val entity = node.entity
+			val newValuesMap = node.newVM
+			val oldValuesMap = node.oldVM
+			val o = node.o
 			val tpe = entity.tpe
 			val table = tpe.table
-			val mtoColumnInfos = table.manyToOneColumnInfos.filterNot(updateConfig.skip.contains(_))
-			mtoColumnInfos.foreach { cis =>
-				val v = newValuesMap.valueOf(cis)
+			val mtoColumnInfos = node.manyToOne.filterNot(t => updateConfig.skip.contains(t._1))
+			mtoColumnInfos.foreach {
+				case (cis, childNode) =>
+					val v = newValuesMap.valueOf(cis)
 
-				cis.column.foreign.entity match {
-					case ee: ExternalEntity[Any, Any] =>
-						modified(cis.column.alias) = v
-					case fe: Entity[Any, DeclaredIds[Any], Any] =>
-						val newV = v.asInstanceOf[AnyRef] match {
-							case null => null //throw new NullPointerException("unexpected null for primary entity on ManyToOne mapping, for entity %s.".format(o))
-							case p: DeclaredIds[Any] =>
-								entityMap.down(o, cis, entity)
-								val newV = mapperDao.updateInner(updateConfig, fe, p, entityMap)
-								entityMap.up
-								newV
-							case _ =>
-								entityMap.down(o, cis, entity)
-								val newV = mapperDao.insertInner(updateConfig, fe, v, entityMap)
-								entityMap.up
-								newV
-						}
-						modified(cis.column.alias) = newV
-				}
+					cis.column.foreign.entity match {
+						case ee: ExternalEntity[Any, Any] =>
+							modified(cis.column.alias) = v
+						case fe: Entity[Any, DeclaredIds[Any], Any] =>
+							val newV = v.asInstanceOf[AnyRef] match {
+								case null => null
+								case p: DeclaredIds[Any] =>
+									entityMap.down(o, cis, entity)
+									val newV = mapperDao.updateInner(updateConfig, childNode, entityMap)
+									entityMap.up
+									newV
+								case _ =>
+									entityMap.down(o, cis, entity)
+									val newV = mapperDao.insertInner(updateConfig, childNode, entityMap)
+									entityMap.up
+									newV
+							}
+							modified(cis.column.alias) = newV
+					}
 			}
 
-			val mtoColumns = mtoColumnInfos.map(_.column)
+			val mtoColumns = mtoColumnInfos.map(_._1.column)
 			val manyToOneChanged = mtoColumns.filter(Equality.onlyChanged(_, newValuesMap, oldValuesMap))
 			val mtoArgsV = manyToOneChanged.map(mto => (mto, mto.foreign.entity, newValuesMap.valueOf[Any](mto))).map {
 				case (column, entity, entityO) =>

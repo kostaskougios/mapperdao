@@ -15,11 +15,17 @@ import com.googlecode.mapperdao.UpdateExternalOneToOneReverse
 import com.googlecode.mapperdao.UpdateInfo
 import com.googlecode.mapperdao.ValuesMap
 import com.googlecode.mapperdao.DeclaredIds
+import com.googlecode.mapperdao.state.persisted.PersistedNode
 
 class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeManager, driver: Driver, mapperDao: MapperDaoImpl) extends DuringUpdate with PostUpdate {
 	private val emptyDUR = new DuringUpdateResults(Nil, Nil)
 
-	override def during[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o1: T, oldValuesMap: ValuesMap, newValuesMap: ValuesMap, entityMap: UpdateEntityMap, modified: scala.collection.mutable.Map[String, Any], modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
+	override def during[ID, PC <: DeclaredIds[ID], T](
+		updateConfig: UpdateConfig,
+		node: PersistedNode[ID, T],
+		entityMap: UpdateEntityMap,
+		modified: scala.collection.mutable.Map[String, Any],
+		modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
 			val UpdateInfo(parent, parentColumnInfo, parentEntity) = entityMap.peek[Any, DeclaredIds[Any], Any, T, Any, DeclaredIds[Any], Any]
 			if (parent != null) {
@@ -34,54 +40,56 @@ class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeM
 
 	def after[ID, PC <: DeclaredIds[ID], T](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, PC, T],
-		o: T,
+		node: PersistedNode[ID, T],
 		mockO: T with PC,
-		oldValuesMap: ValuesMap,
-		newValuesMap: ValuesMap,
 		entityMap: UpdateEntityMap,
 		modified: MapOfList[String, Any]) =
 		{
+			val entity = node.entity
+			val newValuesMap = node.newVM
+			val oldValuesMap = node.oldVM
+			val o = node.o
 			val tpe = entity.tpe
 			val table = tpe.table
 			// one-to-one-reverse
-			table.oneToOneReverseColumnInfos.filterNot(updateConfig.skip.contains(_)).foreach { ci =>
-				val fo = newValuesMap.valueOf[Any](ci)
-				val c = ci.column
+			node.oneToOneReverse.filterNot(t => updateConfig.skip.contains(t._1)).foreach {
+				case (ci, childNode) =>
+					val fo = newValuesMap.valueOf[Any](ci)
+					val c = ci.column
 
-				c.foreign.entity match {
-					case ee: ExternalEntity[Any, Any] =>
-						val handler = ee.oneToOneOnUpdateMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[T, _, _, Any]])
-							.asInstanceOf[ee.OnUpdateOneToOneReverse[T]]
-						handler(UpdateExternalOneToOneReverse(updateConfig, o, fo))
-					case fe: Entity[Any, DeclaredIds[Any], Any] =>
-						val ftpe = fe.tpe
-						if (fo != null) {
-							val v = fo match {
-								case p: DeclaredIds[Any] =>
-									entityMap.down(mockO, ci, entity)
-									mapperDao.updateInner(updateConfig, fe, p, entityMap)
-									entityMap.up
-								case newO =>
-									entityMap.down(mockO, ci, entity)
-									val oldV = oldValuesMap(ci)
-									if (oldV == null) {
-										mapperDao.insertInner(updateConfig, fe, fo, entityMap)
-									} else {
-										val nVM = ValuesMap.fromEntity(typeManager, ftpe, fo)
-										mapperDao.updateInner(updateConfig, fe, oldV.asInstanceOf[DeclaredIds[Any]], fo, entityMap)
-									}
-									entityMap.up
+					c.foreign.entity match {
+						case ee: ExternalEntity[Any, Any] =>
+							val handler = ee.oneToOneOnUpdateMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[T, _, _, Any]])
+								.asInstanceOf[ee.OnUpdateOneToOneReverse[T]]
+							handler(UpdateExternalOneToOneReverse(updateConfig, o, fo))
+						case fe: Entity[Any, DeclaredIds[Any], Any] =>
+							val ftpe = fe.tpe
+							if (fo != null) {
+								val v = fo match {
+									case p: DeclaredIds[Any] =>
+										entityMap.down(mockO, ci, entity)
+										mapperDao.updateInner(updateConfig, childNode, entityMap)
+										entityMap.up
+									case newO =>
+										entityMap.down(mockO, ci, entity)
+										val oldV = oldValuesMap(ci)
+										if (oldV == null) {
+											mapperDao.insertInner(updateConfig, childNode, entityMap)
+										} else {
+											val nVM = ValuesMap.fromEntity(typeManager, ftpe, fo)
+											mapperDao.updateInner(updateConfig, childNode, entityMap)
+										}
+										entityMap.up
+								}
+							} else {
+								val oldV: Any = oldValuesMap.valueOf(c)
+								if (oldV != null) {
+									// delete the old value from the database
+									val args = c.foreignColumns zip newValuesMap.toListOfColumnValue(tpe.table.primaryKeys)
+									driver.doDelete(ftpe, args)
+								}
 							}
-						} else {
-							val oldV: Any = oldValuesMap.valueOf(c)
-							if (oldV != null) {
-								// delete the old value from the database
-								val args = c.foreignColumns zip newValuesMap.toListOfColumnValue(tpe.table.primaryKeys)
-								driver.doDelete(ftpe, args)
-							}
-						}
-				}
+					}
 			}
 		}
 }
