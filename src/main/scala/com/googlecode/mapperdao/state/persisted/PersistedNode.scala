@@ -16,7 +16,7 @@ case class PersistedNode[ID, T](
 		oldVM: ValuesMap,
 		newVM: ValuesMap,
 		children: List[(ColumnInfoRelationshipBase[_, _, _, _, _], PersistedNode[_, _])],
-		keys: List[(SimpleColumn, Any)]) {
+		generatedKeys: List[(SimpleColumn, Any)]) {
 
 	def manyToMany = children.collect {
 		case (c: ColumnInfoTraversableManyToMany[T, Any, DeclaredIds[Any], _], n) => (c, n)
