@@ -39,10 +39,9 @@ class OneToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 					var l: List[(Column, Any)] = null
 					val v = if (fo != null) {
 						val r = fo match {
-							case null => null
 							case p: DeclaredIds[Any] =>
 								entityMap.down(o, cis, entity)
-								val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
+								val updated = mapperDao.updateInner(updateConfig, childNode, entityMap)
 								entityMap.up
 								updated
 							case x =>

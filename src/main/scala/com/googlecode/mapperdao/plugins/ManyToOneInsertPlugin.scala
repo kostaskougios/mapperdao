@@ -46,10 +46,9 @@ class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 							val ftpe = fe.tpe
 							val v = if (fo != null) {
 								val v = fo match {
-									case null => null
-									case p: DeclaredIds[Any] =>
+									case p: DeclaredIds[_] =>
 										entityMap.down(mockO, cis, entity)
-										val updated = mapperDao.updateInner(updateConfig, fe, p, entityMap)
+										val updated = mapperDao.updateInner(updateConfig, childNode, entityMap)
 										entityMap.up
 										updated
 									case x =>

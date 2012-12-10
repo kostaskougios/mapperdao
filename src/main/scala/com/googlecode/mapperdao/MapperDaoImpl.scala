@@ -159,7 +159,7 @@ protected final class MapperDaoImpl(
 	/**
 	 * update an entity
 	 */
-	private def updateInner[ID, PC <: DeclaredIds[ID], T](
+	private[mapperdao] def updateInner[ID, PC <: DeclaredIds[ID], T](
 		updateConfig: UpdateConfig,
 		node: PersistedNode[ID, T],
 		entityMap: UpdateEntityMap): T with PC with Persisted =
@@ -223,7 +223,10 @@ protected final class MapperDaoImpl(
 			v.asInstanceOf[T with PC with Persisted]
 		}
 
-	override def update[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], os: List[T with PC]): List[T with PC] = {
+	override def updateMutable[ID, PC <: DeclaredIds[ID], T](
+		updateConfig: UpdateConfig,
+		entity: Entity[ID, PC, T],
+		os: List[T with PC]): List[T with PC] = {
 		val osAndNewValues = os.map { o =>
 			o match {
 				case p: Persisted if (p.mapperDaoMock) =>
@@ -236,7 +239,10 @@ protected final class MapperDaoImpl(
 		updateProcess(updateConfig, entity, osAndNewValues)
 	}
 
-	override def update[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], os: List[(T with PC, T)]): List[T with PC] = {
+	override def updateImmutable[ID, PC <: DeclaredIds[ID], T](
+		updateConfig: UpdateConfig,
+		entity: Entity[ID, PC, T],
+		os: List[(T with PC, T)]): List[T with PC] = {
 		val osAndNewValues = os.map {
 			case (oldO, newO) =>
 				oldO.mapperDaoDiscarded = true

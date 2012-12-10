@@ -7,7 +7,6 @@ import com.googlecode.mapperdao.Query
 import org.springframework.transaction.PlatformTransactionManager
 import com.googlecode.mapperdao.jdbc.Transaction
 import Transaction._
-import com.googlecode.mapperdao.MemoryMapperDao
 import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.jdbc.MockTransaction
 import com.googlecode.mapperdao.QueryConfig
