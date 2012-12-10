@@ -14,7 +14,6 @@ import com.googlecode.mapperdao.DefaultTypeManager
 import com.googlecode.mapperdao.MapperDao
 import com.googlecode.mapperdao.QueryDao
 import com.googlecode.mapperdao.TypeRegistry
-import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.drivers.SqlServer
 import com.googlecode.mapperdao.drivers.H2
@@ -57,11 +56,11 @@ object Setup {
 		jdbc
 	} else jdbc
 
-	def setupMapperDao(typeRegistry: TypeRegistry, events: Events = new Events, cache: Option[Cache] = None) =
+	def setupMapperDao(typeRegistry: TypeRegistry, cache: Option[Cache] = None) =
 		{
 			val properties = loadJdbcProperties
 			val dataSource = BasicDataSourceFactory.createDataSource(properties)
-			val (j, m, q, t) = S.create(Database.byName(database), dataSource, typeRegistry, cache, ISOChronology.getInstance, events)
+			val (j, m, q, t) = S.create(Database.byName(database), dataSource, typeRegistry, cache, ISOChronology.getInstance)
 			(j, m, q)
 		}
 
