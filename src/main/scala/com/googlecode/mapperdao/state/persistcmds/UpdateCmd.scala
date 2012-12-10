@@ -9,7 +9,6 @@ import com.googlecode.mapperdao._
  */
 case class UpdateCmd[ID, T](
 	entity: Entity[ID, DeclaredIds[ID], T],
-	o: T,
 	oldVM: ValuesMap,
 	newVM: ValuesMap,
 	columns: List[(SimpleColumn, Any)],

@@ -114,7 +114,8 @@ protected final class MapperDaoImpl(
 			val po = new PersistCmdFactory
 			val cmds = os.map { o =>
 				if (isPersisted(o)) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o)
-				po.toInsertCmd(entity, o)
+				val newVM = ValuesMap.fromEntity(typeManager, entity.tpe, o)
+				po.toInsertCmd(entity, newVM)
 			}
 			val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 			val nodes = ctd.execute[ID, PC, T](cmds)
@@ -189,7 +190,7 @@ protected final class MapperDaoImpl(
 		val cmds = os.map {
 			case (o, newVM) =>
 				val oldVM = ValuesMap.fromEntity(typeManager, entity.tpe, o)
-				po.toUpdateCmd(entity, o, oldVM, newVM)
+				po.toUpdateCmd(entity, oldVM, newVM)
 		}
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 		val nodes = ctd.execute[ID, PC, T](cmds)
