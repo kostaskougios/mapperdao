@@ -83,7 +83,7 @@ class CmdToDatabase(
 		val cmd = node.cmd
 		cmd match {
 			case i: InsertCmd[ID, T] =>
-				PersistedNode(i.entity, i.o, null, Nil, node.keys)
+				PersistedNode(i.entity, i.o, null, null, Nil, node.keys)
 			case u: UpdateCmd[ID, T] =>
 				PersistedNode(u.entity, u.o, u.oldVM, Nil, node.keys)
 		}

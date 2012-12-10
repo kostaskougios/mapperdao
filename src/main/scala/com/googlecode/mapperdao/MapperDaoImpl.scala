@@ -27,6 +27,19 @@ protected final class MapperDaoImpl(
 	private val typeRegistry = driver.typeRegistry
 	private val lazyLoadManager = new LazyLoadManager
 
+	private val postUpdatePlugins = List[PostUpdate](
+		new OneToOneReverseUpdatePlugin(typeRegistry, typeManager, driver, this),
+		new OneToManyUpdatePlugin(typeRegistry, this),
+		new ManyToManyUpdatePlugin(typeRegistry, driver, this)
+	)
+
+	private val duringUpdatePlugins = List[DuringUpdate](
+		new ManyToOneUpdatePlugin(typeRegistry, this),
+		new OneToManyUpdatePlugin(typeRegistry, this),
+		new OneToOneReverseUpdatePlugin(typeRegistry, typeManager, driver, this),
+		new OneToOneUpdatePlugin(typeRegistry, this)
+	)
+
 	private val beforeInsertPlugins = List[BeforeInsert](
 		new ManyToOneInsertPlugin(typeRegistry, this),
 		new OneToManyInsertPlugin(typeRegistry, driver, this),

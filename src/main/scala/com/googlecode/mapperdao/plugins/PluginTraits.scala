@@ -2,22 +2,8 @@ package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.utils.MapOfList
-import com.googlecode.mapperdao.Persisted
-import com.googlecode.mapperdao.UpdateInfo
-import com.googlecode.mapperdao.Column
-import com.googlecode.mapperdao.DeleteConfig
-import com.googlecode.mapperdao.Entity
-import com.googlecode.mapperdao.EntityMap
-import com.googlecode.mapperdao.SelectConfig
-import com.googlecode.mapperdao.SimpleColumn
-import com.googlecode.mapperdao.Type
-import com.googlecode.mapperdao.UpdateConfig
-import com.googlecode.mapperdao.UpdateEntityMap
-import com.googlecode.mapperdao.ValuesMap
-import com.googlecode.mapperdao.ColumnBase
-import com.googlecode.mapperdao.DatabaseValues
-import com.googlecode.mapperdao.DeclaredIds
 import com.googlecode.mapperdao.state.persisted.PersistedNode
+import com.googlecode.mapperdao._
 
 /**
  * plugins executed before the main entity is inserted
@@ -60,6 +46,40 @@ trait PostInsert {
  *
  * 31 Aug 2011
  */
+private[mapperdao] class DuringUpdateResults(val values: List[(SimpleColumn, Any)], val keys: List[(SimpleColumn, Any)]) {
+	def isEmpty = values.isEmpty && keys.isEmpty
+
+	override def toString = "DuringUpdateResults(values: %s, keys: %s)".format(values, keys)
+}
+
+private[mapperdao] object DuringUpdateResults {
+	val empty = new DuringUpdateResults(Nil, Nil)
+}
+
+trait DuringUpdate {
+	def during[ID, PC <: DeclaredIds[ID], T](
+		updateConfig: UpdateConfig,
+		node: PersistedNode[ID, T],
+		entityMap: UpdateEntityMap,
+		modified: scala.collection.mutable.Map[String, Any],
+		modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults
+}
+
+/**
+ * plugins executed after the main entity is updated
+ *
+ * @author kostantinos.kougios
+ *
+ * 31 Aug 2011
+ */
+trait PostUpdate {
+	def after[ID, PC <: DeclaredIds[ID], T](
+		updateConfig: UpdateConfig,
+		node: PersistedNode[ID, T],
+		mockO: T with PC,
+		entityMap: UpdateEntityMap,
+		modified: MapOfList[String, Any]): Unit
+}
 
 /**
  * plugins executed before the main entity is created, during select operations
