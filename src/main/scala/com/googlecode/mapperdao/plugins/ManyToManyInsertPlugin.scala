@@ -32,13 +32,13 @@ class ManyToManyInsertPlugin(typeManager: TypeManager, typeRegistry: TypeRegistr
 		modifiedTraversables: MapOfList[String, Any]): Unit =
 		{
 			val entity = node.entity
-			val o = node.o
+			val newVM = node.newVM
 			val table = entity.tpe.table
 			// many to many
 			node.manyToMany.foreach {
 				case (cis, childNode) =>
 					val newKeyValues = table.primaryKeys.map(c => modified(c.name))
-					val traversable = cis.columnToValue(o)
+					val traversable = newVM(cis)
 					val cName = cis.column.alias
 					if (traversable != null) {
 						val nestedEntity = cis.column.foreign.entity
@@ -48,7 +48,7 @@ class ManyToManyInsertPlugin(typeManager: TypeManager, typeRegistry: TypeRegistr
 								val handler = ee.manyToManyOnInsertMap(cis.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, _, Any]])
 									.asInstanceOf[ee.OnInsertManyToMany[T]]
 								traversable.foreach { nested =>
-									val rightKeyValues = handler(InsertExternalManyToMany(updateConfig, o, nested))
+									val rightKeyValues = handler(InsertExternalManyToMany(updateConfig, newVM, nested))
 									driver.doInsertManyToMany(nestedTpe, cis.column, newKeyValues, rightKeyValues.values)
 									modifiedTraversables(cName) = nested
 								}

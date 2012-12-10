@@ -152,7 +152,7 @@ object PrimaryKeysValues {
 	def apply(value1: Any, value2: Any): PrimaryKeysValues = PrimaryKeysValues(List(value1, value2))
 }
 
-case class InsertExternalManyToMany[T, F](updateConfig: UpdateConfig, entity: T, foreign: F)
+case class InsertExternalManyToMany[T, F](updateConfig: UpdateConfig, newVM: ValuesMap, foreign: F)
 
 case class SelectExternalManyToMany(selectConfig: SelectConfig, foreignIds: List[List[Any]] /* a list of the id's as an other list */ )
 
@@ -163,7 +163,7 @@ object UpdateExternalManyToMany {
 	type Operation = Operation.Value
 }
 
-case class UpdateExternalManyToMany[T, F](updateConfig: UpdateConfig, operation: UpdateExternalManyToMany.Operation, entity: T, foreign: F)
+case class UpdateExternalManyToMany[T, F](updateConfig: UpdateConfig, operation: UpdateExternalManyToMany.Operation, newVM: ValuesMap, foreign: F)
 case class DeleteExternalManyToMany[T, F](deleteConfig: DeleteConfig, entity: T, foreign: F)
 
 case class InsertExternalOneToOneReverse[T, F](updateConfig: UpdateConfig, entity: T, foreign: F)

@@ -21,9 +21,8 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 		modified: MapOfList[String, Any]) =
 		{
 			val entity = node.entity
-			val newValuesMap = node.newVM
-			val oldValuesMap = node.oldVM
-			val o = node.o
+			val newVM = node.newVM
+			val oldVM = node.oldVM
 			val tpe = entity.tpe
 			val table = tpe.table
 			// update many-to-many
@@ -31,11 +30,11 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 				.filterNot(t => updateConfig.skip.contains(t._1))
 				.foreach {
 					case (ci, childNode) =>
-						val newValues = newValuesMap.valueOf(ci)
-						val oldValues = oldValuesMap.valueOf(ci).asInstanceOf[Traversable[DeclaredIds[Any]]]
+						val newValues = newVM.valueOf(ci)
+						val oldValues = oldVM.valueOf(ci).asInstanceOf[Traversable[DeclaredIds[Any]]]
 
 						val manyToMany = ci.column
-						val pkLeft = oldValuesMap.toListOfColumnValue(table.primaryKeys)
+						val pkLeft = oldVM.toListOfColumnValue(table.primaryKeys)
 						val pkArgs = manyToMany.linkTable.left zip pkLeft
 
 						val fentity = ci.column.foreign.entity.asInstanceOf[Entity[Any, DeclaredIds[Any], Any]]
@@ -52,7 +51,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 								// delete the removed ones
 								removed.foreach { p =>
 									val ftable = ftpe.table
-									val rightKeyValues = handler(UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Remove, o, p))
+									val rightKeyValues = handler(UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Remove, newVM, p))
 
 									val fPkArgs = manyToMany.linkTable.right zip rightKeyValues.values
 									driver.doDeleteManyToManyRef(tpe, ftpe, manyToMany, pkArgs, fPkArgs)
@@ -64,7 +63,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 								}
 								// update the added ones
 								added.foreach { p =>
-									val fPKArgs = handler(UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Add, o, p))
+									val fPKArgs = handler(UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Add, newVM, p))
 									driver.doInsertManyToMany(tpe, manyToMany, pkLeft, fPKArgs.values)
 									modified(manyToMany.alias) = p
 								}
