@@ -27,7 +27,6 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 
 			if (parent != null) {
 				val entity = node.entity
-				val o = node.o
 				val parentColumn = parentColumnInfo.column
 				parentColumn match {
 					case otm: OneToMany[_, _, _] =>
@@ -42,7 +41,8 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 							val parentKeysAndValues = parent.asInstanceOf[Persisted]
 								.mapperDaoValuesMap.toListOfColumnAndValueTuple(parentTable.primaryKeys)
 							val foreignKeys = parentKeysAndValues.map(_._2)
-							if (foreignKeys.size != foreignKeyColumns.size) throw new IllegalArgumentException("mappings of one-to-many from " + parent + " to " + o + " is invalid. Number of FK columns doesn't match primary keys. columns: " + foreignKeyColumns + " , primary key values " + foreignKeys);
+							if (foreignKeys.size != foreignKeyColumns.size)
+								throw new IllegalArgumentException("mappings of one-to-many is invalid. Number of FK columns doesn't match primary keys. columns: " + foreignKeyColumns + " , primary key values " + foreignKeys);
 							val extra = foreignKeyColumns zip foreignKeys
 							// values map should be aware of these columns
 							extra.foreach {
@@ -65,13 +65,13 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 		modifiedTraversables: MapOfList[String, Any]): Unit =
 		{
 			val entity = node.entity
-			val o = node.o
+			val newVM = node.newVM
 			val tpe = entity.tpe
 			val table = tpe.table
 			// one to many
 			node.oneToMany.foreach {
 				case (cis, childNode) =>
-					val traversable = cis.columnToValue(o)
+					val traversable = newVM(cis) // cis.columnToValue(o)
 					cis.column.foreign.entity match {
 						case ee: ExternalEntity[Any, Any] =>
 							val cName = cis.column.alias
@@ -80,7 +80,7 @@ class OneToManyInsertPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 							}
 							val handler = ee.oneToManyOnInsertMap(cis.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, T, _, _, Any]])
 								.asInstanceOf[ee.OnInsertOneToMany[T]]
-							handler(InsertExternalOneToMany(updateConfig, o, traversable))
+							handler(InsertExternalOneToMany(updateConfig, newVM, traversable))
 
 						case fe: Entity[Any, DeclaredIds[Any], Any] =>
 							val ftpe = fe.tpe

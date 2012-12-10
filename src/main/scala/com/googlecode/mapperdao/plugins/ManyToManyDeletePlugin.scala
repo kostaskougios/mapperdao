@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao.drivers.Driver
-import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao._
 
 class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDaoImpl) extends BeforeDelete {
@@ -9,13 +8,13 @@ class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDaoImpl) extends B
 	override def idColumnValueContribution[ID, PC <: DeclaredIds[ID], T](
 		tpe: Type[ID, PC, T],
 		deleteConfig: DeleteConfig,
-		events: Events, o: T with PC,
+		o: T with PC,
 		entityMap: UpdateEntityMap): List[(SimpleColumn, Any)] = Nil
 
 	override def before[ID, PC <: DeclaredIds[ID], T](
 		entity: Entity[ID, PC, T],
 		deleteConfig: DeleteConfig,
-		events: Events, o: T with PC,
+		o: T with PC,
 		keyValues: List[(ColumnBase, Any)],
 		entityMap: UpdateEntityMap) =
 		if (deleteConfig.propagate) {

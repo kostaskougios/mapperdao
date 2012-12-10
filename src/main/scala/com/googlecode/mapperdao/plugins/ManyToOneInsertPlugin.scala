@@ -25,21 +25,21 @@ class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 		updateInfo: UpdateInfo[PID, PPC, PT, V, FID, FPC, F]): List[(Column, Any)] =
 		{
 			val entity = node.entity
-			val o = node.o
+			val newVM = node.newVM
 			val tpe = entity.tpe
 			val table = tpe.table
 			var extraArgs = List[(Column, Any)]()
 			// many-to-one
 			node.manyToOne.foreach {
 				case (cis, childNode) =>
-					val fo = cis.columnToValue(o)
+					val fo = newVM(cis) //cis.columnToValue(o)
 
 					cis.column.foreign.entity match {
 						case ee: ExternalEntity[Any, Any] =>
 							val columns = cis.column.columns.filterNot(table.primaryKeys.contains(_))
 							val handler = ee.manyToOneOnInsertMap(cis.asInstanceOf[ColumnInfoManyToOne[T, _, _, Any]])
 								.asInstanceOf[ee.OnInsertManyToOne[T]]
-							val fKeyValues = handler(InsertExternalManyToOne(updateConfig, o, fo))
+							val fKeyValues = handler(InsertExternalManyToOne(updateConfig, newVM, fo))
 							extraArgs :::= columns zip fKeyValues.values
 							modified(cis.column.alias) = fo
 						case fe: Entity[Any, DeclaredIds[Any], Any] =>

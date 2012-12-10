@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao.drivers.Driver
-import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao.utils.TraversableSeparation
@@ -12,7 +11,6 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 	override def idColumnValueContribution[ID, PC <: DeclaredIds[ID], T](
 		tpe: Type[ID, PC, T],
 		deleteConfig: DeleteConfig,
-		events: Events,
 		o: T with PC,
 		entityMap: UpdateEntityMap): List[(SimpleColumn, Any)] = {
 		val UpdateInfo(parentO, ci, parentEntity) = entityMap.peek[Any, DeclaredIds[Any], Any, Traversable[T], Any, DeclaredIds[Any], T]
@@ -27,7 +25,6 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 	override def before[ID, PC <: DeclaredIds[ID], T](
 		entity: Entity[ID, PC, T],
 		deleteConfig: DeleteConfig,
-		events: Events,
 		o: T with PC,
 		keyValues: List[(ColumnBase, Any)],
 		entityMap: UpdateEntityMap) =

@@ -24,15 +24,14 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 		modifiedTraversables: MapOfList[String, Any]): DuringUpdateResults =
 		{
 			val entity = node.entity
-			val newValuesMap = node.newVM
-			val oldValuesMap = node.oldVM
-			val o = node.o
+			val newVM = node.newVM
+			val oldVM = node.oldVM
 			val tpe = entity.tpe
 			val table = tpe.table
 			val mtoColumnInfos = node.manyToOne.filterNot(t => updateConfig.skip.contains(t._1))
 			mtoColumnInfos.foreach {
 				case (cis, childNode) =>
-					val v = newValuesMap.valueOf(cis)
+					val v = newVM(cis)
 
 					cis.column.foreign.entity match {
 						case ee: ExternalEntity[Any, Any] =>
@@ -56,16 +55,16 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			}
 
 			val mtoColumns = mtoColumnInfos.map(_._1.column)
-			val manyToOneChanged = mtoColumns.filter(Equality.onlyChanged(_, newValuesMap, oldValuesMap))
-			val mtoArgsV = manyToOneChanged.map(mto => (mto, mto.foreign.entity, newValuesMap.valueOf[Any](mto))).map {
+			val manyToOneChanged = mtoColumns.filter(Equality.onlyChanged(_, newVM, oldVM))
+			val mtoArgsV = manyToOneChanged.map(mto => (mto, mto.foreign.entity, newVM.valueOf[Any](mto))).map {
 				case (column, entity, entityO) =>
 					entity match {
 						case ee: ExternalEntity[Any, Any] =>
 							val cis = table.columnToColumnInfoMap(column)
-							val v = cis.columnToValue(o)
+							val v = newVM.valueOf[Any](cis) // cis.columnToValue(o)
 							val handler = ee.manyToOneOnUpdateMap(cis.asInstanceOf[ColumnInfoManyToOne[_, _, _, Any]])
 								.asInstanceOf[ee.OnUpdateManyToOne[T]]
-							handler(UpdateExternalManyToOne(updateConfig, o, v)).values
+							handler(UpdateExternalManyToOne(updateConfig, newVM, v)).values
 						case e: Entity[Any, DeclaredIds[Any], Any] =>
 							e.tpe.table.toListOfPrimaryKeyValues(entityO)
 					}

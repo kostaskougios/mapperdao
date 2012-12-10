@@ -1,6 +1,5 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.exceptions.PersistException
 
 /**

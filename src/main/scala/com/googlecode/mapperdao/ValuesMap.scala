@@ -21,7 +21,7 @@ import utils.SynchronizedMemoryEfficientMap
  *
  * 16 Jul 2011
  */
-class ValuesMap private (mOrig: scala.collection.Map[String, Any])
+class ValuesMap private (private[mapperdao] val identity: Int, mOrig: scala.collection.Map[String, Any])
 		extends MemoryEfficientMap[String, Any]
 		with SynchronizedMemoryEfficientMap[String, Any] {
 
@@ -215,10 +215,10 @@ object ValuesMap {
 		clone: Boolean): ValuesMap =
 		{
 			val nm = entityToMap(typeManager, tpe, o, clone)
-			new ValuesMap(nm)
+			new ValuesMap(System.identityHashCode(o), nm)
 		}
-	protected[mapperdao] def fromMap(m: scala.collection.Map[String, Any]): ValuesMap =
-		new ValuesMap(m)
+	protected[mapperdao] def fromMap(identity: Int, m: scala.collection.Map[String, Any]): ValuesMap =
+		new ValuesMap(identity, m)
 
 	private def deepClone[T](o: T): T = o match {
 		case t: scala.collection.mutable.Traversable[_] => t.map(e => e).asInstanceOf[T] // copy mutable traversables

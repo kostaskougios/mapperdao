@@ -171,12 +171,12 @@ case class SelectExternalOneToOneReverse[T, F](selectConfig: SelectConfig, forei
 case class UpdateExternalOneToOneReverse[T, F](updateConfig: UpdateConfig, entity: T, foreign: F)
 case class DeleteExternalOneToOneReverse[T, F](deleteConfig: DeleteConfig, entity: T, foreign: F)
 
-case class InsertExternalManyToOne[T, F](updateConfig: UpdateConfig, entity: T, foreign: F)
+case class InsertExternalManyToOne[T, F](updateConfig: UpdateConfig, newVM: ValuesMap, foreign: F)
 case class SelectExternalManyToOne[T, F](selectConfig: SelectConfig, primaryKeys: List[Any])
-case class UpdateExternalManyToOne[T, F](updateConfig: UpdateConfig, entity: T, foreign: F)
+case class UpdateExternalManyToOne[T, F](updateConfig: UpdateConfig, newVM: ValuesMap, foreign: F)
 case class DeleteExternalManyToOne[T, F](deleteConfig: DeleteConfig, entity: T, foreign: F)
 
-case class InsertExternalOneToMany[T, F](updateConfig: UpdateConfig, entity: T, many: Traversable[F])
+case class InsertExternalOneToMany[T, F](updateConfig: UpdateConfig, newVM: ValuesMap, many: Traversable[F])
 case class SelectExternalOneToMany(selectConfig: SelectConfig, foreignIds: List[Any])
-case class UpdateExternalOneToMany[T, F](updateConfig: UpdateConfig, entity: T, added: Traversable[F], intersection: Traversable[F], removed: Traversable[F])
+case class UpdateExternalOneToMany[T, F](updateConfig: UpdateConfig, newVM: ValuesMap, added: Traversable[F], intersection: Traversable[F], removed: Traversable[F])
 case class DeleteExternalOneToMany[T, F](deleteConfig: DeleteConfig, entity: T, many: Traversable[F])
