@@ -30,7 +30,6 @@ class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 			val entity = node.entity
 			val newValuesMap = node.newVM
 			val oldValuesMap = node.oldVM
-			val o = node.o
 			val tpe = entity.tpe
 			val table = tpe.table
 
@@ -52,12 +51,12 @@ class OneToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 							case p: Persisted if (p.mapperDaoMock) =>
 								(p, false) //mock object shouldn't contribute to column updates
 							case p: DeclaredIds[Any] =>
-								entityMap.down(o, ci, entity)
+								entityMap.down(null.asInstanceOf[T], ci, entity)
 								val updated = mapperDao.updateInner(updateConfig, childNode, entityMap)
 								entityMap.up
 								(updated, true)
 							case x =>
-								entityMap.down(o, ci, entity)
+								entityMap.down(null.asInstanceOf[T], ci, entity)
 								val inserted = mapperDao.insertInner(updateConfig, childNode, entityMap)
 								entityMap.up
 								(inserted, true)

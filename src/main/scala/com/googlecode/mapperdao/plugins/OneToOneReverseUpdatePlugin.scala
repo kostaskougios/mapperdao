@@ -46,22 +46,21 @@ class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeM
 		modified: MapOfList[String, Any]) =
 		{
 			val entity = node.entity
-			val newValuesMap = node.newVM
-			val oldValuesMap = node.oldVM
-			val o = node.o
+			val newVM = node.newVM
+			val oldVM = node.oldVM
 			val tpe = entity.tpe
 			val table = tpe.table
 			// one-to-one-reverse
 			node.oneToOneReverse.filterNot(t => updateConfig.skip.contains(t._1)).foreach {
 				case (ci, childNode) =>
-					val fo = newValuesMap.valueOf[Any](ci)
+					val fo = newVM.valueOf[Any](ci)
 					val c = ci.column
 
 					c.foreign.entity match {
 						case ee: ExternalEntity[Any, Any] =>
 							val handler = ee.oneToOneOnUpdateMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[T, _, _, Any]])
 								.asInstanceOf[ee.OnUpdateOneToOneReverse[T]]
-							handler(UpdateExternalOneToOneReverse(updateConfig, o, fo))
+							handler(UpdateExternalOneToOneReverse(updateConfig, newVM, fo))
 						case fe: Entity[Any, DeclaredIds[Any], Any] =>
 							val ftpe = fe.tpe
 							if (fo != null) {
@@ -72,7 +71,7 @@ class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeM
 										entityMap.up
 									case newO =>
 										entityMap.down(mockO, ci, entity)
-										val oldV = oldValuesMap(ci)
+										val oldV = oldVM(ci)
 										if (oldV == null) {
 											mapperDao.insertInner(updateConfig, childNode, entityMap)
 										} else {
@@ -82,10 +81,10 @@ class OneToOneReverseUpdatePlugin(typeRegistry: TypeRegistry, typeManager: TypeM
 										entityMap.up
 								}
 							} else {
-								val oldV: Any = oldValuesMap.valueOf(c)
+								val oldV: Any = oldVM.valueOf(c)
 								if (oldV != null) {
 									// delete the old value from the database
-									val args = c.foreignColumns zip newValuesMap.toListOfColumnValue(tpe.table.primaryKeys)
+									val args = c.foreignColumns zip newVM.toListOfColumnValue(tpe.table.primaryKeys)
 									driver.doDelete(ftpe, args)
 								}
 							}

@@ -53,7 +53,6 @@ class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperD
 		modifiedTraversables: MapOfList[String, Any]): Unit =
 		{
 			val entity = node.entity
-			val o = node.o
 			val tpe = entity.tpe
 			val table = tpe.table
 			// one-to-one reverse

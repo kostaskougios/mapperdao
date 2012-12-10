@@ -27,7 +27,6 @@ class OneToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 		updateInfo: UpdateInfo[PID, PPC, PT, V, FID, FPC, F]): List[(Column, Any)] =
 		{
 			val entity = node.entity
-			val o = node.o
 			val tpe = entity.tpe
 			val table = tpe.table
 			// one-to-one
@@ -40,7 +39,7 @@ class OneToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 					val v = if (fo != null) {
 						val r = fo match {
 							case p: DeclaredIds[Any] =>
-								entityMap.down(o, cis, entity)
+								entityMap.down(mockO, cis, entity)
 								val updated = mapperDao.updateInner(updateConfig, childNode, entityMap)
 								entityMap.up
 								updated

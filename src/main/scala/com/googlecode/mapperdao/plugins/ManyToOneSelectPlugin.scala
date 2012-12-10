@@ -4,7 +4,6 @@ import com.googlecode.mapperdao.utils.Equality
 import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.utils.Helpers
-import com.googlecode.mapperdao.events.Events
 
 /**
  * @author kostantinos.kougios

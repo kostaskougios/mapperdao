@@ -20,9 +20,6 @@ class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDaoImpl) extends B
 		if (deleteConfig.propagate) {
 			val tpe = entity.tpe
 			tpe.table.manyToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach { ci =>
-				// execute before-delete-relationship events
-				events.executeBeforeDeleteRelationshipEvents(tpe, ci, o)
-
 				driver.doDeleteAllManyToManyRef(tpe, ci.column, keyValues.map(_._2))
 
 				ci.column.foreign.entity match {
@@ -33,9 +30,6 @@ class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDaoImpl) extends B
 						handler(DeleteExternalManyToMany(deleteConfig, o, fo))
 					case _ =>
 				}
-
-				// execute after-delete-relationship events
-				events.executeAfterDeleteRelationshipEvents(tpe, ci, o)
 			}
 		}
 }

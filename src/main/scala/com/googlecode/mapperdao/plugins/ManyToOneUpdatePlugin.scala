@@ -5,7 +5,6 @@ import com.googlecode.mapperdao.utils.Equality
 import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.utils.Helpers
-import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.DeclaredIds
 import com.googlecode.mapperdao.state.persisted.PersistedNode
 
@@ -40,12 +39,12 @@ class ManyToOneUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 							val newV = v.asInstanceOf[AnyRef] match {
 								case null => null
 								case p: DeclaredIds[Any] =>
-									entityMap.down(o, cis, entity)
+									entityMap.down(null, cis, entity)
 									val newV = mapperDao.updateInner(updateConfig, childNode, entityMap)
 									entityMap.up
 									newV
 								case _ =>
-									entityMap.down(o, cis, entity)
+									entityMap.down(null, cis, entity)
 									val newV = mapperDao.insertInner(updateConfig, childNode, entityMap)
 									entityMap.up
 									newV

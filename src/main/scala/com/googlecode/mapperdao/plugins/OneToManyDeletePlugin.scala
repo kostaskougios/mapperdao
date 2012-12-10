@@ -32,9 +32,6 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			val tpe = entity.tpe
 			tpe.table.oneToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach { cis =>
 
-				// execute before-delete-relationship events
-				events.executeBeforeDeleteRelationshipEvents(tpe, cis, o)
-
 				val fOTraversable = cis.columnToValue(o)
 
 				cis.column.foreign.entity match {
@@ -51,8 +48,6 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 							}
 						}
 				}
-				// execute after-delete-relationship events
-				events.executeAfterDeleteRelationshipEvents(tpe, cis, o)
 			}
 		}
 }

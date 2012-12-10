@@ -5,7 +5,6 @@ import com.googlecode.mapperdao.utils.Equality
 import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.utils.Helpers
-import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao.DeclaredIds
 import com.googlecode.mapperdao.state.persisted.PersistedNode
 
