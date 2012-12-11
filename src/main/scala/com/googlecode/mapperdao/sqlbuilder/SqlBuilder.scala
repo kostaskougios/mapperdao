@@ -460,7 +460,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		def where(columnsAndValues: List[(SimpleColumn, Any)], op: String): this.type =
 			where(whereAll(null, columnsAndValues, op))
 
-		def results = Result(toSql, toValues)
+		def result = Result(toSql, toValues)
 
 		def toSql = (
 			"update "

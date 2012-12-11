@@ -175,6 +175,8 @@ class ValuesMap private (private[mapperdao] val identity: Int, mOrig: scala.coll
 		tpe.table.simpleTypeColumnInfos.exists { ci =>
 			!Equality.isEqual(apply(ci), from.apply(ci))
 		}
+	protected[mapperdao] def toListOfPrimaryKeyAndValueTuple(entity: Entity[_, _, _]) =
+		toListOfSimpleColumnAndValueTuple(entity.tpe.table.primaryKeysAndUnusedKeys)
 }
 
 object ValuesMap {

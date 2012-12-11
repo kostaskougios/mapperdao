@@ -73,10 +73,13 @@ trait CachedDriver extends Driver {
 		}
 	}
 
-	override def doUpdate[ID, PC <: DeclaredIds[ID], T](tpe: Type[ID, PC, T], args: List[(SimpleColumn, Any)], pkArgs: List[(SimpleColumn, Any)]): UpdateResult = {
-		val u = super.doUpdate(tpe, args, pkArgs)
+	override def updateSql[ID, PC <: DeclaredIds[ID], T](
+		entity: Entity[ID, PC, T],
+		args: List[(SimpleColumn, Any)],
+		pkArgs: List[(SimpleColumn, Any)]) = {
+		val u = super.updateSql(entity, args, pkArgs)
 
-		val table = tpe.table
+		val table = entity.tpe.table
 		// flush main cache for entity
 		val key = table.name :: pkArgs
 		cache.flush(key)

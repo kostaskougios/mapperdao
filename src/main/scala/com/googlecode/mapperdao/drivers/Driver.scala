@@ -45,10 +45,11 @@ abstract class Driver {
 	 * default impl of the insert statement generation
 	 */
 	def insertSql[ID, PC <: DeclaredIds[ID], T](
-		tpe: Type[ID, PC, T],
+		entity: Entity[ID, PC, T],
 		args: List[(SimpleColumn, Any)]) =
 		{
 			val s = new sqlBuilder.InsertBuilder
+			val tpe = entity.tpe
 			s.into(tpe.table.name)
 
 			val sequenceColumns = tpe.table.simpleTypeSequenceColumns
@@ -85,20 +86,15 @@ abstract class Driver {
 	 * =====================================================================================
 	 */
 	/**
-	 * default implementation of update, should do for most subclasses
-	 */
-	def doUpdate[ID, PC <: DeclaredIds[ID], T](tpe: Type[ID, PC, T], args: List[(SimpleColumn, Any)], pkArgs: List[(SimpleColumn, Any)]): UpdateResult =
-		{
-			val r = updateSql(tpe, args, pkArgs).results
-			jdbc.update(r.sql, r.values)
-		}
-	/**
 	 * default impl of the insert statement generation
 	 */
-	protected def updateSql[ID, PC <: DeclaredIds[ID], T](tpe: Type[ID, PC, T], args: List[(SimpleColumn, Any)], pkArgs: List[(SimpleColumn, Any)]) =
+	def updateSql[ID, PC <: DeclaredIds[ID], T](
+		entity: Entity[ID, PC, T],
+		args: List[(SimpleColumn, Any)],
+		pkArgs: List[(SimpleColumn, Any)]) =
 		{
 			val s = new sqlBuilder.UpdateBuilder
-			s.table(tpe.table.name)
+			s.table(entity.tpe.table.name)
 			s.set(args)
 			s.where(pkArgs, "=")
 			s
@@ -109,7 +105,7 @@ abstract class Driver {
 	 */
 	def doUpdateOneToManyRef[ID, PC <: DeclaredIds[ID], T](tpe: Type[ID, PC, T], foreignKeys: List[(SimpleColumn, Any)], pkArgs: List[(SimpleColumn, Any)]): UpdateResult =
 		{
-			val r = updateOneToManyRefSql(tpe, foreignKeys, pkArgs).results
+			val r = updateOneToManyRefSql(tpe, foreignKeys, pkArgs).result
 			jdbc.update(r.sql, r.values)
 		}
 
