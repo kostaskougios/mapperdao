@@ -13,9 +13,9 @@ private[mapperdao] trait MemoryEfficientMap[K, V] {
 	private var keys: Array[Any] = _
 	private var values: Array[Any] = _
 
-	def toMutableMap: scala.collection.mutable.Map[K, V] = {
+	def toMap: Map[K, V] = {
 		val t = (keys.zip(values)).toList.asInstanceOf[Traversable[(K, V)]]
-		scala.collection.mutable.Map.empty ++ t
+		Map.empty ++ t
 	}
 
 	def initializeMEM(m: scala.collection.Map[K, V]) {

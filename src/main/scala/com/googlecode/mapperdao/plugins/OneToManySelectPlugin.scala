@@ -10,7 +10,7 @@ import com.googlecode.mapperdao._
  *
  * 31 Aug 2011
  */
-class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect with SelectMock {
+class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect {
 
 	override def idContribution[ID, PC <: DeclaredIds[ID], T](
 		tpe: Type[ID, PC, T],
@@ -57,10 +57,4 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 				SelectMod(ci.column.foreign.alias, otmL, Nil)
 			}
 		}
-
-	override def updateMock[ID, PC <: DeclaredIds[ID], T](
-		entity: Entity[ID, PC, T],
-		mods: scala.collection.mutable.Map[String, Any]) {
-		mods ++= entity.tpe.table.oneToManyColumns.map(c => (c.alias -> List()))
-	}
 }

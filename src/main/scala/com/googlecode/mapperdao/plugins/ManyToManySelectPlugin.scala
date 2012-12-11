@@ -19,7 +19,7 @@ import com.googlecode.mapperdao.DeclaredIds
  *
  * 31 Aug 2011
  */
-class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect with SelectMock {
+class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect {
 
 	override def idContribution[ID, PC <: DeclaredIds[ID], T](
 		tpe: Type[ID, PC, T],
@@ -65,8 +65,4 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 				SelectMod(ci.column.foreign.alias, mtmR, Nil)
 			}
 		}
-
-	override def updateMock[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T], mods: scala.collection.mutable.Map[String, Any]) {
-		mods ++= entity.tpe.table.manyToManyColumns.map(c => (c.alias -> List()))
-	}
 }
