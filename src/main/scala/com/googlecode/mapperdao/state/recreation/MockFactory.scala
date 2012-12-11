@@ -8,7 +8,7 @@ import com.googlecode.mapperdao.plugins._
  *
  * 11 Dec 2012
  */
-class MockFactory {
+class MockFactory(typeManager: TypeManager) {
 	private val mockPlugins: List[SelectMock] = List(
 		new OneToManyMockPlugin,
 		new ManyToManyMockPlugin,
@@ -19,7 +19,7 @@ class MockFactory {
 	def createMock[ID, PC <: DeclaredIds[ID], T](
 		data: Option[Any],
 		entity: Entity[ID, PC, T],
-		mods: scala.collection.Map[String, Any]): T with PC =
+		mods: Map[String, Any]): T with PC =
 		{
 			val mockMods = new scala.collection.mutable.HashMap[String, Any] ++ mods
 			mockPlugins.foreach {
@@ -28,7 +28,7 @@ class MockFactory {
 			val tpe = entity.tpe
 			val vm = ValuesMap.fromMap(-1, mockMods)
 			val preMock = tpe.constructor(data, vm)
-			val mock = tpe.constructor(data, ValuesMap.fromEntity(typeManager, tpe, preMock))
+			val mock = tpe.constructor(data, ValuesMap.fromEntity(typeManager, entity, preMock))
 			// mark it as mock
 			mock.mapperDaoMock = true
 			mock

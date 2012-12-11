@@ -1,10 +1,7 @@
 package com.googlecode.mapperdao.state.recreation
 
-import com.googlecode.mapperdao.UpdateConfig
 import com.googlecode.mapperdao.state.persisted.PersistedNode
-import com.googlecode.mapperdao.UpdateEntityMap
-import com.googlecode.mapperdao.DeclaredIds
-import com.googlecode.mapperdao.ColumnInfo
+import com.googlecode.mapperdao._
 
 /**
  * @author kostantinos.kougios
@@ -14,6 +11,8 @@ import com.googlecode.mapperdao.ColumnInfo
 class RecreationPhase[ID, T](
 		updateConfig: UpdateConfig,
 		node: PersistedNode[ID, T],
+		mockFactory: MockFactory,
+		typeManager: TypeManager,
 		entityMap: UpdateEntityMap) {
 
 	def execute: T with DeclaredIds[ID] =
@@ -26,7 +25,7 @@ class RecreationPhase[ID, T](
 			val modified = newVM.toMap
 
 			// create a mock
-			var mockO = createMock(updateConfig.data, entity, modified)
+			var mockO = mockFactory.createMock(updateConfig.data, entity, modified)
 			entityMap.put(node.identity, mockO)
 
 			val ur = node.generatedKeys.toMap

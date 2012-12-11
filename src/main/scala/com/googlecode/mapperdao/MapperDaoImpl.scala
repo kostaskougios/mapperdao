@@ -13,6 +13,7 @@ import com.googlecode.mapperdao.utils.Helpers
 import com.googlecode.mapperdao.jdbc.CmdToDatabase
 import com.googlecode.mapperdao.state.persistcmds.PersistCmdFactory
 import com.googlecode.mapperdao.state.persisted.PersistedNode
+import com.googlecode.mapperdao.state.recreation.MockFactory
 
 /**
  * @author kostantinos.kougios
@@ -24,6 +25,7 @@ protected final class MapperDaoImpl(
 		val typeManager: TypeManager) extends MapperDao {
 	private val typeRegistry = driver.typeRegistry
 	private val lazyLoadManager = new LazyLoadManager
+	private val mockFactory = new MockFactory(typeManager)
 
 	private val selectBeforePlugins: List[BeforeSelect] = List(
 		new ManyToOneSelectPlugin(typeRegistry, this),
@@ -68,7 +70,7 @@ protected final class MapperDaoImpl(
 			val modified = newVM.toMap
 
 			// create a mock
-			var mockO = createMock(updateConfig.data, entity, modified)
+			var mockO = mockFactory.createMock(updateConfig.data, entity, modified)
 			entityMap.put(node.identity, mockO)
 
 			val ur = node.generatedKeys.toMap
@@ -99,7 +101,7 @@ protected final class MapperDaoImpl(
 			val po = new PersistCmdFactory
 			val cmds = os.map { o =>
 				if (isPersisted(o)) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o)
-				val newVM = ValuesMap.fromEntity(typeManager, entity.tpe, o)
+				val newVM = ValuesMap.fromEntity(typeManager, entity, o)
 				po.toInsertCmd(entity, newVM)
 			}
 			val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
@@ -124,11 +126,11 @@ protected final class MapperDaoImpl(
 			val tpe = entity.tpe
 			def changed(column: ColumnBase) = !Equality.isEqual(newVM.valueOf(column), oldVM.valueOf(column))
 			val table = tpe.table
-			val modified = oldVM.toMutableMap ++ newVM.toMutableMap
+			val modified = oldVM.toMap ++ newVM.toMap
 			val modifiedTraversables = new MapOfList[String, Any](MapOfList.stringToLowerCaseModifier)
 
 			// store a mock in the entity map so that we don't process the same instance twice
-			val mockO = createMock(updateConfig.data, entity, modified ++ modifiedTraversables)
+			val mockO = mockFactory.createMock(updateConfig.data, entity, modified ++ modifiedTraversables)
 			entityMap.put(newVM.identity, mockO)
 
 			// done, construct the updated entity
@@ -147,7 +149,7 @@ protected final class MapperDaoImpl(
 				case p: Persisted if (p.mapperDaoMock) =>
 					throw new IllegalStateException("Object %s is mock.".format(p))
 				case persisted: Persisted =>
-					val newValuesMap = ValuesMap.fromEntity(typeManager, entity.tpe, o)
+					val newValuesMap = ValuesMap.fromEntity(typeManager, entity, o)
 					(o, newValuesMap)
 			}
 		}
@@ -161,7 +163,7 @@ protected final class MapperDaoImpl(
 		val osAndNewValues = os.map {
 			case (oldO, newO) =>
 				oldO.mapperDaoDiscarded = true
-				val newVM = ValuesMap.fromEntity(typeManager, entity.tpe, newO)
+				val newVM = ValuesMap.fromEntity(typeManager, entity, newO)
 				(oldO, newVM)
 		}
 		updateProcess(updateConfig, entity, osAndNewValues)
@@ -174,7 +176,7 @@ protected final class MapperDaoImpl(
 		val po = new PersistCmdFactory
 		val cmds = os.map {
 			case (o, newVM) =>
-				val oldVM = ValuesMap.fromEntity(typeManager, entity.tpe, o)
+				val oldVM = ValuesMap.fromEntity(typeManager, entity, o)
 				po.toUpdateCmd(entity, oldVM, newVM)
 		}
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
@@ -283,7 +285,7 @@ protected final class MapperDaoImpl(
 
 			entities.get[T with PC](tpe.clz, ids) {
 				val mods = jdbcMap.toMap
-				val mock = createMock(selectConfig.data, entity, mods)
+				val mock = mockFactory.createMock(selectConfig.data, entity, mods)
 				entities.putMock(tpe.clz, ids, mock)
 
 				val allMods = mods ++ selectBeforePlugins.map {
