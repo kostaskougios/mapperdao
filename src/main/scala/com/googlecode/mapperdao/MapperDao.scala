@@ -37,12 +37,7 @@ trait MapperDao {
 	def insert[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T): T with PC =
 		{
 			if (o == null) throw new NullPointerException("o can't be null")
-			try {
-				insert(updateConfig, entity, o :: Nil).head
-			} catch {
-				case e =>
-					throw new PersistException("An error occured during insert of entity %s with value %s.".format(entity, o), e)
-			}
+			insert(updateConfig, entity, o :: Nil).head
 		}
 
 	/**
@@ -73,13 +68,9 @@ trait MapperDao {
 	 */
 	def update[ID, PC <: DeclaredIds[ID], T](updateConfig: UpdateConfig, entity: Entity[ID, PC, T], o: T with PC): T with PC =
 		{
-			try {
-				updateMutable(updateConfig, entity, o :: Nil).head
-			} catch {
-				case e: Throwable => throw new PersistException("An error occured during update of entity %s with value %s.".format(entity, o), e)
-			}
+			if (o == null) throw new NullPointerException("o can't be null")
+			updateMutable(updateConfig, entity, o :: Nil).head
 		}
-
 	/**
 	 * batch update mutable entities
 	 */
@@ -113,11 +104,9 @@ trait MapperDao {
 		entity: Entity[ID, PC, T],
 		o: T with PC,
 		newO: T): T with PC = {
-		try {
-			updateImmutable(updateConfig, entity, List((o, newO))).head
-		} catch {
-			case e => throw new PersistException("An error occured during update of entity %s with old value %s and new value %s".format(entity, o, newO), e)
-		}
+		if (o == null) throw new NullPointerException("o can't be null")
+		if (newO == null) throw new NullPointerException("newO can't be null")
+		updateImmutable(updateConfig, entity, List((o, newO))).head
 	}
 
 	/**

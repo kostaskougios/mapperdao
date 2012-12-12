@@ -73,34 +73,6 @@ protected final class MapperDaoImpl(
 			recreationPhase.execute(nodes).asInstanceOf[List[T with PC]]
 		}
 
-	/**
-	 * update an entity
-	 */
-	private[mapperdao] def updateInner[ID, PC <: DeclaredIds[ID], T](
-		updateConfig: UpdateConfig,
-		node: PersistedNode[ID, T],
-		entityMap: UpdateEntityMap): T with PC with Persisted =
-		{
-			val entity = node.entity
-			val newVM = node.newVM
-			val oldVM = node.oldVM
-			val tpe = entity.tpe
-			def changed(column: ColumnBase) = !Equality.isEqual(newVM.valueOf(column), oldVM.valueOf(column))
-			val table = tpe.table
-			val modified = oldVM.toMap ++ newVM.toMap
-			val modifiedTraversables = new MapOfList[String, Any](MapOfList.stringToLowerCaseModifier)
-
-			// store a mock in the entity map so that we don't process the same instance twice
-			val mockO = mockFactory.createMock(updateConfig.data, entity, modified ++ modifiedTraversables)
-			entityMap.put(newVM.identity, mockO)
-
-			// done, construct the updated entity
-			val finalValuesMap = ValuesMap.fromMap(newVM.identity, modified ++ modifiedTraversables)
-			val v = tpe.constructor(updateConfig.data, finalValuesMap)
-			entityMap.put(newVM.identity, v)
-			v.asInstanceOf[T with PC with Persisted]
-		}
-
 	override def updateMutable[ID, PC <: DeclaredIds[ID], T](
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, PC, T],
@@ -144,9 +116,8 @@ protected final class MapperDaoImpl(
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 		val nodes = ctd.execute[ID, PC, T](cmds)
 		val entityMap = new UpdateEntityMap
-		nodes.map { node =>
-			updateInner(updateConfig, node, entityMap)
-		}.asInstanceOf[List[T with PC]]
+		val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap)
+		recreationPhase.execute(nodes).asInstanceOf[List[T with PC]]
 	}
 
 	private def validatePersisted(persisted: Persisted) {
