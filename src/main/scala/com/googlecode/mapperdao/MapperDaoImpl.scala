@@ -11,7 +11,7 @@ import com.googlecode.mapperdao.utils.Equality
 import com.googlecode.mapperdao.utils.NYI
 import com.googlecode.mapperdao.utils.Helpers
 import com.googlecode.mapperdao.jdbc.CmdToDatabase
-import com.googlecode.mapperdao.state.persistcmds.PersistCmdFactory
+import com.googlecode.mapperdao.state.persistcmds.CmdPhase
 import com.googlecode.mapperdao.state.persisted.PersistedNode
 import com.googlecode.mapperdao.state.recreation.MockFactory
 import com.googlecode.mapperdao.state.recreation.RecreationPhase
@@ -61,7 +61,7 @@ protected final class MapperDaoImpl(
 		entity: Entity[ID, PC, T],
 		os: List[T]): List[T with PC] =
 		{
-			val po = new PersistCmdFactory
+			val po = new CmdPhase
 			val cmds = os.map { o =>
 				if (isPersisted(o)) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o)
 				val newVM = ValuesMap.fromEntity(typeManager, entity, o)
@@ -106,7 +106,7 @@ protected final class MapperDaoImpl(
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, PC, T],
 		os: List[(T with PC, ValuesMap)]): List[T with PC] = {
-		val po = new PersistCmdFactory
+		val po = new CmdPhase
 		val cmds = os.map {
 			case (o, newVM) =>
 				val p = o.asInstanceOf[Persisted]

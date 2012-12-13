@@ -10,7 +10,7 @@ import java.util.IdentityHashMap
  *
  * 21 Nov 2012
  */
-class PersistCmdFactory {
+class CmdPhase {
 
 	private var alreadyProcessed = Map[Int, PersistCmd[_, _]]()
 
