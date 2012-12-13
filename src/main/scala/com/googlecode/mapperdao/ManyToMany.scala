@@ -1,6 +1,8 @@
 package com.googlecode.mapperdao
 
-case class ManyToMany[FID, FPC <: DeclaredIds[FID], F](linkTable: LinkTable, val foreign: TypeRef[FID, FPC, F])
+case class ManyToMany[FID, FPC <: DeclaredIds[FID], F](
+	linkTable: LinkTable,
+	val foreign: TypeRef[FID, FPC, F])
 		extends ColumnRelationshipBase[FID, FPC, F] {
 	def alias = foreign.alias
 

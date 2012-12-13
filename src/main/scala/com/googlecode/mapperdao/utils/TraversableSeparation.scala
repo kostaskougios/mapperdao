@@ -5,7 +5,8 @@ import java.util.TreeMap
 import com.googlecode.mapperdao._
 
 /**
- * compares 2 traversables via object reference equality and returns (added,intersect,removed)
+ * compares 2 traversables via object reference equality and returns
+ * (added,intersect,removed)
  *
  * @author kostantinos.kougios
  *

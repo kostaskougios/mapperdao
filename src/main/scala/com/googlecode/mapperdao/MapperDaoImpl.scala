@@ -61,7 +61,7 @@ protected final class MapperDaoImpl(
 		entity: Entity[ID, PC, T],
 		os: List[T]): List[T with PC] =
 		{
-			val po = new CmdPhase
+			val po = new CmdPhase(typeManager)
 			val cmds = os.map { o =>
 				if (isPersisted(o)) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o)
 				val newVM = ValuesMap.fromEntity(typeManager, entity, o)
@@ -106,7 +106,7 @@ protected final class MapperDaoImpl(
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, PC, T],
 		os: List[(T with PC, ValuesMap)]): List[T with PC] = {
-		val po = new CmdPhase
+		val po = new CmdPhase(typeManager)
 		val cmds = os.map {
 			case (o, newVM) =>
 				val p = o.asInstanceOf[Persisted]
