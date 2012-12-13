@@ -29,7 +29,7 @@ class OneToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl)
 			val tpe = entity.tpe
 			val table = tpe.table
 			// one-to-one
-			table.oneToOneColumnInfos.map { cis =>
+			table.oneToOneColumnInfos.filterNot(updateConfig.skip.contains(_)).map { cis =>
 				val fe = cis.column.foreign.entity.asInstanceOf[Entity[Any, DeclaredIds[Any], Any]]
 				val ftpe = fe.tpe
 				val fo = cis.columnToValue(o)

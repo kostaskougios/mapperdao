@@ -56,7 +56,7 @@ class OneToOneReverseInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperD
 			val tpe = entity.tpe
 			val table = tpe.table
 			// one-to-one reverse
-			table.oneToOneReverseColumnInfos.foreach { cis =>
+			table.oneToOneReverseColumnInfos.filterNot(updateConfig.skip.contains(_)).foreach { cis =>
 
 				cis.column.foreign.entity match {
 					case ee: ExternalEntity[Any, Any] =>

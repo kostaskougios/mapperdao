@@ -20,7 +20,7 @@ import com.googlecode.mapperdao.DeclaredIds
  * 31 Aug 2011
  */
 class ManyToManyInsertPlugin(typeManager: TypeManager, typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl)
-		extends PostInsert {
+	extends PostInsert {
 
 	override def after[ID, PC <: DeclaredIds[ID], T](
 		updateConfig: UpdateConfig,
@@ -32,7 +32,7 @@ class ManyToManyInsertPlugin(typeManager: TypeManager, typeRegistry: TypeRegistr
 		{
 			val table = entity.tpe.table
 			// many to many
-			table.manyToManyColumnInfos.foreach { cis =>
+			table.manyToManyColumnInfos.filterNot(updateConfig.skip.contains(_)).foreach { cis =>
 				val newKeyValues = table.primaryKeys.map(c => modified(c.name))
 				val traversable = cis.columnToValue(o)
 				val cName = cis.column.alias

@@ -27,7 +27,7 @@ class ManyToOneInsertPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 			val table = tpe.table
 			var extraArgs = List[(Column, Any)]()
 			// many-to-one
-			table.manyToOneColumnInfos.foreach { cis =>
+			table.manyToOneColumnInfos.filterNot(updateConfig.skip.contains(_)).foreach { cis =>
 				val fo = cis.columnToValue(o)
 
 				cis.column.foreign.entity match {
