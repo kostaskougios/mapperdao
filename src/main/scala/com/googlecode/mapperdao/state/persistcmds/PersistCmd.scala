@@ -12,4 +12,5 @@ import com.googlecode.mapperdao._
 trait PersistCmd[ID, T] {
 	val entity: Entity[ID, DeclaredIds[ID], T]
 	val commands: List[PersistCmd[_, _]]
+	val phase: Int
 }

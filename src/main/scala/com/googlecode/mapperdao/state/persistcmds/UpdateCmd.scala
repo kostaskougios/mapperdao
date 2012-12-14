@@ -12,4 +12,5 @@ case class UpdateCmd[ID, T](
 	oldVM: ValuesMap,
 	newVM: ValuesMap,
 	columns: List[(SimpleColumn, Any)],
-	commands: List[PersistCmd[_, _]]) extends PersistCmd[ID, T]
+	commands: List[PersistCmd[_, _]],
+	phase: Int) extends PersistCmd[ID, T]
