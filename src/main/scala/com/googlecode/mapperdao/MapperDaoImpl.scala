@@ -15,6 +15,7 @@ import com.googlecode.mapperdao.state.persistcmds.CmdPhase
 import com.googlecode.mapperdao.state.persisted.PersistedNode
 import com.googlecode.mapperdao.state.recreation.MockFactory
 import com.googlecode.mapperdao.state.recreation.RecreationPhase
+import com.googlecode.mapperdao.state.prioritise.PriorityPhase
 
 /**
  * @author kostantinos.kougios
@@ -61,6 +62,9 @@ protected final class MapperDaoImpl(
 		entity: Entity[ID, PC, T],
 		os: List[T]): List[T with PC] =
 		{
+			val pf = new PriorityPhase
+			val pri = pf.prioritise(entity)
+
 			val po = new CmdPhase(typeManager)
 			val cmds = os.map { o =>
 				if (isPersisted(o)) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o)
@@ -106,6 +110,9 @@ protected final class MapperDaoImpl(
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, PC, T],
 		os: List[(T with PC, ValuesMap)]): List[T with PC] = {
+		val pf = new PriorityPhase
+		val pri = pf.prioritise(entity)
+
 		val po = new CmdPhase(typeManager)
 		val cmds = os.map {
 			case (o, newVM) =>

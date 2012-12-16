@@ -14,7 +14,7 @@ import com.googlecode.mapperdao.ColumnInfoTraversableOneToMany
 class PriorityPhase {
 	private var visited = Set[Entity[_, _, _]]()
 
-	def prioritise(entity: Entity[_, _, _]): List[Entity[_, _, _]] =
+	private def prioritiseEntities(entity: Entity[_, _, _]): List[Entity[_, _, _]] =
 		if (visited(entity))
 			Nil
 		else {
@@ -22,14 +22,14 @@ class PriorityPhase {
 
 			val after = entity.tpe.table.relationshipColumnInfos.collect {
 				case ColumnInfoTraversableManyToMany(column, _, _) =>
-					prioritise(column.foreign.entity)
+					prioritiseEntities(column.foreign.entity)
 				case ColumnInfoTraversableOneToMany(column, _, _, _) =>
-					prioritise(column.foreign.entity)
+					prioritiseEntities(column.foreign.entity)
 			}.flatten
 
 			val before = entity.tpe.table.relationshipColumnInfos.collect {
 				case ColumnInfoManyToOne(column, _, _) =>
-					prioritise(column.foreign.entity)
+					prioritiseEntities(column.foreign.entity)
 			}.flatten
 
 			(before ::: entity :: after).distinct
