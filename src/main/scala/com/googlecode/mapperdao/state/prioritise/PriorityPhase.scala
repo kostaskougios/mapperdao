@@ -6,6 +6,7 @@ import com.googlecode.mapperdao.utils.IdentityMap
 import com.googlecode.mapperdao.ColumnInfoManyToOne
 import com.googlecode.mapperdao.ColumnInfoTraversableOneToMany
 import com.googlecode.mapperdao.state.persistcmds.PersistCmd
+import com.googlecode.mapperdao.DeclaredIds
 
 /**
  * @author kostantinos.kougios
@@ -16,10 +17,20 @@ class PriorityPhase {
 	private var visited = Set[Entity[_, _, _]]()
 
 	def prioritise(
-		entity: Entity[_, _, _],
+		entity: Entity[_, DeclaredIds[_], _],
 		cmds: List[PersistCmd[_, _]]): List[List[PersistCmd[_, _]]] = {
 		val prie = prioritiseEntities(entity)
-		Nil
+
+		def flattenCmds(cmd: PersistCmd[_, _]): List[PersistCmd[_, _]] = {
+			cmd :: cmd.commands.map { c => flattenCmds(c) }.flatten
+		}
+
+		val fcmds = cmds.map { c => flattenCmds(c) }.flatten
+		val groupped = fcmds.groupBy(_.entity.asInstanceOf[Entity[_, _, _]])
+
+		prie.map { e =>
+			groupped(e)
+		}
 	}
 
 	def prioritiseEntities(entity: Entity[_, _, _]): List[Entity[_, _, _]] =
