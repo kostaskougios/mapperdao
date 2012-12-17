@@ -72,7 +72,7 @@ protected final class MapperDaoImpl(
 			val pri = pf.prioritise(entity, cmds)
 
 			val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
-			val nodes = ctd.execute[ID, PC, T](cmds)
+			val nodes = ctd.execute(pri)
 			val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap)
 			recreationPhase.execute(nodes).asInstanceOf[List[T with PC]]
 		}
@@ -123,7 +123,7 @@ protected final class MapperDaoImpl(
 		val pri = pf.prioritise(entity, cmds)
 
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
-		val nodes = ctd.execute[ID, PC, T](cmds)
+		val nodes = ctd.execute(pri)
 		val entityMap = new UpdateEntityMap
 		val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap)
 		recreationPhase.execute(nodes).asInstanceOf[List[T with PC]]

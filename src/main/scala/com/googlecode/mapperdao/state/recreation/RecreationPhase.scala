@@ -16,9 +16,9 @@ class RecreationPhase(
 		typeManager: TypeManager,
 		entityMap: UpdateEntityMap) {
 
-	def execute[ID, T](nodes: List[PersistedNode[ID, T]]) =
+	def execute(nodes: List[PersistedNode[_, _]]) =
 		nodes.map { node =>
-			entityMap.get[DeclaredIds[ID], T](node.identity).getOrElse {
+			entityMap.get[DeclaredIds[Any], Any](node.identity).getOrElse {
 				val entity = node.entity
 				val tpe = entity.tpe
 				val table = tpe.table
@@ -43,7 +43,7 @@ class RecreationPhase(
 				val newE = tpe.constructor(updateConfig.data, ValuesMap.fromMap(node.identity, finalMods))
 				// re-put the actual
 				entityMap.put(node.identity, newE)
-				newE
+				newE.asInstanceOf[DeclaredIds[Any]]
 			}
 		}
 

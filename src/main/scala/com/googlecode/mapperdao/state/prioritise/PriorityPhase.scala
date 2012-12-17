@@ -21,12 +21,7 @@ class PriorityPhase {
 		cmds: List[PersistCmd[_, _]]): List[List[PersistCmd[_, _]]] = {
 		val prie = prioritiseEntities(entity)
 
-		def flattenCmds(cmd: PersistCmd[_, _]): List[PersistCmd[_, _]] = {
-			cmd :: cmd.commands.map { c => flattenCmds(c) }.flatten
-		}
-
-		val fcmds = cmds.map { c => flattenCmds(c) }.flatten
-		val groupped = fcmds.groupBy(_.entity.asInstanceOf[Entity[_, _, _]])
+		val groupped = cmds.groupBy(_.entity.asInstanceOf[Entity[_, _, _]])
 
 		prie.map { e =>
 			groupped(e)
