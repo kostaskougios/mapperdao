@@ -10,5 +10,4 @@ import com.googlecode.mapperdao._
 case class AlreadyProcessedCmd[ID, T](
 		entity: Entity[ID, DeclaredIds[ID], T]) extends PersistCmd[ID, T] {
 	val commands = Nil
-	val phase = -1
 }

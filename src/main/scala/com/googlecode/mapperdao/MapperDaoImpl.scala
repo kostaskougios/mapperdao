@@ -62,15 +62,15 @@ protected final class MapperDaoImpl(
 		entity: Entity[ID, PC, T],
 		os: List[T]): List[T with PC] =
 		{
-			val pf = new PriorityPhase
-			val pri = pf.prioritise(entity)
-
 			val po = new CmdPhase(typeManager)
 			val cmds = os.map { o =>
 				if (isPersisted(o)) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o)
 				val newVM = ValuesMap.fromEntity(typeManager, entity, o)
 				po.toInsertCmd(entity, newVM)
 			}
+			val pf = new PriorityPhase
+			val pri = pf.prioritise(entity, cmds)
+
 			val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 			val nodes = ctd.execute[ID, PC, T](cmds)
 			val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap)
@@ -110,8 +110,6 @@ protected final class MapperDaoImpl(
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, PC, T],
 		os: List[(T with PC, ValuesMap)]): List[T with PC] = {
-		val pf = new PriorityPhase
-		val pri = pf.prioritise(entity)
 
 		val po = new CmdPhase(typeManager)
 		val cmds = os.map {
@@ -120,6 +118,10 @@ protected final class MapperDaoImpl(
 				val oldVM = p.mapperDaoValuesMap
 				po.toUpdateCmd(entity, oldVM, newVM)
 		}
+
+		val pf = new PriorityPhase
+		val pri = pf.prioritise(entity, cmds)
+
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 		val nodes = ctd.execute[ID, PC, T](cmds)
 		val entityMap = new UpdateEntityMap

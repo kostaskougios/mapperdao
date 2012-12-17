@@ -5,6 +5,7 @@ import com.googlecode.mapperdao.ColumnInfoTraversableManyToMany
 import com.googlecode.mapperdao.utils.IdentityMap
 import com.googlecode.mapperdao.ColumnInfoManyToOne
 import com.googlecode.mapperdao.ColumnInfoTraversableOneToMany
+import com.googlecode.mapperdao.state.persistcmds.PersistCmd
 
 /**
  * @author kostantinos.kougios
@@ -14,7 +15,14 @@ import com.googlecode.mapperdao.ColumnInfoTraversableOneToMany
 class PriorityPhase {
 	private var visited = Set[Entity[_, _, _]]()
 
-	private def prioritiseEntities(entity: Entity[_, _, _]): List[Entity[_, _, _]] =
+	def prioritise(
+		entity: Entity[_, _, _],
+		cmds: List[PersistCmd[_, _]]): List[List[PersistCmd[_, _]]] = {
+		val prie = prioritiseEntities(entity)
+		Nil
+	}
+
+	def prioritiseEntities(entity: Entity[_, _, _]): List[Entity[_, _, _]] =
 		if (visited(entity))
 			Nil
 		else {

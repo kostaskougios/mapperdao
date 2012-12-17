@@ -119,9 +119,9 @@ class CmdToDatabase(
 	}
 
 	private def toSql(cmd: PersistCmd[_, _]) = cmd match {
-		case InsertCmd(entity, o, columns, commands, phase) =>
+		case InsertCmd(entity, o, columns, commands) =>
 			driver.insertSql(entity, columns).result
-		case UpdateCmd(entity, oldVM, newVM, columns, commands, phase) =>
+		case UpdateCmd(entity, oldVM, newVM, columns, commands) =>
 			val pks = oldVM.toListOfPrimaryKeyAndValueTuple(entity)
 			driver.updateSql(entity, columns, pks).result
 	}
