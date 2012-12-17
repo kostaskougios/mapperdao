@@ -16,8 +16,8 @@ import com.googlecode.mapperdao.DeclaredIds
 class PriorityPhase {
 	private var visited = Set[Entity[_, _, _]]()
 
-	def prioritise(
-		entity: Entity[_, DeclaredIds[_], _],
+	def prioritise[ID, PC <: DeclaredIds[ID], T](
+		entity: Entity[ID, PC, T],
 		cmds: List[PersistCmd[_, _]]): List[List[PersistCmd[_, _]]] = {
 		val prie = prioritiseEntities(entity)
 
