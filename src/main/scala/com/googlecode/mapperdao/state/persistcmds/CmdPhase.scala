@@ -3,6 +3,7 @@ package com.googlecode.mapperdao.state.persistcmds
 import com.googlecode.mapperdao._
 import java.util.IdentityHashMap
 import com.googlecode.mapperdao.utils.TraversableSeparation
+import com.googlecode.mapperdao.utils.NYI
 
 /**
  * entities are converted to PersistOps
@@ -69,14 +70,14 @@ class CmdPhase(typeManager: TypeManager) {
 				val foreignEntity = column.foreign.entity
 				if (oldVM.isDefined) {
 					//TraversableSeparation.separate(entity, oldT, newT)
-					Nil
+					NYI()
 				} else {
 					newVM.valueOf[Iterable[_]](column).map {
 						case p: Persisted =>
 							update(foreignEntity, null, p.mapperDaoValuesMap)
 						case o =>
-							val vm = ValuesMap.fromEntity(typeManager, foreignEntity, o)
-							insert(foreignEntity, vm)
+							val foreignVM = ValuesMap.fromEntity(typeManager, foreignEntity, o)
+							InsertManyToManyCmd(entity, foreignEntity, newVM, foreignVM) :: insert(foreignEntity, foreignVM)
 					}.flatten
 				}
 		}.flatten

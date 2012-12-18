@@ -11,7 +11,3 @@ import com.googlecode.mapperdao._
  */
 trait PersistCmd
 
-trait CmdWithEntity[ID, T] extends PersistCmd {
-	val entity: Entity[ID, DeclaredIds[ID], T]
-}
-
