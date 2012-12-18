@@ -67,7 +67,7 @@ protected final class MapperDaoImpl(
 				if (isPersisted(o)) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o)
 				val newVM = ValuesMap.fromEntity(typeManager, entity, o)
 				po.toInsertCmd(entity, newVM)
-			}
+			}.flatten
 			val pf = new PriorityPhase
 			val pri = pf.prioritise(entity, cmds)
 
@@ -117,7 +117,7 @@ protected final class MapperDaoImpl(
 				val p = o.asInstanceOf[Persisted]
 				val oldVM = p.mapperDaoValuesMap
 				po.toUpdateCmd(entity, oldVM, newVM)
-		}
+		}.flatten
 
 		val pf = new PriorityPhase
 		val pri = pf.prioritise(entity, cmds)
