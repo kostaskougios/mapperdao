@@ -13,7 +13,7 @@ import com.googlecode.mapperdao.utils.TraversableSeparation
  */
 class CmdPhase(typeManager: TypeManager) {
 
-	private var alreadyProcessed = Map[Int, List[PersistCmd[_, _]]]()
+	private var alreadyProcessed = Map[Int, List[PersistCmd]]()
 
 	def toInsertCmd[ID, T](
 		entity: Entity[ID, _ <: DeclaredIds[ID], T],
@@ -25,7 +25,7 @@ class CmdPhase(typeManager: TypeManager) {
 
 	private def insert[ID, T](
 		entity: Entity[ID, DeclaredIds[ID], T],
-		newVM: ValuesMap): List[PersistCmd[_, _]] = {
+		newVM: ValuesMap): List[PersistCmd] = {
 		alreadyProcessed.get(newVM.identity) match {
 			case None =>
 				val tpe = entity.tpe
@@ -35,17 +35,17 @@ class CmdPhase(typeManager: TypeManager) {
 				alreadyProcessed += (newVM.identity -> op)
 				op
 			case Some(x) =>
-				AlreadyProcessedCmd(entity) :: Nil
+				AlreadyProcessedCmd :: Nil
 		}
 	}
 
 	private def update[ID, T](
 		entity: Entity[ID, DeclaredIds[ID], T],
 		oldVM: ValuesMap,
-		newVM: ValuesMap): List[PersistCmd[_, _]] = {
+		newVM: ValuesMap): List[PersistCmd] = {
 		val op = alreadyProcessed.get(newVM.identity)
 		if (op.isDefined) {
-			AlreadyProcessedCmd(entity) :: Nil
+			AlreadyProcessedCmd :: Nil
 		} else {
 			val tpe = entity.tpe
 			val table = tpe.table
@@ -63,7 +63,7 @@ class CmdPhase(typeManager: TypeManager) {
 	private def related[ID, T](
 		entity: Entity[ID, DeclaredIds[ID], T],
 		oldVM: Option[ValuesMap],
-		newVM: ValuesMap): List[PersistCmd[_, _]] = {
+		newVM: ValuesMap): List[PersistCmd] = {
 		entity.tpe.table.relationshipColumnInfos.map {
 			case ColumnInfoTraversableManyToMany(column, columnToValue, getterMethod) =>
 				val foreignEntity = column.foreign.entity
