@@ -12,4 +12,4 @@ case class InsertManyToManyCmd[ID, T, FID, FT](
 	foreignEntity: Entity[FID, DeclaredIds[FID], FT],
 	manyToMany: ManyToMany[FID, _ <: DeclaredIds[FID], FT],
 	entityVM: ValuesMap,
-	foreignEntityVM: ValuesMap) extends CmdWithEntity[ID, T]
+	foreignEntityVM: ValuesMap) extends PersistCmd

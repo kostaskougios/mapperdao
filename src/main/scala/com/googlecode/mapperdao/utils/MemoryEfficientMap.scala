@@ -13,12 +13,12 @@ private[mapperdao] trait MemoryEfficientMap[K, V] {
 	private var keys: Array[Any] = _
 	private var values: Array[Any] = _
 
-	def toMap: Map[K, V] = {
+	private[mapperdao] def toMap: Map[K, V] = {
 		val t = (keys.zip(values)).toList.asInstanceOf[Traversable[(K, V)]]
 		Map.empty ++ t
 	}
 
-	def initializeMEM(m: scala.collection.Map[K, V]) {
+	private[mapperdao] def initializeMEM(m: scala.collection.Map[K, V]) {
 		var i = 0
 		val (ks, vs) = m.map { case (k, v) => (k, v) }.unzip
 		keys = ks.toArray
@@ -34,21 +34,21 @@ private[mapperdao] trait MemoryEfficientMap[K, V] {
 		idx
 	}
 
-	def containsMEM(k: K) = findKeyIndexSafe(k) > -1
+	private[mapperdao] def containsMEM(k: K) = findKeyIndexSafe(k) > -1
 
-	def getMEM(k: K): V = {
+	private[mapperdao] def getMEM(k: K): V = {
 		val idx = findKeyIndexSafe(k)
 		values(idx).asInstanceOf[V]
 	}
 
-	def getMEMOption(k: K): Option[V] = {
+	private[mapperdao] def getMEMOption(k: K): Option[V] = {
 		val idx = findKeyIndex(k)
 		if (idx == -1) None
 		else
 			Some(values(idx).asInstanceOf[V])
 	}
 
-	def getMEMOrElse(k: K, orV: V) = {
+	private[mapperdao] def getMEMOrElse(k: K, orV: V) = {
 		val idx = findKeyIndex(k)
 		if (idx == -1)
 			orV
@@ -56,7 +56,7 @@ private[mapperdao] trait MemoryEfficientMap[K, V] {
 			values(idx).asInstanceOf[V]
 	}
 
-	def putMEM(k: K, v: V) {
+	private[mapperdao] def putMEM(k: K, v: V) {
 		val idx = findKeyIndex(k)
 		if (idx == -1) {
 			keys ++= List(k)
@@ -66,7 +66,7 @@ private[mapperdao] trait MemoryEfficientMap[K, V] {
 			values(idx) = v
 	}
 
-	def memToString = {
+	private[mapperdao] def memToString = {
 		val b = new StringBuilder("MEMMap(")
 		for (i <- 0 until keys.size) {
 			if (i > 0) b.append(", ")
