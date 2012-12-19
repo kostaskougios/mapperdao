@@ -77,7 +77,12 @@ class CmdPhase(typeManager: TypeManager) {
 							update(foreignEntity, null, p.mapperDaoValuesMap)
 						case o =>
 							val foreignVM = ValuesMap.fromEntity(typeManager, foreignEntity, o)
-							InsertManyToManyCmd(entity, foreignEntity, newVM, foreignVM) :: insert(foreignEntity, foreignVM)
+							InsertManyToManyCmd(
+								entity,
+								foreignEntity,
+								column,
+								newVM,
+								foreignVM) :: insert(foreignEntity, foreignVM)
 					}.flatten
 				}
 		}.flatten

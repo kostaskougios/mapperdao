@@ -10,5 +10,6 @@ import com.googlecode.mapperdao._
 case class InsertManyToManyCmd[ID, T, FID, FT](
 	entity: Entity[ID, DeclaredIds[ID], T],
 	foreignEntity: Entity[FID, DeclaredIds[FID], FT],
+	manyToMany: ManyToMany[FID, _ <: DeclaredIds[FID], FT],
 	entityVM: ValuesMap,
 	foreignEntityVM: ValuesMap) extends CmdWithEntity[ID, T]

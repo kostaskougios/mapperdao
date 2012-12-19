@@ -8,6 +8,7 @@ import com.googlecode.mapperdao.ColumnInfoTraversableOneToMany
 import com.googlecode.mapperdao.state.persistcmds.PersistCmd
 import com.googlecode.mapperdao.DeclaredIds
 import com.googlecode.mapperdao.state.persistcmds.CmdWithEntity
+import com.googlecode.mapperdao.state.persistcmds.InsertManyToManyCmd
 
 /**
  * @author kostantinos.kougios
@@ -22,13 +23,18 @@ class PriorityPhase {
 		cmds: List[PersistCmd]): List[List[PersistCmd]] = {
 		val prie = prioritiseEntities(entity)
 
-		val groupped = cmds.collect {
+		val (high, low) = cmds.partition {
+			case _: InsertManyToManyCmd[_, _, _, _] => false
+			case _ => true
+		}
+		val groupped = high.collect {
 			case we: CmdWithEntity[_, _] => we
 		}.groupBy(_.entity.asInstanceOf[Entity[_, _, _]])
 
-		prie.map { e =>
+		val h = prie.map { e =>
 			groupped(e)
 		}
+		h ::: List(low)
 	}
 
 	def prioritiseEntities(entity: Entity[_, _, _]): List[Entity[_, _, _]] =

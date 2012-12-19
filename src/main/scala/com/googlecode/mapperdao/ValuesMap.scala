@@ -177,6 +177,9 @@ class ValuesMap private (private[mapperdao] val identity: Int, mOrig: scala.coll
 		}
 	protected[mapperdao] def toListOfPrimaryKeyAndValueTuple(entity: Entity[_, _, _]) =
 		toListOfSimpleColumnAndValueTuple(entity.tpe.table.primaryKeysAndUnusedKeys)
+
+	protected[mapperdao] def toListOfPrimaryKeys(entity: Entity[_, _, _]) =
+		toListOfColumnValue(entity.tpe.table.primaryKeysAndUnusedKeys)
 }
 
 object ValuesMap {

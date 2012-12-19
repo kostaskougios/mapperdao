@@ -114,5 +114,9 @@ class CmdToDatabase(
 		case UpdateCmd(entity, oldVM, newVM, columns) =>
 			val pks = oldVM.toListOfPrimaryKeyAndValueTuple(entity)
 			driver.updateSql(entity, columns, pks).result
+		case InsertManyToManyCmd(entity, foreignEntity, manyToMany, entityVM, foreignEntityVM) =>
+			val left = entityVM.toListOfPrimaryKeys(entity)
+			val right = foreignEntityVM.toListOfPrimaryKeys(entity)
+			driver.insertManyToManySql(manyToMany, left, right).result
 	}
 }

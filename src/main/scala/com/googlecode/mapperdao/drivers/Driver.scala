@@ -61,18 +61,22 @@ abstract class Driver {
 			s
 		}
 
-	def doInsertManyToMany[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](
-		tpe: Type[ID, PC, T],
-		manyToMany: ManyToMany[FID, FPC, F],
-		left: List[Any],
-		right: List[Any]): Unit =
-		{
-			val r = insertManyToManySql(tpe, manyToMany, left ::: right).result
-			jdbc.update(r.sql, r.values)
-		}
+	//	def doInsertManyToMany[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](
+	//		tpe: Type[ID, PC, T],
+	//		manyToMany: ManyToMany[FID, FPC, F],
+	//		left: List[Any],
+	//		right: List[Any]): Unit =
+	//		{
+	//			val r = insertManyToManySql(tpe, manyToMany, left ::: right).result
+	//			jdbc.update(r.sql, r.values)
+	//		}
 
-	protected def insertManyToManySql[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](tpe: Type[ID, PC, T], manyToMany: ManyToMany[FID, FPC, F], values: List[Any]) =
+	def insertManyToManySql(
+		manyToMany: ManyToMany[_, _, _],
+		left: List[Any],
+		right: List[Any]) =
 		{
+			val values = left ::: right
 			val s = new sqlBuilder.InsertBuilder
 			val linkTable = manyToMany.linkTable
 			s.into(linkTable.name)
