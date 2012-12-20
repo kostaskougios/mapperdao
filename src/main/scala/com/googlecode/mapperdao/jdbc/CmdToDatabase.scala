@@ -98,9 +98,9 @@ class CmdToDatabase(
 
 	private def toPersistedNodes(nodes: List[Node]) = nodes.collect {
 		case Node(_, i: InsertCmd[_, _], keys) =>
-			PersistedNode(i.entity, null, i.newVM, Nil, keys)
+			PersistedNode(i.entity, None, i.newVM, keys)
 		case Node(_, u: UpdateCmd[_, _], keys) =>
-			PersistedNode(u.entity, u.oldVM, u.newVM, Nil, keys)
+			PersistedNode(u.entity, Some(u.oldVM), u.newVM, keys)
 	}
 
 	private def toNodes(

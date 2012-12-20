@@ -73,8 +73,8 @@ protected final class MapperDaoImpl(
 
 			val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 			val nodes = ctd.execute(pri)
-			val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap)
-			recreationPhase.execute(nodes).asInstanceOf[List[T with PC]]
+			val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap, nodes)
+			recreationPhase.execute.asInstanceOf[List[T with PC]]
 		}
 
 	override def updateMutable[ID, PC <: DeclaredIds[ID], T](
@@ -125,8 +125,8 @@ protected final class MapperDaoImpl(
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 		val nodes = ctd.execute(pri)
 		val entityMap = new UpdateEntityMap
-		val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap)
-		recreationPhase.execute(nodes).asInstanceOf[List[T with PC]]
+		val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap, nodes)
+		recreationPhase.execute.asInstanceOf[List[T with PC]]
 	}
 
 	private def validatePersisted(persisted: Persisted) {

@@ -14,9 +14,18 @@ class RecreationPhase(
 		updateConfig: UpdateConfig,
 		mockFactory: MockFactory,
 		typeManager: TypeManager,
-		entityMap: UpdateEntityMap) {
+		entityMap: UpdateEntityMap,
+		nodes: List[PersistedNode[_, _]]) {
 
-	def execute(nodes: List[PersistedNode[_, _]]) =
+	private val byIdentity: Map[Int, PersistedNode[_, _]] = nodes.map { node =>
+		(node.newVM.identity, node)
+	}.toMap
+
+	def execute = {
+		recreate(nodes)
+	}
+
+	private def recreate(nodes: List[PersistedNode[_, _]]) =
 		nodes.map { node =>
 			entityMap.get[DeclaredIds[Any], Any](node.identity).getOrElse {
 				val entity = node.entity
