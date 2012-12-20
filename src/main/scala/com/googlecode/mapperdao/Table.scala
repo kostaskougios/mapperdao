@@ -158,7 +158,7 @@ case class Table[ID, PC <: DeclaredIds[ID], T](
 			o match {
 				case null =>
 					(c, null)
-				case pc: T with PC =>
+				case pc: T with DeclaredIds[_] with PC =>
 					val ci = pcColumnToColumnInfoMap(c)
 					(c, ci.columnToValue(pc))
 				case t: T => throw new ExpectedPersistedEntityException(t)

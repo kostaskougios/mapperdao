@@ -33,7 +33,7 @@ protected[mapperdao] object TraversableSeparation {
 				newM.addAll(newT)
 
 				val added = newT.filterNot(oldM.contains(_))
-				val intersect = oldT.filter(newM.contains(_)).map(ot => (ot.asInstanceOf[T with PC], newM(ot)))
+				val intersect = oldT.filter(newM.contains(_)).map(ot => (ot, newM(ot)))
 				val removed = oldT.filterNot(newM.contains(_)).map(ot => ot.asInstanceOf[T with PC])
 
 				(added, intersect, removed)
