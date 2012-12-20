@@ -39,7 +39,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 				.filterNot(updateConfig.skip.contains(_))
 				.foreach { ci =>
 					val newValues = newValuesMap.valueOf(ci)
-					val oldValues = oldValuesMap.valueOf(ci).asInstanceOf[Traversable[DeclaredIds[Any]]]
+					val oldValues = oldValuesMap.valueOf(ci) // .asInstanceOf[Traversable[DeclaredIds[Any]]]
 
 					val manyToMany = ci.column
 					val pkLeft = oldValuesMap.toListOfColumnValue(table.primaryKeys)
@@ -89,7 +89,7 @@ class ManyToManyUpdatePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 							intersection.foreach {
 								case (oldV, newV) =>
 									entityMap.down(mockO, ci, entity)
-									mapperDao.updateInner(updateConfig, fe, oldV, newV, entityMap)
+									mapperDao.updateInner(updateConfig, fe, oldV.asInstanceOf[DeclaredIds[Any]], newV, entityMap)
 									entityMap.up
 									modified(manyToMany.alias) = oldV
 							}

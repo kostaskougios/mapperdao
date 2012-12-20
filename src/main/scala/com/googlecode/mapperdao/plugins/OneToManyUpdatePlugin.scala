@@ -100,7 +100,7 @@ class OneToManyUpdatePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 						intersection.foreach {
 							case (oldV, newV) =>
 								entityMap.down(mockO, ci, entity)
-								val newItem = mapperDao.updateInner(updateConfig, fe, oldV, newV, entityMap)
+								val newItem = mapperDao.updateInner(updateConfig, fe, oldV.asInstanceOf[DeclaredIds[Any]], newV, entityMap)
 								entityMap.up
 								modified(oneToMany.alias) = newItem
 						}
