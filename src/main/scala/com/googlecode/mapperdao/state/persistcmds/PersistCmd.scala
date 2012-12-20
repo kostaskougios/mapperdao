@@ -9,5 +9,7 @@ import com.googlecode.mapperdao._
  *
  * 21 Nov 2012
  */
-trait PersistCmd
+trait PersistCmd {
+	val mainEntity: Boolean
+}
 
