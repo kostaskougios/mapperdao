@@ -13,9 +13,7 @@ import org.springframework.jdbc.core.SqlParameterValue
 case class PersistedNode[ID, T](
 		entity: Entity[ID, DeclaredIds[ID], T],
 		oldVM: Option[ValuesMap],
-		newVM: ValuesMap,
-		//		children: List[(ColumnInfoRelationshipBase[_, _, _, _, _], PersistedNode[_, _])],
-		generatedKeys: List[(SimpleColumn, Any)]) {
+		newVM: ValuesMap) {
 
 	def identity = newVM.identity
 

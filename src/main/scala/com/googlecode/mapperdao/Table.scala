@@ -45,7 +45,7 @@ case class Table[ID, PC <: DeclaredIds[ID], T](
 
 	val primaryKeysAsCommaSeparatedList = primaryKeys.map(_.name).mkString(",")
 
-	val simpleTypeColumns = columns.collect {
+	val simpleTypeColumns: List[SimpleColumn] = columns.collect {
 		case c: Column => c
 		case pk: PK => pk
 	}

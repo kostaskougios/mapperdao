@@ -39,16 +39,7 @@ class RecreationPhase(
 				var mockO = mockFactory.createMock(updateConfig.data, entity, modified)
 				entityMap.put(node.identity, mockO)
 
-				val keysMap = node.generatedKeys.map {
-					case (column, value) =>
-						table.pcColumnToColumnInfoMap(column) match {
-							case ci: ColumnInfo[_, _] =>
-								val fixed = typeManager.toActualType(ci.dataType, value)
-								(column.name, fixed)
-						}
-				}
-
-				val finalMods = modified ++ keysMap
+				val finalMods = modified
 				val newE = tpe.constructor(updateConfig.data, ValuesMap.fromMap(node.identity, finalMods))
 				// re-put the actual
 				entityMap.put(node.identity, newE)
