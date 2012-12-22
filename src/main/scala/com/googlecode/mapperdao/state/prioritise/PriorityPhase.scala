@@ -2,7 +2,6 @@ package com.googlecode.mapperdao.state.prioritise
 
 import com.googlecode.mapperdao.Entity
 import com.googlecode.mapperdao.ColumnInfoTraversableManyToMany
-import com.googlecode.mapperdao.utils.IdentityMap
 import com.googlecode.mapperdao.ColumnInfoManyToOne
 import com.googlecode.mapperdao.ColumnInfoTraversableOneToMany
 import com.googlecode.mapperdao.state.persistcmds.PersistCmd
@@ -13,14 +12,15 @@ import com.googlecode.mapperdao.state.persistcmds.InsertManyToManyCmd
 /**
  * @author kostantinos.kougios
  *
- * 15 Dec 2012
+ *         15 Dec 2012
  */
 class PriorityPhase {
 	private var visited = Set[Entity[_, _, _]]()
 
 	def prioritise[ID, PC <: DeclaredIds[ID], T](
 		entity: Entity[ID, PC, T],
-		cmds: List[PersistCmd]): List[List[PersistCmd]] = {
+		cmds: List[PersistCmd]
+	): List[List[PersistCmd]] = {
 		val prie = prioritiseEntities(entity)
 
 		val (high, low) = cmds.partition {
@@ -31,8 +31,9 @@ class PriorityPhase {
 			case we: CmdWithEntity[_, _] => we
 		}.groupBy(_.entity.asInstanceOf[Entity[_, _, _]])
 
-		val h = prie.map { e =>
-			groupped(e)
+		val h = prie.filter(groupped.contains(_)).map {
+			e =>
+				groupped(e)
 		}
 		h ::: List(low)
 	}

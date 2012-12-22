@@ -10,7 +10,7 @@ import com.googlecode.mapperdao.utils.NYI
  *
  * @author kostantinos.kougios
  *
- * 21 Nov 2012
+ *         21 Nov 2012
  */
 class CmdPhase(typeManager: TypeManager) {
 
@@ -18,16 +18,20 @@ class CmdPhase(typeManager: TypeManager) {
 
 	def toInsertCmd[ID, T](
 		entity: Entity[ID, _ <: DeclaredIds[ID], T],
-		newVM: ValuesMap) = insert(entity.asInstanceOf[Entity[ID, DeclaredIds[ID], T]], newVM, true)
+		newVM: ValuesMap
+	) = insert(entity.asInstanceOf[Entity[ID, DeclaredIds[ID], T]], newVM, true)
+
 	def toUpdateCmd[ID, T](
 		entity: Entity[ID, _ <: DeclaredIds[ID], T],
 		oldValuesMap: ValuesMap,
-		newValuesMap: ValuesMap) = update(entity.asInstanceOf[Entity[ID, DeclaredIds[ID], T]], oldValuesMap, newValuesMap, true)
+		newValuesMap: ValuesMap
+	) = update(entity.asInstanceOf[Entity[ID, DeclaredIds[ID], T]], oldValuesMap, newValuesMap, true)
 
 	private def insert[ID, T](
 		entity: Entity[ID, DeclaredIds[ID], T],
 		newVM: ValuesMap,
-		mainEntity: Boolean): List[PersistCmd] = {
+		mainEntity: Boolean
+	): List[PersistCmd] = {
 		alreadyProcessed.get(newVM.identity) match {
 			case None =>
 				val tpe = entity.tpe
@@ -45,7 +49,8 @@ class CmdPhase(typeManager: TypeManager) {
 		entity: Entity[ID, DeclaredIds[ID], T],
 		oldVM: ValuesMap,
 		newVM: ValuesMap,
-		mainEntity: Boolean): List[PersistCmd] = {
+		mainEntity: Boolean
+	): List[PersistCmd] = {
 		val op = alreadyProcessed.get(newVM.identity)
 		if (op.isDefined) {
 			AlreadyProcessedCmd :: Nil
@@ -66,7 +71,8 @@ class CmdPhase(typeManager: TypeManager) {
 	private def related[ID, T](
 		entity: Entity[ID, DeclaredIds[ID], T],
 		oldVM: Option[ValuesMap],
-		newVM: ValuesMap): List[PersistCmd] = {
+		newVM: ValuesMap
+	): List[PersistCmd] = {
 		entity.tpe.table.relationshipColumnInfos.map {
 			case ColumnInfoTraversableManyToMany(column, columnToValue, getterMethod) =>
 				val foreignEntity = column.foreign.entity
@@ -76,7 +82,8 @@ class CmdPhase(typeManager: TypeManager) {
 				} else {
 					newVM.valueOf[Iterable[_]](column).map {
 						case p: Persisted =>
-							update(foreignEntity, null, p.mapperDaoValuesMap, false)
+							val newVM = ValuesMap.fromEntity(typeManager, foreignEntity, p)
+							update(foreignEntity, p.mapperDaoValuesMap, newVM, false)
 						case o =>
 							val foreignVM = ValuesMap.fromEntity(typeManager, foreignEntity, o)
 							InsertManyToManyCmd(
