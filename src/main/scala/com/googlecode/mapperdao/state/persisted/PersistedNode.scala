@@ -8,12 +8,13 @@ import org.springframework.jdbc.core.SqlParameterValue
  *
  * @author kostantinos.kougios
  *
- * Dec 8, 2012
+ *         Dec 8, 2012
  */
 case class PersistedNode[ID, T](
-		entity: Entity[ID, DeclaredIds[ID], T],
-		oldVM: Option[ValuesMap],
-		newVM: ValuesMap) {
+								   entity: Entity[ID, DeclaredIds[ID], T],
+								   oldVM: Option[ValuesMap],
+								   newVM: ValuesMap,
+								   mainEntity: Boolean) {
 
 	def identity = newVM.identity
 
