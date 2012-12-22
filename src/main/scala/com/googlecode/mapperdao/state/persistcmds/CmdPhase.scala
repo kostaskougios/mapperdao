@@ -70,20 +70,25 @@ class CmdPhase(typeManager: TypeManager) {
 
 	private def related[ID, T](
 		entity: Entity[ID, DeclaredIds[ID], T],
-		oldVM: Option[ValuesMap],
+		oldVMO: Option[ValuesMap],
 		newVM: ValuesMap
 	): List[PersistCmd] = {
 		entity.tpe.table.relationshipColumnInfos.map {
 			case ColumnInfoTraversableManyToMany(column, columnToValue, getterMethod) =>
 				val foreignEntity = column.foreign.entity
-				if (oldVM.isDefined) {
-					//TraversableSeparation.separate(entity, oldT, newT)
-					NYI()
+				if (oldVMO.isDefined) {
+					val oldVM = oldVMO.get
+					val oldT = oldVM.manyToMany(column)
+					val newT = newVM.manyToMany(column)
+					val (added, intersect, removed) = TraversableSeparation.separate(foreignEntity, oldT, newT)
+					val r=added.toList.map {
+						fo => insertOrUpdate(foreignEntity, fo)
+					}.flatten
+					r
 				} else {
-					newVM.valueOf[Iterable[_]](column).map {
+					newVM.manyToMany(column).map {
 						case p: Persisted =>
-							val newVM = ValuesMap.fromEntity(typeManager, foreignEntity, p)
-							update(foreignEntity, p.mapperDaoValuesMap, newVM, false)
+							doUpdate(foreignEntity, p)
 						case o =>
 							val foreignVM = ValuesMap.fromEntity(typeManager, foreignEntity, o)
 							InsertManyToManyCmd(
@@ -95,5 +100,20 @@ class CmdPhase(typeManager: TypeManager) {
 					}.flatten
 				}
 		}.flatten
+	}
+
+	private def insertOrUpdate[ID, T](foreignEntity: Entity[ID, DeclaredIds[ID], T], o: T) = o match {
+		case p: T with  Persisted => doUpdate(foreignEntity, p)
+		case _ => doInsert(foreignEntity, o)
+	}
+
+	private def doInsert[ID, T](foreignEntity: Entity[ID, DeclaredIds[ID], T], o: T) = {
+		val newVM = ValuesMap.fromEntity(typeManager, foreignEntity, o)
+		insert(foreignEntity, newVM, false)
+	}
+
+	private def doUpdate[ID, T](foreignEntity: Entity[ID, DeclaredIds[ID], T], p: T with Persisted) = {
+		val newVM = ValuesMap.fromEntity(typeManager, foreignEntity, p)
+		update(foreignEntity, p.mapperDaoValuesMap, newVM, false)
 	}
 }

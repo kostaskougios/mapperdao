@@ -9,24 +9,28 @@ import com.googlecode.mapperdao._
  *
  * @author kostantinos.kougios
  *
- * 31 Aug 2011
+ *         31 Aug 2011
  */
 trait BeforeSelect {
 	def idContribution[ID, PC <: DeclaredIds[ID], T](
 		tpe: Type[ID, PC, T],
 		om: DatabaseValues,
-		entities: EntityMap): List[Any]
+		entities: EntityMap
+	): List[Any]
+
 	def before[ID, PC <: DeclaredIds[ID], T](
 		entity: Entity[ID, PC, T],
 		selectConfig: SelectConfig,
 		om: DatabaseValues,
-		entities: EntityMap): List[SelectMod]
+		entities: EntityMap
+	): List[SelectMod]
 }
 
 trait SelectMock {
-	def updateMock[ID, PC <: DeclaredIds[ID], T](
-		entity: Entity[ID, PC, T],
-		mods: scala.collection.mutable.Map[String, Any])
+	def updateMock[ID, T](
+		entity: Entity[ID, DeclaredIds[ID], T],
+		mods: scala.collection.mutable.Map[String, Any]
+	)
 }
 
 /**
@@ -37,11 +41,14 @@ trait BeforeDelete {
 		tpe: Type[ID, PC, T],
 		deleteConfig: DeleteConfig,
 		o: T with PC,
-		entityMap: UpdateEntityMap): List[(SimpleColumn, Any)]
+		entityMap: UpdateEntityMap
+	): List[(SimpleColumn, Any)]
+
 	def before[ID, PC <: DeclaredIds[ID], T](
 		entity: Entity[ID, PC, T],
 		deleteConfig: DeleteConfig,
 		o: T with PC,
 		keyValues: List[(ColumnBase, Any)],
-		entityMap: UpdateEntityMap): Unit
+		entityMap: UpdateEntityMap
+	): Unit
 }

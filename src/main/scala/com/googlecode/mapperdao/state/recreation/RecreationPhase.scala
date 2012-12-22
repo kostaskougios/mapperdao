@@ -23,9 +23,7 @@ class RecreationPhase(
 			(node.newVM.identity, node)
 	}.toMap
 
-	def execute = {
-		recreate(nodes.filter(_.mainEntity))
-	}
+	def execute = recreate(nodes.filter(_.mainEntity)).toList
 
 	private def recreate(nodes: Iterable[PersistedNode[_, _]]): Iterable[DeclaredIds[Any]] =
 		nodes.map {

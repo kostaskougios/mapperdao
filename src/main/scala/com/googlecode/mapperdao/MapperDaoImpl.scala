@@ -61,9 +61,10 @@ protected final class MapperDaoImpl(
 
 	override def insert[ID, PC <: DeclaredIds[ID], T](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, PC, T],
+		e: Entity[ID, PC, T],
 		os: List[T]
 	): List[T with PC] = {
+		val entity = e.asInstanceOf[Entity[ID, DeclaredIds[ID], T]]
 		val po = new CmdPhase(typeManager)
 		val cmds = os.map {
 			o =>
@@ -83,9 +84,10 @@ protected final class MapperDaoImpl(
 
 	override def updateMutable[ID, PC <: DeclaredIds[ID], T](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, PC, T],
+		e: Entity[ID, PC, T],
 		os: List[T with PC]
 	): List[T with PC] = {
+		val entity = e.asInstanceOf[Entity[ID, DeclaredIds[ID], T]]
 		val osAndNewValues = os.map {
 			o =>
 				o match {
@@ -96,28 +98,29 @@ protected final class MapperDaoImpl(
 						(o, newValuesMap)
 				}
 		}
-		updateProcess(updateConfig, entity, osAndNewValues)
+		updateProcess(updateConfig, entity, osAndNewValues).asInstanceOf[List[T with PC]]
 	}
 
 	override def updateImmutable[ID, PC <: DeclaredIds[ID], T](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, PC, T],
+		e: Entity[ID, PC, T],
 		os: List[(T with PC, T)]
 	): List[T with PC] = {
+		val entity = e.asInstanceOf[Entity[ID, DeclaredIds[ID], T]]
 		val osAndNewValues = os.map {
 			case (oldO, newO) =>
 				oldO.mapperDaoDiscarded = true
 				val newVM = ValuesMap.fromEntity(typeManager, entity, newO)
 				(oldO, newVM)
 		}
-		updateProcess(updateConfig, entity, osAndNewValues)
+		updateProcess(updateConfig, entity, osAndNewValues).asInstanceOf[List[T with PC]]
 	}
 
-	private def updateProcess[ID, PC <: DeclaredIds[ID], T](
+	private def updateProcess[ID, T](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, PC, T],
-		os: List[(T with PC, ValuesMap)]
-	): List[T with PC] = {
+		entity: Entity[ID, DeclaredIds[ID], T],
+		os: List[(T with DeclaredIds[ID], ValuesMap)]
+	): List[T with DeclaredIds[ID]] = {
 
 		val po = new CmdPhase(typeManager)
 		val cmds = os.map {
@@ -132,9 +135,8 @@ protected final class MapperDaoImpl(
 
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 		val nodes = ctd.execute(pri)
-		val entityMap = new UpdateEntityMap
 		val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap, nodes)
-		recreationPhase.execute.asInstanceOf[List[T with PC]]
+		recreationPhase.execute.asInstanceOf[List[T with DeclaredIds[ID]]]
 	}
 
 	private def validatePersisted(persisted: Persisted) {
@@ -215,10 +217,11 @@ protected final class MapperDaoImpl(
 
 	private[mapperdao] def toEntities[ID, PC <: DeclaredIds[ID], T](
 		lm: List[DatabaseValues],
-		entity: Entity[ID, PC, T],
+		e: Entity[ID, PC, T],
 		selectConfig: SelectConfig,
 		entities: EntityMap
-	): List[T with PC] =
+	): List[T with PC] = {
+		val entity = e.asInstanceOf[Entity[ID, DeclaredIds[ID], T]]
 		lm.map {
 			jdbcMap =>
 				val tpe = entity.tpe
@@ -253,9 +256,10 @@ protected final class MapperDaoImpl(
 					val entityV = if (lazyLoadManager.isLazyLoaded(selectConfig.lazyLoad, entity)) {
 						lazyLoadEntity(entity, selectConfig, vm)
 					} else tpe.constructor(selectConfig.data, vm)
-					Some(entityV)
+					Some(entityV.asInstanceOf[T with PC])
 				}.get
 		}
+	}
 
 	private def lazyLoadEntity[ID, PC <: DeclaredIds[ID], T](
 		entity: Entity[ID, PC, T],

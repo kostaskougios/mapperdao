@@ -1,7 +1,5 @@
 package com.googlecode.mapperdao.utils
 
-import java.util.IdentityHashMap
-import java.util.TreeMap
 import com.googlecode.mapperdao._
 
 /**
