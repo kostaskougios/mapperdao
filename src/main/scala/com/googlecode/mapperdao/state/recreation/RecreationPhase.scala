@@ -27,7 +27,7 @@ class RecreationPhase(
 		recreate(nodes.filter(_.mainEntity))
 	}
 
-	private def recreate(nodes: List[PersistedNode[_, _]]) =
+	private def recreate(nodes: Iterable[PersistedNode[_, _]]): Iterable[DeclaredIds[Any]] =
 		nodes.map {
 			node =>
 				entityMap.get[DeclaredIds[Any], Any](node.identity).getOrElse {
@@ -42,17 +42,22 @@ class RecreationPhase(
 					val mockO = mockFactory.createMock(updateConfig.data, entity, modified)
 					entityMap.put(node.identity, mockO)
 
-					table.relationshipColumnInfos.map {
+					val related = table.relationshipColumnInfos.map {
 						case ColumnInfoTraversableManyToMany(column, columnToValue, getterMethod) =>
-							val relatedNodes=newVM.valueOf[Iterable[_]](column).map(System.identityHashCode(_)).map (byIdentity(_))
-							println(relatedNodes)
-					}
+							val relatedNodes = newVM.valueOf[Iterable[Any]](column).map(toNode(_))
+							(
+								column.alias,
+								recreate(relatedNodes)
+								)
+					}.toMap
 
-					val finalMods = modified
+					val finalMods = modified ++ related
 					val newE = tpe.constructor(updateConfig.data, ValuesMap.fromMap(node.identity, finalMods))
 					// re-put the actual
 					entityMap.put(node.identity, newE)
 					newE.asInstanceOf[DeclaredIds[Any]]
 				}
 		}
+
+	private def toNode(a: Any) = byIdentity(System.identityHashCode(a))
 }
