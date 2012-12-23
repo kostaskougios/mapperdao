@@ -102,6 +102,9 @@ class CmdToDatabase(
 					case InsertManyToManyCmd(entity, foreignEntity, manyToMany, entityVM, foreignEntityVM) =>
 						val bo = BatchOptions(driver.batchStrategy(false), Array())
 						jdbc.batchUpdate(bo, sql, args)
+					case DeleteManyToManyCmd(entity, foreignEntity, manyToMany, entityVM, foreignEntityVM) =>
+						val bo = BatchOptions(driver.batchStrategy(false), Array())
+						jdbc.batchUpdate(bo, sql, args)
 				}
 		}
 	}
@@ -132,5 +135,9 @@ class CmdToDatabase(
 			val left = entityVM.toListOfPrimaryKeys(entity)
 			val right = foreignEntityVM.toListOfPrimaryKeys(entity)
 			driver.insertManyToManySql(manyToMany, left, right).result
+		case DeleteManyToManyCmd(entity, foreignEntity, manyToMany, entityVM, foreignEntityVM) =>
+			val left = entityVM.toListOfPrimaryKeys(entity)
+			val right = foreignEntityVM.toListOfPrimaryKeys(entity)
+			driver.deleteManyToManySql(manyToMany, left, right).result
 	}
 }

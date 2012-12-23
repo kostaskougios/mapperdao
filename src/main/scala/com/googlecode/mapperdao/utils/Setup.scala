@@ -20,9 +20,10 @@ import org.joda.time.chrono.ISOChronology
  *
  * @author kostantinos.kougios
  *
- * 29 Aug 2011
+ *         29 Aug 2011
  */
-object Setup {
+object
+Setup {
 	/**
 	 * sets up a mapperDao and queryDao for the dataSource and entities using postgresql driver
 	 *
@@ -31,8 +32,10 @@ object Setup {
 	def postGreSql(
 		dataSource: DataSource,
 		entities: List[Entity[_, _, _]],
-		cache: Option[Cache] = None): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		cache: Option[Cache] = None
+	): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.PostgreSql, dataSource, entities, cache)
+
 	/**
 	 * sets up a mapperDao and queryDao for the dataSource and entities using mysql driver
 	 *
@@ -41,8 +44,10 @@ object Setup {
 	def mysql(
 		dataSource: DataSource,
 		entities: List[Entity[_, _, _]],
-		cache: Option[Cache] = None): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		cache: Option[Cache] = None
+	): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.Mysql, dataSource, entities, cache)
+
 	/**
 	 * sets up a mapperDao and queryDao for the dataSource and entities using oracle driver
 	 *
@@ -51,8 +56,10 @@ object Setup {
 	def oracle(
 		dataSource: DataSource,
 		entities: List[Entity[_, _, _]],
-		cache: Option[Cache] = None): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		cache: Option[Cache] = None
+	): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.Oracle, dataSource, entities, cache)
+
 	/**
 	 * sets up a mapperDao and queryDao for the dataSource and entities using derby driver
 	 *
@@ -61,8 +68,10 @@ object Setup {
 	def derby(
 		dataSource: DataSource,
 		entities: List[Entity[_, _, _]],
-		cache: Option[Cache] = None): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		cache: Option[Cache] = None
+	): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.Derby, dataSource, entities, cache)
+
 	/**
 	 * sets up a mapperDao and queryDao for the dataSource and entities using sql server driver
 	 *
@@ -71,8 +80,10 @@ object Setup {
 	def sqlServer(
 		dataSource: DataSource,
 		entities: List[Entity[_, _, _]],
-		cache: Option[Cache] = None): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		cache: Option[Cache] = None
+	): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.SqlServer, dataSource, entities, cache)
+
 	/**
 	 * sets up a mapperDao and queryDao for the dataSource and entities using h2 driver
 	 *
@@ -81,7 +92,8 @@ object Setup {
 	def h2(
 		dataSource: DataSource,
 		entities: List[Entity[_, _, _]],
-		cache: Option[Cache] = None): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		cache: Option[Cache] = None
+	): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.H2, dataSource, entities, cache)
 
 	/**
@@ -92,7 +104,8 @@ object Setup {
 		database: Database.DriverConfiguration,
 		dataSource: DataSource,
 		entities: List[Entity[_, _, _]],
-		cache: Option[Cache] = None): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		cache: Option[Cache] = None
+	): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		create(database, dataSource, TypeRegistry(entities), cache, ISOChronology.getInstance)
 
 	def create(
@@ -100,14 +113,14 @@ object Setup {
 		dataSource: DataSource,
 		typeRegistry: TypeRegistry,
 		cache: Option[Cache] = None,
-		chronology: Chronology = ISOChronology.getInstance): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
-		{
-			val typeManager = new DefaultTypeManager(chronology)
-			val jdbc = Jdbc(dataSource, chronology)
-			val driver = database.driver(jdbc, typeRegistry, typeManager, cache)
-			val mapperDao = new MapperDaoImpl(driver, typeManager)
-			val queryDao = QueryDao(typeRegistry, driver, mapperDao)
-			val txManager = Transaction.transactionManager(jdbc)
-			(jdbc, mapperDao, queryDao, txManager)
-		}
+		chronology: Chronology = ISOChronology.getInstance
+	): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) = {
+		val typeManager = new DefaultTypeManager(chronology)
+		val jdbc = Jdbc(dataSource, chronology)
+		val driver = database.driver(jdbc, typeRegistry, typeManager, cache)
+		val mapperDao = new MapperDaoImpl(driver, typeManager)
+		val queryDao = QueryDao(typeRegistry, driver, mapperDao)
+		val txManager = Transaction.transactionManager(jdbc)
+		(jdbc, mapperDao, queryDao, txManager)
+	}
 }

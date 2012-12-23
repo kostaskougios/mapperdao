@@ -1,9 +1,7 @@
 package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
-import java.util.IdentityHashMap
 import com.googlecode.mapperdao.utils.TraversableSeparation
-import com.googlecode.mapperdao.utils.NYI
 
 /**
  * entities are converted to PersistOps
@@ -83,11 +81,22 @@ class CmdPhase(typeManager: TypeManager) {
 					val oldT = oldVM.manyToMany(column)
 					val newT = newVM.manyToMany(column)
 					val (added, intersect, removed) = TraversableSeparation.separate(foreignEntity, oldT, newT)
-					val r = added.toList.map {
+					val addedCmds = added.toList.map {
 						fo =>
 							insertOrUpdate(foreignEntity, fo)
 					}.flatten
-					r
+					val removedCms = removed.toList.map {
+						fo =>
+							val foreignVM = ValuesMap.fromEntity(typeManager, foreignEntity, fo)
+							DeleteManyToManyCmd(
+								entity,
+								foreignEntity,
+								column,
+								oldVM,
+								foreignVM
+							)
+					}
+					addedCmds ::: removedCms
 				} else {
 					// entity is new
 					newVM.manyToMany(column).map {
