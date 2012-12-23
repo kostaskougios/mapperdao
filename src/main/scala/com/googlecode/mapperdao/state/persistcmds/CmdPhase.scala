@@ -78,19 +78,31 @@ class CmdPhase(typeManager: TypeManager) {
 			case ColumnInfoTraversableManyToMany(column, columnToValue, getterMethod) =>
 				val foreignEntity = column.foreign.entity
 				if (oldVMO.isDefined) {
+					// entity is updated
 					val oldVM = oldVMO.get
 					val oldT = oldVM.manyToMany(column)
 					val newT = newVM.manyToMany(column)
 					val (added, intersect, removed) = TraversableSeparation.separate(foreignEntity, oldT, newT)
 					val r = added.toList.map {
-						fo => insertOrUpdate(foreignEntity, fo)
+						fo =>
+							insertOrUpdate(foreignEntity, fo)
 					}.flatten
 					r
 				} else {
+					// entity is new
 					newVM.manyToMany(column).map {
 						case p: Persisted =>
-							doUpdate(foreignEntity, p)
+							// we need to link to the already existing foreign entity
+							// and update the foreign entity
+							val foreignVM = ValuesMap.fromEntity(typeManager, foreignEntity, p)
+							InsertManyToManyCmd(
+								entity,
+								foreignEntity,
+								column,
+								newVM,
+								foreignVM) :: doUpdate(foreignEntity, p)
 						case o =>
+							// we need to insert the foreign entity and link to entity
 							val foreignVM = ValuesMap.fromEntity(typeManager, foreignEntity, o)
 							InsertManyToManyCmd(
 								entity,
