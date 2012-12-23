@@ -113,9 +113,8 @@ class CmdToDatabase(
 			PersistedNode(entity, Some(oldVM), newVM, mainEntity)
 	}
 
-	private def toNodes(cmds: List[PersistCmd]) = cmds.map {
+	private def toNodes(cmds: List[PersistCmd]) = cmds.filterNot(_.blank).map {
 		cmd =>
-
 			val sql = toSql(cmd)
 			Node(
 				sql,

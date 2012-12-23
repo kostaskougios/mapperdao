@@ -63,7 +63,7 @@ class CmdPhase(typeManager: TypeManager) {
 				case ((nc, nv), (oc, ov)) if (nv != ov) => (nc, nv)
 			}
 			val rel = related(entity, Some(oldVM), newVM)
-			val op = if (changedColumnAndValues.isEmpty) rel else UpdateCmd(entity, oldVM, newVM, changedColumnAndValues, mainEntity) :: rel
+			val op = UpdateCmd(entity, oldVM, newVM, changedColumnAndValues, mainEntity) :: rel
 			alreadyProcessed += (newVM.identity -> op)
 			op
 		}

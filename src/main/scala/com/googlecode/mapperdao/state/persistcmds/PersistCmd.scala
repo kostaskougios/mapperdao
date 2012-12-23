@@ -7,6 +7,8 @@ import com.googlecode.mapperdao._
  *
  * @author kostantinos.kougios
  *
- * 21 Nov 2012
+ *         21 Nov 2012
  */
-trait PersistCmd
+trait PersistCmd {
+	def blank: Boolean
+}

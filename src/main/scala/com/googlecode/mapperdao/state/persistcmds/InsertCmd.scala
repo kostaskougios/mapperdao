@@ -7,10 +7,13 @@ import com.googlecode.mapperdao._
  *
  * @author kostantinos.kougios
  *
- * 21 Nov 2012
+ *         21 Nov 2012
  */
 case class InsertCmd[ID, T](
 	entity: Entity[ID, DeclaredIds[ID], T],
 	newVM: ValuesMap,
 	columns: List[(SimpleColumn, Any)],
-	mainEntity: Boolean) extends CmdWithEntity[ID, T]
+	mainEntity: Boolean
+) extends CmdWithEntity[ID, T] {
+	def blank = columns.isEmpty
+}
