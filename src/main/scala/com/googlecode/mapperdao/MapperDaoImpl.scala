@@ -139,11 +139,6 @@ protected final class MapperDaoImpl(
 		recreationPhase.execute.asInstanceOf[List[T with DeclaredIds[ID]]]
 	}
 
-	private def validatePersisted(persisted: Persisted) {
-		if (persisted.mapperDaoDiscarded) throw new IllegalArgumentException("can't operate on an object twice. An object that was updated/deleted must be discarded and replaced by the return value of update(), i.e. onew=update(o) or just be disposed if it was deleted. The offending object was : " + persisted);
-		if (persisted.mapperDaoMock) throw new IllegalArgumentException("can't operate on a 'mock' object. Mock objects are created when there are cyclic dependencies of entities, i.e. entity A depends on B and B on A on a many-to-many relationship.  The offending object was : " + persisted);
-	}
-
 	/**
 	 * select an entity but load only part of the entity's graph. SelectConfig contains configuration regarding which relationships
 	 * won't be loaded, i.e.
