@@ -25,7 +25,7 @@ class RecreationPhase(
 
 	def execute = recreate(nodes.filter(_.mainEntity)).toList
 
-	private def recreate(nodes: Iterable[PersistedNode[_, _]]): Iterable[DeclaredIds[Any]] =
+	private def recreate(nodes: Traversable[PersistedNode[_, _]]): Traversable[DeclaredIds[Any]] =
 		nodes.map {
 			node =>
 				entityMap.get[DeclaredIds[Any], Any](node.identity).getOrElse {
@@ -42,7 +42,7 @@ class RecreationPhase(
 
 					val related = table.relationshipColumnInfos.map {
 						case ColumnInfoTraversableManyToMany(column, columnToValue, getterMethod) =>
-							val relatedNodes = newVM.valueOf[Iterable[Any]](column).map(toNode(_))
+							val relatedNodes = toNodes(newVM.manyToMany(column))
 							(
 								column.alias,
 								recreate(relatedNodes)
@@ -57,5 +57,7 @@ class RecreationPhase(
 				}
 		}
 
-	private def toNode(a: Any) = byIdentity(System.identityHashCode(a))
+	private def toNode(a: Any) = byIdentity.get(System.identityHashCode(a))
+
+	private def toNodes(l: Traversable[Any]) = l.map(toNode(_)).filter(_.isDefined).map(_.get)
 }

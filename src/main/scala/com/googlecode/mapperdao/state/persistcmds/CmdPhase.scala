@@ -62,7 +62,8 @@ class CmdPhase(typeManager: TypeManager) {
 			val changedColumnAndValues = (newColumnAndValues zip oldColumnAndValues) collect {
 				case ((nc, nv), (oc, ov)) if (nv != ov) => (nc, nv)
 			}
-			val op = UpdateCmd(entity, oldVM, newVM, changedColumnAndValues, mainEntity) :: related(entity, Some(oldVM), newVM)
+			val rel = related(entity, Some(oldVM), newVM)
+			val op = if (changedColumnAndValues.isEmpty) rel else UpdateCmd(entity, oldVM, newVM, changedColumnAndValues, mainEntity) :: rel
 			alreadyProcessed += (newVM.identity -> op)
 			op
 		}
@@ -81,7 +82,7 @@ class CmdPhase(typeManager: TypeManager) {
 					val oldT = oldVM.manyToMany(column)
 					val newT = newVM.manyToMany(column)
 					val (added, intersect, removed) = TraversableSeparation.separate(foreignEntity, oldT, newT)
-					val r=added.toList.map {
+					val r = added.toList.map {
 						fo => insertOrUpdate(foreignEntity, fo)
 					}.flatten
 					r
@@ -103,7 +104,7 @@ class CmdPhase(typeManager: TypeManager) {
 	}
 
 	private def insertOrUpdate[ID, T](foreignEntity: Entity[ID, DeclaredIds[ID], T], o: T) = o match {
-		case p: T with  Persisted => doUpdate(foreignEntity, p)
+		case p: T with Persisted => doUpdate(foreignEntity, p)
 		case _ => doInsert(foreignEntity, o)
 	}
 
