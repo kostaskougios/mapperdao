@@ -110,7 +110,7 @@ protected final class MapperDaoImpl(
 		val osAndNewValues = os.map {
 			case (oldO, newO) =>
 				oldO.mapperDaoDiscarded = true
-				val newVM = ValuesMap.fromEntity(typeManager, entity, newO)
+				val newVM = ValuesMap.fromEntity(typeManager, entity, newO, oldO)
 				(oldO, newVM)
 		}
 		updateProcess(updateConfig, entity, osAndNewValues).asInstanceOf[List[T with PC]]
