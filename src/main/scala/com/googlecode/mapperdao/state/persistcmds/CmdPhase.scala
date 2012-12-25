@@ -81,6 +81,7 @@ class CmdPhase(typeManager: TypeManager) {
 					val oldT = oldVM.manyToMany(column)
 					val newT = newVM.manyToMany(column)
 					val (added, intersect, removed) = TraversableSeparation.separate(foreignEntity, oldT, newT)
+
 					val addedCmds = added.toList.map {
 						fo =>
 							insertOrUpdate(foreignEntity, fo)
@@ -96,7 +97,18 @@ class CmdPhase(typeManager: TypeManager) {
 								foreignVM
 							)
 					}
-					addedCmds ::: removedCms
+
+					val intersectCmds = intersect.toList.map {
+						case (oldO, newO) =>
+							val oVM = oldO match {
+								case p: Persisted => p.mapperDaoValuesMap
+							}
+							val nVM = newO match {
+								case p: Persisted => p.mapperDaoValuesMap
+							}
+							update(foreignEntity, oVM, nVM, false)
+					}.flatten
+					addedCmds ::: removedCms ::: intersectCmds
 				} else {
 					// entity is new
 					newVM.manyToMany(column).map {

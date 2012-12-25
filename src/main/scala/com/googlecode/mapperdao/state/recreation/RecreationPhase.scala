@@ -20,7 +20,10 @@ class RecreationPhase(
 
 	private val byIdentity: Map[Int, PersistedNode[_, _]] = nodes.map {
 		node =>
-			(node.newVM.identity, node)
+			val id = node.newVM.identity
+			if (id <= 0)
+				throw new IllegalStateException("identity==" + id + " for " + node)
+			(id, node)
 	}.toMap
 
 	def execute = recreate(nodes.filter(_.mainEntity)).toList
@@ -42,7 +45,8 @@ class RecreationPhase(
 
 					val related = table.relationshipColumnInfos.map {
 						case ColumnInfoTraversableManyToMany(column, columnToValue, getterMethod) =>
-							val relatedNodes = toNodes(newVM.manyToMany(column))
+							val mtm = newVM.manyToMany(column)
+							val relatedNodes = toNodes(mtm)
 							(
 								column.alias,
 								recreate(relatedNodes)
@@ -50,14 +54,16 @@ class RecreationPhase(
 					}.toMap
 
 					val finalMods = modified ++ related
-					val newE = tpe.constructor(updateConfig.data, ValuesMap.fromMap(node.identity, finalMods))
+					val finalVM = ValuesMap.fromMap(node.identity, finalMods)
+					val newE = tpe.constructor(updateConfig.data, finalVM)
+					finalVM.identity = System.identityHashCode(newE)
 					// re-put the actual
 					entityMap.put(node.identity, newE)
 					newE.asInstanceOf[DeclaredIds[Any]]
 				}
 		}
 
-	private def toNode(a: Any) = byIdentity.get(System.identityHashCode(a))
+	private def toNode(a: Any) = byIdentity(System.identityHashCode(a))
 
-	private def toNodes(l: Traversable[Any]) = l.map(toNode(_)).filter(_.isDefined).map(_.get)
+	private def toNodes(l: Traversable[Any]) = l.map(toNode(_)) //.filter(_.isDefined).map(_.get)
 }

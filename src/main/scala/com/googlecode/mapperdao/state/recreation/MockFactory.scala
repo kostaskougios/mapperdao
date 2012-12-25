@@ -26,11 +26,12 @@ class MockFactory(typeManager: TypeManager) {
 			_.updateMock(entity, mockMods)
 		}
 		val tpe = entity.tpe
-		val vm = ValuesMap.fromMap(-1, mockMods)
+		val vm = ValuesMap.fromMap(1, mockMods)
 		val preMock = tpe.constructor(data, vm)
 		val mock = tpe.constructor(data, ValuesMap.fromEntity(typeManager, entity, preMock))
 		// mark it as mock
 		mock.mapperDaoMock = true
+		mock.mapperDaoValuesMap.identity = System.identityHashCode(mock)
 		mock
 	}
 
