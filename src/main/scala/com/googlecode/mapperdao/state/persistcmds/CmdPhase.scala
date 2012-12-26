@@ -84,7 +84,14 @@ class CmdPhase(typeManager: TypeManager) {
 
 					val addedCmds = added.toList.map {
 						fo =>
-							insertOrUpdate(foreignEntity, fo)
+							val foCmds = insertOrUpdate(foreignEntity, fo)
+							val foreignVM = findVM(foCmds, fo)
+							InsertManyToManyCmd(
+								entity,
+								foreignEntity,
+								column,
+								newVM,
+								foreignVM) :: foCmds
 					}.flatten
 					val removedCms = removed.toList.map {
 						fo =>
@@ -149,5 +156,9 @@ class CmdPhase(typeManager: TypeManager) {
 	private def doUpdate[ID, T](foreignEntity: Entity[ID, DeclaredIds[ID], T], p: T with Persisted) = {
 		val newVM = ValuesMap.fromEntity(typeManager, foreignEntity, p)
 		update(foreignEntity, p.mapperDaoValuesMap, newVM, false)
+	}
+
+	def findVM(cmds: List[PersistCmd], fo: Any) = cmds.head match {
+		case wvm: CmdWithNewVM => wvm.newVM
 	}
 }
