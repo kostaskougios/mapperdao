@@ -133,11 +133,11 @@ class CmdToDatabase(
 			driver.updateSql(entity, columns, pks).result
 		case InsertManyToManyCmd(entity, foreignEntity, manyToMany, entityVM, foreignEntityVM) =>
 			val left = entityVM.toListOfPrimaryKeys(entity)
-			val right = foreignEntityVM.toListOfPrimaryKeys(entity)
+			val right = foreignEntityVM.toListOfPrimaryKeys(foreignEntity)
 			driver.insertManyToManySql(manyToMany, left, right).result
 		case DeleteManyToManyCmd(entity, foreignEntity, manyToMany, entityVM, foreignEntityVM) =>
 			val left = entityVM.toListOfPrimaryKeys(entity)
-			val right = foreignEntityVM.toListOfPrimaryKeys(entity)
+			val right = foreignEntityVM.toListOfPrimaryKeys(foreignEntity)
 			driver.deleteManyToManySql(manyToMany, left, right).result
 	}
 }
