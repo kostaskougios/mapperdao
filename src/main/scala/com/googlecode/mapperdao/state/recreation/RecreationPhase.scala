@@ -51,7 +51,7 @@ class RecreationPhase(
 								column.alias,
 								recreate(relatedNodes)
 								)
-					}.toMap
+					}
 
 					val finalMods = modified ++ related
 					val finalVM = ValuesMap.fromMap(node.identity, finalMods)
