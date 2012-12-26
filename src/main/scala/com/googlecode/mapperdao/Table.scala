@@ -9,14 +9,15 @@ import com.googlecode.mapperdao.exceptions.ExpectedPersistedEntityException
  *
  * @author kostantinos.kougios
  *
- * 12 Jul 2011
+ *         12 Jul 2011
  */
 
 case class Table[ID, PC <: DeclaredIds[ID], T](
-		name: String,
-		columnInfosPlain: List[ColumnInfoBase[T, _]],
-		extraColumnInfosPersisted: List[ColumnInfoBase[T with PC, _]],
-		val unusedPKColumnInfos: List[ColumnInfoBase[Any, Any]]) {
+	name: String,
+	columnInfosPlain: List[ColumnInfoBase[T, _]],
+	extraColumnInfosPersisted: List[ColumnInfoBase[T with PC, _]],
+	val unusedPKColumnInfos: List[ColumnInfoBase[Any, Any]]
+) {
 
 	val columns: List[ColumnBase] = extraColumnInfosPersisted.map(_.column) ::: columnInfosPlain.map(_.column)
 	// the primary keys for this table
@@ -34,11 +35,11 @@ case class Table[ID, PC <: DeclaredIds[ID], T](
 	val primaryKeysSize = primaryKeysAndUnusedKeys.size
 
 	val primaryKeyColumnInfosForT = columnInfosPlain.collect {
-		case ci @ ColumnInfo(_: PK, _, _) => ci
+		case ci@ColumnInfo(_: PK, _, _) => ci
 	}
 
 	val primaryKeyColumnInfosForTWithPC = extraColumnInfosPersisted.collect {
-		case ci @ ColumnInfo(_: PK, _, _) => ci
+		case ci@ColumnInfo(_: PK, _, _) => ci
 	}
 
 	val primaryKeysAsColumns = primaryKeys.map(k => Column(k.name, k.tpe)).toSet
@@ -64,9 +65,15 @@ case class Table[ID, PC <: DeclaredIds[ID], T](
 		case ci: ColumnInfo[T, _] => ci
 	}
 
-	val relationshipColumnInfos = columnInfosPlain.collect {
+	val allRelationshipColumnInfos = columnInfosPlain.collect {
 		case ci: ColumnInfoRelationshipBase[T, _, _, _, _] => ci
 	}
+
+	val allRelationshipColumnInfosSet = allRelationshipColumnInfos.toSet
+
+	def relationshipColumnInfos(skip: Set[ColumnInfoRelationshipBase[_, _, _, _, _]]) = if (skip.isEmpty) {
+		allRelationshipColumnInfos
+	} else allRelationshipColumnInfos.filterNot(skip(_))
 
 	val oneToOneColumns: List[OneToOne[Any, DeclaredIds[Any], Any]] = columns.collect {
 		case c: OneToOne[Any, DeclaredIds[Any], Any] => c
@@ -119,57 +126,64 @@ case class Table[ID, PC <: DeclaredIds[ID], T](
 	}.toMap
 
 	def toListOfPrimaryKeyValues(o: T): List[Any] = toListOfPrimaryKeyAndValueTuples(o).map(_._2)
+
 	def toListOfPrimaryKeyAndValueTuples(o: T): List[(PK, Any)] = toListOfColumnAndValueTuples(primaryKeys, o)
+
 	def toListOfPrimaryKeySimpleColumnAndValueTuples(o: T): List[(SimpleColumn, Any)] = toListOfColumnAndValueTuples(primaryKeys, o)
 
 	def toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(o: Any): List[(SimpleColumn, Any)] =
-		unusedPKColumnInfos.map { ci =>
-			ci match {
-				case ci: ColumnInfo[Any, Any] =>
-					List((ci.column, ci.columnToValue(o)))
-				case ci: ColumnInfoManyToOne[Any, Any, DeclaredIds[Any], Any] =>
-					val l = ci.columnToValue(o)
-					val fe = ci.column.foreign.entity
-					val pks = fe.tpe.table.toListOfPrimaryKeyValues(l)
-					ci.column.columns zip pks
-				case ci: ColumnInfoTraversableOneToMany[Any, DeclaredIds[Any], Any, Any, DeclaredIds[Any], Any] =>
-					o match {
-						case p: Persisted =>
-							ci.column.columns map { c =>
-								(c, p.mapperDaoValuesMap.columnValue[Any](c))
-							}
-						case _ => Nil
-					}
-				case ci: ColumnInfoOneToOne[Any, Any, DeclaredIds[Any], Any] =>
-					val l = ci.columnToValue(o)
-					val fe = ci.column.foreign.entity
-					val pks = fe.tpe.table.toListOfPrimaryKeyValues(l)
-					ci.column.columns zip pks
+		unusedPKColumnInfos.map {
+			ci =>
+				ci match {
+					case ci: ColumnInfo[Any, Any] =>
+						List((ci.column, ci.columnToValue(o)))
+					case ci: ColumnInfoManyToOne[Any, Any, DeclaredIds[Any], Any] =>
+						val l = ci.columnToValue(o)
+						val fe = ci.column.foreign.entity
+						val pks = fe.tpe.table.toListOfPrimaryKeyValues(l)
+						ci.column.columns zip pks
+					case ci: ColumnInfoTraversableOneToMany[Any, DeclaredIds[Any], Any, Any, DeclaredIds[Any], Any] =>
+						o match {
+							case p: Persisted =>
+								ci.column.columns map {
+									c =>
+										(c, p.mapperDaoValuesMap.columnValue[Any](c))
+								}
+							case _ => Nil
+						}
+					case ci: ColumnInfoOneToOne[Any, Any, DeclaredIds[Any], Any] =>
+						val l = ci.columnToValue(o)
+						val fe = ci.column.foreign.entity
+						val pks = fe.tpe.table.toListOfPrimaryKeyValues(l)
+						ci.column.columns zip pks
 
-				case ci: ColumnInfoRelationshipBase[Any, Any, Any, Any, Any] => Nil
-			}
+					case ci: ColumnInfoRelationshipBase[Any, Any, Any, Any, Any] => Nil
+				}
 		}.flatten
 
-	def toListOfColumnAndValueTuples[CB <: ColumnBase](columns: List[CB], o: T): List[(CB, Any)] = columns.map { c =>
-		val ctco = columnToColumnInfoMap.get(c)
-		if (ctco.isDefined) {
-			if (o == null) (c, null) else (c, ctco.get.columnToValue(o))
-		} else {
-			o match {
-				case null =>
-					(c, null)
-				case pc: T with DeclaredIds[_] with PC =>
-					val ci = pcColumnToColumnInfoMap(c)
-					(c, ci.columnToValue(pc))
-				case t: T => throw new ExpectedPersistedEntityException(t)
+	def toListOfColumnAndValueTuples[CB <: ColumnBase](columns: List[CB], o: T): List[(CB, Any)] = columns.map {
+		c =>
+			val ctco = columnToColumnInfoMap.get(c)
+			if (ctco.isDefined) {
+				if (o == null) (c, null) else (c, ctco.get.columnToValue(o))
+			} else {
+				o match {
+					case null =>
+						(c, null)
+					case pc: T with DeclaredIds[_] with PC =>
+						val ci = pcColumnToColumnInfoMap(c)
+						(c, ci.columnToValue(pc))
+					case t: T => throw new ExpectedPersistedEntityException(t)
+				}
 			}
-		}
 	}
 
 	def toColumnAndValueMap(columns: List[ColumnBase], o: T): Map[ColumnBase, Any] = columns.map { c => (c, columnToColumnInfoMap(c).columnToValue(o)) }.toMap
+
 	def toPCColumnAndValueMap(columns: List[ColumnBase], o: T with PC): Map[ColumnBase, Any] = columns.map { c => (c, pcColumnToColumnInfoMap(c).columnToValue(o)) }.toMap
 
 	def toColumnAliasAndValueMap(columns: List[ColumnBase], o: T): Map[String, Any] = toColumnAndValueMap(columns, o).map(e => (e._1.alias, e._2))
+
 	def toPCColumnAliasAndValueMap(columns: List[ColumnBase], o: T with PC): Map[String, Any] = toPCColumnAndValueMap(columns, o).map(e => (e._1.alias, e._2))
 
 	val selectColumns = simpleTypeColumns ::: manyToOneColumns.map(_.columns).flatten ::: oneToOneColumns.map(_.selfColumns).flatten

@@ -1,4 +1,5 @@
 package com.googlecode.mapperdao
+
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -10,7 +11,7 @@ import com.googlecode.mapperdao.utils.Helpers
 /**
  * @author kostantinos.kougios
  *
- * April 2012
+ *         April 2012
  */
 @RunWith(classOf[JUnitRunner])
 class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
@@ -223,20 +224,22 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 		persisted.mapperDaoValuesMap.isLoaded(ProductEntity.attributes) should be(false)
 		persisted.mapperDaoValuesMap.isLoaded(ProductEntity.properties) should be(false)
 	}
+
 	def verifyPropertiesNotLoadded(o: Any) {
 		val persisted = o.asInstanceOf[Persisted]
 		persisted.mapperDaoValuesMap.isLoaded(ProductEntity.attributes) should be(true)
 		persisted.mapperDaoValuesMap.isLoaded(ProductEntity.properties) should be(false)
 	}
 
-	def createTables =
-		{
-			Setup.dropAllTables(jdbc)
-			Setup.queries(this, jdbc).update("ddl")
-		}
+	def createTables = {
+		Setup.dropAllTables(jdbc)
+		Setup.queries(this, jdbc).update("ddl")
+	}
 
 	case class Product(val id: Int, val name: String, var attributes: Set[Attribute], val properties: Set[Property] = Set())
+
 	case class Attribute(val id: Int, val name: String, val value: String)
+
 	case class Property(val id: Int, val name: String, val value: String)
 
 	object ProductEntity extends Entity[Int, NaturalIntId, Product] {
@@ -244,6 +247,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) getter ("attributes") to (_.attributes)
 		val properties = manytomany(PropertyEntity) getter ("properties") to (_.properties)
+
 		def constructor(implicit m) = new Product(id, name, attributes, properties) with NaturalIntId
 	}
 
@@ -262,4 +266,5 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 
 		def constructor(implicit m) = new Property(id, name, value) with NaturalIntId
 	}
+
 }

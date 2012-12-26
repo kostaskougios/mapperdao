@@ -4,12 +4,12 @@ import org.junit.runner.RunWith
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
-import com.googlecode.mapperdao.CommonEntities
+import com.googlecode.mapperdao.{UpdateConfig, CommonEntities}
 
 /**
  * @author kostantinos.kougios
  *
- * 15 Dec 2012
+ *         15 Dec 2012
  */
 @RunWith(classOf[JUnitRunner])
 class PriorityPhaseSuite extends FunSuite with ShouldMatchers {
@@ -18,21 +18,21 @@ class PriorityPhaseSuite extends FunSuite with ShouldMatchers {
 
 	test("prioritise, many-to-many") {
 		val pf = new PriorityPhase
-		val pri = pf.prioritiseEntities(ProductEntity)
+		val pri = pf.prioritiseEntities(UpdateConfig.default, ProductEntity)
 
 		pri should be(List(ProductEntity, AttributeEntity))
 	}
 
 	test("prioritise, many-to-one") {
 		val pf = new PriorityPhase
-		val pri = pf.prioritiseEntities(PersonEntity)
+		val pri = pf.prioritiseEntities(UpdateConfig.default, PersonEntity)
 
 		pri should be(List(CompanyEntity, PersonEntity))
 	}
 
 	test("prioritise, one-to-many") {
 		val pf = new PriorityPhase
-		val pri = pf.prioritiseEntities(OwnerEntity)
+		val pri = pf.prioritiseEntities(UpdateConfig.default, OwnerEntity)
 
 		pri should be(List(OwnerEntity, HouseEntity))
 	}

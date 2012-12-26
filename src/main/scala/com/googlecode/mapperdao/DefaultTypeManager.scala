@@ -1,4 +1,5 @@
 package com.googlecode.mapperdao
+
 import java.util.Calendar
 import org.joda.time.DateTime
 import com.googlecode.mapperdao.jdbc.JdbcMap
@@ -12,7 +13,7 @@ import org.joda.time.LocalTime
 /**
  * @author kostantinos.kougios
  *
- * 1 Aug 2011
+ *         1 Aug 2011
  */
 class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) extends TypeManager {
 
@@ -88,6 +89,7 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		case b: java.math.BigDecimal => b.shortValue
 		case null => null
 	}
+
 	private def toByte(v: Any) = v match {
 		case b: Byte => b
 		case s: Short => s.toByte
@@ -157,27 +159,29 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 				val v = j(column.name)
 				(column.nameLowerCase, corrections(ci.dataType)(v))
 		}
-		val sts = table.simpleTypeColumnInfos.map { ci =>
-			val column = ci.column
-			val v = j(column.name)
-			(column.nameLowerCase, corrections(ci.dataType)(v))
+		val sts = table.simpleTypeColumnInfos.map {
+			ci =>
+				val column = ci.column
+				val v = j(column.name)
+				(column.nameLowerCase, corrections(ci.dataType)(v))
 		}
 
 		// related data (if any)
-		val related = table.relationshipColumnInfos.collect {
+		val related = table.allRelationshipColumnInfos.collect {
 			case ci: ColumnInfoManyToOne[T, _, _, _] =>
 				columnToCorrectedValue(ci.column, ci.column.foreign, j)
 			case ci: ColumnInfoOneToOne[T, _, _, _] =>
 				columnToCorrectedValue(ci.column, ci.column.foreign, j)
 		}.flatten
 
-		val unused = table.unusedPKs.map { pk =>
-			val v = j(pk.name)
+		val unused = table.unusedPKs.map {
+			pk =>
+				val v = j(pk.name)
 
-			(
-				pk.name,
-				corrections(pk.tpe)(v)
-			)
+				(
+					pk.name,
+					corrections(pk.tpe)(v)
+					)
 		}
 		val dm = sts ::: ecil ::: related ::: unused
 		new DatabaseValues(ListMap.empty ++ dm)
@@ -185,19 +189,20 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 
 	private def columnToCorrectedValue[FID, FPC <: DeclaredIds[FID], F](
 		column: ColumnRelationshipBase[FID, FPC, F],
-		foreign: TypeRef[FID, FPC, F], j: JdbcMap) = {
+		foreign: TypeRef[FID, FPC, F], j: JdbcMap
+	) = {
 		val fe = foreign.entity
 		val ftable = fe.tpe.table
 		val columnNames = column.columns.map(_.nameLowerCase)
 		val forT = (columnNames zip (
 			ftable.primaryKeyColumnInfosForTWithPC.map(_.dataType)
-			:::
-			ftable.primaryKeyColumnInfosForT.map(_.dataType))
-		).map {
-				case (name, t) =>
-					val v = j(name)
-					(name, corrections(t)(v))
-			}
+				:::
+				ftable.primaryKeyColumnInfosForT.map(_.dataType))
+			).map {
+			case (name, t) =>
+				val v = j(name)
+				(name, corrections(t)(v))
+		}
 		forT
 	}
 }

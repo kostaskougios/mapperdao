@@ -1,11 +1,12 @@
 package com.googlecode.mapperdao.state.prioritise
 
-import com.googlecode.mapperdao.Entity
+import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.state.persistcmds.{DeleteManyToManyCmd, PersistCmd, CmdWithEntity, InsertManyToManyCmd}
+import state.persistcmds.DeleteManyToManyCmd
+import state.persistcmds.InsertManyToManyCmd
+import com.googlecode.mapperdao.ColumnInfoTraversableOneToMany
 import com.googlecode.mapperdao.ColumnInfoTraversableManyToMany
 import com.googlecode.mapperdao.ColumnInfoManyToOne
-import com.googlecode.mapperdao.ColumnInfoTraversableOneToMany
-import com.googlecode.mapperdao.state.persistcmds.{DeleteManyToManyCmd, PersistCmd, CmdWithEntity, InsertManyToManyCmd}
-import com.googlecode.mapperdao.DeclaredIds
 
 /**
  * @author kostantinos.kougios
@@ -16,10 +17,11 @@ class PriorityPhase {
 	private var visited = Set[Entity[_, _, _]]()
 
 	def prioritise[ID, PC <: DeclaredIds[ID], T](
+		updateConfig: UpdateConfig,
 		entity: Entity[ID, PC, T],
 		cmds: List[PersistCmd]
 	): List[List[PersistCmd]] = {
-		val prie = prioritiseEntities(entity)
+		val prie = prioritiseEntities(updateConfig, entity)
 
 		val (high, low) = cmds.partition {
 			case _: InsertManyToManyCmd[_, _, _, _] => false
@@ -37,22 +39,22 @@ class PriorityPhase {
 		h ::: List(low)
 	}
 
-	def prioritiseEntities(entity: Entity[_, _, _]): List[Entity[_, _, _]] =
+	def prioritiseEntities(updateConfig: UpdateConfig, entity: Entity[_, _, _]): List[Entity[_, _, _]] =
 		if (visited(entity))
 			Nil
 		else {
 			visited += entity
 
-			val after = entity.tpe.table.relationshipColumnInfos.collect {
+			val after = entity.tpe.table.relationshipColumnInfos(updateConfig.skip).collect {
 				case ColumnInfoTraversableManyToMany(column, _, _) =>
-					prioritiseEntities(column.foreign.entity)
+					prioritiseEntities(updateConfig, column.foreign.entity)
 				case ColumnInfoTraversableOneToMany(column, _, _, _) =>
-					prioritiseEntities(column.foreign.entity)
+					prioritiseEntities(updateConfig, column.foreign.entity)
 			}.flatten
 
-			val before = entity.tpe.table.relationshipColumnInfos.collect {
+			val before = entity.tpe.table.relationshipColumnInfos(updateConfig.skip).collect {
 				case ColumnInfoManyToOne(column, _, _) =>
-					prioritiseEntities(column.foreign.entity)
+					prioritiseEntities(updateConfig, column.foreign.entity)
 			}.flatten
 
 			(before ::: entity :: after).distinct

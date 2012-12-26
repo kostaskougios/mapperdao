@@ -70,15 +70,15 @@ protected final class MapperDaoImpl(
 			o =>
 				if (isPersisted(o)) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o)
 				val newVM = ValuesMap.fromEntity(typeManager, entity, o)
-				po.toInsertCmd(entity, newVM)
+				po.toInsertCmd(entity, newVM, updateConfig)
 		}.flatten
 		val pf = new PriorityPhase
-		val pri = pf.prioritise(entity, cmds)
+		val pri = pf.prioritise(updateConfig, entity, cmds)
 
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 		val nodes = ctd.execute(pri)
 		val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap, nodes)
-		val recreated = recreationPhase.execute.asInstanceOf[List[T with PC]]
+		val recreated = recreationPhase.execute(updateConfig).asInstanceOf[List[T with PC]]
 		recreated
 	}
 
@@ -127,16 +127,16 @@ protected final class MapperDaoImpl(
 			case (o, newVM) =>
 				val p = o.asInstanceOf[Persisted]
 				val oldVM = p.mapperDaoValuesMap
-				po.toUpdateCmd(entity, oldVM, newVM)
+				po.toUpdateCmd(entity, oldVM, newVM, updateConfig)
 		}.flatten
 
 		val pf = new PriorityPhase
-		val pri = pf.prioritise(entity, cmds)
+		val pri = pf.prioritise(updateConfig, entity, cmds)
 
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 		val nodes = ctd.execute(pri)
 		val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap, nodes)
-		recreationPhase.execute.asInstanceOf[List[T with DeclaredIds[ID]]]
+		recreationPhase.execute(updateConfig).asInstanceOf[List[T with DeclaredIds[ID]]]
 	}
 
 	/**

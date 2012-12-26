@@ -5,7 +5,7 @@ package com.googlecode.mapperdao
  *
  * @author kostantinos.kougios
  *
- * 18 Apr 2012
+ *         18 Apr 2012
  */
 abstract class LazyLoad {
 	// if true, all relationships will be lazy-loaded

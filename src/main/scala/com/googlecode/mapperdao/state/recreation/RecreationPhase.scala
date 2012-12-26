@@ -26,9 +26,9 @@ class RecreationPhase(
 			(id, node)
 	}.toMap
 
-	def execute = recreate(nodes.filter(_.mainEntity)).toList
+	def execute(updateConfig: UpdateConfig) = recreate(updateConfig, nodes.filter(_.mainEntity)).toList
 
-	private def recreate(nodes: Traversable[PersistedNode[_, _]]): Traversable[DeclaredIds[Any]] =
+	private def recreate(updateConfig: UpdateConfig, nodes: Traversable[PersistedNode[_, _]]): Traversable[DeclaredIds[Any]] =
 		nodes.map {
 			node =>
 				entityMap.get[DeclaredIds[Any], Any](node.identity).getOrElse {
@@ -43,13 +43,13 @@ class RecreationPhase(
 					val mockO = mockFactory.createMock(updateConfig.data, entity, modified)
 					entityMap.put(node.identity, mockO)
 
-					val related = table.relationshipColumnInfos.map {
+					val related = table.relationshipColumnInfos(updateConfig.skip).map {
 						case ColumnInfoTraversableManyToMany(column, columnToValue, getterMethod) =>
 							val mtm = newVM.manyToMany(column)
 							val relatedNodes = toNodes(mtm)
 							(
 								column.alias,
-								recreate(relatedNodes)
+								recreate(updateConfig, relatedNodes)
 								)
 					}
 
