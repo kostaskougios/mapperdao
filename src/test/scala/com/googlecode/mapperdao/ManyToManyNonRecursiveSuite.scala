@@ -10,7 +10,7 @@ import com.googlecode.mapperdao.utils.Helpers
 /**
  * @author kostantinos.kougios
  *
- * 8 Aug 2011
+ *         8 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
 class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
@@ -85,19 +85,19 @@ class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 		mapperDao.select(ProductEntity, inserted.id).get should be === inserted
 	}
 
-	def createTables =
-		{
-			Setup.dropAllTables(jdbc)
-			Setup.queries(this, jdbc).update("ddl")
-			Setup.database match {
-				case "oracle" =>
-					Setup.createSeq(jdbc, "ProductSeq")
-					Setup.createSeq(jdbc, "AttributeSeq")
-				case _ =>
-			}
+	def createTables = {
+		Setup.dropAllTables(jdbc)
+		Setup.queries(this, jdbc).update("ddl")
+		Setup.database match {
+			case "oracle" =>
+				Setup.createSeq(jdbc, "ProductSeq")
+				Setup.createSeq(jdbc, "AttributeSeq")
+			case _ =>
 		}
+	}
 
 	case class Product(val name: String, val attributes: Set[Attribute])
+
 	case class Attribute(val name: String, val value: String)
 
 	object ProductEntity extends Entity[Int, SurrogateIntId, Product] {
@@ -112,6 +112,7 @@ class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 			val id: Int = ProductEntity.id // we explicitly convert this to an int because mysql serial values are always BigInteger (a bug maybe?)
 		}
 	}
+
 	object AttributeEntity extends Entity[Int, SurrogateIntId, Attribute] {
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("AttributeSeq")
@@ -124,4 +125,5 @@ class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 			val id: Int = AttributeEntity.id // we explicitly convert this to an int because mysql serial values are always BigInteger (a bug maybe?)
 		}
 	}
+
 }
