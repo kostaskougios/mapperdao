@@ -1,4 +1,5 @@
 package com.googlecode.mapperdao
+
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -9,7 +10,7 @@ import com.googlecode.classgenerator.ReflectionManager
 /**
  * @author kostantinos.kougios
  *
- * April 2012
+ *         April 2012
  */
 @RunWith(classOf[JUnitRunner])
 class ManyToManyManuallyLazyLoadSuite extends FunSuite with ShouldMatchers {
@@ -81,11 +82,10 @@ class ManyToManyManuallyLazyLoadSuite extends FunSuite with ShouldMatchers {
 		persisted.mapperDaoValuesMap.isLoaded(ProductEntity.attributes) should be(false)
 	}
 
-	def createTables =
-		{
-			Setup.dropAllTables(jdbc)
-			Setup.queries(this, jdbc).update("ddl")
-		}
+	def createTables = {
+		Setup.dropAllTables(jdbc)
+		Setup.queries(this, jdbc).update("ddl")
+	}
 
 	class Product(val id: Int, val name: String, attrs: => Set[Attribute]) {
 		def attributes = attrs
@@ -96,12 +96,14 @@ class ManyToManyManuallyLazyLoadSuite extends FunSuite with ShouldMatchers {
 			case _ => false
 		}
 	}
+
 	case class Attribute(val id: Int, val name: String, val value: String)
 
 	object ProductEntity extends Entity[Int, SurrogateIntId, Product] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
+
 		def constructor(implicit m) = new Product(id, name, attributes) with SurrogateIntId
 	}
 
@@ -112,4 +114,5 @@ class ManyToManyManuallyLazyLoadSuite extends FunSuite with ShouldMatchers {
 
 		def constructor(implicit m) = new Attribute(id, name, value) with SurrogateIntId
 	}
+
 }

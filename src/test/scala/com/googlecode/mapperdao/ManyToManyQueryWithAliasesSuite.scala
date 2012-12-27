@@ -9,11 +9,13 @@ import org.scalatest.matchers.ShouldMatchers
 /**
  * @author kostantinos.kougios
  *
- * 29 Aug 2011
+ *         29 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
 class ManyToManyQueryWithAliasesSuite extends FunSuite with ShouldMatchers {
+
 	import ManyToManyQueryWithAliasesSuite._
+
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(AttributeEntity, ProductEntity))
 
 	import Query._
@@ -53,36 +55,37 @@ class ManyToManyQueryWithAliasesSuite extends FunSuite with ShouldMatchers {
 		queryDao.query(q0).toSet should be === Set(p2)
 	}
 
-	def createTables =
-		{
-			Setup.dropAllTables(jdbc)
-			jdbc.update("""
+	def createTables = {
+		Setup.dropAllTables(jdbc)
+		jdbc.update( """
 					create table Product (
 						id int not null,
 						name varchar(100) not null,
 						primary key(id)
 					)
-			""")
-			jdbc.update("""
+					 """)
+		jdbc.update( """
 					create table Attribute (
 						id int not null,
 						name varchar(100) not null,
 						value varchar(100) not null,
 						primary key(id)
 					)
-			""")
-			jdbc.update("""
+					 """)
+		jdbc.update( """
 					create table Product_Attribute (
 						product_id int not null,
 						attribute_id int not null,
 						primary key(product_id,attribute_id)
 					)
-			""")
-		}
+					 """)
+	}
 }
 
 object ManyToManyQueryWithAliasesSuite {
+
 	case class Product(val id: Int, val name: String, val attributes: Set[Attribute])
+
 	case class Attribute(val id: Int, val name: String, val value: String)
 
 	class AttributeEntityBase extends Entity[Int, SurrogateIntId, Attribute] {
@@ -100,6 +103,7 @@ object ManyToManyQueryWithAliasesSuite {
 
 		def constructor(implicit m) = new Product(id, name, attributes) with SurrogateIntId
 	}
+
 	val AttributeEntity = new AttributeEntityBase
 	val ProductEntity = new ProductEntityBase
 }
