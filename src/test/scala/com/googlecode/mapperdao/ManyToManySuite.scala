@@ -1,4 +1,5 @@
 package com.googlecode.mapperdao
+
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -8,7 +9,7 @@ import org.scalatest.matchers.ShouldMatchers
 /**
  * @author kostantinos.kougios
  *
- * 8 Aug 2011
+ *         8 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
 class ManyToManySuite extends FunSuite with ShouldMatchers {
@@ -183,19 +184,20 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		selected should be === updated
 	}
 
-	def createTables =
-		{
-			Setup.dropAllTables(jdbc)
-			Setup.queries(this, jdbc).update("ddl")
-		}
+	def createTables = {
+		Setup.dropAllTables(jdbc)
+		Setup.queries(this, jdbc).update("ddl")
+	}
 
 	case class Product(val id: Int, val name: String, val attributes: Set[Attribute])
+
 	case class Attribute(val id: Int, val name: String, val value: String)
 
 	object ProductEntity extends Entity[Int, SurrogateIntId, Product] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
+
 		def constructor(implicit m) = new Product(id, name, attributes) with SurrogateIntId
 	}
 
@@ -206,4 +208,5 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 
 		def constructor(implicit m) = new Attribute(id, name, value) with SurrogateIntId
 	}
+
 }

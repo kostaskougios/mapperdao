@@ -117,6 +117,8 @@ class CmdPhase(typeManager: TypeManager) {
 							}
 							val nVM = newO match {
 								case p: Persisted => p.mapperDaoValuesMap
+								case no =>
+									ValuesMap.fromEntity(typeManager, foreignEntity, no)
 							}
 							update(foreignEntity, oVM, nVM, false, updateConfig)
 					}.flatten

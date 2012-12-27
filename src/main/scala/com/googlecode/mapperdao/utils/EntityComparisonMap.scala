@@ -10,19 +10,21 @@ import com.googlecode.mapperdao._
  *
  * @author kostantinos.kougios
  *
- * 30 Apr 2012
+ *         30 Apr 2012
  */
 protected class EntityComparisonMap[ID, PC <: DeclaredIds[ID], T](
-		entity: Entity[ID, PC, T],
-		keyMode: EntityComparisonMap.EqualsMode[T]) {
-	private val table = entity.tpe.table
+	entity: Entity[ID, PC, T],
+	keyMode: EntityComparisonMap.EqualsMode[T]
+) {
 	private var m = Map[Any, T]()
 
 	def add(o: T): Unit =
 		m = m + (key(o) -> o)
 
 	def addAll(l: Traversable[T]): Unit = l foreach { o => add(o) }
+
 	def contains(o: T) = m.contains(key(o))
+
 	def apply(o: T) = m(key(o))
 
 	private def key(o: T) = keyMode.key(o)
@@ -31,9 +33,11 @@ protected class EntityComparisonMap[ID, PC <: DeclaredIds[ID], T](
 }
 
 protected object EntityComparisonMap {
+
 	abstract class EqualsMode[T] {
 		def key(o: T): Any
 	}
+
 	class EntityEquals[T](entity: Entity[_, _, T]) extends EqualsMode[T] {
 		override def key(o: T) = o match {
 			case p: Persisted =>
@@ -50,7 +54,9 @@ protected object EntityComparisonMap {
 				}
 		}
 	}
+
 	class ByObjectEquals[T] extends EqualsMode[T] {
 		override def key(o: T) = o
 	}
+
 }
