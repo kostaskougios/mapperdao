@@ -11,7 +11,7 @@ import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
 /**
  * @author kostantinos.kougios
  *
- * 28 Aug 2011
+ *         28 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
 class ManyToManyQuerySuite extends FunSuite with ShouldMatchers {
@@ -57,7 +57,7 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers {
 		val p2 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
 		val p3 = mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
-		(select from p join (p, p.attributes, attr) where attr.value === "46'")
+		(select from p join(p, p.attributes, attr) where attr.value === "46'")
 			.toList(QueryConfig(skip = Set(ProductEntity.attributes)))
 			.toSet should be === Set(Product(1, "TV 1", Set()), Product(3, "TV 3", Set()))
 	}
@@ -75,12 +75,12 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers {
 
 		def q(attr: Attribute) = (
 			select from p
-			where p.attributes === attr
-		)
+				where p.attributes === attr
+			)
 		def qn(attr: Attribute) = (
 			select from p
-			where p.attributes <> attr
-		)
+				where p.attributes <> attr
+			)
 
 		q(a).toList.toSet should be === Set(p1, p3)
 		q(d).toList.toSet should be === Set(p2, p4)
@@ -133,9 +133,9 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers {
 
 		val result = (
 			select from p
-			join (p, p.attributes, attr)
-			orderBy (attr.value, asc, p.id, desc)
-		).toList
+				join(p, p.attributes, attr)
+				orderBy(attr.value, asc, p.id, desc)
+			).toList
 		result should be === List(p3, p1, p1, p3, p2, p4, p2)
 	}
 
@@ -151,7 +151,7 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers {
 		val p2 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
 		val p3 = mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
-		(select from p join (p, p.attributes, attr) where attr.value === "46'").toList.toSet should be === Set(p0, p2)
+		(select from p join(p, p.attributes, attr) where attr.value === "46'").toList.toSet should be === Set(p0, p2)
 	}
 
 	test("join, 2 condition") {
@@ -166,37 +166,37 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers {
 		val p2 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
 		val p3 = mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
-		(select from p join (p, p.attributes, attr) where attr.value === "50'" or attr.value === "black").toList.toSet should be === Set(p0, p1, p3)
+		(select from p join(p, p.attributes, attr) where attr.value === "50'" or attr.value === "black").toList.toSet should be === Set(p0, p1, p3)
 	}
 
-	def createTables =
-		{
-			Setup.dropAllTables(jdbc)
-			jdbc.update("""
+	def createTables = {
+		Setup.dropAllTables(jdbc)
+		jdbc.update( """
 					create table Product (
 						id int not null,
 						name varchar(100) not null,
 						primary key(id)
 					)
-			""")
-			jdbc.update("""
+					 """)
+		jdbc.update( """
 					create table Attribute (
 						id int not null,
 						name varchar(100) not null,
 						value varchar(100) not null,
 						primary key(id)
 					)
-			""")
-			jdbc.update("""
+					 """)
+		jdbc.update( """
 					create table Product_Attribute (
 						product_id int not null,
 						attribute_id int not null,
 						primary key(product_id,attribute_id)
 					)
-			""")
-		}
+					 """)
+	}
 
 	case class Product(val id: Int, val name: String, val attributes: Set[Attribute])
+
 	case class Attribute(val id: Int, val name: String, val value: String)
 
 	object ProductEntity extends Entity[Int, SurrogateIntId, Product] {
@@ -214,4 +214,5 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers {
 
 		def constructor(implicit m) = new Attribute(id, name, value) with SurrogateIntId
 	}
+
 }
