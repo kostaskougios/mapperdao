@@ -15,20 +15,3 @@ trait PersistedNode[ID, T] {
 
 	def identity: Int
 }
-
-case class EntityPersistedNode[ID, T](
-	entity: Entity[ID, DeclaredIds[ID], T],
-	oldVM: Option[ValuesMap],
-	newVM: ValuesMap,
-	mainEntity: Boolean
-) extends PersistedNode[ID, T] {
-	val identity = newVM.identity
-}
-
-case class ExternalEntityPersistedNode[ID, T](
-	entity: ExternalEntity[ID, T],
-	o: T,
-	mainEntity: Boolean
-) extends PersistedNode[ID, T] {
-	val identity = System.identityHashCode(o)
-}
