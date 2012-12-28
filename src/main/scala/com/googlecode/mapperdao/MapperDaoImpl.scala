@@ -78,7 +78,7 @@ protected final class MapperDaoImpl(
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 		val nodes = ctd.execute(pri)
 		val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap, nodes)
-		val recreated = recreationPhase.execute(updateConfig).asInstanceOf[List[T with PC]]
+		val recreated = recreationPhase.execute.asInstanceOf[List[T with PC]]
 		recreated
 	}
 
@@ -136,7 +136,7 @@ protected final class MapperDaoImpl(
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 		val nodes = ctd.execute(pri)
 		val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap, nodes)
-		recreationPhase.execute(updateConfig).asInstanceOf[List[T with DeclaredIds[ID]]]
+		recreationPhase.execute.asInstanceOf[List[T with DeclaredIds[ID]]]
 	}
 
 	/**

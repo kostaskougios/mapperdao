@@ -26,7 +26,7 @@ class RecreationPhase(
 			(id, node)
 	}.toMap
 
-	def execute(updateConfig: UpdateConfig) = recreate(updateConfig, nodes.filter(_.mainEntity)).toList
+	def execute = recreate(updateConfig, nodes.filter(_.mainEntity)).toList
 
 	private def recreate(updateConfig: UpdateConfig, nodes: Traversable[PersistedNode[_, _]]): Traversable[DeclaredIds[Any]] =
 		nodes.map {
