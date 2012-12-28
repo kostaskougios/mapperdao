@@ -155,8 +155,8 @@ class CmdToDatabase(
 			driver.insertManyToManySql(manyToMany.column, left, right.values).result
 		case DeleteManyToManyExternalCmd(entity, foreignEntity, manyToMany, entityVM, fo) =>
 			val left = entityVM.toListOfPrimaryKeys(entity)
-			val de = DeleteExternalManyToMany(updateConfig.deleteConfig, fo)
-			val right = foreignEntity.manyToManyOnDeleteMap(manyToMany)(de)
+			val de = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Remove, fo)
+			val right = foreignEntity.manyToManyOnUpdateMap(manyToMany)(de)
 			driver.deleteManyToManySql(manyToMany.column, left, right.values).result
 	}
 }
