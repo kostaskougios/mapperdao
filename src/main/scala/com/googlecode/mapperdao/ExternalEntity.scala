@@ -221,7 +221,7 @@ case class SelectExternalManyToMany(selectConfig: SelectConfig, foreignIds: List
 object UpdateExternalManyToMany {
 
 	object Operation extends Enumeration {
-		val Remove, Add = Value
+		val Remove, Add, Update = Value
 	}
 
 	type Operation = Operation.Value

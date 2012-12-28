@@ -149,5 +149,9 @@ class CmdToDatabase(
 			val ie = InsertExternalManyToMany(updateConfig, fo)
 			val right = foreignEntity.manyToManyOnInsertMap(manyToMany)(ie)
 			driver.insertManyToManySql(manyToMany.column, left, right.values).result
+		case UpdateExternalCmd(foreignEntity, manyToMany, fo) =>
+			val ue = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Update, fo)
+			foreignEntity.manyToManyOnUpdateMap(manyToMany)(ue)
+			null
 	}
 }
