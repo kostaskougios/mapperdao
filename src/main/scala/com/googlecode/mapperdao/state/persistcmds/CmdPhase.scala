@@ -83,7 +83,26 @@ class CmdPhase(typeManager: TypeManager) {
 				foreignEntity match {
 					case foreignEE: ExternalEntity[_, _] =>
 						if (oldVMO.isDefined) {
-							NYI()
+							// entity is updated
+							val oldVM = oldVMO.get
+							val oldT = oldVM.manyToMany(column)
+							val newT = newVM.manyToMany(column)
+							val (added, intersect, removed) = TraversableSeparation.separate(foreignEntity, oldT, newT)
+
+							val addedCmds = added.toList.map {
+								fo =>
+									InsertManyToManyExternalCmd(
+										entity,
+										foreignEE,
+										ci,
+										newVM,
+										fo)
+							}
+							val intersectCmds = intersect.toList.map {
+								case (oldO, newO) =>
+									UpdateExternalCmd(newO)
+							}
+							addedCmds ::: intersectCmds
 						} else {
 							val l = newVM.manyToMany(column).map {
 								fo =>
