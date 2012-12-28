@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.utils.TraversableSeparation
+import utils.{NYI, TraversableSeparation}
 
 /**
  * entities are converted to PersistOps
@@ -78,75 +78,94 @@ class CmdPhase(typeManager: TypeManager) {
 		updateConfig: UpdateConfig
 	): List[PersistCmd] = {
 		entity.tpe.table.relationshipColumnInfos(updateConfig.skip).map {
-			case ColumnInfoTraversableManyToMany(column, columnToValue, getterMethod) =>
+			case ci@ColumnInfoTraversableManyToMany(column, columnToValue, getterMethod) =>
 				val foreignEntity = column.foreign.entity
-				if (oldVMO.isDefined) {
-					// entity is updated
-					val oldVM = oldVMO.get
-					val oldT = oldVM.manyToMany(column)
-					val newT = newVM.manyToMany(column)
-					val (added, intersect, removed) = TraversableSeparation.separate(foreignEntity, oldT, newT)
-
-					val addedCmds = added.toList.map {
-						fo =>
-							val foCmds = insertOrUpdate(foreignEntity, fo, updateConfig)
-							val foreignVM = findVM(foCmds, fo)
-							InsertManyToManyCmd(
-								entity,
-								foreignEntity,
-								column,
-								newVM,
-								foreignVM) :: foCmds
-					}.flatten
-					val removedCms = removed.toList.map {
-						fo =>
-							val foreignVM = ValuesMap.fromEntity(typeManager, foreignEntity, fo)
-							DeleteManyToManyCmd(
-								entity,
-								foreignEntity,
-								column,
-								oldVM,
-								foreignVM
-							)
-					}
-
-					val intersectCmds = intersect.toList.map {
-						case (oldO, newO) =>
-							val oVM = oldO match {
-								case p: Persisted => p.mapperDaoValuesMap
+				foreignEntity match {
+					case foreignEE: ExternalEntity[_, _] =>
+						if (oldVMO.isDefined) {
+							NYI()
+						} else {
+							val l = newVM.manyToMany(column).map {
+								fo =>
+									InsertManyToManyExternalCmd(
+										entity,
+										foreignEE,
+										ci,
+										newVM,
+										fo)
 							}
-							val nVM = newO match {
-								case p: Persisted => p.mapperDaoValuesMap
-								case no =>
-									ValuesMap.fromEntity(typeManager, foreignEntity, no)
+							l
+						}
+					case _ =>
+						if (oldVMO.isDefined) {
+							// entity is updated
+							val oldVM = oldVMO.get
+							val oldT = oldVM.manyToMany(column)
+							val newT = newVM.manyToMany(column)
+							val (added, intersect, removed) = TraversableSeparation.separate(foreignEntity, oldT, newT)
+
+							val addedCmds = added.toList.map {
+								fo =>
+									val foCmds = insertOrUpdate(foreignEntity, fo, updateConfig)
+									val foreignVM = findVM(foCmds, fo)
+									InsertManyToManyCmd(
+										entity,
+										foreignEntity,
+										column,
+										newVM,
+										foreignVM) :: foCmds
+							}.flatten
+							val removedCms = removed.toList.map {
+								fo =>
+									val foreignVM = ValuesMap.fromEntity(typeManager, foreignEntity, fo)
+									DeleteManyToManyCmd(
+										entity,
+										foreignEntity,
+										column,
+										oldVM,
+										foreignVM
+									)
 							}
-							update(foreignEntity, oVM, nVM, false, updateConfig)
-					}.flatten
-					addedCmds ::: removedCms ::: intersectCmds
-				} else {
-					// entity is new
-					newVM.manyToMany(column).map {
-						case p: Persisted =>
-							// we need to link to the already existing foreign entity
-							// and update the foreign entity
-							val foreignVM = ValuesMap.fromEntity(typeManager, foreignEntity, p)
-							InsertManyToManyCmd(
-								entity,
-								foreignEntity,
-								column,
-								newVM,
-								foreignVM) :: doUpdate(foreignEntity, p, updateConfig)
-						case o =>
-							// we need to insert the foreign entity and link to entity
-							val foreignVM = ValuesMap.fromEntity(typeManager, foreignEntity, o)
-							InsertManyToManyCmd(
-								entity,
-								foreignEntity,
-								column,
-								newVM,
-								foreignVM) :: insert(foreignEntity, foreignVM, false, updateConfig)
-					}.flatten
+
+							val intersectCmds = intersect.toList.map {
+								case (oldO, newO) =>
+									val oVM = oldO match {
+										case p: Persisted => p.mapperDaoValuesMap
+									}
+									val nVM = newO match {
+										case p: Persisted => p.mapperDaoValuesMap
+										case no =>
+											ValuesMap.fromEntity(typeManager, foreignEntity, no)
+									}
+									update(foreignEntity, oVM, nVM, false, updateConfig)
+							}.flatten
+							addedCmds ::: removedCms ::: intersectCmds
+						} else {
+							// entity is new
+							newVM.manyToMany(column).map {
+								case p: Persisted =>
+									// we need to link to the already existing foreign entity
+									// and update the foreign entity
+									val foreignVM = ValuesMap.fromEntity(typeManager, foreignEntity, p)
+									InsertManyToManyCmd(
+										entity,
+										foreignEntity,
+										column,
+										newVM,
+										foreignVM) :: doUpdate(foreignEntity, p, updateConfig)
+								case o =>
+									// we need to insert the foreign entity and link to entity
+									val foreignVM = ValuesMap.fromEntity(typeManager, foreignEntity, o)
+									InsertManyToManyCmd(
+										entity,
+										foreignEntity,
+										column,
+										newVM,
+										foreignVM) :: insert(foreignEntity, foreignVM, false, updateConfig)
+							}.flatten
+						}
 				}
+
 		}.flatten
 	}
 

@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
+import state.prioritise.High
 
 /**
  * an insert op for the specified entity
@@ -16,4 +17,6 @@ case class InsertCmd[ID, T](
 	mainEntity: Boolean
 ) extends CmdWithEntity[ID, T] with CmdWithNewVM {
 	def blank = columns.isEmpty
+
+	def priority = High
 }

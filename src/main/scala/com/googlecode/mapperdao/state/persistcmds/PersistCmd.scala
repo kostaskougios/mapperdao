@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao.state.persistcmds
 
-import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.state.prioritise.Priority
 
 /**
  * base for all persist operations
@@ -11,4 +11,6 @@ import com.googlecode.mapperdao._
  */
 trait PersistCmd {
 	def blank: Boolean
+
+	def priority: Priority
 }

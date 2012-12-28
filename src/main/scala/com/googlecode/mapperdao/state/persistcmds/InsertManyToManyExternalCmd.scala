@@ -4,17 +4,19 @@ import com.googlecode.mapperdao._
 import state.prioritise.Low
 
 /**
- * @author kostas.kougios
- *         23/12/12
+ * @author: kostas.kougios
+ *          Date: 27/12/12
  */
-case class DeleteManyToManyCmd[ID, T, FID, FT](
+case class InsertManyToManyExternalCmd[ID, T, FID, FT](
 	entity: Entity[ID, DeclaredIds[ID], T],
-	foreignEntity: Entity[FID, DeclaredIds[FID], FT],
-	manyToMany: ManyToMany[FID, _ <: DeclaredIds[FID], FT],
+	foreignEntity: ExternalEntity[FID, FT],
+	manyToMany: ColumnInfoTraversableManyToMany[T, FID, _ <: DeclaredIds[FID], FT],
 	entityVM: ValuesMap,
-	foreignEntityVM: ValuesMap
+	foreignO: FT
+
 ) extends PersistCmd {
 	def blank = false
 
 	def priority = Low
 }
+

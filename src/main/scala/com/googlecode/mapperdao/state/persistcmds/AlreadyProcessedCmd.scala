@@ -1,5 +1,7 @@
 package com.googlecode.mapperdao.state.persistcmds
 
+import com.googlecode.mapperdao.state.prioritise.Low
+
 
 /**
  * @author kostantinos.kougios
@@ -8,4 +10,6 @@ package com.googlecode.mapperdao.state.persistcmds
  */
 case object AlreadyProcessedCmd extends PersistCmd {
 	def blank = true
+
+	def priority = Low
 }

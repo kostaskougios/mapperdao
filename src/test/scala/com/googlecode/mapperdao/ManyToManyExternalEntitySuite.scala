@@ -1,4 +1,5 @@
 package com.googlecode.mapperdao
+
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.matchers.ShouldMatchers
@@ -8,7 +9,7 @@ import org.scalatest.junit.JUnitRunner
 /**
  * @author kostantinos.kougios
  *
- * Jan 18, 2012
+ *         Jan 18, 2012
  */
 @RunWith(classOf[JUnitRunner])
 class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
@@ -36,7 +37,7 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 			AttributeEntity.onDeleteCalled should be === 1
 		}
 
-		test("persists/select") {
+		test("persists and select") {
 			createTables
 
 			val product = Product("p1", Set(Attribute(10, "x10"), Attribute(20, "x20")))
@@ -44,6 +45,7 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 			inserted should be === product
 			mapperDao.select(ProductEntity, inserted.id).get should be === inserted
 		}
+
 		test("updates/select, remove item") {
 			createTables
 
@@ -73,6 +75,7 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 	}
 
 	case class Product(val name: String, val attributes: Set[Attribute])
+
 	case class Attribute(val id: Int, val name: String)
 
 	object ProductEntity extends Entity[Int, SurrogateIntId, Product] {
@@ -88,25 +91,30 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 	object AttributeEntity extends ExternalEntity[Int, Attribute] {
 		val id = key("id") to (_.id)
 
-		onInsertManyToMany(ProductEntity.attributes) { i =>
-			PrimaryKeysValues(i.foreign.id)
+		onInsertManyToMany(ProductEntity.attributes) {
+			i =>
+				PrimaryKeysValues(i.foreign.id)
 		}
 
-		onSelectManyToMany(ProductEntity.attributes) { s =>
-			s.foreignIds.map {
-				case (id: Int) :: Nil =>
-					Attribute(id, "x" + id)
-				case _ => throw new RuntimeException
-			}
+		onSelectManyToMany(ProductEntity.attributes) {
+			s =>
+				s.foreignIds.map {
+					case (id: Int) :: Nil =>
+						Attribute(id, "x" + id)
+					case _ => throw new RuntimeException
+				}
 		}
 
-		onUpdateManyToMany(ProductEntity.attributes) { u =>
-			PrimaryKeysValues(u.foreign.id)
+		onUpdateManyToMany(ProductEntity.attributes) {
+			u =>
+				PrimaryKeysValues(u.foreign.id)
 		}
 
 		var onDeleteCalled = 0
-		onDeleteManyToMany { d =>
-			onDeleteCalled += 1
+		onDeleteManyToMany {
+			d =>
+				onDeleteCalled += 1
 		}
 	}
+
 }

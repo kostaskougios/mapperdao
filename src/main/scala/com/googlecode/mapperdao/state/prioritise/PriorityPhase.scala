@@ -1,9 +1,7 @@
 package com.googlecode.mapperdao.state.prioritise
 
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.state.persistcmds.{DeleteManyToManyCmd, PersistCmd, CmdWithEntity, InsertManyToManyCmd}
-import state.persistcmds.DeleteManyToManyCmd
-import state.persistcmds.InsertManyToManyCmd
+import com.googlecode.mapperdao.state.persistcmds.{PersistCmd, CmdWithEntity}
 import com.googlecode.mapperdao.ColumnInfoTraversableOneToMany
 import com.googlecode.mapperdao.ColumnInfoTraversableManyToMany
 import com.googlecode.mapperdao.ColumnInfoManyToOne
@@ -24,9 +22,8 @@ class PriorityPhase {
 		val prie = prioritiseEntities(updateConfig, entity)
 
 		val (high, low) = cmds.partition {
-			case _: InsertManyToManyCmd[_, _, _, _] => false
-			case _: DeleteManyToManyCmd[_, _, _, _] => false
-			case _ => true
+			cmd =>
+				cmd.priority == High
 		}
 		val groupped = high.collect {
 			case we: CmdWithEntity[_, _] => we

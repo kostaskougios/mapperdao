@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
+import state.prioritise.Low
 
 /**
  * @author kostantinos.kougios
@@ -14,4 +15,6 @@ case class InsertManyToManyCmd[ID, T, FID, FT](
 	foreignEntityVM: ValuesMap
 ) extends PersistCmd {
 	def blank = false
+
+	def priority = Low
 }
