@@ -104,7 +104,7 @@ class CmdPhase(typeManager: TypeManager) {
 							}
 							val removedCmds = removed.toList.map {
 								ro =>
-									DeleteExternalManyToManyCmd(entity, foreignEE, ci, newVM, ro)
+									DeleteManyToManyExternalCmd(entity, foreignEE, ci, newVM, ro)
 							}
 							addedCmds ::: intersectCmds ::: removedCmds
 						} else {
