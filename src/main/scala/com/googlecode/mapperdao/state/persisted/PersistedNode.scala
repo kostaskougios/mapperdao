@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao.state.persisted
 
 import com.googlecode.mapperdao._
-import org.springframework.jdbc.core.SqlParameterValue
 
 /**
  * after persisting to the storage, all commands are converted to persisted nodes
@@ -10,31 +9,26 @@ import org.springframework.jdbc.core.SqlParameterValue
  *
  *         Dec 8, 2012
  */
-case class PersistedNode[ID, T](
-								   entity: Entity[ID, DeclaredIds[ID], T],
-								   oldVM: Option[ValuesMap],
-								   newVM: ValuesMap,
-								   mainEntity: Boolean) {
+trait PersistedNode[ID, T] {
+	val entity: Entity[ID, DeclaredIds[ID], T]
+	val mainEntity: Boolean
 
-	def identity = newVM.identity
+	def identity: Int
+}
 
-	//	def manyToMany = children.collect {
-	//		case (c: ColumnInfoTraversableManyToMany[T, Any, DeclaredIds[Any], _], n) => (c, n)
-	//	}
-	//
-	//	def manyToOne = children.collect {
-	//		case (c: ColumnInfoManyToOne[T, Any, DeclaredIds[Any], _], n) => (c, n)
-	//	}
-	//
-	//	def oneToMany = children.collect {
-	//		case (c: ColumnInfoTraversableOneToMany[ID, DeclaredIds[ID], T, Any, DeclaredIds[Any], _], n) => (c, n)
-	//	}
-	//
-	//	def oneToOne = children.collect {
-	//		case (c: ColumnInfoOneToOne[T, Any, DeclaredIds[Any], _], n) => (c, n)
-	//	}
-	//
-	//	def oneToOneReverse = children.collect {
-	//		case (c: ColumnInfoOneToOneReverse[T, Any, DeclaredIds[Any], _], n) => (c, n)
-	//	}
+case class EntityPersistedNode[ID, T](
+	entity: Entity[ID, DeclaredIds[ID], T],
+	oldVM: Option[ValuesMap],
+	newVM: ValuesMap,
+	mainEntity: Boolean
+) extends PersistedNode[ID, T] {
+	val identity = newVM.identity
+}
+
+case class ExternalEntityPersistedNode[ID, T](
+	entity: ExternalEntity[ID, T],
+	o: T,
+	mainEntity: Boolean
+) extends PersistedNode[ID, T] {
+	val identity = System.identityHashCode(o)
 }

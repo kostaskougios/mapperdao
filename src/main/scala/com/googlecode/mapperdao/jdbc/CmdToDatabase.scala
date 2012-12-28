@@ -114,9 +114,11 @@ class CmdToDatabase(
 
 	private def toPersistedNodes(nodes: List[PersistCmd]) = nodes.collect {
 		case InsertCmd(entity, newVM, _, mainEntity) =>
-			PersistedNode(entity, None, newVM, mainEntity)
+			EntityPersistedNode(entity, None, newVM, mainEntity)
 		case UpdateCmd(entity, oldVM, newVM, _, mainEntity) =>
-			PersistedNode(entity, Some(oldVM), newVM, mainEntity)
+			EntityPersistedNode(entity, Some(oldVM), newVM, mainEntity)
+		case InsertManyToManyExternalCmd(entity, foreignEntity, manyToMany, entityVM, foreignO) =>
+			ExternalEntityPersistedNode(foreignEntity, foreignO, false)
 	}
 
 	private def toNodes(cmds: List[PersistCmd]) = cmds.filterNot(_.blank).map {

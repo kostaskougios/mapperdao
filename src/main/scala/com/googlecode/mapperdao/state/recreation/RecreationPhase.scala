@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.state.recreation
 
-import com.googlecode.mapperdao.state.persisted.PersistedNode
 import com.googlecode.mapperdao._
+import state.persisted.{ExternalEntityPersistedNode, EntityPersistedNode, PersistedNode}
 
 /**
  * during recreation phase, persisted objects are re-created with PC included.
@@ -20,7 +20,7 @@ class RecreationPhase(
 
 	private val byIdentity: Map[Int, PersistedNode[_, _]] = nodes.map {
 		node =>
-			val id = node.newVM.identity
+			val id = node.identity
 			if (id <= 0)
 				throw new IllegalStateException("identity==" + id + " for " + node)
 			(id, node)
@@ -28,38 +28,43 @@ class RecreationPhase(
 
 	def execute = recreate(updateConfig, nodes.filter(_.mainEntity)).toList
 
-	private def recreate(updateConfig: UpdateConfig, nodes: Traversable[PersistedNode[_, _]]): Traversable[DeclaredIds[Any]] =
+	private def recreate(updateConfig: UpdateConfig, nodes: Traversable[PersistedNode[_, _]]): Traversable[Any] =
 		nodes.map {
 			node =>
 				entityMap.get[DeclaredIds[Any], Any](node.identity).getOrElse {
-					val entity = node.entity
-					val tpe = entity.tpe
-					val table = tpe.table
 
-					val newVM = node.newVM
-					val modified = newVM.toMap
+					node match {
+						case EntityPersistedNode(entity, oldVM, newVM, _) =>
+							val tpe = entity.tpe
+							val table = tpe.table
 
-					// create a mock
-					val mockO = mockFactory.createMock(updateConfig.data, entity, modified)
-					entityMap.put(node.identity, mockO)
+							val modified = newVM.toMap
 
-					val related = table.relationshipColumnInfos(updateConfig.skip).map {
-						case ColumnInfoTraversableManyToMany(column, columnToValue, getterMethod) =>
-							val mtm = newVM.manyToMany(column)
-							val relatedNodes = toNodes(mtm)
-							(
-								column.alias,
-								recreate(updateConfig, relatedNodes)
-								)
+							// create a mock
+							val mockO = mockFactory.createMock(updateConfig.data, entity, modified)
+							entityMap.put(node.identity, mockO)
+
+							val related = table.relationshipColumnInfos(updateConfig.skip).map {
+								case ColumnInfoTraversableManyToMany(column, columnToValue, getterMethod) =>
+									val mtm = newVM.manyToMany(column)
+									val relatedNodes = toNodes(mtm)
+									(
+										column.alias,
+										recreate(updateConfig, relatedNodes)
+										)
+							}
+
+							val finalMods = modified ++ related
+							val finalVM = ValuesMap.fromMap(node.identity, finalMods)
+							val newE = tpe.constructor(updateConfig.data, finalVM)
+							finalVM.identity = System.identityHashCode(newE)
+							// re-put the actual
+							entityMap.put(node.identity, newE)
+							newE
+
+						case ExternalEntityPersistedNode(entity, o, _) =>
+							o
 					}
-
-					val finalMods = modified ++ related
-					val finalVM = ValuesMap.fromMap(node.identity, finalMods)
-					val newE = tpe.constructor(updateConfig.data, finalVM)
-					finalVM.identity = System.identityHashCode(newE)
-					// re-put the actual
-					entityMap.put(node.identity, newE)
-					newE.asInstanceOf[DeclaredIds[Any]]
 				}
 		}
 
