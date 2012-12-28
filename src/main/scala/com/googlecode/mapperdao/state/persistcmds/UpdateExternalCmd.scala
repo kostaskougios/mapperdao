@@ -12,7 +12,7 @@ case class UpdateExternalCmd[T, FID, FT](
 	manyToMany: ColumnInfoTraversableManyToMany[T, FID, _ <: DeclaredIds[FID], FT],
 	fo: FT
 ) extends PersistCmd {
-	def blank = false
+	def blank = true
 
 	def priority = Low
 }

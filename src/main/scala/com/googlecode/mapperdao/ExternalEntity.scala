@@ -65,7 +65,7 @@ abstract class ExternalEntity[FID, F](table: String, clz: Class[F]) extends Enti
 	 */
 	type OnInsertManyToMany = InsertExternalManyToMany[F] => PrimaryKeysValues
 	type OnSelectManyToMany[T] = SelectExternalManyToMany => List[F]
-	type OnUpdateManyToMany[T] = UpdateExternalManyToMany[T, F] => PrimaryKeysValues
+	type OnUpdateManyToMany[T] = UpdateExternalManyToMany[F] => PrimaryKeysValues
 	type OnDeleteManyToMany[T] = DeleteExternalManyToMany[T, F] => Unit
 	private[mapperdao] var manyToManyOnInsertMap = new MapWithDefault[ColumnInfoTraversableManyToMany[_, _, _, F], OnInsertManyToMany]("onInsertManyToMany must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] var manyToManyOnSelectMap = new MapWithDefault[ColumnInfoTraversableManyToMany[_, _, _, F], OnSelectManyToMany[_]]("onSelectManyToMany must be called for External Entity %s".format(getClass.getName))
@@ -227,7 +227,7 @@ object UpdateExternalManyToMany {
 	type Operation = Operation.Value
 }
 
-case class UpdateExternalManyToMany[T, F](updateConfig: UpdateConfig, operation: UpdateExternalManyToMany.Operation, newVM: ValuesMap, foreign: F)
+case class UpdateExternalManyToMany[F](updateConfig: UpdateConfig, operation: UpdateExternalManyToMany.Operation, foreign: F)
 
 case class DeleteExternalManyToMany[T, F](deleteConfig: DeleteConfig, entity: T, foreign: F)
 

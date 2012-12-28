@@ -100,7 +100,7 @@ class CmdPhase(typeManager: TypeManager) {
 							}
 							val intersectCmds = intersect.toList.map {
 								case (oldO, newO) =>
-									UpdateExternalCmd(newO)
+									UpdateExternalCmd(foreignEE, ci, newO)
 							}
 							addedCmds ::: intersectCmds
 						} else {
