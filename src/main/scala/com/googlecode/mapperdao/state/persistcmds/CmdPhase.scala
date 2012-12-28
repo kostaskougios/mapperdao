@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
-import utils.{NYI, TraversableSeparation}
+import utils.TraversableSeparation
 
 /**
  * entities are converted to PersistOps
@@ -78,15 +78,27 @@ class CmdPhase(typeManager: TypeManager) {
 		updateConfig: UpdateConfig
 	): List[PersistCmd] = {
 		entity.tpe.table.relationshipColumnInfos(updateConfig.skip).map {
+			/**
+			 * ---------------------------------------------------------------------------------------------
+			 * Many-To-Many
+			 * ---------------------------------------------------------------------------------------------
+			 */
 			case ci@ColumnInfoTraversableManyToMany(column, columnToValue, getterMethod) =>
 				val foreignEntity = column.foreign.entity
 				foreignEntity match {
+					/**
+					 * ---------------------------------------------------------------------------------------------
+					 * Many-To-Many : External entity
+					 * ---------------------------------------------------------------------------------------------
+					 */
 					case foreignEE: ExternalEntity[_, _] =>
 						if (oldVMO.isDefined) {
 							// entity is updated
 							val oldVM = oldVMO.get
 							val oldT = oldVM.manyToMany(column)
 							val newT = newVM.manyToMany(column)
+							// we'll find what was added, intersect (stayed in the collection but might have been updated)
+							// and removed from the collection
 							val (added, intersect, removed) = TraversableSeparation.separate(foreignEntity, oldT, newT)
 
 							val addedCmds = added.toList.map {
@@ -118,12 +130,20 @@ class CmdPhase(typeManager: TypeManager) {
 										fo)
 							}
 						}
+
+					/**
+					 * ---------------------------------------------------------------------------------------------
+					 * Many-To-Many : Normal entity
+					 * ---------------------------------------------------------------------------------------------
+					 */
 					case _ =>
 						if (oldVMO.isDefined) {
 							// entity is updated
 							val oldVM = oldVMO.get
 							val oldT = oldVM.manyToMany(column)
 							val newT = newVM.manyToMany(column)
+							// we'll find what was added, intersect (stayed in the collection but might have been updated)
+							// and removed from the collection
 							val (added, intersect, removed) = TraversableSeparation.separate(foreignEntity, oldT, newT)
 
 							val addedCmds = added.toList.map {
@@ -187,7 +207,6 @@ class CmdPhase(typeManager: TypeManager) {
 							}.flatten
 						}
 				}
-
 		}.flatten
 	}
 
