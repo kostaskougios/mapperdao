@@ -34,7 +34,7 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 			val inserted = mapperDao.insert(ProductEntity, product)
 			mapperDao.delete(DeleteConfig(propagate = true), ProductEntity, inserted)
 			mapperDao.select(ProductEntity, inserted.id) should be(None)
-			AttributeEntity.onDeleteCalled should be === 1
+			AttributeEntity.onDeleteCalled should be === 2
 		}
 
 		test("persists and select") {
