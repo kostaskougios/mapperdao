@@ -102,9 +102,13 @@ class CmdPhase(typeManager: TypeManager) {
 								case (oldO, newO) =>
 									UpdateExternalCmd(foreignEE, ci, newO)
 							}
-							addedCmds ::: intersectCmds
+							val removedCmds = removed.toList.map {
+								ro =>
+									DeleteExternalManyToManyCmd(entity, foreignEE, ci, newVM, ro)
+							}
+							addedCmds ::: intersectCmds ::: removedCmds
 						} else {
-							val l = newVM.manyToMany(column).map {
+							newVM.manyToMany(column).map {
 								fo =>
 									InsertManyToManyExternalCmd(
 										entity,
@@ -113,7 +117,6 @@ class CmdPhase(typeManager: TypeManager) {
 										newVM,
 										fo)
 							}
-							l
 						}
 					case _ =>
 						if (oldVMO.isDefined) {

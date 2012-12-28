@@ -114,6 +114,7 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 		onDeleteManyToMany {
 			d =>
 				onDeleteCalled += 1
+				PrimaryKeysValues(d.foreign.id)
 		}
 	}
 
