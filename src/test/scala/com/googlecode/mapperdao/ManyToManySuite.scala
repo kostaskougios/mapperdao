@@ -16,6 +16,51 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
+	test("multiple entities, all new") {
+		createTables
+		val p1 = Product(2, "blue jean", Set(Attribute(6, "colour", "blue"), Attribute(9, "size", "medium")))
+		val p2 = Product(3, "green jean", Set(Attribute(16, "colour", "green"), Attribute(19, "size", "small")))
+
+		val inserted = mapperDao.insert(UpdateConfig.default, ProductEntity, p1 :: p2 :: Nil)
+
+		inserted should be(p1 :: p2 :: Nil)
+
+		import Query._
+		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1 :: p2 :: Nil)
+
+		val a1 = inserted.head.attributes.head
+		val a2 = inserted.head.attributes.tail.head
+		val p1u = p1.copy(name = "b jeans", attributes = Set(a1))
+		val p2u = p2.copy(name = "g jeans", attributes = Set(a2))
+		val updated = mapperDao.updateImmutable(UpdateConfig.default, ProductEntity, (inserted.head, p1u) ::(inserted.tail.head, p2u) :: Nil)
+		updated should be(p1u :: p2u :: Nil)
+		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1u :: p2u :: Nil)
+
+	}
+
+	test("multiple entities, with existing") {
+		createTables
+
+		val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
+		val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
+
+		val p1 = Product(2, "blue jean", Set(a1, a2))
+		val p2 = Product(3, "green jean", Set(a1, a2, Attribute(16, "colour", "green"), Attribute(19, "size", "small")))
+
+		val inserted = mapperDao.insert(UpdateConfig.default, ProductEntity, p1 :: p2 :: Nil)
+
+		inserted should be(p1 :: p2 :: Nil)
+
+		import Query._
+		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1 :: p2 :: Nil)
+
+		val p1u = p1.copy(name = "b jeans", attributes = Set(a1))
+		val p2u = p2.copy(name = "g jeans", attributes = Set(a2))
+		val updated = mapperDao.updateImmutable(UpdateConfig.default, ProductEntity, (inserted.head, p1u) ::(inserted.tail.head, p2u) :: Nil)
+		updated should be(p1u :: p2u :: Nil)
+		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1u :: p2u :: Nil)
+	}
+
 	if (Setup.database != "derby") {
 		test("update id of main entity") {
 			createTables
