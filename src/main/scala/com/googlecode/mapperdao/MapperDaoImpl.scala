@@ -72,8 +72,8 @@ protected final class MapperDaoImpl(
 				val newVM = ValuesMap.fromEntity(typeManager, entity, o)
 				po.toInsertCmd(entity, newVM, updateConfig)
 		}.flatten
-		val pf = new PriorityPhase
-		val pri = pf.prioritise(updateConfig, entity, cmds)
+		val pf = new PriorityPhase(updateConfig)
+		val pri = pf.prioritise(entity, cmds)
 
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 		val nodes = ctd.execute(pri)
@@ -130,8 +130,8 @@ protected final class MapperDaoImpl(
 				po.toUpdateCmd(entity, oldVM, newVM, updateConfig)
 		}.flatten
 
-		val pf = new PriorityPhase
-		val pri = pf.prioritise(updateConfig, entity, cmds)
+		val pf = new PriorityPhase(updateConfig)
+		val pri = pf.prioritise(entity, cmds)
 
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 		val nodes = ctd.execute(pri)
