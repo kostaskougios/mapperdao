@@ -35,7 +35,6 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		val updated = mapperDao.updateImmutable(UpdateConfig.default, ProductEntity, (inserted.head, p1u) ::(inserted.tail.head, p2u) :: Nil)
 		updated should be(p1u :: p2u :: Nil)
 		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1u :: p2u :: Nil)
-
 	}
 
 	test("multiple entities, with existing") {
