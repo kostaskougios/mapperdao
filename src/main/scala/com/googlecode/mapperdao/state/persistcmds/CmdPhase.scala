@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
-import utils.TraversableSeparation
+import utils.{NYI, TraversableSeparation}
 
 /**
  * entities are converted to PersistOps
@@ -206,6 +206,27 @@ class CmdPhase(typeManager: TypeManager) {
 										foreignVM) :: insert(foreignEntity, foreignVM, false, updateConfig)
 							}.flatten
 						}
+				}
+
+			/**
+			 * ---------------------------------------------------------------------------------------------
+			 * Many-To-One
+			 * ---------------------------------------------------------------------------------------------
+			 */
+			case ColumnInfoManyToOne(column, columnToValue, _) =>
+				val foreignEntity = column.foreign.entity
+				if (oldVMO.isDefined) {
+					NYI()
+				} else {
+					// insert new
+					newVM.manyToOne(column) match {
+						case p: Persisted =>
+							doUpdate(foreignEntity, p, updateConfig)
+						case fo =>
+							// we need to insert the foreign entity and link to entity
+							val foreignVM = ValuesMap.fromEntity(typeManager, foreignEntity, fo)
+							insert(foreignEntity, foreignVM, false, updateConfig)
+					}
 				}
 		}.flatten
 	}

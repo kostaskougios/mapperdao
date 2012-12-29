@@ -53,8 +53,11 @@ class ValuesMap private(private[mapperdao] var identity: Int, mOrig: scala.colle
 
 	protected[mapperdao] def valueOf[T](column: ColumnBase): T = valueOf[T](column.aliasLowerCase)
 
-	protected[mapperdao] def manyToMany[FID, FT](column: ManyToMany[FID, DeclaredIds[FID], FT]): List[_] =
-		valueOf[Traversable[_]](column).toList
+	protected[mapperdao] def manyToMany[FID, FT](column: ManyToMany[FID, DeclaredIds[FID], FT]): List[FT] =
+		valueOf[Traversable[FT]](column).toList
+
+	protected[mapperdao] def manyToOne[FID, FT](column: ManyToOne[FID, DeclaredIds[FID], FT]): FT =
+		valueOf[FT](column)
 
 	private def valueOf[T](column: String): T = {
 		// to avoid lazy loading twice in 2 separate threads, and avoid corrupting the map, we need to sync
