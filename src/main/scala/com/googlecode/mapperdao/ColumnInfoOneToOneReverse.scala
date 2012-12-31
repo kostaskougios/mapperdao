@@ -1,7 +1,8 @@
 package com.googlecode.mapperdao
 
-case class ColumnInfoOneToOneReverse[T, FID, FPC <: DeclaredIds[FID], F](
-	val column: OneToOneReverse[FID, FPC, F],
+case class ColumnInfoOneToOneReverse[T, FID, F](
+	val column: OneToOneReverse[FID, F],
 	val columnToValue: (_ >: T) => F,
-	val getterMethod: Option[GetterMethod])
-		extends ColumnInfoRelationshipBase[T, F, FID, FPC, F]
+	val getterMethod: Option[GetterMethod]
+)
+	extends ColumnInfoRelationshipBase[T, F, FID, F]

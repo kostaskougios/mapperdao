@@ -1,4 +1,5 @@
 package com.googlecode.mapperdao
+
 import com.googlecode.mapperdao.drivers.SelectHints
 
 /**
@@ -19,20 +20,21 @@ import com.googlecode.mapperdao.drivers.SelectHints
  *
  */
 case class QueryConfig(
-		// skip relationship from loading? i.e. SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
-		skip: Set[ColumnInfoRelationshipBase[_, _, _, _, _]] = Set(),
-		// start index of first row, useful for paginating
-		offset: Option[Long] = None,
-		// limit the number of returned rows, useful for paginating
-		limit: Option[Long] = None,
-		data: Option[Any] = None,
-		cacheOptions: CacheOption = CacheOptions.NoCache,
-		lazyLoad: LazyLoad = LazyLoad.none,
-		// run the query in multiple threads to improve performance.
-		// WARNING: multi-threaded runs of queries don't run
-		// within a transaction.
-		multi: MultiThreadedConfig = MultiThreadedConfig.Single,
-		hints: SelectHints = SelectHints.None) {
+	// skip relationship from loading? i.e. SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
+	skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
+	// start index of first row, useful for paginating
+	offset: Option[Long] = None,
+	// limit the number of returned rows, useful for paginating
+	limit: Option[Long] = None,
+	data: Option[Any] = None,
+	cacheOptions: CacheOption = CacheOptions.NoCache,
+	lazyLoad: LazyLoad = LazyLoad.none,
+	// run the query in multiple threads to improve performance.
+	// WARNING: multi-threaded runs of queries don't run
+	// within a transaction.
+	multi: MultiThreadedConfig = MultiThreadedConfig.Single,
+	hints: SelectHints = SelectHints.None
+) {
 
 	// check parameter validity
 	if (offset.isDefined && offset.get < 0) throw new IllegalArgumentException("offset is " + offset)
@@ -44,6 +46,7 @@ case class QueryConfig(
 object QueryConfig {
 
 	val default = QueryConfig()
+
 	/**
 	 * @param offset	start index of first row that will be returned
 	 * @param limit		how many rows to fetch
@@ -51,7 +54,8 @@ object QueryConfig {
 	def limits(
 		offset: Long,
 		limit: Long,
-		cacheOptions: CacheOption = CacheOptions.NoCache): QueryConfig =
+		cacheOptions: CacheOption = CacheOptions.NoCache
+	): QueryConfig =
 		QueryConfig(offset = Some(offset), limit = Some(limit), cacheOptions = cacheOptions)
 
 	/**
@@ -63,8 +67,9 @@ object QueryConfig {
 		pageNumber: Long,
 		rowsPerPage: Long,
 		cacheOptions: CacheOption = CacheOptions.NoCache,
-		skip: Set[ColumnInfoRelationshipBase[_, _, _, _, _]] = Set(),
-		lazyLoad: LazyLoad = LazyLoad.none): QueryConfig = {
+		skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
+		lazyLoad: LazyLoad = LazyLoad.none
+	): QueryConfig = {
 		if (pageNumber < 1) throw new IllegalArgumentException("pageNumber must be >=1")
 		if (rowsPerPage < 1) throw new IllegalArgumentException("rowsPerPage must be >=1")
 		QueryConfig(

@@ -8,9 +8,9 @@ import state.prioritise.Low
  *         23/12/12
  */
 case class DeleteManyToManyCmd[ID, T, FID, FT](
-	entity: Entity[ID, DeclaredIds[ID], T],
-	foreignEntity: Entity[FID, DeclaredIds[FID], FT],
-	manyToMany: ManyToMany[FID, _ <: DeclaredIds[FID], FT],
+	entity: Entity[ID, T],
+	foreignEntity: Entity[FID, FT],
+	manyToMany: ManyToMany[FID, FT],
 	entityVM: ValuesMap,
 	foreignEntityVM: ValuesMap
 ) extends PersistCmd {

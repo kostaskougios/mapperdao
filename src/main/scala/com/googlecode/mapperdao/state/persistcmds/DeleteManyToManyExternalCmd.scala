@@ -9,9 +9,9 @@ import com.googlecode.mapperdao.ColumnInfoTraversableManyToMany
  *          Date: 28/12/12
  */
 case class DeleteManyToManyExternalCmd[ID, T, FID, FT](
-	entity: Entity[ID, DeclaredIds[ID], T],
+	entity: Entity[ID, T],
 	foreignEntity: ExternalEntity[FID, FT],
-	manyToMany: ColumnInfoTraversableManyToMany[T, FID, _ <: DeclaredIds[FID], FT],
+	manyToMany: ColumnInfoTraversableManyToMany[T, FID, FT],
 	entityVM: ValuesMap,
 	fo: FT
 ) extends PersistCmd {

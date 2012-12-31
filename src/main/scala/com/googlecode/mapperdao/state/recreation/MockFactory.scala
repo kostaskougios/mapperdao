@@ -18,7 +18,7 @@ class MockFactory(typeManager: TypeManager) {
 
 	def createMock[ID, T](
 		data: Option[Any],
-		entity: Entity[ID, DeclaredIds[ID], T],
+		entity: Entity[ID, T],
 		mods: Map[String, Any]
 	): T with DeclaredIds[ID] = {
 		val mockMods = new scala.collection.mutable.HashMap[String, Any] ++ mods

@@ -6,9 +6,7 @@ import scala.collection.mutable.ListMap
 
 import org.objenesis.ObjenesisStd
 
-import com.googlecode.classgenerator.runtime.Args
 import com.googlecode.classgenerator.ClassManager
-import com.googlecode.classgenerator.LazyLoadInstanceFactory
 import com.googlecode.classgenerator.MethodImplementation
 import com.googlecode.classgenerator.ReflectionManager
 import javassist._
@@ -26,9 +24,9 @@ private[mapperdao] class LazyLoadManager {
 
 	type CacheKey = (Class[_], LazyLoad)
 
-	private val classCache = new scala.collection.mutable.HashMap[CacheKey, (Class[_], Map[String, ColumnInfoRelationshipBase[_, Any, Any, DeclaredIds[Any], Any]])]
+	private val classCache = new scala.collection.mutable.HashMap[CacheKey, (Class[_], Map[String, ColumnInfoRelationshipBase[_, Any, Any, Any]])]
 
-	def proxyFor[ID, PC <: DeclaredIds[ID], T](constructed: T with PC, entity: Entity[ID, PC, T], lazyLoad: LazyLoad, vm: ValuesMap): T with PC = {
+	def proxyFor[ID, T](constructed: T with DeclaredIds[ID], entity: Entity[ID, T], lazyLoad: LazyLoad, vm: ValuesMap): T with DeclaredIds[ID] = {
 		if (constructed == null) throw new NullPointerException("constructed can't be null")
 
 		val clz = entity.clz
@@ -52,7 +50,7 @@ private[mapperdao] class LazyLoadManager {
 
 				val methodToCI = lazyRelationships.map {
 					ci =>
-						(ci.getterMethod.get.getterMethod.getName, ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, DeclaredIds[Any], Any]])
+						(ci.getterMethod.get.getterMethod.getName, ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, Any]])
 				}.toMap
 				val r = (proxyClz, methodToCI)
 				classCache.put(key, r)
@@ -61,7 +59,7 @@ private[mapperdao] class LazyLoadManager {
 		}
 
 		val instantiator = objenesis.getInstantiatorOf(proxyClz)
-		val instance = instantiator.newInstance.asInstanceOf[PC with T with MethodImplementation[T with Persisted]]
+		val instance = instantiator.newInstance.asInstanceOf[DeclaredIds[ID] with T with MethodImplementation[T with Persisted]]
 
 		// copy data from constructed to instance
 		reflectionManager.copy(clz, constructed, instance)
@@ -74,10 +72,10 @@ private[mapperdao] class LazyLoadManager {
 		// memory optimization for unlinked entities
 		val toLazyLoad = ListMap.empty ++ lazyRelationships.map {
 			ci =>
-				(ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, DeclaredIds[Any], Any]], vm.columnValue[() => Any](ci))
+				(ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, Any]], vm.columnValue[() => Any](ci))
 		}.toMap
 
-		val llpm = new LazyLoadProxyMethod[T](toLazyLoad, methodToCI.asInstanceOf[Map[String, ColumnInfoRelationshipBase[T, Any, Any, DeclaredIds[Any], Any]]])
+		val llpm = new LazyLoadProxyMethod[T](toLazyLoad, methodToCI.asInstanceOf[Map[String, ColumnInfoRelationshipBase[T, Any, Any, Any]]])
 		llpm.mapperDaoValuesMap = vm
 		instance.methodImplementation(llpm)
 		instance
@@ -123,8 +121,12 @@ private[mapperdao] class LazyLoadManager {
 
 	private def hasLongId(clz: Class[_]) = classOf[SurrogateLongId].isAssignableFrom(clz)
 
-	def isLazyLoaded(lazyLoad: LazyLoad, entity: Entity[_, _, _]) =
-		(lazyLoad.all || lazyLoad.isAnyColumnLazyLoaded(entity.tpe.table.allRelationshipColumnInfosSet.asInstanceOf[Set[ColumnInfoRelationshipBase[_, _, _, _, _]]])) && !entity.tpe.table.allRelationshipColumnInfos.isEmpty
+	def isLazyLoaded(lazyLoad: LazyLoad, entity: Entity[_, _]) =
+		(lazyLoad.all ||
+			lazyLoad.isAnyColumnLazyLoaded(
+				entity.tpe.table.allRelationshipColumnInfosSet.asInstanceOf[Set[ColumnInfoRelationshipBase[_, _, _, _]]]
+			)
+			) && !entity.tpe.table.allRelationshipColumnInfos.isEmpty
 }
 
 object LazyLoadManager {

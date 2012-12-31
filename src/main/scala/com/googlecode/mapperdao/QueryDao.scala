@@ -1,4 +1,5 @@
 package com.googlecode.mapperdao
+
 import com.googlecode.mapperdao.exceptions.QueryException
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.jdbc.UpdateResult
@@ -33,7 +34,8 @@ trait QueryDao {
 	 * @param	qe		a query
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 */
-	def query[ID, PC <: DeclaredIds[ID], T](qe: Query.Where[ID, PC, T]): List[T with PC] = query(qe.queryEntity)
+	def query[ID, T](qe: Query.Where[ID, T]): List[T with DeclaredIds[ID]] = query(qe.queryEntity)
+
 	/**
 	 * runs a query and retuns a list of entities.
 	 *
@@ -46,7 +48,8 @@ trait QueryDao {
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 * @see		#QueryConfig
 	 */
-	def query[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, qe: Query.Where[ID, PC, T]): List[T with PC] = query(queryConfig, qe.queryEntity)
+	def query[ID, T](queryConfig: QueryConfig, qe: Query.Where[ID, T]): List[T with DeclaredIds[ID]] = query(queryConfig, qe.queryEntity)
+
 	/**
 	 * runs a query and retuns a list of entities.
 	 *
@@ -57,7 +60,7 @@ trait QueryDao {
 	 * @param	qe		a query
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 */
-	def query[ID, PC <: DeclaredIds[ID], T](qe: Query.Builder[ID, PC, T]): List[T with PC] = query(defaultQueryConfig, qe)
+	def query[ID, T](qe: Query.Builder[ID, T]): List[T with DeclaredIds[ID]] = query(defaultQueryConfig, qe)
 
 	/**
 	 * runs a query and retuns a list of entities.
@@ -71,7 +74,7 @@ trait QueryDao {
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 * @see		#QueryConfig
 	 */
-	def query[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): List[T with PC]
+	def query[ID, T](queryConfig: QueryConfig, qe: Query.Builder[ID, T]): List[T with DeclaredIds[ID]]
 
 	/**
 	 * counts rows, i.e.
@@ -79,32 +82,37 @@ trait QueryDao {
 	 * val qe=(select from ProductEntity where title==="jeans")
 	 * val count=queryDao.count(qe) // the number of jeans
 	 */
-	def count[ID, PC <: DeclaredIds[ID], T](qe: Query.Where[ID, PC, T], queryConfig: QueryConfig): Long = count(queryConfig, qe.queryEntity)
-	def count[ID, PC <: DeclaredIds[ID], T](qe: Query.Where[ID, PC, T]): Long = count(qe, QueryConfig())
-	def count[ID, PC <: DeclaredIds[ID], T](qe: Query.Builder[ID, PC, T]): Long = count(QueryConfig(), qe)
+	def count[ID, T](qe: Query.Where[ID, T], queryConfig: QueryConfig): Long = count(queryConfig, qe.queryEntity)
 
-	def count[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): Long
+	def count[ID, T](qe: Query.Where[ID, T]): Long = count(qe, QueryConfig())
+
+	def count[ID, T](qe: Query.Builder[ID, T]): Long = count(QueryConfig(), qe)
+
+	def count[ID, T](queryConfig: QueryConfig, qe: Query.Builder[ID, T]): Long
 
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, PC <: DeclaredIds[ID], T](qe: Query.Where[ID, PC, T]): Option[T with PC] = querySingleResult(defaultQueryConfig, qe.queryEntity)
+	def querySingleResult[ID, T](qe: Query.Where[ID, T]): Option[T with DeclaredIds[ID]] = querySingleResult(defaultQueryConfig, qe.queryEntity)
+
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, qe: Query.Where[ID, PC, T]): Option[T with PC] = querySingleResult(queryConfig, qe.queryEntity)
+	def querySingleResult[ID, T](queryConfig: QueryConfig, qe: Query.Where[ID, T]): Option[T with DeclaredIds[ID]] = querySingleResult(queryConfig, qe.queryEntity)
+
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, PC <: DeclaredIds[ID], T](qe: Query.Builder[ID, PC, T]): Option[T with PC] = querySingleResult(defaultQueryConfig, qe)
+	def querySingleResult[ID, T](qe: Query.Builder[ID, T]): Option[T with DeclaredIds[ID]] = querySingleResult(defaultQueryConfig, qe)
+
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): Option[T with PC] = {
+	def querySingleResult[ID, T](queryConfig: QueryConfig, qe: Query.Builder[ID, T]): Option[T with DeclaredIds[ID]] = {
 		val l = query(queryConfig, qe)
 		// l.size might be costly, so we'll test if l is empty first
 		if (l.isEmpty) None
@@ -120,21 +128,21 @@ trait QueryDao {
 	 *
 	 * @params	entity				the entity that the query is for, i.e. ProductEntity
 	 * @params	sql					the sql to execute. This must be in the form of
-	 * 								prepared statement and fetch only the columns needed
-	 * 								by the entity. Examples:
+	 *            prepared statement and fetch only the columns needed
+	 *            by the entity. Examples:
 	 *
-	 * 								select * from attribute where name=?
+	 *            select * from attribute where name=?
 	 *
-	 * 								select p.*
-	 * 								from product p
-	 * 								inner join product_attribute pa on pa.product_id=p.id
-	 * 								inner join attribute a on pa.attribute_id = a.id
-	 * 								where a.value=?
-	 * 								(please note only the entity's columns are fetched : select p.*)
+	 *            select p.*
+	 *            from product p
+	 *            inner join product_attribute pa on pa.product_id=p.id
+	 *            inner join attribute a on pa.attribute_id = a.id
+	 *            where a.value=?
+	 *            (please note only the entity's columns are fetched : select p.*)
 	 *
 	 * @params	args				a list of arguments
 	 */
-	def lowLevelQuery[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T], sql: String, args: List[Any]): List[T with PC] =
+	def lowLevelQuery[ID, T](entity: Entity[ID, T], sql: String, args: List[Any]): List[T with DeclaredIds[ID]] =
 		lowLevelQuery(defaultQueryConfig, entity, sql, args)
 
 	/**
@@ -146,25 +154,25 @@ trait QueryDao {
 	 * @params	queryConfig			the QueryConfig to use for this query
 	 * @params	entity				the entity that the query is for, i.e. ProductEntity
 	 * @params	sql					the sql to execute. This must be in the form of
-	 * 								prepared statement and fetch only the columns needed
-	 * 								by the entity. Examples:
+	 *            prepared statement and fetch only the columns needed
+	 *            by the entity. Examples:
 	 *
-	 * 								select * from attribute where name=?
+	 *            select * from attribute where name=?
 	 *
-	 * 								select p.*
-	 * 								from product p
-	 * 								inner join product_attribute pa on pa.product_id=p.id
-	 * 								inner join attribute a on pa.attribute_id = a.id
-	 * 								where a.value=?
-	 * 								(please note only the entity's columns are fetched : select p.*)
+	 *            select p.*
+	 *            from product p
+	 *            inner join product_attribute pa on pa.product_id=p.id
+	 *            inner join attribute a on pa.attribute_id = a.id
+	 *            where a.value=?
+	 *            (please note only the entity's columns are fetched : select p.*)
 	 *
 	 * @params	args				a list of arguments
 	 */
-	def lowLevelQuery[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], sql: String, args: List[Any]): List[T with PC]
+	def lowLevelQuery[ID, T](queryConfig: QueryConfig, entity: Entity[ID, T], sql: String, args: List[Any]): List[T with DeclaredIds[ID]]
 
-	def delete[ID, PC <: DeclaredIds[ID], T](d: Delete.DeleteDDL[ID, PC, T]): UpdateResult
+	def delete[ID, T](d: Delete.DeleteDDL[ID, T]): UpdateResult
 
-	def update[ID, PC <: DeclaredIds[ID], T](u: Update.Updatable[ID, PC, T]): UpdateResult
+	def update[ID, T](u: Update.Updatable[ID, T]): UpdateResult
 }
 
 object QueryDao {
@@ -177,62 +185,67 @@ object QueryDao {
 		private var aliasCount = new scala.collection.mutable.HashMap[String, Int]
 
 		override def toString = "Aliases(%s)".format(aliases)
+
 		private def getCnt(prefix: String): Int = {
 			val v = aliasCount.getOrElseUpdate(prefix, 1)
 			aliasCount(prefix) = v + 1
 			v
 		}
 
-		def apply[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T]): String =
-			{
-				val v = aliases.get(entity)
-				val r = if (v != null) v else {
-					val prefix = entity.table.substring(0, 2)
+		def apply[ID, T](entity: Entity[ID, T]): String = {
+			val v = aliases.get(entity)
+			val r = if (v != null) v
+			else {
+				val prefix = entity.table.substring(0, 2)
 
-					val v = prefix.toLowerCase + getCnt(prefix)
-					aliases.put(entity, v)
-					entity.columns.foreach { ci =>
+				val v = prefix.toLowerCase + getCnt(prefix)
+				aliases.put(entity, v)
+				entity.columns.foreach {
+					ci =>
 						aliases.put(ci.column, v)
 						ci match {
-							case ColumnInfoManyToOne(column: ManyToOne[_, _, _], _, _) =>
-								column.columns.foreach { c =>
-									aliases.put(c, v)
+							case ColumnInfoManyToOne(column: ManyToOne[_, _], _, _) =>
+								column.columns.foreach {
+									c =>
+										aliases.put(c, v)
 								}
 							case _ =>
 						}
-					}
-					entity.persistedColumns.foreach { ci =>
+				}
+				entity.persistedColumns.foreach {
+					ci =>
 						aliases.put(ci.column, v)
-					}
-					entity.tpe.table.unusedPKs.foreach { c =>
+				}
+				entity.tpe.table.unusedPKs.foreach {
+					c =>
 						aliases.put(c, v)
-					}
-					v
 				}
-
-				if (nullMode) null else r
+				v
 			}
 
-		def apply(linkTable: LinkTable): String =
-			{
-				val v = aliases.get(linkTable)
-				val r = if (v != null) v else {
-					val prefix = linkTable.name.substring(0, 3)
+			if (nullMode) null else r
+		}
 
-					val v = prefix.toLowerCase + getCnt(prefix)
-					aliases.put(linkTable, v)
-					v
-				}
+		def apply(linkTable: LinkTable): String = {
+			val v = aliases.get(linkTable)
+			val r = if (v != null) v
+			else {
+				val prefix = linkTable.name.substring(0, 3)
 
-				if (nullMode) null else r
+				val v = prefix.toLowerCase + getCnt(prefix)
+				aliases.put(linkTable, v)
+				v
 			}
 
-		def apply(c: ColumnBase): String =
-			{
-				val v = aliases.get(c)
-				if (v == null)
-					throw new ColumnNotPartOfQueryException(c)
-				if (nullMode) null else v
-			}
+			if (nullMode) null else r
+		}
+
+		def apply(c: ColumnBase): String = {
+			val v = aliases.get(c)
+			if (v == null)
+				throw new ColumnNotPartOfQueryException(c)
+			if (nullMode) null else v
+		}
 	}
+
 }

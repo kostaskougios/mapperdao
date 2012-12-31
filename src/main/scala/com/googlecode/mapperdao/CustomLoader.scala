@@ -7,8 +7,9 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
  *
  * @author kostantinos.kougios
  *
- * 30 May 2012
+ *         30 May 2012
  */
-case class CustomLoader[T, FID, FPC <: DeclaredIds[FID], FT](
-	ci: ColumnInfoTraversableManyToMany[T, FID, FPC, FT],
-	loader: (SelectConfig, List[JdbcMap]) => List[FT with FPC])
+case class CustomLoader[T, FID, FT](
+	ci: ColumnInfoTraversableManyToMany[T, FID, FT],
+	loader: (SelectConfig, List[JdbcMap]) => List[FT with DeclaredIds[FID]]
+)

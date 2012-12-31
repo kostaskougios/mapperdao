@@ -32,12 +32,12 @@ class ValuesMap private(private[mapperdao] var identity: Int, mOrig: scala.colle
 
 	def contains(c: ColumnBase) = containsMEM(c.alias)
 
-	def columnValue[T](ci: ColumnInfoRelationshipBase[_, _, _, _, _]): T = columnValue(ci.column.aliasLowerCase)
+	def columnValue[T](ci: ColumnInfoRelationshipBase[_, _, _, _]): T = columnValue(ci.column.aliasLowerCase)
 
 	/**
 	 * returns true if the relationship is not yet loaded
 	 */
-	def isLoaded(ci: ColumnInfoRelationshipBase[_, _, _, _, _]): Boolean = columnValue[Any](ci) match {
+	def isLoaded(ci: ColumnInfoRelationshipBase[_, _, _, _]): Boolean = columnValue[Any](ci) match {
 		case _: (() => Any) => false
 		case _ => true
 	}
@@ -53,10 +53,10 @@ class ValuesMap private(private[mapperdao] var identity: Int, mOrig: scala.colle
 
 	protected[mapperdao] def valueOf[T](column: ColumnBase): T = valueOf[T](column.aliasLowerCase)
 
-	protected[mapperdao] def manyToMany[FID, FT](column: ManyToMany[FID, DeclaredIds[FID], FT]): List[FT] =
+	protected[mapperdao] def manyToMany[FID, FT](column: ManyToMany[FID, FT]): List[FT] =
 		valueOf[Traversable[FT]](column).toList
 
-	protected[mapperdao] def manyToOne[FID, FT](column: ManyToOne[FID, _ <: DeclaredIds[FID], FT]): FT =
+	protected[mapperdao] def manyToOne[FID, FT](column: ManyToOne[FID, FT]): FT =
 		valueOf[FT](column)
 
 	private def valueOf[T](column: String): T = {
@@ -79,7 +79,7 @@ class ValuesMap private(private[mapperdao] var identity: Int, mOrig: scala.colle
 		putMEM(key, v)
 	}
 
-	private[mapperdao] def update[T, V](column: ColumnInfoRelationshipBase[T, _, _, _, _], v: V): Unit = {
+	private[mapperdao] def update[T, V](column: ColumnInfoRelationshipBase[T, _, _, _], v: V): Unit = {
 		val key = column.column.aliasLowerCase
 		putMEM(key, v)
 	}
@@ -97,19 +97,19 @@ class ValuesMap private(private[mapperdao] var identity: Int, mOrig: scala.colle
 	def isNull[T, V](column: ColumnInfo[T, V]): Boolean =
 		valueOf[V](column.column) == null
 
-	def apply[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoOneToOne[T, FID, FPC, F]): F =
+	def apply[T, FID, F](column: ColumnInfoOneToOne[T, FID, F]): F =
 		valueOf[F](column.column)
 
-	def apply[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoOneToOneReverse[T, FID, FPC, F]): F =
+	def apply[T, FID, F](column: ColumnInfoOneToOneReverse[T, FID, F]): F =
 		valueOf[F](column.column)
 
-	def apply[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F]): Traversable[F] =
+	def apply[ID, T, FID, F](column: ColumnInfoTraversableOneToMany[ID, T, FID, F]): Traversable[F] =
 		valueOf[Traversable[F]](column.column)
 
-	def apply[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableManyToMany[T, FID, FPC, F]): Traversable[F] =
+	def apply[T, FID, F](column: ColumnInfoTraversableManyToMany[T, FID, F]): Traversable[F] =
 		valueOf[Traversable[F]](column.column)
 
-	def apply[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoManyToOne[T, FID, FPC, F]) =
+	def apply[T, FID, F](column: ColumnInfoManyToOne[T, FID, F]) =
 		valueOf[F](column.column)
 
 	def float[T](column: ColumnInfo[T, java.lang.Float]): java.lang.Float =
@@ -148,16 +148,16 @@ class ValuesMap private(private[mapperdao] var identity: Int, mOrig: scala.colle
 	def boolean[T](column: ColumnInfo[T, java.lang.Boolean]): java.lang.Boolean =
 		valueOf[java.lang.Boolean](column.column)
 
-	def mutableHashSet[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableManyToMany[T, FID, FPC, F]): scala.collection.mutable.HashSet[F] =
+	def mutableHashSet[T, FID, F](column: ColumnInfoTraversableManyToMany[T, FID, F]): scala.collection.mutable.HashSet[F] =
 		new scala.collection.mutable.HashSet ++ apply(column)
 
-	def mutableLinkedList[T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableManyToMany[T, FID, FPC, F]): scala.collection.mutable.LinkedList[F] =
+	def mutableLinkedList[T, FID, F](column: ColumnInfoTraversableManyToMany[T, FID, F]): scala.collection.mutable.LinkedList[F] =
 		new scala.collection.mutable.LinkedList ++ apply(column)
 
-	def mutableHashSet[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F]): scala.collection.mutable.HashSet[F] =
+	def mutableHashSet[ID, T, FID, F](column: ColumnInfoTraversableOneToMany[ID, T, FID, F]): scala.collection.mutable.HashSet[F] =
 		new scala.collection.mutable.HashSet ++ apply(column)
 
-	def mutableLinkedList[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](column: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F]): scala.collection.mutable.LinkedList[F] =
+	def mutableLinkedList[ID, T, FID, F](column: ColumnInfoTraversableOneToMany[ID, T, FID, F]): scala.collection.mutable.LinkedList[F] =
 		new scala.collection.mutable.LinkedList ++ apply(column)
 
 	/**
@@ -181,21 +181,20 @@ class ValuesMap private(private[mapperdao] var identity: Int, mOrig: scala.colle
 
 	protected[mapperdao] def toListOfColumnValue(columns: List[ColumnBase]) = columns.map(c => getMEM(c.aliasLowerCase))
 
-	protected[mapperdao] def isSimpleColumnsChanged[ID, PC <: DeclaredIds[ID], T](tpe: Type[ID, PC, T], from: ValuesMap): Boolean =
+	protected[mapperdao] def isSimpleColumnsChanged[ID, T](tpe: Type[ID, T], from: ValuesMap): Boolean =
 		tpe.table.simpleTypeColumnInfos.exists {
 			ci =>
 				!Equality.isEqual(apply(ci), from.apply(ci))
 		}
 
-	protected[mapperdao] def toListOfPrimaryKeyAndValueTuple(entity: Entity[_, _, _]) =
+	protected[mapperdao] def toListOfPrimaryKeyAndValueTuple(entity: Entity[_, _]) =
 		toListOfSimpleColumnAndValueTuple(entity.tpe.table.primaryKeysAndUnusedKeys)
 
-	protected[mapperdao] def toListOfPrimaryKeys(entity: Entity[_, _, _]) =
+	protected[mapperdao] def toListOfPrimaryKeys(entity: Entity[_, _]) =
 		toListOfColumnValue(entity.tpe.table.primaryKeysAndUnusedKeys)
 
 	protected[mapperdao] def addAutogeneratedKeys(keys: List[(SimpleColumn, Any)]): Unit = keys foreach {
 		case (c, v) => putMEM(c.name.toLowerCase, v)
-
 	}
 }
 
@@ -203,7 +202,7 @@ object ValuesMap {
 
 	protected[mapperdao] def entityToMap[ID, T](
 		typeManager: TypeManager,
-		entity: Entity[ID, DeclaredIds[ID], T],
+		entity: Entity[ID, T],
 		o: T,
 		clone: Boolean
 	): Map[String, Any] = {
@@ -227,7 +226,7 @@ object ValuesMap {
 
 	protected[mapperdao] def fromEntity[ID, T](
 		typeManager: TypeManager,
-		entity: Entity[ID, DeclaredIds[ID], T],
+		entity: Entity[ID, T],
 		o: T
 	): ValuesMap = fromEntity(typeManager, entity, o, true)
 
@@ -236,7 +235,7 @@ object ValuesMap {
 	 */
 	protected[mapperdao] def fromEntity[ID, T](
 		typeManager: TypeManager,
-		entity: Entity[ID, DeclaredIds[ID], T],
+		entity: Entity[ID, T],
 		newO: T,
 		oldO: T with DeclaredIds[ID]
 	): ValuesMap = {
@@ -251,7 +250,7 @@ object ValuesMap {
 
 	protected[mapperdao] def fromEntity[ID, T](
 		typeManager: TypeManager,
-		entity: Entity[ID, DeclaredIds[ID], T],
+		entity: Entity[ID, T],
 		o: T,
 		clone: Boolean
 	): ValuesMap = {

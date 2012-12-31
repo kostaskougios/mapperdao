@@ -100,7 +100,7 @@ class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 
 	case class Attribute(val name: String, val value: String)
 
-	object ProductEntity extends Entity[Int, SurrogateIntId, Product] {
+	object ProductEntity extends Entity[Int, Product] {
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("ProductSeq")
 			case _ => None
@@ -113,7 +113,7 @@ class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 		}
 	}
 
-	object AttributeEntity extends Entity[Int, SurrogateIntId, Attribute] {
+	object AttributeEntity extends Entity[Int, Attribute] {
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("AttributeSeq")
 			case _ => None

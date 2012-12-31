@@ -11,7 +11,7 @@ import state.prioritise.High
  *         21 Nov 2012
  */
 case class InsertCmd[ID, T](
-	entity: Entity[ID, DeclaredIds[ID], T],
+	entity: Entity[ID, T],
 	newVM: ValuesMap,
 	columns: List[(SimpleColumn, Any)],
 	mainEntity: Boolean

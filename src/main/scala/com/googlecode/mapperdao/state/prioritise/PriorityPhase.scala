@@ -12,10 +12,10 @@ import com.googlecode.mapperdao.ColumnInfoManyToOne
  *         15 Dec 2012
  */
 class PriorityPhase(updateConfig: UpdateConfig) {
-	private var visited = Set[Entity[_, _, _]]()
+	private var visited = Set[Entity[_, _]]()
 
-	def prioritise[ID, PC <: DeclaredIds[ID], T](
-		entity: Entity[ID, PC, T],
+	def prioritise[ID, T](
+		entity: Entity[ID, T],
 		cmds: List[PersistCmd]
 	): List[List[PersistCmd]] = {
 		val prie = prioritiseEntities(entity)
@@ -26,7 +26,7 @@ class PriorityPhase(updateConfig: UpdateConfig) {
 		}
 		val groupped = high.collect {
 			case we: CmdWithEntity[_, _] => we
-		}.groupBy(_.entity.asInstanceOf[Entity[_, _, _]])
+		}.groupBy(_.entity)
 
 		val h = prie.filter(groupped.contains(_)).map {
 			e =>
@@ -35,7 +35,7 @@ class PriorityPhase(updateConfig: UpdateConfig) {
 		h ::: List(low)
 	}
 
-	def prioritiseEntities(entity: Entity[_, _, _]): List[Entity[_, _, _]] =
+	def prioritiseEntities(entity: Entity[_, _]): List[Entity[_, _]] =
 		if (visited(entity))
 			Nil
 		else {

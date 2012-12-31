@@ -1,10 +1,10 @@
 package com.googlecode.mapperdao
 
-case class ManyToOne[FID, FPC <: DeclaredIds[FID], F](
+case class ManyToOne[FID, F](
 	columns: List[Column],
-	val foreign: TypeRef[FID, FPC, F]
+	val foreign: TypeRef[FID, F]
 )
-	extends ColumnRelationshipBase[FID, FPC, F] {
+	extends ColumnRelationshipBase[FID, F] {
 	def alias = foreign.alias
 
 	override def toString = "manytoone(%s) foreignkey(%s)".format(foreign.entity.getClass.getSimpleName, columns.map(_.name).mkString(","))

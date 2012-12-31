@@ -8,9 +8,9 @@ import state.prioritise.Low
  *          Date: 27/12/12
  */
 case class InsertManyToManyExternalCmd[ID, T, FID, FT](
-	entity: Entity[ID, DeclaredIds[ID], T],
+	entity: Entity[ID, T],
 	foreignEntity: ExternalEntity[FID, FT],
-	manyToMany: ColumnInfoTraversableManyToMany[T, FID, _ <: DeclaredIds[FID], FT],
+	manyToMany: ColumnInfoTraversableManyToMany[T, FID, FT],
 	entityVM: ValuesMap,
 	foreignO: FT
 

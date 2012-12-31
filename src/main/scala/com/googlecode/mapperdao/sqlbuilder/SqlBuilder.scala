@@ -17,42 +17,54 @@ import com.googlecode.mapperdao.drivers.Driver
  *
  * @author kostantinos.kougios
  *
- * 8 Jul 2012
+ *         8 Jul 2012
  */
 
 private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeNamesStrategy) {
 
 	trait Expression {
 		def toSql: String
+
 		def toValues: List[SqlParameterValue]
 	}
+
 	object EmptyExpression extends Expression {
 		def toSql = ""
+
 		def toValues = Nil
 	}
+
 	abstract class Combine extends Expression {
 		val left: Expression
 		val right: Expression
 	}
+
 	case class And(left: Expression, right: Expression) extends Combine {
 		override def toSql = "(" + left.toSql + ") and (" + right.toSql + ")"
+
 		override def toValues = left.toValues ::: right.toValues
 	}
+
 	case class Or(left: Expression, right: Expression) extends Combine {
 		override def toSql = "(" + left.toSql + ") or (" + right.toSql + ")"
+
 		override def toValues = left.toValues ::: right.toValues
 	}
+
 	case class Comma(expressions: List[Expression]) extends Expression {
 		override def toSql = expressions.map(_.toSql).mkString(",")
+
 		override def toValues = expressions.map(_.toValues).flatten
 	}
 
 	case class Clause(
-			alias: String, column: SimpleColumn,
-			op: String,
-			value: Any) extends Expression {
+		alias: String, column: SimpleColumn,
+		op: String,
+		value: Any
+	) extends Expression {
 
 		private def isNull = value == null && op == "="
+
 		override def toSql = {
 			val sb = new StringBuilder
 			if (alias != null) sb append (alias) append (".")
@@ -64,14 +76,17 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			sb.toString
 		}
 
-		override def toValues = if (isNull) Nil else List(
+		override def toValues = if (isNull) Nil
+		else List(
 			Jdbc.toSqlParameter(column.tpe, value)
 		)
 	}
+
 	case class NonValueClause(
-			leftAlias: String, left: String,
-			op: String,
-			rightAlias: String, right: String) extends Expression {
+		leftAlias: String, left: String,
+		op: String,
+		rightAlias: String, right: String
+	) extends Expression {
 
 		override def toSql = {
 			val sb = new StringBuilder
@@ -88,16 +103,20 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 	class ColumnAndColumnClause(
 		leftAlias: String, leftColumn: SimpleColumn,
 		op: String,
-		rightAlias: String, rightColumn: SimpleColumn) extends NonValueClause(leftAlias, leftColumn.name, op, rightAlias, rightColumn.name)
+		rightAlias: String, rightColumn: SimpleColumn
+	) extends NonValueClause(leftAlias, leftColumn.name, op, rightAlias, rightColumn.name)
 
 	case class FunctionClause[R](
-			aliases: QueryDao.Aliases,
-			left: SqlFunctionValue[R],
-			op: Option[String],
-			right: Any) extends Expression {
+		aliases: QueryDao.Aliases,
+		left: SqlFunctionValue[R],
+		op: Option[String],
+		right: Any
+	) extends Expression {
 
-		def this(aliases: QueryDao.Aliases,
-			left: SqlFunctionValue[R]) = this(aliases, left, None, null)
+		def this(
+			aliases: QueryDao.Aliases,
+			left: SqlFunctionValue[R]
+		) = this(aliases, left, None, null)
 
 		if (op.isDefined && right == null) throw new NullPointerException("right-part of expression can't be null, for " + left)
 
@@ -127,13 +146,15 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 				case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) =>
 					"?"
 				case ci: ColumnInfo[_, _] => aliases(ci.column) + "." + ci.column.name
-				case ci: ColumnInfoManyToOne[_, _, _, _] =>
-					ci.column.columns.map { c =>
-						aliases(ci.column) + "." + c.name
+				case ci: ColumnInfoManyToOne[_, _, _] =>
+					ci.column.columns.map {
+						c =>
+							aliases(ci.column) + "." + c.name
 					}.mkString(",")
-				case ci: ColumnInfoOneToOne[_, _, _, _] =>
-					ci.column.columns.map { c =>
-						aliases(ci.column) + "." + c.name
+				case ci: ColumnInfoOneToOne[_, _, _] =>
+					ci.column.columns.map {
+						c =>
+							aliases(ci.column) + "." + c.name
 					}.mkString(",")
 				case iv: SqlFunctionValue[_] =>
 					functionToSql(iv)
@@ -149,15 +170,17 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 				sb append (right match {
 					case v if (Jdbc.isPrimitiveJdbcType(right.getClass)) => "?"
 					case ci: ColumnInfo[_, _] => aliases(ci.column) + "." + ci.column.name
-					case ci: ColumnInfoManyToOne[_, _, _, _] =>
+					case ci: ColumnInfoManyToOne[_, _, _] =>
 						if (ci.column.columns.size > 1) throw new IllegalArgumentException("can't use a multi-column-primary-key many-to-one in the right part of a function comparison : " + ci.column.columns)
-						ci.column.columns.map { c =>
-							aliases(ci.column) + "." + c.name
+						ci.column.columns.map {
+							c =>
+								aliases(ci.column) + "." + c.name
 						}.mkString(",")
-					case ci: ColumnInfoOneToOne[_, _, _, _] =>
+					case ci: ColumnInfoOneToOne[_, _, _] =>
 						if (ci.column.columns.size > 1) throw new IllegalArgumentException("can't use a multi-column-primary-key one-to-one in the right part of a function comparison : " + ci.column.columns)
-						ci.column.columns.map { c =>
-							aliases(ci.column) + "." + c.name
+						ci.column.columns.map {
+							c =>
+								aliases(ci.column) + "." + c.name
 						}.mkString(",")
 				})
 			}
@@ -169,11 +192,13 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 
 	case class Between(alias: String, column: SimpleColumn, left: Any, right: Any) extends Expression {
 		override def toSql = escapeNamesStrategy.escapeColumnNames(column.name) + " " + (if (alias != null) alias else "") + " between ? and ?"
+
 		override def toValues = Jdbc.toSqlParameter(column.tpe, left) :: Jdbc.toSqlParameter(column.tpe, right) :: Nil
 	}
 
 	trait FromClause {
 		def toSql: String
+
 		def toValues: List[SqlParameterValue]
 	}
 
@@ -184,16 +209,19 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			if (hints != null) s += " " + hints
 			s
 		}
+
 		def toValues = Nil
 	}
 
 	class InnerJoinBuilder(table: String, alias: String, hints: String) {
 		private var e: Expression = null
+
 		def on(leftAlias: String, left: String, op: String, rightAlias: String, right: String) = {
 			if (e != null) throw new IllegalStateException("expression already set to " + e)
 			e = NonValueClause(leftAlias, left, op, rightAlias, right)
 			this
 		}
+
 		def and(leftAlias: String, left: String, op: String, rightAlias: String, right: String) = {
 			val nvc = NonValueClause(leftAlias, left, op, rightAlias, right)
 			if (e == null)
@@ -215,6 +243,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			sb append "on " append e.toSql
 			sb.toString
 		}
+
 		def toValues = e.toValues
 
 		override def toString = toSql
@@ -254,11 +283,14 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		}
 
 		def from = fromClause
+
 		def from(from: FromClause): this.type = {
 			this.fromClause = from
 			this
 		}
+
 		def from(table: String): this.type = from(table, null, null)
+
 		def from(fromClause: SqlSelectBuilder, alias: String): this.type = {
 			from(fromClause)
 			fromClauseAlias = alias
@@ -299,6 +331,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 				innerJoins = ijb :: innerJoins
 			this
 		}
+
 		def innerJoin(table: String, alias: String, hints: String) = {
 			val ijb = new InnerJoinBuilder(table, alias, hints)
 			innerJoins = ijb :: innerJoins
@@ -313,6 +346,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		def result = Result(toSql, toValues)
 
 		def toValues: List[SqlParameterValue] = innerJoins.map { _.toValues }.flatten ::: fromClause.toValues ::: whereBuilder.map(_.toValues).getOrElse(Nil)
+
 		def toSql = {
 			if (fromClause == null) throw new IllegalStateException("fromClause is null")
 			val s = new StringBuilder("select ")
@@ -323,8 +357,9 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 					val fromPar = "(" + s.toSql + ")"
 					if (fromClauseAlias == null) fromPar else fromPar + " as " + fromClauseAlias
 			}) append "\n"
-			innerJoins.reverse.foreach { j =>
-				s append j.toSql append "\n"
+			innerJoins.reverse.foreach {
+				j =>
+					s append j.toSql append "\n"
 			}
 			whereBuilder.foreach(s append _.toSql append "\n")
 			orderByBuilder.foreach(s append _.toSql append "\n")
@@ -348,6 +383,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 	case class OrderByExpression(column: String, ascDesc: String) {
 		def toSql = escapeNamesStrategy.escapeColumnNames(column) + " " + ascDesc
 	}
+
 	class OrderByBuilder(expressions: List[OrderByExpression]) {
 		def toSql = "order by " + expressions.map(_.toSql).mkString(",")
 	}
@@ -374,6 +410,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		def result = Result(toSql, toValues)
 
 		def toSql = "delete from %s %s".format(fromClause.toSql, if (whereBuilder == null) "" else whereBuilder.toSql)
+
 		def toValues: List[SqlParameterValue] = if (whereBuilder == null) Nil else whereBuilder.toValues
 
 		override def toString = "DeleteBuilder(%s)".format(toSql)
@@ -398,6 +435,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			this.css = this.css ::: css
 			this
 		}
+
 		def columnAndValues(cvs: List[(SimpleColumn, Any)]) = {
 			this.cvs = this.cvs ::: cvs
 			this
@@ -408,18 +446,19 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			escapeNamesStrategy.escapeTableNames(table.table)
 			+ "("
 			+ (
-				css.map {
-					case (c, s) => escapeNamesStrategy.escapeColumnNames(c.name)
-				} ::: cvs.map {
-					case (c, v) => escapeNamesStrategy.escapeColumnNames(c.name)
-				}
+			css.map {
+				case (c, s) => escapeNamesStrategy.escapeColumnNames(c.name)
+			} ::: cvs.map {
+				case (c, v) => escapeNamesStrategy.escapeColumnNames(c.name)
+			}
 			).mkString(",")
-				+ ") values(" +
-				(
-					css.map { case (c, s) => s } ::: cvs.map(cv => "?")
+			+ ") values(" +
+			(
+				css.map { case (c, s) => s } ::: cvs.map(cv => "?")
 				).mkString(",")
-					+ ")"
-		)
+			+ ")"
+			)
+
 		def toValues: List[SqlParameterValue] = Jdbc.toSqlParameter(cvs.map {
 			case (c, v) =>
 				(c.tpe, v)
@@ -445,6 +484,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			expression = e
 			this
 		}
+
 		def set(columnAndValues: List[(SimpleColumn, Any)]): this.type = {
 			this.columnAndValues = columnAndValues
 			this
@@ -455,6 +495,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			this.where = where
 			this
 		}
+
 		def where(e: Expression): this.type = where(new WhereBuilder(e))
 
 		def where(columnsAndValues: List[(SimpleColumn, Any)], op: String): this.type =
@@ -464,16 +505,16 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 
 		def toSql = (
 			"update "
-			+ table.toSql
-			+ "\nset "
-			+ columnAndValues.map {
+				+ table.toSql
+				+ "\nset "
+				+ columnAndValues.map {
 				case (c, v) =>
 					escapeNamesStrategy.escapeColumnNames(c.name) + " = ?"
 			}.mkString(",")
-			+ expression.toSql
-			+ "\n"
-			+ (if (where != null) where.toSql else "")
-		)
+				+ expression.toSql
+				+ "\n"
+				+ (if (where != null) where.toSql else "")
+			)
 
 		def toValues = {
 			val params = Jdbc.toSqlParameter(
@@ -484,4 +525,5 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			if (where != null) params ::: where.toValues else params
 		}
 	}
+
 }

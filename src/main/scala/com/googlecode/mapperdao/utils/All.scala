@@ -7,15 +7,14 @@ import com.googlecode.mapperdao._
  * returns all values for an entity
  *
  * T is the entity type, i.e. Product
- * T with PC is the persisted type, i.e. Product with IntId. PC can be AnyRef
- * 		if T's type doesn't change when persisted.
+ * T with DeclaredIds[ID] is the persisted type.
  *
  * @author kostantinos.kougios
  */
-trait All[ID, PC <: DeclaredIds[ID], T] {
+trait All[ID, T] {
 	// the following must be overriden by classes extending this trait
 	protected val queryDao: QueryDao
-	protected val entity: Entity[ID, PC, T]
+	protected val entity: Entity[ID, T]
 
 	// override these as necessary
 	protected val queryConfig = QueryConfig.default
@@ -27,16 +26,17 @@ trait All[ID, PC <: DeclaredIds[ID], T] {
 	/**
 	 * returns all T's, use page() to get a specific page of rows
 	 */
-	def all: List[T with PC] = queryDao.query(queryConfig, allQuery)
+	def all: List[T with DeclaredIds[ID]] = queryDao.query(queryConfig, allQuery)
 
 	/**
 	 * counts all rows for this entity
 	 */
 	def countAll: Long = queryDao.count(allQuery)
+
 	/**
 	 * returns a page of T's
 	 */
-	def page(pageNumber: Long, rowsPerPage: Long): List[T with PC] =
+	def page(pageNumber: Long, rowsPerPage: Long): List[T with DeclaredIds[ID]] =
 		queryDao.query(
 			QueryConfig.pagination(
 				pageNumber,
@@ -47,5 +47,6 @@ trait All[ID, PC <: DeclaredIds[ID], T] {
 			),
 			allQuery
 		)
+
 	def countPages(rowsPerPage: Long): Long = 1 + countAll / rowsPerPage
 }

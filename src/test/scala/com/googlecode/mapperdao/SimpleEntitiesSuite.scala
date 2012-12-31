@@ -13,7 +13,7 @@ import com.googlecode.mapperdao.utils.Helpers
  *
  * @author kostantinos.kougios
  *
- * 12 Jul 2011
+ *         12 Jul 2011
  */
 @RunWith(classOf[JUnitRunner])
 class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
@@ -43,20 +43,20 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 		s1 should be === updated
 		mapperDao.select(JobPositionEntity, 5) should be(None)
 	}
-
-	test("update id, mutable") {
-		createJobPositionTable
-
-		val date = Setup.now
-		val jp = JobPosition(5, "Developer", date, date - 2.months, 10)
-		val inserted = mapperDao.insert(JobPositionEntity, jp)
-
-		inserted.id = 7
-		val updated = mapperDao.update(JobPositionEntity, inserted)
-		updated should be === inserted
-		mapperDao.select(JobPositionEntity, 7).get should be === updated
-		mapperDao.select(JobPositionEntity, 5) should be(None)
-	}
+	//
+	//	test("update id, mutable") {
+	//		createJobPositionTable
+	//
+	//		val date = Setup.now
+	//		val jp = JobPosition(5, "Developer", date, date - 2.months, 10)
+	//		val inserted = mapperDao.insert(JobPositionEntity, jp)
+	//
+	//		inserted.id = 7
+	//		val updated = mapperDao.update(JobPositionEntity, inserted)
+	//		updated should be === inserted
+	//		mapperDao.select(JobPositionEntity, 7).get should be === updated
+	//		mapperDao.select(JobPositionEntity, 5) should be(None)
+	//	}
 
 	test("immutable update") {
 		createJobPositionTable
@@ -66,13 +66,12 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 		val inserted = mapperDao.insert(JobPositionEntity, jp)
 
 		var updated: JobPosition = inserted
-		def doUpdate(from: JobPosition, to: JobPosition) =
-			{
-				updated = mapperDao.update(JobPositionEntity, Helpers.asNaturalIntId(from), to)
-				updated should be === to
-				mapperDao.select(JobPositionEntity, 5).get should be === to
-				mapperDao.select(JobPositionEntity, 5).get should be === updated
-			}
+		def doUpdate(from: JobPosition, to: JobPosition) = {
+			updated = mapperDao.update(JobPositionEntity, Helpers.asNaturalIntId(from), to)
+			updated should be === to
+			mapperDao.select(JobPositionEntity, 5).get should be === to
+			mapperDao.select(JobPositionEntity, 5).get should be === updated
+		}
 
 		doUpdate(updated, new JobPosition(5, "Developer Changed", date, date, 5))
 		doUpdate(updated, new JobPosition(5, "Developer Changed Again", date, date, 15))
@@ -141,11 +140,12 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 		val txManager = Transaction.transactionManager(jdbc)
 		val tx = Transaction.get(txManager, Propagation.Nested, Isolation.ReadCommited, -1)
 
-		val inserted = tx { () =>
-			val date = Setup.now
-			val inserted = mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date - 2.months, 10))
-			mapperDao.select(JobPositionEntity, inserted.id).get should be === inserted
-			inserted
+		val inserted = tx {
+			() =>
+				val date = Setup.now
+				val inserted = mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date - 2.months, 10))
+				mapperDao.select(JobPositionEntity, inserted.id).get should be === inserted
+				inserted
 		}
 		mapperDao.select(JobPositionEntity, inserted.id).get should be === inserted
 	}
@@ -159,11 +159,12 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 		val tx = Transaction.get(txManager, Propagation.Nested, Isolation.ReadCommited, -1)
 
 		try {
-			tx { () =>
-				val date = Setup.now
-				val inserted = mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date - 2.months, 10))
-				mapperDao.select(JobPositionEntity, inserted.id).get should be === inserted
-				throw new IllegalStateException
+			tx {
+				() =>
+					val date = Setup.now
+					val inserted = mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date - 2.months, 10))
+					mapperDao.select(JobPositionEntity, inserted.id).get should be === inserted
+					throw new IllegalStateException
 			}
 		} catch {
 			case e: IllegalStateException => // ignore
@@ -188,24 +189,27 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 	 * Also the only reason for this class to be mutable is for testing. In a real application
 	 * it would better be immutable.
 	 */
-	case class JobPosition(var id: Int, var name: String, val start: DateTime, val end: DateTime, var rank: Int, married: Boolean = false) {
+	case class JobPosition(val id: Int, var name: String, val start: DateTime, val end: DateTime, var rank: Int, married: Boolean = false) {
 		// this can have any arbitrary methods, no problem!
 		def daysDiff = (end.getMillis - start.getMillis) / (3600 * 24)
 
 		// also any non persisted fields, no prob! It's up to the mapper which fields will be used, see TestMappers
 		val whatever = 5
 	}
+
 	/**
 	 * ============================================================================================================
 	 * Mapping for JobPosition class
 	 * ============================================================================================================
 	 */
-	object JobPositionEntity extends Entity[Int, NaturalIntId, JobPosition] {
+	object JobPositionEntity extends Entity[Int, JobPosition] {
 		// now a description of the table and it's columns follows.
 		// each column is followed by a function JobPosition=>Any, that
 		// returns the value of the property for that column.
-		val id = key("id") to (_.id) // this is the primary key and maps to JobPosition.id
-		val name = column("name") to (_.name) // _.name : JobPosition => Any . Function that maps the column to the value of the object
+		val id = key("id") to (_.id)
+		// this is the primary key and maps to JobPosition.id
+		val name = column("name") to (_.name)
+		// _.name : JobPosition => Any . Function that maps the column to the value of the object
 		val start = column("start") to (_.start)
 		val end = column("end") to (_.end)
 		val rank = column("rank") to (_.rank)
@@ -215,4 +219,5 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 		// This means that immutability is possible and even desirable for entities!
 		def constructor(implicit m) = new JobPosition(id, name, start, end, rank, married) with NaturalIntId
 	}
+
 }

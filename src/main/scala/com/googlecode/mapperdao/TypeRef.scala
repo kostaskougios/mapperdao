@@ -1,5 +1,6 @@
 package com.googlecode.mapperdao
 
-case class TypeRef[FID, FPC <: DeclaredIds[FID], F](
+case class TypeRef[FID, F](
 	alias: String,
-	entity: Entity[FID, FPC, F])
+	entity: Entity[FID, F]
+)

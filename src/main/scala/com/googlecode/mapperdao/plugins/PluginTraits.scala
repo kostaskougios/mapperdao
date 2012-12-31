@@ -1,7 +1,5 @@
 package com.googlecode.mapperdao.plugins
 
-import com.googlecode.mapperdao.utils.MapOfList
-import com.googlecode.mapperdao.state.persisted.PersistedNode
 import com.googlecode.mapperdao._
 
 /**
@@ -12,14 +10,14 @@ import com.googlecode.mapperdao._
  *         31 Aug 2011
  */
 trait BeforeSelect {
-	def idContribution[ID, PC <: DeclaredIds[ID], T](
-		tpe: Type[ID, PC, T],
+	def idContribution[ID, T](
+		tpe: Type[ID, T],
 		om: DatabaseValues,
 		entities: EntityMap
 	): List[Any]
 
-	def before[ID, PC <: DeclaredIds[ID], T](
-		entity: Entity[ID, PC, T],
+	def before[ID, T](
+		entity: Entity[ID, T],
 		selectConfig: SelectConfig,
 		om: DatabaseValues,
 		entities: EntityMap
@@ -28,7 +26,7 @@ trait BeforeSelect {
 
 trait SelectMock {
 	def updateMock[ID, T](
-		entity: Entity[ID, DeclaredIds[ID], T],
+		entity: Entity[ID, T],
 		mods: scala.collection.mutable.Map[String, Any]
 	)
 }
@@ -37,17 +35,17 @@ trait SelectMock {
  * plugins executed before deleting an entity
  */
 trait BeforeDelete {
-	def idColumnValueContribution[ID, PC <: DeclaredIds[ID], T](
-		tpe: Type[ID, PC, T],
+	def idColumnValueContribution[ID, T](
+		tpe: Type[ID, T],
 		deleteConfig: DeleteConfig,
-		o: T with PC,
+		o: T with DeclaredIds[ID],
 		entityMap: UpdateEntityMap
 	): List[(SimpleColumn, Any)]
 
-	def before[ID, PC <: DeclaredIds[ID], T](
-		entity: Entity[ID, PC, T],
+	def before[ID, T](
+		entity: Entity[ID, T],
 		deleteConfig: DeleteConfig,
-		o: T with PC,
+		o: T with DeclaredIds[ID],
 		keyValues: List[(ColumnBase, Any)],
 		entityMap: UpdateEntityMap
 	): Unit

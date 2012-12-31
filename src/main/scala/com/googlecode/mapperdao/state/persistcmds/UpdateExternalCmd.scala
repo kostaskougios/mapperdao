@@ -9,7 +9,7 @@ import com.googlecode.mapperdao.{DeclaredIds, ColumnInfoTraversableManyToMany, E
  */
 case class UpdateExternalCmd[T, FID, FT](
 	foreignEntity: ExternalEntity[FID, FT],
-	manyToMany: ColumnInfoTraversableManyToMany[T, FID, _ <: DeclaredIds[FID], FT],
+	manyToMany: ColumnInfoTraversableManyToMany[T, FID, FT],
 	fo: FT
 ) extends PersistCmd {
 	def blank = true

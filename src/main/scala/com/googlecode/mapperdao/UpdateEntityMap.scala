@@ -5,23 +5,24 @@ import java.util.IdentityHashMap
 
 protected class UpdateEntityMap {
 	private val m = new IdentityHashMap[Int, Any]
-	private var stack = Stack[UpdateInfo[_, _, _, _, _, _, _]]()
+	private var stack = Stack[UpdateInfo[_, _, _, _, _]]()
 
-	def put[PC <: DeclaredIds[_], T](identity: Int, mock: PC with T with Persisted): Unit = m.put(identity, mock)
-	def get[PC <: DeclaredIds[_], T](identity: Int): Option[PC with T with Persisted] =
-		{
-			val g = m.get(identity)
-			if (g == null) None else Option(g.asInstanceOf[PC with T with Persisted])
-		}
+	def put[T](identity: Int, mock: DeclaredIds[_] with T): Unit = m.put(identity, mock)
 
-	def down[PID, PPC <: DeclaredIds[PID], PT, V, FID, FPC <: DeclaredIds[FID], F](
+	def get[T](identity: Int): Option[DeclaredIds[_] with T] = {
+		val g = m.get(identity)
+		if (g == null) None else Option(g.asInstanceOf[DeclaredIds[_] with T])
+	}
+
+	def down[PID, PT, V, FID, F](
 		o: PT,
-		ci: ColumnInfoRelationshipBase[PT, V, FID, FPC, F],
-		parentEntity: Entity[PID, PPC, PT]): Unit =
+		ci: ColumnInfoRelationshipBase[PT, V, FID, F],
+		parentEntity: Entity[PID, PT]
+	): Unit =
 		stack = stack.push(UpdateInfo(o, ci, parentEntity))
 
-	def peek[PID, PPC <: DeclaredIds[PID], PT, V, FID, FPC <: DeclaredIds[FID], F] =
-		(if (stack.isEmpty) UpdateInfo(null, null, null) else stack.top).asInstanceOf[UpdateInfo[PID, PPC, PT, V, FID, FPC, F]]
+	def peek[PID, PT, V, FID, F] =
+		(if (stack.isEmpty) UpdateInfo(null, null, null) else stack.top).asInstanceOf[UpdateInfo[PID, PT, V, FID, F]]
 
 	def up = stack = stack.pop
 
@@ -31,14 +32,16 @@ protected class UpdateEntityMap {
 
 	def toErrorStr = {
 		val sb = new StringBuilder
-		stack.foreach { u =>
-			sb append u.o append ('\n')
+		stack.foreach {
+			u =>
+				sb append u.o append ('\n')
 		}
 		sb.toString
 	}
 }
 
-protected case class UpdateInfo[PID, PPC <: DeclaredIds[PID], PT, V, FID, FPC <: DeclaredIds[FID], F](
+protected case class UpdateInfo[PID, PT, V, FID, F](
 	val o: PT,
-	val ci: ColumnInfoRelationshipBase[PT, V, FID, FPC, F],
-	parentEntity: Entity[PID, PPC, PT])
+	val ci: ColumnInfoRelationshipBase[PT, V, FID, F],
+	parentEntity: Entity[PID, PT]
+)

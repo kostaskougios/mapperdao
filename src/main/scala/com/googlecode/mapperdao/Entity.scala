@@ -51,7 +51,7 @@ import com.googlecode.mapperdao.utils.LazyActions
  *
  *         13 Aug 2011
  */
-abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val table: String, protected[mapperdao] val clz: Class[T]) {
+abstract class Entity[ID, T](protected[mapperdao] val table: String, protected[mapperdao] val clz: Class[T]) {
 
 	def this(table: String)(implicit m: ClassManifest[T]) = this(table, m.erasure.asInstanceOf[Class[T]])
 
@@ -62,31 +62,31 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 	 * should return an instance of T with PC, i.e.
 	 * an instance of Product with SurrogateIntId
 	 */
-	def constructor(implicit m: ValuesMap): T with PC
+	def constructor(implicit m: ValuesMap): T with DeclaredIds[ID]
 
-	def constructor(implicit data: Option[_], m: ValuesMap): T with PC = constructor(m)
+	def constructor(implicit data: Option[_], m: ValuesMap): T with DeclaredIds[ID] = constructor(m)
 
 	private[mapperdao] def init: Unit = {}
 
-	protected[mapperdao] var persistedColumns = List[ColumnInfoBase[T with PC, _]]()
+	protected[mapperdao] var persistedColumns = List[ColumnInfoBase[T with DeclaredIds[ID], _]]()
 	protected[mapperdao] var columns = List[ColumnInfoBase[T, _]]()
 	protected[mapperdao] var onlyForQueryColumns = List[ColumnInfoBase[T, _]]()
 	protected[mapperdao] var unusedPKs = new LazyActions[ColumnInfoBase[Any, Any]]
 	protected[mapperdao] lazy val tpe = {
-		val con: (Option[_], ValuesMap) => T with PC with Persisted = (d, m) => {
+		val con: (Option[_], ValuesMap) => T with DeclaredIds[ID] = (d, m) => {
 			// construct the object
 			val o = constructor(d, m)
 			// set the values map
 			o.mapperDaoValuesMap = m
 			o
 		}
-		Type[ID, PC, T](clz, con, Table[ID, PC, T](table, columns.reverse, persistedColumns, unusedPKs.executeAll.reverse))
+		Type[ID, T](clz, con, Table[ID, T](table, columns.reverse, persistedColumns, unusedPKs.executeAll.reverse))
 	}
 
 	override def hashCode = table.hashCode
 
 	override def equals(o: Any) = o match {
-		case e: Entity[_, _, _] => table == e.table && clz == e.clz
+		case e: Entity[_, _] => table == e.table && clz == e.clz
 		case _ => false
 	}
 
@@ -113,11 +113,11 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 		unusedPKs(() => ci.asInstanceOf[ColumnInfoBase[Any, Any]])
 	}
 
-	protected def declarePrimaryKey[V, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoManyToOne[T, FID, FPC, F]) {
+	protected def declarePrimaryKey[V, FID, F](ci: ColumnInfoManyToOne[T, FID, F]) {
 		unusedPKs(() => ci.asInstanceOf[ColumnInfoBase[Any, Any]])
 	}
 
-	protected def declarePrimaryKey[V, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoOneToOne[T, FID, FPC, F]) {
+	protected def declarePrimaryKey[V, FID, F](ci: ColumnInfoOneToOne[T, FID, F]) {
 		unusedPKs(() => ci.asInstanceOf[ColumnInfoBase[Any, Any]])
 	}
 
@@ -125,208 +125,208 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 	 * to avoid StackOverflow exceptions due to cyclic-referenced entities, we pass
 	 * this as by-name param
 	 */
-	protected def declarePrimaryKey[FID, FPC <: DeclaredIds[FID], F](ci: => ColumnInfoTraversableOneToMany[FID, FPC, F, ID, PC, T]) = {
+	protected def declarePrimaryKey[FID, F](ci: => ColumnInfoTraversableOneToMany[FID, F, ID, T]) = {
 		unusedPKs(() => ci.asInstanceOf[ColumnInfoBase[Any, Any]])
 		new ColumnInfoTraversableOneToManyDeclaredPrimaryKey(ci)
 	}
 
 	// implicit conversions to be used implicitly into the constructor method.
 	// these shouldn't be explicitly be called.
-	protected implicit def columnToBoolean(ci: ColumnInfo[T, Boolean])(implicit m: ValuesMap): Boolean = m(ci)
+	protected implicit def columnToBoolean(ci: ColumnInfo[_ <: T, Boolean])(implicit m: ValuesMap): Boolean = m(ci)
 
-	protected implicit def columnToBooleanOption(ci: ColumnInfo[T, Boolean])(implicit m: ValuesMap): Option[Boolean] =
+	protected implicit def columnToBooleanOption(ci: ColumnInfo[_ <: T, Boolean])(implicit m: ValuesMap): Option[Boolean] =
 		if (m.isNull(ci)) None else Some(m(ci))
 
-	protected implicit def columnToByte(ci: ColumnInfo[T, Byte])(implicit m: ValuesMap): Byte = m(ci)
+	protected implicit def columnToByte(ci: ColumnInfo[_ <: T, Byte])(implicit m: ValuesMap): Byte = m(ci)
 
-	protected implicit def columnToOptionByte(ci: ColumnInfo[T, Byte])(implicit m: ValuesMap): Option[Byte] =
+	protected implicit def columnToOptionByte(ci: ColumnInfo[_ <: T, Byte])(implicit m: ValuesMap): Option[Byte] =
 		if (m.isNull(ci)) None else Some(m(ci))
 
-	protected implicit def columnToShort(ci: ColumnInfo[T, Short])(implicit m: ValuesMap): Short = m(ci)
+	protected implicit def columnToShort(ci: ColumnInfo[_ <: T, Short])(implicit m: ValuesMap): Short = m(ci)
 
-	protected implicit def columnToOptionShort(ci: ColumnInfo[T, Short])(implicit m: ValuesMap): Option[Short] =
+	protected implicit def columnToOptionShort(ci: ColumnInfo[_ <: T, Short])(implicit m: ValuesMap): Option[Short] =
 		if (m.isNull(ci)) None else Some(m(ci))
 
-	protected implicit def columnToInt(ci: ColumnInfo[T, Int])(implicit m: ValuesMap): Int = m(ci)
+	protected implicit def columnToInt(ci: ColumnInfo[_ <: T, Int])(implicit m: ValuesMap): Int = m(ci)
 
-	protected implicit def columnToOptionInt(ci: ColumnInfo[T, Int])(implicit m: ValuesMap): Option[Int] =
+	protected implicit def columnToOptionInt(ci: ColumnInfo[_ <: T, Int])(implicit m: ValuesMap): Option[Int] =
 		if (m.isNull(ci)) None else Some(m(ci))
 
-	protected implicit def columnToIntIntId(ci: ColumnInfo[T with SurrogateIntId, Int])(implicit m: ValuesMap): Int = m(ci)
+	protected implicit def columnToIntIntId(ci: ColumnInfo[_ <: T with SurrogateIntId, Int])(implicit m: ValuesMap): Int = m(ci)
 
-	protected implicit def columnToLong(ci: ColumnInfo[T, Long])(implicit m: ValuesMap): Long = m(ci)
+	protected implicit def columnToLong(ci: ColumnInfo[_ <: T, Long])(implicit m: ValuesMap): Long = m(ci)
 
-	protected implicit def columnToOptionLong(ci: ColumnInfo[T, Long])(implicit m: ValuesMap): Option[Long] =
+	protected implicit def columnToOptionLong(ci: ColumnInfo[_ <: T, Long])(implicit m: ValuesMap): Option[Long] =
 		if (m.isNull(ci)) None else Some(m(ci))
 
 	protected implicit def columnToLongLongId(ci: ColumnInfo[T with SurrogateLongId, Long])(implicit m: ValuesMap): Long = m(ci)
 
-	protected implicit def columnToDateTime(ci: ColumnInfo[T, DateTime])(implicit m: ValuesMap): DateTime = m(ci)
+	protected implicit def columnToDateTime(ci: ColumnInfo[_ <: T, DateTime])(implicit m: ValuesMap): DateTime = m(ci)
 
-	protected implicit def columnToLocalDate(ci: ColumnInfo[T, LocalDate])(implicit m: ValuesMap): LocalDate = m(ci)
+	protected implicit def columnToLocalDate(ci: ColumnInfo[_ <: T, LocalDate])(implicit m: ValuesMap): LocalDate = m(ci)
 
-	protected implicit def columnToLocalTime(ci: ColumnInfo[T, LocalTime])(implicit m: ValuesMap): LocalTime = m(ci)
+	protected implicit def columnToLocalTime(ci: ColumnInfo[_ <: T, LocalTime])(implicit m: ValuesMap): LocalTime = m(ci)
 
-	protected implicit def columnToOptionDateTime(ci: ColumnInfo[T, DateTime])(implicit m: ValuesMap): Option[DateTime] = m(ci) match {
+	protected implicit def columnToOptionDateTime(ci: ColumnInfo[_ <: T, DateTime])(implicit m: ValuesMap): Option[DateTime] = m(ci) match {
 		case null => None
 		case v => Some(v)
 	}
 
-	protected implicit def columnToOptionLocalDate(ci: ColumnInfo[T, LocalDate])(implicit m: ValuesMap): Option[LocalDate] = m(ci) match {
+	protected implicit def columnToOptionLocalDate(ci: ColumnInfo[_ <: T, LocalDate])(implicit m: ValuesMap): Option[LocalDate] = m(ci) match {
 		case null => None
 		case v => Some(v)
 	}
 
-	protected implicit def columnToOptionLocalTime(ci: ColumnInfo[T, LocalTime])(implicit m: ValuesMap): Option[LocalTime] = m(ci) match {
+	protected implicit def columnToOptionLocalTime(ci: ColumnInfo[_ <: T, LocalTime])(implicit m: ValuesMap): Option[LocalTime] = m(ci) match {
 		case null => None
 		case v => Some(v)
 	}
 
-	protected implicit def columnToDate(ci: ColumnInfo[T, Date])(implicit m: ValuesMap): Date =
+	protected implicit def columnToDate(ci: ColumnInfo[_ <: T, Date])(implicit m: ValuesMap): Date =
 		m.date(ci)
 
-	protected implicit def columnToOptionDate(ci: ColumnInfo[T, Date])(implicit m: ValuesMap): Option[Date] = m.date(ci) match {
+	protected implicit def columnToOptionDate(ci: ColumnInfo[_ <: T, Date])(implicit m: ValuesMap): Option[Date] = m.date(ci) match {
 		case null => None
 		case v => Some(v)
 	}
 
-	protected implicit def columnToCalendar(ci: ColumnInfo[T, Calendar])(implicit m: ValuesMap): Calendar = m.calendar(ci)
+	protected implicit def columnToCalendar(ci: ColumnInfo[_ <: T, Calendar])(implicit m: ValuesMap): Calendar = m.calendar(ci)
 
-	protected implicit def columnToOptionCalendar(ci: ColumnInfo[T, Calendar])(implicit m: ValuesMap): Option[Calendar] = m.calendar(ci) match {
+	protected implicit def columnToOptionCalendar(ci: ColumnInfo[_ <: T, Calendar])(implicit m: ValuesMap): Option[Calendar] = m.calendar(ci) match {
 		case null => None
 		case v => Some(v)
 	}
 
-	protected implicit def columnToString(ci: ColumnInfo[T, String])(implicit m: ValuesMap): String = m(ci)
+	protected implicit def columnToString(ci: ColumnInfo[_ <: T, String])(implicit m: ValuesMap): String = m(ci)
 
-	protected implicit def columnToOptionString(ci: ColumnInfo[T, String])(implicit m: ValuesMap): Option[String] = m(ci) match {
+	protected implicit def columnToOptionString(ci: ColumnInfo[_ <: T, String])(implicit m: ValuesMap): Option[String] = m(ci) match {
 		case null => None
 		case v => Some(v)
 	}
 
-	protected implicit def columnToBigDecimal(ci: ColumnInfo[T, BigDecimal])(implicit m: ValuesMap): BigDecimal = m.bigDecimal(ci)
+	protected implicit def columnToBigDecimal(ci: ColumnInfo[_ <: T, BigDecimal])(implicit m: ValuesMap): BigDecimal = m.bigDecimal(ci)
 
-	protected implicit def columnToOptionBigDecimal(ci: ColumnInfo[T, BigDecimal])(implicit m: ValuesMap): Option[BigDecimal] = m(ci) match {
+	protected implicit def columnToOptionBigDecimal(ci: ColumnInfo[_ <: T, BigDecimal])(implicit m: ValuesMap): Option[BigDecimal] = m(ci) match {
 		case null => None
 		case v => Some(v)
 	}
 
-	protected implicit def columnToBigInteger(ci: ColumnInfo[T, BigInt])(implicit m: ValuesMap): BigInt = m.bigInt(ci)
+	protected implicit def columnToBigInteger(ci: ColumnInfo[_ <: T, BigInt])(implicit m: ValuesMap): BigInt = m.bigInt(ci)
 
-	protected implicit def columnToOptionBigInteger(ci: ColumnInfo[T, BigInt])(implicit m: ValuesMap): Option[BigInt] = m(ci) match {
+	protected implicit def columnToOptionBigInteger(ci: ColumnInfo[_ <: T, BigInt])(implicit m: ValuesMap): Option[BigInt] = m(ci) match {
 		case null => None
 		case v => Some(v)
 	}
 
-	protected implicit def columnToFloat(ci: ColumnInfo[T, Float])(implicit m: ValuesMap): Float = m(ci)
+	protected implicit def columnToFloat(ci: ColumnInfo[_ <: T, Float])(implicit m: ValuesMap): Float = m(ci)
 
-	protected implicit def columnToOptionFloat(ci: ColumnInfo[T, Float])(implicit m: ValuesMap): Option[Float] =
+	protected implicit def columnToOptionFloat(ci: ColumnInfo[_ <: T, Float])(implicit m: ValuesMap): Option[Float] =
 		if (m.isNull(ci)) None else Some(m(ci))
 
-	protected implicit def columnToDouble(ci: ColumnInfo[T, Double])(implicit m: ValuesMap): Double = m(ci)
+	protected implicit def columnToDouble(ci: ColumnInfo[_ <: T, Double])(implicit m: ValuesMap): Double = m(ci)
 
-	protected implicit def columnToOptionDouble(ci: ColumnInfo[T, Double])(implicit m: ValuesMap): Option[Double] =
+	protected implicit def columnToOptionDouble(ci: ColumnInfo[_ <: T, Double])(implicit m: ValuesMap): Option[Double] =
 		if (m.isNull(ci)) None else Some(m(ci))
 
 	// many to many : Scala
-	protected implicit def columnTraversableManyToManyToSet[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableManyToMany[T, FID, FPC, F])(implicit m: ValuesMap): Set[F] = m(ci).toSet
+	protected implicit def columnTraversableManyToManyToSet[FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F])(implicit m: ValuesMap): Set[F] = m(ci).toSet
 
-	protected implicit def columnTraversableManyToManyToList[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableManyToMany[T, FID, FPC, F])(implicit m: ValuesMap): List[F] = m(ci).toList
+	protected implicit def columnTraversableManyToManyToList[FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F])(implicit m: ValuesMap): List[F] = m(ci).toList
 
-	protected implicit def columnTraversableManyToManyToIndexedSeq[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableManyToMany[T, FID, FPC, F])(implicit m: ValuesMap): IndexedSeq[F] = m(ci).toIndexedSeq
+	protected implicit def columnTraversableManyToManyToIndexedSeq[FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F])(implicit m: ValuesMap): IndexedSeq[F] = m(ci).toIndexedSeq
 
-	protected implicit def columnTraversableManyToManyToArray[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableManyToMany[T, FID, FPC, F])(implicit m: ValuesMap, e: ClassManifest[F]): Array[F] = m(ci).toArray
+	protected implicit def columnTraversableManyToManyToArray[FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F])(implicit m: ValuesMap, e: ClassManifest[F]): Array[F] = m(ci).toArray
 
 	// many to one
-	protected implicit def columnManyToOneToValue[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoManyToOne[T, FID, FPC, F])(implicit m: ValuesMap): F = m(ci)
+	protected implicit def columnManyToOneToValue[FID, F](ci: ColumnInfoManyToOne[T, FID, F])(implicit m: ValuesMap): F = m(ci)
 
-	protected implicit def columnManyToOneToOptionValue[T, FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoManyToOne[T, FID, FPC, F])(implicit m: ValuesMap): Option[F] = m(ci) match {
+	protected implicit def columnManyToOneToOptionValue[T, FID, F](ci: ColumnInfoManyToOne[T, FID, F])(implicit m: ValuesMap): Option[F] = m(ci) match {
 		case null => None
 		case v => Some(v)
 	}
 
 	// one to many : Scala
-	protected implicit def columnTraversableOneToManyList[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F])(implicit m: ValuesMap): List[F] = m(ci).toList
+	protected implicit def columnTraversableOneToManyList[FID, F](ci: ColumnInfoTraversableOneToMany[ID, T, FID, F])(implicit m: ValuesMap): List[F] = m(ci).toList
 
-	protected implicit def columnTraversableOneToManySet[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F])(implicit m: ValuesMap): Set[F] = m(ci).toSet
+	protected implicit def columnTraversableOneToManySet[FID, F](ci: ColumnInfoTraversableOneToMany[ID, T, FID, F])(implicit m: ValuesMap): Set[F] = m(ci).toSet
 
-	protected implicit def columnTraversableOneToManyIndexedSeq[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F])(implicit m: ValuesMap): IndexedSeq[F] = m(ci).toIndexedSeq
+	protected implicit def columnTraversableOneToManyIndexedSeq[FID, F](ci: ColumnInfoTraversableOneToMany[ID, T, FID, F])(implicit m: ValuesMap): IndexedSeq[F] = m(ci).toIndexedSeq
 
-	protected implicit def columnTraversableOneToManyArray[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F])(implicit m: ValuesMap, e: ClassManifest[F]): Array[F] = m(ci).toArray
+	protected implicit def columnTraversableOneToManyArray[FID, F](ci: ColumnInfoTraversableOneToMany[ID, T, FID, F])(implicit m: ValuesMap, e: ClassManifest[F]): Array[F] = m(ci).toArray
 
 	// simple typec entities, one-to-many
-	protected implicit def columnTraversableOneToManyListStringEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, StringValue])(implicit m: ValuesMap): List[String] =
+	protected implicit def columnTraversableOneToManyListStringEntity[T, EID](ci: ColumnInfoTraversableOneToMany[ID, T, EID, StringValue])(implicit m: ValuesMap): List[String] =
 		m(ci).map(_.value).toList
 
-	protected implicit def columnTraversableOneToManySetStringEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, StringValue])(implicit m: ValuesMap): Set[String] =
+	protected implicit def columnTraversableOneToManySetStringEntity[T, EID](ci: ColumnInfoTraversableOneToMany[ID, T, EID, StringValue])(implicit m: ValuesMap): Set[String] =
 		m(ci).map(_.value).toSet
 
-	protected implicit def columnTraversableOneToManyListIntEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, IntValue])(implicit m: ValuesMap): List[Int] =
+	protected implicit def columnTraversableOneToManyListIntEntity[T, EID](ci: ColumnInfoTraversableOneToMany[ID, T, EID, IntValue])(implicit m: ValuesMap): List[Int] =
 		m(ci).map(_.value).toList
 
-	protected implicit def columnTraversableOneToManySetIntEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, IntValue])(implicit m: ValuesMap): Set[Int] =
+	protected implicit def columnTraversableOneToManySetIntEntity[T, EID](ci: ColumnInfoTraversableOneToMany[ID, T, EID, IntValue])(implicit m: ValuesMap): Set[Int] =
 		m(ci).map(_.value).toSet
 
-	protected implicit def columnTraversableOneToManyListLongEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, LongValue])(implicit m: ValuesMap): List[Long] =
+	protected implicit def columnTraversableOneToManyListLongEntity[T, EID](ci: ColumnInfoTraversableOneToMany[ID, T, EID, LongValue])(implicit m: ValuesMap): List[Long] =
 		m(ci).map(_.value).toList
 
-	protected implicit def columnTraversableOneToManySetLongEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, LongValue])(implicit m: ValuesMap): Set[Long] =
+	protected implicit def columnTraversableOneToManySetLongEntity[T, EID](ci: ColumnInfoTraversableOneToMany[ID, T, EID, LongValue])(implicit m: ValuesMap): Set[Long] =
 		m(ci).map(_.value).toSet
 
-	protected implicit def columnTraversableOneToManyListFloatEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, FloatValue])(implicit m: ValuesMap): List[Float] =
+	protected implicit def columnTraversableOneToManyListFloatEntity[T, EID](ci: ColumnInfoTraversableOneToMany[ID, T, EID, FloatValue])(implicit m: ValuesMap): List[Float] =
 		m(ci).map(_.value).toList
 
-	protected implicit def columnTraversableOneToManySetFloatEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, FloatValue])(implicit m: ValuesMap): Set[Float] =
+	protected implicit def columnTraversableOneToManySetFloatEntity[T, EID](ci: ColumnInfoTraversableOneToMany[ID, T, EID, FloatValue])(implicit m: ValuesMap): Set[Float] =
 		m(ci).map(_.value).toSet
 
-	protected implicit def columnTraversableOneToManyListDoubleEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, DoubleValue])(implicit m: ValuesMap): List[Double] =
+	protected implicit def columnTraversableOneToManyListDoubleEntity[T, EID](ci: ColumnInfoTraversableOneToMany[ID, T, EID, DoubleValue])(implicit m: ValuesMap): List[Double] =
 		m(ci).map(_.value).toList
 
-	protected implicit def columnTraversableOneToManySetDoubleEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableOneToMany[ID, PC, T, EID, EPC, DoubleValue])(implicit m: ValuesMap): Set[Double] =
+	protected implicit def columnTraversableOneToManySetDoubleEntity[T, EID](ci: ColumnInfoTraversableOneToMany[ID, T, EID, DoubleValue])(implicit m: ValuesMap): Set[Double] =
 		m(ci).map(_.value).toSet
 
 	// simple typec entities, many-to-many
-	protected implicit def columnTraversableManyToManyListStringEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableManyToMany[T, EID, EPC, StringValue])(implicit m: ValuesMap): List[String] =
+	protected implicit def columnTraversableManyToManyListStringEntity[T, EID](ci: ColumnInfoTraversableManyToMany[T, EID, StringValue])(implicit m: ValuesMap): List[String] =
 		m(ci).map(_.value).toList
 
-	protected implicit def columnTraversableManyToManySetStringEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableManyToMany[T, EID, EPC, StringValue])(implicit m: ValuesMap): Set[String] =
+	protected implicit def columnTraversableManyToManySetStringEntity[T, EID](ci: ColumnInfoTraversableManyToMany[T, EID, StringValue])(implicit m: ValuesMap): Set[String] =
 		m(ci).map(_.value).toSet
 
-	protected implicit def columnTraversableManyToManyListIntEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableManyToMany[T, EID, EPC, IntValue])(implicit m: ValuesMap): List[Int] =
+	protected implicit def columnTraversableManyToManyListIntEntity[T, EID](ci: ColumnInfoTraversableManyToMany[T, EID, IntValue])(implicit m: ValuesMap): List[Int] =
 		m(ci).map(_.value).toList
 
-	protected implicit def columnTraversableManyToManySetIntEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableManyToMany[T, EID, EPC, IntValue])(implicit m: ValuesMap): Set[Int] =
+	protected implicit def columnTraversableManyToManySetIntEntity[T, EID](ci: ColumnInfoTraversableManyToMany[T, EID, IntValue])(implicit m: ValuesMap): Set[Int] =
 		m(ci).map(_.value).toSet
 
-	protected implicit def columnTraversableManyToManyListLongEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableManyToMany[T, EID, EPC, LongValue])(implicit m: ValuesMap): List[Long] =
+	protected implicit def columnTraversableManyToManyListLongEntity[T, EID](ci: ColumnInfoTraversableManyToMany[T, EID, LongValue])(implicit m: ValuesMap): List[Long] =
 		m(ci).map(_.value).toList
 
-	protected implicit def columnTraversableManyToManySetLongEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableManyToMany[T, EID, EPC, LongValue])(implicit m: ValuesMap): Set[Long] =
+	protected implicit def columnTraversableManyToManySetLongEntity[T, EID](ci: ColumnInfoTraversableManyToMany[T, EID, LongValue])(implicit m: ValuesMap): Set[Long] =
 		m(ci).map(_.value).toSet
 
-	protected implicit def columnTraversableManyToManyListFloatEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableManyToMany[T, EID, EPC, FloatValue])(implicit m: ValuesMap): List[Float] =
+	protected implicit def columnTraversableManyToManyListFloatEntity[T, EID](ci: ColumnInfoTraversableManyToMany[T, EID, FloatValue])(implicit m: ValuesMap): List[Float] =
 		m(ci).map(_.value).toList
 
-	protected implicit def columnTraversableManyToManySetFloatEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableManyToMany[T, EID, EPC, FloatValue])(implicit m: ValuesMap): Set[Float] =
+	protected implicit def columnTraversableManyToManySetFloatEntity[T, EID](ci: ColumnInfoTraversableManyToMany[T, EID, FloatValue])(implicit m: ValuesMap): Set[Float] =
 		m(ci).map(_.value).toSet
 
-	protected implicit def columnTraversableManyToManyListDoubleEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableManyToMany[T, EID, EPC, DoubleValue])(implicit m: ValuesMap): List[Double] =
+	protected implicit def columnTraversableManyToManyListDoubleEntity[T, EID](ci: ColumnInfoTraversableManyToMany[T, EID, DoubleValue])(implicit m: ValuesMap): List[Double] =
 		m(ci).map(_.value).toList
 
-	protected implicit def columnTraversableManyToManySetDoubleEntity[T, EID, EPC <: DeclaredIds[EID]](ci: ColumnInfoTraversableManyToMany[T, EID, EPC, DoubleValue])(implicit m: ValuesMap): Set[Double] =
+	protected implicit def columnTraversableManyToManySetDoubleEntity[T, EID](ci: ColumnInfoTraversableManyToMany[T, EID, DoubleValue])(implicit m: ValuesMap): Set[Double] =
 		m(ci).map(_.value).toSet
 
 	// one to one
-	protected implicit def columnOneToOne[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoOneToOne[T, FID, FPC, F])(implicit m: ValuesMap): F = m(ci)
+	protected implicit def columnOneToOne[FID, F](ci: ColumnInfoOneToOne[T, FID, F])(implicit m: ValuesMap): F = m(ci)
 
-	protected implicit def columnOneToOneOption[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoOneToOne[T, FID, FPC, F])(implicit m: ValuesMap): Option[F] = m(ci) match {
+	protected implicit def columnOneToOneOption[FID, F](ci: ColumnInfoOneToOne[T, FID, F])(implicit m: ValuesMap): Option[F] = m(ci) match {
 		case null => None
 		case v => Some(v)
 	}
 
-	protected implicit def columnOneToOneReverse[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoOneToOneReverse[T, FID, FPC, F])(implicit m: ValuesMap): F = m(ci)
+	protected implicit def columnOneToOneReverse[FID, F](ci: ColumnInfoOneToOneReverse[T, FID, F])(implicit m: ValuesMap): F = m(ci)
 
-	protected implicit def columnOneToOneReverseOption[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoOneToOneReverse[T, FID, FPC, F])(implicit m: ValuesMap): Option[F] = m(ci) match {
+	protected implicit def columnOneToOneReverseOption[FID, F](ci: ColumnInfoOneToOneReverse[T, FID, F])(implicit m: ValuesMap): Option[F] = m(ci) match {
 		case null => None
 		case v => Some(v)
 	}
@@ -374,7 +374,7 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 			this
 		}
 
-		def autogenerated[V](columnToValue: T with PC => V)(implicit m: Manifest[V]): ColumnInfo[T with PC, V] = {
+		def autogenerated[V](columnToValue: T with DeclaredIds[ID] => V)(implicit m: Manifest[V]): ColumnInfo[T with DeclaredIds[ID], V] = {
 			val tpe = m.erasure.asInstanceOf[Class[V]]
 			var ci = ColumnInfo(PK(columnName, true, seq, m.erasure), columnToValue, tpe)
 			persistedColumns ::= ci
@@ -408,11 +408,11 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 	 * or, to override the default naming convention
 	 * val attributes=manytomany(AttributeEntity) join("Product_To_Attributes","p_id","a_id") to (_.attributes)
 	 */
-	def manytomany[FID, FPC <: DeclaredIds[FID], FT](referenced: Entity[FID, FPC, FT]) = new ManyToManyBuilder(referenced, false)
+	def manytomany[FID, FT](referenced: Entity[FID, FT]) = new ManyToManyBuilder(referenced, false)
 
-	def manytomanyreverse[FID, FPC <: DeclaredIds[FID], FT](referenced: Entity[FID, FPC, FT]) = new ManyToManyBuilder(referenced, true)
+	def manytomanyreverse[FID, FT](referenced: Entity[FID, FT]) = new ManyToManyBuilder(referenced, true)
 
-	protected class ManyToManyBuilder[FID, FPC <: DeclaredIds[FID], FT](referenced: Entity[FID, FPC, FT], reverse: Boolean)
+	protected class ManyToManyBuilder[FID, FT](referenced: Entity[FID, FT], reverse: Boolean)
 		extends GetterDefinition with OnlyForQueryDefinition {
 		val clz = Entity.this.clz
 		private var linkTable = if (reverse) referenced.clz.getSimpleName + "_" + clz.getSimpleName else clz.getSimpleName + "_" + referenced.clz.getSimpleName
@@ -443,14 +443,14 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 			this
 		}
 
-		def to(columnToValue: T => Traversable[FT]): ColumnInfoTraversableManyToMany[T, FID, FPC, FT] = {
+		def to(columnToValue: T => Traversable[FT]): ColumnInfoTraversableManyToMany[T, FID, FT] = {
 			if (keysDuringDeclaration.size != leftColumns.size) throw new IllegalStateException("join is invalid, left part keys %s and right part %s".format(keysDuringDeclaration, leftColumns))
 			if (referenced.keysDuringDeclaration.size != rightColumns.size) throw new IllegalStateException("join is invalid, left part keys %s and right part %s".format(referenced.keysDuringDeclaration, rightColumns))
 
 			val left = keysDuringDeclaration zip leftColumns
 			val right = referenced.keysDuringDeclaration zip rightColumns
 
-			val ci = ColumnInfoTraversableManyToMany[T, FID, FPC, FT](
+			val ci = ColumnInfoTraversableManyToMany[T, FID, FT](
 				ManyToMany(
 					LinkTable(linkTable, left.map {
 						case (k, c) =>
@@ -468,30 +468,30 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 			ci
 		}
 
-		def tojava(columnToValue: T => java.lang.Iterable[FT]): ColumnInfoTraversableManyToMany[T, FID, FPC, FT] =
+		def tojava(columnToValue: T => java.lang.Iterable[FT]): ColumnInfoTraversableManyToMany[T, FID, FT] =
 			to((ctv: T) => columnToValue(ctv).asScala)
 
-		def tostring(columnToValue: T => Traversable[String]): ColumnInfoTraversableManyToMany[T, FID, FPC, FT] =
+		def tostring(columnToValue: T => Traversable[String]): ColumnInfoTraversableManyToMany[T, FID, FT] =
 			to((t: T) => {
 				columnToValue(t).map(StringValue(_)).asInstanceOf[Traversable[FT]]
 			})
 
-		def toint(columnToValue: T => Traversable[Int]): ColumnInfoTraversableManyToMany[T, FID, FPC, FT] =
+		def toint(columnToValue: T => Traversable[Int]): ColumnInfoTraversableManyToMany[T, FID, FT] =
 			to((t: T) => {
 				columnToValue(t).map(IntValue(_)).asInstanceOf[Traversable[FT]]
 			})
 
-		def tofloat(columnToValue: T => Traversable[Float]): ColumnInfoTraversableManyToMany[T, FID, FPC, FT] =
+		def tofloat(columnToValue: T => Traversable[Float]): ColumnInfoTraversableManyToMany[T, FID, FT] =
 			to((t: T) => {
 				columnToValue(t).map(FloatValue(_)).asInstanceOf[Traversable[FT]]
 			})
 
-		def todouble(columnToValue: T => Traversable[Double]): ColumnInfoTraversableManyToMany[T, FID, FPC, FT] =
+		def todouble(columnToValue: T => Traversable[Double]): ColumnInfoTraversableManyToMany[T, FID, FT] =
 			to((t: T) => {
 				columnToValue(t).map(DoubleValue(_)).asInstanceOf[Traversable[FT]]
 			})
 
-		def tolong(columnToValue: T => Traversable[Long]): ColumnInfoTraversableManyToMany[T, FID, FPC, FT] =
+		def tolong(columnToValue: T => Traversable[Long]): ColumnInfoTraversableManyToMany[T, FID, FT] =
 			to((t: T) => {
 				columnToValue(t).map(LongValue(_)).asInstanceOf[Traversable[FT]]
 			})
@@ -504,9 +504,9 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 	 * or
 	 * val inventory=onetoone(InventoryEntity) option (_.inventory)
 	 */
-	def onetoone[FID, FPC <: DeclaredIds[FID], FT](referenced: Entity[FID, FPC, FT]) = new OneToOneBuilder(referenced)
+	def onetoone[FID, FT](referenced: Entity[FID, FT]) = new OneToOneBuilder(referenced)
 
-	protected class OneToOneBuilder[FID, FPC <: DeclaredIds[FID], FT](referenced: Entity[FID, FPC, FT])
+	protected class OneToOneBuilder[FID, FT](referenced: Entity[FID, FT])
 		extends OnlyForQueryDefinition {
 		private var cols = referenced.keysDuringDeclaration.map {
 			k =>
@@ -523,7 +523,7 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 			this
 		}
 
-		def to(columnToValue: T => FT): ColumnInfoOneToOne[T, FID, FPC, FT] = {
+		def to(columnToValue: T => FT): ColumnInfoOneToOne[T, FID, FT] = {
 			val fPKs = referenced.keysDuringDeclaration
 			if (fPKs.size != cols.size) throw new IllegalStateException("keys don't match foreign keys for %s -> %s".format(cols, referenced))
 			val fkeys = fPKs zip cols
@@ -535,16 +535,16 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 			ci
 		}
 
-		def option(columnToValue: T => Option[FT]): ColumnInfoOneToOne[T, FID, FPC, FT] = to(optionToValue(columnToValue))
+		def option(columnToValue: T => Option[FT]): ColumnInfoOneToOne[T, FID, FT] = to(optionToValue(columnToValue))
 	}
 
 	/**
 	 * one-to-one reverse, i.e.
 	 * val product=onetoonereverse(ProductEntity) to (_.product)
 	 */
-	def onetoonereverse[FID, FPC <: DeclaredIds[FID], FT](referenced: Entity[FID, FPC, FT]) = new OneToOneReverseBuilder(referenced)
+	def onetoonereverse[FID, FT](referenced: Entity[FID, FT]) = new OneToOneReverseBuilder(referenced)
 
-	protected class OneToOneReverseBuilder[FID, FPC <: DeclaredIds[FID], FT](referenced: Entity[FID, FPC, FT])
+	protected class OneToOneReverseBuilder[FID, FT](referenced: Entity[FID, FT])
 		extends GetterDefinition
 		with OnlyForQueryDefinition {
 		val clz = Entity.this.clz
@@ -563,7 +563,7 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 			this
 		}
 
-		def to(columnToValue: T => FT): ColumnInfoOneToOneReverse[T, FID, FPC, FT] = {
+		def to(columnToValue: T => FT): ColumnInfoOneToOneReverse[T, FID, FT] = {
 			if (keysDuringDeclaration.size != fkcols.size) throw new IllegalStateException("keys don't match foreign keys for %s -> %s".format(fkcols, referenced))
 			val fkeys = keysDuringDeclaration zip fkcols
 			val ci = ColumnInfoOneToOneReverse(OneToOneReverse(TypeRef(createAlias, referenced), fkeys.map {
@@ -580,9 +580,9 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 	 *
 	 * val houses=onetomany(HouseEntity) to (_.houses)
 	 */
-	def onetomany[FID, FPC <: DeclaredIds[FID], FT](referenced: Entity[FID, FPC, FT]) = new OneToManyBuilder(referenced)
+	def onetomany[FID, FT](referenced: Entity[FID, FT]) = new OneToManyBuilder(referenced)
 
-	protected class OneToManyBuilder[FID, FPC <: DeclaredIds[FID], FT](referenced: Entity[FID, FPC, FT])
+	protected class OneToManyBuilder[FID, FT](referenced: Entity[FID, FT])
 		extends GetterDefinition
 		with OnlyForQueryDefinition {
 		val clz = Entity.this.clz
@@ -599,10 +599,10 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 			this
 		}
 
-		def to(columnToValue: T => Traversable[FT]): ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, FT] = {
+		def to(columnToValue: T => Traversable[FT]): ColumnInfoTraversableOneToMany[ID, T, FID, FT] = {
 			if (keysDuringDeclaration.size != fkcols.size) throw new IllegalArgumentException("foreign keys declaration not correct, foreign keys %s , declared %s".format(referenced.keysDuringDeclaration, fkcols))
 			val fkeys = keysDuringDeclaration zip fkcols
-			val ci = ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, FT](
+			val ci = ColumnInfoTraversableOneToMany[ID, T, FID, FT](
 				OneToMany(
 					TypeRef(createAlias, referenced),
 					fkeys.map {
@@ -617,30 +617,30 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 			ci
 		}
 
-		def tojava(columnToValue: T => java.lang.Iterable[FT]): ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, FT] =
+		def tojava(columnToValue: T => java.lang.Iterable[FT]): ColumnInfoTraversableOneToMany[ID, T, FID, FT] =
 			to((ctv: T) => columnToValue(ctv).asScala)
 
-		def tostring(columnToValue: T => Traversable[String]): ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, FT] =
+		def tostring(columnToValue: T => Traversable[String]): ColumnInfoTraversableOneToMany[ID, T, FID, FT] =
 			to((t: T) => {
 				columnToValue(t).map(StringValue(_)).asInstanceOf[Traversable[FT]]
 			})
 
-		def toint(columnToValue: T => Traversable[Int]): ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, FT] =
+		def toint(columnToValue: T => Traversable[Int]): ColumnInfoTraversableOneToMany[ID, T, FID, FT] =
 			to((t: T) => {
 				columnToValue(t).map(IntValue(_)).asInstanceOf[Traversable[FT]]
 			})
 
-		def tofloat(columnToValue: T => Traversable[Float]): ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, FT] =
+		def tofloat(columnToValue: T => Traversable[Float]): ColumnInfoTraversableOneToMany[ID, T, FID, FT] =
 			to((t: T) => {
 				columnToValue(t).map(FloatValue(_)).asInstanceOf[Traversable[FT]]
 			})
 
-		def todouble(columnToValue: T => Traversable[Double]): ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, FT] =
+		def todouble(columnToValue: T => Traversable[Double]): ColumnInfoTraversableOneToMany[ID, T, FID, FT] =
 			to((t: T) => {
 				columnToValue(t).map(DoubleValue(_)).asInstanceOf[Traversable[FT]]
 			})
 
-		def tolong(columnToValue: T => Traversable[Long]): ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, FT] =
+		def tolong(columnToValue: T => Traversable[Long]): ColumnInfoTraversableOneToMany[ID, T, FID, FT] =
 			to((t: T) => {
 				columnToValue(t).map(LongValue(_)).asInstanceOf[Traversable[FT]]
 			})
@@ -651,9 +651,9 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 	 *
 	 * val person=manytoone(PersonEntity) to (_.person)
 	 */
-	def manytoone[FID, FPC <: DeclaredIds[FID], FT](referenced: Entity[FID, FPC, FT]) = new ManyToOneBuilder(referenced)
+	def manytoone[FID, FT](referenced: Entity[FID, FT]) = new ManyToOneBuilder(referenced)
 
-	protected class ManyToOneBuilder[FID, FPC <: DeclaredIds[FID], FT](referenced: Entity[FID, FPC, FT])
+	protected class ManyToOneBuilder[FID, FT](referenced: Entity[FID, FT])
 		extends GetterDefinition
 		with OnlyForQueryDefinition {
 
@@ -673,7 +673,7 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 			this
 		}
 
-		def to(columnToValue: T => FT): ColumnInfoManyToOne[T, FID, FPC, FT] = {
+		def to(columnToValue: T => FT): ColumnInfoManyToOne[T, FID, FT] = {
 			if (referenced.keysDuringDeclaration.size != fkcols.size) throw new IllegalArgumentException("the number of foreign columns doesn't match the number of keys for %s => %s".format(referenced.keysDuringDeclaration, fkcols))
 			val keys = referenced.keysDuringDeclaration zip fkcols
 
@@ -691,7 +691,7 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 			ci
 		}
 
-		def option(columnToValue: T => Option[FT]): ColumnInfoManyToOne[T, FID, FPC, FT] =
+		def option(columnToValue: T => Option[FT]): ColumnInfoManyToOne[T, FID, FT] =
 			to(optionToValue(columnToValue))
 	}
 
@@ -709,29 +709,29 @@ abstract class Entity[ID, PC <: DeclaredIds[ID], T](protected[mapperdao] val tab
 	protected implicit def columnToJFloat(ci: ColumnInfo[T, java.lang.Float])(implicit m: ValuesMap): java.lang.Float = m.float(ci)
 
 	// many to many : Java
-	protected implicit def columnTraversableManyToManyToJSet[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableManyToMany[T, FID, FPC, F])(implicit m: ValuesMap): java.util.Set[F] =
+	protected implicit def columnTraversableManyToManyToJSet[FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F])(implicit m: ValuesMap): java.util.Set[F] =
 		m(ci) match {
 			case null => null
 			case v => v.toSet.asJava
 		}
 
-	protected implicit def columnTraversableManyToManyToJList[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableManyToMany[T, FID, FPC, F])(implicit m: ValuesMap): java.util.List[F] = m(ci) match {
+	protected implicit def columnTraversableManyToManyToJList[FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F])(implicit m: ValuesMap): java.util.List[F] = m(ci) match {
 		case null => null
 		case v => v.toList.asJava
 	}
 
 	// one to many : Java
-	protected implicit def columnTraversableOneToManyJList[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F])(implicit m: ValuesMap): java.util.List[F] = m(ci) match {
+	protected implicit def columnTraversableOneToManyJList[FID, F](ci: ColumnInfoTraversableOneToMany[ID, T, FID, F])(implicit m: ValuesMap): java.util.List[F] = m(ci) match {
 		case null => null
 		case v => v.toList.asJava
 	}
 
-	protected implicit def columnTraversableOneToManyJSet[FID, FPC <: DeclaredIds[FID], F](ci: ColumnInfoTraversableOneToMany[ID, PC, T, FID, FPC, F])(implicit m: ValuesMap): java.util.Set[F] = m(ci) match {
+	protected implicit def columnTraversableOneToManyJSet[FID, F](ci: ColumnInfoTraversableOneToMany[ID, T, FID, F])(implicit m: ValuesMap): java.util.Set[F] = m(ci) match {
 		case null => null
 		case v => v.toSet.asJava
 	}
 
 	// ===================== /Java section ================================
 
-	def toPersistedType(t: T): T with PC = t.asInstanceOf[T with PC]
+	def toPersistedType(t: T): T with DeclaredIds[ID] = t.asInstanceOf[T with DeclaredIds[ID]]
 }

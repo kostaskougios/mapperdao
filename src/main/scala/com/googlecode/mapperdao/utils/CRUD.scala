@@ -8,7 +8,6 @@ import org.springframework.transaction.PlatformTransactionManager
 import com.googlecode.mapperdao.jdbc.Transaction
 import Transaction._
 import com.googlecode.mapperdao.TypeRegistry
-import com.googlecode.mapperdao.jdbc.MockTransaction
 import com.googlecode.mapperdao.QueryConfig
 import com.googlecode.mapperdao.SelectConfig
 import com.googlecode.mapperdao.UpdateConfig
@@ -21,16 +20,15 @@ import com.googlecode.mapperdao.DeclaredIds
  * https://code.google.com/p/mapperdao/wiki/CRUDDaos
  *
  * T is the entity type, i.e. Product
- * PC is the key type, i.e. SurrogateIntId.
  * ID is the type of the key, i.e. Int or String
  *
  * @author kostantinos.kougios
  *
- * 30 Aug 2011
+ *         30 Aug 2011
  */
-trait CRUD[ID, PC <: DeclaredIds[ID], T] {
+trait CRUD[ID, T] {
 	protected val mapperDao: MapperDao
-	protected val entity: Entity[ID, PC, T]
+	protected val entity: Entity[ID, T]
 
 	// override these to customise them
 	protected val selectConfig = SelectConfig.default
@@ -40,7 +38,7 @@ trait CRUD[ID, PC <: DeclaredIds[ID], T] {
 	/**
 	 * insert an entity into the database
 	 */
-	def create(t: T): T with PC = mapperDao.insert(updateConfig, entity, t)
+	def create(t: T): T with DeclaredIds[ID] = mapperDao.insert(updateConfig, entity, t)
 
 	/**
 	 * update an entity. The entity must have been retrieved from the database and then
@@ -48,9 +46,9 @@ trait CRUD[ID, PC <: DeclaredIds[ID], T] {
 	 * The whole tree will be updated (if necessary).
 	 * The method heavily relies on object equality to assess which entities will be updated.
 	 */
-	def update(t: T with PC): T with PC = mapperDao.update(updateConfig, entity, t)
+	def update(t: T with DeclaredIds[ID]): T with DeclaredIds[ID] = mapperDao.update(updateConfig, entity, t)
 
-	def merge(t: T, id: ID): T with PC = mapperDao.merge(selectConfig, updateConfig, entity, t, id)
+	def merge(t: T, id: ID): T with DeclaredIds[ID] = mapperDao.merge(selectConfig, updateConfig, entity, t, id)
 
 	/**
 	 * update an immutable entity. The entity must have been retrieved from the database. Because immutables can't change, a new instance
@@ -58,7 +56,8 @@ trait CRUD[ID, PC <: DeclaredIds[ID], T] {
 	 * The method heavily relies on object equality to assess which entities will be updated.
 	 * The whole tree will be updated (if necessary).
 	 */
-	def update(oldValue: T with PC, newValue: T): T with PC = mapperDao.update(updateConfig, entity, oldValue, newValue)
+	def update(oldValue: T with DeclaredIds[ID], newValue: T): T with DeclaredIds[ID] = mapperDao.update(updateConfig, entity, oldValue, newValue)
+
 	/**
 	 * select an entity by it's primary key
 	 *
@@ -66,12 +65,12 @@ trait CRUD[ID, PC <: DeclaredIds[ID], T] {
 	 * @param id		the id
 	 * @return			Option[T] or None
 	 */
-	def retrieve(pk: ID): Option[T with PC] = mapperDao.select(selectConfig, entity, pk)
+	def retrieve(pk: ID): Option[T with DeclaredIds[ID]] = mapperDao.select(selectConfig, entity, pk)
 
 	/**
 	 * delete a persisted entity
 	 */
-	def delete(t: T with PC): T = mapperDao.delete(deleteConfig, entity, t)
+	def delete(t: T with DeclaredIds[ID]): T = mapperDao.delete(deleteConfig, entity, t)
 
 	/**
 	 * this will delete an entity based on it's id.

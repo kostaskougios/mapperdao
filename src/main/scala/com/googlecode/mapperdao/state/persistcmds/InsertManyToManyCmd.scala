@@ -8,9 +8,9 @@ import state.prioritise.Low
  *         18 Dec 2012
  */
 case class InsertManyToManyCmd[ID, T, FID, FT](
-	entity: Entity[ID, DeclaredIds[ID], T],
-	foreignEntity: Entity[FID, DeclaredIds[FID], FT],
-	manyToMany: ManyToMany[FID, _ <: DeclaredIds[FID], FT],
+	entity: Entity[ID, T],
+	foreignEntity: Entity[FID, FT],
+	manyToMany: ManyToMany[FID, FT],
 	entityVM: ValuesMap,
 	foreignEntityVM: ValuesMap
 ) extends PersistCmd {

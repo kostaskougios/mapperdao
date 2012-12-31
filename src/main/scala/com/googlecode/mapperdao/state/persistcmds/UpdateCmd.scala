@@ -9,7 +9,7 @@ import state.prioritise.High
  *         Dec 9, 2012
  */
 case class UpdateCmd[ID, T](
-	entity: Entity[ID, DeclaredIds[ID], T],
+	entity: Entity[ID, T],
 	oldVM: ValuesMap,
 	newVM: ValuesMap,
 	columns: List[(SimpleColumn, Any)],

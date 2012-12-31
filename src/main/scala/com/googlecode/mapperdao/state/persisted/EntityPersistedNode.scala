@@ -7,7 +7,7 @@ import com.googlecode.mapperdao._
  *          Date: 28/12/12
  */
 case class EntityPersistedNode[ID, T](
-	entity: Entity[ID, DeclaredIds[ID], T],
+	entity: Entity[ID, T],
 	oldVM: Option[ValuesMap],
 	newVM: ValuesMap
 	,

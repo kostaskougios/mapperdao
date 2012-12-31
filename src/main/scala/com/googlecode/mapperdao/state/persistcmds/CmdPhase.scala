@@ -15,20 +15,20 @@ class CmdPhase(typeManager: TypeManager) {
 	private var alreadyProcessed = Map[Int, List[PersistCmd]]()
 
 	def toInsertCmd[ID, T](
-		entity: Entity[ID, _ <: DeclaredIds[ID], T],
+		entity: Entity[ID, T],
 		newVM: ValuesMap,
 		updateConfig: UpdateConfig
-	) = insert(entity.asInstanceOf[Entity[ID, DeclaredIds[ID], T]], newVM, true, updateConfig)
+	) = insert(entity, newVM, true, updateConfig)
 
 	def toUpdateCmd[ID, T](
-		entity: Entity[ID, _ <: DeclaredIds[ID], T],
+		entity: Entity[ID, T],
 		oldValuesMap: ValuesMap,
 		newValuesMap: ValuesMap,
 		updateConfig: UpdateConfig
-	) = update(entity.asInstanceOf[Entity[ID, DeclaredIds[ID], T]], oldValuesMap, newValuesMap, true, updateConfig)
+	) = update(entity, oldValuesMap, newValuesMap, true, updateConfig)
 
 	private def insert[ID, T](
-		entity: Entity[ID, DeclaredIds[ID], T],
+		entity: Entity[ID, T],
 		newVM: ValuesMap,
 		mainEntity: Boolean,
 		updateConfig: UpdateConfig
@@ -47,7 +47,7 @@ class CmdPhase(typeManager: TypeManager) {
 	}
 
 	private def update[ID, T](
-		entity: Entity[ID, DeclaredIds[ID], T],
+		entity: Entity[ID, T],
 		oldVM: ValuesMap,
 		newVM: ValuesMap,
 		mainEntity: Boolean,
@@ -72,7 +72,7 @@ class CmdPhase(typeManager: TypeManager) {
 	}
 
 	private def related[ID, T](
-		entity: Entity[ID, DeclaredIds[ID], T],
+		entity: Entity[ID, T],
 		oldVMO: Option[ValuesMap],
 		newVM: ValuesMap,
 		updateConfig: UpdateConfig
@@ -185,7 +185,7 @@ class CmdPhase(typeManager: TypeManager) {
 						} else {
 							// entity is new
 							newVM.manyToMany(column).map {
-								case p: Persisted =>
+								case p: DeclaredIds[Any] =>
 									// we need to link to the already existing foreign entity
 									// and update the foreign entity
 									val foreignVM = ValuesMap.fromEntity(typeManager, foreignEntity, p)
@@ -214,13 +214,13 @@ class CmdPhase(typeManager: TypeManager) {
 			 * ---------------------------------------------------------------------------------------------
 			 */
 			case ColumnInfoManyToOne(column, columnToValue, _) =>
-				val foreignEntity = column.foreign.entity
+				val foreignEntity = column.foreign.entity.asInstanceOf[Entity[Any, Any]]
 				if (oldVMO.isDefined) {
 					NYI()
 				} else {
 					// insert new
 					newVM.manyToOne(column) match {
-						case p: Persisted =>
+						case p: DeclaredIds[Any] =>
 							doUpdate(foreignEntity, p, updateConfig)
 						case fo =>
 							// we need to insert the foreign entity and link to entity
@@ -231,17 +231,17 @@ class CmdPhase(typeManager: TypeManager) {
 		}.flatten
 	}
 
-	private def insertOrUpdate[ID, T](foreignEntity: Entity[ID, DeclaredIds[ID], T], o: T, updateConfig: UpdateConfig) = o match {
-		case p: T with Persisted => doUpdate(foreignEntity, p, updateConfig)
+	private def insertOrUpdate[ID, T](foreignEntity: Entity[ID, T], o: T, updateConfig: UpdateConfig) = o match {
+		case p: T with DeclaredIds[ID] => doUpdate(foreignEntity, p, updateConfig)
 		case _ => doInsert(foreignEntity, o, updateConfig)
 	}
 
-	private def doInsert[ID, T](foreignEntity: Entity[ID, DeclaredIds[ID], T], o: T, updateConfig: UpdateConfig) = {
+	private def doInsert[ID, T](foreignEntity: Entity[ID, T], o: T, updateConfig: UpdateConfig) = {
 		val newVM = ValuesMap.fromEntity(typeManager, foreignEntity, o)
 		insert(foreignEntity, newVM, false, updateConfig)
 	}
 
-	private def doUpdate[ID, T](foreignEntity: Entity[ID, DeclaredIds[ID], T], p: T with Persisted, updateConfig: UpdateConfig) = {
+	private def doUpdate[ID, T](foreignEntity: Entity[ID, T], p: T with DeclaredIds[ID], updateConfig: UpdateConfig) = {
 		val newVM = ValuesMap.fromEntity(typeManager, foreignEntity, p)
 		update(foreignEntity, p.mapperDaoValuesMap, newVM, false, updateConfig)
 	}

@@ -8,7 +8,7 @@ import com.googlecode.mapperdao._
  *
  * @author kostantinos.kougios
  *
- * 26 Oct 2011
+ *         26 Oct 2011
  */
 object Helpers {
 
@@ -17,7 +17,7 @@ object Helpers {
 	 *
 	 * @param o		the instance of the entity
 	 * @return		true if the entity was loaded or inserted or updated, false if it
-	 * 				is a plain unlinked instance
+	 *                is a plain unlinked instance
 	 */
 	def isPersisted(o: Any) = o match {
 		case p: Persisted if (p.mapperDaoValuesMap != null) => true
@@ -30,7 +30,7 @@ object Helpers {
 	 */
 	def intIdOf(o: Any): Int = o match {
 		case i: SurrogateIntId => i.id
-		case i: SurrogateIntAndNaturalStringId => i.id
+		case i: SurrogateIntAndNaturalStringId => i.id._1
 		case _ => throw new IllegalArgumentException("not an IntId : " + o.toString)
 	}
 
@@ -40,7 +40,7 @@ object Helpers {
 	 */
 	def longIdOf(o: Any): Long = o match {
 		case i: SurrogateLongId => i.id
-		case i: SurrogateLongAndNaturalStringId => i.id
+		case i: SurrogateLongAndNaturalStringId => i.id._1
 		case _ => throw new IllegalArgumentException("not an LongId : " + o.toString)
 	}
 
@@ -50,19 +50,23 @@ object Helpers {
 	 * using this utility method
 	 */
 	def asNoId[T](t: T) = t.asInstanceOf[T with NoId]
+
 	/**
 	 * when loading an IntId entity from the database, the type is T with IntId. If for
 	 * some reason we're sure that the entity T is of IntId, we can easily cast it
 	 * using this utility method
 	 */
 	def asSurrogateIntId[T](t: T) = t.asInstanceOf[T with SurrogateIntId]
+
 	def asNaturalIntId[T](t: T) = t.asInstanceOf[T with NaturalIntId]
+
 	/**
 	 * when loading an LongId entity from the database, the type is T with LongId. If for
 	 * some reason we're sure that the entity T is of LongId, we can easily cast it
 	 * using this utility method
 	 */
 	def asSurrogateLongId[T](t: T) = t.asInstanceOf[T with SurrogateLongId]
+
 	def asNaturalLongId[T](t: T) = t.asInstanceOf[T with NaturalLongId]
 
 	def asNaturalStringId[T](t: T) = t.asInstanceOf[T with NaturalStringId]
@@ -78,14 +82,13 @@ object Helpers {
 	 * @param oldSet		the set containing old values
 	 * @param newSet		the set, updated with new values
 	 * @return				merged set which == newSet but contains
-	 * 						instances from oldSet where appropriate.
+	 *                        instances from oldSet where appropriate.
 	 */
-	def merge[T](oldSet: Set[T], newSet: Set[T]): Set[T] =
-		{
-			val intersection = oldSet.intersect(newSet)
-			val added = newSet.filterNot(oldSet.contains(_))
-			intersection ++ added
-		}
+	def merge[T](oldSet: Set[T], newSet: Set[T]): Set[T] = {
+		val intersection = oldSet.intersect(newSet)
+		val added = newSet.filterNot(oldSet.contains(_))
+		intersection ++ added
+	}
 
 	/**
 	 * merges the 2 lists with result==newList but result
@@ -100,24 +103,24 @@ object Helpers {
 	 *
 	 * @param oldList		the list of items before the update
 	 * @param newList		the list of items after the update,
-	 * 						all of them might be new instances
-	 * 						but equal() to items in oldList
+	 *                       all of them might be new instances
+	 *                       but equal() to items in oldList
 	 * @return				the merged list, where merged==newList
-	 * 						but retains all instances from oldList
-	 * 						that are contained in newList
+	 *                        but retains all instances from oldList
+	 *                        that are contained in newList
 	 */
-	def merge[T](oldList: List[T], newList: List[T]): List[T] =
-		{
-			val ml = new collection.mutable.ArrayBuffer ++ oldList
-			newList.map { item =>
+	def merge[T](oldList: List[T], newList: List[T]): List[T] = {
+		val ml = new collection.mutable.ArrayBuffer ++ oldList
+		newList.map {
+			item =>
 				ml.find(_ == item) match {
 					case Some(ni) =>
 						ml -= ni
 						ni
 					case None => item
 				}
-			}
 		}
+	}
 
 	def idToList[ID](id: ID): List[Any] = id match {
 		case i: Int => List(i)
@@ -132,7 +135,7 @@ object Helpers {
 	 * releases the objects used to store state for lazy loading to occur, freeing memory
 	 * but lazy loaded relationships will not be loaded if their fields are accessed.
 	 */
-	def unlinkLazyLoadMemoryData[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T], o: Any) {
+	def unlinkLazyLoadMemoryData[ID, T](entity: Entity[ID, T], o: T) {
 		val visitor = new FreeLazyLoadedEntityVisitor
 		visitor.visit(entity, o)
 		visitor.free(o)

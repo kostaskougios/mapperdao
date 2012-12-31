@@ -31,7 +31,7 @@ class RecreationPhase(
 	private def recreate(updateConfig: UpdateConfig, nodes: Traversable[PersistedNode[_, _]]): Traversable[Any] =
 		nodes.map {
 			node =>
-				entityMap.get[DeclaredIds[Any], Any](node.identity).getOrElse {
+				entityMap.get[Any](node.identity).getOrElse {
 
 					node match {
 						case EntityPersistedNode(entity, oldVM, newVM, _) =>
@@ -70,5 +70,5 @@ class RecreationPhase(
 
 	private def toNode(a: Any) = byIdentity(System.identityHashCode(a))
 
-	private def toNodes(l: Traversable[Any]) = l.map(toNode(_)) //.filter(_.isDefined).map(_.get)
+	private def toNodes(l: Traversable[Any]) = l.map(toNode(_))
 }
