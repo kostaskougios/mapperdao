@@ -56,7 +56,7 @@ class ValuesMap private(private[mapperdao] var identity: Int, mOrig: scala.colle
 	protected[mapperdao] def manyToMany[FID, FT](column: ManyToMany[FID, DeclaredIds[FID], FT]): List[FT] =
 		valueOf[Traversable[FT]](column).toList
 
-	protected[mapperdao] def manyToOne[FID, FT](column: ManyToOne[FID, DeclaredIds[FID], FT]): FT =
+	protected[mapperdao] def manyToOne[FID, FT](column: ManyToOne[FID, _ <: DeclaredIds[FID], FT]): FT =
 		valueOf[FT](column)
 
 	private def valueOf[T](column: String): T = {

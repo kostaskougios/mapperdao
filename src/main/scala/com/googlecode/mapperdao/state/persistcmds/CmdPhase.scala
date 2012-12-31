@@ -83,7 +83,7 @@ class CmdPhase(typeManager: TypeManager) {
 			 * Many-To-Many
 			 * ---------------------------------------------------------------------------------------------
 			 */
-			case ci@ColumnInfoTraversableManyToMany(column, columnToValue, getterMethod) =>
+			case ci@ColumnInfoTraversableManyToMany(column, columnToValue, _) =>
 				val foreignEntity = column.foreign.entity
 				foreignEntity match {
 					/**
