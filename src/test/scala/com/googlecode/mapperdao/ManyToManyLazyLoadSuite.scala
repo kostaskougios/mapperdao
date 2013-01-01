@@ -243,7 +243,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 	case class Property(val id: Int, val name: String, val value: String)
 
 	object ProductEntity extends Entity[Int, Product] {
-		type PC = NaturalIntId
+		type Stored = NaturalIntId
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) getter ("attributes") to (_.attributes)
@@ -253,7 +253,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 	}
 
 	object AttributeEntity extends Entity[Int, Attribute] {
-		type PC = NaturalIntId
+		type Stored = NaturalIntId
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
@@ -262,7 +262,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 	}
 
 	object PropertyEntity extends Entity[Int, Property] {
-		type PC = NaturalIntId
+		type Stored = NaturalIntId
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
