@@ -7,7 +7,7 @@ package com.googlecode.mapperdao
  */
 
 trait NoId extends DeclaredIds[Unit] {
-	val id: Unit = null
+	def id = throw new IllegalStateException("this entity doesn't have an id")
 }
 
 trait NaturalStringId extends DeclaredIds[String]
@@ -50,7 +50,9 @@ trait With3Ids[ID1, ID2, ID3] extends DeclaredIds[(ID1, ID2, ID3)]
  *
  *         3 Aug 2011
  */
-trait SurrogateIntId extends DeclaredIds[Int]
+trait SurrogateIntId extends DeclaredIds[Int] {
+	def id: Int
+}
 
 /**
  * Classes (mutable or immutable) mapped to tables with surrogate long id can mix this trait so that the id can be accessed when required.

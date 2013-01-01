@@ -43,20 +43,20 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 		s1 should be === updated
 		mapperDao.select(JobPositionEntity, 5) should be(None)
 	}
-	//
-	//	test("update id, mutable") {
-	//		createJobPositionTable
-	//
-	//		val date = Setup.now
-	//		val jp = JobPosition(5, "Developer", date, date - 2.months, 10)
-	//		val inserted = mapperDao.insert(JobPositionEntity, jp)
-	//
-	//		inserted.id = 7
-	//		val updated = mapperDao.update(JobPositionEntity, inserted)
-	//		updated should be === inserted
-	//		mapperDao.select(JobPositionEntity, 7).get should be === updated
-	//		mapperDao.select(JobPositionEntity, 5) should be(None)
-	//	}
+
+	test("update id, mutable") {
+		createJobPositionTable
+
+		val date = Setup.now
+		val jp = JobPosition(5, "Developer", date, date - 2.months, 10)
+		val inserted = mapperDao.insert(JobPositionEntity, jp)
+
+		inserted.id = 7
+		val updated = mapperDao.update(JobPositionEntity, inserted)
+		updated should be === inserted
+		mapperDao.select(JobPositionEntity, 7).get should be === updated
+		mapperDao.select(JobPositionEntity, 5) should be(None)
+	}
 
 	test("immutable update") {
 		createJobPositionTable
@@ -189,7 +189,7 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 	 * Also the only reason for this class to be mutable is for testing. In a real application
 	 * it would better be immutable.
 	 */
-	case class JobPosition(val id: Int, var name: String, val start: DateTime, val end: DateTime, var rank: Int, married: Boolean = false) {
+	case class JobPosition(var id: Int, var name: String, val start: DateTime, val end: DateTime, var rank: Int, married: Boolean = false) {
 		// this can have any arbitrary methods, no problem!
 		def daysDiff = (end.getMillis - start.getMillis) / (3600 * 24)
 
