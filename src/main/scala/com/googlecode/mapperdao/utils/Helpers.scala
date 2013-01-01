@@ -30,7 +30,7 @@ object Helpers {
 	 */
 	def intIdOf(o: Any): Int = o match {
 		case i: SurrogateIntId => i.id
-		case i: SurrogateIntAndNaturalStringId => i.id._1
+		case i: SurrogateIntAndNaturalStringId => i.id
 		case _ => throw new IllegalArgumentException("not an IntId : " + o.toString)
 	}
 
@@ -40,7 +40,7 @@ object Helpers {
 	 */
 	def longIdOf(o: Any): Long = o match {
 		case i: SurrogateLongId => i.id
-		case i: SurrogateLongAndNaturalStringId => i.id._1
+		case i: SurrogateLongAndNaturalStringId => i.id
 		case _ => throw new IllegalArgumentException("not an LongId : " + o.toString)
 	}
 

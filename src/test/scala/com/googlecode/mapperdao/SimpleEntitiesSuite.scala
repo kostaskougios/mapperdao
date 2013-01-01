@@ -203,6 +203,7 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 	 * ============================================================================================================
 	 */
 	object JobPositionEntity extends Entity[Int, JobPosition] {
+		type PC = NaturalIntId
 		// now a description of the table and it's columns follows.
 		// each column is followed by a function JobPosition=>Any, that
 		// returns the value of the property for that column.

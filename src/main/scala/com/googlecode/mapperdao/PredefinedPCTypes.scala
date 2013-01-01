@@ -6,9 +6,7 @@ package com.googlecode.mapperdao
  *         24 Sep 2012
  */
 
-trait NoId extends DeclaredIds[Unit] {
-	def id = throw new IllegalStateException("this entity doesn't have an id")
-}
+trait NoId extends DeclaredIds[Unit]
 
 trait NaturalStringId extends DeclaredIds[String]
 
@@ -24,13 +22,21 @@ trait NaturalIntAndNaturalStringIds extends DeclaredIds[(Int, String)]
 
 trait NaturalStringAndStringIds extends DeclaredIds[(String, String)]
 
-trait SurrogateIntAndNaturalStringId extends DeclaredIds[(Int, String)]
+trait SurrogateIntAndNaturalStringId extends DeclaredIds[(Int, String)] {
+	def id: Int
+}
 
-trait SurrogateIntAndNaturalLongId extends DeclaredIds[(Int, Long)]
+trait SurrogateIntAndNaturalLongId extends DeclaredIds[(Int, Long)] {
+	def id: Int
+}
 
-trait SurrogateLongAndNaturalStringId extends DeclaredIds[(Long, String)]
+trait SurrogateLongAndNaturalStringId extends DeclaredIds[(Long, String)] {
+	def id: Long
+}
 
-trait SurrogateLongAndNaturalLongId extends DeclaredIds[(Long, Long)]
+trait SurrogateLongAndNaturalLongId extends DeclaredIds[(Long, Long)] {
+	def id: Long
+}
 
 trait With1Id[ID1] extends DeclaredIds[ID1]
 
@@ -67,4 +73,6 @@ trait SurrogateIntId extends DeclaredIds[Int] {
  *
  *         5 Aug 2011
  */
-trait SurrogateLongId extends DeclaredIds[Long]
+trait SurrogateLongId extends DeclaredIds[Long] {
+	def id: Long
+}

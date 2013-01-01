@@ -59,11 +59,11 @@ protected final class MapperDaoImpl(
 	 * ===================================================================================
 	 */
 
-	override def insert[ID, T](
+	override def insert0[ID, T](
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, T],
 		os: List[T]
-	): List[T with DeclaredIds[ID]] = {
+	) = {
 		val po = new CmdPhase(typeManager)
 		val cmds = os.map {
 			o =>
@@ -81,7 +81,7 @@ protected final class MapperDaoImpl(
 		recreated
 	}
 
-	override def updateMutable[ID, T](
+	override def updateMutable0[ID, T](
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, T],
 		os: List[T with DeclaredIds[ID]]
@@ -99,7 +99,7 @@ protected final class MapperDaoImpl(
 		updateProcess(updateConfig, entity, osAndNewValues)
 	}
 
-	override def updateImmutable[ID, T](
+	override def updateImmutable0[ID, T](
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, T],
 		os: List[(T with DeclaredIds[ID], T)]
@@ -142,7 +142,7 @@ protected final class MapperDaoImpl(
 	 *
 	 * SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
 	 */
-	override def select[ID, T](selectConfig: SelectConfig, entity: Entity[ID, T], id: ID) = {
+	override def select0[ID, T](selectConfig: SelectConfig, entity: Entity[ID, T], id: ID) = {
 		if (id == null) throw new NullPointerException("ids can't be null")
 		val ids = Helpers.idToList(id)
 		val pkSz = entity.tpe.table.primaryKeysSize
@@ -352,7 +352,7 @@ protected final class MapperDaoImpl(
 		o
 	}
 
-	override def merge[ID, T](
+	override def merge0[ID, T](
 		selectConfig: SelectConfig,
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, T],

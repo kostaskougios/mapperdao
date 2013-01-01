@@ -63,6 +63,7 @@ object ManyToManySimpleTypesSuite {
 	})
 
 	object ProductEntity extends Entity[Int, Product] {
+		type PC = SurrogateIntId
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("ProductSeq")
 			case _ => None
