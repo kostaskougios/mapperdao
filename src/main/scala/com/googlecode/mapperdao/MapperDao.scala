@@ -47,14 +47,14 @@ trait MapperDao {
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, T],
 		os: List[T]
-	): List[T with entity.Stored] = insert0(updateConfig, entity, os).asInstanceOf[List[T with entity.Stored]]
+	): List[T with entity.Stored] = insert0(updateConfig, entity.tpe, os).asInstanceOf[List[T with entity.Stored]]
 
 	/**
 	 * weird: scala compiler doesn't like methods overriding insert():List[T with entity.PC]
 	 */
 	protected def insert0[ID, T](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, T],
+		tpe: Type[ID, T],
 		os: List[T]
 	): List[T with DeclaredIds[ID]]
 
@@ -88,11 +88,11 @@ trait MapperDao {
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, T],
 		os: List[T with DeclaredIds[ID]]
-	): List[T with entity.Stored] = updateMutable0(updateConfig, entity, os).asInstanceOf[List[T with entity.Stored]]
+	): List[T with entity.Stored] = updateMutable0(updateConfig, entity.tpe, os).asInstanceOf[List[T with entity.Stored]]
 
 	protected def updateMutable0[ID, T](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, T],
+		tpe: Type[ID, T],
 		os: List[T with DeclaredIds[ID]]
 	): List[T with DeclaredIds[ID]]
 
@@ -134,11 +134,11 @@ trait MapperDao {
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, T],
 		os: List[(T with DeclaredIds[ID], T)]
-	): List[T with entity.Stored] = updateImmutable0(updateConfig, entity, os).asInstanceOf[List[T with entity.Stored]]
+	): List[T with entity.Stored] = updateImmutable0(updateConfig, entity.tpe, os).asInstanceOf[List[T with entity.Stored]]
 
 	protected def updateImmutable0[ID, T](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, T],
+		tpe: Type[ID, T],
 		os: List[(T with DeclaredIds[ID], T)]
 	): List[T with DeclaredIds[ID]]
 

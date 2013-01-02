@@ -61,18 +61,18 @@ protected final class MapperDaoImpl(
 
 	override def insert0[ID, T](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, T],
+		tpe: Type[ID, T],
 		os: List[T]
 	) = {
 		val po = new CmdPhase(typeManager)
 		val cmds = os.map {
 			o =>
 				if (isPersisted(o)) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o)
-				val newVM = ValuesMap.fromType(typeManager, entity.tpe, o)
-				po.toInsertCmd(entity.tpe, newVM, updateConfig)
+				val newVM = ValuesMap.fromType(typeManager, tpe, o)
+				po.toInsertCmd(tpe, newVM, updateConfig)
 		}.flatten
 		val pf = new PriorityPhase(updateConfig)
-		val pri = pf.prioritise(entity.tpe, cmds)
+		val pri = pf.prioritise(tpe, cmds)
 
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 		val nodes = ctd.execute(pri)
@@ -83,7 +83,7 @@ protected final class MapperDaoImpl(
 
 	override def updateMutable0[ID, T](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, T],
+		tpe: Type[ID, T],
 		os: List[T with DeclaredIds[ID]]
 	): List[T with DeclaredIds[ID]] = {
 		val osAndNewValues = os.map {
@@ -92,30 +92,30 @@ protected final class MapperDaoImpl(
 					case p: Persisted if (p.mapperDaoMock) =>
 						throw new IllegalStateException("Object %s is mock.".format(p))
 					case persisted: Persisted =>
-						val newValuesMap = ValuesMap.fromType(typeManager, entity.tpe, o)
+						val newValuesMap = ValuesMap.fromType(typeManager, tpe, o)
 						(o, newValuesMap)
 				}
 		}
-		updateProcess(updateConfig, entity, osAndNewValues)
+		updateProcess(updateConfig, tpe, osAndNewValues)
 	}
 
 	override def updateImmutable0[ID, T](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, T],
+		tpe: Type[ID, T],
 		os: List[(T with DeclaredIds[ID], T)]
 	): List[T with DeclaredIds[ID]] = {
 		val osAndNewValues = os.map {
 			case (oldO, newO) =>
 				oldO.mapperDaoDiscarded = true
-				val newVM = ValuesMap.fromType(typeManager, entity.tpe, newO, oldO)
+				val newVM = ValuesMap.fromType(typeManager, tpe, newO, oldO)
 				(oldO, newVM)
 		}
-		updateProcess(updateConfig, entity, osAndNewValues)
+		updateProcess(updateConfig, tpe, osAndNewValues)
 	}
 
 	private def updateProcess[ID, T](
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, T],
+		tpe: Type[ID, T],
 		os: List[(T with DeclaredIds[ID], ValuesMap)]
 	): List[T with DeclaredIds[ID]] = {
 
@@ -124,11 +124,11 @@ protected final class MapperDaoImpl(
 			case (o, newVM) =>
 				val p = o.asInstanceOf[Persisted]
 				val oldVM = p.mapperDaoValuesMap
-				po.toUpdateCmd(entity.tpe, oldVM, newVM, updateConfig)
+				po.toUpdateCmd(tpe, oldVM, newVM, updateConfig)
 		}.flatten
 
 		val pf = new PriorityPhase(updateConfig)
-		val pri = pf.prioritise(entity.tpe, cmds)
+		val pri = pf.prioritise(tpe, cmds)
 
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 		val nodes = ctd.execute(pri)
