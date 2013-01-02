@@ -8,8 +8,8 @@ import state.prioritise.Low
  *         18 Dec 2012
  */
 case class InsertManyToManyCmd[ID, T, FID, FT](
-	entity: Entity[ID, T],
-	foreignEntity: Entity[FID, FT],
+	tpe: Type[ID, T],
+	foreignTpe: Type[FID, FT],
 	manyToMany: ManyToMany[FID, FT],
 	entityVM: ValuesMap,
 	foreignEntityVM: ValuesMap

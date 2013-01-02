@@ -26,7 +26,7 @@ trait BeforeSelect {
 
 trait SelectMock {
 	def updateMock[ID, T](
-		entity: Entity[ID, T],
+		tpe: Type[ID, T],
 		mods: scala.collection.mutable.Map[String, Any]
 	)
 }

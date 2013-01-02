@@ -48,11 +48,10 @@ abstract class Driver {
 	 * default impl of the insert statement generation
 	 */
 	def insertSql[ID, T](
-		entity: Entity[ID, T],
+		tpe: Type[ID, T],
 		args: List[(SimpleColumn, Any)]
 	) = {
 		val s = new sqlBuilder.InsertBuilder
-		val tpe = entity.tpe
 		s.into(tpe.table.name)
 
 		val sequenceColumns = tpe.table.simpleTypeSequenceColumns
@@ -87,12 +86,12 @@ abstract class Driver {
 	 * default impl of the insert statement generation
 	 */
 	def updateSql[ID, T](
-		entity: Entity[ID, T],
+		tpe: Type[ID, T],
 		args: List[(SimpleColumn, Any)],
 		pkArgs: List[(SimpleColumn, Any)]
 	) = {
 		val s = new sqlBuilder.UpdateBuilder
-		s.table(entity.tpe.table.name)
+		s.table(tpe.table.name)
 		s.set(args)
 		s.where(pkArgs, "=")
 		s

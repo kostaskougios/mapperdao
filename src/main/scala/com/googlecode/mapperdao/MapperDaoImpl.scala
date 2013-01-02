@@ -68,11 +68,11 @@ protected final class MapperDaoImpl(
 		val cmds = os.map {
 			o =>
 				if (isPersisted(o)) throw new IllegalArgumentException("can't insert an object that is already persisted: " + o)
-				val newVM = ValuesMap.fromEntity(typeManager, entity, o)
-				po.toInsertCmd(entity, newVM, updateConfig)
+				val newVM = ValuesMap.fromType(typeManager, entity.tpe, o)
+				po.toInsertCmd(entity.tpe, newVM, updateConfig)
 		}.flatten
 		val pf = new PriorityPhase(updateConfig)
-		val pri = pf.prioritise(entity, cmds)
+		val pri = pf.prioritise(entity.tpe, cmds)
 
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 		val nodes = ctd.execute(pri)
@@ -92,7 +92,7 @@ protected final class MapperDaoImpl(
 					case p: Persisted if (p.mapperDaoMock) =>
 						throw new IllegalStateException("Object %s is mock.".format(p))
 					case persisted: Persisted =>
-						val newValuesMap = ValuesMap.fromEntity(typeManager, entity, o)
+						val newValuesMap = ValuesMap.fromType(typeManager, entity.tpe, o)
 						(o, newValuesMap)
 				}
 		}
@@ -107,7 +107,7 @@ protected final class MapperDaoImpl(
 		val osAndNewValues = os.map {
 			case (oldO, newO) =>
 				oldO.mapperDaoDiscarded = true
-				val newVM = ValuesMap.fromEntity(typeManager, entity, newO, oldO)
+				val newVM = ValuesMap.fromType(typeManager, entity.tpe, newO, oldO)
 				(oldO, newVM)
 		}
 		updateProcess(updateConfig, entity, osAndNewValues)
@@ -124,11 +124,11 @@ protected final class MapperDaoImpl(
 			case (o, newVM) =>
 				val p = o.asInstanceOf[Persisted]
 				val oldVM = p.mapperDaoValuesMap
-				po.toUpdateCmd(entity, oldVM, newVM, updateConfig)
+				po.toUpdateCmd(entity.tpe, oldVM, newVM, updateConfig)
 		}.flatten
 
 		val pf = new PriorityPhase(updateConfig)
-		val pri = pf.prioritise(entity, cmds)
+		val pri = pf.prioritise(entity.tpe, cmds)
 
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
 		val nodes = ctd.execute(pri)
@@ -231,7 +231,7 @@ protected final class MapperDaoImpl(
 
 				entities.get[T with DeclaredIds[ID]](tpe.clz, ids) {
 					val mods = jdbcMap.toMap
-					val mock = mockFactory.createMock(selectConfig.data, entity, mods)
+					val mock = mockFactory.createMock(selectConfig.data, entity.tpe, mods)
 					entities.putMock(tpe.clz, ids, mock)
 
 					val allMods = mods ++ selectBeforePlugins.map {

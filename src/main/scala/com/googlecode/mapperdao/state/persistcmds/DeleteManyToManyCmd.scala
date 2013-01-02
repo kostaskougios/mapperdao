@@ -8,8 +8,8 @@ import state.prioritise.Low
  *         23/12/12
  */
 case class DeleteManyToManyCmd[ID, T, FID, FT](
-	entity: Entity[ID, T],
-	foreignEntity: Entity[FID, FT],
+	tpe: Type[ID, T],
+	foreignTpe: Type[FID, FT],
 	manyToMany: ManyToMany[FID, FT],
 	entityVM: ValuesMap,
 	foreignEntityVM: ValuesMap

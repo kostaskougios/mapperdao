@@ -18,17 +18,16 @@ class MockFactory(typeManager: TypeManager) {
 
 	def createMock[ID, T](
 		data: Option[Any],
-		entity: Entity[ID, T],
+		tpe: Type[ID, T],
 		mods: Map[String, Any]
 	): T with DeclaredIds[ID] = {
 		val mockMods = new scala.collection.mutable.HashMap[String, Any] ++ mods
 		mockPlugins.foreach {
-			_.updateMock(entity, mockMods)
+			_.updateMock(tpe, mockMods)
 		}
-		val tpe = entity.tpe
 		val vm = ValuesMap.fromMap(1, mockMods)
 		val preMock = tpe.constructor(data, vm)
-		val mock = tpe.constructor(data, ValuesMap.fromEntity(typeManager, entity, preMock))
+		val mock = tpe.constructor(data, ValuesMap.fromType(typeManager, tpe, preMock))
 		// mark it as mock
 		mock.mapperDaoMock = true
 		mock.mapperDaoValuesMap.identity = System.identityHashCode(mock)

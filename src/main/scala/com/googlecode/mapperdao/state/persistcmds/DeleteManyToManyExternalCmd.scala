@@ -9,7 +9,7 @@ import com.googlecode.mapperdao.ColumnInfoTraversableManyToMany
  *          Date: 28/12/12
  */
 case class DeleteManyToManyExternalCmd[ID, T, FID, FT](
-	entity: Entity[ID, T],
+	tpe: Type[ID, T],
 	foreignEntity: ExternalEntity[FID, FT],
 	manyToMany: ColumnInfoTraversableManyToMany[T, FID, FT],
 	entityVM: ValuesMap,

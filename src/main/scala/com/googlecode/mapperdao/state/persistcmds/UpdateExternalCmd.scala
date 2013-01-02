@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao.state.prioritise.Low
-import com.googlecode.mapperdao.{DeclaredIds, ColumnInfoTraversableManyToMany, ExternalEntity}
+import com.googlecode.mapperdao._
 
 /**
  * @author: kostas.kougios

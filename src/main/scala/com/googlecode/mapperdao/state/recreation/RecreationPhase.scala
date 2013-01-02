@@ -34,14 +34,13 @@ class RecreationPhase(
 				entityMap.get[Any](node.identity).getOrElse {
 
 					node match {
-						case EntityPersistedNode(entity, oldVM, newVM, _) =>
-							val tpe = entity.tpe
+						case EntityPersistedNode(tpe, oldVM, newVM, _) =>
 							val table = tpe.table
 
 							val modified = newVM.toMap
 
 							// create a mock
-							val mockO = mockFactory.createMock(updateConfig.data, entity, modified)
+							val mockO = mockFactory.createMock(updateConfig.data, tpe, modified)
 							entityMap.put(node.identity, mockO)
 
 							val related = table.relationshipColumnInfos(updateConfig.skip).map {

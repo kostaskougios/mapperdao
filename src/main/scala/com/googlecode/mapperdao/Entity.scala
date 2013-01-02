@@ -500,7 +500,7 @@ abstract class Entity[ID, T](protected[mapperdao] val table: String, protected[m
 	}
 
 	/**
-	 * one-to-one, examples
+	 * one-to-one, examples:
 	 *
 	 * val inventory=onetoone(InventoryEntity) to (_.inventory)
 	 * or

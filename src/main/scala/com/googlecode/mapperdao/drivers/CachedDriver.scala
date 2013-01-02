@@ -79,13 +79,13 @@ trait CachedDriver extends Driver {
 	}
 
 	override def updateSql[ID, T](
-		entity: Entity[ID, T],
+		tpe: Type[ID, T],
 		args: List[(SimpleColumn, Any)],
 		pkArgs: List[(SimpleColumn, Any)]
 	) = {
-		val u = super.updateSql(entity, args, pkArgs)
+		val u = super.updateSql(tpe, args, pkArgs)
 
-		val table = entity.tpe.table
+		val table = tpe.table
 		// flush main cache for entity
 		val key = table.name :: pkArgs
 		cache.flush(key)

@@ -12,4 +12,5 @@ case class ExternalEntityPersistedNode[ID, T](
 	mainEntity: Boolean
 ) extends PersistedNode[ID, T] {
 	val identity = System.identityHashCode(o)
+	val tpe = entity.tpe
 }

@@ -18,22 +18,22 @@ class PriorityPhaseSuite extends FunSuite with ShouldMatchers {
 
 	test("prioritise, many-to-many") {
 		val pf = new PriorityPhase(UpdateConfig.default)
-		val pri = pf.prioritiseEntities(ProductEntity)
+		val pri = pf.prioritiseType(ProductEntity.tpe)
 
-		pri should be(List(ProductEntity, AttributeEntity))
+		pri should be(List(ProductEntity.tpe, AttributeEntity.tpe))
 	}
 
 	test("prioritise, many-to-one") {
 		val pf = new PriorityPhase(UpdateConfig.default)
-		val pri = pf.prioritiseEntities(PersonEntity)
+		val pri = pf.prioritiseType(PersonEntity.tpe)
 
-		pri should be(List(CompanyEntity, PersonEntity))
+		pri should be(List(CompanyEntity.tpe, PersonEntity.tpe))
 	}
 
 	test("prioritise, one-to-many") {
 		val pf = new PriorityPhase(UpdateConfig.default)
-		val pri = pf.prioritiseEntities(OwnerEntity)
+		val pri = pf.prioritiseType(OwnerEntity.tpe)
 
-		pri should be(List(OwnerEntity, HouseEntity))
+		pri should be(List(OwnerEntity.tpe, HouseEntity.tpe))
 	}
 }

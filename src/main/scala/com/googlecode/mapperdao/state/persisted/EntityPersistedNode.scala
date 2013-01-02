@@ -7,10 +7,9 @@ import com.googlecode.mapperdao._
  *          Date: 28/12/12
  */
 case class EntityPersistedNode[ID, T](
-	entity: Entity[ID, T],
+	tpe: Type[ID, T],
 	oldVM: Option[ValuesMap],
-	newVM: ValuesMap
-	,
+	newVM: ValuesMap,
 	mainEntity: Boolean
 ) extends PersistedNode[ID, T] {
 	val identity = newVM.identity

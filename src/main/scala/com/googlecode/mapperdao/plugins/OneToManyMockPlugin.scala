@@ -9,9 +9,9 @@ import com.googlecode.mapperdao._
  */
 class OneToManyMockPlugin extends SelectMock {
 	override def updateMock[ID, T](
-		entity: Entity[ID, T],
+		tpe: Type[ID, T],
 		mods: scala.collection.mutable.Map[String, Any]
 	) {
-		mods ++= entity.tpe.table.oneToManyColumns.map(c => (c.alias -> List()))
+		mods ++= tpe.table.oneToManyColumns.map(c => (c.alias -> List()))
 	}
 }

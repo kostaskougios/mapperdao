@@ -10,7 +10,7 @@ import com.googlecode.mapperdao._
  *         Dec 8, 2012
  */
 trait PersistedNode[ID, T] {
-	val entity: Entity[ID, T]
+	val tpe: Type[ID, T]
 	val mainEntity: Boolean
 
 	def identity: Int

@@ -12,13 +12,13 @@ import com.googlecode.mapperdao.ColumnInfoManyToOne
  *         15 Dec 2012
  */
 class PriorityPhase(updateConfig: UpdateConfig) {
-	private var visited = Set[Entity[_, _]]()
+	private var visited = Set[Type[_, _]]()
 
 	def prioritise[ID, T](
-		entity: Entity[ID, T],
+		tpe: Type[ID, T],
 		cmds: List[PersistCmd]
 	): List[List[PersistCmd]] = {
-		val prie = prioritiseEntities(entity)
+		val prie = prioritiseType(tpe)
 
 		val (high, low) = cmds.partition {
 			cmd =>
@@ -26,7 +26,7 @@ class PriorityPhase(updateConfig: UpdateConfig) {
 		}
 		val groupped = high.collect {
 			case we: CmdWithEntity[_, _] => we
-		}.groupBy(_.entity)
+		}.groupBy(_.tpe)
 
 		val h = prie.filter(groupped.contains(_)).map {
 			e =>
@@ -35,24 +35,24 @@ class PriorityPhase(updateConfig: UpdateConfig) {
 		h ::: List(low)
 	}
 
-	def prioritiseEntities(entity: Entity[_, _]): List[Entity[_, _]] =
-		if (visited(entity))
+	def prioritiseType(tpe: Type[_, _]): List[Type[_, _]] =
+		if (visited(tpe))
 			Nil
 		else {
-			visited += entity
+			visited += tpe
 
-			val after = entity.tpe.table.relationshipColumnInfos(updateConfig.skip).collect {
+			val after = tpe.table.relationshipColumnInfos(updateConfig.skip).collect {
 				case ColumnInfoTraversableManyToMany(column, _, _) =>
-					prioritiseEntities(column.foreign.entity)
+					prioritiseType(column.foreign.entity.tpe)
 				case ColumnInfoTraversableOneToMany(column, _, _, _) =>
-					prioritiseEntities(column.foreign.entity)
+					prioritiseType(column.foreign.entity.tpe)
 			}.flatten
 
-			val before = entity.tpe.table.relationshipColumnInfos(updateConfig.skip).collect {
+			val before = tpe.table.relationshipColumnInfos(updateConfig.skip).collect {
 				case ColumnInfoManyToOne(column, _, _) =>
-					prioritiseEntities(column.foreign.entity)
+					prioritiseType(column.foreign.entity.tpe)
 			}.flatten
 
-			(before ::: entity :: after).distinct
+			(before ::: tpe :: after).distinct
 		}
 }
