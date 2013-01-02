@@ -218,7 +218,7 @@ class CmdPhase(typeManager: TypeManager) {
 				} else {
 					// insert new
 					newVM.manyToOne(column) match {
-						case p: DeclaredIds[Any] =>
+						case p: Any with DeclaredIds[Any] =>
 							doUpdate(foreignEntity.tpe, p, updateConfig)
 						case fo =>
 							// we need to insert the foreign entity and link to entity

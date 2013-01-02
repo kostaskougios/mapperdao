@@ -4,7 +4,8 @@ import com.googlecode.mapperdao._
 import state.persisted.{ExternalEntityPersistedNode, EntityPersistedNode, PersistedNode}
 
 /**
- * during recreation phase, persisted objects are re-created with PC included.
+ * during recreation phase, persisted objects are re-created with Stored type mixed in the
+ * new instances.
  *
  * @author kostantinos.kougios
  *

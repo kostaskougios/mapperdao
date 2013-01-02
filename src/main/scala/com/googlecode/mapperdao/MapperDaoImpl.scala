@@ -122,8 +122,7 @@ protected final class MapperDaoImpl(
 		val po = new CmdPhase(typeManager)
 		val cmds = os.map {
 			case (o, newVM) =>
-				val p = o.asInstanceOf[Persisted]
-				val oldVM = p.mapperDaoValuesMap
+				val oldVM = o.mapperDaoValuesMap
 				po.toUpdateCmd(tpe, oldVM, newVM, updateConfig)
 		}.flatten
 
