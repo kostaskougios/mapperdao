@@ -200,7 +200,8 @@ object QueryDao {
 
 				val v = prefix.toLowerCase + getCnt(prefix)
 				aliases.put(entity, v)
-				entity.columns.foreach {
+				val table = entity.tpe.table
+				table.columnInfosPlain.foreach {
 					ci =>
 						aliases.put(ci.column, v)
 						ci match {
@@ -212,7 +213,7 @@ object QueryDao {
 							case _ =>
 						}
 				}
-				entity.persistedColumns.foreach {
+				table.extraColumnInfosPersisted.foreach {
 					ci =>
 						aliases.put(ci.column, v)
 				}

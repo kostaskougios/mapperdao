@@ -70,10 +70,10 @@ abstract class Entity[ID, T](protected[mapperdao] val table: String, protected[m
 
 	private[mapperdao] def init: Unit = {}
 
-	protected[mapperdao] var persistedColumns = List[ColumnInfoBase[T with DeclaredIds[ID], _]]()
-	protected[mapperdao] var columns = List[ColumnInfoBase[T, _]]()
-	protected[mapperdao] var onlyForQueryColumns = List[ColumnInfoBase[T, _]]()
-	protected[mapperdao] var unusedPKs = new LazyActions[ColumnInfoBase[Any, Any]]
+	private var persistedColumns = List[ColumnInfoBase[T with DeclaredIds[ID], _]]()
+	private var columns = List[ColumnInfoBase[T, _]]()
+	private[mapperdao] var onlyForQueryColumns = List[ColumnInfoBase[T, _]]()
+	private var unusedPKs = new LazyActions[ColumnInfoBase[Any, Any]]
 	protected[mapperdao] lazy val tpe = {
 		val con: (Option[_], ValuesMap) => T with DeclaredIds[ID] = (d, m) => {
 			// construct the object
@@ -82,7 +82,11 @@ abstract class Entity[ID, T](protected[mapperdao] val table: String, protected[m
 			o.mapperDaoValuesMap = m
 			o
 		}
-		Type[ID, T](clz, con, Table[ID, T](table, columns.reverse, persistedColumns, unusedPKs.executeAll.reverse))
+		val et = EntityType[ID, T](clz, con, Table[ID, T](table, columns.reverse, persistedColumns, unusedPKs.executeAll.reverse))
+		persistedColumns = null
+		columns = null
+		unusedPKs = null
+		et
 	}
 
 	override def hashCode = table.hashCode
