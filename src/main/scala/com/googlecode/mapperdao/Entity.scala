@@ -82,11 +82,7 @@ abstract class Entity[ID, T](protected[mapperdao] val table: String, protected[m
 			o.mapperDaoValuesMap = m
 			o
 		}
-		val et = EntityType[ID, T](clz, con, Table[ID, T](table, columns.reverse, persistedColumns, unusedPKs.executeAll.reverse))
-		persistedColumns = null
-		columns = null
-		unusedPKs = null
-		et
+		EntityType[ID, T](clz, con, Table[ID, T](table, columns.reverse, persistedColumns, unusedPKs.executeAll.reverse))
 	}
 
 	override def hashCode = table.hashCode
