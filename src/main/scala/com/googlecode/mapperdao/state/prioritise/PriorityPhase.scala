@@ -17,13 +17,14 @@ class PriorityPhase(updateConfig: UpdateConfig) {
 	def prioritise[ID, T](
 		tpe: Type[ID, T],
 		cmds: List[PersistCmd]
-	): List[List[PersistCmd]] = {
+	): Prioritized = {
 		val prie = prioritiseType(tpe)
 
-		val (high, low) = cmds.partition {
-			cmd =>
-				cmd.priority == High
-		}
+		val groupedByPriority = cmds.groupBy(_.priority)
+		val high = groupedByPriority.getOrElse(High, Nil)
+		val low = groupedByPriority.getOrElse(Low, Nil)
+		val related = groupedByPriority.getOrElse(Related, Nil)
+
 		val groupped = high.collect {
 			case we: CmdWithType[_, _] => we
 		}.groupBy(_.tpe)
@@ -32,7 +33,7 @@ class PriorityPhase(updateConfig: UpdateConfig) {
 			e =>
 				groupped(e)
 		}
-		h ::: List(low)
+		Prioritized(h, low, related)
 	}
 
 	def prioritiseType(tpe: Type[_, _]): List[Type[_, _]] =

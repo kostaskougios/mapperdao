@@ -53,6 +53,10 @@ import com.googlecode.mapperdao.utils.LazyActions
  */
 abstract class Entity[ID, T](protected[mapperdao] val table: String, protected[mapperdao] val clz: Class[T]) {
 
+	/**
+	 * declares the extra trait that will be mixed into every persisted instance
+	 * of T. So T becomes T with Stored when it is persisted.
+	 */
 	type Stored <: DeclaredIds[ID]
 
 	def this(table: String)(implicit m: ClassManifest[T]) = this(table, m.erasure.asInstanceOf[Class[T]])

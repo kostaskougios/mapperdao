@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.SqlParameterValue
 import com.googlecode.mapperdao.state.persisted._
 import com.googlecode.mapperdao.state.persistcmds.PersistCmd
 import com.googlecode.mapperdao.state.persistcmds.InsertCmd
+import state.prioritise.Prioritized
 
 /**
  * converts commands to database operations, executes
@@ -29,15 +30,16 @@ class CmdToDatabase(
 		cmd: PersistCmd
 	)
 
-	def execute(cmdList: List[List[PersistCmd]]): List[PersistedNode[_, _]] = {
+	def execute(prioritized: Prioritized): List[PersistedNode[_, _]] = {
 
 		// we need to flatten out the sql's so that we can batch process them
 		// but also keep the tree structure so that we return only PersistedNode's
 		// for the top level PersistedCmd's
 
+		val cmdList = (prioritized.high ::: List(prioritized.low))
 		cmdList.map {
 			cmds =>
-				val nodes = toNodes(cmds)
+				val nodes = toNodes(cmds, prioritized)
 				toDb(nodes)
 
 				// now the batches were executed and we got a tree with
@@ -125,16 +127,16 @@ class CmdToDatabase(
 			ExternalEntityPersistedNode(foreignEntity, fo, false)
 	}
 
-	private def toNodes(cmds: List[PersistCmd]) = cmds.filterNot(_.blank).map {
+	private def toNodes(cmds: List[PersistCmd], pri: Prioritized) = cmds.filterNot(_.blank).map {
 		cmd =>
-			val sql = toSql(cmd)
+			val sql = toSql(cmd, pri)
 			Node(
 				sql,
 				cmd
 			)
 	}
 
-	private def toSql(cmd: PersistCmd) = cmd match {
+	private def toSql(cmd: PersistCmd, pri: Prioritized) = cmd match {
 		case InsertCmd(tpe, o, columns, _) =>
 			driver.insertSql(tpe, columns).result
 		case UpdateCmd(tpe, oldVM, newVM, columns, _) =>

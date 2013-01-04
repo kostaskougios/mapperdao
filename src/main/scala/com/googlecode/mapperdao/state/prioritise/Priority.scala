@@ -10,3 +10,5 @@ trait Priority {
 object High extends Priority
 
 object Low extends Priority
+
+object Related extends Priority
