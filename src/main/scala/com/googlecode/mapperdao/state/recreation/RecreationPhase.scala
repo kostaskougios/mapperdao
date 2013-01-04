@@ -45,12 +45,19 @@ class RecreationPhase(
 							entityMap.put(node.identity, mockO)
 
 							val related = table.relationshipColumnInfos(updateConfig.skip).map {
-								case ColumnInfoTraversableManyToMany(column, columnToValue, getterMethod) =>
+								case ColumnInfoTraversableManyToMany(column, _, _) =>
 									val mtm = newVM.manyToMany(column)
 									val relatedNodes = toNodes(mtm)
 									(
 										column.alias,
 										recreate(updateConfig, relatedNodes)
+										)
+								case ColumnInfoManyToOne(column, _, _) =>
+									val mto = newVM.manyToOne(column)
+									val relatedNodes = toNode(mto) :: Nil
+									(
+										column.alias,
+										recreate(updateConfig, relatedNodes).head
 										)
 							}
 
