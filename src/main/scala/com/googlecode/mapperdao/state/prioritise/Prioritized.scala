@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao.state.prioritise
 
 import com.googlecode.mapperdao.state.persistcmds.{RelatedCmd, PersistCmd}
+import com.googlecode.mapperdao.ValuesMap
 
 /**
  * prioritized cmds
@@ -11,9 +12,9 @@ import com.googlecode.mapperdao.state.persistcmds.{RelatedCmd, PersistCmd}
 case class Prioritized(
 	high: List[List[PersistCmd]],
 	low: List[PersistCmd],
-	related: List[PersistCmd]
+	related: List[RelatedCmd]
 ) {
-	val relatedById = related.map {
-		case r: RelatedCmd => (r.vm.identity, r)
-	}.toMap
+	private val relatedById = related.groupBy(_.vm.identity)
+
+	def relatedFor(vm: ValuesMap) = relatedById.getOrElse(vm.identity, Nil)
 }

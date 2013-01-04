@@ -137,8 +137,15 @@ class CmdToDatabase(
 	}
 
 	private def toSql(cmd: PersistCmd, pri: Prioritized) = cmd match {
-		case InsertCmd(tpe, o, columns, _) =>
-			driver.insertSql(tpe, columns).result
+		case InsertCmd(tpe, newVM, columns, _) =>
+			val relColumns = pri.relatedFor(newVM).map {
+				case RelatedCmd(column, vm, foreignTpe, foreignVM) =>
+					column match {
+						case ManyToOne(columns, foreign) =>
+							columns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
+					}
+			}.flatten
+			driver.insertSql(tpe, columns ::: relColumns).result
 		case UpdateCmd(tpe, oldVM, newVM, columns, _) =>
 			val pks = oldVM.toListOfPrimaryKeyAndValueTuple(tpe)
 			driver.updateSql(tpe, columns, pks).result

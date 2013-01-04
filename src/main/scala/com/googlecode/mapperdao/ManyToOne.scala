@@ -2,7 +2,7 @@ package com.googlecode.mapperdao
 
 case class ManyToOne[FID, F](
 	columns: List[Column],
-	val foreign: TypeRef[FID, F]
+	foreign: TypeRef[FID, F]
 )
 	extends ColumnRelationshipBase[FID, F] {
 	def alias = foreign.alias
