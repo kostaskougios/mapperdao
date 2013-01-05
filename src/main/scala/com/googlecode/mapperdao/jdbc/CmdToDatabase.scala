@@ -127,7 +127,7 @@ class CmdToDatabase(
 			ExternalEntityPersistedNode(foreignEntity, fo, false)
 	}
 
-	private def toNodes(cmds: List[PersistCmd], pri: Prioritized) = cmds.filterNot(_.blank).map {
+	private def toNodes(cmds: List[PersistCmd], pri: Prioritized) = cmds.filterNot(_.blank(pri)).map {
 		cmd =>
 			val sql = toSql(cmd, pri)
 			Node(
@@ -138,19 +138,12 @@ class CmdToDatabase(
 
 	private def toSql(cmd: PersistCmd, pri: Prioritized) = {
 
-		def relatedColumns(newVM: ValuesMap) = pri.relatedFor(newVM).map {
-			case RelatedCmd(column, vm, foreignTpe, foreignVM) =>
-				column match {
-					case ManyToOne(columns, foreign) =>
-						columns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
-				}
-		}.flatten
 		cmd match {
 			case InsertCmd(tpe, newVM, columns, _) =>
-				driver.insertSql(tpe, columns ::: relatedColumns(newVM)).result
+				driver.insertSql(tpe, columns ::: pri.relatedColumns(newVM)).result
 			case UpdateCmd(tpe, oldVM, newVM, columns, _) =>
 				val pks = oldVM.toListOfPrimaryKeyAndValueTuple(tpe)
-				driver.updateSql(tpe, columns ::: relatedColumns(newVM), pks).result
+				driver.updateSql(tpe, columns ::: pri.relatedColumns(newVM), pks).result
 			case InsertManyToManyCmd(tpe, foreignTpe, manyToMany, entityVM, foreignEntityVM) =>
 				val left = entityVM.toListOfPrimaryKeys(tpe)
 				val right = foreignEntityVM.toListOfPrimaryKeys(foreignTpe)

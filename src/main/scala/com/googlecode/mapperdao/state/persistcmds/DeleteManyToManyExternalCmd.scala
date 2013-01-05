@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.state.prioritise.Low
+import state.prioritise.{Prioritized, Low}
 import com.googlecode.mapperdao.ColumnInfoTraversableManyToMany
 
 /**
@@ -15,7 +15,7 @@ case class DeleteManyToManyExternalCmd[ID, T, FID, FT](
 	entityVM: ValuesMap,
 	fo: FT
 ) extends PersistCmd {
-	def blank = false
+	def blank(pri: Prioritized) = false
 
 	def priority = Low
 }

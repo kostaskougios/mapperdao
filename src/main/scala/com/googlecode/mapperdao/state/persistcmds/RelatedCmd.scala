@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
-import state.prioritise.Related
+import state.prioritise.{Prioritized, Related}
 
 /**
  * @author: kostas.kougios
@@ -13,7 +13,7 @@ case class RelatedCmd(
 	foreignTpe: Type[_, _],
 	foreignVM: ValuesMap
 ) extends PersistCmd {
-	def blank = true
+	def blank(pri: Prioritized) = true
 
 	def priority = Related
 }

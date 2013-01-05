@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.state.persistcmds
 
-import com.googlecode.mapperdao.state.prioritise.Low
 import com.googlecode.mapperdao._
+import state.prioritise.{Low, Prioritized}
 
 /**
  * @author: kostas.kougios
@@ -12,7 +12,7 @@ case class UpdateExternalCmd[T, FID, FT](
 	manyToMany: ColumnInfoTraversableManyToMany[T, FID, FT],
 	fo: FT
 ) extends PersistCmd {
-	def blank = true
+	def blank(pri: Prioritized) = true
 
 	def priority = Low
 }
