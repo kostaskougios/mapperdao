@@ -215,8 +215,9 @@ class CmdPhase(typeManager: TypeManager) {
 				val foreignEntity = column.foreign.entity.asInstanceOf[Entity[Any, Any]]
 				val foreignTpe = foreignEntity.tpe
 				val fo = newVM.manyToOne(column)
-				if (oldVMO.isDefined) {
-					val oldVM = oldVMO.get
+				if (fo == null) {
+					RelatedCmd(column, newVM, foreignTpe, null) :: Nil
+				} else if (oldVMO.isDefined) {
 					val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
 					RelatedCmd(column, newVM, foreignTpe, foreignVM) :: (fo match {
 						case p: DeclaredIds[Any] =>

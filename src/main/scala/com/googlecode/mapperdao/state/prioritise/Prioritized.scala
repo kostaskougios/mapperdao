@@ -22,8 +22,16 @@ case class Prioritized(
 		case RelatedCmd(column, _, foreignTpe, foreignVM) =>
 			column match {
 				case ManyToOne(columns, foreign) =>
-					columns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
+					columns zip (
+						if (foreignVM == null)
+							Prioritized.nullList
+						else
+							foreignVM.toListOfPrimaryKeys(foreignTpe)
+						)
 			}
 	}.flatten
+}
 
+object Prioritized {
+	private val nullList = List(null, null, null, null)
 }
