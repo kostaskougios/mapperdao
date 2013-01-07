@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.Setup
-import org.scala_tools.time.Imports._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
@@ -10,7 +9,7 @@ import org.scalatest.matchers.ShouldMatchers
 /**
  * @author kostantinos.kougios
  *
- * 28 Aug 2011
+ *         28 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
 class ManyToOneSelfJoinQuerySuite extends FunSuite with ShouldMatchers {
@@ -40,14 +39,14 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with ShouldMatchers {
 
 	def createTables {
 		Setup.dropAllTables(jdbc)
-		jdbc.update("""
+		jdbc.update( """
 			create table Address (
 				id int not null,
 				postcode varchar(8) not null,
 				primary key (id)
 			)
-		""")
-		jdbc.update("""
+					 """)
+		jdbc.update( """
 			create table House (
 				id int not null,
 				name varchar(30) not null,
@@ -55,8 +54,8 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with ShouldMatchers {
 				primary key (id),
 				foreign key (address_id) references Address(id) on delete cascade
 			)
-		""")
-		jdbc.update("""
+					 """)
+		jdbc.update( """
 			create table Person (
 				id int not null,
 				name varchar(30) not null,
@@ -64,13 +63,14 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with ShouldMatchers {
 				primary key (id),
 				foreign key (lives_id) references House(id) on delete cascade
 			)
-		""")
+					 """)
 	}
 }
 
 object ManyToOneSelfJoinQuerySpec {
 
 	object TestQueries {
+
 		import Query._
 
 		val pe = PersonEntity
@@ -80,35 +80,44 @@ object ManyToOneSelfJoinQuerySpec {
 			val ho2 = new HouseEntityBase
 			(
 				select from pe
-				join (pe, pe.lives, ho1)
-				join ho2 on ho1.name <> ho2.name and ho2.id === 11
-			)
+					join(pe, pe.lives, ho1)
+					join ho2 on ho1.name <> ho2.name and ho2.id === 11
+				)
 		}
 	}
+
 	case class Person(val id: Int, var name: String, lives: House)
+
 	case class House(val id: Int, val name: String, val address: Address)
+
 	case class Address(val id: Int, val postCode: String)
 
-	object PersonEntity extends Entity[Int, SurrogateIntId, Person] {
+	object PersonEntity extends Entity[Int, Person] {
+		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val lives = manytoone(HouseEntity) foreignkey "lives_id" to (_.lives)
-		def constructor(implicit m) = new Person(id, name, lives) with SurrogateIntId
+
+		def constructor(implicit m) = new Person(id, name, lives) with Stored
 	}
 
-	class HouseEntityBase extends Entity[Int, SurrogateIntId, House] {
+	class HouseEntityBase extends Entity[Int, House] {
+		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val address = manytoone(AddressEntity) to (_.address)
 
-		def constructor(implicit m) = new House(id, name, address) with SurrogateIntId
+		def constructor(implicit m) = new House(id, name, address) with Stored
 	}
 
 	val HouseEntity = new HouseEntityBase
 
-	object AddressEntity extends Entity[Int, SurrogateIntId, Address] {
+	object AddressEntity extends Entity[Int, Address] {
+		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val postCode = column("postcode") to (_.postCode)
-		def constructor(implicit m) = new Address(id, postCode) with SurrogateIntId
+
+		def constructor(implicit m) = new Address(id, postCode) with Stored
 	}
+
 }
