@@ -10,11 +10,13 @@ import com.googlecode.mapperdao.utils.Helpers
 /**
  * @author kostantinos.kougios
  *
- * 13 Aug 2011
+ *         13 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
 class ManyToOneSuite extends FunSuite with ShouldMatchers {
+
 	import ManyToOneSpec._
+
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity, HouseEntity))
 
 	if (Setup.database != "derby") {
@@ -163,37 +165,44 @@ class ManyToOneSuite extends FunSuite with ShouldMatchers {
 		mapperDao.select(PersonEntity, selected.id) should be(None)
 	}
 
-	def createTables =
-		{
-			Setup.dropAllTables(jdbc)
-			Setup.queries(this, jdbc).update("ddl")
-		}
+	def createTables = {
+		Setup.dropAllTables(jdbc)
+		Setup.queries(this, jdbc).update("ddl")
+	}
 }
 
 object ManyToOneSpec {
+
 	case class Person(val id: Int, val name: String, val company: Company, val lives: House)
+
 	case class Company(val id: Int, val name: String)
+
 	case class House(val id: Int, val address: String)
 
-	object PersonEntity extends Entity[Int, SurrogateIntId, Person] {
+	object PersonEntity extends Entity[Int, Person] {
+		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val company = manytoone(CompanyEntity) to (_.company)
 		val lives = manytoone(HouseEntity) to (_.lives)
 
-		def constructor(implicit m) = new Person(id, name, company, lives) with SurrogateIntId
+		def constructor(implicit m) = new Person(id, name, company, lives) with Stored
 	}
 
-	object CompanyEntity extends Entity[Int, SurrogateIntId, Company] {
+	object CompanyEntity extends Entity[Int, Company] {
+		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 
-		def constructor(implicit m) = new Company(id, name) with SurrogateIntId
+		def constructor(implicit m) = new Company(id, name) with Stored
 	}
 
-	object HouseEntity extends Entity[Int, SurrogateIntId, House] {
+	object HouseEntity extends Entity[Int, House] {
+		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val address = column("address") to (_.address)
-		def constructor(implicit m) = new House(id, address) with SurrogateIntId
+
+		def constructor(implicit m) = new House(id, address) with Stored
 	}
+
 }
