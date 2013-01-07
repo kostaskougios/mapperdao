@@ -84,7 +84,7 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
 
-		def constructor(implicit m) = new Product(name, attributes) with SurrogateIntId {
+		def constructor(implicit m) = new Product(name, attributes) with Stored {
 			val id: Int = ProductEntity.id
 		}
 	}

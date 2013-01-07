@@ -94,7 +94,7 @@ object ManyToManyQueryWithAliasesSuite {
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m) = new Attribute(id, name, value) with SurrogateIntId
+		def constructor(implicit m) = new Attribute(id, name, value) with Stored
 	}
 
 	class ProductEntityBase extends Entity[Int, Product] {
@@ -103,7 +103,7 @@ object ManyToManyQueryWithAliasesSuite {
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
 
-		def constructor(implicit m) = new Product(id, name, attributes) with SurrogateIntId
+		def constructor(implicit m) = new Product(id, name, attributes) with Stored
 	}
 
 	val AttributeEntity = new AttributeEntityBase

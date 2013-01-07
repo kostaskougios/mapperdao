@@ -134,7 +134,7 @@ class ManyToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 		val name = column("name") to (_.name)
 		val accounts = manytomany(AccountEntity) to (_.accounts)
 
-		def constructor(implicit m) = new User(reference, name, accounts) with SurrogateIntAndNaturalStringId {
+		def constructor(implicit m) = new User(reference, name, accounts) with Stored {
 			val id: Int = UserEntity.id
 		}
 	}
@@ -147,7 +147,7 @@ class ManyToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 		val serial = key("serial") to (_.serial)
 		val name = column("name") to (_.name)
 
-		def constructor(implicit m) = new Account(serial, name) with SurrogateIntAndNaturalLongId {
+		def constructor(implicit m) = new Account(serial, name) with Stored {
 			val id: Int = AccountEntity.id
 		}
 	}

@@ -71,7 +71,7 @@ object ManyToManySimpleTypesSuite {
 		val name = column("name") to (_.name)
 		val categories = manytomany(se) join("Product_Category", "product_id", "category_id") tostring (_.categories)
 
-		def constructor(implicit m) = new Product(name, categories) with SurrogateIntId {
+		def constructor(implicit m) = new Product(name, categories) with Stored {
 			val id: Int = ProductEntity.id
 		}
 	}

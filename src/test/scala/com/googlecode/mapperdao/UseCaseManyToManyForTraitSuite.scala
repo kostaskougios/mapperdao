@@ -133,7 +133,7 @@ class UseCaseManyToManyForTraitSuite extends FunSuite with ShouldMatchers {
 		val name = column("name") to (_.name)
 		val age = column("age") to (_.age)
 
-		def constructor(implicit m: ValuesMap) = new Person(name, age) with SurrogateIntId {
+		def constructor(implicit m: ValuesMap) = new Person(name, age) with Stored {
 			val id: Int = PersonEntity.id
 		}
 	}
@@ -144,7 +144,7 @@ class UseCaseManyToManyForTraitSuite extends FunSuite with ShouldMatchers {
 		val name = column("name") to (_.name)
 		val registration = column("registration") to (_.registration)
 
-		def constructor(implicit m: ValuesMap) = new Company(name, registration) with SurrogateIntId {
+		def constructor(implicit m: ValuesMap) = new Company(name, registration) with Stored {
 			val id: Int = CompanyEntity.id
 		}
 	}
@@ -161,7 +161,7 @@ class UseCaseManyToManyForTraitSuite extends FunSuite with ShouldMatchers {
 		})
 
 		def constructor(implicit m: ValuesMap) =
-			new ContactList(name, m(people).toSet ++ m(companies).toSet) with SurrogateIntId {
+			new ContactList(name, m(people).toSet ++ m(companies).toSet) with Stored {
 				val id: Int = ContactListEntity.id
 			}
 	}

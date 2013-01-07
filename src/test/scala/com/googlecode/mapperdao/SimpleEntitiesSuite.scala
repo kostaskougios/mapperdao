@@ -218,7 +218,7 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 
 		// a function from ValuesMap=>JobPosition that constructs the object.
 		// This means that immutability is possible and even desirable for entities!
-		def constructor(implicit m) = new JobPosition(id, name, start, end, rank, married) with NaturalIntId
+		def constructor(implicit m) = new JobPosition(id, name, start, end, rank, married) with Stored
 	}
 
 }
