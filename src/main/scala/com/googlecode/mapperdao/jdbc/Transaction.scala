@@ -10,6 +10,7 @@ import javax.sql.DataSource
 
 trait Transaction {
 	def apply[V](f: () => V): V
+
 	def apply[V](f: TransactionStatus => V): V
 }
 
@@ -27,7 +28,9 @@ object Transaction {
 	 * Note: Documentation is copied from springframework.
 	 */
 	object Propagation {
+
 		sealed protected[Transaction] class Level(val level: Int)
+
 		/**
 		 * Support a current transaction; create a new one if none exists.
 		 * Analogous to the EJB transaction attribute of the same name.
@@ -35,6 +38,7 @@ object Transaction {
 		 * and typically defines a transaction synchronization scope.
 		 */
 		object Required extends Level(TransactionDefinition.PROPAGATION_REQUIRED)
+
 		/**
 		 * Support a current transaction; execute non-transactionally if none exists.
 		 * Analogous to the EJB transaction attribute of the same name.
@@ -55,6 +59,7 @@ object Transaction {
 		 * @see org.springframework.transaction.support.AbstractPlatformTransactionManager#SYNCHRONIZATION_ON_ACTUAL_TRANSACTION
 		 */
 		object Supports extends Level(TransactionDefinition.PROPAGATION_SUPPORTS)
+
 		/**
 		 * Support a current transaction; throw an exception if no current transaction
 		 * exists. Analogous to the EJB transaction attribute of the same name.
@@ -62,6 +67,7 @@ object Transaction {
 		 * scope will always be driven by the surrounding transaction.
 		 */
 		object Mandatory extends Level(TransactionDefinition.PROPAGATION_MANDATORY)
+
 		/**
 		 * Create a new transaction, suspending the current transaction if one exists.
 		 * Analogous to the EJB transaction attribute of the same name.
@@ -76,6 +82,7 @@ object Transaction {
 		 * @see org.springframework.transaction.jta.JtaTransactionManager#setTransactionManager
 		 */
 		object RequiresNew extends Level(TransactionDefinition.PROPAGATION_REQUIRES_NEW)
+
 		/**
 		 * Do not support a current transaction; rather always execute non-transactionally.
 		 * Analogous to the EJB transaction attribute of the same name.
@@ -90,6 +97,7 @@ object Transaction {
 		 * @see org.springframework.transaction.jta.JtaTransactionManager#setTransactionManager
 		 */
 		object NotSupported extends Level(TransactionDefinition.PROPAGATION_NOT_SUPPORTED)
+
 		/**
 		 * Do not support a current transaction; throw an exception if a current transaction
 		 * exists. Analogous to the EJB transaction attribute of the same name.
@@ -97,6 +105,7 @@ object Transaction {
 		 * <code>PROPAGATION_NEVER</code> scope.
 		 */
 		object Never extends Level(TransactionDefinition.PROPAGATION_NEVER)
+
 		/**
 		 * Execute within a nested transaction if a current transaction exists,
 		 * behave like {@link #PROPAGATION_REQUIRED} else. There is no analogous
@@ -109,6 +118,7 @@ object Transaction {
 		 * @see org.springframework.jdbc.datasource.DataSourceTransactionManager
 		 */
 		object Nested extends Level(TransactionDefinition.PROPAGATION_NESTED)
+
 	}
 
 	/**
@@ -118,13 +128,16 @@ object Transaction {
 	 * please look at https://code.google.com/p/mapperdao/wiki/Transactions for more info and examples
 	 */
 	object Isolation {
+
 		sealed protected[Transaction] class Level(val level: Int)
+
 		/**
 		 * Use the default isolation level of the underlying datastore.
 		 * All other levels correspond to the JDBC isolation levels.
 		 * @see java.sql.Connection
 		 */
 		object Default extends Level(TransactionDefinition.ISOLATION_DEFAULT)
+
 		/**
 		 * Indicates that dirty reads, non-repeatable reads and phantom reads
 		 * can occur.
@@ -135,6 +148,7 @@ object Transaction {
 		 * @see java.sql.Connection#TRANSACTION_READ_UNCOMMITTED
 		 */
 		object ReadUncommited extends Level(TransactionDefinition.ISOLATION_READ_UNCOMMITTED)
+
 		/**
 		 * Indicates that dirty reads are prevented; non-repeatable reads and
 		 * phantom reads can occur.
@@ -143,6 +157,7 @@ object Transaction {
 		 * @see java.sql.Connection#TRANSACTION_READ_COMMITTED
 		 */
 		object ReadCommited extends Level(TransactionDefinition.ISOLATION_READ_COMMITTED)
+
 		/**
 		 * Indicates that dirty reads and non-repeatable reads are prevented;
 		 * phantom reads can occur.
@@ -153,6 +168,7 @@ object Transaction {
 		 * @see java.sql.Connection#TRANSACTION_REPEATABLE_READ
 		 */
 		object RepeatableRead extends Level(TransactionDefinition.ISOLATION_REPEATABLE_READ)
+
 		/**
 		 * Indicates that dirty reads, non-repeatable reads and phantom reads
 		 * are prevented.
@@ -165,7 +181,9 @@ object Transaction {
 		 * @see java.sql.Connection#TRANSACTION_SERIALIZABLE
 		 */
 		object Serializable extends Level(TransactionDefinition.ISOLATION_SERIALIZABLE)
+
 	}
+
 	/**
 	 * returns a transaction manager for the provided datasource. Only 1 transaction manager
 	 * instance per datasource is necessary.
@@ -173,6 +191,7 @@ object Transaction {
 	 * please look at https://code.google.com/p/mapperdao/wiki/Transactions for more info and examples
 	 */
 	def transactionManager(dataSource: DataSource): PlatformTransactionManager = new DataSourceTransactionManager(dataSource)
+
 	/**
 	 * returns a transaction manager for the provided jdbc. Only 1 transaction manager
 	 * instance per jdbc/datasource is necessary.
@@ -185,18 +204,21 @@ object Transaction {
 	 * get a transaction with the provided propagation, isolation levels and timeout.
 	 *
 	 * please also look at #hieghest and #default methods
+	 *
+	 * Thread safe, can be reused
 	 */
-	def get(transactionManager: PlatformTransactionManager, propagation: Propagation.Level, isolation: Isolation.Level, timeOutSec: Int): Transaction =
-		{
-			val td = new DefaultTransactionDefinition
-			td.setPropagationBehavior(propagation.level)
-			td.setIsolationLevel(isolation.level)
-			td.setTimeout(timeOutSec)
-			new TransactionImpl(transactionManager, td)
-		}
+	def get(transactionManager: PlatformTransactionManager, propagation: Propagation.Level, isolation: Isolation.Level, timeOutSec: Int): Transaction = {
+		val td = new DefaultTransactionDefinition
+		td.setPropagationBehavior(propagation.level)
+		td.setIsolationLevel(isolation.level)
+		td.setTimeout(timeOutSec)
+		new TransactionImpl(transactionManager, td)
+	}
 
 	/**
 	 * higest isolation level (serializable) that never times out
+	 *
+	 * Thread safe, can be reused
 	 */
 	def highest(transactionManager: PlatformTransactionManager): Transaction =
 		get(transactionManager, Propagation.Required, Isolation.Serializable, -1)
@@ -205,10 +227,11 @@ object Transaction {
 	 * gets a Transaction with default settings:
 	 *
 	 * (PROPAGATION_REQUIRED, ISOLATION_DEFAULT, TIMEOUT_DEFAULT, readOnly=false).
+	 *
+	 * Thread safe, can be reused
 	 */
-	def default(transactionManager: PlatformTransactionManager): Transaction =
-		{
-			val td = new DefaultTransactionDefinition
-			new TransactionImpl(transactionManager, td)
-		}
+	def default(transactionManager: PlatformTransactionManager): Transaction = {
+		val td = new DefaultTransactionDefinition
+		new TransactionImpl(transactionManager, td)
+	}
 }

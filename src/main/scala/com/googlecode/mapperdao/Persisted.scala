@@ -1,12 +1,11 @@
 package com.googlecode.mapperdao
 
 /**
- * This is considered mapperdao internal implementation. It is not
- * needed to mixin this trait in the constructor() method anymore
+ * This is considered mapperdao internal implementation.
  *
  * @author kostantinos.kougios
  *
- * 17 Jul 2011
+ *         17 Jul 2011
  */
 private[mapperdao] trait Persisted {
 
@@ -18,7 +17,6 @@ private[mapperdao] trait Persisted {
 	@transient
 	private[mapperdao] var mapperDaoDiscarded = false
 
-	// mock objects are used in object graphs with cycles
 	@transient
 	private[mapperdao] var mapperDaoMock = false
 }

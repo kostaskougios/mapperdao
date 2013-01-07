@@ -184,10 +184,7 @@
                 <configuration>
                     <scalaVersion>${scala.version}</scalaVersion>
                     <args>
-                        <arg>-target:jvm-1.5</arg>
                         <arg>-Xexperimental</arg>
-                        <arg>-optimize</arg>
-                        <arg>-unchecked</arg>
                     </args>
                     <charset>${project.build.sourceEncoding}</charset>
                     <jvmArgs>
@@ -348,6 +345,46 @@
         </plugins>
     </build>
     <profiles>
+        <profile>
+            <id>optimized</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>net.alchim31.maven</groupId>
+                        <artifactId>scala-maven-plugin</artifactId>
+                        <configuration>
+                            <scalaVersion>${scala.version}</scalaVersion>
+                            <args>
+                                <arg>-optimize</arg>
+                                <arg>-unchecked</arg>
+                                <arg>-Xexperimental</arg>
+                            </args>
+                            <charset>${project.build.sourceEncoding}</charset>
+                            <jvmArgs>
+                                <jvmArg>-Xmx1024m</jvmArg>
+                            </jvmArgs>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>scala-compile-first</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                    <goal>compile</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>scala-test-compile</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>testCompile</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>scala2.9</id>
             <properties>
