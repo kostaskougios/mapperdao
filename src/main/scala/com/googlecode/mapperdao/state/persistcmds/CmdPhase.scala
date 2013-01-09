@@ -104,17 +104,17 @@ class CmdPhase(typeManager: TypeManager) {
 									InsertManyToManyExternalCmd(
 										tpe,
 										foreignEE,
-										ci,
+										ci.asInstanceOf[ColumnInfoTraversableManyToMany[T, Any, Any]],
 										newVM,
 										fo)
 							}
 							val intersectCmds = intersect.toList.map {
 								case (oldO, newO) =>
-									UpdateExternalCmd(foreignEE, ci, newO)
+									UpdateExternalCmd(foreignEE, ci.asInstanceOf[ColumnInfoTraversableManyToMany[T, Any, Any]], newO)
 							}
 							val removedCmds = removed.toList.map {
 								ro =>
-									DeleteManyToManyExternalCmd(tpe, foreignEE, ci, newVM, ro)
+									DeleteManyToManyExternalCmd(tpe, foreignEE, ci.asInstanceOf[ColumnInfoTraversableManyToMany[T, Any, Any]], newVM, ro)
 							}
 							addedCmds ::: intersectCmds ::: removedCmds
 						} else {
@@ -123,7 +123,7 @@ class CmdPhase(typeManager: TypeManager) {
 									InsertManyToManyExternalCmd(
 										tpe,
 										foreignEE,
-										ci,
+										ci.asInstanceOf[ColumnInfoTraversableManyToMany[T, Any, Any]],
 										newVM,
 										fo)
 							}
@@ -212,7 +212,7 @@ class CmdPhase(typeManager: TypeManager) {
 			 * ---------------------------------------------------------------------------------------------
 			 */
 			case ColumnInfoManyToOne(column, columnToValue, _) =>
-				val foreignEntity = column.foreign.entity.asInstanceOf[Entity[Any, Any]]
+				val foreignEntity = column.foreign.entity //.asInstanceOf[Entity[Any, Any]]
 				val foreignTpe = foreignEntity.tpe
 				val fo = newVM.manyToOne(column)
 				if (fo == null) {
@@ -220,8 +220,8 @@ class CmdPhase(typeManager: TypeManager) {
 				} else if (oldVMO.isDefined) {
 					val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
 					RelatedCmd(column, newVM, foreignTpe, foreignVM) :: (fo match {
-						case p: DeclaredIds[Any] =>
-							doUpdate(foreignTpe, p, updateConfig)
+						case p: DeclaredIds[_] =>
+							doUpdate(foreignTpe.asInstanceOf[Type[Any, Any]], p.asInstanceOf[Any with DeclaredIds[Any]], updateConfig)
 						case _ =>
 							// we need to insert the foreign entity and link to entity
 							insert(foreignTpe, foreignVM, false, updateConfig)
@@ -230,8 +230,8 @@ class CmdPhase(typeManager: TypeManager) {
 					// insert new
 					val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
 					RelatedCmd(column, newVM, foreignTpe, foreignVM) :: (fo match {
-						case p: DeclaredIds[Any] =>
-							doUpdate(foreignTpe, p, updateConfig)
+						case p: DeclaredIds[_] =>
+							doUpdate(foreignTpe.asInstanceOf[Type[Any, Any]], p.asInstanceOf[Any with DeclaredIds[Any]], updateConfig)
 						case _ =>
 							// we need to insert the foreign entity and link to entity
 							insert(foreignTpe, foreignVM, false, updateConfig)
