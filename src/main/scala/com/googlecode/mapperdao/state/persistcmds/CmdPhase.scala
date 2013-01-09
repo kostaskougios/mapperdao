@@ -211,22 +211,32 @@ class CmdPhase(typeManager: TypeManager) {
 			 * Many-To-One
 			 * ---------------------------------------------------------------------------------------------
 			 */
-			case ColumnInfoManyToOne(column, columnToValue, _) =>
-				val foreignEntity = column.foreign.entity //.asInstanceOf[Entity[Any, Any]]
-				val foreignTpe = foreignEntity.tpe
+			case ci@ColumnInfoManyToOne(column, columnToValue, _) =>
 				val fo = newVM.manyToOne(column)
-				if (fo == null) {
-					RelatedCmd(column, newVM, foreignTpe, null) :: Nil
-				} else {
-					// insert new
-					val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
-					RelatedCmd(column, newVM, foreignTpe, foreignVM) :: (fo match {
-						case p: DeclaredIds[_] =>
-							doUpdate(foreignTpe.asInstanceOf[Type[Any, Any]], p.asInstanceOf[Any with DeclaredIds[Any]], updateConfig)
-						case _ =>
-							// we need to insert the foreign entity and link to entity
-							insert(foreignTpe, foreignVM, false, updateConfig)
-					})
+				column.foreign.entity match {
+					case foreignEE: ExternalEntity[_, _] =>
+						if (oldVMO.isDefined) {
+							// update
+							Nil
+						} else {
+							// insert
+							InsertManyToOneExternalCmd(tpe, foreignEE, ci, newVM, fo)
+						}
+					case foreignEntity =>
+						val foreignTpe = foreignEntity.tpe
+						if (fo == null) {
+							RelatedCmd(column, newVM, foreignTpe, null) :: Nil
+						} else {
+							// insert new
+							val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
+							RelatedCmd(column, newVM, foreignTpe, foreignVM) :: (fo match {
+								case p: DeclaredIds[_] =>
+									doUpdate(foreignTpe.asInstanceOf[Type[Any, Any]], p.asInstanceOf[Any with DeclaredIds[Any]], updateConfig)
+								case _ =>
+									// we need to insert the foreign entity and link to entity
+									insert(foreignTpe, foreignVM, false, updateConfig)
+							})
+						}
 				}
 		}.flatten
 	}
