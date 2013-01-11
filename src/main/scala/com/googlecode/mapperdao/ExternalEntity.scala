@@ -135,7 +135,7 @@ abstract class ExternalEntity[FID, F](table: String, clz: Class[F]) extends Enti
 	/**
 	 * support for many-to-one mapping
 	 */
-	type OnInsertManyToOne[T] = InsertExternalManyToOne[T, F] => PrimaryKeysValues
+	type OnInsertManyToOne = InsertExternalManyToOne[F] => PrimaryKeysValues
 	// return the primary keys
 	type OnSelectManyToOne[T] = SelectExternalManyToOne[T, F] => F
 	// return the actual one-value
@@ -143,14 +143,14 @@ abstract class ExternalEntity[FID, F](table: String, clz: Class[F]) extends Enti
 	// return the primary keys
 	type OnDeleteManyToOne[T] = DeleteExternalManyToOne[T, F] => Unit
 
-	private[mapperdao] val manyToOneOnInsertMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnInsertManyToOne[_]]("onInsertManyToOne must be called for External Entity %s".format(getClass.getName))
+	private[mapperdao] val manyToOneOnInsertMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnInsertManyToOne]("onInsertManyToOne must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] val manyToOneOnSelectMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnSelectManyToOne[_]]("onSelectManyToOne must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] val manyToOneOnUpdateMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnUpdateManyToOne[_]]("onUpdateManyToOne must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] val manyToOneOnDeleteMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnDeleteManyToOne[_]]("onDeleteManyToOne must be called for External Entity %s".format(getClass.getName))
 
-	def onInsertManyToOne[T](ci: => ColumnInfoManyToOne[T, _, F])(handler: OnInsertManyToOne[T]) = lazyActions(() => manyToOneOnInsertMap +(ci, handler))
+	def onInsertManyToOne[T](ci: => ColumnInfoManyToOne[T, _, F])(handler: OnInsertManyToOne) = lazyActions(() => manyToOneOnInsertMap +(ci, handler))
 
-	def onInsertManyToOne(handler: OnInsertManyToOne[Any]) {
+	def onInsertManyToOne(handler: OnInsertManyToOne) {
 		manyToOneOnInsertMap.default = Some(handler)
 	}
 
@@ -239,7 +239,7 @@ case class UpdateExternalOneToOneReverse[T, F](updateConfig: UpdateConfig, entit
 
 case class DeleteExternalOneToOneReverse[T, F](deleteConfig: DeleteConfig, entity: T, foreign: F)
 
-case class InsertExternalManyToOne[T, F](updateConfig: UpdateConfig, newVM: ValuesMap, foreign: F)
+case class InsertExternalManyToOne[F](updateConfig: UpdateConfig, newVM: ValuesMap, foreign: F)
 
 case class SelectExternalManyToOne[T, F](selectConfig: SelectConfig, primaryKeys: List[Any])
 

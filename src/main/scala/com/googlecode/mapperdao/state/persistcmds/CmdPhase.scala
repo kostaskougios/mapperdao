@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
-import utils.{NYI, TraversableSeparation}
+import utils.TraversableSeparation
 
 /**
  * entities are converted to PersistOps
@@ -220,7 +220,10 @@ class CmdPhase(typeManager: TypeManager) {
 							Nil
 						} else {
 							// insert
-							InsertManyToOneExternalCmd(tpe, foreignEE, ci, newVM, fo)
+							val foreignTpe = foreignEE.tpe
+							val ie = InsertExternalManyToOne(updateConfig, newVM, fo)
+							val v = foreignEE.manyToOneOnInsertMap(ci)(ie)
+							RelatedCmd(column, newVM, foreignTpe, foreignVM) :: Nil
 						}
 					case foreignEntity =>
 						val foreignTpe = foreignEntity.tpe
