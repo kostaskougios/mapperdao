@@ -128,6 +128,8 @@ object Helpers {
 		case s: String => List(s)
 		case (a1, a2) => List(a1, a2)
 		case (a1, a2, a3) => List(a1, a2, a3)
+		case (a1, a2, a3, a4) => List(a1, a2, a3, a4)
+		case (a1, a2, a3, a4, a5) => List(a1, a2, a3, a4, a5)
 		case t: Product => t.productIterator.toList
 		case a => List(a)
 	}
