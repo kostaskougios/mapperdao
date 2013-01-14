@@ -7,13 +7,26 @@ import state.prioritise.{Prioritized, Related}
  * @author: kostas.kougios
  *          Date: 04/01/13
  */
-case class RelatedCmd(
-	column: ColumnBase,
-	vm: ValuesMap,
-	foreignTpe: Type[_, _],
-	foreignVM: ValuesMap
-) extends PersistCmd {
+trait RelatedCmd extends PersistCmd {
+	val column: ColumnBase
+	val vm: ValuesMap
+	val foreignTpe: Type[_, _]
+
 	def blank(pri: Prioritized) = true
 
 	def priority = Related
 }
+
+case class EntityRelatedCmd(
+	column: ColumnBase,
+	vm: ValuesMap,
+	foreignTpe: Type[_, _],
+	foreignVM: ValuesMap
+) extends RelatedCmd
+
+case class ExternalEntityRelatedCmd(
+	column: ColumnBase,
+	vm: ValuesMap,
+	foreignTpe: Type[_, _],
+	foreignKeys: PrimaryKeysValues
+) extends RelatedCmd

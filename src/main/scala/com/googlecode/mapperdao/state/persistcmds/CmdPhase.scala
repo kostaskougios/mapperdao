@@ -223,16 +223,16 @@ class CmdPhase(typeManager: TypeManager) {
 							val foreignTpe = foreignEE.tpe
 							val ie = InsertExternalManyToOne(updateConfig, newVM, fo)
 							val v = foreignEE.manyToOneOnInsertMap(ci)(ie)
-							RelatedCmd(column, newVM, foreignTpe, foreignVM) :: Nil
+							ExternalEntityRelatedCmd(column, newVM, foreignTpe, v) :: Nil
 						}
 					case foreignEntity =>
 						val foreignTpe = foreignEntity.tpe
 						if (fo == null) {
-							RelatedCmd(column, newVM, foreignTpe, null) :: Nil
+							EntityRelatedCmd(column, newVM, foreignTpe, null) :: Nil
 						} else {
 							// insert new
 							val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
-							RelatedCmd(column, newVM, foreignTpe, foreignVM) :: (fo match {
+							EntityRelatedCmd(column, newVM, foreignTpe, foreignVM) :: (fo match {
 								case p: DeclaredIds[_] =>
 									doUpdate(foreignTpe.asInstanceOf[Type[Any, Any]], p.asInstanceOf[Any with DeclaredIds[Any]], updateConfig)
 								case _ =>
