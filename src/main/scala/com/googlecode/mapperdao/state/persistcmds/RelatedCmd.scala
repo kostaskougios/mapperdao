@@ -12,7 +12,7 @@ trait RelatedCmd extends PersistCmd {
 	val vm: ValuesMap
 	val foreignTpe: Type[_, _]
 
-	def blank(pri: Prioritized) = true
+	def contributes(pri: Prioritized) = Set()
 
 	def priority = Priority.Related
 }

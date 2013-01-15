@@ -15,7 +15,7 @@ case class InsertManyToManyExternalCmd[ID, T, FID, FT](
 	foreignO: FT
 
 	) extends PersistCmd {
-	def blank(pri: Prioritized) = false
+	def contributes(pri: Prioritized) = Contribute.StorageOnly
 
 	def priority = Priority.Low
 }

@@ -11,7 +11,7 @@ case class UpdateExternalManyToOneCmd[FID, FT](
 	foreignEntity: ExternalEntity[FID, FT],
 	fo: FT
 	) extends PersistCmd {
-	def blank(pri: Prioritized) = true
+	def contributes(pri: Prioritized) = Set()
 
 	def priority = Priority.Low
 }

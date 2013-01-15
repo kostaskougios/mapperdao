@@ -124,7 +124,7 @@ class CmdToDatabase(
 			ExternalEntityPersistedNode(foreignEntity, fo)
 	}
 
-	private def toNodes(cmds: List[PersistCmd], pri: Prioritized) = cmds.filterNot(_.blank(pri)).map {
+	private def toNodes(cmds: List[PersistCmd], pri: Prioritized) = cmds.filter(_.contributes(pri).contains(Contribute.Storage)).map {
 		cmd =>
 			val sql = toSql(cmd, pri)
 			Node(

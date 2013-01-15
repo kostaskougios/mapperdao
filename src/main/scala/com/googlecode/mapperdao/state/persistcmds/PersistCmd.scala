@@ -10,7 +10,7 @@ import com.googlecode.mapperdao.state.prioritise.{Prioritized, Priority}
  *         21 Nov 2012
  */
 trait PersistCmd {
-	def blank(pri: Prioritized): Boolean
+	def contributes(pri: Prioritized): Set[Contribute]
 
 	def priority: Priority
 }

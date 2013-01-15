@@ -9,7 +9,7 @@ import com.googlecode.mapperdao.state.prioritise.{Priority, Prioritized}
  *         22 Nov 2012
  */
 case object AlreadyProcessedCmd extends PersistCmd {
-	def blank(pri: Prioritized) = true
+	def contributes(pri: Prioritized) = Set()
 
 	def priority = Priority.Low
 }
