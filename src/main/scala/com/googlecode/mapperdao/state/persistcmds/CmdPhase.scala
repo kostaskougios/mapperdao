@@ -110,7 +110,7 @@ class CmdPhase(typeManager: TypeManager) {
 							}
 							val intersectCmds = intersect.toList.map {
 								case (oldO, newO) =>
-									UpdateExternalCmd(foreignEE, ci.asInstanceOf[ColumnInfoTraversableManyToMany[T, Any, Any]], newO)
+									UpdateExternalManyToManyCmd(foreignEE, ci.asInstanceOf[ColumnInfoTraversableManyToMany[T, Any, Any]], newO)
 							}
 							val removedCmds = removed.toList.map {
 								ro =>
@@ -214,6 +214,11 @@ class CmdPhase(typeManager: TypeManager) {
 			case ci@ColumnInfoManyToOne(column, columnToValue, _) =>
 				val fo = newVM.manyToOne(column)
 				column.foreign.entity match {
+					/**
+					 * ---------------------------------------------------------------------------------------------
+					 * External Entity
+					 * ---------------------------------------------------------------------------------------------
+					 */
 					case foreignEE: ExternalEntity[_, _] =>
 						if (oldVMO.isDefined) {
 							// update
@@ -223,8 +228,18 @@ class CmdPhase(typeManager: TypeManager) {
 							val foreignTpe = foreignEE.tpe
 							val ie = InsertExternalManyToOne(updateConfig, newVM, fo)
 							val v = foreignEE.manyToOneOnInsertMap(ci)(ie)
-							ExternalEntityRelatedCmd(column, newVM, foreignTpe, v) :: Nil
+							(
+								ExternalEntityRelatedCmd(column, newVM, foreignTpe, v)
+									:: UpdateExternalManyToOneCmd(foreignEE, fo)
+									:: Nil
+								)
 						}
+
+					/**
+					 * ---------------------------------------------------------------------------------------------
+					 * Normal Entity
+					 * ---------------------------------------------------------------------------------------------
+					 */
 					case foreignEntity =>
 						val foreignTpe = foreignEntity.tpe
 						if (fo == null) {

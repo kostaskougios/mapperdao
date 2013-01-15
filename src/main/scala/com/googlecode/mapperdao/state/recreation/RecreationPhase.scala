@@ -70,7 +70,7 @@ class RecreationPhase(
 							entityMap.put(node.identity, newE)
 							newE
 
-						case ExternalEntityPersistedNode(entity, o, _) =>
+						case ExternalEntityPersistedNode(entity, o) =>
 							o
 					}
 				}
