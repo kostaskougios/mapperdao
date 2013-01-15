@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao.state.persistcmds
 
-import com.googlecode.mapperdao.state.prioritise.{Prioritized, Low}
+import com.googlecode.mapperdao.state.prioritise.{Priority, Prioritized}
 
 
 /**
@@ -11,5 +11,5 @@ import com.googlecode.mapperdao.state.prioritise.{Prioritized, Low}
 case object AlreadyProcessedCmd extends PersistCmd {
 	def blank(pri: Prioritized) = true
 
-	def priority = Low
+	def priority = Priority.Low
 }

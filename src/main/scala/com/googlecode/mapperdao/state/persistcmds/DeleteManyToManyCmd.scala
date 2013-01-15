@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
-import state.prioritise.{Prioritized, Low}
+import state.prioritise.{Prioritized, Priority}
 
 /**
  * @author kostas.kougios
@@ -13,8 +13,8 @@ case class DeleteManyToManyCmd[ID, T, FID, FT](
 	manyToMany: ManyToMany[FID, FT],
 	entityVM: ValuesMap,
 	foreignEntityVM: ValuesMap
-) extends PersistCmd {
+	) extends PersistCmd {
 	def blank(pri: Prioritized) = false
 
-	def priority = Low
+	def priority = Priority.Low
 }
