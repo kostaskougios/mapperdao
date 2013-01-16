@@ -18,21 +18,21 @@ class CmdPhase(typeManager: TypeManager) {
 		tpe: Type[ID, T],
 		newVM: ValuesMap,
 		updateConfig: UpdateConfig
-	) = insert(tpe, newVM, true, updateConfig)
+		) = insert(tpe, newVM, true, updateConfig)
 
 	def toUpdateCmd[ID, T](
 		tpe: Type[ID, T],
 		oldValuesMap: ValuesMap,
 		newValuesMap: ValuesMap,
 		updateConfig: UpdateConfig
-	) = update(tpe, oldValuesMap, newValuesMap, true, updateConfig)
+		) = update(tpe, oldValuesMap, newValuesMap, true, updateConfig)
 
 	private def insert[ID, T](
 		tpe: Type[ID, T],
 		newVM: ValuesMap,
 		mainEntity: Boolean,
 		updateConfig: UpdateConfig
-	): List[PersistCmd] = {
+		): List[PersistCmd] = {
 		alreadyProcessed.get(newVM.identity) match {
 			case None =>
 				val table = tpe.table
@@ -51,7 +51,7 @@ class CmdPhase(typeManager: TypeManager) {
 		newVM: ValuesMap,
 		mainEntity: Boolean,
 		updateConfig: UpdateConfig
-	): List[PersistCmd] = {
+		): List[PersistCmd] = {
 		val op = alreadyProcessed.get(newVM.identity)
 		if (op.isDefined) {
 			AlreadyProcessedCmd :: Nil
@@ -74,7 +74,7 @@ class CmdPhase(typeManager: TypeManager) {
 		oldVMO: Option[ValuesMap],
 		newVM: ValuesMap,
 		updateConfig: UpdateConfig
-	): List[PersistCmd] = {
+		): List[PersistCmd] = {
 		tpe.table.relationshipColumnInfos(updateConfig.skip).map {
 			/**
 			 * ---------------------------------------------------------------------------------------------
@@ -220,20 +220,15 @@ class CmdPhase(typeManager: TypeManager) {
 					 * ---------------------------------------------------------------------------------------------
 					 */
 					case foreignEE: ExternalEntity[_, _] =>
-						if (oldVMO.isDefined) {
-							// update
-							Nil
-						} else {
-							// insert
-							val foreignTpe = foreignEE.tpe
-							val ie = InsertExternalManyToOne(updateConfig, newVM, fo)
-							val v = foreignEE.manyToOneOnInsertMap(ci)(ie)
-							(
-								ExternalEntityRelatedCmd(column, newVM, foreignTpe, v)
-									:: UpdateExternalManyToOneCmd(foreignEE, fo)
-									:: Nil
-								)
-						}
+						// insert/update
+						val foreignTpe = foreignEE.tpe
+						val ie = InsertExternalManyToOne(updateConfig, newVM, fo)
+						val v = foreignEE.manyToOneOnInsertMap(ci)(ie)
+						(
+							ExternalEntityRelatedCmd(column, newVM, foreignTpe, v)
+								:: UpdateExternalManyToOneCmd(foreignEE, fo)
+								:: Nil
+							)
 
 					/**
 					 * ---------------------------------------------------------------------------------------------
