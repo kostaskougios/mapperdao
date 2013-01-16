@@ -135,8 +135,7 @@ class CmdToDatabase(
 			)
 	}
 
-	private def toSql(cmd: PersistCmd, pri: Prioritized) = {
-
+	private def toSql(cmd: PersistCmd, pri: Prioritized) =
 		cmd match {
 			case InsertCmd(tpe, newVM, columns, _) =>
 				driver.insertSql(tpe, columns ::: pri.relatedColumns(newVM)).result
@@ -151,6 +150,9 @@ class CmdToDatabase(
 				val left = entityVM.toListOfPrimaryKeys(tpe)
 				val right = foreignEntityVM.toListOfPrimaryKeys(foreignTpe)
 				driver.deleteManyToManySql(manyToMany, left, right).result
+			case DeleteCmd(tpe, vm) =>
+				val args = vm.toListOfPrimaryKeyAndValueTuple(tpe)
+				driver.deleteSql(tpe, args).result
 			case InsertManyToManyExternalCmd(tpe, foreignEntity, manyToMany, entityVM, fo) =>
 				val left = entityVM.toListOfPrimaryKeys(tpe)
 				val ie = InsertExternalManyToMany(updateConfig, fo)
@@ -162,5 +164,4 @@ class CmdToDatabase(
 				val right = foreignEntity.manyToManyOnUpdateMap(manyToMany)(de)
 				driver.deleteManyToManySql(manyToMany.column, left, right.values).result
 		}
-	}
 }
