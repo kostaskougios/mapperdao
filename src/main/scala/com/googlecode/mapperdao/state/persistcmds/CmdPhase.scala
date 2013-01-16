@@ -69,6 +69,12 @@ class CmdPhase(typeManager: TypeManager) {
 		}
 	}
 
+	/**
+	 * ---------------------------------------------------------------------------------------------
+	 * A big block of match statements. I think it is easier this way, till I find a way to
+	 * split them.
+	 * ---------------------------------------------------------------------------------------------
+	 */
 	private def related[ID, T](
 		tpe: Type[ID, T],
 		oldVMO: Option[ValuesMap],
@@ -258,9 +264,16 @@ class CmdPhase(typeManager: TypeManager) {
 			 * ---------------------------------------------------------------------------------------------
 			 */
 			case ci@ColumnInfoTraversableOneToMany(column, columnToValue, _, entityOfT) =>
+				val foreignEntity = column.foreign.entity
 				val newT = newVM.oneToMany(column)
-				Nil
+				// entity is new
+				newT.map {
+					case o =>
+						// we need to insert the foreign entity and link to entity
+						val foreignVM = ValuesMap.fromType(typeManager, foreignEntity.tpe, o)
 
+						EntityRelatedCmd(column, foreignVM, tpe, newVM) :: insert(foreignEntity.tpe, foreignVM, false, updateConfig)
+				}.flatten
 		}.flatten
 	}
 
