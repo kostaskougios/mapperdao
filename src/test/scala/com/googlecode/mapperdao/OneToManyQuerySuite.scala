@@ -10,7 +10,7 @@ import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
 /**
  * @author kostantinos.kougios
  *
- * 28 Aug 2011
+ *         28 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
 class OneToManyQuerySuite extends FunSuite with ShouldMatchers {
@@ -54,7 +54,7 @@ class OneToManyQuerySuite extends FunSuite with ShouldMatchers {
 		val p2 = mapperDao.insert(PersonEntity, Person(7, "person2", Set(House(5, "Rome"), House(6, "Athens"))))
 
 		import Query._
-		queryDao.query(QueryConfig(skip = Set(PersonEntity.owns)), select from p join (p, p.owns, h) where h.address === "London").toSet should be === Set(Person(5, "person0", Set()), Person(6, "person1", Set()))
+		queryDao.query(QueryConfig(skip = Set(PersonEntity.owns)), select from p join(p, p.owns, h) where h.address === "London").toSet should be === Set(Person(5, "person0", Set()), Person(6, "person1", Set()))
 	}
 
 	test("based on FK") {
@@ -83,7 +83,7 @@ class OneToManyQuerySuite extends FunSuite with ShouldMatchers {
 		val p2 = mapperDao.insert(PersonEntity, Person(7, "person2", Set(House(5, "Rome"), House(6, "Athens"))))
 
 		import Query._
-		queryDao.query(select from p join (p, p.owns, h) where h.address === "London").toSet should be === Set(p0, p1)
+		queryDao.query(select from p join(p, p.owns, h) where h.address === "London").toSet should be === Set(p0, p1)
 	}
 
 	test("join with 2 conditions") {
@@ -96,7 +96,7 @@ class OneToManyQuerySuite extends FunSuite with ShouldMatchers {
 		import Query._
 		queryDao.query(
 			select from p
-				join (p, p.owns, h)
+				join(p, p.owns, h)
 				where (h.address === "Madrid" or h.address === "Rome")
 				and h.id >= 6
 		).toSet should be === Set(p3)
@@ -104,15 +104,15 @@ class OneToManyQuerySuite extends FunSuite with ShouldMatchers {
 
 	def createTables {
 		Setup.dropAllTables(jdbc)
-		jdbc.update("""
+		jdbc.update( """
 			create table Person (
 				id int not null,
 				name varchar(100) not null,
 				primary key (id)
 			)
-		""")
+					 """)
 
-		jdbc.update("""
+		jdbc.update( """
 			create table House (
 				id int not null,
 				address varchar(100) not null,
@@ -120,24 +120,28 @@ class OneToManyQuerySuite extends FunSuite with ShouldMatchers {
 				primary key (id),
 				constraint FK_House_Person foreign key (person_id) references Person(id) on delete cascade
 			)
-		""")
+					 """)
 	}
 
 	case class Person(val id: Int, var name: String, owns: Set[House])
+
 	case class House(val id: Int, val address: String)
 
-	object HouseEntity extends Entity[Int, SurrogateIntId, House] {
+	object HouseEntity extends Entity[Int, House] {
+		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val address = column("address") to (_.address)
 
-		def constructor(implicit m) = new House(id, address) with SurrogateIntId
+		def constructor(implicit m) = new House(id, address) with Stored
 	}
 
-	object PersonEntity extends Entity[Int, SurrogateIntId, Person] {
+	object PersonEntity extends Entity[Int, Person] {
+		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val owns = onetomany(HouseEntity) to (_.owns)
 
-		def constructor(implicit m) = new Person(id, name, owns) with SurrogateIntId
+		def constructor(implicit m) = new Person(id, name, owns) with Stored
 	}
+
 }
