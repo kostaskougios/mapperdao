@@ -11,11 +11,12 @@ import org.scalatest.matchers.ShouldMatchers
  *
  * @author kostantinos.kougios
  *
- * 5 Aug 2011
+ *         5 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
 class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers {
-	import OneToManySelfReferencedSpec._
+
+	import OneToManySelfReferencedSuite._
 
 	val (jdbc, mapperDao, queryDao) = setup
 
@@ -45,7 +46,7 @@ class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers {
 
 		val person = new Person("main-person", Set(new Person("friend1", Set()), new Person("friend2", Set())))
 		val inserted = mapperDao.insert(PersonEntity, person)
-		var friends = inserted.friends
+		val friends = inserted.friends
 		val modified = new Person("main-changed", friends + new Person("friend3", Set()))
 		val updated = mapperDao.update(PersonEntity, inserted, modified)
 		updated should be === modified
@@ -78,13 +79,13 @@ class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers {
 
 		mapperDao.select(PersonEntity, updated.id).get should be === updated
 	}
-	def setup =
-		{
 
-			val typeRegistry = TypeRegistry(PersonEntity)
+	def setup = {
 
-			Setup.setupMapperDao(typeRegistry)
-		}
+		val typeRegistry = TypeRegistry(PersonEntity)
+
+		Setup.setupMapperDao(typeRegistry)
+	}
 
 	def createTables {
 		Setup.dropAllTables(jdbc)
@@ -97,11 +98,12 @@ class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers {
 	}
 }
 
-object OneToManySelfReferencedSpec {
+object OneToManySelfReferencedSuite {
 
 	case class Person(val name: String, val friends: Set[Person])
 
-	object PersonEntity extends Entity[Int, SurrogateIntId, Person]("Person", classOf[Person]) {
+	object PersonEntity extends Entity[Int, Person]("Person", classOf[Person]) {
+		type Stored = SurrogateIntId
 		val aid = key("id") sequence (Setup.database match {
 			case "oracle" => Some("myseq")
 			case _ => None
@@ -109,8 +111,9 @@ object OneToManySelfReferencedSpec {
 		val name = column("name") to (_.name)
 		val friends = onetomany(PersonEntity) foreignkey "friend_id" to (_.friends)
 
-		def constructor(implicit m) = new Person(name, friends) with SurrogateIntId {
+		def constructor(implicit m) = new Person(name, friends) with Stored {
 			val id: Int = aid
 		}
 	}
+
 }
