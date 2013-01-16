@@ -122,6 +122,8 @@ class CmdToDatabase(
 			val ue = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Update, fo)
 			foreignEntity.manyToManyOnUpdateMap(manyToMany)(ue)
 			ExternalEntityPersistedNode(foreignEntity, fo)
+		case UpdateExternalManyToOneCmd(foreignEntity, fo) =>
+			ExternalEntityPersistedNode(foreignEntity, fo)
 	}
 
 	private def toNodes(cmds: List[PersistCmd], pri: Prioritized) = cmds.filter(_.contributes(pri).contains(Contribute.Storage)).map {
