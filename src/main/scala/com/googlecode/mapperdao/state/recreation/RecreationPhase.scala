@@ -17,7 +17,7 @@ class RecreationPhase(
 	typeManager: TypeManager,
 	entityMap: UpdateEntityMap,
 	nodes: List[PersistedNode[_, _]]
-) {
+	) {
 
 	private val byIdentity: Map[Int, PersistedNode[_, _]] = nodes.map {
 		node =>
@@ -60,6 +60,13 @@ class RecreationPhase(
 										val relatedNodes = toNode(mto) :: Nil
 										(column.alias, recreate(updateConfig, relatedNodes).head)
 									}
+								case ColumnInfoTraversableOneToMany(column, _, _, _) =>
+									val otm = newVM.oneToMany(column)
+									val relatedNodes = toNodes(otm)
+									(
+										column.alias,
+										recreate(updateConfig, relatedNodes)
+										)
 							}
 
 							val finalMods = modified ++ related
