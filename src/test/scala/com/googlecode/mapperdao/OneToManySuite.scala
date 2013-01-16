@@ -12,12 +12,12 @@ import com.googlecode.mapperdao.utils.Helpers
  *
  * @author kostantinos.kougios
  *
- * 12 Jul 2011
+ *         12 Jul 2011
  */
 @RunWith(classOf[JUnitRunner])
 class OneToManySuite extends FunSuite with ShouldMatchers {
 
-	import OneToManySpec._
+	import OneToManySuite._
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity, HouseEntity, PersonEntity))
 
@@ -62,13 +62,12 @@ class OneToManySuite extends FunSuite with ShouldMatchers {
 		val inserted = mapperDao.insert(PersonEntity, person)
 
 		var updated: Person = inserted
-		def doUpdate(from: Person, to: Person) =
-			{
-				updated = mapperDao.update(PersonEntity, Helpers.asSurrogateIntId(from), to)
-				updated should be === to
-				mapperDao.select(PersonEntity, 3).get should be === updated
-				mapperDao.select(PersonEntity, 3).get should be === to
-			}
+		def doUpdate(from: Person, to: Person) = {
+			updated = mapperDao.update(PersonEntity, Helpers.asSurrogateIntId(from), to)
+			updated should be === to
+			mapperDao.select(PersonEntity, 3).get should be === updated
+			mapperDao.select(PersonEntity, 3).get should be === to
+		}
 		doUpdate(updated, new Person(3, "Changed", "K", updated.owns, 18, updated.positions.filterNot(_ == jp1)))
 		doUpdate(updated, new Person(3, "Changed Again", "Surname changed too", updated.owns.filter(_.address == "London"), 18, jp5 :: updated.positions.filterNot(jp ⇒ jp == jp1 || jp == jp3)))
 
@@ -187,7 +186,8 @@ class OneToManySuite extends FunSuite with ShouldMatchers {
 	}
 }
 
-object OneToManySpec {
+object OneToManySuite {
+
 	/**
 	 * ============================================================================================================
 	 * the entities
@@ -203,6 +203,7 @@ object OneToManySpec {
 	case class JobPosition(val id: Int, var name: String, var rank: Int) {
 		// this can have any arbitrary methods, no problem!
 		def whatRank = rank
+
 		// also any non persisted fields, no prob! It's up to the mapper which fields will be used
 		val whatever = 5
 	}
@@ -223,25 +224,31 @@ object OneToManySpec {
 	 * Mapping for JobPosition class
 	 * ============================================================================================================
 	 */
-	object JobPositionEntity extends Entity[Int, SurrogateIntId, JobPosition] {
+	object JobPositionEntity extends Entity[Int, JobPosition] {
+		type Stored = SurrogateIntId
 
 		// now a description of the table and it's columns follows.
 		// each column is followed by a function JobPosition=>T, that
 		// returns the value of the property for that column.
-		val id = key("id") to (_.id) // this is the primary key
-		val name = column("name") to (_.name) // _.name : JobPosition => Any . Function that maps the column to the value of the object
+		val id = key("id") to (_.id)
+		// this is the primary key
+		val name = column("name") to (_.name)
+		// _.name : JobPosition => Any . Function that maps the column to the value of the object
 		val rank = column("rank") to (_.rank)
 
-		def constructor(implicit m) = new JobPosition(id, name, rank) with SurrogateIntId
+		def constructor(implicit m) = new JobPosition(id, name, rank) with Stored
 	}
 
-	object HouseEntity extends Entity[Int, SurrogateIntId, House] {
+	object HouseEntity extends Entity[Int, House] {
+		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val address = column("address") to (_.address)
 
-		def constructor(implicit m) = new House(id, address) with SurrogateIntId
+		def constructor(implicit m) = new House(id, address) with Stored
 	}
-	object PersonEntity extends Entity[Int, SurrogateIntId, Person] {
+
+	object PersonEntity extends Entity[Int, Person] {
+		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val surname = column("surname") to (_.surname)
@@ -256,6 +263,7 @@ object OneToManySpec {
 		 */
 		val jobPositions = onetomany(JobPositionEntity) to (_.positions)
 
-		def constructor(implicit m) = new Person(id, name, surname, houses, age, m(jobPositions).toList.sortWith(_.id < _.id)) with SurrogateIntId
+		def constructor(implicit m) = new Person(id, name, surname, houses, age, m(jobPositions).toList.sortWith(_.id < _.id)) with Stored
 	}
+
 }
