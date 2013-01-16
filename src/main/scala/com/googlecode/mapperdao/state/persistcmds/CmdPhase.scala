@@ -251,6 +251,16 @@ class CmdPhase(typeManager: TypeManager) {
 							})
 						}
 				}
+
+			/**
+			 * ---------------------------------------------------------------------------------------------
+			 * One-To-Many
+			 * ---------------------------------------------------------------------------------------------
+			 */
+			case ci@ColumnInfoTraversableOneToMany(column, columnToValue, _, entityOfT) =>
+				val newT = newVM.oneToMany(column)
+				Nil
+
 		}.flatten
 	}
 
