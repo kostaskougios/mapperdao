@@ -11,4 +11,5 @@ object Contribute {
 	object Storage extends Contribute
 
 	val StorageOnly = Set[Contribute](Contribute.Storage)
+	val NoContribution = Set[Contribute]()
 }

@@ -12,7 +12,7 @@ case class UpdateExternalManyToManyCmd[T, FID, FT](
 	manyToMany: ColumnInfoTraversableManyToMany[T, FID, FT],
 	fo: FT
 	) extends PersistCmd {
-	def contributes(pri: Prioritized) = Set()
+	def contributes(pri: Prioritized) = Contribute.NoContribution
 
 	def priority = Priority.Low
 }
