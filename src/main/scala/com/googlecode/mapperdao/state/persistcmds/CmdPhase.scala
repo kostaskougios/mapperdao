@@ -178,11 +178,7 @@ class CmdPhase(typeManager: TypeManager) {
 									val oVM = oldO match {
 										case p: Persisted => p.mapperDaoValuesMap
 									}
-									val nVM = newO match {
-										case p: Persisted => p.mapperDaoValuesMap
-										case no =>
-											ValuesMap.fromType(typeManager, foreignEntity.tpe, no)
-									}
+									val nVM = ValuesMap.fromType(typeManager, foreignEntity.tpe, newO)
 									update(foreignEntity.tpe, oVM, nVM, false, updateConfig)
 							}.flatten
 							addedCmds ::: removedCms ::: intersectCmds
