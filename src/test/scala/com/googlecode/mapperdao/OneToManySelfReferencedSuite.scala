@@ -102,7 +102,7 @@ object OneToManySelfReferencedSuite {
 
 	case class Person(val name: String, val friends: Set[Person])
 
-	object PersonEntity extends Entity[Int, Person]("Person", classOf[Person]) {
+	object PersonEntity extends Entity[Int, Person] {
 		type Stored = SurrogateIntId
 		val aid = key("id") sequence (Setup.database match {
 			case "oracle" => Some("myseq")
