@@ -15,7 +15,7 @@ case class InsertCmd[ID, T](
 	newVM: ValuesMap,
 	columns: List[(SimpleColumn, Any)],
 	mainEntity: Boolean
-	) extends CmdWithType[ID, T] with CmdWithNewVM {
+	) extends CmdWithType[ID, T] with CmdWithNewVM with CmdForEntity {
 
 	def contributes(pri: Prioritized) =
 		if (columns.isEmpty && pri.relatedColumns(newVM).isEmpty)
@@ -24,4 +24,6 @@ case class InsertCmd[ID, T](
 			Contribute.StorageOnly
 
 	def priority = Priority.High
+
+	def identity = newVM.identity
 }

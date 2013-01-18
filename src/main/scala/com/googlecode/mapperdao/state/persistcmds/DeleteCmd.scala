@@ -10,9 +10,11 @@ import com.googlecode.mapperdao.state.prioritise.{Priority, Prioritized}
 case class DeleteCmd[ID, T](
 	tpe: Type[ID, T],
 	newVM: ValuesMap
-	) extends CmdWithType[ID, T] {
+	) extends CmdWithType[ID, T] with CmdForEntity {
 
 	def contributes(pri: Prioritized) = Contribute.StorageOnly
 
 	def priority = Priority.High
+
+	def identity = newVM.identity
 }

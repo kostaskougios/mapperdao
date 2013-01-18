@@ -14,4 +14,6 @@ object Priority {
 
 	object Related extends Priority
 
+	object Dependant extends Priority
+
 }

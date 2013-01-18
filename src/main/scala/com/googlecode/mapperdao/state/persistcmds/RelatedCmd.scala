@@ -18,13 +18,15 @@ trait RelatedCmd extends PersistCmd {
 }
 
 case class EntityRelatedCmd(
+	identity: Int,
 	column: ColumnBase,
 	vm: ValuesMap,
 	foreignTpe: Type[_, _],
 	foreignVM: ValuesMap
-	) extends RelatedCmd
+	) extends RelatedCmd with CmdForEntity
 
 case class ExternalEntityRelatedCmd(
+	identity: Int,
 	column: ColumnBase,
 	vm: ValuesMap,
 	foreignTpe: Type[_, _],

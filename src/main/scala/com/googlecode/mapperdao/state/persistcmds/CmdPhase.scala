@@ -227,7 +227,9 @@ class CmdPhase(typeManager: TypeManager) {
 						val ie = InsertExternalManyToOne(updateConfig, newVM, fo)
 						val v = foreignEE.manyToOneOnInsertMap(ci)(ie)
 						(
-							ExternalEntityRelatedCmd(column, newVM, foreignTpe, v)
+							ExternalEntityRelatedCmd(
+								if (fo != null) System.identityHashCode(fo) else 0,
+								column, newVM, foreignTpe, v)
 								:: UpdateExternalManyToOneCmd(foreignEE, fo)
 								:: Nil
 							)
@@ -240,11 +242,11 @@ class CmdPhase(typeManager: TypeManager) {
 					case foreignEntity =>
 						val foreignTpe = foreignEntity.tpe
 						if (fo == null) {
-							EntityRelatedCmd(column, newVM, foreignTpe, null) :: Nil
+							EntityRelatedCmd(0, column, newVM, foreignTpe, null) :: Nil
 						} else {
 							// insert new
 							val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
-							EntityRelatedCmd(column, newVM, foreignTpe, foreignVM) :: (fo match {
+							EntityRelatedCmd(foreignVM.identity, column, newVM, foreignTpe, foreignVM) :: (fo match {
 								case p: DeclaredIds[_] =>
 									doUpdate(foreignTpe.asInstanceOf[Type[Any, Any]], p.asInstanceOf[Any with DeclaredIds[Any]], updateConfig)
 								case _ =>
@@ -275,7 +277,7 @@ class CmdPhase(typeManager: TypeManager) {
 					val addedCmds = added.toList.map {
 						fo =>
 							val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
-							EntityRelatedCmd(column, foreignVM, tpe, newVM) :: insertOrUpdate(foreignTpe, fo, updateConfig)
+							EntityRelatedCmd(foreignVM.identity, column, foreignVM, tpe, newVM) :: insertOrUpdate(foreignTpe, fo, updateConfig)
 					}.flatten
 					val removedCms = removed.toList.map {
 						fo =>
@@ -292,7 +294,7 @@ class CmdPhase(typeManager: TypeManager) {
 								case p: Persisted => p.mapperDaoValuesMap
 							}
 							val nVM = ValuesMap.fromType(typeManager, foreignTpe, newO)
-							EntityRelatedCmd(column, nVM, tpe, newVM) :: update(foreignTpe, oVM, nVM, false, updateConfig)
+							EntityRelatedCmd(nVM.identity, column, nVM, tpe, newVM) :: update(foreignTpe, oVM, nVM, false, updateConfig)
 					}.flatten
 					addedCmds ::: removedCms ::: intersectCmds
 				} else {
@@ -302,7 +304,13 @@ class CmdPhase(typeManager: TypeManager) {
 							// we need to insert the foreign entity and link to entity
 							val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, o)
 
-							EntityRelatedCmd(column, foreignVM, tpe, newVM) :: insert(foreignTpe, foreignVM, false, updateConfig)
+							(
+								DependsCmd(newVM.identity, foreignVM.identity)
+									::
+									EntityRelatedCmd(foreignVM.identity, column, foreignVM, tpe, newVM)
+									::
+									insert(foreignTpe, foreignVM, false, updateConfig)
+								)
 					}.flatten
 				}
 		}.flatten

@@ -23,6 +23,7 @@ class CmdToDatabase(
 	) {
 
 	private val jdbc = driver.jdbc
+	private val persistedIdentities = scala.collection.mutable.HashSet[Int]()
 
 	private case class Node(
 		sql: driver.sqlBuilder.Result,
@@ -126,38 +127,48 @@ class CmdToDatabase(
 			ExternalEntityPersistedNode(foreignEntity, fo)
 	}
 
-	private def toNodes(cmds: List[PersistCmd], pri: Prioritized) = cmds.filter(_.contributes(pri).contains(Contribute.Storage)).map {
-		cmd =>
-			val sql = toSql(cmd, pri)
-			Node(
-				sql,
-				cmd
-			)
-	}
+	private def toNodes(cmds: List[PersistCmd], pri: Prioritized) =
+		cmds.filter(_.contributes(pri).contains(Contribute.Storage)).map {
+			cmd =>
+				val sql = toSql(cmd, pri)
+				Node(
+					sql,
+					cmd
+				)
+		}
 
 	private def toSql(cmd: PersistCmd, pri: Prioritized) =
 		cmd match {
-			case InsertCmd(tpe, newVM, columns, _) =>
+			case ic@InsertCmd(tpe, newVM, columns, _) =>
+				persistedIdentities += ic.identity
 				driver.insertSql(tpe, columns ::: pri.relatedColumns(newVM)).result
-			case UpdateCmd(tpe, oldVM, newVM, columns, _) =>
+
+			case uc@UpdateCmd(tpe, oldVM, newVM, columns, _) =>
+				persistedIdentities += uc.identity
 				val pks = oldVM.toListOfPrimaryKeyAndValueTuple(tpe)
 				driver.updateSql(tpe, columns ::: pri.relatedColumns(newVM), pks).result
+
 			case InsertManyToManyCmd(tpe, foreignTpe, manyToMany, entityVM, foreignEntityVM) =>
 				val left = entityVM.toListOfPrimaryKeys(tpe)
 				val right = foreignEntityVM.toListOfPrimaryKeys(foreignTpe)
 				driver.insertManyToManySql(manyToMany, left, right).result
+
 			case DeleteManyToManyCmd(tpe, foreignTpe, manyToMany, entityVM, foreignEntityVM) =>
 				val left = entityVM.toListOfPrimaryKeys(tpe)
 				val right = foreignEntityVM.toListOfPrimaryKeys(foreignTpe)
 				driver.deleteManyToManySql(manyToMany, left, right).result
-			case DeleteCmd(tpe, vm) =>
+
+			case dc@DeleteCmd(tpe, vm) =>
+				persistedIdentities += dc.identity
 				val args = vm.toListOfPrimaryKeyAndValueTuple(tpe)
 				driver.deleteSql(tpe, args).result
+
 			case InsertManyToManyExternalCmd(tpe, foreignEntity, manyToMany, entityVM, fo) =>
 				val left = entityVM.toListOfPrimaryKeys(tpe)
 				val ie = InsertExternalManyToMany(updateConfig, fo)
 				val right = foreignEntity.manyToManyOnInsertMap(manyToMany)(ie)
 				driver.insertManyToManySql(manyToMany.column, left, right.values).result
+
 			case DeleteManyToManyExternalCmd(tpe, foreignEntity, manyToMany, entityVM, fo) =>
 				val left = entityVM.toListOfPrimaryKeys(tpe)
 				val de = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Remove, fo)

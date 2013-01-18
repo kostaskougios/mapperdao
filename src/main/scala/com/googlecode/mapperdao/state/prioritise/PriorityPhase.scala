@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.state.prioritise
 
 import com.googlecode.mapperdao._
-import state.persistcmds.{RelatedCmd, PersistCmd, CmdWithType}
+import state.persistcmds.{DependsCmd, RelatedCmd, PersistCmd, CmdWithType}
 import com.googlecode.mapperdao.ColumnInfoTraversableOneToMany
 import com.googlecode.mapperdao.ColumnInfoTraversableManyToMany
 import com.googlecode.mapperdao.ColumnInfoManyToOne
@@ -26,6 +26,9 @@ class PriorityPhase(updateConfig: UpdateConfig) {
 		val related = groupedByPriority.getOrElse(Priority.Related, Nil).collect {
 			case r: RelatedCmd => r
 		}
+		val dependent = groupedByPriority.getOrElse(Priority.Dependant, Nil).collect {
+			case d: DependsCmd => d
+		}
 
 		val groupped = high.collect {
 			case we: CmdWithType[_, _] => we
@@ -35,7 +38,7 @@ class PriorityPhase(updateConfig: UpdateConfig) {
 			e =>
 				groupped(e)
 		}
-		Prioritized(h, low, related)
+		Prioritized(h, low, related, dependent)
 	}
 
 	def prioritiseType(tpe: Type[_, _]): List[Type[_, _]] =
