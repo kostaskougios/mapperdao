@@ -25,7 +25,7 @@ import com.googlecode.mapperdao.state.prioritise.PriorityPhase
 protected final class MapperDaoImpl(
 	val driver: Driver,
 	val typeManager: TypeManager
-) extends MapperDao {
+	) extends MapperDao {
 	private val typeRegistry = driver.typeRegistry
 	private val lazyLoadManager = new LazyLoadManager
 	private val mockFactory = new MockFactory(typeManager)
@@ -63,7 +63,7 @@ protected final class MapperDaoImpl(
 		updateConfig: UpdateConfig,
 		tpe: Type[ID, T],
 		os: List[T]
-	) = {
+		) = {
 		val po = new CmdPhase(typeManager)
 		val cmds = os.map {
 			o =>
@@ -74,8 +74,8 @@ protected final class MapperDaoImpl(
 		val pf = new PriorityPhase(updateConfig)
 		val pri = pf.prioritise(tpe, cmds)
 
-		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
-		val nodes = ctd.execute(pri)
+		val ctd = new CmdToDatabase(updateConfig, driver, typeManager, pri)
+		val nodes = ctd.execute
 		val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap, nodes)
 		val recreated = recreationPhase.execute.asInstanceOf[List[T with DeclaredIds[ID]]]
 		recreated
@@ -85,7 +85,7 @@ protected final class MapperDaoImpl(
 		updateConfig: UpdateConfig,
 		tpe: Type[ID, T],
 		os: List[T with DeclaredIds[ID]]
-	): List[T with DeclaredIds[ID]] = {
+		): List[T with DeclaredIds[ID]] = {
 		val osAndNewValues = os.map {
 			o =>
 				o match {
@@ -103,7 +103,7 @@ protected final class MapperDaoImpl(
 		updateConfig: UpdateConfig,
 		tpe: Type[ID, T],
 		os: List[(T with DeclaredIds[ID], T)]
-	): List[T with DeclaredIds[ID]] = {
+		): List[T with DeclaredIds[ID]] = {
 		val osAndNewValues = os.map {
 			case (oldO, newO) =>
 				oldO.mapperDaoDiscarded = true
@@ -117,7 +117,7 @@ protected final class MapperDaoImpl(
 		updateConfig: UpdateConfig,
 		tpe: Type[ID, T],
 		os: List[(T with DeclaredIds[ID], ValuesMap)]
-	): List[T with DeclaredIds[ID]] = {
+		): List[T with DeclaredIds[ID]] = {
 
 		val po = new CmdPhase(typeManager)
 		val cmds = os.map {
@@ -129,8 +129,8 @@ protected final class MapperDaoImpl(
 		val pf = new PriorityPhase(updateConfig)
 		val pri = pf.prioritise(tpe, cmds)
 
-		val ctd = new CmdToDatabase(updateConfig, driver, typeManager)
-		val nodes = ctd.execute(pri)
+		val ctd = new CmdToDatabase(updateConfig, driver, typeManager, pri)
+		val nodes = ctd.execute
 		val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap, nodes)
 		recreationPhase.execute.asInstanceOf[List[T with DeclaredIds[ID]]]
 	}
@@ -156,7 +156,7 @@ protected final class MapperDaoImpl(
 		selectConfig: SelectConfig,
 		ids: List[Any],
 		entities: EntityMap
-	): Option[T with DeclaredIds[ID]] = {
+		): Option[T with DeclaredIds[ID]] = {
 		val clz = entity.clz
 		val tpe = entity.tpe
 		if (tpe.table.primaryKeysSize != ids.size) throw new IllegalStateException("Primary keys number dont match the number of parameters. Primary keys: %s".format(tpe.table.primaryKeys))
@@ -211,13 +211,15 @@ protected final class MapperDaoImpl(
 		entity: Entity[ID, T],
 		selectConfig: SelectConfig,
 		entities: EntityMap
-	): List[T with DeclaredIds[ID]] = {
+		): List[T with DeclaredIds[ID]] = {
 		lm.map {
 			jdbcMap =>
 				val tpe = entity.tpe
 				val table = tpe.table
 				// calculate the id's for this tpe
-				val pkIds = table.primaryKeys.map { pk => jdbcMap(pk) } ::: selectBeforePlugins.map {
+				val pkIds = table.primaryKeys.map {
+					pk => jdbcMap(pk)
+				} ::: selectBeforePlugins.map {
 					_.idContribution(tpe, jdbcMap, entities)
 				}.flatten
 				val unusedIds = table.unusedPKs.map {
@@ -256,7 +258,7 @@ protected final class MapperDaoImpl(
 		entity: Entity[ID, T],
 		selectConfig: SelectConfig,
 		vm: ValuesMap
-	) = {
+		) = {
 		// substitute lazy loaded columns with empty values
 		val tpe = entity.tpe
 		val table = tpe.table
@@ -317,7 +319,7 @@ protected final class MapperDaoImpl(
 		entity: Entity[ID, T],
 		o: T with DeclaredIds[ID],
 		entityMap: UpdateEntityMap
-	): T = {
+		): T = {
 		if (o.mapperDaoDiscarded) throw new IllegalArgumentException("can't operate on an object twice. An object that was updated/deleted must be discarded and replaced by the return value of update(), i.e. onew=update(o) or just be disposed if it was deleted. The offending object was : " + o);
 
 		val tpe = entity.tpe
@@ -357,7 +359,7 @@ protected final class MapperDaoImpl(
 		entity: Entity[ID, T],
 		o: T,
 		ids: ID
-	): T with DeclaredIds[ID] =
+		): T with DeclaredIds[ID] =
 		select(selectConfig, entity, ids) match {
 			case None => insert(updateConfig, entity, o)
 			case Some(oldO) =>

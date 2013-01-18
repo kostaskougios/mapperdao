@@ -19,18 +19,25 @@ import state.prioritise.Prioritized
 class CmdToDatabase(
 	updateConfig: UpdateConfig,
 	driver: Driver,
-	typeManager: TypeManager
+	typeManager: TypeManager,
+	prioritized: Prioritized
 	) {
 
 	private val jdbc = driver.jdbc
 	private val persistedIdentities = scala.collection.mutable.HashSet[Int]()
+	val dependentMap = prioritized.dependent.groupBy(_.identity).map {
+		case (identity, l) =>
+			(identity, l.map {
+				_.dependsOnIdentity
+			}.toSet)
+	}
 
 	private case class Node(
 		sql: driver.sqlBuilder.Result,
 		cmd: PersistCmd
 		)
 
-	def execute(prioritized: Prioritized): List[PersistedNode[_, _]] = {
+	def execute: List[PersistedNode[_, _]] = {
 
 		// we need to flatten out the sql's so that we can batch process them
 		// but also keep the tree structure so that we return only PersistedNode's
@@ -39,7 +46,7 @@ class CmdToDatabase(
 		val cmdList = (prioritized.high ::: List(prioritized.low))
 		cmdList.map {
 			cmds =>
-				val nodes = toNodes(cmds, prioritized)
+				val nodes = toNodes(cmds)
 				toDb(nodes)
 
 				// now the batches were executed and we got a tree with
@@ -127,26 +134,27 @@ class CmdToDatabase(
 			ExternalEntityPersistedNode(foreignEntity, fo)
 	}
 
-	private def toNodes(cmds: List[PersistCmd], pri: Prioritized) =
-		cmds.filter(_.contributes(pri).contains(Contribute.Storage)).map {
+	private def toNodes(cmds: List[PersistCmd]) =
+		cmds.filter(_.contributes(prioritized).contains(Contribute.Storage))
+			.map {
 			cmd =>
-				val sql = toSql(cmd, pri)
+				val sql = toSql(cmd)
 				Node(
 					sql,
 					cmd
 				)
 		}
 
-	private def toSql(cmd: PersistCmd, pri: Prioritized) =
+	private def toSql(cmd: PersistCmd) =
 		cmd match {
 			case ic@InsertCmd(tpe, newVM, columns, _) =>
 				persistedIdentities += ic.identity
-				driver.insertSql(tpe, columns ::: pri.relatedColumns(newVM)).result
+				driver.insertSql(tpe, columns ::: prioritized.relatedColumns(newVM)).result
 
 			case uc@UpdateCmd(tpe, oldVM, newVM, columns, _) =>
 				persistedIdentities += uc.identity
 				val pks = oldVM.toListOfPrimaryKeyAndValueTuple(tpe)
-				driver.updateSql(tpe, columns ::: pri.relatedColumns(newVM), pks).result
+				driver.updateSql(tpe, columns ::: prioritized.relatedColumns(newVM), pks).result
 
 			case InsertManyToManyCmd(tpe, foreignTpe, manyToMany, entityVM, foreignEntityVM) =>
 				val left = entityVM.toListOfPrimaryKeys(tpe)
