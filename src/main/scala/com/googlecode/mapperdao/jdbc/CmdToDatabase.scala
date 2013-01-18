@@ -32,6 +32,11 @@ class CmdToDatabase(
 			}.toSet)
 	}
 
+	private def allDependenciesAlreadyPersisted(identity: Int) = dependentMap.get(identity) match {
+		case None => true
+		case Some(set) => set.forall(persistedIdentities(_))
+	}
+
 	private case class Node(
 		sql: driver.sqlBuilder.Result,
 		cmd: PersistCmd
