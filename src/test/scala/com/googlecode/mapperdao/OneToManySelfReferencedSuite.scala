@@ -28,6 +28,15 @@ class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers {
 		inserted should be === person
 	}
 
+	test("insert and select") {
+		createTables
+
+		val person = new Person("main-person", Set(new Person("friend1", Set()), new Person("friend2", Set())))
+		val inserted = mapperDao.insert(PersonEntity, person)
+		val selected = mapperDao.select(PersonEntity, inserted.id)
+		selected should be(person)
+	}
+
 	test("update, remove from traversable") {
 		createTables
 

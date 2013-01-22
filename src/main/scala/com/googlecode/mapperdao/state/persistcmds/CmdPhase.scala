@@ -305,7 +305,7 @@ class CmdPhase(typeManager: TypeManager) {
 							val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, o)
 
 							(
-								DependsCmd(newVM.identity, foreignVM.identity)
+								DependsCmd(foreignVM.identity, newVM.identity)
 									::
 									EntityRelatedCmd(foreignVM.identity, column, foreignVM, tpe, newVM)
 									::

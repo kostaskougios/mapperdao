@@ -51,7 +51,12 @@ class CmdToDatabase(
 		val cmdList = (prioritized.high ::: List(prioritized.low))
 		cmdList.map {
 			cmds =>
-				val nodes = toNodes(cmds)
+				val toProcess = cmds.filter {
+					case c: CmdWithNewVM =>
+						allDependenciesAlreadyPersisted(c.newVM.identity)
+					case _ => true
+				}
+				val nodes = toNodes(toProcess)
 				toDb(nodes)
 
 				// now the batches were executed and we got a tree with
