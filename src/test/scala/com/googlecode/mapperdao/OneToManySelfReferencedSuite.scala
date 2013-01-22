@@ -33,7 +33,7 @@ class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers {
 
 		val person = new Person("main-person", Set(new Person("friend1", Set()), new Person("friend2", Set())))
 		val inserted = mapperDao.insert(PersonEntity, person)
-		val selected = mapperDao.select(PersonEntity, inserted.id)
+		val selected = mapperDao.select(PersonEntity, inserted.id).get
 		selected should be(person)
 	}
 
