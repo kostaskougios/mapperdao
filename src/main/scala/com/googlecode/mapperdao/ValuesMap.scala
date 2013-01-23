@@ -190,8 +190,34 @@ class ValuesMap private(private[mapperdao] var identity: Int, mOrig: scala.colle
 				!Equality.isEqual(apply(ci), from.apply(ci))
 		}
 
-	protected[mapperdao] def toListOfPrimaryKeyAndValueTuple(tpe: Type[_, _]) =
-		toListOfSimpleColumnAndValueTuple(tpe.table.primaryKeysAndUnusedKeys)
+	protected[mapperdao] def toListOfPrimaryKeyAndValueTuple(tpe: Type[_, _]) = {
+		toListOfSimpleColumnAndValueTuple(tpe.table.primaryKeys) ::: toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(tpe)
+	}
+
+	def toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(tpe: Type[_, _]): List[(SimpleColumn, Any)] =
+		tpe.table.unusedPKColumnInfos.map {
+			ci =>
+				ci match {
+					case ci: ColumnInfo[Any, Any] =>
+						List((ci.column, columnValue[Any](ci.column)))
+					case ci: ColumnInfoManyToOne[Any, Any, Any] =>
+						val l = columnValue[Any](ci.column)
+						val fe = ci.column.foreign.entity
+						val pks = fe.tpe.table.toListOfPrimaryKeyValues(l)
+						ci.column.columns zip pks
+					case ci: ColumnInfoTraversableOneToMany[Any, Any, Any, Any] =>
+						ci.column.columns map {
+							c =>
+								(c, columnValue[Any](c))
+						}
+					case ci: ColumnInfoOneToOne[Any, Any, Any] =>
+						val l = columnValue[Any](ci.column)
+						val fe = ci.column.foreign.entity
+						val pks = fe.tpe.table.toListOfPrimaryKeyValues(l)
+						ci.column.columns zip pks
+					case ci: ColumnInfoRelationshipBase[Any, Any, Any, Any] => Nil
+				}
+		}.flatten
 
 	protected[mapperdao] def toListOfPrimaryKeys(tpe: Type[_, _]) =
 		toListOfColumnValue(tpe.table.primaryKeysAndUnusedKeys)
