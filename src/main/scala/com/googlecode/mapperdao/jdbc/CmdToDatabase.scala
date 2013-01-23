@@ -24,7 +24,11 @@ class CmdToDatabase(
 	) {
 
 	private val jdbc = driver.jdbc
+
+	// keep track of which entities were already persisted in order to
+	// know if a depended entity can be persisted
 	private val persistedIdentities = scala.collection.mutable.HashSet[Int]()
+
 	val dependentMap = prioritized.dependent.groupBy(_.identity).map {
 		case (identity, l) =>
 			(identity, l.map {
@@ -32,6 +36,7 @@ class CmdToDatabase(
 			}.toSet)
 	}
 
+	// true if all needed related entities are already persisted.
 	private def allDependenciesAlreadyPersisted(identity: Int) = dependentMap.get(identity) match {
 		case None => true
 		case Some(set) => set.forall(persistedIdentities(_))
@@ -50,8 +55,17 @@ class CmdToDatabase(
 
 		val cmdList = (prioritized.high ::: List(prioritized.low))
 
+		/**
+		 * cmdList contains a list of prioritized PersistCmd, according to their
+		 * relevant entity priority. Some times related entities still are
+		 * scheduled to be persisted before the entity that references them.
+		 * i.e. a one-to-many Person(name,Set[Person])
+		 *
+		 * We need to make sure that all entities are persisted in the
+		 * correct order.
+		 */
 		def persist(cmdList: List[List[PersistCmd]], depth: Int) {
-			if (depth > 100) throw new IllegalStateException("after 100 iterations, there are still remaining entities : " + cmdList)
+			if (depth > 100) throw new IllegalStateException("after 100 iterations, there are still unpersisted entities. Maybe a mapperdao bug. Entities remaining : " + cmdList)
 			val remaining = cmdList.map {
 				cmds =>
 					val (toProcess, remaining) = findToProcess(cmds)
