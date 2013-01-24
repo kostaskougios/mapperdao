@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
-import state.prioritise.{Prioritized, Priority}
+import state.prioritise.Priority
 
 /**
  * @author kostantinos.kougios
@@ -15,12 +15,6 @@ case class UpdateCmd[ID, T](
 	columns: List[(SimpleColumn, Any)],
 	mainEntity: Boolean
 	) extends CmdWithType[ID, T] with CmdWithNewVM with CmdForEntity {
-	def contributes(pri: Prioritized) =
-		if (columns.isEmpty && pri.relatedColumns(newVM).isEmpty)
-			Contribute.NoContribution
-		else
-			Contribute.StorageOnly
-
 	def priority = Priority.High
 
 	def identity = newVM.identity

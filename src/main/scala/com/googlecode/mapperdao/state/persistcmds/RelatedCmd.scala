@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
-import state.prioritise.{Prioritized, Priority}
+import state.prioritise.Priority
 
 /**
  * @author: kostas.kougios
@@ -11,8 +11,6 @@ trait RelatedCmd extends PersistCmd {
 	val column: ColumnBase
 	val vm: ValuesMap
 	val foreignTpe: Type[_, _]
-
-	def contributes(pri: Prioritized) = Contribute.NoContribution
 
 	def priority = Priority.Related
 }
