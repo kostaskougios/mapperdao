@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao.state.prioritise
 
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.ManyToOne
 import state.persistcmds._
 import com.googlecode.mapperdao.ManyToOne
 import state.persistcmds.EntityRelatedCmd
@@ -25,7 +24,7 @@ case class Prioritized(
 	def relatedFor(vm: ValuesMap) = relatedById.getOrElse(vm.identity, Nil)
 
 	def relatedColumns(vm: ValuesMap) = relatedFor(vm).map {
-		case EntityRelatedCmd(_, column, vm, foreignTpe, foreignVM) =>
+		case EntityRelatedCmd(_, column, vm, foreignTpe, foreignVM, _) =>
 			column match {
 				case ManyToOne(columns, foreign) =>
 					columns zip (
@@ -42,6 +41,15 @@ case class Prioritized(
 			column match {
 				case ManyToOne(columns, foreign) =>
 					columns zip foreignKeys.values
+			}
+	}.flatten
+
+	def relatedKeys(vm: ValuesMap) = relatedFor(vm).collect {
+		case EntityRelatedCmd(_, column, vm, foreignTpe, foreignVM, true) =>
+			column match {
+				case OneToMany(foreign, foreignColumns) =>
+					val fks = foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
+					fks
 			}
 	}.flatten
 }

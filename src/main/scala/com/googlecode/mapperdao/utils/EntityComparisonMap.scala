@@ -9,19 +9,20 @@ import com.googlecode.mapperdao._
  * code.
  *
  * @author kostantinos.kougios
- *
  *         30 Apr 2012
  */
 protected class EntityComparisonMap[ID, T](
 	entity: Entity[ID, T],
 	keyMode: EntityComparisonMap.EqualsMode[T]
-) {
+	) {
 	private var m = Map[Any, T]()
 
 	def add(o: T): Unit =
 		m = m + (key(o) -> o)
 
-	def addAll(l: Traversable[T]): Unit = l foreach { o => add(o) }
+	def addAll(l: Traversable[T]): Unit = l foreach {
+		o => add(o)
+	}
 
 	def contains(o: T) = m.contains(key(o))
 

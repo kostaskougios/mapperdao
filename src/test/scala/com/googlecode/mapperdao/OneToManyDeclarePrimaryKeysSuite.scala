@@ -42,13 +42,9 @@ class OneToManyDeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 			val inserted = mapperDao.insert(PersonEntity, Person("kostas", Set(House("address1", SW), House("address2", SE))))
 			val otherInserted = mapperDao.insert(PersonEntity, Person("kostas", Set(House("address1", SW), House("address2", SE))))
 
-			val newOwns = inserted.owns.map {
-				h =>
-					HouseEntity.update(h, h.copy(address = h.address + " upd"))
-			}
-			val u = Person("kostas updated", newOwns)
-			val updated = mapperDao.update(PersonEntity, inserted, u)
-			updated should be === u
+			inserted.owns.head.address = "updated first"
+			val updated = mapperDao.update(PersonEntity, inserted)
+			updated should be === inserted
 
 			mapperDao.select(PersonEntity, inserted.id).get should be === updated
 			mapperDao.select(PersonEntity, otherInserted.id).get should be === otherInserted
@@ -74,7 +70,7 @@ class OneToManyDeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 
 	case class Person(name: String, owns: Set[House])
 
-	case class House(address: String, postCode: PostCode)
+	case class House(var address: String, postCode: PostCode)
 
 	case class PostCode(code: String)
 

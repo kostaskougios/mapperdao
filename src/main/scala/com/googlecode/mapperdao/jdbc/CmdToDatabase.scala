@@ -190,8 +190,10 @@ class CmdToDatabase(
 
 			case uc@UpdateCmd(tpe, oldVM, newVM, columns, _) =>
 				persistedIdentities += uc.identity
+				val rel = prioritized.relatedColumns(newVM)
 				val pks = oldVM.toListOfPrimaryKeyAndValueTuple(tpe)
-				driver.updateSql(tpe, columns ::: prioritized.relatedColumns(newVM), pks).result
+				val relKeys = prioritized.relatedKeys(newVM)
+				driver.updateSql(tpe, columns ::: rel, pks ::: relKeys).result
 
 			case InsertManyToManyCmd(tpe, foreignTpe, manyToMany, entityVM, foreignEntityVM) =>
 				val left = entityVM.toListOfPrimaryKeys(tpe)

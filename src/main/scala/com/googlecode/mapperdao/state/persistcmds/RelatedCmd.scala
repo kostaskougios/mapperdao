@@ -22,7 +22,8 @@ case class EntityRelatedCmd(
 	column: ColumnBase,
 	vm: ValuesMap,
 	foreignTpe: Type[_, _],
-	foreignVM: ValuesMap
+	foreignVM: ValuesMap,
+	isKey: Boolean
 	) extends RelatedCmd with CmdForEntity
 
 case class ExternalEntityRelatedCmd(
