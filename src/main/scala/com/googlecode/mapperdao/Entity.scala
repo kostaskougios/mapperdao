@@ -740,4 +740,9 @@ abstract class Entity[ID, T](protected[mapperdao] val table: String, protected[m
 	// ===================== /Java section ================================
 
 	def toPersistedType(t: T): T with DeclaredIds[ID] = t.asInstanceOf[T with DeclaredIds[ID]]
+
+	def update(stored: T with Stored, modified: T): T with Stored = {
+		val vm = stored.mapperDaoValuesMap
+		xx
+	}
 }
