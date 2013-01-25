@@ -242,11 +242,12 @@ class CmdPhase(typeManager: TypeManager) {
 					case foreignEntity =>
 						val foreignTpe = foreignEntity.tpe
 						if (fo == null) {
-							EntityRelatedCmd(0, column, newVM, oldVMO, foreignTpe, null, false) :: Nil
+							EntityRelatedCmd(0, column, newVM, oldVMO, foreignTpe, null, None, false) :: Nil
 						} else {
 							// insert new
 							val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
-							EntityRelatedCmd(foreignVM.identity, column, newVM, oldVMO, foreignTpe, foreignVM, false) :: (fo match {
+							val oldFoVMO = oldVMO.map(_.manyToOne(column)).map(ofo => oldVMOf(ofo))
+							EntityRelatedCmd(foreignVM.identity, column, newVM, oldVMO, foreignTpe, foreignVM, oldFoVMO, false) :: (fo match {
 								case p: DeclaredIds[_] =>
 									doUpdate(foreignTpe.asInstanceOf[Type[Any, Any]], p.asInstanceOf[Any with DeclaredIds[Any]], updateConfig)
 								case _ =>
@@ -277,7 +278,7 @@ class CmdPhase(typeManager: TypeManager) {
 					val addedCmds = added.toList.map {
 						fo =>
 							val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
-							EntityRelatedCmd(foreignVM.identity, column, foreignVM, None, tpe, newVM, true) :: insertOrUpdate(foreignTpe, fo, updateConfig)
+							EntityRelatedCmd(foreignVM.identity, column, foreignVM, None, tpe, newVM, oldVMO, true) :: insertOrUpdate(foreignTpe, fo, updateConfig)
 					}.flatten
 					val removedCms = removed.toList.map {
 						fo =>
@@ -295,7 +296,7 @@ class CmdPhase(typeManager: TypeManager) {
 								case _ => throw new IllegalStateException("unexpected object, please file a bug with code One-To-Many:NON_PERSISTED")
 							}
 							val nVM = ValuesMap.fromType(typeManager, foreignTpe, newO)
-							EntityRelatedCmd(nVM.identity, column, nVM, Some(oVM), tpe, newVM, true) :: update(foreignTpe, oVM, nVM, false, updateConfig)
+							EntityRelatedCmd(nVM.identity, column, nVM, Some(oVM), tpe, newVM, oldVMO, true) :: update(foreignTpe, oVM, nVM, false, updateConfig)
 					}.flatten
 					addedCmds ::: removedCms ::: intersectCmds
 				} else {
@@ -308,13 +309,17 @@ class CmdPhase(typeManager: TypeManager) {
 							(
 								DependsCmd(foreignVM.identity, newVM.identity)
 									::
-									EntityRelatedCmd(foreignVM.identity, column, foreignVM, None, tpe, newVM, true)
+									EntityRelatedCmd(foreignVM.identity, column, foreignVM, None, tpe, newVM, oldVMO, true)
 									::
 									insert(foreignTpe, foreignVM, false, updateConfig)
 								)
 					}.flatten
 				}
 		}.flatten
+	}
+
+	private def oldVMOf(o: Any) = o match {
+		case p: Persisted => p.mapperDaoValuesMap
 	}
 
 	private def insertOrUpdate[ID, T](tpe: Type[ID, T], o: T, updateConfig: UpdateConfig) = o match {

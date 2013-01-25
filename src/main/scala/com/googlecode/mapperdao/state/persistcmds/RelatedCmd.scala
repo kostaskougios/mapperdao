@@ -23,6 +23,7 @@ case class EntityRelatedCmd(
 	oldVMO: Option[ValuesMap],
 	foreignTpe: Type[_, _],
 	foreignVM: ValuesMap,
+	oldForeignVMO: Option[ValuesMap],
 	isKey: Boolean
 	) extends RelatedCmd with CmdForEntity
 

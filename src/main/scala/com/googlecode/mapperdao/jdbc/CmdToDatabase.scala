@@ -187,12 +187,13 @@ class CmdToDatabase(
 		cmd match {
 			case ic@InsertCmd(tpe, newVM, columns, _) =>
 				persistedIdentities += ic.identity
-				Some(driver.insertSql(tpe, columns ::: prioritized.relatedColumns(newVM)).result)
+				Some(driver.insertSql(tpe, columns ::: prioritized.relatedColumns(newVM, false)).result)
 
 			case uc@UpdateCmd(tpe, oldVM, newVM, columns, _) =>
 				persistedIdentities += uc.identity
-				val oldRelated = prioritized.relatedColumns(oldVM)
-				val set = columns ::: prioritized.relatedColumns(newVM).filterNot(n => oldRelated.contains(n))
+				val oldRelated = prioritized.relatedColumns(oldVM, true)
+				val newRelated = prioritized.relatedColumns(newVM, false)
+				val set = columns ::: newRelated.filterNot(n => oldRelated.contains(n))
 				if (set.isEmpty)
 					None
 				else {
