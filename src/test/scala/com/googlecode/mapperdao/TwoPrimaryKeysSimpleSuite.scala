@@ -9,7 +9,7 @@ import org.scalatest.matchers.ShouldMatchers
 /**
  * @author kostantinos.kougios
  *
- * 5 Sep 2011
+ *         5 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
 class TwoPrimaryKeysSimpleSuite extends FunSuite with ShouldMatchers {
@@ -65,16 +65,16 @@ class TwoPrimaryKeysSimpleSuite extends FunSuite with ShouldMatchers {
 	test("query") {
 		createTables
 		val u0 = mapperDao.insert(UserEntity, User("Kostas", "Kougios", 20))
-		val u1 = mapperDao.insert(UserEntity, User("Ajax", "Perseus", 21))
+		mapperDao.insert(UserEntity, User("Ajax", "Perseus", 21))
 		val u2 = mapperDao.insert(UserEntity, User("Leonidas", "Kougios", 22))
-		val u3 = mapperDao.insert(UserEntity, User("Antonis", "Agnostos", 23))
+		mapperDao.insert(UserEntity, User("Antonis", "Agnostos", 23))
 		val u4 = mapperDao.insert(UserEntity, User("Kostas", "Patroklos", 24))
 
 		val u = UserEntity
 
 		import Query._
 		queryDao.query(select from u where
-			u.surname === "Kougios" or u.name === "Kostas" orderBy (u.name, u.surname)) should be === List(u0, u4, u2)
+			u.surname === "Kougios" or u.name === "Kostas" orderBy(u.name, u.surname)) should be === List(u0, u4, u2)
 	}
 
 	def createTables = {
@@ -84,11 +84,13 @@ class TwoPrimaryKeysSimpleSuite extends FunSuite with ShouldMatchers {
 
 	case class User(val name: String, val surname: String, val age: Int)
 
-	object UserEntity extends Entity[(String, String), NaturalStringAndStringIds, User] {
+	object UserEntity extends Entity[(String, String), User] {
+		type Stored = NaturalStringAndStringIds
 		val name = key("name") to (_.name)
 		val surname = key("surname") to (_.surname)
 		val age = column("age") to (_.age)
 
-		def constructor(implicit m) = new User(name, surname, age) with NaturalStringAndStringIds
+		def constructor(implicit m) = new User(name, surname, age) with Stored
 	}
+
 }
