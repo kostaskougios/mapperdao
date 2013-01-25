@@ -9,11 +9,13 @@ import org.scalatest.matchers.ShouldMatchers
 /**
  * @author kostantinos.kougios
  *
- * 14 Aug 2011
+ *         14 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
 class ManyToOneAndOneToManyCyclicSuite extends FunSuite with ShouldMatchers {
-	import ManyToOneAndOneToManyCyclicSpec._
+
+	import ManyToOneAndOneToManyCyclicSuite._
+
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity))
 
 	import mapperDao._
@@ -60,7 +62,7 @@ class ManyToOneAndOneToManyCyclicSuite extends FunSuite with ShouldMatchers {
 		createTables
 
 		val company = insert(CompanyEntity, Company(1, "Coders Ltd", List()))
-		val inserted = insert(PersonEntity, Person(10, "Coder1", company))
+		insert(PersonEntity, Person(10, "Coder1", company))
 
 		select(PersonEntity, 10).get should be === Person(10, "Coder1",
 			Company(1, "Coders Ltd",
@@ -85,18 +87,20 @@ class ManyToOneAndOneToManyCyclicSuite extends FunSuite with ShouldMatchers {
 		select(CompanyEntity, 1).get should be === Company(1, "Coders Ltd", List(Person(10, "Coder1-changed", Company(1, "Coders Ltd", List()))))
 	}
 
-	def createTables =
-		{
-			Setup.dropAllTables(jdbc)
-			Setup.queries(this, jdbc).update("ddl")
-		}
+	def createTables = {
+		Setup.dropAllTables(jdbc)
+		Setup.queries(this, jdbc).update("ddl")
+	}
 }
 
-object ManyToOneAndOneToManyCyclicSpec {
+object ManyToOneAndOneToManyCyclicSuite {
+
 	case class Person(val id: Int, val name: String, val company: Company)
+
 	case class Company(val id: Int, val name: String, employees: List[Person])
 
-	object PersonEntity extends Entity[Int, SurrogateIntId, Person] {
+	object PersonEntity extends Entity[Int, Person] {
+		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val company = manytoone(CompanyEntity) to (_.company)
@@ -104,10 +108,12 @@ object ManyToOneAndOneToManyCyclicSpec {
 		def constructor(implicit m) = new Person(id, name, company) with SurrogateIntId
 	}
 
-	object CompanyEntity extends Entity[Int, SurrogateIntId, Company] {
+	object CompanyEntity extends Entity[Int, Company] {
+		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val employees = onetomany(PersonEntity) to (_.employees)
+
 		def constructor(implicit m) = new Company(id, name, employees) with SurrogateIntId
 	}
 
