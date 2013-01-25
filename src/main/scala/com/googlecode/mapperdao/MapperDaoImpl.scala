@@ -1,18 +1,11 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.drivers.Driver
-import scala.collection.mutable.HashMap
 import com.googlecode.mapperdao.exceptions._
-import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao.plugins._
-import com.googlecode.mapperdao.jdbc.JdbcMap
-import com.googlecode.mapperdao.plugins.SelectMock
-import com.googlecode.mapperdao.utils.Equality
-import com.googlecode.mapperdao.utils.NYI
 import com.googlecode.mapperdao.utils.Helpers
 import com.googlecode.mapperdao.jdbc.CmdToDatabase
 import com.googlecode.mapperdao.state.persistcmds.CmdPhase
-import com.googlecode.mapperdao.state.persisted.PersistedNode
 import com.googlecode.mapperdao.state.recreation.MockFactory
 import com.googlecode.mapperdao.state.recreation.RecreationPhase
 import com.googlecode.mapperdao.state.prioritise.PriorityPhase
@@ -351,6 +344,13 @@ protected final class MapperDaoImpl(
 		unlinkVisitor.visit(entity, o)
 		unlinkVisitor.unlink(o)
 		o
+	}
+
+	override def link0[ID, T](entity: Entity[ID, T], o: T with Persisted) = {
+		val vm = ValuesMap.fromType(typeManager, entity.tpe, o)
+		val r = entity.constructor(None, vm)
+		r.mapperDaoValuesMap = vm
+		r
 	}
 
 	override def merge0[ID, T](

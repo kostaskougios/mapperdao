@@ -4,20 +4,9 @@ import java.util.Properties
 import org.apache.commons.dbcp.BasicDataSource
 import org.apache.commons.dbcp.BasicDataSourceFactory
 import org.scala_tools.time.Imports._
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.slf4j.LoggerFactory
-import com.googlecode.mapperdao.drivers.Derby
-import com.googlecode.mapperdao.drivers.Mysql
-import com.googlecode.mapperdao.drivers.Oracle
-import com.googlecode.mapperdao.drivers.PostgreSql
 import com.googlecode.mapperdao.DefaultTypeManager
-import com.googlecode.mapperdao.MapperDao
-import com.googlecode.mapperdao.QueryDao
 import com.googlecode.mapperdao.TypeRegistry
-import com.googlecode.mapperdao.drivers.Driver
-import com.googlecode.mapperdao.drivers.SqlServer
-import com.googlecode.mapperdao.drivers.H2
 import com.googlecode.mapperdao.utils.{Setup => S}
 import com.googlecode.mapperdao.utils.Database
 import com.googlecode.mapperdao.drivers.Cache

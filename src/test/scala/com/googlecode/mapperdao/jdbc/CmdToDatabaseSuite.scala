@@ -26,21 +26,16 @@ class CmdToDatabaseSuite extends FunSuite with ShouldMatchers with EasyMockSugar
 
 	test("updates only if required") {
 
-		val SW = new PostCode("SW") with PostCodeEntity.Stored {
+		val sw = mapperDao.link(PostCodeEntity, new PostCode("SW") with PostCodeEntity.Stored {
 			val id = 1000
-		}
-		SW.mapperDaoValuesMap = ValuesMap.fromType(typeManager, PostCodeEntity.tpe, SW)
+		})
 
-		val SE = new PostCode("SE") with PostCodeEntity.Stored {
+		val se = mapperDao.link(PostCodeEntity, new PostCode("SE") with PostCodeEntity.Stored {
 			val id = 1001
-		}
-		SE.mapperDaoValuesMap = ValuesMap.fromType(typeManager, PostCodeEntity.tpe, SE)
+		})
 
-		val house1 = new House("old address", SW) with HouseEntity.Stored
-		house1.mapperDaoValuesMap = ValuesMap.fromType(typeManager, HouseEntity.tpe, house1)
-
-		val house2 = new House("address2", SE) with HouseEntity.Stored
-		house2.mapperDaoValuesMap = ValuesMap.fromType(typeManager, HouseEntity.tpe, house2)
+		val house1 = mapperDao.link(HouseEntity, new House("old address", sw) with HouseEntity.Stored)
+		val house2 = mapperDao.link(HouseEntity, new House("address2", se) with HouseEntity.Stored)
 
 		val oldP = new Person("kostas", Set(house1, house2)) with PersonEntity.Stored {
 			val id = 10

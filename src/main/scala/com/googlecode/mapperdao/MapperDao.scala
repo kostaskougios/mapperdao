@@ -1,6 +1,5 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.exceptions.PersistException
 
 /**
  * The MapperDao is the central trait that allows CRUD operations on entities.
@@ -47,7 +46,7 @@ trait MapperDao {
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, T],
 		os: List[T]
-	): List[T with entity.Stored] = insert0(updateConfig, entity.tpe, os).asInstanceOf[List[T with entity.Stored]]
+		): List[T with entity.Stored] = insert0(updateConfig, entity.tpe, os).asInstanceOf[List[T with entity.Stored]]
 
 	/**
 	 * weird: scala compiler doesn't like methods overriding insert():List[T with entity.PC]
@@ -56,7 +55,7 @@ trait MapperDao {
 		updateConfig: UpdateConfig,
 		tpe: Type[ID, T],
 		os: List[T]
-	): List[T with DeclaredIds[ID]]
+		): List[T with DeclaredIds[ID]]
 
 	/**
 	 * updates a mutable entity. Non-persisted related entities will be inserted and persisted
@@ -88,13 +87,13 @@ trait MapperDao {
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, T],
 		os: List[T with DeclaredIds[ID]]
-	): List[T with entity.Stored] = updateMutable0(updateConfig, entity.tpe, os).asInstanceOf[List[T with entity.Stored]]
+		): List[T with entity.Stored] = updateMutable0(updateConfig, entity.tpe, os).asInstanceOf[List[T with entity.Stored]]
 
 	protected def updateMutable0[ID, T](
 		updateConfig: UpdateConfig,
 		tpe: Type[ID, T],
 		os: List[T with DeclaredIds[ID]]
-	): List[T with DeclaredIds[ID]]
+		): List[T with DeclaredIds[ID]]
 
 	/**
 	 * update of an immutable entity.
@@ -121,7 +120,7 @@ trait MapperDao {
 		entity: Entity[ID, T],
 		o: T with DeclaredIds[ID],
 		newO: T
-	): T with entity.Stored = {
+		): T with entity.Stored = {
 		if (o == null) throw new NullPointerException("o can't be null")
 		if (newO == null) throw new NullPointerException("newO can't be null")
 		updateImmutable(updateConfig, entity, List((o, newO))).head
@@ -134,13 +133,13 @@ trait MapperDao {
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, T],
 		os: List[(T with DeclaredIds[ID], T)]
-	): List[T with entity.Stored] = updateImmutable0(updateConfig, entity.tpe, os).asInstanceOf[List[T with entity.Stored]]
+		): List[T with entity.Stored] = updateImmutable0(updateConfig, entity.tpe, os).asInstanceOf[List[T with entity.Stored]]
 
 	protected def updateImmutable0[ID, T](
 		updateConfig: UpdateConfig,
 		tpe: Type[ID, T],
 		os: List[(T with DeclaredIds[ID], T)]
-	): List[T with DeclaredIds[ID]]
+		): List[T with DeclaredIds[ID]]
 
 	/**
 	 * merges o with the database value according to id. If id exists in the database, an update
@@ -162,7 +161,7 @@ trait MapperDao {
 		entity: Entity[ID, T],
 		o: T,
 		id: ID
-	): T with entity.Stored = merge(defaultSelectConfig, defaultUpdateConfig, entity, o, id)
+		): T with entity.Stored = merge(defaultSelectConfig, defaultUpdateConfig, entity, o, id)
 
 	def merge[ID, T](
 		selectConfig: SelectConfig,
@@ -170,7 +169,7 @@ trait MapperDao {
 		entity: Entity[ID, T],
 		o: T,
 		id: ID
-	): T with entity.Stored = merge0(selectConfig, updateConfig, entity, o, id).asInstanceOf[T with entity.Stored]
+		): T with entity.Stored = merge0(selectConfig, updateConfig, entity, o, id).asInstanceOf[T with entity.Stored]
 
 	protected def merge0[ID, T](
 		selectConfig: SelectConfig,
@@ -178,7 +177,7 @@ trait MapperDao {
 		entity: Entity[ID, T],
 		o: T,
 		ids: ID
-	): T with DeclaredIds[ID]
+		): T with DeclaredIds[ID]
 
 	/**
 	 * select an entity by it's ID
@@ -250,4 +249,8 @@ trait MapperDao {
 	 * Use this i.e. when you want to store the entity in a session.
 	 */
 	def unlink[ID, T](entity: Entity[ID, T], o: T): T = throw new IllegalStateException("Not supported")
+
+	def link[ID, T](entity: Entity[ID, T], o: T with Persisted): T with entity.Stored = link0(entity, o).asInstanceOf[T with entity.Stored]
+
+	protected def link0[ID, T](entity: Entity[ID, T], o: T with Persisted): T with Persisted = throw new IllegalStateException("Not supported")
 }
