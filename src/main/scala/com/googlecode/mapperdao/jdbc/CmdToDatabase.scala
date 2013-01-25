@@ -183,7 +183,7 @@ class CmdToDatabase(
 				}
 		}.filter(_ != None).map(_.get)
 
-	protected def toSql(cmd: PersistCmd) =
+	protected[jdbc] def toSql(cmd: PersistCmd) =
 		cmd match {
 			case ic@InsertCmd(tpe, newVM, columns, _) =>
 				persistedIdentities += ic.identity

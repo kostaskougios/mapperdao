@@ -68,7 +68,7 @@ class Jdbc private(val dataSource: DataSource, val chronology: Chronology) {
 	/**
 	 * converts a query and it's arguments to a string, useful for debugging & logging
 	 */
-	private def toString(sql: String, args: Seq[_]) = {
+	private[mapperdao] def toString(sql: String, args: Seq[_]) = {
 		var counter = 0
 		sql.map {
 			case '?' =>

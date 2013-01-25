@@ -292,6 +292,7 @@ class CmdPhase(typeManager: TypeManager) {
 						case (oldO, newO) =>
 							val oVM = oldO match {
 								case p: Persisted => p.mapperDaoValuesMap
+								case _ => throw new IllegalStateException("unexpected object, please file a bug with code One-To-Many:NON_PERSISTED")
 							}
 							val nVM = ValuesMap.fromType(typeManager, foreignTpe, newO)
 							EntityRelatedCmd(nVM.identity, column, nVM, tpe, newVM, true) :: update(foreignTpe, oVM, nVM, false, updateConfig)

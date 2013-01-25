@@ -4,11 +4,10 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
-import com.googlecode.mapperdao.{ValuesMap, Column, OneToManyDeclarePrimaryKeysSuite, UpdateConfig}
-import com.googlecode.mapperdao.drivers.Driver
+import com.googlecode.mapperdao._
 import org.scalatest.mock.EasyMockSugar
-import com.googlecode.mapperdao.state.prioritise.Prioritized
-import com.googlecode.mapperdao.state.persistcmds.UpdateCmd
+import state.persistcmds.CmdPhase
+import state.prioritise.PriorityPhase
 
 /**
  * @author: kostas.kougios
@@ -17,32 +16,57 @@ import com.googlecode.mapperdao.state.persistcmds.UpdateCmd
 @RunWith(classOf[JUnitRunner])
 class CmdToDatabaseSuite extends FunSuite with ShouldMatchers with EasyMockSugar {
 
+	import OneToManyDeclarePrimaryKeysSuite._
+
+	val typeManager = new DefaultTypeManager
+	val (jdbc, mapperDao: MapperDaoImpl, _) = Setup.setupMapperDao(TypeRegistry(HouseEntity, PersonEntity))
+	val driver = mapperDao.driver
+
 	val uc = UpdateConfig.default
-	val driver = mock[Driver]
-	val pri = Prioritized(Nil, Nil, Nil, Nil)
-	val ctb = new CmdToDatabase(uc, driver, null, pri)
 
 	test("updates only if required") {
-		import OneToManyDeclarePrimaryKeysSuite._
 
-		val columns = List(Column("address"), "new address")
+		val SW = new PostCode("SW") with PostCodeEntity.Stored {
+			val id = 1000
+		}
+		SW.mapperDaoValuesMap = ValuesMap.fromType(typeManager, PostCodeEntity.tpe, SW)
 
-		val oldVM = new ValuesMap(1,
-			Map(
-				"address" -> "old address",
-				"person_id" -> 10,
-				"postcode_id" -> 20
-			)
-		)
+		val SE = new PostCode("SE") with PostCodeEntity.Stored {
+			val id = 1001
+		}
+		SE.mapperDaoValuesMap = ValuesMap.fromType(typeManager, PostCodeEntity.tpe, SE)
 
-		val newVM = new ValuesMap(1,
-			Map(
-				"address" -> "new address",
-				"person_id" -> 10,
-				"postcode_id" -> 20
-			)
-		)
+		val house1 = new House("old address", SW) with HouseEntity.Stored
+		house1.mapperDaoValuesMap = ValuesMap.fromType(typeManager, HouseEntity.tpe, house1)
 
-		ctb.toSql(UpdateCmd(HouseEntity.tpe, oldVM, newVM, columns, false)) should be(None)
+		val house2 = new House("address2", SE) with HouseEntity.Stored
+		house2.mapperDaoValuesMap = ValuesMap.fromType(typeManager, HouseEntity.tpe, house2)
+
+		val oldP = new Person("kostas", Set(house1, house2)) with PersonEntity.Stored {
+			val id = 10
+		}
+		house1.address = "new address"
+		val newP = new Person("kostas", Set(house1, house2)) with PersonEntity.Stored {
+			val id = 10
+		}
+
+		val oldVM = ValuesMap.fromType(typeManager, PersonEntity.tpe, oldP)
+		val newVM = ValuesMap.fromType(typeManager, PersonEntity.tpe, newP)
+
+		val cp = new CmdPhase(typeManager)
+		val cmds = cp.toUpdateCmd(PersonEntity.tpe, oldVM, newVM, uc)
+
+		val pp = new PriorityPhase(uc)
+		val pri = pp.prioritise(PersonEntity.tpe, cmds)
+
+		val ctb = new CmdToDatabase(uc, driver, typeManager, pri)
+
+		val cmdList = (pri.high.flatten ::: pri.low)
+		val sqls = cmdList.map {
+			cmd =>
+				ctb.toSql(cmd)
+		}.filter(_ != None).map(_.get)
+		println("\n" + sqls.map(s => jdbc.toString(s.sql, s.values)).mkString("\n"))
+		sqls should be(None)
 	}
 }

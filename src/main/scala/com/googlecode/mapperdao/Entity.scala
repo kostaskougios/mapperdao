@@ -344,9 +344,9 @@ abstract class Entity[ID, T](protected[mapperdao] val table: String, protected[m
 	 */
 	private var aliasCnt = 0
 
-	private def createAlias = {
+	private def createAlias(clz: Class[_]) = {
 		aliasCnt += 1
-		"alias" + aliasCnt
+		clz.getSimpleName.toLowerCase + ":" + aliasCnt
 	}
 
 	/**
@@ -465,7 +465,7 @@ abstract class Entity[ID, T](protected[mapperdao] val table: String, protected[m
 						case (k, c) =>
 							Column(c, k.tpe)
 					}),
-					TypeRef(createAlias, referenced)
+					TypeRef(createAlias(referenced.clz), referenced)
 				),
 				columnToValue,
 				getterMethod
@@ -533,7 +533,7 @@ abstract class Entity[ID, T](protected[mapperdao] val table: String, protected[m
 			val fPKs = referenced.keysDuringDeclaration
 			if (fPKs.size != cols.size) throw new IllegalStateException("keys don't match foreign keys for %s -> %s".format(cols, referenced))
 			val fkeys = fPKs zip cols
-			val ci = ColumnInfoOneToOne(OneToOne(TypeRef(createAlias, referenced), fkeys.map {
+			val ci = ColumnInfoOneToOne(OneToOne(TypeRef(createAlias(referenced.clz), referenced), fkeys.map {
 				case (k, col) =>
 					Column(col, k.tpe)
 			}), columnToValue)
@@ -572,7 +572,7 @@ abstract class Entity[ID, T](protected[mapperdao] val table: String, protected[m
 		def to(columnToValue: T => FT): ColumnInfoOneToOneReverse[T, FID, FT] = {
 			if (keysDuringDeclaration.size != fkcols.size) throw new IllegalStateException("keys don't match foreign keys for %s -> %s".format(fkcols, referenced))
 			val fkeys = keysDuringDeclaration zip fkcols
-			val ci = ColumnInfoOneToOneReverse(OneToOneReverse(TypeRef(createAlias, referenced), fkeys.map {
+			val ci = ColumnInfoOneToOneReverse(OneToOneReverse(TypeRef(createAlias(referenced.clz), referenced), fkeys.map {
 				case (k, col) =>
 					Column(col, k.tpe)
 			}), columnToValue, getterMethod)
@@ -610,7 +610,7 @@ abstract class Entity[ID, T](protected[mapperdao] val table: String, protected[m
 			val fkeys = keysDuringDeclaration zip fkcols
 			val ci = ColumnInfoTraversableOneToMany[ID, T, FID, FT](
 				OneToMany(
-					TypeRef(createAlias, referenced),
+					TypeRef(createAlias(referenced.clz), referenced),
 					fkeys.map {
 						case (k, c) =>
 							Column(c, k.tpe)
@@ -689,7 +689,7 @@ abstract class Entity[ID, T](protected[mapperdao] val table: String, protected[m
 						case (k, c) =>
 							Column(c, k.tpe)
 					},
-					TypeRef(createAlias, referenced)),
+					TypeRef(createAlias(referenced.clz), referenced)),
 				columnToValue,
 				getterMethod
 			)

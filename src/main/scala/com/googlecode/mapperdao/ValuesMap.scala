@@ -21,7 +21,7 @@ import utils.SynchronizedMemoryEfficientMap
  *
  *         16 Jul 2011
  */
-class ValuesMap private(private[mapperdao] var identity: Int, mOrig: scala.collection.Map[String, Any])
+class ValuesMap private[mapperdao](private[mapperdao] var identity: Int, mOrig: scala.collection.Map[String, Any])
 	extends MemoryEfficientMap[String, Any]
 	with SynchronizedMemoryEfficientMap[String, Any] {
 	if (identity <= 0) throw new IllegalStateException("invalid id of " + identity)
