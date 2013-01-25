@@ -55,7 +55,10 @@ case class Prioritized(
 		case ExternalEntityRelatedCmd(_, column, _, _, foreignTpe, foreignKeys) =>
 			column match {
 				case ManyToOne(columns, foreign) =>
-					columns zip foreignKeys.values
+					if (isOld)
+						Nil
+					else
+						columns zip foreignKeys.values
 			}
 	}.flatten
 
