@@ -241,12 +241,12 @@ class CmdPhase(typeManager: TypeManager) {
 					 */
 					case foreignEntity =>
 						val foreignTpe = foreignEntity.tpe
+						val oldFoVMO = oldVMO.map(_.manyToOne(column)).map(ofo => oldVMOf(ofo))
 						if (fo == null) {
-							EntityRelatedCmd(0, column, newVM, oldVMO, foreignTpe, null, None, false) :: Nil
+							EntityRelatedCmd(0, column, newVM, oldVMO, foreignTpe, null, oldFoVMO, false) :: Nil
 						} else {
 							// insert new
 							val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
-							val oldFoVMO = oldVMO.map(_.manyToOne(column)).map(ofo => oldVMOf(ofo))
 							EntityRelatedCmd(foreignVM.identity, column, newVM, oldVMO, foreignTpe, foreignVM, oldFoVMO, false) :: (fo match {
 								case p: DeclaredIds[_] =>
 									doUpdate(foreignTpe.asInstanceOf[Type[Any, Any]], p.asInstanceOf[Any with DeclaredIds[Any]], updateConfig)

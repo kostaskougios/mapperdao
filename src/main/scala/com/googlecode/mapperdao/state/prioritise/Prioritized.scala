@@ -30,14 +30,14 @@ case class Prioritized(
 			column match {
 				case ManyToOne(columns, foreign) =>
 					columns zip (
-						if (foreignVM == null)
-							Prioritized.nullList
+						if (isOld) {
+							if (oldForeignVMO.isDefined)
+								oldForeignVMO.get.toListOfPrimaryKeys(foreignTpe)
+							else Nil
+						}
 						else {
-							if (isOld) {
-								if (oldForeignVMO.isDefined)
-									oldForeignVMO.get.toListOfPrimaryKeys(foreignTpe)
-								else Nil
-							}
+							if (foreignVM == null)
+								Prioritized.nullList
 							else {
 								foreignVM.toListOfPrimaryKeys(foreignTpe)
 							}
