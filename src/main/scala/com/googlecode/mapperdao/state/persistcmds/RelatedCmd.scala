@@ -9,7 +9,8 @@ import state.prioritise.Priority
  */
 trait RelatedCmd extends PersistCmd {
 	val column: ColumnBase
-	val vm: ValuesMap
+	val newVM: ValuesMap
+	val oldVMO: Option[ValuesMap]
 	val foreignTpe: Type[_, _]
 
 	def priority = Priority.Related
@@ -18,7 +19,8 @@ trait RelatedCmd extends PersistCmd {
 case class EntityRelatedCmd(
 	identity: Int,
 	column: ColumnBase,
-	vm: ValuesMap,
+	newVM: ValuesMap,
+	oldVMO: Option[ValuesMap],
 	foreignTpe: Type[_, _],
 	foreignVM: ValuesMap,
 	isKey: Boolean
@@ -27,7 +29,8 @@ case class EntityRelatedCmd(
 case class ExternalEntityRelatedCmd(
 	identity: Int,
 	column: ColumnBase,
-	vm: ValuesMap,
+	newVM: ValuesMap,
+	oldVMO: Option[ValuesMap],
 	foreignTpe: Type[_, _],
 	foreignKeys: PrimaryKeysValues
 	) extends RelatedCmd

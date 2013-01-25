@@ -191,13 +191,15 @@ class CmdToDatabase(
 
 			case uc@UpdateCmd(tpe, oldVM, newVM, columns, _) =>
 				persistedIdentities += uc.identity
-				val pks = oldVM.toListOfPrimaryKeyAndValueTuple(tpe)
-				val relKeys = prioritized.relatedKeys(newVM)
-				val set = columns ::: prioritized.relatedColumns(newVM)
+				val oldRelated = prioritized.relatedColumns(oldVM)
+				val set = columns ::: prioritized.relatedColumns(newVM).filterNot(n => oldRelated.contains(n))
 				if (set.isEmpty)
 					None
-				else
+				else {
+					val pks = oldVM.toListOfPrimaryKeyAndValueTuple(tpe)
+					val relKeys = prioritized.relatedKeys(newVM)
 					Some(driver.updateSql(tpe, set, pks ::: relKeys).result)
+				}
 
 			case InsertManyToManyCmd(tpe, foreignTpe, manyToMany, entityVM, foreignEntityVM) =>
 				val left = entityVM.toListOfPrimaryKeys(tpe)

@@ -19,12 +19,14 @@ case class Prioritized(
 	related: List[RelatedCmd],
 	dependent: List[DependsCmd]
 	) {
-	private val relatedById = related.groupBy(_.vm.identity)
+	private val relatedById = related.groupBy(_.newVM.identity) ++ (
+		related.filterNot(_.oldVMO == None).groupBy(_.oldVMO.get.identity)
+		)
 
 	def relatedFor(vm: ValuesMap) = relatedById.getOrElse(vm.identity, Nil)
 
 	def relatedColumns(vm: ValuesMap) = relatedFor(vm).map {
-		case EntityRelatedCmd(_, column, vm, foreignTpe, foreignVM, _) =>
+		case EntityRelatedCmd(_, column, vm, _, foreignTpe, foreignVM, _) =>
 			column match {
 				case ManyToOne(columns, foreign) =>
 					columns zip (
@@ -37,7 +39,7 @@ case class Prioritized(
 					val fks = foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
 					fks
 			}
-		case ExternalEntityRelatedCmd(_, column, _, foreignTpe, foreignKeys) =>
+		case ExternalEntityRelatedCmd(_, column, _, _, foreignTpe, foreignKeys) =>
 			column match {
 				case ManyToOne(columns, foreign) =>
 					columns zip foreignKeys.values
@@ -45,7 +47,7 @@ case class Prioritized(
 	}.flatten
 
 	def relatedKeys(vm: ValuesMap) = relatedFor(vm).collect {
-		case EntityRelatedCmd(_, column, vm, foreignTpe, foreignVM, true) =>
+		case EntityRelatedCmd(_, column, vm, _, foreignTpe, foreignVM, true) =>
 			column match {
 				case OneToMany(foreign, foreignColumns) =>
 					val fks = foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)

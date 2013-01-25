@@ -24,7 +24,7 @@ class CmdToDatabaseSuite extends FunSuite with ShouldMatchers with EasyMockSugar
 
 	val uc = UpdateConfig.default
 
-	test("updates only if required") {
+	test("optimized updates for one to many and declared keys") {
 
 		val sw = mapperDao.link(PostCodeEntity, new PostCode("SW") with PostCodeEntity.Stored {
 			val id = 1000
@@ -54,14 +54,20 @@ class CmdToDatabaseSuite extends FunSuite with ShouldMatchers with EasyMockSugar
 		val pp = new PriorityPhase(uc)
 		val pri = pp.prioritise(PersonEntity.tpe, cmds)
 
-		val ctb = new CmdToDatabase(uc, driver, typeManager, pri)
-
 		val cmdList = (pri.high.flatten ::: pri.low)
+		val ctb = new CmdToDatabase(uc, driver, typeManager, pri)
 		val sqls = cmdList.map {
 			cmd =>
 				ctb.toSql(cmd)
 		}.filter(_ != None).map(_.get)
-		println("\n" + sqls.map(s => jdbc.toString(s.sql, s.values)).mkString("\n"))
-		sqls should be(None)
+
+		val sql = sqls.map(s => jdbc.toString(s.sql, s.values)).mkString("\n")
+		sql should be(
+			"""
+			  |update House
+			  |set address = 'new address'
+			  |where ((address = 'old address') and (postcode_id = 1000)) and (person_id = 10)
+			  |
+			""".stripMargin.trim)
 	}
 }

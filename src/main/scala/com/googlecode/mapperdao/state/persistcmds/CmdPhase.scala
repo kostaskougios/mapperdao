@@ -229,7 +229,7 @@ class CmdPhase(typeManager: TypeManager) {
 						(
 							ExternalEntityRelatedCmd(
 								if (fo != null) System.identityHashCode(fo) else 0,
-								column, newVM, foreignTpe, v)
+								column, newVM, oldVMO, foreignTpe, v)
 								:: UpdateExternalManyToOneCmd(foreignEE, fo)
 								:: Nil
 							)
@@ -242,11 +242,11 @@ class CmdPhase(typeManager: TypeManager) {
 					case foreignEntity =>
 						val foreignTpe = foreignEntity.tpe
 						if (fo == null) {
-							EntityRelatedCmd(0, column, newVM, foreignTpe, null, false) :: Nil
+							EntityRelatedCmd(0, column, newVM, oldVMO, foreignTpe, null, false) :: Nil
 						} else {
 							// insert new
 							val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
-							EntityRelatedCmd(foreignVM.identity, column, newVM, foreignTpe, foreignVM, false) :: (fo match {
+							EntityRelatedCmd(foreignVM.identity, column, newVM, oldVMO, foreignTpe, foreignVM, false) :: (fo match {
 								case p: DeclaredIds[_] =>
 									doUpdate(foreignTpe.asInstanceOf[Type[Any, Any]], p.asInstanceOf[Any with DeclaredIds[Any]], updateConfig)
 								case _ =>
@@ -277,7 +277,7 @@ class CmdPhase(typeManager: TypeManager) {
 					val addedCmds = added.toList.map {
 						fo =>
 							val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
-							EntityRelatedCmd(foreignVM.identity, column, foreignVM, tpe, newVM, true) :: insertOrUpdate(foreignTpe, fo, updateConfig)
+							EntityRelatedCmd(foreignVM.identity, column, foreignVM, None, tpe, newVM, true) :: insertOrUpdate(foreignTpe, fo, updateConfig)
 					}.flatten
 					val removedCms = removed.toList.map {
 						fo =>
@@ -295,7 +295,7 @@ class CmdPhase(typeManager: TypeManager) {
 								case _ => throw new IllegalStateException("unexpected object, please file a bug with code One-To-Many:NON_PERSISTED")
 							}
 							val nVM = ValuesMap.fromType(typeManager, foreignTpe, newO)
-							EntityRelatedCmd(nVM.identity, column, nVM, tpe, newVM, true) :: update(foreignTpe, oVM, nVM, false, updateConfig)
+							EntityRelatedCmd(nVM.identity, column, nVM, Some(oVM), tpe, newVM, true) :: update(foreignTpe, oVM, nVM, false, updateConfig)
 					}.flatten
 					addedCmds ::: removedCms ::: intersectCmds
 				} else {
@@ -308,7 +308,7 @@ class CmdPhase(typeManager: TypeManager) {
 							(
 								DependsCmd(foreignVM.identity, newVM.identity)
 									::
-									EntityRelatedCmd(foreignVM.identity, column, foreignVM, tpe, newVM, true)
+									EntityRelatedCmd(foreignVM.identity, column, foreignVM, None, tpe, newVM, true)
 									::
 									insert(foreignTpe, foreignVM, false, updateConfig)
 								)
