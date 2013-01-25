@@ -14,6 +14,8 @@ import com.googlecode.mapperdao.jdbc.Setup
 @RunWith(classOf[JUnitRunner])
 class OneToManyDeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 
+	import OneToManyDeclarePrimaryKeysSuite._
+
 	if (Setup.database == "h2") {
 		val (jdbc, mapperDao, _) = Setup.setupMapperDao(TypeRegistry(HouseEntity, PersonEntity))
 
@@ -67,6 +69,9 @@ class OneToManyDeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 			Setup.queries(this, jdbc).update("ddl")
 		}
 	}
+}
+
+object OneToManyDeclarePrimaryKeysSuite {
 
 	case class Person(name: String, owns: Set[House])
 

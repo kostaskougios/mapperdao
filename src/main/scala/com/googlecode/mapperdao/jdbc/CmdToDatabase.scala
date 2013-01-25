@@ -18,7 +18,7 @@ import state.prioritise.Prioritized
  */
 class CmdToDatabase(
 	updateConfig: UpdateConfig,
-	driver: Driver,
+	protected val driver: Driver,
 	typeManager: TypeManager,
 	prioritized: Prioritized
 	) {
@@ -183,7 +183,7 @@ class CmdToDatabase(
 				}
 		}.filter(_ != None).map(_.get)
 
-	private def toSql(cmd: PersistCmd) =
+	protected def toSql(cmd: PersistCmd) =
 		cmd match {
 			case ic@InsertCmd(tpe, newVM, columns, _) =>
 				persistedIdentities += ic.identity
