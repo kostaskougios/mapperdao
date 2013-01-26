@@ -241,7 +241,7 @@ class CmdPhase(typeManager: TypeManager) {
 					 */
 					case foreignEntity =>
 						val foreignTpe = foreignEntity.tpe
-						val oldFoVMO = oldVMO.map(_.manyToOne(column)).map(ofo => oldVMOf(ofo))
+						val oldFoVMO = oldVMOf(oldVMO.map(_.manyToOne(column)))
 						if (fo == null) {
 							EntityRelatedCmd(0, column, newVM, oldVMO, foreignTpe, null, oldFoVMO, false) :: Nil
 						} else {
@@ -323,8 +323,10 @@ class CmdPhase(typeManager: TypeManager) {
 		}.flatten
 	}
 
-	private def oldVMOf(o: Any) = o match {
-		case p: Persisted => p.mapperDaoValuesMap
+	private def oldVMOf(o: Option[Any]) = o match {
+		case Some(p: Persisted) => Some(p.mapperDaoValuesMap)
+		case Some(null) => None
+		case None => None
 	}
 
 	private def insertOrUpdate[ID, T](tpe: Type[ID, T], o: T, updateConfig: UpdateConfig) = o match {

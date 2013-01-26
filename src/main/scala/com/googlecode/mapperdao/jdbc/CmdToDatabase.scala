@@ -187,7 +187,7 @@ class CmdToDatabase(
 		cmd match {
 			case ic@InsertCmd(tpe, newVM, columns, _) =>
 				persistedIdentities += ic.identity
-				Some(driver.insertSql(tpe, columns ::: prioritized.relatedColumns(newVM, false)).result)
+				Some(driver.insertSql(tpe, columns ::: prioritized.relatedColumns(newVM, false).distinct).result)
 
 			case uc@UpdateCmd(tpe, oldVM, newVM, columns, _) =>
 				persistedIdentities += uc.identity
