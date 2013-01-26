@@ -32,7 +32,10 @@ case class Prioritized(
 					columns zip (
 						if (isOld) {
 							if (oldForeignVMO.isDefined)
-								oldForeignVMO.get.toListOfPrimaryKeys(foreignTpe)
+								oldForeignVMO.get match {
+									case null => Prioritized.nullList
+									case ovm => ovm.toListOfPrimaryKeys(foreignTpe)
+								}
 							else Nil
 						}
 						else {

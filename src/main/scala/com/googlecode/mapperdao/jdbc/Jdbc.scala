@@ -56,13 +56,14 @@ class Jdbc private(val dataSource: DataSource, val chronology: Chronology) {
 				iargs.map(reverseConvert(_))
 		}
 		if (isDebugEnabled) {
-			val dbg = "-- start of batch --\n" + a.map {
+			val dbg = "batchUpdate\n----------------- start of batch -------------------------------------\n" + a.map {
 				args =>
 					toString(sql, args)
-			}.mkString("\n")
+			}.mkString("\n") + "\n----------------- end of batch ---------------------------------------"
 			logger.debug(dbg)
 		}
-		batch.batchUpdate(sql, a, batchOptions)
+		val r = batch.batchUpdate(sql, a, batchOptions)
+		r
 	}
 
 	/**

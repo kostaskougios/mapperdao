@@ -323,9 +323,9 @@ class CmdPhase(typeManager: TypeManager) {
 		}.flatten
 	}
 
-	private def oldVMOf(o: Option[Any]) = o match {
+	private def oldVMOf(o: Option[Any]): Option[ValuesMap] = o match {
 		case Some(p: Persisted) => Some(p.mapperDaoValuesMap)
-		case Some(null) => None
+		case Some(null) => o.asInstanceOf[Some[ValuesMap]]
 		case None => None
 	}
 
