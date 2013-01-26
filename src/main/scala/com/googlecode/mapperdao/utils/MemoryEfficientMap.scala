@@ -6,7 +6,7 @@ package com.googlecode.mapperdao.utils
  *
  * @author kostantinos.kougios
  *
- * 28 May 2012
+ *         28 May 2012
  */
 private[mapperdao] trait MemoryEfficientMap[K, V] {
 
@@ -20,7 +20,9 @@ private[mapperdao] trait MemoryEfficientMap[K, V] {
 
 	private[mapperdao] def initializeMEM(m: scala.collection.Map[K, V]) {
 		var i = 0
-		val (ks, vs) = m.map { case (k, v) => (k, v) }.unzip
+		val (ks, vs) = m.map {
+			case (k, v) => (k, v)
+		}.unzip
 		keys = ks.toArray
 		values = vs.toArray
 	}
@@ -28,9 +30,10 @@ private[mapperdao] trait MemoryEfficientMap[K, V] {
 	private def findKeyIndex(k: K) = {
 		keys.indexWhere(kk => k == kk)
 	}
+
 	private def findKeyIndexSafe(k: K) = {
 		val idx = findKeyIndex(k)
-		if (idx == -1) throw new IllegalStateException("cant find key %s".format(k))
+		if (idx == -1) throw new IllegalStateException("cant find key " + k + " within " + memToString)
 		idx
 	}
 
@@ -81,6 +84,7 @@ abstract trait SynchronizedMemoryEfficientMap[K, V] extends MemoryEfficientMap[K
 	override def getMEM(k: K): V = synchronized {
 		super.getMEM(k)
 	}
+
 	override def putMEM(k: K, v: V) =
 		synchronized {
 			super.putMEM(k, v)

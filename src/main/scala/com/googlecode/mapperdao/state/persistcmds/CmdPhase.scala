@@ -247,13 +247,18 @@ class CmdPhase(typeManager: TypeManager) {
 						} else {
 							// insert new
 							val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
-							EntityRelatedCmd(foreignVM.identity, column, newVM, oldVMO, foreignTpe, foreignVM, oldFoVMO, false) :: (fo match {
-								case p: DeclaredIds[_] =>
-									doUpdate(foreignTpe.asInstanceOf[Type[Any, Any]], p.asInstanceOf[Any with DeclaredIds[Any]], updateConfig)
-								case _ =>
-									// we need to insert the foreign entity and link to entity
-									insert(foreignTpe, foreignVM, false, updateConfig)
-							})
+
+							(
+								DependsCmd(newVM.identity, foreignVM.identity)
+									:: EntityRelatedCmd(foreignVM.identity, column, newVM, oldVMO, foreignTpe, foreignVM, oldFoVMO, false)
+									:: (fo match {
+									case p: DeclaredIds[_] =>
+										doUpdate(foreignTpe.asInstanceOf[Type[Any, Any]], p.asInstanceOf[Any with DeclaredIds[Any]], updateConfig)
+									case _ =>
+										// we need to insert the foreign entity and link to entity
+										insert(foreignTpe, foreignVM, false, updateConfig)
+								})
+								)
 						}
 				}
 

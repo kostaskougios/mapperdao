@@ -176,7 +176,7 @@ class ValuesMap private[mapperdao](private[mapperdao] var identity: Int, mOrig: 
 		case i: java.lang.Iterable[T] => i.asScala.toSeq
 	}
 
-	override def toString = memToString
+	override def toString = "ValuesMap(identity:" + identity + ", " + memToString + ")"
 
 	protected[mapperdao] def toListOfColumnAndValueTuple[C <: ColumnBase](columns: List[C]) = columns.map(c => (c, getMEM(c.aliasLowerCase)))
 
