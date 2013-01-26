@@ -4,6 +4,8 @@ import com.googlecode.mapperdao._
 import state.prioritise.Priority
 
 /**
+ * a command that signals that an entity is related to an other entity
+ *
  * @author: kostas.kougios
  *          Date: 04/01/13
  */

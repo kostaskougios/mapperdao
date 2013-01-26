@@ -4,6 +4,8 @@ import com.googlecode.mapperdao._
 import state.prioritise.Priority
 
 /**
+ * signals an update for an entity
+ *
  * @author kostantinos.kougios
  *
  *         Dec 9, 2012

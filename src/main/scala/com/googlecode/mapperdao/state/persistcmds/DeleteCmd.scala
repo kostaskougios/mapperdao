@@ -4,6 +4,8 @@ import com.googlecode.mapperdao.{ValuesMap, Type}
 import com.googlecode.mapperdao.state.prioritise.Priority
 
 /**
+ * signals a delete
+ *
  * @author: kostas.kougios
  *          Date: 1/16/13
  */

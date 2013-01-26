@@ -4,6 +4,8 @@ import com.googlecode.mapperdao.ExternalEntity
 import com.googlecode.mapperdao.state.prioritise.Priority
 
 /**
+ * signals an update which links an entity with an other entity
+ *
  * @author: kostas.kougios
  *          Date: 1/15/13
  */

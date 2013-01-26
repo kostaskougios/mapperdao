@@ -4,6 +4,8 @@ import com.googlecode.mapperdao._
 import state.prioritise.Priority
 
 /**
+ * signals that there must be a link insert between 2 entities
+ *
  * @author kostantinos.kougios
  *         18 Dec 2012
  */
