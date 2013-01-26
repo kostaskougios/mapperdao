@@ -268,57 +268,110 @@ class CmdPhase(typeManager: TypeManager) {
 			 * ---------------------------------------------------------------------------------------------
 			 */
 			case ci@ColumnInfoTraversableOneToMany(column, columnToValue, _, entityOfT) =>
-				val foreignEntity = column.foreign.entity
-				val foreignTpe = foreignEntity.tpe
-				val newT = newVM.oneToMany(column)
-				if (oldVMO.isDefined) {
-					// updating entity
-					val oldVM = oldVMO.get
-					val oldT = oldVM.oneToMany(column)
-					val newT = newVM.oneToMany(column)
-					// we'll find what was added, intersect (stayed in the collection but might have been updated)
-					// and removed from the collection
-					val (added, intersect, removed) = TraversableSeparation.separate(foreignEntity, oldT, newT)
+				column.foreign.entity match {
+					/**
+					 * ---------------------------------------------------------------------------------------------
+					 * External Entity
+					 * ---------------------------------------------------------------------------------------------
+					 */
+					case foreignEE: ExternalEntity[_, _] =>
+						// insert/update
+						if (oldVMO.isDefined) {
+							// entity is updated
+							val oldVM = oldVMO.get
+							val oldT = oldVM.oneToMany(column)
+							val newT = newVM.oneToMany(column)
+							// we'll find what was added, intersect (stayed in the collection but might have been updated)
+							// and removed from the collection
+							val (added, intersect, removed) = TraversableSeparation.separate(foreignEE, oldT, newT)
 
-					val addedCmds = added.toList.map {
-						fo =>
-							val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
-							EntityRelatedCmd(foreignVM.identity, column, foreignVM, None, tpe, newVM, oldVMO, true) :: insertOrUpdate(foreignTpe, fo, updateConfig)
-					}.flatten
-					val removedCms = removed.toList.map {
-						fo =>
-							val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
-							DeleteCmd(
-								foreignTpe,
-								foreignVM
-							)
-					}
-
-					val intersectCmds = intersect.toList.map {
-						case (oldO, newO) =>
-							val oVM = oldO match {
-								case p: Persisted => p.mapperDaoValuesMap
-								case _ => throw new IllegalStateException("unexpected object, please file a bug with code One-To-Many:NON_PERSISTED")
+							val addedCmds = added.toList.map {
+								fo =>
+									InsertOneToManyExternalCmd(
+										tpe,
+										foreignEE,
+										ci.asInstanceOf[ColumnInfoTraversableOneToMany[ID, T, Any, Any]],
+										newVM,
+										fo)
 							}
-							val nVM = ValuesMap.fromType(typeManager, foreignTpe, newO)
-							EntityRelatedCmd(nVM.identity, column, nVM, Some(oVM), tpe, newVM, oldVMO, true) :: update(foreignTpe, oVM, nVM, false, updateConfig)
-					}.flatten
-					addedCmds ::: removedCms ::: intersectCmds
-				} else {
-					// entity is new
-					newT.map {
-						case o =>
-							// we need to insert the foreign entity and link to entity
-							val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, o)
+							val intersectCmds = intersect.toList.map {
+								case (oldO, newO) =>
+									UpdateExternalOneToManyCmd(foreignEE, ci.asInstanceOf[ColumnInfoTraversableOneToMany[ID, T, Any, Any]], newO)
+							}
+							val removedCmds = removed.toList.map {
+								ro =>
+									DeleteOneToManyExternalCmd(tpe, foreignEE, ci.asInstanceOf[ColumnInfoTraversableOneToMany[ID, T, Any, Any]], newVM, ro)
+							}
+							addedCmds ::: intersectCmds ::: removedCmds
+						} else {
+							newVM.oneToMany(column).map {
+								fo =>
+									InsertOneToManyExternalCmd(
+										tpe,
+										foreignEE,
+										ci.asInstanceOf[ColumnInfoTraversableOneToMany[ID, T, Any, Any]],
+										newVM,
+										fo)
+							}
+						}
 
-							(
-								DependsCmd(foreignVM.identity, newVM.identity)
-									::
-									EntityRelatedCmd(foreignVM.identity, column, foreignVM, None, tpe, newVM, oldVMO, true)
-									::
-									insert(foreignTpe, foreignVM, false, updateConfig)
-								)
-					}.flatten
+					/**
+					 * ---------------------------------------------------------------------------------------------
+					 * Normal Entity
+					 * ---------------------------------------------------------------------------------------------
+					 */
+					case foreignEntity =>
+						val foreignTpe = foreignEntity.tpe
+						val newT = newVM.oneToMany(column)
+						if (oldVMO.isDefined) {
+							// updating entity
+							val oldVM = oldVMO.get
+							val oldT = oldVM.oneToMany(column)
+							val newT = newVM.oneToMany(column)
+							// we'll find what was added, intersect (stayed in the collection but might have been updated)
+							// and removed from the collection
+							val (added, intersect, removed) = TraversableSeparation.separate(foreignEntity, oldT, newT)
+
+							val addedCmds = added.toList.map {
+								fo =>
+									val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
+									EntityRelatedCmd(foreignVM.identity, column, foreignVM, None, tpe, newVM, oldVMO, true) :: insertOrUpdate(foreignTpe, fo, updateConfig)
+							}.flatten
+							val removedCms = removed.toList.map {
+								fo =>
+									val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
+									DeleteCmd(
+										foreignTpe,
+										foreignVM
+									)
+							}
+
+							val intersectCmds = intersect.toList.map {
+								case (oldO, newO) =>
+									val oVM = oldO match {
+										case p: Persisted => p.mapperDaoValuesMap
+										case _ => throw new IllegalStateException("unexpected object, please file a bug with code One-To-Many:NON_PERSISTED")
+									}
+									val nVM = ValuesMap.fromType(typeManager, foreignTpe, newO)
+									EntityRelatedCmd(nVM.identity, column, nVM, Some(oVM), tpe, newVM, oldVMO, true) :: update(foreignTpe, oVM, nVM, false, updateConfig)
+							}.flatten
+							addedCmds ::: removedCms ::: intersectCmds
+						} else {
+							// entity is new
+							newT.map {
+								case o =>
+									// we need to insert the foreign entity and link to entity
+									val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, o)
+
+									(
+										DependsCmd(foreignVM.identity, newVM.identity)
+											::
+											EntityRelatedCmd(foreignVM.identity, column, foreignVM, None, tpe, newVM, oldVMO, true)
+											::
+											insert(foreignTpe, foreignVM, false, updateConfig)
+										)
+							}.flatten
+						}
 				}
 		}.flatten
 	}

@@ -232,5 +232,7 @@ class CmdToDatabase(
 				None
 			case UpdateExternalManyToManyCmd(_, _, _) =>
 				None
+			case InsertOneToManyExternalCmd(tpe, foreignEntity, manyToMany, entityVM, foreignO) =>
+				None
 		}
 }
