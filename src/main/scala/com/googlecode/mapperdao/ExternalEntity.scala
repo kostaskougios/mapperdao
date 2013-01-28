@@ -175,7 +175,7 @@ abstract class ExternalEntity[FID, F](table: String, clz: Class[F]) extends Enti
 	/**
 	 * support for one-to-many mapping
 	 */
-	type OnInsertOneToMany[T] = InsertExternalOneToMany[T, F] => Unit
+	type OnInsertOneToMany[T] = InsertExternalOneToMany[F] => Unit
 	type OnSelectOneToMany = SelectExternalOneToMany => List[F]
 	type OnUpdateOneToMany[T] = UpdateExternalOneToMany[T, F] => Unit
 	type OnDeleteOneToMany[T] = DeleteExternalOneToMany[T, F] => Unit
@@ -227,7 +227,11 @@ object UpdateExternalManyToMany {
 	type Operation = Operation.Value
 }
 
-case class UpdateExternalManyToMany[F](updateConfig: UpdateConfig, operation: UpdateExternalManyToMany.Operation, foreign: F)
+case class UpdateExternalManyToMany[F](
+	updateConfig: UpdateConfig,
+	operation: UpdateExternalManyToMany.Operation,
+	foreign: F
+	)
 
 case class DeleteExternalManyToMany[F](deleteConfig: DeleteConfig, foreign: F)
 
@@ -247,10 +251,16 @@ case class UpdateExternalManyToOne[T, F](updateConfig: UpdateConfig, newVM: Valu
 
 case class DeleteExternalManyToOne[T, F](deleteConfig: DeleteConfig, entity: T, foreign: F)
 
-case class InsertExternalOneToMany[T, F](updateConfig: UpdateConfig, newVM: ValuesMap, many: Traversable[F])
+case class InsertExternalOneToMany[F](updateConfig: UpdateConfig, newVM: ValuesMap, added: Traversable[F])
 
 case class SelectExternalOneToMany(selectConfig: SelectConfig, foreignIds: List[Any])
 
-case class UpdateExternalOneToMany[T, F](updateConfig: UpdateConfig, newVM: ValuesMap, added: Traversable[F], intersection: Traversable[F], removed: Traversable[F])
+case class UpdateExternalOneToMany[T, F](
+	updateConfig: UpdateConfig,
+	newVM: ValuesMap,
+	added: Traversable[F],
+	intersection: Traversable[F],
+	removed: Traversable[F]
+	)
 
 case class DeleteExternalOneToMany[T, F](deleteConfig: DeleteConfig, entity: T, many: Traversable[F])

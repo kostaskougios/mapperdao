@@ -158,18 +158,25 @@ class CmdToDatabase(
 
 	private def toPersistedNodes(nodes: List[PersistCmd]) = nodes.collect {
 		case InsertCmd(tpe, newVM, _, mainEntity) =>
-			EntityPersistedNode(tpe, None, newVM, mainEntity)
+			EntityPersistedNode(tpe, None, newVM, mainEntity) :: Nil
 		case UpdateCmd(tpe, oldVM, newVM, _, mainEntity) =>
-			EntityPersistedNode(tpe, Some(oldVM), newVM, mainEntity)
+			EntityPersistedNode(tpe, Some(oldVM), newVM, mainEntity) :: Nil
 		case InsertManyToManyExternalCmd(tpe, foreignEntity, manyToMany, entityVM, foreignO) =>
-			ExternalEntityPersistedNode(foreignEntity, foreignO)
+			ExternalEntityPersistedNode(foreignEntity, foreignO) :: Nil
 		case UpdateExternalManyToManyCmd(foreignEntity, manyToMany, fo) =>
 			val ue = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Update, fo)
 			foreignEntity.manyToManyOnUpdateMap(manyToMany)(ue)
-			ExternalEntityPersistedNode(foreignEntity, fo)
+			ExternalEntityPersistedNode(foreignEntity, fo) :: Nil
 		case UpdateExternalManyToOneCmd(foreignEntity, fo) =>
-			ExternalEntityPersistedNode(foreignEntity, fo)
-	}
+			ExternalEntityPersistedNode(foreignEntity, fo) :: Nil
+		case InsertOneToManyExternalCmd(tpe, foreignEntity, oneToMany, entityVM, added) =>
+			val ue = InsertExternalOneToMany(updateConfig, entityVM, added)
+			foreignEntity.oneToManyOnInsertMap(oneToMany)(ue)
+			added.map {
+				fo =>
+					ExternalEntityPersistedNode(foreignEntity, fo)
+			}
+	}.flatten
 
 	private def toNodes(cmds: List[PersistCmd]) =
 		cmds.map {

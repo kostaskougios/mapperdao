@@ -12,10 +12,9 @@ import state.prioritise.Priority
 case class InsertOneToManyExternalCmd[ID, T, FID, FT](
 	tpe: Type[ID, T],
 	foreignEntity: ExternalEntity[FID, FT],
-	manyToMany: ColumnInfoTraversableOneToMany[ID, T, FID, FT],
+	oneToMany: ColumnInfoTraversableOneToMany[ID, T, FID, FT],
 	entityVM: ValuesMap,
-	foreignO: FT
-
+	added: Traversable[FT]
 	) extends PersistCmd {
 	def priority = Priority.Low
 }

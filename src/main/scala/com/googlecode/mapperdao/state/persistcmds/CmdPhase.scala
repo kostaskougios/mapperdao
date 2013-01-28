@@ -285,34 +285,20 @@ class CmdPhase(typeManager: TypeManager) {
 							// and removed from the collection
 							val (added, intersect, removed) = TraversableSeparation.separate(foreignEE, oldT, newT)
 
-							val addedCmds = added.toList.map {
-								fo =>
-									InsertOneToManyExternalCmd(
-										tpe,
-										foreignEE,
-										ci.asInstanceOf[ColumnInfoTraversableOneToMany[ID, T, Any, Any]],
-										newVM,
-										fo)
-							}
-							val intersectCmds = intersect.toList.map {
-								case (oldO, newO) =>
-									UpdateExternalOneToManyCmd(foreignEE, ci.asInstanceOf[ColumnInfoTraversableOneToMany[ID, T, Any, Any]], newO)
-							}
-							val removedCmds = removed.toList.map {
-								ro =>
-									DeleteOneToManyExternalCmd(tpe, foreignEE, ci.asInstanceOf[ColumnInfoTraversableOneToMany[ID, T, Any, Any]], newVM, ro)
-							}
-							addedCmds ::: intersectCmds ::: removedCmds
+							UpdateExternalOneToManyCmd(
+								foreignEE,
+								ci.asInstanceOf[ColumnInfoTraversableOneToMany[ID, T, Any, Any]],
+								added.toList,
+								intersect.toList,
+								removed.toList) :: Nil
 						} else {
-							newVM.oneToMany(column).map {
-								fo =>
-									InsertOneToManyExternalCmd(
-										tpe,
-										foreignEE,
-										ci.asInstanceOf[ColumnInfoTraversableOneToMany[ID, T, Any, Any]],
-										newVM,
-										fo)
-							}
+							val added = newVM.oneToMany(column)
+							InsertOneToManyExternalCmd(
+								tpe,
+								foreignEE,
+								ci.asInstanceOf[ColumnInfoTraversableOneToMany[ID, T, Any, Any]],
+								newVM,
+								added.toList) :: Nil
 						}
 
 					/**
