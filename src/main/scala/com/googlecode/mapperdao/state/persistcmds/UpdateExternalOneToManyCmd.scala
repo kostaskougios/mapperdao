@@ -11,7 +11,8 @@ import state.prioritise.Priority
  */
 case class UpdateExternalOneToManyCmd[ID, T, FID, FT](
 	foreignEntity: ExternalEntity[FID, FT],
-	manyToMany: ColumnInfoTraversableOneToMany[ID, T, FID, FT],
+	oneToMany: ColumnInfoTraversableOneToMany[ID, T, FID, FT],
+	entityVM: ValuesMap,
 	added: Traversable[FT],
 	intersection: Traversable[FT],
 	removed: Traversable[FT]

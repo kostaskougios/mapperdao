@@ -24,17 +24,49 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 			val inserted = mapperDao.insert(PersonEntity, person)
 			inserted should be === person
 			HouseEntity.onInsertCalls should be === 1
+			HouseEntity.added should be(HouseEntity.currentData)
 
 			mapperDao.select(PersonEntity, inserted.id).get should be === inserted
 		}
 
-		test("update") {
+		test("update, remove") {
 			createTables
 
 			val person = Person("p1", HouseEntity.currentData.toSet)
 			val inserted = mapperDao.insert(PersonEntity, person)
 			val toUpdate = Person("p1-1", inserted.owns.filter(_.id == 11))
 			val updated = mapperDao.update(PersonEntity, inserted, toUpdate)
+			HouseEntity.removed should be(List(House(10, "House10")))
+			HouseEntity.added should be(Nil)
+			HouseEntity.intersection should be(Nil)
+			updated should be === toUpdate
+			mapperDao.select(PersonEntity, inserted.id).get should be === updated
+		}
+
+		test("update, add") {
+			createTables
+
+			val person = Person("p1", Set(House(10, "H10")))
+			val inserted = mapperDao.insert(PersonEntity, person)
+			val toUpdate = Person("p1-1", inserted.owns + House(11, "H11"))
+			val updated = mapperDao.update(PersonEntity, inserted, toUpdate)
+			HouseEntity.added should be(List(House(11, "House11")))
+			HouseEntity.removed should be(Nil)
+			HouseEntity.intersection should be(Nil)
+			updated should be === toUpdate
+			mapperDao.select(PersonEntity, inserted.id).get should be === updated
+		}
+
+		test("update, intersect") {
+			createTables
+
+			val person = Person("p1", Set(House(10, "H10")))
+			val inserted = mapperDao.insert(PersonEntity, person)
+			val toUpdate = Person("p1-1", Set(House(10, "updated")))
+			val updated = mapperDao.update(PersonEntity, inserted, toUpdate)
+			HouseEntity.added should be(Nil)
+			HouseEntity.removed should be(Nil)
+			HouseEntity.intersection should be(List(House(10, "updated")))
 			updated should be === toUpdate
 			mapperDao.select(PersonEntity, inserted.id).get should be === updated
 		}
@@ -60,14 +92,14 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 	}
 
 	def createTables {
-		HouseEntity.onDeleteCount = 0
+		HouseEntity.reset()
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
 
 	case class Person(var name: String, owns: Set[House])
 
-	case class House(val id: Int, val address: String)
+	case class House(id: Int, address: String)
 
 	object PersonEntity extends Entity[Int, Person] {
 		type Stored = SurrogateIntId
@@ -82,11 +114,23 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 	object HouseEntity extends ExternalEntity[Int, House] {
 
-		var currentData = List(House(10, "House10"), House(11, "House11"))
+		var currentData: List[House] = Nil
+		var added: List[House] = Nil
+		var intersection: List[House] = Nil
+		var removed: List[House] = Nil
+
+		def reset() {
+			onInsertCalls = 0
+			added = Nil
+			intersection = Nil
+			removed = Nil
+			currentData = List(House(10, "House10"), House(11, "House11"))
+		}
 
 		var onInsertCalls = 0
 		onInsertOneToMany(PersonEntity.owns) {
-			i =>
+			case InsertExternalOneToMany(updateConfig, newVM, added) =>
+				this.added = added.toList
 				onInsertCalls += 1
 		}
 		onSelectOneToMany(PersonEntity.owns) {
@@ -96,8 +140,11 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 			}
 		}
 		onUpdateOneToMany(PersonEntity.owns) {
-			u =>
-				currentData = (u.added ++ u.intersection).toList
+			case UpdateExternalOneToMany(updateConfig, newVM, added, intersection, removed) =>
+				this.added = added.toList
+				this.intersection = intersection.toList
+				this.removed = removed.toList
+				currentData = (added ++ intersection).toList
 		}
 
 		var onDeleteCount = 0

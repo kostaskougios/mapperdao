@@ -177,7 +177,7 @@ abstract class ExternalEntity[FID, F](table: String, clz: Class[F]) extends Enti
 	 */
 	type OnInsertOneToMany[T] = InsertExternalOneToMany[F] => Unit
 	type OnSelectOneToMany = SelectExternalOneToMany => List[F]
-	type OnUpdateOneToMany[T] = UpdateExternalOneToMany[T, F] => Unit
+	type OnUpdateOneToMany[T] = UpdateExternalOneToMany[F] => Unit
 	type OnDeleteOneToMany[T] = DeleteExternalOneToMany[T, F] => Unit
 	private[mapperdao] val oneToManyOnInsertMap = new MapWithDefault[ColumnInfoTraversableOneToMany[_, _, _, F], OnInsertOneToMany[_]]("onInsertOneToMany must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] val oneToManyOnSelectMap = new MapWithDefault[ColumnInfoTraversableOneToMany[_, _, _, F], OnSelectOneToMany]("onSelectOneToMany must be called for External Entity %s".format(getClass.getName))
@@ -255,7 +255,7 @@ case class InsertExternalOneToMany[F](updateConfig: UpdateConfig, newVM: ValuesM
 
 case class SelectExternalOneToMany(selectConfig: SelectConfig, foreignIds: List[Any])
 
-case class UpdateExternalOneToMany[T, F](
+case class UpdateExternalOneToMany[F](
 	updateConfig: UpdateConfig,
 	newVM: ValuesMap,
 	added: Traversable[F],

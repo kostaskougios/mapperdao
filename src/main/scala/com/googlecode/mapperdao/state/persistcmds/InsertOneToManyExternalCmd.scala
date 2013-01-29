@@ -10,7 +10,6 @@ import state.prioritise.Priority
  *          Date: 27/12/12
  */
 case class InsertOneToManyExternalCmd[ID, T, FID, FT](
-	tpe: Type[ID, T],
 	foreignEntity: ExternalEntity[FID, FT],
 	oneToMany: ColumnInfoTraversableOneToMany[ID, T, FID, FT],
 	entityVM: ValuesMap,

@@ -169,10 +169,17 @@ class CmdToDatabase(
 			ExternalEntityPersistedNode(foreignEntity, fo) :: Nil
 		case UpdateExternalManyToOneCmd(foreignEntity, fo) =>
 			ExternalEntityPersistedNode(foreignEntity, fo) :: Nil
-		case InsertOneToManyExternalCmd(tpe, foreignEntity, oneToMany, entityVM, added) =>
+		case InsertOneToManyExternalCmd(foreignEntity, oneToMany, entityVM, added) =>
 			val ue = InsertExternalOneToMany(updateConfig, entityVM, added)
 			foreignEntity.oneToManyOnInsertMap(oneToMany)(ue)
 			added.map {
+				fo =>
+					ExternalEntityPersistedNode(foreignEntity, fo)
+			}
+		case UpdateExternalOneToManyCmd(foreignEntity, oneToMany, entityVM, added, intersected, removed) =>
+			val ue = UpdateExternalOneToMany(updateConfig, entityVM, added, intersected, removed)
+			foreignEntity.oneToManyOnUpdateMap(oneToMany)(ue)
+			(added ++ intersected ++ removed).map {
 				fo =>
 					ExternalEntityPersistedNode(foreignEntity, fo)
 			}
@@ -239,7 +246,9 @@ class CmdToDatabase(
 				None
 			case UpdateExternalManyToManyCmd(_, _, _) =>
 				None
-			case InsertOneToManyExternalCmd(tpe, foreignEntity, manyToMany, entityVM, foreignO) =>
+			case InsertOneToManyExternalCmd(foreignEntity, oneToMany, entityVM, added) =>
+				None
+			case UpdateExternalOneToManyCmd(foreignEntity, oneToMany, entityVM, added, intersected, removed) =>
 				None
 		}
 }

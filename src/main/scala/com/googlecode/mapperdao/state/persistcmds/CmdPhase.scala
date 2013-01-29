@@ -288,13 +288,13 @@ class CmdPhase(typeManager: TypeManager) {
 							UpdateExternalOneToManyCmd(
 								foreignEE,
 								ci.asInstanceOf[ColumnInfoTraversableOneToMany[ID, T, Any, Any]],
+								newVM,
 								added.toList,
 								intersect.toList,
 								removed.toList) :: Nil
 						} else {
 							val added = newVM.oneToMany(column)
 							InsertOneToManyExternalCmd(
-								tpe,
 								foreignEE,
 								ci.asInstanceOf[ColumnInfoTraversableOneToMany[ID, T, Any, Any]],
 								newVM,
