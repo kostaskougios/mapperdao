@@ -38,7 +38,7 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 			val updated = mapperDao.update(PersonEntity, inserted, toUpdate)
 			HouseEntity.removed should be(List(House(10, "House10")))
 			HouseEntity.added should be(Nil)
-			HouseEntity.intersection should be(Nil)
+			HouseEntity.intersection should be((House(11, "House11"), House(11, "House11")) :: Nil)
 			updated should be === toUpdate
 			mapperDao.select(PersonEntity, inserted.id).get should be === updated
 		}
@@ -50,9 +50,9 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 			val inserted = mapperDao.insert(PersonEntity, person)
 			val toUpdate = Person("p1-1", inserted.owns + House(11, "H11"))
 			val updated = mapperDao.update(PersonEntity, inserted, toUpdate)
-			HouseEntity.added should be(List(House(11, "House11")))
+			HouseEntity.added should be(List(House(11, "H11")))
 			HouseEntity.removed should be(Nil)
-			HouseEntity.intersection should be(Nil)
+			HouseEntity.intersection should be(List((House(10, "H10"), House(10, "H10"))))
 			updated should be === toUpdate
 			mapperDao.select(PersonEntity, inserted.id).get should be === updated
 		}
@@ -62,11 +62,12 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 			val person = Person("p1", Set(House(10, "H10")))
 			val inserted = mapperDao.insert(PersonEntity, person)
-			val toUpdate = Person("p1-1", Set(House(10, "updated")))
+			inserted.owns.head.address = "updated"
+			val toUpdate = Person("p1-1", inserted.owns)
 			val updated = mapperDao.update(PersonEntity, inserted, toUpdate)
 			HouseEntity.added should be(Nil)
 			HouseEntity.removed should be(Nil)
-			HouseEntity.intersection should be(List(House(10, "updated")))
+			HouseEntity.intersection should be(List((House(10, "updated"), House(10, "updated"))))
 			updated should be === toUpdate
 			mapperDao.select(PersonEntity, inserted.id).get should be === updated
 		}
@@ -99,7 +100,7 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 	case class Person(var name: String, owns: Set[House])
 
-	case class House(id: Int, address: String)
+	case class House(id: Int, var address: String)
 
 	object PersonEntity extends Entity[Int, Person] {
 		type Stored = SurrogateIntId
@@ -116,7 +117,7 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 		var currentData: List[House] = Nil
 		var added: List[House] = Nil
-		var intersection: List[House] = Nil
+		var intersection: List[(House, House)] = Nil
 		var removed: List[House] = Nil
 
 		def reset() {
@@ -144,7 +145,7 @@ class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 				this.added = added.toList
 				this.intersection = intersection.toList
 				this.removed = removed.toList
-				currentData = (added ++ intersection).toList
+				currentData = (added ++ intersection.map(_._2)).toList
 		}
 
 		var onDeleteCount = 0

@@ -179,9 +179,12 @@ class CmdToDatabase(
 		case UpdateExternalOneToManyCmd(foreignEntity, oneToMany, entityVM, added, intersected, removed) =>
 			val ue = UpdateExternalOneToMany(updateConfig, entityVM, added, intersected, removed)
 			foreignEntity.oneToManyOnUpdateMap(oneToMany)(ue)
-			(added ++ intersected ++ removed).map {
+			(added ++ removed).map {
 				fo =>
 					ExternalEntityPersistedNode(foreignEntity, fo)
+			} ++ intersected.map {
+				case (o, n) =>
+					ExternalEntityPersistedNode(foreignEntity, n)
 			}
 	}.flatten
 

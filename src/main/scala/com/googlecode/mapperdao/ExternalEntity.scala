@@ -259,7 +259,7 @@ case class UpdateExternalOneToMany[F](
 	updateConfig: UpdateConfig,
 	newVM: ValuesMap,
 	added: Traversable[F],
-	intersection: Traversable[F],
+	intersection: Traversable[(F, F)],
 	removed: Traversable[F]
 	)
 

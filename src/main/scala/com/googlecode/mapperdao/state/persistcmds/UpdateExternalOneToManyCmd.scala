@@ -14,7 +14,7 @@ case class UpdateExternalOneToManyCmd[ID, T, FID, FT](
 	oneToMany: ColumnInfoTraversableOneToMany[ID, T, FID, FT],
 	entityVM: ValuesMap,
 	added: Traversable[FT],
-	intersection: Traversable[FT],
+	intersection: Traversable[(FT, FT)],
 	removed: Traversable[FT]
 	) extends PersistCmd {
 	def priority = Priority.Low
