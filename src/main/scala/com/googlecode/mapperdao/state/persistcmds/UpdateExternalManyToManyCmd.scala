@@ -9,10 +9,14 @@ import state.prioritise.Priority
  * @author: kostas.kougios
  *          Date: 28/12/12
  */
-case class UpdateExternalManyToManyCmd[T, FID, FT](
+case class UpdateExternalManyToManyCmd[ID, T, FID, FT](
+	entity: Entity[ID, T],
+	newVM: ValuesMap,
 	foreignEntity: ExternalEntity[FID, FT],
 	manyToMany: ColumnInfoTraversableManyToMany[T, FID, FT],
-	fo: FT
+	added: Traversable[FT],
+	intersection: Traversable[(FT, FT)],
+	removed: Traversable[FT]
 	) extends PersistCmd {
 	def priority = Priority.Low
 }
