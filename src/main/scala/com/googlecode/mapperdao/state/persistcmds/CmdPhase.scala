@@ -105,19 +105,7 @@ class CmdPhase(typeManager: TypeManager) {
 							// and removed from the collection
 							val (added, intersect, removed) = TraversableSeparation.separate(foreignEntity, oldT, newT)
 
-							val addedCmds = added.map {
-								fo =>
-									InsertManyToManyExternalCmd(
-										tpe,
-										foreignEE,
-										ci.asInstanceOf[ColumnInfoTraversableManyToMany[T, Any, Any]],
-										newVM,
-										fo)
-							}.toList
-							(
-								UpdateExternalManyToManyCmd(tpe, newVM, foreignEE, ci.asInstanceOf[ColumnInfoTraversableManyToMany[T, Any, Any]], added, intersect, removed)
-									:: addedCmds
-								)
+							UpdateExternalManyToManyCmd(tpe, newVM, foreignEE, ci.asInstanceOf[ColumnInfoTraversableManyToMany[T, Any, Any]], added, intersect, removed) :: Nil
 						} else {
 							newVM.manyToMany(column).map {
 								fo =>

@@ -149,7 +149,7 @@ class CmdToDatabase(
 					case DeleteManyToManyCmd(entity, foreignEntity, manyToMany, entityVM, foreignEntityVM) =>
 						val bo = BatchOptions(driver.batchStrategy(false), Array())
 						jdbc.batchUpdate(bo, sql, args)
-					case InsertManyToManyExternalCmd(_, _, _, _, _) =>
+					case UpdateExternalManyToManyCmd(_, _, _, _, _, _, _) =>
 						val bo = BatchOptions(driver.batchStrategy(false), Array())
 						jdbc.batchUpdate(bo, sql, args)
 				}
@@ -161,8 +161,6 @@ class CmdToDatabase(
 			EntityPersistedNode(tpe, None, newVM, mainEntity) :: Nil
 		case UpdateCmd(tpe, oldVM, newVM, _, mainEntity) =>
 			EntityPersistedNode(tpe, Some(oldVM), newVM, mainEntity) :: Nil
-		case InsertManyToManyExternalCmd(tpe, foreignEntity, manyToMany, entityVM, foreignO) =>
-			ExternalEntityPersistedNode(foreignEntity, foreignO) :: Nil
 		case UpdateExternalManyToManyCmd(tpe, newVM, foreignEntity, manyToMany, added, intersect, removed) =>
 			val add = added.map {
 				fo =>
@@ -250,22 +248,24 @@ class CmdToDatabase(
 				val args = vm.toListOfPrimaryKeyAndValueTuple(tpe)
 				driver.deleteSql(tpe, args).result :: Nil
 
-			case InsertManyToManyExternalCmd(tpe, foreignEntity, manyToMany, entityVM, fo) =>
-				val left = entityVM.toListOfPrimaryKeys(tpe)
-				val ie = InsertExternalManyToMany(updateConfig, fo)
-				val right = foreignEntity.manyToManyOnInsertMap(manyToMany)(ie)
-				driver.insertManyToManySql(manyToMany.column, left, right.values).result :: Nil
 			case UpdateExternalManyToOneCmd(_, _) =>
 				Nil
 			case UpdateExternalManyToManyCmd(tpe, newVM, foreignEntity, manyToMany, added, intersection, removed) =>
-				val sqls = removed.map {
+				val rSqls = removed.map {
 					fo =>
 						val left = newVM.toListOfPrimaryKeys(tpe)
 						val de = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Remove, fo)
 						val right = foreignEntity.manyToManyOnUpdateMap(manyToMany)(de)
 						driver.deleteManyToManySql(manyToMany.column, left, right.values).result
-				}
-				sqls.toList
+				}.toList
+				val aSqls = added.map {
+					fo =>
+						val left = newVM.toListOfPrimaryKeys(tpe)
+						val ie = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Add, fo)
+						val right = foreignEntity.manyToManyOnUpdateMap(manyToMany)(de)
+						driver.insertManyToManySql(manyToMany.column, left, right.values).result :: Nil
+				}.toList
+				(rSqls ::: aSqls).toList
 			case InsertOneToManyExternalCmd(foreignEntity, oneToMany, entityVM, added) =>
 				Nil
 			case UpdateExternalOneToManyCmd(foreignEntity, oneToMany, entityVM, added, intersected, removed) =>

@@ -63,20 +63,12 @@ abstract class ExternalEntity[FID, F](table: String, clz: Class[F]) extends Enti
 	/**
 	 * support for many-to-many mapping
 	 */
-	type OnInsertManyToMany = InsertExternalManyToMany[F] => PrimaryKeysValues
 	type OnSelectManyToMany[T] = SelectExternalManyToMany => List[F]
 	type OnUpdateManyToMany[T] = UpdateExternalManyToMany[F] => PrimaryKeysValues
 	type OnDeleteManyToMany[T] = DeleteExternalManyToMany[F] => Unit
-	private[mapperdao] val manyToManyOnInsertMap = new MapWithDefault[ColumnInfoTraversableManyToMany[_, _, F], OnInsertManyToMany]("onInsertManyToMany must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] val manyToManyOnSelectMap = new MapWithDefault[ColumnInfoTraversableManyToMany[_, _, F], OnSelectManyToMany[_]]("onSelectManyToMany must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] val manyToManyOnUpdateMap = new MapWithDefault[ColumnInfoTraversableManyToMany[_, _, F], OnUpdateManyToMany[_]]("onUpdateManyToMany must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] val manyToManyOnDeleteMap = new MapWithDefault[ColumnInfoTraversableManyToMany[_, _, F], OnDeleteManyToMany[_]]("onDeleteManyToMany must be called for External Entity %s".format(getClass.getName))
-
-	def onInsertManyToMany[T](ci: => ColumnInfoTraversableManyToMany[T, _, F])(handler: OnInsertManyToMany) = lazyActions(() => manyToManyOnInsertMap +(ci, handler))
-
-	def onInsertManyToMany(handler: OnInsertManyToMany) {
-		manyToManyOnInsertMap.default = Some(handler)
-	}
 
 	def onSelectManyToMany[T](ci: => ColumnInfoTraversableManyToMany[T, _, F])(handler: OnSelectManyToMany[T]) = lazyActions(() => manyToManyOnSelectMap +(ci, handler))
 
@@ -213,8 +205,6 @@ object PrimaryKeysValues {
 
 	def apply(value1: Any, value2: Any): PrimaryKeysValues = PrimaryKeysValues(List(value1, value2))
 }
-
-case class InsertExternalManyToMany[F](updateConfig: UpdateConfig, foreign: F)
 
 case class SelectExternalManyToMany(selectConfig: SelectConfig, foreignIds: List[List[Any]] /* a list of the id's as an other list */)
 
