@@ -10,7 +10,7 @@ import state.prioritise.Priority
  *          Date: 28/12/12
  */
 case class UpdateExternalManyToManyCmd[ID, T, FID, FT](
-	entity: Entity[ID, T],
+	tpe: Type[ID, T],
 	newVM: ValuesMap,
 	foreignEntity: ExternalEntity[FID, FT],
 	manyToMany: ColumnInfoTraversableManyToMany[T, FID, FT],

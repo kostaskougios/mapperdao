@@ -59,7 +59,7 @@ class CmdToDatabaseSuite extends FunSuite with ShouldMatchers with EasyMockSugar
 		val sqls = cmdList.map {
 			cmd =>
 				ctb.toSql(cmd)
-		}.filter(_ != None).map(_.get)
+		}.flatten
 
 		val sql = sqls.map(s => jdbc.toString(s.sql, s.values)).mkString("\n")
 		sql should be(

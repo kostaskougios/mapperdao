@@ -149,7 +149,7 @@ class CmdToDatabase(
 					case DeleteManyToManyCmd(entity, foreignEntity, manyToMany, entityVM, foreignEntityVM) =>
 						val bo = BatchOptions(driver.batchStrategy(false), Array())
 						jdbc.batchUpdate(bo, sql, args)
-					case InsertManyToManyExternalCmd(_, _, _, _, _) | DeleteManyToManyExternalCmd(_, _, _, _, _) =>
+					case InsertManyToManyExternalCmd(_, _, _, _, _) =>
 						val bo = BatchOptions(driver.batchStrategy(false), Array())
 						jdbc.batchUpdate(bo, sql, args)
 				}
@@ -163,25 +163,25 @@ class CmdToDatabase(
 			EntityPersistedNode(tpe, Some(oldVM), newVM, mainEntity) :: Nil
 		case InsertManyToManyExternalCmd(tpe, foreignEntity, manyToMany, entityVM, foreignO) =>
 			ExternalEntityPersistedNode(foreignEntity, foreignO) :: Nil
-		case UpdateExternalManyToManyCmd(entity, newVM, foreignEntity, manyToMany, added, intersect, removed) =>
+		case UpdateExternalManyToManyCmd(tpe, newVM, foreignEntity, manyToMany, added, intersect, removed) =>
 			val add = added.map {
 				fo =>
 					val ue = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Add, fo)
 					foreignEntity.manyToManyOnUpdateMap(manyToMany)(ue)
 					ExternalEntityPersistedNode(foreignEntity, fo)
-			}
+			}.toList
 			val in = intersect.map {
-				fo =>
-					val ue = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Update, fo)
+				case (oldO, newO) =>
+					val ue = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Update, newO)
 					foreignEntity.manyToManyOnUpdateMap(manyToMany)(ue)
-					ExternalEntityPersistedNode(foreignEntity, fo)
-			}
+					ExternalEntityPersistedNode(foreignEntity, newO)
+			}.toList
 			val rem = removed.map {
 				fo =>
 					val ue = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Remove, fo)
 					foreignEntity.manyToManyOnUpdateMap(manyToMany)(ue)
 					ExternalEntityPersistedNode(foreignEntity, fo)
-			}
+			}.toList
 			add ::: in ::: rem ::: Nil
 		case UpdateExternalManyToOneCmd(foreignEntity, fo) =>
 			ExternalEntityPersistedNode(foreignEntity, fo) :: Nil
@@ -214,13 +214,13 @@ class CmdToDatabase(
 							cmd
 						)
 				}
-		}
+		}.flatten
 
 	protected[jdbc] def toSql(cmd: PersistCmd): List[driver.sqlBuilder.Result] =
 		cmd match {
 			case ic@InsertCmd(tpe, newVM, columns, _) =>
 				persistedIdentities += ic.identity
-				driver.insertSql(tpe, columns ::: prioritized.relatedColumns(newVM, false).distinct).result
+				driver.insertSql(tpe, columns ::: prioritized.relatedColumns(newVM, false).distinct).result :: Nil
 
 			case uc@UpdateCmd(tpe, oldVM, newVM, columns, _) =>
 				persistedIdentities += uc.identity
@@ -257,10 +257,10 @@ class CmdToDatabase(
 				driver.insertManyToManySql(manyToMany.column, left, right.values).result :: Nil
 			case UpdateExternalManyToOneCmd(_, _) =>
 				Nil
-			case UpdateExternalManyToManyCmd(entity, newVM, foreignEntity, manyToMany, added, intersection, removed) =>
+			case UpdateExternalManyToManyCmd(tpe, newVM, foreignEntity, manyToMany, added, intersection, removed) =>
 				val sqls = removed.map {
 					fo =>
-						val left = newVM.toListOfPrimaryKeys(entity.tpe)
+						val left = newVM.toListOfPrimaryKeys(tpe)
 						val de = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Remove, fo)
 						val right = foreignEntity.manyToManyOnUpdateMap(manyToMany)(de)
 						driver.deleteManyToManySql(manyToMany.column, left, right.values).result
