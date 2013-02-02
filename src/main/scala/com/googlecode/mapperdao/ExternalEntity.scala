@@ -148,18 +148,12 @@ abstract class ExternalEntity[FID, F](table: String, clz: Class[F]) extends Enti
 	/**
 	 * support for one-to-many mapping
 	 */
-	type OnInsertOneToMany[T] = InsertExternalOneToMany[F] => Unit
 	type OnSelectOneToMany = SelectExternalOneToMany => List[F]
 	type OnUpdateOneToMany[T] = UpdateExternalOneToMany[F] => Unit
 	type OnDeleteOneToMany[T] = DeleteExternalOneToMany[T, F] => Unit
-	private[mapperdao] val oneToManyOnInsertMap = new MapWithDefault[ColumnInfoTraversableOneToMany[_, _, _, F], OnInsertOneToMany[_]]("onInsertOneToMany must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] val oneToManyOnSelectMap = new MapWithDefault[ColumnInfoTraversableOneToMany[_, _, _, F], OnSelectOneToMany]("onSelectOneToMany must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] val oneToManyOnUpdateMap = new MapWithDefault[ColumnInfoTraversableOneToMany[_, _, _, F], OnUpdateOneToMany[_]]("onUpdateOneToMany must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] val oneToManyOnDeleteMap = new MapWithDefault[ColumnInfoTraversableOneToMany[_, _, _, F], OnDeleteOneToMany[_]]("onUpdateOneToMany must be called for External Entity %s".format(getClass.getName))
-
-	def onInsertOneToMany[T](ci: => ColumnInfoTraversableOneToMany[_, T, _, F])(handler: OnInsertOneToMany[T]) = lazyActions(() => oneToManyOnInsertMap +(ci, handler))
-
-	def onInsertOneToMany(handler: OnInsertOneToMany[Any]) = oneToManyOnInsertMap.default = Some(handler)
 
 	def onSelectOneToMany(ci: => ColumnInfoTraversableOneToMany[_, _, _, F])(handler: OnSelectOneToMany) = lazyActions(() => oneToManyOnSelectMap +(ci, handler))
 
@@ -205,8 +199,6 @@ case class UpdateExternalManyToOne[F](updateConfig: UpdateConfig, foreign: F)
 case class SelectExternalManyToOne[F](selectConfig: SelectConfig, primaryKeys: List[Any])
 
 case class DeleteExternalManyToOne[F](deleteConfig: DeleteConfig, foreign: F)
-
-case class InsertExternalOneToMany[F](updateConfig: UpdateConfig, newVM: ValuesMap, added: Traversable[F])
 
 case class SelectExternalOneToMany(selectConfig: SelectConfig, foreignIds: List[Any])
 

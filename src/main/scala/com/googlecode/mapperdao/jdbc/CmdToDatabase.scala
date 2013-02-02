@@ -178,8 +178,8 @@ class CmdToDatabase(
 		case UpdateExternalManyToOneCmd(foreignEntity, ci, newVM, fo) =>
 			ExternalEntityPersistedNode(foreignEntity, fo) :: Nil
 		case InsertOneToManyExternalCmd(foreignEntity, oneToMany, entityVM, added) =>
-			val ue = InsertExternalOneToMany(updateConfig, entityVM, added)
-			foreignEntity.oneToManyOnInsertMap(oneToMany)(ue)
+			val ue = UpdateExternalOneToMany(updateConfig, entityVM, added, Nil, Nil)
+			foreignEntity.oneToManyOnUpdateMap(oneToMany)(ue)
 			added.map {
 				fo =>
 					ExternalEntityPersistedNode(foreignEntity, fo)
