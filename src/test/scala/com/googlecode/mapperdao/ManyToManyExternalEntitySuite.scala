@@ -86,6 +86,17 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 			mapperDao.update(ProductEntity, inserted, product.copy(attributes = inserted.attributes + newA1 + newA2))
 			AttributeEntity.added.toSet should be(Set(newA1, newA2))
 		}
+
+		test("updated valid when updating") {
+			createTables
+
+			val product = Product("p1", Set(Attribute(10, "x10")))
+			val inserted = mapperDao.insert(ProductEntity, product)
+			resetAE()
+			val newA1 = Attribute(11, "x11")
+			mapperDao.update(ProductEntity, inserted, product.copy(attributes = inserted.attributes + newA1))
+			AttributeEntity.updated.toSet should be(product.attributes)
+		}
 	}
 
 	def createTables {

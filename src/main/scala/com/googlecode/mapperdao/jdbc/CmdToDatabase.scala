@@ -252,6 +252,13 @@ class CmdToDatabase(
 						val right = foreignEntity.manyToManyOnUpdateMap(manyToMany)(de)
 						driver.deleteManyToManySql(manyToMany.column, left, right.values).result
 				}.toList
+
+				intersection.foreach {
+					case (oldFo, newFo) =>
+						val ie = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Update, newFo)
+						foreignEntity.manyToManyOnUpdateMap(manyToMany)(ie)
+				}
+
 				val aSqls = added.map {
 					fo =>
 						val left = newVM.toListOfPrimaryKeys(tpe)
