@@ -162,12 +162,14 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 		onUpdateManyToMany(ProductEntity.attributes) {
 			u =>
 				u match {
-					case InsertExternalManyToMany(_, a) =>
-						added = a :: added
-					case UpdateExternalManyToMany(_, a) =>
-						updated = a :: updated
-					case DeleteExternalManyToMany(_, a) =>
-						removed = a :: removed
+					case InsertExternalManyToMany(_, all) =>
+						added = all.toList ::: added
+					case UpdateExternalManyToMany(_, all) =>
+						updated = all.toList.map {
+							case (oldV, newV) => newV
+						} ::: updated
+					case DeleteExternalManyToMany(_, all) =>
+						removed = all.toList ::: removed
 				}
 		}
 	}

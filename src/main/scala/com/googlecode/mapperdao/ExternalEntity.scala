@@ -181,18 +181,16 @@ abstract class ExternalEntity[FID, F](table: String, clz: Class[F]) extends Enti
 
 case class SelectExternalManyToMany(selectConfig: SelectConfig, foreignIds: List[List[Any]] /* a list of the id's as an other list */)
 
-trait ExternalManyToMany[F] {
-	val foreign: F
-}
+trait ExternalManyToMany[F]
 
 /**
  * these case classes are passed on as parameters to external entities update handlers
  */
-case class InsertExternalManyToMany[F](updateConfig: UpdateConfig, foreign: F) extends ExternalManyToMany[F]
+case class InsertExternalManyToMany[F](updateConfig: UpdateConfig, added: Traversable[F]) extends ExternalManyToMany[F]
 
-case class UpdateExternalManyToMany[F](updateConfig: UpdateConfig, foreign: F) extends ExternalManyToMany[F]
+case class UpdateExternalManyToMany[F](updateConfig: UpdateConfig, updated: Traversable[(F, F)]) extends ExternalManyToMany[F]
 
-case class DeleteExternalManyToMany[F](deleteConfig: DeleteConfig, foreign: F) extends ExternalManyToMany[F]
+case class DeleteExternalManyToMany[F](deleteConfig: DeleteConfig, removed: Traversable[F]) extends ExternalManyToMany[F]
 
 case class InsertExternalOneToOneReverse[T, F](updateConfig: UpdateConfig, entity: T, foreign: F)
 
