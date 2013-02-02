@@ -67,20 +67,38 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 			mapperDao.select(ProductEntity, inserted.id).get should be === updated
 		}
 
-		test("added when inserting") {
+		test("added valid when inserting") {
 			createTables
 
 			val product = Product("p1", Set(Attribute(10, "x10"), Attribute(20, "x20")))
 			mapperDao.insert(ProductEntity, product)
-			AttributeEntity.us.size should be(2)
+			AttributeEntity.added.toSet should be(product.attributes)
+		}
+
+		test("added valid when updating") {
+			createTables
+
+			val product = Product("p1", Set(Attribute(10, "x10")))
+			val inserted = mapperDao.insert(ProductEntity, product)
+			resetAE()
+			val newA1 = Attribute(11, "x11")
+			val newA2 = Attribute(12, "x12")
+			mapperDao.update(ProductEntity, inserted, product.copy(attributes = inserted.attributes + newA1 + newA2))
+			AttributeEntity.added.toSet should be(Set(newA1, newA2))
 		}
 	}
 
 	def createTables {
-		AttributeEntity.onDeleteCalled = 0
-		AttributeEntity.us = Nil
+		resetAE()
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
+	}
+
+	def resetAE() {
+		AttributeEntity.onDeleteCalled = 0
+		AttributeEntity.added = Nil
+		AttributeEntity.updated = Nil
+		AttributeEntity.removed = Nil
 	}
 
 	case class Product(val name: String, val attributes: Set[Attribute])
@@ -100,7 +118,9 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 	object AttributeEntity extends ExternalEntity[Int, Attribute] {
 		val id = key("id") to (_.id)
-		var us = List[UpdateExternalManyToMany[Attribute]]()
+		var added = List[Attribute]()
+		var updated = List[Attribute]()
+		var removed = List[Attribute]()
 
 		onSelectManyToMany(ProductEntity.attributes) {
 			s =>
@@ -113,8 +133,16 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 		onUpdateManyToMany(ProductEntity.attributes) {
 			u =>
-				us = u :: us
-				PrimaryKeysValues(u.foreign.id)
+				val attribute = u.foreign
+				u.operation match {
+					case UpdateExternalManyToMany.Operation.Add =>
+						added = attribute :: added
+					case UpdateExternalManyToMany.Operation.Remove =>
+						removed = attribute :: removed
+					case UpdateExternalManyToMany.Operation.Update =>
+						updated = attribute :: updated
+				}
+				PrimaryKeysValues(attribute.id)
 		}
 
 		var onDeleteCalled = 0
