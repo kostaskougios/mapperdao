@@ -103,12 +103,10 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 		onInsertManyToOne(PersonEntity.house) {
 			i =>
-				PrimaryKeysValues(i.foreign.id)
 		}
 
 		onUpdateManyToOne(PersonEntity.house) {
 			u =>
-				PrimaryKeysValues(u.foreign.id)
 		}
 
 		onSelectManyToOne(PersonEntity.house) {

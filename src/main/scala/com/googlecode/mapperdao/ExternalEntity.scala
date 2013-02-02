@@ -64,7 +64,7 @@ abstract class ExternalEntity[FID, F](table: String, clz: Class[F]) extends Enti
 	 * support for many-to-many mapping
 	 */
 	type OnSelectManyToMany[T] = SelectExternalManyToMany => List[F]
-	type OnUpdateManyToMany[T] = ExternalManyToMany[F] => PrimaryKeysValues
+	type OnUpdateManyToMany[T] = ExternalManyToMany[F] => Unit
 	private[mapperdao] val manyToManyOnSelectMap = new MapWithDefault[ColumnInfoTraversableManyToMany[_, _, F], OnSelectManyToMany[_]]("onSelectManyToMany must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] val manyToManyOnUpdateMap = new MapWithDefault[ColumnInfoTraversableManyToMany[_, _, F], OnUpdateManyToMany[_]]("onUpdateManyToMany must be called for External Entity %s".format(getClass.getName))
 
@@ -119,11 +119,11 @@ abstract class ExternalEntity[FID, F](table: String, clz: Class[F]) extends Enti
 	/**
 	 * support for many-to-one mapping
 	 */
-	type OnInsertManyToOne = InsertExternalManyToOne[F] => PrimaryKeysValues
+	type OnInsertManyToOne = InsertExternalManyToOne[F] => Unit
 	// return the primary keys
 	type OnSelectManyToOne[T] = SelectExternalManyToOne[T, F] => F
 	// return the actual one-value
-	type OnUpdateManyToOne[T] = UpdateExternalManyToOne[T, F] => PrimaryKeysValues
+	type OnUpdateManyToOne[T] = UpdateExternalManyToOne[T, F] => Unit
 	// return the primary keys
 	type OnDeleteManyToOne[T] = DeleteExternalManyToOne[T, F] => Unit
 
@@ -188,14 +188,6 @@ abstract class ExternalEntity[FID, F](table: String, clz: Class[F]) extends Enti
 		super.init
 		lazyActions.executeAll
 	}
-}
-
-case class PrimaryKeysValues(values: List[Any])
-
-object PrimaryKeysValues {
-	def apply(value1: Any): PrimaryKeysValues = PrimaryKeysValues(List(value1))
-
-	def apply(value1: Any, value2: Any): PrimaryKeysValues = PrimaryKeysValues(List(value1, value2))
 }
 
 case class SelectExternalManyToMany(selectConfig: SelectConfig, foreignIds: List[List[Any]] /* a list of the id's as an other list */)

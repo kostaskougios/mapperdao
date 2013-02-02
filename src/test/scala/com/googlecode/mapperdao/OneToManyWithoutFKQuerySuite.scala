@@ -48,7 +48,6 @@ class OneToManyWithoutFKQuerySuite extends FunSuite with ShouldMatchers {
 
 		onInsertManyToOne {
 			i =>
-				PrimaryKeysValues(i.foreign.id)
 		}
 		onSelectManyToOne {
 			s =>

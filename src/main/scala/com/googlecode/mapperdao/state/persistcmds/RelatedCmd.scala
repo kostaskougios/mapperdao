@@ -35,5 +35,5 @@ case class ExternalEntityRelatedCmd(
 	newVM: ValuesMap,
 	oldVMO: Option[ValuesMap],
 	foreignTpe: Type[_, _],
-	foreignKeys: PrimaryKeysValues
+	foreignKeys: List[Any]
 	) extends RelatedCmd

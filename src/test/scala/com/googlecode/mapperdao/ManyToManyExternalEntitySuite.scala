@@ -169,7 +169,6 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 					case DeleteExternalManyToMany(_, a) =>
 						removed = a :: removed
 				}
-				PrimaryKeysValues(u.foreign.id)
 		}
 	}
 

@@ -61,7 +61,7 @@ case class Prioritized(
 					if (isOld)
 						Nil
 					else
-						columns zip foreignKeys.values
+						columns zip foreignKeys
 			}
 	}.flatten
 
