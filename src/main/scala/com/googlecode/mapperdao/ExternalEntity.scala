@@ -202,7 +202,7 @@ case class UpdateExternalOneToOneReverse[T, F](updateConfig: UpdateConfig, entit
 
 case class DeleteExternalOneToOneReverse[T, F](deleteConfig: DeleteConfig, entity: T, foreign: F)
 
-case class UpdateExternalManyToOne[F](updateConfig: UpdateConfig, newVM: ValuesMap, foreign: F)
+case class UpdateExternalManyToOne[F](updateConfig: UpdateConfig, foreign: F)
 
 case class SelectExternalManyToOne[F](selectConfig: SelectConfig, primaryKeys: List[Any])
 

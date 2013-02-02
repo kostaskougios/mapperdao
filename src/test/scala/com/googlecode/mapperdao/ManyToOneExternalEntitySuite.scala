@@ -78,9 +78,7 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 	}
 
 	def createTables {
-		HouseEntity.deleted = null
-		HouseEntity.m.clear()
-		HouseEntity.updateCalled = 0
+		HouseEntity.reset()
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
@@ -107,9 +105,15 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 		val id = key("id") to (_.id)
 		val m = scala.collection.mutable.Map.empty[Int, House]
 
+		def reset() {
+			deleted = null
+			m.clear()
+			updateCalled = 0
+		}
+
 		var updateCalled = 0
 		onUpdateManyToOne(PersonEntity.house) {
-			case UpdateExternalManyToOne(updateConfig, newVM, house) =>
+			case UpdateExternalManyToOne(updateConfig, house) =>
 				updateCalled += 1
 				m(house.id) = house
 		}

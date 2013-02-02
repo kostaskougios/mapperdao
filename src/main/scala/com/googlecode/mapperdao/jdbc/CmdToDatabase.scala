@@ -243,7 +243,7 @@ class CmdToDatabase(
 				driver.deleteSql(tpe, args).result :: Nil
 
 			case UpdateExternalManyToOneCmd(foreignEE, ci, newVM, fo) =>
-				val ie = UpdateExternalManyToOne(updateConfig, newVM, fo)
+				val ie = UpdateExternalManyToOne(updateConfig, fo)
 				foreignEE.manyToOneOnUpdateMap(ci)(ie)
 				Nil
 			case UpdateExternalManyToManyCmd(tpe, newVM, foreignEntity, manyToMany, added, intersection, removed) =>
