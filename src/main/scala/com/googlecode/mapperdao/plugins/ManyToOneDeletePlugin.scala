@@ -8,7 +8,7 @@ class ManyToOneDeletePlugin extends BeforeDelete {
 		deleteConfig: DeleteConfig,
 		o: T with DeclaredIds[ID],
 		entityMap: UpdateEntityMap
-	) = Nil
+		) = Nil
 
 	override def before[ID, T](
 		entity: Entity[ID, T],
@@ -16,7 +16,7 @@ class ManyToOneDeletePlugin extends BeforeDelete {
 		o: T with DeclaredIds[ID],
 		keyValues: List[(ColumnBase, Any)],
 		entityMap: UpdateEntityMap
-	) {
+		) {
 		if (deleteConfig.propagate) {
 			entity.tpe.table.manyToOneColumnInfos.filterNot(deleteConfig.skip.contains(_)).foreach {
 				cis =>
@@ -24,8 +24,7 @@ class ManyToOneDeletePlugin extends BeforeDelete {
 						case ee: ExternalEntity[Any, Any] =>
 							val v = cis.columnToValue(o)
 							val handler = ee.manyToOneOnDeleteMap(cis.asInstanceOf[ColumnInfoManyToOne[T, _, Any]])
-								.asInstanceOf[ee.OnDeleteManyToOne[Any]]
-							handler(DeleteExternalManyToOne(deleteConfig, o, v))
+							handler(DeleteExternalManyToOne(deleteConfig, v))
 						case _ =>
 					}
 			}
