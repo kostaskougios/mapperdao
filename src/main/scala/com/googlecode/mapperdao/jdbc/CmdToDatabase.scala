@@ -164,20 +164,14 @@ class CmdToDatabase(
 		case UpdateExternalManyToManyCmd(tpe, newVM, foreignEntity, manyToMany, added, intersect, removed) =>
 			val add = added.map {
 				fo =>
-					val ue = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Add, fo)
-					foreignEntity.manyToManyOnUpdateMap(manyToMany)(ue)
 					ExternalEntityPersistedNode(foreignEntity, fo)
 			}.toList
 			val in = intersect.map {
 				case (oldO, newO) =>
-					val ue = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Update, newO)
-					foreignEntity.manyToManyOnUpdateMap(manyToMany)(ue)
 					ExternalEntityPersistedNode(foreignEntity, newO)
 			}.toList
 			val rem = removed.map {
 				fo =>
-					val ue = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Remove, fo)
-					foreignEntity.manyToManyOnUpdateMap(manyToMany)(ue)
 					ExternalEntityPersistedNode(foreignEntity, fo)
 			}.toList
 			add ::: in ::: rem ::: Nil

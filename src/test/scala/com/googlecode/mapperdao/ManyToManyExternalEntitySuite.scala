@@ -66,10 +66,19 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 			updated should be === toUpdate
 			mapperDao.select(ProductEntity, inserted.id).get should be === updated
 		}
+
+		test("added when inserting") {
+			createTables
+
+			val product = Product("p1", Set(Attribute(10, "x10"), Attribute(20, "x20")))
+			mapperDao.insert(ProductEntity, product)
+			AttributeEntity.us.size should be(2)
+		}
 	}
 
 	def createTables {
 		AttributeEntity.onDeleteCalled = 0
+		AttributeEntity.us = Nil
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
@@ -91,6 +100,7 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 	object AttributeEntity extends ExternalEntity[Int, Attribute] {
 		val id = key("id") to (_.id)
+		var us = List[UpdateExternalManyToMany[Attribute]]()
 
 		onSelectManyToMany(ProductEntity.attributes) {
 			s =>
@@ -103,6 +113,7 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 		onUpdateManyToMany(ProductEntity.attributes) {
 			u =>
+				us = u :: us
 				PrimaryKeysValues(u.foreign.id)
 		}
 
