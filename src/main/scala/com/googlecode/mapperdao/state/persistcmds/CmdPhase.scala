@@ -107,15 +107,8 @@ class CmdPhase(typeManager: TypeManager) {
 
 							UpdateExternalManyToManyCmd(tpe, newVM, foreignEE, ci.asInstanceOf[ColumnInfoTraversableManyToMany[T, Any, Any]], added, intersect, removed) :: Nil
 						} else {
-							newVM.manyToMany(column).map {
-								fo =>
-									InsertManyToManyExternalCmd(
-										tpe,
-										foreignEE,
-										ci.asInstanceOf[ColumnInfoTraversableManyToMany[T, Any, Any]],
-										newVM,
-										fo)
-							}
+							val added = newVM.manyToMany(column)
+							UpdateExternalManyToManyCmd(tpe, newVM, foreignEE, ci.asInstanceOf[ColumnInfoTraversableManyToMany[T, Any, Any]], added, Nil, Nil) :: Nil
 						}
 
 					/**

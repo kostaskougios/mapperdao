@@ -92,11 +92,6 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 	object AttributeEntity extends ExternalEntity[Int, Attribute] {
 		val id = key("id") to (_.id)
 
-		onInsertManyToMany(ProductEntity.attributes) {
-			i =>
-				PrimaryKeysValues(i.foreign.id)
-		}
-
 		onSelectManyToMany(ProductEntity.attributes) {
 			s =>
 				s.foreignIds.map {

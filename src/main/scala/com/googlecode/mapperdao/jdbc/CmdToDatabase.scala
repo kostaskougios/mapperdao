@@ -262,8 +262,8 @@ class CmdToDatabase(
 					fo =>
 						val left = newVM.toListOfPrimaryKeys(tpe)
 						val ie = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Add, fo)
-						val right = foreignEntity.manyToManyOnUpdateMap(manyToMany)(de)
-						driver.insertManyToManySql(manyToMany.column, left, right.values).result :: Nil
+						val right = foreignEntity.manyToManyOnUpdateMap(manyToMany)(ie)
+						driver.insertManyToManySql(manyToMany.column, left, right.values).result
 				}.toList
 				(rSqls ::: aSqls).toList
 			case InsertOneToManyExternalCmd(foreignEntity, oneToMany, entityVM, added) =>
