@@ -10,7 +10,7 @@ class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDaoImpl) extends B
 		deleteConfig: DeleteConfig,
 		o: T with DeclaredIds[ID],
 		entityMap: UpdateEntityMap
-	): List[(SimpleColumn, Any)] = Nil
+		): List[(SimpleColumn, Any)] = Nil
 
 	override def before[ID, T](
 		entity: Entity[ID, T],
@@ -18,7 +18,7 @@ class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDaoImpl) extends B
 		o: T with DeclaredIds[ID],
 		keyValues: List[(ColumnBase, Any)],
 		entityMap: UpdateEntityMap
-	) =
+		) =
 		if (deleteConfig.propagate) {
 			val tpe = entity.tpe
 			tpe.table.manyToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach {
@@ -28,11 +28,11 @@ class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDaoImpl) extends B
 					ci.column.foreign.entity match {
 						case ee: ExternalEntity[Any, Any] =>
 							val fos = ci.columnToValue(o)
-							val handler = ee.manyToManyOnDeleteMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, Any]])
-								.asInstanceOf[ee.OnDeleteManyToMany[T]]
+
 							fos.foreach {
 								fo =>
-									handler(DeleteExternalManyToMany(deleteConfig, fo))
+									val de = DeleteExternalManyToMany(deleteConfig, fo)
+									ee.manyToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[T, Any, Any]])(de)
 							}
 						case _ =>
 					}

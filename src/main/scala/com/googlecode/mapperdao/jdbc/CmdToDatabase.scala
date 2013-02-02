@@ -248,21 +248,21 @@ class CmdToDatabase(
 				val rSqls = removed.map {
 					fo =>
 						val left = newVM.toListOfPrimaryKeys(tpe)
-						val de = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Remove, fo)
+						val de = DeleteExternalManyToMany(updateConfig.deleteConfig, fo)
 						val right = foreignEntity.manyToManyOnUpdateMap(manyToMany)(de)
 						driver.deleteManyToManySql(manyToMany.column, left, right.values).result
 				}.toList
 
 				intersection.foreach {
 					case (oldFo, newFo) =>
-						val ie = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Update, newFo)
+						val ie = UpdateExternalManyToMany(updateConfig, newFo)
 						foreignEntity.manyToManyOnUpdateMap(manyToMany)(ie)
 				}
 
 				val aSqls = added.map {
 					fo =>
 						val left = newVM.toListOfPrimaryKeys(tpe)
-						val ie = UpdateExternalManyToMany(updateConfig, UpdateExternalManyToMany.Operation.Add, fo)
+						val ie = InsertExternalManyToMany(updateConfig, fo)
 						val right = foreignEntity.manyToManyOnUpdateMap(manyToMany)(ie)
 						driver.insertManyToManySql(manyToMany.column, left, right.values).result
 				}.toList

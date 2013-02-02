@@ -17,26 +17,6 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 	if (Setup.database == "h2") {
 
-		test("delete without propagation") {
-			createTables
-
-			val product = Product("p1", Set(Attribute(10, "x10"), Attribute(20, "x20")))
-			val inserted = mapperDao.insert(ProductEntity, product)
-			mapperDao.delete(ProductEntity, inserted)
-			mapperDao.select(ProductEntity, inserted.id) should be(None)
-			AttributeEntity.onDeleteCalled should be === 0
-		}
-
-		test("delete with propagation") {
-			createTables
-
-			val product = Product("p1", Set(Attribute(10, "x10"), Attribute(20, "x20")))
-			val inserted = mapperDao.insert(ProductEntity, product)
-			mapperDao.delete(DeleteConfig(propagate = true), ProductEntity, inserted)
-			mapperDao.select(ProductEntity, inserted.id) should be(None)
-			AttributeEntity.onDeleteCalled should be === 2
-		}
-
 		test("persists and select") {
 			createTables
 
@@ -107,6 +87,34 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 			mapperDao.update(ProductEntity, inserted, product.copy(attributes = inserted.attributes.filter(_.id == 10)))
 			AttributeEntity.removed.toSet should be(Set(Attribute(11, "x11")))
 		}
+
+		test("removed valid during update") {
+			createTables
+
+			val product = Product("p1", Set(Attribute(10, "x10"), Attribute(20, "x20")))
+			val inserted = mapperDao.insert(ProductEntity, product)
+			mapperDao.update(ProductEntity, inserted, inserted.copy(attributes = Set()))
+			AttributeEntity.removed.toSet should be(product.attributes)
+		}
+
+		test("removed during delete of parent entity, with propagation") {
+			createTables
+
+			val product = Product("p1", Set(Attribute(10, "x10"), Attribute(20, "x20")))
+			val inserted = mapperDao.insert(ProductEntity, product)
+			mapperDao.delete(DeleteConfig(propagate = true), ProductEntity, inserted)
+			AttributeEntity.removed.toSet should be(product.attributes)
+		}
+
+		test("removed during delete of parent entity, without propagation") {
+			createTables
+
+			val product = Product("p1", Set(Attribute(10, "x10"), Attribute(20, "x20")))
+			val inserted = mapperDao.insert(ProductEntity, product)
+			mapperDao.delete(ProductEntity, inserted)
+			AttributeEntity.removed.toSet should be(Set())
+		}
+
 	}
 
 	def createTables {
@@ -116,7 +124,6 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 	}
 
 	def resetAE() {
-		AttributeEntity.onDeleteCalled = 0
 		AttributeEntity.added = Nil
 		AttributeEntity.updated = Nil
 		AttributeEntity.removed = Nil
@@ -154,22 +161,15 @@ class ManyToManyExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 		onUpdateManyToMany(ProductEntity.attributes) {
 			u =>
-				val attribute = u.foreign
-				u.operation match {
-					case UpdateExternalManyToMany.Operation.Add =>
-						added = attribute :: added
-					case UpdateExternalManyToMany.Operation.Remove =>
-						removed = attribute :: removed
-					case UpdateExternalManyToMany.Operation.Update =>
-						updated = attribute :: updated
+				u match {
+					case InsertExternalManyToMany(_, a) =>
+						added = a :: added
+					case UpdateExternalManyToMany(_, a) =>
+						updated = a :: updated
+					case DeleteExternalManyToMany(_, a) =>
+						removed = a :: removed
 				}
-				PrimaryKeysValues(attribute.id)
-		}
-
-		var onDeleteCalled = 0
-		onDeleteManyToMany {
-			d =>
-				onDeleteCalled += 1
+				PrimaryKeysValues(u.foreign.id)
 		}
 	}
 
