@@ -56,9 +56,12 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 			val person = Person("kostas", House(10, "name10"))
 			val inserted = mapperDao.insert(PersonEntity, person)
+			HouseEntity.updateCalled should be(1)
 			val toUpdate = Person("kostas", House(20, "name20"))
 			val updated = mapperDao.update(PersonEntity, inserted, toUpdate)
 			updated should be === toUpdate
+
+			HouseEntity.updateCalled should be(2)
 
 			mapperDao.select(PersonEntity, inserted.id).get should be === updated
 		}
@@ -76,6 +79,8 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 	def createTables {
 		HouseEntity.onDeleteCalled = 0
+		HouseEntity.m.clear()
+		HouseEntity.updateCalled = 0
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
@@ -100,19 +105,19 @@ class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 	object HouseEntity extends ExternalEntity[Int, House] {
 		val id = key("id") to (_.id)
+		val m = scala.collection.mutable.Map.empty[Int, House]
 
-		onInsertManyToOne(PersonEntity.house) {
-			i =>
-		}
-
+		var updateCalled = 0
 		onUpdateManyToOne(PersonEntity.house) {
 			u =>
+				updateCalled += 1
+				m(u.foreign.id) = u.foreign
 		}
 
 		onSelectManyToOne(PersonEntity.house) {
 			s =>
 				s.primaryKeys match {
-					case List(id: Int) => House(id, "name" + id)
+					case List(id: Int) => m(id)
 					case _ => throw new IllegalStateException
 				}
 		}

@@ -46,8 +46,8 @@ class OneToManyWithoutFKQuerySuite extends FunSuite with ShouldMatchers {
 	object LocationEntity extends ExternalEntity[Int, Location] {
 		val id = key("id") to (_.id)
 
-		onInsertManyToOne {
-			i =>
+		onUpdateManyToOne {
+			u =>
 		}
 		onSelectManyToOne {
 			s =>

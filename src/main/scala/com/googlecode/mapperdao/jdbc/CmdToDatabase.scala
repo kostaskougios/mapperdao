@@ -175,7 +175,7 @@ class CmdToDatabase(
 					ExternalEntityPersistedNode(foreignEntity, fo)
 			}.toList
 			add ::: in ::: rem ::: Nil
-		case UpdateExternalManyToOneCmd(foreignEntity, fo) =>
+		case UpdateExternalManyToOneCmd(foreignEntity, ci, newVM, fo) =>
 			ExternalEntityPersistedNode(foreignEntity, fo) :: Nil
 		case InsertOneToManyExternalCmd(foreignEntity, oneToMany, entityVM, added) =>
 			val ue = InsertExternalOneToMany(updateConfig, entityVM, added)
@@ -242,7 +242,9 @@ class CmdToDatabase(
 				val args = vm.toListOfPrimaryKeyAndValueTuple(tpe)
 				driver.deleteSql(tpe, args).result :: Nil
 
-			case UpdateExternalManyToOneCmd(_, _) =>
+			case UpdateExternalManyToOneCmd(foreignEE, ci, newVM, fo) =>
+				val ie = UpdateExternalManyToOne(updateConfig, newVM, fo)
+				foreignEE.manyToOneOnUpdateMap(ci)(ie)
 				Nil
 			case UpdateExternalManyToManyCmd(tpe, newVM, foreignEntity, manyToMany, added, intersection, removed) =>
 				val fTable = foreignEntity.tpe.table

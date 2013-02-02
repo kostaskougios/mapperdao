@@ -119,24 +119,13 @@ abstract class ExternalEntity[FID, F](table: String, clz: Class[F]) extends Enti
 	/**
 	 * support for many-to-one mapping
 	 */
-	type OnInsertManyToOne = InsertExternalManyToOne[F] => Unit
-	// return the primary keys
-	type OnSelectManyToOne[T] = SelectExternalManyToOne[T, F] => F
-	// return the actual one-value
-	type OnUpdateManyToOne[T] = UpdateExternalManyToOne[T, F] => Unit
-	// return the primary keys
+	type OnSelectManyToOne[T] = SelectExternalManyToOne[F] => F
+	type OnUpdateManyToOne[T] = UpdateExternalManyToOne[F] => Unit
 	type OnDeleteManyToOne[T] = DeleteExternalManyToOne[T, F] => Unit
 
-	private[mapperdao] val manyToOneOnInsertMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnInsertManyToOne]("onInsertManyToOne must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] val manyToOneOnSelectMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnSelectManyToOne[_]]("onSelectManyToOne must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] val manyToOneOnUpdateMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnUpdateManyToOne[_]]("onUpdateManyToOne must be called for External Entity %s".format(getClass.getName))
 	private[mapperdao] val manyToOneOnDeleteMap = new MapWithDefault[ColumnInfoManyToOne[_, _, F], OnDeleteManyToOne[_]]("onDeleteManyToOne must be called for External Entity %s".format(getClass.getName))
-
-	def onInsertManyToOne[T](ci: => ColumnInfoManyToOne[T, _, F])(handler: OnInsertManyToOne) = lazyActions(() => manyToOneOnInsertMap +(ci, handler))
-
-	def onInsertManyToOne(handler: OnInsertManyToOne) {
-		manyToOneOnInsertMap.default = Some(handler)
-	}
 
 	def onSelectManyToOne[T](ci: => ColumnInfoManyToOne[T, _, F])(handler: OnSelectManyToOne[T]) = lazyActions(() => manyToOneOnSelectMap +(ci, handler))
 
@@ -213,11 +202,9 @@ case class UpdateExternalOneToOneReverse[T, F](updateConfig: UpdateConfig, entit
 
 case class DeleteExternalOneToOneReverse[T, F](deleteConfig: DeleteConfig, entity: T, foreign: F)
 
-case class InsertExternalManyToOne[F](updateConfig: UpdateConfig, newVM: ValuesMap, foreign: F)
+case class UpdateExternalManyToOne[F](updateConfig: UpdateConfig, newVM: ValuesMap, foreign: F)
 
-case class SelectExternalManyToOne[T, F](selectConfig: SelectConfig, primaryKeys: List[Any])
-
-case class UpdateExternalManyToOne[T, F](updateConfig: UpdateConfig, newVM: ValuesMap, foreign: F)
+case class SelectExternalManyToOne[F](selectConfig: SelectConfig, primaryKeys: List[Any])
 
 case class DeleteExternalManyToOne[T, F](deleteConfig: DeleteConfig, entity: T, foreign: F)
 
