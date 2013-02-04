@@ -289,6 +289,7 @@ class CmdPhase(typeManager: TypeManager) {
 					case foreignEntity =>
 						val foreignTpe = foreignEntity.tpe
 						val newT = newVM.oneToMany(column)
+
 						if (oldVMO.isDefined) {
 							// updating entity
 							val oldVM = oldVMO.get

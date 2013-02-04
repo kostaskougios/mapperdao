@@ -9,6 +9,7 @@ import com.googlecode.mapperdao.state.persistcmds.CmdPhase
 import com.googlecode.mapperdao.state.recreation.MockFactory
 import com.googlecode.mapperdao.state.recreation.RecreationPhase
 import com.googlecode.mapperdao.state.prioritise.PriorityPhase
+import state.enhancevm.EnhanceVMPhase
 
 /**
  * @author kostantinos.kougios
@@ -69,6 +70,10 @@ protected final class MapperDaoImpl(
 
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager, pri)
 		val nodes = ctd.execute
+
+		val enhanceVM = new EnhanceVMPhase
+		enhanceVM.execute(pri)
+
 		val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap, nodes)
 		val recreated = recreationPhase.execute.asInstanceOf[List[T with DeclaredIds[ID]]]
 		recreated
@@ -124,6 +129,10 @@ protected final class MapperDaoImpl(
 
 		val ctd = new CmdToDatabase(updateConfig, driver, typeManager, pri)
 		val nodes = ctd.execute
+
+		val enhanceVM = new EnhanceVMPhase
+		enhanceVM.execute(pri)
+
 		val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap, nodes)
 		recreationPhase.execute.asInstanceOf[List[T with DeclaredIds[ID]]]
 	}

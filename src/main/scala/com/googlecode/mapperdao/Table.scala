@@ -17,7 +17,7 @@ case class Table[ID, T](
 	columnInfosPlain: List[ColumnInfoBase[T, _]],
 	extraColumnInfosPersisted: List[ColumnInfoBase[T with DeclaredIds[ID], _]],
 	val unusedPKColumnInfos: List[ColumnInfoBase[Any, Any]]
-) {
+	) {
 
 	val columns: List[ColumnBase] = extraColumnInfosPersisted.map(_.column) ::: columnInfosPlain.map(_.column)
 	// the primary keys for this table
@@ -133,32 +133,29 @@ case class Table[ID, T](
 
 	def toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(o: Any): List[(SimpleColumn, Any)] =
 		unusedPKColumnInfos.map {
-			ci =>
-				ci match {
-					case ci: ColumnInfo[Any, Any] =>
-						List((ci.column, ci.columnToValue(o)))
-					case ci: ColumnInfoManyToOne[Any, Any, Any] =>
-						val l = ci.columnToValue(o)
-						val fe = ci.column.foreign.entity
-						val pks = fe.tpe.table.toListOfPrimaryKeyValues(l)
-						ci.column.columns zip pks
-					case ci: ColumnInfoTraversableOneToMany[Any, Any, Any, Any] =>
-						o match {
-							case p: Persisted =>
-								ci.column.columns map {
-									c =>
-										(c, p.mapperDaoValuesMap.columnValue[Any](c))
-								}
-							case _ => Nil
+			case ci: ColumnInfo[Any, Any] =>
+				List((ci.column, ci.columnToValue(o)))
+			case ci: ColumnInfoManyToOne[Any, Any, Any] =>
+				val l = ci.columnToValue(o)
+				val fe = ci.column.foreign.entity
+				val pks = fe.tpe.table.toListOfPrimaryKeyValues(l)
+				ci.column.columns zip pks
+			case ci: ColumnInfoTraversableOneToMany[Any, Any, Any, Any] =>
+				o match {
+					case p: Persisted =>
+						ci.column.columns map {
+							c =>
+								(c, p.mapperDaoValuesMap.columnValue[Any](c))
 						}
-					case ci: ColumnInfoOneToOne[Any, Any, Any] =>
-						val l = ci.columnToValue(o)
-						val fe = ci.column.foreign.entity
-						val pks = fe.tpe.table.toListOfPrimaryKeyValues(l)
-						ci.column.columns zip pks
-
-					case ci: ColumnInfoRelationshipBase[Any, Any, Any, Any] => Nil
+					case _ => Nil
 				}
+			case ci: ColumnInfoOneToOne[Any, Any, Any] =>
+				val l = ci.columnToValue(o)
+				val fe = ci.column.foreign.entity
+				val pks = fe.tpe.table.toListOfPrimaryKeyValues(l)
+				ci.column.columns zip pks
+
+			case ci: ColumnInfoRelationshipBase[Any, Any, Any, Any] => Nil
 		}.flatten
 
 	def toListOfColumnAndValueTuples[CB <: ColumnBase](columns: List[CB], o: T): List[(CB, Any)] = columns.map {
@@ -178,9 +175,13 @@ case class Table[ID, T](
 			}
 	}
 
-	def toColumnAndValueMap(columns: List[ColumnBase], o: T): Map[ColumnBase, Any] = columns.map { c => (c, columnToColumnInfoMap(c).columnToValue(o)) }.toMap
+	def toColumnAndValueMap(columns: List[ColumnBase], o: T): Map[ColumnBase, Any] = columns.map {
+		c => (c, columnToColumnInfoMap(c).columnToValue(o))
+	}.toMap
 
-	def toPCColumnAndValueMap(columns: List[ColumnBase], o: T with DeclaredIds[ID]): Map[ColumnBase, Any] = columns.map { c => (c, pcColumnToColumnInfoMap(c).columnToValue(o)) }.toMap
+	def toPCColumnAndValueMap(columns: List[ColumnBase], o: T with DeclaredIds[ID]): Map[ColumnBase, Any] = columns.map {
+		c => (c, pcColumnToColumnInfoMap(c).columnToValue(o))
+	}.toMap
 
 	def toColumnAliasAndValueMap(columns: List[ColumnBase], o: T): Map[String, Any] = toColumnAndValueMap(columns, o).map(e => (e._1.alias, e._2))
 
