@@ -9,10 +9,11 @@ import com.googlecode.mapperdao.jdbc.Setup
 /**
  * @author	konstantinos.kougios
  *
- * 13 Sep 2012
+ *            13 Sep 2012
  */
 @RunWith(classOf[JUnitRunner])
 class BlobSuite extends FunSuite with ShouldMatchers {
+
 	import CommonEntities._
 
 	// blobs are not currently supported for derby
@@ -53,9 +54,9 @@ class BlobSuite extends FunSuite with ShouldMatchers {
 
 			val l = (
 				select
-				from ie
-				orderBy (ie.id, asc)
-			).toList(queryDao)
+					from ie
+					orderBy(ie.id, asc)
+				).toList(queryDao)
 
 			l.head.data.toList should be === im1.data.toList
 			l.tail.head.data.toList should be === im2.data.toList

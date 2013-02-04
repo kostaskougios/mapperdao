@@ -9,14 +9,17 @@ import org.scalatest.matchers.ShouldMatchers
 /**
  * @author kostantinos.kougios
  *
- * 6 Sep 2011
+ *         6 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
 class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite with ShouldMatchers {
+
 	import IntermediateImmutableEntityWithStringFKsSpec._
+
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(EmployeeEntity, WorkedAtEntity, CompanyEntity))
 
 	import mapperDao._
+
 	test("update intermediate") {
 		createTables
 
@@ -163,26 +166,31 @@ class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite with Should
 }
 
 object IntermediateImmutableEntityWithStringFKsSpec {
+
 	abstract case class Employee(val no: String) {
 		val workedAt: List[WorkedAt]
 
 		override def toString = "Employee(%s,%s)".format(no, workedAt)
 	}
+
 	case class WorkedAt(val employee: Employee, val company: Company, val year: Int) {
 		override def toString = "WorkedAt(%s,%s,%d)".format(employee.no, company, year)
 	}
+
 	case class Company(val no: String, val name: String)
 
-	object EmployeeEntity extends Entity[String, NaturalStringId, Employee] {
+	object EmployeeEntity extends Entity[String, Employee] {
+		type Stored = NaturalStringId
 		val no = key("no") to (_.no)
 		val workedAt = onetomany(WorkedAtEntity) foreignkey "employee_no" to (_.workedAt)
 
-		def constructor(implicit m) = new Employee(no) with NaturalStringId {
+		def constructor(implicit m) = new Employee(no) with Stored {
 			val workedAt: List[WorkedAt] = EmployeeEntity.workedAt
 		}
 	}
 
-	object WorkedAtEntity extends Entity[(String, String), NaturalStringAndStringIds, WorkedAt] {
+	object WorkedAtEntity extends Entity[(String, String), WorkedAt] {
+		type Stored = NaturalStringAndStringIds
 		val employee_no = key("employee_no") to (wat => if (wat.employee == null) null else wat.employee.no)
 		val company_no = key("company_no") to (wat => if (wat.company == null) null else wat.company.no)
 		val year = column("year") to (_.year)
@@ -190,13 +198,15 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 		val employee = manytoone(EmployeeEntity) foreignkey "employee_no" to (_.employee)
 		val company = manytoone(CompanyEntity) foreignkey "company_no" to (_.company)
 
-		def constructor(implicit m) = new WorkedAt(employee, company, year) with NaturalStringAndStringIds
+		def constructor(implicit m) = new WorkedAt(employee, company, year) with Stored
 	}
 
-	object CompanyEntity extends Entity[String, NaturalStringId, Company] {
+	object CompanyEntity extends Entity[String, Company] {
+		type Stored = NaturalStringId
 		val no = key("no") to (_.no)
 		val name = column("name") to (_.name)
 
-		def constructor(implicit m) = new Company(no, name) with NaturalStringId
+		def constructor(implicit m) = new Company(no, name) with Stored
 	}
+
 }
