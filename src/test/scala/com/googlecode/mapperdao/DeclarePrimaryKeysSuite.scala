@@ -1,4 +1,5 @@
 package com.googlecode.mapperdao
+
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -8,7 +9,7 @@ import org.scalatest.matchers.ShouldMatchers
 /**
  * @author kostantinos.kougios
  *
- * 13 Oct 2011
+ *         13 Oct 2011
  */
 @RunWith(classOf[JUnitRunner])
 class DeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
@@ -72,9 +73,11 @@ class DeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 	}
 
 	case class Product(val title: String, val prices: Set[Price])
+
 	case class Price(val currency: String, val unitPrice: Double, val salePrice: Double)
 
-	object ProductEntity extends Entity[Int, SurrogateIntId, Product] {
+	object ProductEntity extends Entity[Int, Product] {
+		type Stored = SurrogateIntId
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("ProductSeq")
 			case _ => None
@@ -83,17 +86,20 @@ class DeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 		val title = column("title") to (_.title)
 		val prices = onetomany(PriceEntity) to (_.prices)
 
-		def constructor(implicit m) = new Product(title, prices) with SurrogateIntId {
+		def constructor(implicit m) = new Product(title, prices) with Stored {
 			val id: Int = ProductEntity.id
 		}
 	}
-	object PriceEntity extends Entity[Unit, NoId, Price] {
+
+	object PriceEntity extends Entity[Unit, Price] {
+		type Stored = NoId
 		val currency = column("currency") to (_.currency)
 		val unitPrice = column("unitprice") to (_.unitPrice)
 		val salePrice = column("saleprice") to (_.salePrice)
 		declarePrimaryKey(currency)
 		declarePrimaryKey(unitPrice)
 
-		def constructor(implicit m) = new Price(currency, unitPrice, salePrice) with NoId
+		def constructor(implicit m) = new Price(currency, unitPrice, salePrice) with Stored
 	}
+
 }
