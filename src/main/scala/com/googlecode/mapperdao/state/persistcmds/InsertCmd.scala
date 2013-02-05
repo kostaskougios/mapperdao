@@ -20,6 +20,4 @@ case class InsertCmd[ID, T](
 	def priority = Priority.High
 
 	def identity = newVM.identity
-
-	val columnNames = columns.map(_._1.name).toSet
 }

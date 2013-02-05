@@ -212,7 +212,7 @@ class CmdToDatabase(
 		cmd match {
 			case ic@InsertCmd(tpe, newVM, columns, _) =>
 				persistedIdentities += ic.identity
-				val related = prioritized.relatedColumns(newVM, false).distinct.filterNot(t => ic.columnNames.contains(t._1.name))
+				val related = prioritized.relatedColumns(newVM, false).distinct.filterNot(t => columns.contains(t))
 				driver.insertSql(tpe, columns ::: related).result :: Nil
 
 			case uc@UpdateCmd(tpe, oldVM, newVM, columns, _) =>
