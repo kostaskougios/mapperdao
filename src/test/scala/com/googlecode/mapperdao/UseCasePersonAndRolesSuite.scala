@@ -6,12 +6,11 @@ import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 import org.scala_tools.time.Imports._
 import com.googlecode.mapperdao.jdbc.Setup
-import com.googlecode.mapperdao.utils.Helpers
 
 /**
  * @author kostantinos.kougios
  *
- * 10 Aug 2012
+ *         10 Aug 2012
  */
 @RunWith(classOf[JUnitRunner])
 class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
@@ -46,7 +45,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			mapperDao.insert(RoleTypeEntity, roleType1),
 			mapperDao.insert(RoleTypeEntity, roleType2),
 			mapperDao.insert(RoleTypeEntity, roleType3)
-		)
+			)
 
 		// create test people
 		def people(role1: RoleType, role2: RoleType, role3: RoleType) = (
@@ -64,36 +63,36 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 					)
 				))
 			),
-				mapperDao.insert(PersonEntity,
-					Person("some.other", "some", "other", Set(
-						SinglePartyRole(
-							role1,
-							None,
-							None
-						),
-						SinglePartyRole(
-							role3,
-							None,
-							Some(from)
-						)
-					))
-				)
-		)
+			mapperDao.insert(PersonEntity,
+				Person("some.other", "some", "other", Set(
+					SinglePartyRole(
+						role1,
+						None,
+						None
+					),
+					SinglePartyRole(
+						role3,
+						None,
+						Some(from)
+					)
+				))
+			)
+			)
 
 		test("self join ===") {
 			createTables()
 			val (role1, role2, role3) = persistRoles
 			val (person1, person2) = people(role1, role2, role3)
-			val i1 = mapperDao.insert(InterPartyRelationshipEntity, InterPartyRelationship(person1, person2, Some(from), None))
+			mapperDao.insert(InterPartyRelationshipEntity, InterPartyRelationship(person1, person2, Some(from), None))
 			val i2 = mapperDao.insert(InterPartyRelationshipEntity, InterPartyRelationship(person2, person1, Some(from), Some(to)))
 
 			import Query._
 			val q = (
 				select
-				from ipr
-				join ipr1 on ipr.from === ipr1.to
-				where ipr.to === person1
-			)
+					from ipr
+					join ipr1 on ipr.from === ipr1.to
+					where ipr.to === person1
+				)
 			val r = q.toList(queryDao)
 			r should be(List(i2))
 		}
@@ -102,16 +101,16 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			createTables()
 			val (role1, role2, role3) = persistRoles
 			val (person1, person2) = people(role1, role2, role3)
-			val i1 = mapperDao.insert(InterPartyRelationshipEntity, InterPartyRelationship(person1, person2, Some(from), None))
+			mapperDao.insert(InterPartyRelationshipEntity, InterPartyRelationship(person1, person2, Some(from), None))
 			val i2 = mapperDao.insert(InterPartyRelationshipEntity, InterPartyRelationship(person2, person1, Some(from), Some(to)))
 
 			import Query._
 			val q = (
 				select
-				from ipr
-				join ipr1 on ipr.from <> ipr1.to
-				where ipr.to === person1
-			)
+					from ipr
+					join ipr1 on ipr.from <> ipr1.to
+					where ipr.to === person1
+				)
 			val r = q.toList(queryDao)
 			r should be(List(i2))
 		}
@@ -157,15 +156,15 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 
 			(
 				select
-				from ipr
-				where ipr.from === person1 and ipr.to === person2
-			).toSet(queryDao) should be === Set(ipr1)
+					from ipr
+					where ipr.from === person1 and ipr.to === person2
+				).toSet(queryDao) should be === Set(ipr1)
 
 			(
 				select
-				from ipr
-				where ipr.from === person2 and ipr.to === person1
-			).toSet(queryDao) should be === Set(ipr2)
+					from ipr
+					where ipr.from === person2 and ipr.to === person1
+				).toSet(queryDao) should be === Set(ipr2)
 
 			// now update
 			val upd = selected.copy(to = person1, toDate = Some(to))
@@ -175,9 +174,9 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			val reselected = queryDao.querySingleResult(
 				(
 					select
-					from ipr
-					where ipr.from === person1 and ipr.to === person1
-				)
+						from ipr
+						where ipr.from === person1 and ipr.to === person1
+					)
 			).get
 			reselected should be === updated
 
@@ -186,17 +185,17 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			queryDao.querySingleResult(
 				(
 					select
-					from ipr
-					where ipr.from === person1 and ipr.to === person1
-				)
+						from ipr
+						where ipr.from === person1 and ipr.to === person1
+					)
 			) should be === None
 
 			// make sure we didn't delete the other one
 			(
 				select
-				from ipr
-				where ipr.from === person2 and ipr.to === person1
-			).toSet(queryDao) should be === Set(ipr2)
+					from ipr
+					where ipr.from === person2 and ipr.to === person1
+				).toSet(queryDao) should be === Set(ipr2)
 		}
 
 		test("SinglePartyRoleEntity RUD") {
@@ -228,10 +227,10 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			import Query._
 			val l = (
 				select
-				from pe
-				join (pe, pe.singlePartyRoles, spr)
-				where spr.roleType === role2
-			).toList(queryDao)
+					from pe
+					join(pe, pe.singlePartyRoles, spr)
+					where spr.roleType === role2
+				).toList(queryDao)
 			l.size should be === 1
 			val spr1 = l.head.singlePartyRoles.filter(_.roleType == role1).head.asInstanceOf[SinglePartyRole with SPRKey]
 
@@ -283,30 +282,30 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 
 			(
 				select
-				from pe
-			).toSet(queryDao) should be === Set(inserted1, inserted2)
+					from pe
+				).toSet(queryDao) should be === Set(inserted1, inserted2)
 
 			(
 				select
-				from pe
-				join (pe, pe.singlePartyRoles, spr)
-				where spr.roleType === role2
-			).toSet(queryDao) should be === Set(inserted1)
+					from pe
+					join(pe, pe.singlePartyRoles, spr)
+					where spr.roleType === role2
+				).toSet(queryDao) should be === Set(inserted1)
 
 			(
 				select
-				from pe
-				join (pe, pe.singlePartyRoles, spr)
-				where spr.roleType === role3
-			).toSet(queryDao) should be === Set(inserted2)
+					from pe
+					join(pe, pe.singlePartyRoles, spr)
+					where spr.roleType === role3
+				).toSet(queryDao) should be === Set(inserted2)
 
 			(
 				select
-				from pe
-				join (pe, pe.singlePartyRoles, spr)
-				join (spr, spr.roleType, rte)
-				where rte.name === "Java Developer"
-			).toSet(queryDao) should be === Set(inserted1)
+					from pe
+					join(pe, pe.singlePartyRoles, spr)
+					join(spr, spr.roleType, rte)
+					where rte.name === "Java Developer"
+				).toSet(queryDao) should be === Set(inserted1)
 		}
 
 		def createTables() = {
@@ -316,32 +315,39 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 	}
 
 	case class Person(id: String, firstName: String, lastName: String, singlePartyRoles: Set[SinglePartyRole])
+
 	case class SinglePartyRole(roleType: RoleType, fromDate: Option[DateTime], toDate: Option[DateTime])
+
 	case class RoleType(name: String, description: Option[String])
+
 	case class InterPartyRelationship(from: Person, to: Person, fromDate: Option[DateTime], toDate: Option[DateTime])
 
-	object RoleTypeEntity extends Entity[String, NaturalStringId, RoleType] {
+	object RoleTypeEntity extends Entity[String, RoleType] {
+		type Stored = NaturalStringId
 		val name = key("name") to (_.name)
 		val description = column("description") option (_.description)
 
 		def constructor(implicit m: ValuesMap) =
-			new RoleType(name, description) with NaturalStringId
+			new RoleType(name, description) with Stored
 	}
 
-	object PersonEntity extends Entity[String, NaturalStringId, Person] {
+	object PersonEntity extends Entity[String, Person] {
+		type Stored = NaturalStringId
 		val id = key("id") to (_.id)
 		val firstName = column("firstname") to (_.firstName)
 		val lastName = column("lastname") to (_.lastName)
 		val singlePartyRoles = onetomany(SinglePartyRoleEntity) to (_.singlePartyRoles)
 
 		def constructor(implicit m: ValuesMap) =
-			new Person(id, firstName, lastName, singlePartyRoles) with NaturalStringId
+			new Person(id, firstName, lastName, singlePartyRoles) with Stored
 	}
 
 	type RNSI = RoleType with NaturalStringId
 	type PNSI = Person with NaturalStringId
 	type SPRKey = With2Ids[RNSI, PNSI]
-	object SinglePartyRoleEntity extends Entity[(RNSI, PNSI), SPRKey, SinglePartyRole] {
+
+	object SinglePartyRoleEntity extends Entity[(RNSI, PNSI), SinglePartyRole] {
+		type Stored = SPRKey
 		val roleType = manytoone(RoleTypeEntity) to (_.roleType)
 		val fromDate = column("fromDate") option (_.fromDate)
 		val toDate = column("toDate") option (_.toDate)
@@ -349,10 +355,11 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 		declarePrimaryKey(roleType)
 		declarePrimaryKey(PersonEntity.singlePartyRoles)
 
-		def constructor(implicit m: ValuesMap) = new SinglePartyRole(roleType, fromDate, toDate) with SPRKey
+		def constructor(implicit m: ValuesMap) = new SinglePartyRole(roleType, fromDate, toDate) with Stored
 	}
 
-	class InterPartyRelationshipEntityBase extends Entity[(PNSI, PNSI), With2Ids[PNSI, PNSI], InterPartyRelationship] {
+	class InterPartyRelationshipEntityBase extends Entity[(PNSI, PNSI), InterPartyRelationship] {
+		type Stored = With2Ids[PNSI, PNSI]
 		val from = manytoone(PersonEntity) foreignkey ("from_id") to (_.from)
 		val to = manytoone(PersonEntity) foreignkey ("to_id") to (_.to)
 		val fromDate = column("fromDate") option (_.fromDate)
@@ -361,9 +368,10 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 		declarePrimaryKey(from)
 		declarePrimaryKey(to)
 
-		def constructor(implicit m: ValuesMap) = new InterPartyRelationship(from, to, fromDate, toDate) with With2Ids[PNSI, PNSI]
+		def constructor(implicit m: ValuesMap) = new InterPartyRelationship(from, to, fromDate, toDate) with Stored
 	}
 
 	object InterPartyRelationshipEntity extends InterPartyRelationshipEntityBase
+
 }
 

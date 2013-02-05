@@ -105,7 +105,7 @@ protected final class MapperDaoImpl(
 		val osAndNewValues = os.map {
 			case (oldO, newO) =>
 				oldO.mapperDaoDiscarded = true
-				val newVM = ValuesMap.fromType(typeManager, tpe, newO, oldO)
+				val newVM = ValuesMap.fromType(typeManager, tpe, newO, oldO.mapperDaoValuesMap)
 				(oldO, newVM)
 		}
 		updateProcess(updateConfig, tpe, osAndNewValues)

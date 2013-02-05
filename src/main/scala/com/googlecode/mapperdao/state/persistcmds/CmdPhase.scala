@@ -313,11 +313,10 @@ class CmdPhase(typeManager: TypeManager) {
 									EntityRelatedCmd(foreignVM.identity, column, foreignVM, None, tpe, newVM, oldVMO, true) :: insertOrUpdate(foreignTpe, fo, updateConfig)
 							}.flatten
 							val removedCms = removed.toList.map {
-								fo =>
-									val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
+								case fo: DeclaredIds[_] =>
 									DeleteCmd(
 										foreignTpe,
-										foreignVM
+										fo.mapperDaoValuesMap
 									)
 							}
 
