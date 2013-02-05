@@ -58,6 +58,8 @@ object Benchmark extends App {
 	 * ------------------------------------
 	 * 2012/02/05	1000			5116
 	 * 2012/02/05	10000			32800
+	 * before		1000			11500
+	 * before		10000			81300
 	 *
 	 */
 	def benchmarkInsert(loops: Int) {
