@@ -31,12 +31,11 @@ case class Prioritized(
 				case ManyToOne(columns, foreign) =>
 					columns zip (
 						if (isOld) {
-							if (oldForeignVMO.isDefined)
-								oldForeignVMO.get match {
-									case null => Prioritized.nullList
-									case ovm => ovm.toListOfPrimaryKeys(foreignTpe)
-								}
-							else Nil
+							val fvm = oldForeignVMO.getOrElse(foreignVM)
+							fvm match {
+								case null => Prioritized.nullList
+								case ovm => ovm.toListOfPrimaryKeys(foreignTpe)
+							}
 						}
 						else {
 							if (foreignVM == null)
@@ -48,9 +47,8 @@ case class Prioritized(
 						)
 				case OneToMany(foreign, foreignColumns) =>
 					if (isOld) {
-						if (oldForeignVMO.isDefined)
-							foreignColumns zip oldForeignVMO.get.toListOfPrimaryKeys(foreignTpe)
-						else Nil
+						val fvm = oldForeignVMO.getOrElse(foreignVM)
+						foreignColumns zip fvm.toListOfPrimaryKeys(foreignTpe)
 					} else {
 						foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
 					}
