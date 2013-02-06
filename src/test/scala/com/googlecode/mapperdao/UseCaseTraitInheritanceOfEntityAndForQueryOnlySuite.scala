@@ -10,7 +10,7 @@ import com.googlecode.mapperdao.utils.Helpers
 /**
  * @author kostantinos.kougios
  *
- * 23 Aug 2012
+ *         23 Aug 2012
  */
 @RunWith(classOf[JUnitRunner])
 class UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite extends FunSuite with ShouldMatchers {
@@ -51,47 +51,51 @@ class UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite extends FunSuite with 
 			import Query._
 			(
 				select
-				from spe
-				where spe.tags === l1
-			).toSet(queryDao) should be === Set(l1.product)
+					from spe
+					where spe.tags === l1
+				).toSet(queryDao) should be === Set(l1.product)
 			(
 				select
-				from spe
-				join (spe, spe.tags, te)
-				where te.tag === "laptop"
-			).toSet(queryDao) should be === Set(l1.product, l2.product)
+					from spe
+					join(spe, spe.tags, te)
+					where te.tag === "laptop"
+				).toSet(queryDao) should be === Set(l1.product, l2.product)
 		}
 
-		def createTables() =
-			{
-				Setup.dropAllTables(jdbc)
-				Setup.queries(this, jdbc).update("ddl")
-			}
+		def createTables() = {
+			Setup.dropAllTables(jdbc)
+			Setup.queries(this, jdbc).update("ddl")
+		}
 	}
 }
 
 object UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite {
+
 	case class Tag(tag: String, product: Product)
+
 	case class Product(refCode: String, name: String)
 
-	object TagEntity extends Entity[(String, Product with NaturalStringId), With2Ids[String, Product with NaturalStringId], Tag] {
+	object TagEntity extends Entity[(String, Product with NaturalStringId), Tag] {
+		type Stored = With2Ids[String, Product with NaturalStringId]
 		val tag = key("tag") to (_.tag)
 		val product = manytoone(SimpleProductEntity) to (_.product)
 
 		declarePrimaryKey(product)
 
-		def constructor(implicit m: ValuesMap) = new Tag(tag, product) with With2Ids[String, Product with NaturalStringId]
+		def constructor(implicit m: ValuesMap) = new Tag(tag, product) with Stored
 	}
 
-	trait ProductEntity[T <: Product] extends Entity[String, NaturalStringId, T] {
+	trait ProductEntity[T <: Product] extends Entity[String, T] {
+		type Stored = NaturalStringId
 		val name = column("name") to (_.name)
 	}
 
 	object SimpleProductEntity extends ProductEntity[Product] {
 
 		val refCode = key("refCode") to (_.refCode)
-		val tags = onetomany(TagEntity) forQueryOnly () to (ce => Nil)
+		val tags = onetomany(TagEntity) forQueryOnly() to (ce => Nil)
 
-		def constructor(implicit m: ValuesMap) = new Product(refCode, name) with NaturalStringId
+		def constructor(implicit m: ValuesMap) = new Product(refCode, name) with Stored
 	}
+
 }
