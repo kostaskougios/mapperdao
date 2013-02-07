@@ -39,6 +39,11 @@ trait MapperDao {
 		insert(updateConfig, entity, o :: Nil).head
 	}
 
+	def insert[ID, T](
+		entity: Entity[ID, T],
+		os: List[T]
+		): List[T with entity.Stored] = insert0(defaultUpdateConfig, entity.tpe, os).asInstanceOf[List[T with entity.Stored]]
+
 	/**
 	 * batch insert many entities
 	 */
@@ -79,6 +84,15 @@ trait MapperDao {
 		if (o == null) throw new NullPointerException("o can't be null")
 		updateMutable(updateConfig, entity, o :: Nil).head
 	}
+
+	/**
+	 * we can't call this "update" cause due to erasure it will have the same signature like other update
+	 * methods.
+	 */
+	def updateMutable[ID, T](
+		entity: Entity[ID, T],
+		os: List[T with DeclaredIds[ID]]
+		): List[T with entity.Stored] = updateMutable(defaultUpdateConfig, entity, os)
 
 	/**
 	 * batch update mutable entities
@@ -125,6 +139,15 @@ trait MapperDao {
 		if (newO == null) throw new NullPointerException("newO can't be null")
 		updateImmutable(updateConfig, entity, List((o, newO))).head
 	}
+
+	/**
+	 * we can't call this "update" cause due to erasure it will have the same signature like other update
+	 * methods.
+	 */
+	def updateImmutable[ID, T](
+		entity: Entity[ID, T],
+		os: List[(T with DeclaredIds[ID], T)]
+		): List[T with entity.Stored] = updateImmutable(defaultUpdateConfig, entity, os)
 
 	/**
 	 * batch update immutable entities
