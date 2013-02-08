@@ -21,7 +21,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		val p1 = Product(2, "blue jean", Set(Attribute(6, "colour", "blue"), Attribute(9, "size", "medium")))
 		val p2 = Product(3, "green jean", Set(Attribute(16, "colour", "green"), Attribute(19, "size", "small")))
 
-		val inserted = mapperDao.insert(UpdateConfig.default, ProductEntity, p1 :: p2 :: Nil)
+		val inserted = mapperDao.insertBatch(UpdateConfig.default, ProductEntity, p1 :: p2 :: Nil)
 
 		inserted should be(p1 :: p2 :: Nil)
 
@@ -32,7 +32,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		val a2 = inserted.head.attributes.tail.head
 		val p1u = p1.copy(name = "b jeans", attributes = Set(a1))
 		val p2u = p2.copy(name = "g jeans", attributes = Set(a2))
-		val updated = mapperDao.updateImmutable(UpdateConfig.default, ProductEntity, (inserted.head, p1u) ::(inserted.tail.head, p2u) :: Nil)
+		val updated = mapperDao.updateBatch(UpdateConfig.default, ProductEntity, (inserted.head, p1u) ::(inserted.tail.head, p2u) :: Nil)
 		updated should be(p1u :: p2u :: Nil)
 		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1u :: p2u :: Nil)
 	}
@@ -46,7 +46,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		val p1 = Product(2, "blue jean", Set(a1, a2))
 		val p2 = Product(3, "green jean", Set(a1, a2, Attribute(16, "colour", "green"), Attribute(19, "size", "small")))
 
-		val inserted = mapperDao.insert(UpdateConfig.default, ProductEntity, p1 :: p2 :: Nil)
+		val inserted = mapperDao.insertBatch(UpdateConfig.default, ProductEntity, p1 :: p2 :: Nil)
 
 		inserted should be(p1 :: p2 :: Nil)
 
@@ -55,7 +55,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 
 		val p1u = p1.copy(name = "b jeans", attributes = Set(a1))
 		val p2u = p2.copy(name = "g jeans", attributes = Set(a2))
-		val updated = mapperDao.updateImmutable(UpdateConfig.default, ProductEntity, (inserted.head, p1u) ::(inserted.tail.head, p2u) :: Nil)
+		val updated = mapperDao.updateBatch(UpdateConfig.default, ProductEntity, (inserted.head, p1u) ::(inserted.tail.head, p2u) :: Nil)
 		updated should be(p1u :: p2u :: Nil)
 		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1u :: p2u :: Nil)
 	}

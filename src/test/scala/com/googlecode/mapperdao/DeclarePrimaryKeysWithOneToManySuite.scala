@@ -22,7 +22,7 @@ class DeclarePrimaryKeysWithOneToManySuite extends FunSuite with ShouldMatchers 
 		val person1 = Person("person1@m.com", "Person One", Set())
 		val person2 = Person("person2@m.com", "Person Two", Set())
 		val person3 = Person("person3@m.com", "Person Three", Set())
-		val (p1 :: p2 :: p3 :: Nil) = mapperDao.insert(UpdateConfig.default, PersonEntity, person1 :: person2 :: person3 :: Nil)
+		val (p1 :: p2 :: p3 :: Nil) = mapperDao.insertBatch(UpdateConfig.default, PersonEntity, person1 :: person2 :: person3 :: Nil)
 
 		val p1u = mapperDao.update(PersonEntity, p1, p1.copy(
 			linked = Set(

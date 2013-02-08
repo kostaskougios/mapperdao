@@ -64,7 +64,7 @@ object Benchmark extends App {
 	 */
 	def benchmarkInsert(loops: Int) {
 		val l = (for (i <- 1 to loops) yield p).toList
-		mapperDao.insert(UpdateConfig.default, ProductEntity, l)
+		mapperDao.insertBatch(UpdateConfig.default, ProductEntity, l)
 	}
 
 	def benchmarkSelect(id: Int, loops: Int) {

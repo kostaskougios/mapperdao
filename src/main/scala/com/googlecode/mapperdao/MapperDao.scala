@@ -36,10 +36,10 @@ trait MapperDao {
 	 */
 	def insert[ID, T](updateConfig: UpdateConfig, entity: Entity[ID, T], o: T): T with entity.Stored = {
 		if (o == null) throw new NullPointerException("o can't be null")
-		insert(updateConfig, entity, o :: Nil).head
+		insertBatch(updateConfig, entity, o :: Nil).head
 	}
 
-	def insert[ID, T](
+	def insertBatch[ID, T](
 		entity: Entity[ID, T],
 		os: List[T]
 		): List[T with entity.Stored] = insert0(defaultUpdateConfig, entity.tpe, os).asInstanceOf[List[T with entity.Stored]]
@@ -47,7 +47,7 @@ trait MapperDao {
 	/**
 	 * batch insert many entities
 	 */
-	def insert[ID, T](
+	def insertBatch[ID, T](
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, T],
 		os: List[T]
@@ -82,22 +82,22 @@ trait MapperDao {
 	 */
 	def update[ID, T](updateConfig: UpdateConfig, entity: Entity[ID, T], o: T with DeclaredIds[ID]): T with entity.Stored = {
 		if (o == null) throw new NullPointerException("o can't be null")
-		updateMutable(updateConfig, entity, o :: Nil).head
+		updateBatchMutable(updateConfig, entity, o :: Nil).head
 	}
 
 	/**
 	 * we can't call this "update" cause due to erasure it will have the same signature like other update
 	 * methods.
 	 */
-	def updateMutable[ID, T](
+	def updateBatchMutable[ID, T](
 		entity: Entity[ID, T],
 		os: List[T with DeclaredIds[ID]]
-		): List[T with entity.Stored] = updateMutable(defaultUpdateConfig, entity, os)
+		): List[T with entity.Stored] = updateBatchMutable(defaultUpdateConfig, entity, os)
 
 	/**
 	 * batch update mutable entities
 	 */
-	def updateMutable[ID, T](
+	def updateBatchMutable[ID, T](
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, T],
 		os: List[T with DeclaredIds[ID]]
@@ -137,22 +137,22 @@ trait MapperDao {
 		): T with entity.Stored = {
 		if (o == null) throw new NullPointerException("o can't be null")
 		if (newO == null) throw new NullPointerException("newO can't be null")
-		updateImmutable(updateConfig, entity, List((o, newO))).head
+		updateBatch(updateConfig, entity, List((o, newO))).head
 	}
 
 	/**
 	 * we can't call this "update" cause due to erasure it will have the same signature like other update
 	 * methods.
 	 */
-	def updateImmutable[ID, T](
+	def updateBatch[ID, T](
 		entity: Entity[ID, T],
 		os: List[(T with DeclaredIds[ID], T)]
-		): List[T with entity.Stored] = updateImmutable(defaultUpdateConfig, entity, os)
+		): List[T with entity.Stored] = updateBatch(defaultUpdateConfig, entity, os)
 
 	/**
 	 * batch update immutable entities
 	 */
-	def updateImmutable[ID, T](
+	def updateBatch[ID, T](
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, T],
 		os: List[(T with DeclaredIds[ID], T)]

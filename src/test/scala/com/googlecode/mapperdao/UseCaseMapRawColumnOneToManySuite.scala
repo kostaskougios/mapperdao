@@ -137,7 +137,7 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers {
 
 			val person = Person(3, "Kostas", "K", 16, List(JobPosition(5, "Scala Developer", 10, 3), JobPosition(7, "Java Developer", 10, 3)))
 			val noise = Person(4, "Kostas", "K", 16, List(JobPosition(15, "Scala Developer", 10, 4), JobPosition(17, "Java Developer", 10, 4)))
-			mapperDao.insert(PersonEntity, List(person, noise))
+			mapperDao.insertBatch(PersonEntity, List(person, noise))
 
 			val loaded = mapperDao.select(PersonEntity, 3).get
 			loaded should be === person
