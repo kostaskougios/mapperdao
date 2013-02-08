@@ -181,7 +181,7 @@ class CmdPhase(typeManager: TypeManager) {
 										foreignVM) :: doUpdate(foreignEntity.tpe, p, updateConfig)
 								case o =>
 									// we need to insert the foreign entity and link to entity
-									val foreignVM = ValuesMap.fromType(typeManager, foreignEntity.tpe, o)
+									val foreignVM = vmFor(foreignEntity.tpe, o) //ValuesMap.fromType(typeManager, foreignEntity.tpe, o)
 									InsertManyToManyCmd(
 										tpe,
 										foreignEntity.tpe,
@@ -376,4 +376,8 @@ class CmdPhase(typeManager: TypeManager) {
 		if (vm.identity != System.identityHashCode(fo)) throw new IllegalStateException("didn't find correct VM for " + fo)
 		vm
 	}
+
+	private val vms = scala.collection.mutable.HashMap.empty[Int, ValuesMap]
+
+	private def vmFor[T](tpe: Type[_, T], o: T) = vms.getOrElseUpdate(System.identityHashCode(o), ValuesMap.fromType(typeManager, tpe, o))
 }
