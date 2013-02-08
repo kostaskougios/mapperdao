@@ -137,7 +137,7 @@ class CmdPhase(typeManager: TypeManager) {
 							val addedCmds = added.toList.map {
 								fo =>
 									val foCmds = insertOrUpdate(foreignEntity.tpe, fo, updateConfig)
-									val foreignVM = findVM(foCmds, fo)
+									val foreignVM = findVM(fo)
 									InsertManyToManyCmd(
 										tpe,
 										foreignEntity.tpe,
@@ -362,20 +362,21 @@ class CmdPhase(typeManager: TypeManager) {
 	}
 
 	private def doInsert[ID, T](tpe: Type[ID, T], o: T, updateConfig: UpdateConfig) = {
-		val newVM = ValuesMap.fromType(typeManager, tpe, o)
+		val newVM = vmFor(tpe, o)
 		insert(tpe, newVM, false, updateConfig)
 	}
 
 	private def doUpdate[ID, T](tpe: Type[ID, T], p: T with DeclaredIds[ID], updateConfig: UpdateConfig) = {
-		val newVM = ValuesMap.fromType(typeManager, tpe, p)
+		val newVM = vmFor(tpe, p)
 		update(tpe, p.mapperDaoValuesMap, newVM, false, updateConfig)
 	}
 
-	def findVM(cmds: List[PersistCmd], fo: Any) = cmds.head match {
-		case wvm: CmdWithNewVM => val vm = wvm.newVM
-		if (vm.identity != System.identityHashCode(fo)) throw new IllegalStateException("didn't find correct VM for " + fo)
-		vm
-	}
+	//	def findVM(cmds: List[PersistCmd], fo: Any) = cmds.head match {
+	//		case wvm: CmdWithNewVM => val vm = wvm.newVM
+	//		if (vm.identity != System.identityHashCode(fo)) throw new IllegalStateException("didn't find correct VM for " + fo)
+	//		vm
+	//	}
+	def findVM(fo: Any) = vms(System.identityHashCode(fo))
 
 	private val vms = scala.collection.mutable.HashMap.empty[Int, ValuesMap]
 
