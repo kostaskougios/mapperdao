@@ -147,7 +147,7 @@ class CmdPhase(typeManager: TypeManager) {
 							}.flatten
 							val removedCms = removed.toList.map {
 								fo =>
-									val foreignVM = ValuesMap.fromType(typeManager, foreignEntity.tpe, fo)
+									val foreignVM = vmFor(foreignEntity.tpe, fo)
 									DeleteManyToManyCmd(
 										tpe,
 										foreignEntity.tpe,
@@ -162,7 +162,7 @@ class CmdPhase(typeManager: TypeManager) {
 									val oVM = oldO match {
 										case p: Persisted => p.mapperDaoValuesMap
 									}
-									val nVM = ValuesMap.fromType(typeManager, foreignEntity.tpe, newO)
+									val nVM = vmFor(foreignEntity.tpe, newO)
 									update(foreignEntity.tpe, oVM, nVM, false, updateConfig)
 							}.flatten
 							addedCmds ::: removedCms ::: intersectCmds
@@ -172,7 +172,7 @@ class CmdPhase(typeManager: TypeManager) {
 								case p: DeclaredIds[Any] =>
 									// we need to link to the already existing foreign entity
 									// and update the foreign entity
-									val foreignVM = ValuesMap.fromType(typeManager, foreignEntity.tpe, p)
+									val foreignVM = vmFor(foreignEntity.tpe, p)
 									InsertManyToManyCmd(
 										tpe,
 										foreignEntity.tpe,
@@ -234,7 +234,7 @@ class CmdPhase(typeManager: TypeManager) {
 							EntityRelatedCmd(0, column, newVM, oldVMO, foreignTpe, null, oldFoVMO, false) :: Nil
 						} else {
 							// insert new
-							val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
+							val foreignVM = vmFor(foreignTpe, fo)
 
 							(
 								DependsCmd(newVM.identity, foreignVM.identity)
@@ -309,7 +309,7 @@ class CmdPhase(typeManager: TypeManager) {
 
 							val addedCmds = added.toList.map {
 								fo =>
-									val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, fo)
+									val foreignVM = vmFor(foreignTpe, fo)
 									EntityRelatedCmd(foreignVM.identity, column, foreignVM, None, tpe, newVM, oldVMO, true) :: insertOrUpdate(foreignTpe, fo, updateConfig)
 							}.flatten
 							val removedCms = removed.toList.map {
@@ -326,7 +326,7 @@ class CmdPhase(typeManager: TypeManager) {
 										case p: Persisted => p.mapperDaoValuesMap
 										case _ => throw new IllegalStateException("unexpected object, please file a bug with code One-To-Many:NON_PERSISTED")
 									}
-									val nVM = ValuesMap.fromType(typeManager, foreignTpe, newO)
+									val nVM = vmFor(foreignTpe, newO)
 									EntityRelatedCmd(nVM.identity, column, nVM, Some(oVM), tpe, newVM, oldVMO, true) :: update(foreignTpe, oVM, nVM, false, updateConfig)
 							}.flatten
 							addedCmds ::: removedCms ::: intersectCmds
@@ -335,7 +335,7 @@ class CmdPhase(typeManager: TypeManager) {
 							newT.map {
 								case o =>
 									// we need to insert the foreign entity and link to entity
-									val foreignVM = ValuesMap.fromType(typeManager, foreignTpe, o)
+									val foreignVM = vmFor(foreignTpe, o)
 
 									(
 										DependsCmd(foreignVM.identity, newVM.identity)
