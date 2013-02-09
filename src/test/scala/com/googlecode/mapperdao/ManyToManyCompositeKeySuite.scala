@@ -22,6 +22,73 @@ class ManyToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 		val ue = UserEntity
 		val ae = AccountEntity
 
+		test("batch insert") {
+			createTables()
+
+			noise
+			noise
+
+			val acc1 = Account(1500, "Mr X1")
+			val acc2 = Account(1600, "Mr X2")
+			val acc3 = Account(1700, "Mr X3")
+
+			val u1 = User("ref1", "user X", Set(acc1, acc2))
+			val u2 = User("ref2", "user Y", Set(acc3, acc2))
+			val List(i1, i2) = mapperDao.insertBatch(UserEntity, List(u1, u2))
+			i1 should be(u1)
+			i2 should be(u2)
+
+			mapperDao.select(UserEntity, (i1.id, i1.reference)).get should be(i1)
+			mapperDao.select(UserEntity, (i2.id, i2.reference)).get should be(i2)
+		}
+
+		test("batch update on inserted") {
+			createTables()
+
+			noise
+			noise
+
+			val acc1 = Account(1500, "Mr X1")
+			val acc2 = Account(1600, "Mr X2")
+			val acc3 = Account(1700, "Mr X3")
+			val acc4 = Account(1800, "Mr X4")
+
+			val user1 = User("ref1", "user X", Set(acc1, acc2))
+			val user2 = User("ref2", "user Y", Set(acc3, acc2))
+			val List(i1, i2) = mapperDao.insertBatch(UserEntity, List(user1, user2)).map {
+				inserted =>
+					mapperDao.update(UserEntity, inserted, inserted.copy(accounts = inserted.accounts - acc2 + acc4))
+			}
+
+			mapperDao.select(UserEntity, (i1.id, i1.reference)).get should be(i1)
+			mapperDao.select(UserEntity, (i2.id, i2.reference)).get should be(i2)
+		}
+
+		test("batch update on selected") {
+			createTables()
+
+			noise
+			noise
+
+			val acc1 = Account(1500, "Mr X1")
+			val acc2 = Account(1600, "Mr X2")
+			val acc3 = Account(1700, "Mr X3")
+			val acc4 = Account(1800, "Mr X4")
+
+			val user1 = User("ref1", "user X", Set(acc1, acc2))
+			val user2 = User("ref2", "user Y", Set(acc3, acc2))
+			val List(i1, i2) = mapperDao.insertBatch(UserEntity, List(user1, user2)).map {
+				inserted =>
+					mapperDao.update(UserEntity, inserted, inserted.copy(accounts = inserted.accounts - acc2 + acc4))
+			}.map {
+				updated =>
+					mapperDao.select(UserEntity, (updated.id, updated.reference)).get
+			}
+
+			mapperDao.select(UserEntity, (i1.id, i1.reference)).get should be(i1)
+			mapperDao.select(UserEntity, (i2.id, i2.reference)).get should be(i2)
+		}
+
 		test("query") {
 			createTables()
 
