@@ -16,7 +16,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
-	test("multiple entities, all new") {
+	test("batch insert") {
 		createTables
 		val p1 = Product(2, "blue jean", Set(Attribute(6, "colour", "blue"), Attribute(9, "size", "medium")))
 		val p2 = Product(3, "green jean", Set(Attribute(16, "colour", "green"), Attribute(19, "size", "small")))
@@ -27,13 +27,46 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 
 		import Query._
 		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1 :: p2 :: Nil)
+	}
 
-		val a1 = inserted.head.attributes.head
-		val a2 = inserted.head.attributes.tail.head
-		val p1u = p1.copy(name = "b jeans", attributes = Set(a1))
-		val p2u = p2.copy(name = "g jeans", attributes = Set(a2))
-		val updated = mapperDao.updateBatch(UpdateConfig.default, ProductEntity, (inserted.head, p1u) ::(inserted.tail.head, p2u) :: Nil)
+	test("batch update on inserted") {
+		createTables
+		val a1 = Attribute(6, "colour", "blue")
+		val a2 = Attribute(9, "size", "medium")
+		val a3 = Attribute(16, "colour", "green")
+		val a4 = Attribute(19, "size", "small")
+		val p1 = Product(2, "blue jean", Set(a1, a2))
+		val p2 = Product(3, "green jean", Set(a2, a3))
+
+		val List(i1, i2) = mapperDao.insertBatch(UpdateConfig.default, ProductEntity, p1 :: p2 :: Nil)
+
+		val p1u = i1.copy(name = "b jeans", attributes = i1.attributes - a2 + a4)
+		val p2u = i2.copy(name = "g jeans", attributes = i2.attributes - a2 + a4)
+		val updated = mapperDao.updateBatch(UpdateConfig.default, ProductEntity, (i1, p1u) ::(i2, p2u) :: Nil)
 		updated should be(p1u :: p2u :: Nil)
+		import Query._
+		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1u :: p2u :: Nil)
+	}
+
+	test("batch update on selected") {
+		createTables
+		val a1 = Attribute(6, "colour", "blue")
+		val a2 = Attribute(9, "size", "medium")
+		val a3 = Attribute(16, "colour", "green")
+		val a4 = Attribute(19, "size", "small")
+		val p1 = Product(2, "blue jean", Set(a1, a2))
+		val p2 = Product(3, "green jean", Set(a2, a3))
+
+		val List(i1, i2) = mapperDao.insertBatch(UpdateConfig.default, ProductEntity, p1 :: p2 :: Nil).map {
+			i =>
+				mapperDao.select(ProductEntity, i.id).get
+		}
+
+		val p1u = i1.copy(name = "b jeans", attributes = i1.attributes - a2 + a4)
+		val p2u = i2.copy(name = "g jeans", attributes = i2.attributes - a2 + a4)
+		val updated = mapperDao.updateBatch(UpdateConfig.default, ProductEntity, (i1, p1u) ::(i2, p2u) :: Nil)
+		updated should be(p1u :: p2u :: Nil)
+		import Query._
 		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1u :: p2u :: Nil)
 	}
 
@@ -238,7 +271,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 	case class Attribute(val id: Int, val name: String, val value: String)
 
 	object ProductEntity extends Entity[Int, Product] {
-		type Stored = SurrogateIntId
+		type Stored = NaturalIntId
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
@@ -247,7 +280,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 	}
 
 	object AttributeEntity extends Entity[Int, Attribute] {
-		type Stored = SurrogateIntId
+		type Stored = NaturalIntId
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
