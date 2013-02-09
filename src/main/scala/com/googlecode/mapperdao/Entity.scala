@@ -51,7 +51,7 @@ import com.googlecode.mapperdao.utils.LazyActions
  *
  *         13 Aug 2011
  */
-abstract class Entity[ID, T](protected[mapperdao] val table: String, protected[mapperdao] val clz: Class[T]) {
+abstract class Entity[ID, T](val table: String, val clz: Class[T]) {
 
 	/**
 	 * declares the extra trait that will be mixed into every persisted instance
@@ -739,5 +739,5 @@ abstract class Entity[ID, T](protected[mapperdao] val table: String, protected[m
 
 	// ===================== /Java section ================================
 
-	def toPersistedType(t: T): T with DeclaredIds[ID] = t.asInstanceOf[T with DeclaredIds[ID]]
+	def toPersistedType(t: T): T with Stored = t.asInstanceOf[T with Stored]
 }

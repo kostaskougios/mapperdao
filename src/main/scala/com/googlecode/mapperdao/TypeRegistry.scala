@@ -9,7 +9,7 @@ import java.util.IdentityHashMap
  *
  *         25 Jul 2011
  */
-final class TypeRegistry private(entities: List[Entity[_, _]]) {
+final class TypeRegistry private(val entities: List[Entity[_, _]]) {
 	private val columnsToEntity = new IdentityHashMap[ColumnBase, Entity[Any, Any]]
 
 	entities.foreach {
