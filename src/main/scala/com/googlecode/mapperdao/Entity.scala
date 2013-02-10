@@ -72,6 +72,8 @@ abstract class Entity[ID, T](val table: String, val clz: Class[T]) {
 
 	def constructor(implicit data: Option[_], m: ValuesMap): T with Stored = constructor(m)
 
+	protected val tableLower = table.toLowerCase
+
 	private[mapperdao] def init: Unit = {}
 
 	private var persistedColumns = List[ColumnInfoBase[T with DeclaredIds[ID], _]]()
@@ -346,7 +348,7 @@ abstract class Entity[ID, T](val table: String, val clz: Class[T]) {
 
 	private def createAlias(clz: Class[_]) = {
 		aliasCnt += 1
-		clz.getSimpleName.toLowerCase + ":" + aliasCnt
+		tableLower + ":" + aliasCnt
 	}
 
 	/**
@@ -421,15 +423,15 @@ abstract class Entity[ID, T](val table: String, val clz: Class[T]) {
 	protected class ManyToManyBuilder[FID, FT](referenced: Entity[FID, FT], reverse: Boolean)
 		extends GetterDefinition with OnlyForQueryDefinition {
 		val clz = Entity.this.clz
-		private var linkTable = if (reverse) referenced.clz.getSimpleName + "_" + clz.getSimpleName else clz.getSimpleName + "_" + referenced.clz.getSimpleName
+		private var linkTable = if (reverse) referenced.table + "_" + table else table + "_" + referenced.table
 
 		/**
 		 * create the columns based on default naming conventions
 		 */
-		private var leftColumns = keysDuringDeclaration.map(pk => clz.getSimpleName.toLowerCase + "_" + pk.name)
+		private var leftColumns = keysDuringDeclaration.map(pk => tableLower + "_" + pk.name)
 		private var rightColumns = referenced match {
-			case ee: ExternalEntity[_, _] => List(referenced.clz.getSimpleName.toLowerCase + "_id")
-			case _ => referenced.keysDuringDeclaration.map(pk => referenced.clz.getSimpleName.toLowerCase + "_" + pk.name)
+			case ee: ExternalEntity[_, _] => List(referenced.tableLower + "_id")
+			case _ => referenced.keysDuringDeclaration.map(pk => referenced.tableLower + "_" + pk.name)
 		}
 
 		if (leftColumns.isEmpty) throw new IllegalStateException("%s didn't declare any primary keys or pk declaration before this declaration".format(clz))
@@ -516,7 +518,7 @@ abstract class Entity[ID, T](val table: String, val clz: Class[T]) {
 		extends OnlyForQueryDefinition {
 		private var cols = referenced.keysDuringDeclaration.map {
 			k =>
-				referenced.clz.getSimpleName.toLowerCase + "_" + k.name
+				referenced.tableLower + "_" + k.name
 		}
 
 		def foreignkey(fk: String) = {
@@ -556,7 +558,7 @@ abstract class Entity[ID, T](val table: String, val clz: Class[T]) {
 		val clz = Entity.this.clz
 		private var fkcols = keysDuringDeclaration.map {
 			k =>
-				clz.getSimpleName.toLowerCase + "_" + k.name
+				tableLower + "_" + k.name
 		}
 
 		def foreignkey(fk: String) = {
@@ -592,7 +594,7 @@ abstract class Entity[ID, T](val table: String, val clz: Class[T]) {
 		extends GetterDefinition
 		with OnlyForQueryDefinition {
 		val clz = Entity.this.clz
-		private var fkcols = keysDuringDeclaration.map(clz.getSimpleName.toLowerCase + "_" + _.name)
+		private var fkcols = keysDuringDeclaration.map(tableLower + "_" + _.name)
 		if (fkcols.isEmpty) throw new IllegalStateException("couldn't find any declared keys for %s, are keys declared before this onetomany?".format(clz))
 
 		def foreignkey(fk: String) = {
@@ -666,7 +668,7 @@ abstract class Entity[ID, T](val table: String, val clz: Class[T]) {
 		val clz = Entity.this.clz
 		private var fkcols = referenced.keysDuringDeclaration map {
 			pk =>
-				referenced.clz.getSimpleName.toLowerCase + "_" + pk.name
+				referenced.tableLower + "_" + pk.name
 		}
 
 		def foreignkey(fk: String) = {
