@@ -22,6 +22,89 @@ class ManyToOneCompositeKeySuite extends FunSuite with ShouldMatchers {
 		val ce = CityEntity
 		val he = HouseEntity
 
+		test("batch insert, new one-part") {
+			val c1 = City("C1", "City1")
+			val c2 = City("C2", "City2")
+
+			val h1 = House("h1a", c1)
+			val h2 = House("h2a", c2)
+			val h3 = House("h3a", c2)
+
+			val List(i1, i2, i3) = mapperDao.insertBatch(HouseEntity, List(h1, h2, h3))
+			i1 should be(h1)
+			i2 should be(h2)
+			i3 should be(h3)
+
+			mapperDao.select(HouseEntity, i1.id).get should be(i1)
+			mapperDao.select(HouseEntity, i2.id).get should be(i2)
+			mapperDao.select(HouseEntity, i3.id).get should be(i3)
+		}
+
+		test("batch insert, existing one-part") {
+			val List(c1, c2) = mapperDao.insertBatch(CityEntity, List(City("C1", "City1"), City("C2", "City2")))
+
+			val h1 = House("h1a", c1)
+			val h2 = House("h2a", c2)
+			val h3 = House("h3a", c2)
+
+			val List(i1, i2, i3) = mapperDao.insertBatch(HouseEntity, List(h1, h2, h3))
+
+			mapperDao.select(HouseEntity, i1.id).get should be(i1)
+			mapperDao.select(HouseEntity, i2.id).get should be(i2)
+			mapperDao.select(HouseEntity, i3.id).get should be(i3)
+		}
+
+		test("batch update on inserted") {
+			val List(c1, c2) = mapperDao.insertBatch(CityEntity, List(City("C1", "City1"), City("C2", "City2")))
+
+			val h1 = House("h1a", c1)
+			val h2 = House("h2a", c2)
+			val h3 = House("h3a", c2)
+
+			val List(i1, i2, i3) = mapperDao.insertBatch(HouseEntity, List(h1, h2, h3))
+
+			val u1 = i1.copy(city = c2)
+			val u2 = i2.copy(city = c1)
+			val u3 = i3.copy(city = c1)
+
+			val List(up1, up2, up3) = mapperDao.updateBatch(HouseEntity, List((i1, u1), (i2, u2), (i3, u3)))
+
+			up1 should be(u1)
+			up2 should be(u2)
+			up3 should be(u3)
+
+			mapperDao.select(HouseEntity, i1.id).get should be(up1)
+			mapperDao.select(HouseEntity, i2.id).get should be(up2)
+			mapperDao.select(HouseEntity, i3.id).get should be(up3)
+		}
+
+		test("batch update on selected") {
+			val List(c1, c2) = mapperDao.insertBatch(CityEntity, List(City("C1", "City1"), City("C2", "City2")))
+
+			val h1 = House("h1a", c1)
+			val h2 = House("h2a", c2)
+			val h3 = House("h3a", c2)
+
+			val List(i1, i2, i3) = mapperDao.insertBatch(HouseEntity, List(h1, h2, h3))
+
+			val u1 = i1.copy(city = c2)
+			val u2 = i2.copy(city = c1)
+			val u3 = i3.copy(city = c1)
+
+			val List(up1, up2, up3) = mapperDao.updateBatch(HouseEntity, List((i1, u1), (i2, u2), (i3, u3))).map {
+				h =>
+					mapperDao.select(HouseEntity, h.id).get
+			}
+
+			up1 should be(u1)
+			up2 should be(u2)
+			up3 should be(u3)
+
+			mapperDao.select(HouseEntity, i1.id).get should be(up1)
+			mapperDao.select(HouseEntity, i2.id).get should be(up2)
+			mapperDao.select(HouseEntity, i3.id).get should be(up3)
+		}
+
 		test("query") {
 			createTables()
 			val city1 = mapperDao.insert(CityEntity, City("LDN", "London"))

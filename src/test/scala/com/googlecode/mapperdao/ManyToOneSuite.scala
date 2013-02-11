@@ -33,6 +33,28 @@ class ManyToOneSuite extends FunSuite with ShouldMatchers {
 		}
 	}
 
+	test("batch insert, new one-part") {
+		createTables
+		val c1 = Company(101, "C1")
+		val c2 = Company(102, "C2")
+
+		val h1 = House(201, "H1")
+		val h2 = House(202, "H2")
+
+		val p1 = Person(1, "P1", c1, h1)
+		val p2 = Person(2, "P2", c2, h2)
+		val p3 = Person(3, "P2", c2, h1)
+
+		val List(i1, i2, i3) = mapperDao.insertBatch(PersonEntity, List(p1, p2, p3))
+		i1 should be(p1)
+		i2 should be(p2)
+		i3 should be(p3)
+
+		mapperDao.select(PersonEntity, i1.id).get should be(i1)
+		mapperDao.select(PersonEntity, i2.id).get should be(i2)
+		mapperDao.select(PersonEntity, i3.id).get should be(i3)
+	}
+
 	test("insert") {
 		createTables
 
