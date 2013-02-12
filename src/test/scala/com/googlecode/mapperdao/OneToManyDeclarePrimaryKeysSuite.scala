@@ -19,6 +19,63 @@ class OneToManyDeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers {
 	if (Setup.database == "h2") {
 		val (jdbc, mapperDao, _) = Setup.setupMapperDao(TypeRegistry(HouseEntity, PersonEntity))
 
+		test("batch insert") {
+			createTables()
+			val SW = mapperDao.insert(PostCodeEntity, PostCode("SW"))
+			val SE = mapperDao.insert(PostCodeEntity, PostCode("SE"))
+
+			val p1 = Person("P1", Set(House("H1", SW), House("H2", SE)))
+			val p2 = Person("P2", Set(House("H3", SW)))
+
+			val List(i1, i2) = mapperDao.insertBatch(PersonEntity, List(p1, p2))
+			i1 should be(p1)
+			i2 should be(p2)
+
+			mapperDao.select(PersonEntity, i1.id).get should be(i1)
+			mapperDao.select(PersonEntity, i2.id).get should be(i2)
+		}
+
+		test("batch update on inserted") {
+			createTables()
+			val SW = mapperDao.insert(PostCodeEntity, PostCode("SW"))
+			val SE = mapperDao.insert(PostCodeEntity, PostCode("SE"))
+
+			val p1 = Person("P1", Set(House("H1", SW), House("H2", SE)))
+			val p2 = Person("P2", Set(House("H3", SW)))
+
+			val List(i1, i2) = mapperDao.insertBatch(PersonEntity, List(p1, p2))
+			val u1 = i1.copy(owns = i1.owns - House("H1", SW) + House("H10", SE))
+			val u2 = i2.copy(owns = i2.owns - House("H3", SW) + House("H30", SE))
+			val List(up1, up2) = mapperDao.updateBatch(PersonEntity, List((i1, u1), (i2, u2)))
+			up1 should be(u1)
+			up2 should be(u2)
+
+			mapperDao.select(PersonEntity, up1.id).get should be(up1)
+			mapperDao.select(PersonEntity, up2.id).get should be(up2)
+		}
+
+		test("batch update on selected") {
+			createTables()
+			val SW = mapperDao.insert(PostCodeEntity, PostCode("SW"))
+			val SE = mapperDao.insert(PostCodeEntity, PostCode("SE"))
+
+			val p1 = Person("P1", Set(House("H1", SW), House("H2", SE)))
+			val p2 = Person("P2", Set(House("H3", SW)))
+
+			val List(i1, i2) = mapperDao.insertBatch(PersonEntity, List(p1, p2)).map {
+				p =>
+					mapperDao.select(PersonEntity, p.id).get
+			}
+			val u1 = i1.copy(owns = i1.owns - House("H1", SW) + House("H10", SE))
+			val u2 = i2.copy(owns = i2.owns - House("H3", SW) + House("H30", SE))
+			val List(up1, up2) = mapperDao.updateBatch(PersonEntity, List((i1, u1), (i2, u2)))
+			up1 should be(u1)
+			up2 should be(u2)
+
+			mapperDao.select(PersonEntity, up1.id).get should be(up1)
+			mapperDao.select(PersonEntity, up2.id).get should be(up2)
+		}
+
 		test("update, remove") {
 			createTables()
 			val SW = mapperDao.insert(PostCodeEntity, PostCode("SW"))

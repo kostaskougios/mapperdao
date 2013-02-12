@@ -20,6 +20,61 @@ class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers {
 
 	val (jdbc, mapperDao, queryDao) = setup
 
+	test("batch insert") {
+		createTables
+
+		val p1 = new Person("P1", Set(new Person("F1", Set()), new Person("F2", Set())))
+		val p2 = new Person("P2", Set(new Person("F3", Set()), new Person("F4", Set())))
+
+		val List(i1, i2) = mapperDao.insertBatch(PersonEntity, List(p1, p2))
+		i1 should be(p1)
+		i2 should be(p2)
+
+		mapperDao.select(PersonEntity, i1.id).get should be(i1)
+		mapperDao.select(PersonEntity, i2.id).get should be(i2)
+	}
+
+	test("batch update on inserted") {
+		createTables
+
+		val f1 = new Person("F1", Set())
+		val p1 = new Person("P1", Set(f1, new Person("F2", Set())))
+		val f3 = new Person("F3", Set())
+		val p2 = new Person("P2", Set(f3, new Person("F4", Set())))
+
+		val List(i1, i2) = mapperDao.insertBatch(PersonEntity, List(p1, p2))
+		val u1 = i1.copy(friends = i1.friends - f1 + new Person("F10", Set()))
+		val u2 = i2.copy(friends = i2.friends - f3 + new Person("F30", Set()))
+		val List(up1, up2) = mapperDao.updateBatch(PersonEntity, List((i1, u1), (i2, u2)))
+		up1 should be(u1)
+		up2 should be(u2)
+
+		mapperDao.select(PersonEntity, up1.id).get should be(up1)
+		mapperDao.select(PersonEntity, up2.id).get should be(up2)
+	}
+
+	test("batch update on selected") {
+		createTables
+
+		val f1 = new Person("F1", Set())
+		val p1 = new Person("P1", Set(f1, new Person("F2", Set())))
+		val f3 = new Person("F3", Set())
+		val p2 = new Person("P2", Set(f3, new Person("F4", Set())))
+
+		val List(i1, i2) = mapperDao.insertBatch(PersonEntity, List(p1, p2)).map {
+			p =>
+				mapperDao.select(PersonEntity, p.id).get
+		}
+		val u1 = i1.copy(friends = i1.friends - f1 + new Person("F10", Set()))
+		val u2 = i2.copy(friends = i2.friends - f3 + new Person("F30", Set()))
+		val List(up1, up2) = mapperDao.updateBatch(PersonEntity, List((i1, u1), (i2, u2)))
+		up1 should be(u1)
+		up2 should be(u2)
+
+		mapperDao.select(PersonEntity, up1.id).get should be(up1)
+		mapperDao.select(PersonEntity, up2.id).get should be(up2)
+	}
+
 	test("insert") {
 		createTables
 

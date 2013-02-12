@@ -22,6 +22,67 @@ class OneToManyCompositeKeySuite extends FunSuite with ShouldMatchers {
 		val he = HouseEntity
 		val de = DoorEntity
 
+		test("batch insert") {
+			createTables()
+			noise
+			noise
+
+			val h1 = House("H1", Set(Door("D1"), Door("D2")))
+			val h2 = House("H2", Set(Door("D3"), Door("D4")))
+
+			val List(i1, i2) = mapperDao.insertBatch(HouseEntity, List(h1, h2))
+			i1 should be(h1)
+			i2 should be(h2)
+
+			mapperDao.select(HouseEntity, (i1.id, i1.address)).get should be(i1)
+			mapperDao.select(HouseEntity, (i2.id, i2.address)).get should be(i2)
+		}
+
+		test("batch update on inserted") {
+			createTables()
+			noise
+			noise
+
+			val h1 = House("H1", Set(Door("D1"), Door("D2")))
+			val h2 = House("H2", Set(Door("D3"), Door("D4")))
+
+			val List(i1, i2) = mapperDao.insertBatch(HouseEntity, List(h1, h2))
+
+			val u1 = i1.copy(doors = i1.doors - Door("D1") + Door("D10"))
+			val u2 = i2.copy(doors = i2.doors - Door("D3") + Door("D30"))
+
+			val List(up1, up2) = mapperDao.updateBatch(HouseEntity, List((i1, u1), (i2, u2)))
+			up1 should be(u1)
+			up2 should be(u2)
+
+			mapperDao.select(HouseEntity, (up1.id, up1.address)).get should be(up1)
+			mapperDao.select(HouseEntity, (up2.id, up2.address)).get should be(up2)
+		}
+
+		test("batch update on selected") {
+			createTables()
+			noise
+			noise
+
+			val h1 = House("H1", Set(Door("D1"), Door("D2")))
+			val h2 = House("H2", Set(Door("D3"), Door("D4")))
+
+			val List(i1, i2) = mapperDao.insertBatch(HouseEntity, List(h1, h2)).map {
+				h =>
+					mapperDao.select(HouseEntity, (h.id, h.address)).get
+			}
+
+			val u1 = i1.copy(doors = i1.doors - Door("D1") + Door("D10"))
+			val u2 = i2.copy(doors = i2.doors - Door("D3") + Door("D30"))
+
+			val List(up1, up2) = mapperDao.updateBatch(HouseEntity, List((i1, u1), (i2, u2)))
+			up1 should be(u1)
+			up2 should be(u2)
+
+			mapperDao.select(HouseEntity, (up1.id, up1.address)).get should be(up1)
+			mapperDao.select(HouseEntity, (up2.id, up2.address)).get should be(up2)
+		}
+
 		test("query") {
 			createTables()
 
