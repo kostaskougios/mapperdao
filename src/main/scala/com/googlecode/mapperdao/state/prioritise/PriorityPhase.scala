@@ -57,6 +57,8 @@ class PriorityPhase(updateConfig: UpdateConfig) {
 			val before = tpe.table.relationshipColumnInfos(updateConfig.skip).collect {
 				case ColumnInfoManyToOne(column, _, _) =>
 					prioritiseType(column.foreign.entity.tpe)
+				case ColumnInfoOneToOne(column, _) =>
+					prioritiseType(column.foreign.entity.tpe)
 			}.flatten
 
 			(before ::: tpe :: after).distinct

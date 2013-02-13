@@ -52,6 +52,23 @@ case class Prioritized(
 					} else {
 						foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
 					}
+				case OneToOne(foreign, selfColumns) =>
+					selfColumns zip (
+						if (isOld) {
+							val fvm = oldForeignVMO.getOrElse(foreignVM)
+							fvm match {
+								case null => Prioritized.nullList
+								case ovm => ovm.toListOfPrimaryKeys(foreignTpe)
+							}
+						}
+						else {
+							if (foreignVM == null)
+								Prioritized.nullList
+							else {
+								foreignVM.toListOfPrimaryKeys(foreignTpe)
+							}
+						}
+						)
 			}
 		case ExternalEntityRelatedCmd(_, column, _, _, foreignTpe, foreignKeys) =>
 			column match {

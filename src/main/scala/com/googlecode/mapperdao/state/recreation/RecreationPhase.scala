@@ -67,6 +67,14 @@ class RecreationPhase(
 										column.alias,
 										recreate(updateConfig, relatedNodes)
 										)
+								case ColumnInfoOneToOne(column, _) =>
+									val oto = newVM.oneToOne(column)
+									if (oto == null) {
+										(column.alias, null)
+									} else {
+										val relatedNodes = toNode(oto) :: Nil
+										(column.alias, recreate(updateConfig, relatedNodes).head)
+									}
 							}
 
 							val finalMods = modified ++ related
