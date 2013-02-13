@@ -10,7 +10,7 @@ import com.googlecode.mapperdao.utils.Helpers
 /**
  * @author kostantinos.kougios
  *
- * 1 Sep 2011
+ *         1 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
 class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
@@ -26,9 +26,9 @@ class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
 		val p2 = Helpers.asSurrogateIntId(inventories(2).product)
 		(
 			select
-			from i
-			where i.product === p2
-		).toSet should be === Set(inventories(2))
+				from i
+				where i.product === p2
+			).toSet should be === Set(inventories(2))
 	}
 
 	test("update to null") {
@@ -103,26 +103,29 @@ class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
 		mapperDao.select(InventoryEntity, 10).get should be === inserted
 	}
 
-	def createTables =
-		{
-			Setup.dropAllTables(jdbc)
-			Setup.queries(this, jdbc).update("ddl")
-		}
+	def createTables = {
+		Setup.dropAllTables(jdbc)
+		Setup.queries(this, jdbc).update("ddl")
+	}
 
 	case class Inventory(val id: Int, val product: Product, val stock: Int)
+
 	case class Product(val id: Int)
 
-	object InventoryEntity extends Entity[Int, SurrogateIntId, Inventory] {
+	object InventoryEntity extends Entity[Int, Inventory] {
+		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val product = onetoone(ProductEntity) to (_.product)
 		val stock = column("stock") to (_.stock)
 
-		def constructor(implicit m) = new Inventory(id, product, stock) with SurrogateIntId
+		def constructor(implicit m) = new Inventory(id, product, stock) with Stored
 	}
 
-	object ProductEntity extends Entity[Int, SurrogateIntId, Product] {
+	object ProductEntity extends Entity[Int, Product] {
+		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 
-		def constructor(implicit m) = new Product(id) with SurrogateIntId
+		def constructor(implicit m) = new Product(id) with Stored
 	}
+
 }

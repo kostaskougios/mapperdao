@@ -62,6 +62,9 @@ class ValuesMap private[mapperdao](private[mapperdao] var identity: Int, mOrig: 
 	protected[mapperdao] def oneToMany[FID, FT](column: OneToMany[FID, FT]): List[FT] =
 		valueOf[Traversable[FT]](column).toList
 
+	protected[mapperdao] def oneToOne[FID, FT](column: OneToOne[FID, FT]): FT =
+		valueOf[FT](column)
+
 	private def valueOf[T](column: String): T = {
 		// to avoid lazy loading twice in 2 separate threads, and avoid corrupting the map, we need to sync
 		val v = synchronized {

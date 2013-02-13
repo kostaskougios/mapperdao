@@ -21,6 +21,65 @@ class OneToManySuite extends FunSuite with ShouldMatchers {
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity, HouseEntity, PersonEntity))
 
+	test("insert batch") {
+		createTables
+		val jp1 = new JobPosition(3, "J1", 10)
+		val jp2 = new JobPosition(5, "J2", 10)
+		val jp3 = new JobPosition(7, "J3", 10)
+		val p1 = new Person(3, "P1", "X", Set(House(1, "H1"), House(2, "H2")), 16, List(jp1))
+		val p2 = new Person(4, "P2", "Y", Set(House(3, "H3"), House(4, "H4")), 25, List(jp2, jp3))
+
+		val List(i1, i2) = mapperDao.insertBatch(PersonEntity, List(p1, p2))
+		i1 should be(p1)
+		i2 should be(p2)
+
+		mapperDao.select(PersonEntity, i1.id).get should be(i1)
+		mapperDao.select(PersonEntity, i2.id).get should be(i2)
+	}
+
+	test("update batch on inserted") {
+		createTables
+		val jp1 = new JobPosition(3, "J1", 10)
+		val jp2 = new JobPosition(5, "J2", 10)
+		val jp3 = new JobPosition(7, "J3", 10)
+		val p1 = new Person(3, "P1", "X", Set(House(1, "H1"), House(2, "H2")), 16, List(jp1))
+		val p2 = new Person(4, "P2", "Y", Set(House(3, "H3"), House(4, "H4")), 25, List(jp2, jp3))
+
+		val List(i1, i2) = mapperDao.insertBatch(PersonEntity, List(p1, p2))
+
+		val u1 = i1.copy(owns = i1.owns - House(1, "H1") + House(11, "H11"))
+		val u2 = i2.copy(owns = i2.owns - House(3, "H3") + House(13, "H13"))
+		val List(up1, up2) = mapperDao.updateBatch(PersonEntity, List((i1, u1), (i2, u2)))
+		up1 should be(u1)
+		up2 should be(u2)
+
+		mapperDao.select(PersonEntity, up1.id).get should be(up1)
+		mapperDao.select(PersonEntity, up2.id).get should be(up2)
+	}
+
+	test("update batch on selected") {
+		createTables
+		val jp1 = new JobPosition(3, "J1", 10)
+		val jp2 = new JobPosition(5, "J2", 10)
+		val jp3 = new JobPosition(7, "J3", 10)
+		val p1 = new Person(3, "P1", "X", Set(House(1, "H1"), House(2, "H2")), 16, List(jp1))
+		val p2 = new Person(4, "P2", "Y", Set(House(3, "H3"), House(4, "H4")), 25, List(jp2, jp3))
+
+		val List(i1, i2) = mapperDao.insertBatch(PersonEntity, List(p1, p2)).map {
+			p =>
+				mapperDao.select(PersonEntity, p.id).get
+		}
+
+		val u1 = i1.copy(owns = i1.owns - House(1, "H1") + House(11, "H11"))
+		val u2 = i2.copy(owns = i2.owns - House(3, "H3") + House(13, "H13"))
+		val List(up1, up2) = mapperDao.updateBatch(PersonEntity, List((i1, u1), (i2, u2)))
+		up1 should be(u1)
+		up2 should be(u2)
+
+		mapperDao.select(PersonEntity, up1.id).get should be(up1)
+		mapperDao.select(PersonEntity, up2.id).get should be(up2)
+	}
+
 	test("updating id of many entity") {
 		createTables
 
@@ -254,13 +313,6 @@ object OneToManySuite {
 		val surname = column("surname") to (_.surname)
 		val houses = onetomany(HouseEntity) to (_.owns)
 		val age = column("age") to (_.age)
-		/**
-		 * a traversable one-to-many relationship with JobPositions.
-		 * The type of the relationship is classOf[JobPosition] and the alias
-		 * for retrieving the Traversable is jobPositionsAlias. This is used above, when
-		 * creating Person: new Person(....,m.toList("jobPositionsAlias")) .
-		 * JobPositions table has a person_id foreign key which references Person table.
-		 */
 		val jobPositions = onetomany(JobPositionEntity) to (_.positions)
 
 		def constructor(implicit m) = new Person(id, name, surname, houses, age, m(jobPositions).toList.sortWith(_.id < _.id)) with Stored
