@@ -378,6 +378,38 @@ class CmdPhase(typeManager: TypeManager) {
 						}
 				}
 
+			/**
+			 * ---------------------------------------------------------------------------------------------
+			 * One-To-One-Reverse
+			 * ---------------------------------------------------------------------------------------------
+			 */
+			case ColumnInfoOneToOneReverse(column, columnToValue, _) =>
+				val fo = newVM.oneToOneReverse(column)
+				column.foreign.entity match {
+					case foreignEntity =>
+						val foreignTpe = foreignEntity.tpe
+						if (fo == null) {
+							//EntityRelatedCmd(0, column, newVM, oldVMO, foreignTpe, null, oldFoVMO, false)
+							EntityRelatedCmd(0, column, null, None, tpe, newVM, oldVMO, true) :: Nil
+						} else {
+							val oldFo = oldVMO.map(_.oneToOneReverse(column))
+							// insert new
+							val foreignVM = vmFor(foreignTpe, fo)
+							//EntityRelatedCmd(foreignVM.identity, column, newVM, oldVMO, foreignTpe, foreignVM, oldFoVMO, false)
+
+							(
+								EntityRelatedCmd(foreignVM.identity, column, foreignVM, None, tpe, newVM, oldVMO, true)
+									:: (oldFo match {
+									case Some(p: DeclaredIds[_]) =>
+										doUpdate(foreignTpe.asInstanceOf[Type[Any, Any]], p.asInstanceOf[Any with DeclaredIds[Any]], updateConfig)
+									case None =>
+										// we need to insert the foreign entity and link to entity
+										insert(foreignTpe, foreignVM, false, updateConfig)
+								})
+								)
+						}
+				}
+
 		}.flatten
 	}
 

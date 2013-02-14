@@ -9,11 +9,13 @@ import org.scalatest.matchers.ShouldMatchers
 /**
  * @author kostantinos.kougios
  *
- * 31 Aug 2011
+ *         31 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
 class OneToOneImmutableOneWaySuite extends FunSuite with ShouldMatchers {
-	import OneToOneImmutableOneWaySpec._
+
+	import OneToOneImmutableOneWaySuite._
+
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
 
 	if (Setup.database != "derby") {
@@ -63,39 +65,43 @@ class OneToOneImmutableOneWaySuite extends FunSuite with ShouldMatchers {
 
 	test("insert") {
 		createTables
-		val product = new Product(1, Inventory(10))
+		val product = new Product(3, Inventory(10))
 		val inserted = mapperDao.insert(ProductEntity, product)
 		inserted should be === product
 	}
 
 	test("select") {
 		createTables
-		val product = new Product(1, Inventory(10))
+		val product = new Product(8, Inventory(10))
 		val inserted = mapperDao.insert(ProductEntity, product)
 		mapperDao.select(ProductEntity, inserted.id).get should be === inserted
 	}
 
-	def createTables =
-		{
-			Setup.dropAllTables(jdbc)
-			Setup.queries(this, jdbc).update("ddl")
-		}
+	def createTables = {
+		Setup.dropAllTables(jdbc)
+		Setup.queries(this, jdbc).update("ddl")
+	}
 }
 
-object OneToOneImmutableOneWaySpec {
+object OneToOneImmutableOneWaySuite {
+
 	case class Inventory(val stock: Int)
+
 	case class Product(val id: Int, val inventory: Inventory)
 
-	object InventoryEntity extends Entity[Unit, NoId, Inventory] {
+	object InventoryEntity extends Entity[Unit, Inventory] {
+		type Stored = NoId
 		val stock = column("stock") to (_.stock)
 
-		def constructor(implicit m) = new Inventory(stock) with NoId
+		def constructor(implicit m) = new Inventory(stock) with Stored
 	}
 
-	object ProductEntity extends Entity[Int, SurrogateIntId, Product] {
+	object ProductEntity extends Entity[Int, Product] {
+		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 
-		def constructor(implicit m) = new Product(id, inventory) with SurrogateIntId
+		def constructor(implicit m) = new Product(id, inventory) with Stored
 	}
+
 }

@@ -52,6 +52,8 @@ class PriorityPhase(updateConfig: UpdateConfig) {
 					prioritiseType(column.foreign.entity.tpe)
 				case ColumnInfoTraversableOneToMany(column, _, _, _) =>
 					prioritiseType(column.foreign.entity.tpe)
+				case ColumnInfoOneToOneReverse(column, _, _) =>
+					prioritiseType(column.foreign.entity.tpe)
 			}.flatten
 
 			val before = tpe.table.relationshipColumnInfos(updateConfig.skip).collect {
