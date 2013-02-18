@@ -25,12 +25,12 @@ case class Prioritized(
 
 	def relatedFor(vm: ValuesMap) = relatedById.getOrElse(vm.identity, Nil)
 
-	def relatedColumns(vm: ValuesMap, isOld: Boolean) = relatedFor(vm).map {
+	def relatedColumns(vm: ValuesMap, applyOnOldValue: Boolean) = relatedFor(vm).map {
 		case EntityRelatedCmd(_, column, vm, _, foreignTpe, foreignVM, oldForeignVMO, _) =>
 			column match {
 				case ManyToOne(columns, foreign) =>
 					columns zip (
-						if (isOld) {
+						if (applyOnOldValue) {
 							val fvm = oldForeignVMO.getOrElse(foreignVM)
 							fvm match {
 								case null => Prioritized.nullList
@@ -46,7 +46,7 @@ case class Prioritized(
 						}
 						)
 				case OneToMany(foreign, foreignColumns) =>
-					if (isOld) {
+					if (applyOnOldValue) {
 						val fvm = oldForeignVMO.getOrElse(foreignVM)
 						foreignColumns zip fvm.toListOfPrimaryKeys(foreignTpe)
 					} else {
@@ -54,7 +54,7 @@ case class Prioritized(
 					}
 				case OneToOne(foreign, selfColumns) =>
 					selfColumns zip (
-						if (isOld) {
+						if (applyOnOldValue) {
 							val fvm = oldForeignVMO.getOrElse(foreignVM)
 							fvm match {
 								case null => Prioritized.nullList
@@ -71,7 +71,7 @@ case class Prioritized(
 						)
 				case OneToOneReverse(foreign, foreignColumns) =>
 					foreignColumns zip (
-						if (isOld) {
+						if (applyOnOldValue) {
 							val fvm = oldForeignVMO.getOrElse(foreignVM)
 							fvm match {
 								case null => Prioritized.nullList
@@ -90,7 +90,7 @@ case class Prioritized(
 		case ExternalEntityRelatedCmd(_, column, _, _, foreignTpe, foreignKeys) =>
 			column match {
 				case ManyToOne(columns, foreign) =>
-					if (isOld)
+					if (applyOnOldValue)
 						Nil
 					else
 						columns zip foreignKeys
