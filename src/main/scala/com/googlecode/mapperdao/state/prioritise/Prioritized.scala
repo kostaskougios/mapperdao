@@ -103,6 +103,9 @@ case class Prioritized(
 				case OneToMany(foreign, foreignColumns) =>
 					val fks = foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
 					fks
+				case OneToOneReverse(foreign, foreignColumns) =>
+					val fks = foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
+					fks
 			}
 	}.flatten
 }

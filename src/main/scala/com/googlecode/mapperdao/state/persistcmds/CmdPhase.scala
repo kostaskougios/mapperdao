@@ -401,7 +401,7 @@ class CmdPhase(typeManager: TypeManager) {
 								EntityRelatedCmd(foreignVM.identity, column, foreignVM, None, tpe, newVM, oldVMO, true)
 									:: (oldFo match {
 									case Some(p: DeclaredIds[_]) =>
-										doUpdate(foreignTpe.asInstanceOf[Type[Any, Any]], p.asInstanceOf[Any with DeclaredIds[Any]], updateConfig)
+										update(foreignTpe, p.mapperDaoValuesMap, foreignVM, false, updateConfig)
 									case None =>
 										// we need to insert the foreign entity and link to entity
 										insert(foreignTpe, foreignVM, false, updateConfig)
@@ -434,11 +434,6 @@ class CmdPhase(typeManager: TypeManager) {
 		update(tpe, p.mapperDaoValuesMap, newVM, false, updateConfig)
 	}
 
-	//	def findVM(cmds: List[PersistCmd], fo: Any) = cmds.head match {
-	//		case wvm: CmdWithNewVM => val vm = wvm.newVM
-	//		if (vm.identity != System.identityHashCode(fo)) throw new IllegalStateException("didn't find correct VM for " + fo)
-	//		vm
-	//	}
 	def findVM(fo: Any) = vms(System.identityHashCode(fo))
 
 	private val vms = scala.collection.mutable.HashMap.empty[Int, ValuesMap]
