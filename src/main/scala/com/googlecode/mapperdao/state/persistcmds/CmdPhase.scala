@@ -15,24 +15,24 @@ class CmdPhase(typeManager: TypeManager) {
 	private var alreadyProcessed = Map[Int, List[PersistCmd]]()
 
 	def toInsertCmd[ID, T](
-		tpe: Type[ID, T],
-		newVM: ValuesMap,
-		updateConfig: UpdateConfig
-		) = insert(tpe, newVM, true, updateConfig)
+		                      tpe: Type[ID, T],
+		                      newVM: ValuesMap,
+		                      updateConfig: UpdateConfig
+		                      ) = insert(tpe, newVM, true, updateConfig)
 
 	def toUpdateCmd[ID, T](
-		tpe: Type[ID, T],
-		oldValuesMap: ValuesMap,
-		newValuesMap: ValuesMap,
-		updateConfig: UpdateConfig
-		) = update(tpe, oldValuesMap, newValuesMap, true, updateConfig)
+		                      tpe: Type[ID, T],
+		                      oldValuesMap: ValuesMap,
+		                      newValuesMap: ValuesMap,
+		                      updateConfig: UpdateConfig
+		                      ) = update(tpe, oldValuesMap, newValuesMap, true, updateConfig)
 
 	private def insert[ID, T](
-		tpe: Type[ID, T],
-		newVM: ValuesMap,
-		mainEntity: Boolean,
-		updateConfig: UpdateConfig
-		): List[PersistCmd] = {
+		                         tpe: Type[ID, T],
+		                         newVM: ValuesMap,
+		                         mainEntity: Boolean,
+		                         updateConfig: UpdateConfig
+		                         ): List[PersistCmd] = {
 		alreadyProcessed.get(newVM.identity) match {
 			case None =>
 				val table = tpe.table
@@ -50,12 +50,12 @@ class CmdPhase(typeManager: TypeManager) {
 	}
 
 	private def update[ID, T](
-		tpe: Type[ID, T],
-		oldVM: ValuesMap,
-		newVM: ValuesMap,
-		mainEntity: Boolean,
-		updateConfig: UpdateConfig
-		): List[PersistCmd] = {
+		                         tpe: Type[ID, T],
+		                         oldVM: ValuesMap,
+		                         newVM: ValuesMap,
+		                         mainEntity: Boolean,
+		                         updateConfig: UpdateConfig
+		                         ): List[PersistCmd] = {
 		val op = alreadyProcessed.get(newVM.identity)
 		if (op.isDefined) {
 			Nil
@@ -84,11 +84,11 @@ class CmdPhase(typeManager: TypeManager) {
 	 * ---------------------------------------------------------------------------------------------
 	 */
 	private def related[ID, T](
-		tpe: Type[ID, T],
-		oldVMO: Option[ValuesMap],
-		newVM: ValuesMap,
-		updateConfig: UpdateConfig
-		): List[PersistCmd] = {
+		                          tpe: Type[ID, T],
+		                          oldVMO: Option[ValuesMap],
+		                          newVM: ValuesMap,
+		                          updateConfig: UpdateConfig
+		                          ): List[PersistCmd] = {
 		tpe.table.relationshipColumnInfos(updateConfig.skip).map {
 			/**
 			 * ---------------------------------------------------------------------------------------------
@@ -405,10 +405,13 @@ class CmdPhase(typeManager: TypeManager) {
 							val oldFo = oldVMO.map(_.oneToOneReverse(column))
 							// insert new
 							val foreignVM = vmFor(foreignTpe, fo)
-							//EntityRelatedCmd(foreignVM.identity, column, newVM, oldVMO, foreignTpe, foreignVM, oldFoVMO, false)
-
+							val oldFVMO = oldFo match {
+								case p: Persisted =>
+									Some(p.mapperDaoValuesMap)
+								case _ => None
+							}
 							(
-								EntityRelatedCmd(foreignVM.identity, column, foreignVM, None, tpe, newVM, oldVMO, true)
+								EntityRelatedCmd(foreignVM.identity, column, foreignVM, oldFVMO, tpe, newVM, oldVMO, true)
 									:: (oldFo match {
 									case Some(p: DeclaredIds[_]) =>
 										update(foreignTpe, p.mapperDaoValuesMap, foreignVM, false, updateConfig)
