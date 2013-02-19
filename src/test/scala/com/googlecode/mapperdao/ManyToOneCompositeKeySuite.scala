@@ -23,6 +23,7 @@ class ManyToOneCompositeKeySuite extends FunSuite with ShouldMatchers {
 		val he = HouseEntity
 
 		test("batch insert, new one-part") {
+			createTables()
 			val c1 = City("C1", "City1")
 			val c2 = City("C2", "City2")
 
@@ -41,6 +42,7 @@ class ManyToOneCompositeKeySuite extends FunSuite with ShouldMatchers {
 		}
 
 		test("batch insert, existing one-part") {
+			createTables()
 			val List(c1, c2) = mapperDao.insertBatch(CityEntity, List(City("C1", "City1"), City("C2", "City2")))
 
 			val h1 = House("h1a", c1)
@@ -55,6 +57,7 @@ class ManyToOneCompositeKeySuite extends FunSuite with ShouldMatchers {
 		}
 
 		test("batch update on inserted") {
+			createTables()
 			val List(c1, c2) = mapperDao.insertBatch(CityEntity, List(City("C1", "City1"), City("C2", "City2")))
 
 			val h1 = House("h1a", c1)
@@ -79,6 +82,7 @@ class ManyToOneCompositeKeySuite extends FunSuite with ShouldMatchers {
 		}
 
 		test("batch update on selected") {
+			createTables()
 			val List(c1, c2) = mapperDao.insertBatch(CityEntity, List(City("C1", "City1"), City("C2", "City2")))
 
 			val h1 = House("h1a", c1)
