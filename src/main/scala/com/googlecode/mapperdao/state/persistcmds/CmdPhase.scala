@@ -389,8 +389,19 @@ class CmdPhase(typeManager: TypeManager) {
 					case foreignEntity =>
 						val foreignTpe = foreignEntity.tpe
 						if (fo == null) {
-							//EntityRelatedCmd(0, column, newVM, oldVMO, foreignTpe, null, oldFoVMO, false)
-							EntityRelatedCmd(0, column, null, None, tpe, newVM, oldVMO, true) :: Nil
+							val oldFVM = oldVMO.map {
+								oldVM =>
+									oldVM.oneToOneReverse(column) match {
+										case oldFo: DeclaredIds[_] =>
+											oldFo.mapperDaoValuesMap
+									}
+							}
+							if (oldFVM.isDefined && oldFVM.get != null) {
+								EntityRelatedCmd(0, column, null, oldFVM, tpe, newVM, oldVMO, true) :: DeleteCmd(foreignTpe, oldFVM.get) :: Nil
+							} else {
+								//								EntityRelatedCmd(newVM.identity, column, newVM, oldVMO, foreignTpe, null, oldFVM, true) :: Nil
+								Nil
+							}
 						} else {
 							val oldFo = oldVMO.map(_.oneToOneReverse(column))
 							// insert new

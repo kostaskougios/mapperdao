@@ -19,7 +19,7 @@ case class Prioritized(
 	related: List[RelatedCmd],
 	dependent: List[DependsCmd]
 	) {
-	private val relatedById = related.groupBy(_.newVM.identity) ++ (
+	private val relatedById = related.filter(_.newVM != null).groupBy(_.newVM.identity) ++ (
 		related.filterNot(_.oldVMO == None).groupBy(_.oldVMO.get.identity)
 		)
 
@@ -75,7 +75,8 @@ case class Prioritized(
 							val fvm = oldForeignVMO.getOrElse(foreignVM)
 							fvm match {
 								case null => Prioritized.nullList
-								case ovm => ovm.toListOfPrimaryKeys(foreignTpe)
+								case ovm =>
+									ovm.toListOfPrimaryKeys(foreignTpe)
 							}
 						}
 						else {
@@ -104,7 +105,10 @@ case class Prioritized(
 					val fks = foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
 					fks
 				case OneToOneReverse(foreign, foreignColumns) =>
-					val fks = foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
+					val fks = if (foreignVM == null)
+						foreignColumns zip Prioritized.nullList
+					else
+						foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
 					fks
 			}
 	}.flatten

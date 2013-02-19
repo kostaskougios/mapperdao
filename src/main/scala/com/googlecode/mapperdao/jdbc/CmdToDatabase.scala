@@ -240,7 +240,8 @@ class CmdToDatabase(
 
 			case dc@DeleteCmd(tpe, vm) =>
 				persistedIdentities += dc.identity
-				val args = vm.toListOfPrimaryKeyAndValueTuple(tpe)
+				val relatedKeys = prioritized.relatedKeys(vm)
+				val args = vm.toListOfPrimaryKeyAndValueTuple(tpe) ::: relatedKeys
 				driver.deleteSql(tpe, args).result :: Nil
 
 			case UpdateExternalManyToOneCmd(foreignEE, ci, newVM, fo) =>
