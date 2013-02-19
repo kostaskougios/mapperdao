@@ -399,7 +399,6 @@ class CmdPhase(typeManager: TypeManager) {
 							if (oldFVM.isDefined && oldFVM.get != null) {
 								EntityRelatedCmd(0, column, null, oldFVM, tpe, newVM, oldVMO, true) :: DeleteCmd(foreignTpe, oldFVM.get) :: Nil
 							} else {
-								//								EntityRelatedCmd(newVM.identity, column, newVM, oldVMO, foreignTpe, null, oldFVM, true) :: Nil
 								Nil
 							}
 						} else {
@@ -413,7 +412,7 @@ class CmdPhase(typeManager: TypeManager) {
 									:: (oldFo match {
 									case Some(p: DeclaredIds[_]) =>
 										update(foreignTpe, p.mapperDaoValuesMap, foreignVM, false, updateConfig)
-									case None =>
+									case _ =>
 										// we need to insert the foreign entity and link to entity
 										insert(foreignTpe, foreignVM, false, updateConfig)
 								})
