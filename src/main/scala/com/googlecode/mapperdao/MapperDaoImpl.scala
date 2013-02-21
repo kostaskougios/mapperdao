@@ -87,7 +87,7 @@ protected final class MapperDaoImpl(
 		val osAndNewValues = os.map {
 			o =>
 				o match {
-					case p: Persisted if (p.mapperDaoMock) =>
+					case p: Persisted if (p.mapperDaoValuesMap.mock) =>
 						throw new IllegalStateException("Object %s is mock.".format(p))
 					case persisted: Persisted =>
 						val newValuesMap = ValuesMap.fromType(typeManager, tpe, o)

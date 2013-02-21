@@ -20,7 +20,7 @@ class MockFactory(typeManager: TypeManager) {
 		data: Option[Any],
 		tpe: Type[ID, T],
 		mods: Map[String, Any]
-	): T with DeclaredIds[ID] = {
+		): T with DeclaredIds[ID] = {
 		val mockMods = new scala.collection.mutable.HashMap[String, Any] ++ mods
 		mockPlugins.foreach {
 			_.updateMock(tpe, mockMods)
@@ -29,7 +29,7 @@ class MockFactory(typeManager: TypeManager) {
 		val preMock = tpe.constructor(data, vm)
 		val mock = tpe.constructor(data, ValuesMap.fromType(typeManager, tpe, preMock))
 		// mark it as mock
-		mock.mapperDaoMock = true
+		mock.mapperDaoValuesMap.mock = true
 		mock.mapperDaoValuesMap.identity = System.identityHashCode(mock)
 		mock
 	}

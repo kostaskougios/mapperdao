@@ -9,7 +9,7 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 		deleteConfig: DeleteConfig,
 		o: T with DeclaredIds[ID],
 		entityMap: UpdateEntityMap
-	): List[(SimpleColumn, Any)] = {
+		): List[(SimpleColumn, Any)] = {
 		val UpdateInfo(parentO, ci, parentEntity) = entityMap.peek[Any, Any, Traversable[T], Any, T]
 		ci match {
 			case oneToMany: ColumnInfoTraversableOneToMany[_, _, _, T] =>
@@ -25,7 +25,7 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 		o: T with DeclaredIds[ID],
 		keyValues: List[(ColumnBase, Any)],
 		entityMap: UpdateEntityMap
-	) =
+		) =
 		if (deleteConfig.propagate) {
 			val tpe = entity.tpe
 			tpe.table.oneToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach {
@@ -43,7 +43,7 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 							if (fOTraversable != null) fOTraversable.foreach {
 								fO =>
 									val fOPersisted = fO.asInstanceOf[DeclaredIds[Any]]
-									if (!fOPersisted.mapperDaoMock) {
+									if (!fOPersisted.mapperDaoValuesMap.mock) {
 										mapperDao.delete(deleteConfig, fe, fOPersisted)
 									}
 							}

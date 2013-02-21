@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * @author kostantinos.kougios
  *
- * 6 May 2012
+ *         6 May 2012
  */
 private[mapperdao] class MultiThreadedQueryEntityMapImpl(m: ConcurrentHashMap[List[Any], Option[_]]) extends EntityMap {
 	override def get[T](clz: Class[_], ids: List[Any])(f: => Option[T]): Option[T] = {
@@ -20,7 +20,7 @@ private[mapperdao] class MultiThreadedQueryEntityMapImpl(m: ConcurrentHashMap[Li
 				vo match {
 					case Some(v) =>
 						v match {
-							case p: Persisted if (!p.mapperDaoMock) =>
+							case p: Persisted if (!p.mapperDaoValuesMap.mock) =>
 								// we can store non-mock into the global cache
 								m.put(k, vo)
 							case _ =>

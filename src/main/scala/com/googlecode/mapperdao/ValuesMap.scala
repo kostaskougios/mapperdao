@@ -26,6 +26,9 @@ class ValuesMap private[mapperdao](private[mapperdao] var identity: Int, mOrig: 
 	with SynchronizedMemoryEfficientMap[String, Any] {
 	if (identity <= 0) throw new IllegalStateException("invalid id of " + identity)
 
+	// is the object a mock object?
+	private[mapperdao] var mock = false
+
 	initializeMEM(mOrig.map {
 		case (k, v) => (k.toLowerCase, v)
 	})

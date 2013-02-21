@@ -16,7 +16,4 @@ private[mapperdao] trait Persisted {
 	// after an orm operation, an object must be discarded. This guards the rule.
 	@transient
 	private[mapperdao] var mapperDaoDiscarded = false
-
-	@transient
-	private[mapperdao] var mapperDaoMock = false
 }

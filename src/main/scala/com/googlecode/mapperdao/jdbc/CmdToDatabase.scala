@@ -225,7 +225,8 @@ class CmdToDatabase(
 				else {
 					val pks = oldVM.toListOfPrimaryKeyAndValueTuple(tpe)
 					val relKeys = prioritized.relatedKeys(newVM)
-					driver.updateSql(tpe, set, pks ::: relKeys).result :: Nil
+					val keys = pks ::: relKeys
+					driver.updateSql(tpe, set, keys).result :: Nil
 				}
 
 			case InsertManyToManyCmd(tpe, foreignTpe, manyToMany, entityVM, foreignEntityVM) =>
