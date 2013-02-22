@@ -10,29 +10,30 @@ import utils.TraversableSeparation
  *
  *         21 Nov 2012
  */
-class CmdPhase(typeManager: TypeManager) {
+class CmdPhase(typeManager: TypeManager)
+{
 
 	private var alreadyProcessed = Map[Int, List[PersistCmd]]()
 
 	def toInsertCmd[ID, T](
-		                      tpe: Type[ID, T],
-		                      newVM: ValuesMap,
-		                      updateConfig: UpdateConfig
-		                      ) = insert(tpe, newVM, true, updateConfig)
+		tpe: Type[ID, T],
+		newVM: ValuesMap,
+		updateConfig: UpdateConfig
+		) = insert(tpe, newVM, true, updateConfig)
 
 	def toUpdateCmd[ID, T](
-		                      tpe: Type[ID, T],
-		                      oldValuesMap: ValuesMap,
-		                      newValuesMap: ValuesMap,
-		                      updateConfig: UpdateConfig
-		                      ) = update(tpe, oldValuesMap, newValuesMap, true, updateConfig)
+		tpe: Type[ID, T],
+		oldValuesMap: ValuesMap,
+		newValuesMap: ValuesMap,
+		updateConfig: UpdateConfig
+		) = update(tpe, oldValuesMap, newValuesMap, true, updateConfig)
 
 	private def insert[ID, T](
-		                         tpe: Type[ID, T],
-		                         newVM: ValuesMap,
-		                         mainEntity: Boolean,
-		                         updateConfig: UpdateConfig
-		                         ): List[PersistCmd] = {
+		tpe: Type[ID, T],
+		newVM: ValuesMap,
+		mainEntity: Boolean,
+		updateConfig: UpdateConfig
+		): List[PersistCmd] = {
 		alreadyProcessed.get(newVM.identity) match {
 			case None =>
 				val table = tpe.table
@@ -50,12 +51,12 @@ class CmdPhase(typeManager: TypeManager) {
 	}
 
 	private def update[ID, T](
-		                         tpe: Type[ID, T],
-		                         oldVM: ValuesMap,
-		                         newVM: ValuesMap,
-		                         mainEntity: Boolean,
-		                         updateConfig: UpdateConfig
-		                         ): List[PersistCmd] = {
+		tpe: Type[ID, T],
+		oldVM: ValuesMap,
+		newVM: ValuesMap,
+		mainEntity: Boolean,
+		updateConfig: UpdateConfig
+		): List[PersistCmd] = {
 
 		if (oldVM.mock)
 			MockCmd(tpe, oldVM, newVM) :: Nil
@@ -89,11 +90,11 @@ class CmdPhase(typeManager: TypeManager) {
 	 * ---------------------------------------------------------------------------------------------
 	 */
 	private def related[ID, T](
-		                          tpe: Type[ID, T],
-		                          oldVMO: Option[ValuesMap],
-		                          newVM: ValuesMap,
-		                          updateConfig: UpdateConfig
-		                          ): List[PersistCmd] = {
+		tpe: Type[ID, T],
+		oldVMO: Option[ValuesMap],
+		newVM: ValuesMap,
+		updateConfig: UpdateConfig
+		): List[PersistCmd] = {
 		tpe.table.relationshipColumnInfos(updateConfig.skip).map {
 			/**
 			 * ---------------------------------------------------------------------------------------------
@@ -163,10 +164,8 @@ class CmdPhase(typeManager: TypeManager) {
 							}
 
 							val intersectCmds = intersect.toList.map {
-								case (oldO, newO) =>
-									val oVM = oldO match {
-										case p: Persisted => p.mapperDaoValuesMap
-									}
+								case (oldO: Persisted, newO) =>
+									val oVM = oldO.mapperDaoValuesMap
 									val nVM = vmFor(foreignEntity.tpe, newO)
 									update(foreignEntity.tpe, oVM, nVM, false, updateConfig)
 							}.flatten
@@ -186,7 +185,7 @@ class CmdPhase(typeManager: TypeManager) {
 										foreignVM) :: doUpdate(foreignEntity.tpe, p, updateConfig)
 								case o =>
 									// we need to insert the foreign entity and link to entity
-									val foreignVM = vmFor(foreignEntity.tpe, o) //ValuesMap.fromType(typeManager, foreignEntity.tpe, o)
+									val foreignVM = vmFor(foreignEntity.tpe, o)
 									InsertManyToManyCmd(
 										tpe,
 										foreignEntity.tpe,
@@ -326,11 +325,8 @@ class CmdPhase(typeManager: TypeManager) {
 							}
 
 							val intersectCmds = intersect.toList.map {
-								case (oldO, newO) =>
-									val oVM = oldO match {
-										case p: Persisted => p.mapperDaoValuesMap
-										case _ => throw new IllegalStateException("unexpected object, please file a bug with code One-To-Many:NON_PERSISTED")
-									}
+								case (oldO: Persisted, newO) =>
+									val oVM = oldO.mapperDaoValuesMap
 									val nVM = vmFor(foreignTpe, newO)
 									EntityRelatedCmd(nVM.identity, column, nVM, Some(oVM), tpe, newVM, oldVMO, true) :: update(foreignTpe, oVM, nVM, false, updateConfig)
 							}.flatten
