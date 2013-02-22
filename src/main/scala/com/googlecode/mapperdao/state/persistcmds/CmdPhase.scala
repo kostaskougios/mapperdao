@@ -57,7 +57,7 @@ class CmdPhase(typeManager: TypeManager) {
 		                         updateConfig: UpdateConfig
 		                         ): List[PersistCmd] = {
 
-		if (oldVM.mock && false)
+		if (oldVM.mock)
 			MockCmd(tpe, oldVM, newVM) :: Nil
 		else {
 			val op = alreadyProcessed.get(newVM.identity)

@@ -17,9 +17,9 @@ import state.enhancevm.EnhanceVMPhase
  *         13 Jul 2011
  */
 protected final class MapperDaoImpl(
-	val driver: Driver,
-	val typeManager: TypeManager
-	) extends MapperDao {
+	                                   val driver: Driver,
+	                                   val typeManager: TypeManager
+	                                   ) extends MapperDao {
 	private val typeRegistry = driver.typeRegistry
 	private val lazyLoadManager = new LazyLoadManager
 	private val mockFactory = new MockFactory(typeManager)
@@ -54,10 +54,10 @@ protected final class MapperDaoImpl(
 	 */
 
 	override def insert0[ID, T](
-		updateConfig: UpdateConfig,
-		tpe: Type[ID, T],
-		os: List[T]
-		) = {
+		                           updateConfig: UpdateConfig,
+		                           tpe: Type[ID, T],
+		                           os: List[T]
+		                           ) = {
 		val po = new CmdPhase(typeManager)
 		val cmds = os.map {
 			o =>
@@ -80,17 +80,17 @@ protected final class MapperDaoImpl(
 	}
 
 	override def updateMutable0[ID, T](
-		updateConfig: UpdateConfig,
-		tpe: Type[ID, T],
-		os: List[T with DeclaredIds[ID]]
-		): List[T with DeclaredIds[ID]] = {
+		                                  updateConfig: UpdateConfig,
+		                                  tpe: Type[ID, T],
+		                                  os: List[T with DeclaredIds[ID]]
+		                                  ): List[T with DeclaredIds[ID]] = {
 		val osAndNewValues = os.map {
 			o =>
 				o match {
 					case p: Persisted if (p.mapperDaoValuesMap.mock) =>
 						throw new IllegalStateException("Object %s is mock.".format(p))
 					case persisted: Persisted =>
-						val newValuesMap = ValuesMap.fromType(typeManager, tpe, o)
+						val newValuesMap = ValuesMap.fromType(typeManager, tpe, o, persisted.mapperDaoValuesMap)
 						(o, newValuesMap)
 				}
 		}
@@ -98,10 +98,10 @@ protected final class MapperDaoImpl(
 	}
 
 	override def updateImmutable0[ID, T](
-		updateConfig: UpdateConfig,
-		tpe: Type[ID, T],
-		os: List[(T with DeclaredIds[ID], T)]
-		): List[T with DeclaredIds[ID]] = {
+		                                    updateConfig: UpdateConfig,
+		                                    tpe: Type[ID, T],
+		                                    os: List[(T with DeclaredIds[ID], T)]
+		                                    ): List[T with DeclaredIds[ID]] = {
 		val osAndNewValues = os.map {
 			case (oldO, newO) =>
 				oldO.mapperDaoDiscarded = true
@@ -112,10 +112,10 @@ protected final class MapperDaoImpl(
 	}
 
 	private def updateProcess[ID, T](
-		updateConfig: UpdateConfig,
-		tpe: Type[ID, T],
-		os: List[(T with DeclaredIds[ID], ValuesMap)]
-		): List[T with DeclaredIds[ID]] = {
+		                                updateConfig: UpdateConfig,
+		                                tpe: Type[ID, T],
+		                                os: List[(T with DeclaredIds[ID], ValuesMap)]
+		                                ): List[T with DeclaredIds[ID]] = {
 
 		val po = new CmdPhase(typeManager)
 		val cmds = os.map {
@@ -154,11 +154,11 @@ protected final class MapperDaoImpl(
 	}
 
 	private[mapperdao] def selectInner[ID, T](
-		entity: Entity[ID, T],
-		selectConfig: SelectConfig,
-		ids: List[Any],
-		entities: EntityMap
-		): Option[T with DeclaredIds[ID]] = {
+		                                         entity: Entity[ID, T],
+		                                         selectConfig: SelectConfig,
+		                                         ids: List[Any],
+		                                         entities: EntityMap
+		                                         ): Option[T with DeclaredIds[ID]] = {
 		val clz = entity.clz
 		val tpe = entity.tpe
 		if (tpe.table.primaryKeysSize != ids.size) throw new IllegalStateException("Primary keys number dont match the number of parameters. Primary keys: %s".format(tpe.table.primaryKeys))
@@ -209,11 +209,11 @@ protected final class MapperDaoImpl(
 	}
 
 	private[mapperdao] def toEntities[ID, T](
-		lm: List[DatabaseValues],
-		entity: Entity[ID, T],
-		selectConfig: SelectConfig,
-		entities: EntityMap
-		): List[T with DeclaredIds[ID]] = {
+		                                        lm: List[DatabaseValues],
+		                                        entity: Entity[ID, T],
+		                                        selectConfig: SelectConfig,
+		                                        entities: EntityMap
+		                                        ): List[T with DeclaredIds[ID]] = {
 		lm.map {
 			jdbcMap =>
 				val tpe = entity.tpe
@@ -257,10 +257,10 @@ protected final class MapperDaoImpl(
 	}
 
 	private def lazyLoadEntity[ID, T](
-		entity: Entity[ID, T],
-		selectConfig: SelectConfig,
-		vm: ValuesMap
-		) = {
+		                                 entity: Entity[ID, T],
+		                                 selectConfig: SelectConfig,
+		                                 vm: ValuesMap
+		                                 ) = {
 		// substitute lazy loaded columns with empty values
 		val tpe = entity.tpe
 		val table = tpe.table
@@ -317,11 +317,11 @@ protected final class MapperDaoImpl(
 	}
 
 	private[mapperdao] def deleteInner[ID, T](
-		deleteConfig: DeleteConfig,
-		entity: Entity[ID, T],
-		o: T with DeclaredIds[ID],
-		entityMap: UpdateEntityMap
-		): T = {
+		                                         deleteConfig: DeleteConfig,
+		                                         entity: Entity[ID, T],
+		                                         o: T with DeclaredIds[ID],
+		                                         entityMap: UpdateEntityMap
+		                                         ): T = {
 		if (o.mapperDaoDiscarded) throw new IllegalArgumentException("can't operate on an object twice. An object that was updated/deleted must be discarded and replaced by the return value of update(), i.e. onew=update(o) or just be disposed if it was deleted. The offending object was : " + o);
 
 		val tpe = entity.tpe
@@ -363,12 +363,12 @@ protected final class MapperDaoImpl(
 	}
 
 	override def merge0[ID, T](
-		selectConfig: SelectConfig,
-		updateConfig: UpdateConfig,
-		entity: Entity[ID, T],
-		o: T,
-		ids: ID
-		): T with DeclaredIds[ID] =
+		                          selectConfig: SelectConfig,
+		                          updateConfig: UpdateConfig,
+		                          entity: Entity[ID, T],
+		                          o: T,
+		                          ids: ID
+		                          ): T with DeclaredIds[ID] =
 		select(selectConfig, entity, ids) match {
 			case None => insert(updateConfig, entity, o)
 			case Some(oldO) =>

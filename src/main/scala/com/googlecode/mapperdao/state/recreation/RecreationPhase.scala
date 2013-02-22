@@ -99,10 +99,7 @@ class RecreationPhase(
 				}
 		}
 
-	private def toNode(a: Any) = a match {
-		case _ =>
-			byIdentity(System.identityHashCode(a))
-	}
+	private def toNode(a: Any) = byIdentity(System.identityHashCode(a))
 
 	private def toNodes(l: Traversable[Any]) = l.map(toNode(_))
 }
