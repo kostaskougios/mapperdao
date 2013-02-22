@@ -371,7 +371,7 @@ class CmdPhase(typeManager: TypeManager) {
 							val foreignVM = vmFor(foreignTpe, fo)
 
 							(
-								EntityRelatedCmd(foreignVM.identity, column, newVM, oldVMO, foreignTpe, foreignVM, oldFoVMO, false)
+								EntityRelatedCmd(foreignVM.identity, column, newVM, oldVMO, foreignTpe, foreignVM, oldFoVMO, true)
 									:: (fo match {
 									case p: DeclaredIds[_] =>
 										doUpdate(foreignTpe.asInstanceOf[Type[Any, Any]], p.asInstanceOf[Any with DeclaredIds[Any]], updateConfig)

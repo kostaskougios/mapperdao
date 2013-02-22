@@ -98,20 +98,29 @@ case class Prioritized(
 			}
 	}.flatten
 
-	def relatedKeys(vm: ValuesMap) = relatedFor(vm).collect {
-		case EntityRelatedCmd(_, column, vm, _, foreignTpe, foreignVM, oldForeignVMO, true) =>
-			column match {
-				case OneToMany(foreign, foreignColumns) =>
-					val fks = foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
-					fks
-				case OneToOneReverse(foreign, foreignColumns) =>
-					val fks = if (foreignVM == null)
-						foreignColumns zip Prioritized.nullList
-					else
-						foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
-					fks
-			}
-	}.flatten
+	def relatedKeys(vm: ValuesMap) = {
+		val rel = relatedFor(vm)
+		rel.collect {
+			case EntityRelatedCmd(_, column, vm, _, foreignTpe, foreignVM, oldForeignVMO, true) =>
+				column match {
+					case OneToMany(foreign, foreignColumns) =>
+						val fks = foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
+						fks
+					case OneToOneReverse(foreign, foreignColumns) =>
+						val fks = if (foreignVM == null)
+							foreignColumns zip Prioritized.nullList
+						else
+							foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
+						fks
+					case OneToOne(foreign, selfColumns) =>
+						val fks = if (foreignVM == null)
+							selfColumns zip Prioritized.nullList
+						else
+							selfColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
+						fks
+				}
+		}.flatten
+	}
 }
 
 object Prioritized {

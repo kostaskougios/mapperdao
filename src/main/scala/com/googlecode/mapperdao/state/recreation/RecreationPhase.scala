@@ -89,6 +89,8 @@ class RecreationPhase(
 							val finalVM = ValuesMap.fromMap(node.identity, finalMods)
 							val newE = tpe.constructor(updateConfig.data, finalVM)
 							finalVM.identity = System.identityHashCode(newE)
+							// set the identity of the mock to the real object's identity
+							mockO.mapperDaoValuesMap.identity = finalVM.identity
 							// re-put the actual
 							entityMap.put(node.identity, newE)
 							newE
@@ -99,7 +101,12 @@ class RecreationPhase(
 				}
 		}
 
-	private def toNode(a: Any) = byIdentity(System.identityHashCode(a))
+	private def toNode(a: Any) = a match {
+		case p: Persisted =>
+			byIdentity(p.mapperDaoValuesMap.identity)
+		case _ =>
+			byIdentity(System.identityHashCode(a))
+	}
 
 	private def toNodes(l: Traversable[Any]) = l.map(toNode(_))
 }
