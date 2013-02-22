@@ -12,12 +12,12 @@ import state.persisted.{ExternalEntityPersistedNode, EntityPersistedNode, Persis
  *         11 Dec 2012
  */
 class RecreationPhase(
-	updateConfig: UpdateConfig,
-	mockFactory: MockFactory,
-	typeManager: TypeManager,
-	entityMap: UpdateEntityMap,
-	nodes: List[PersistedNode[_, _]]
-	) {
+	                     updateConfig: UpdateConfig,
+	                     mockFactory: MockFactory,
+	                     typeManager: TypeManager,
+	                     entityMap: UpdateEntityMap,
+	                     nodes: List[PersistedNode[_, _]]
+	                     ) {
 
 	private val byIdentity: Map[Int, PersistedNode[_, _]] = nodes.map {
 		node =>
@@ -89,8 +89,6 @@ class RecreationPhase(
 							val finalVM = ValuesMap.fromMap(node.identity, finalMods)
 							val newE = tpe.constructor(updateConfig.data, finalVM)
 							finalVM.identity = System.identityHashCode(newE)
-							// set the identity of the mock to the real object's identity
-							mockO.mapperDaoValuesMap.identity = finalVM.identity
 							// re-put the actual
 							entityMap.put(node.identity, newE)
 							newE
@@ -102,8 +100,6 @@ class RecreationPhase(
 		}
 
 	private def toNode(a: Any) = a match {
-		case p: Persisted =>
-			byIdentity(p.mapperDaoValuesMap.identity)
 		case _ =>
 			byIdentity(System.identityHashCode(a))
 	}

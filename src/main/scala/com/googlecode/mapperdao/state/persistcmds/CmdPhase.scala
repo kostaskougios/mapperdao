@@ -15,24 +15,24 @@ class CmdPhase(typeManager: TypeManager) {
 	private var alreadyProcessed = Map[Int, List[PersistCmd]]()
 
 	def toInsertCmd[ID, T](
-		tpe: Type[ID, T],
-		newVM: ValuesMap,
-		updateConfig: UpdateConfig
-		) = insert(tpe, newVM, true, updateConfig)
+		                      tpe: Type[ID, T],
+		                      newVM: ValuesMap,
+		                      updateConfig: UpdateConfig
+		                      ) = insert(tpe, newVM, true, updateConfig)
 
 	def toUpdateCmd[ID, T](
-		tpe: Type[ID, T],
-		oldValuesMap: ValuesMap,
-		newValuesMap: ValuesMap,
-		updateConfig: UpdateConfig
-		) = update(tpe, oldValuesMap, newValuesMap, true, updateConfig)
+		                      tpe: Type[ID, T],
+		                      oldValuesMap: ValuesMap,
+		                      newValuesMap: ValuesMap,
+		                      updateConfig: UpdateConfig
+		                      ) = update(tpe, oldValuesMap, newValuesMap, true, updateConfig)
 
 	private def insert[ID, T](
-		tpe: Type[ID, T],
-		newVM: ValuesMap,
-		mainEntity: Boolean,
-		updateConfig: UpdateConfig
-		): List[PersistCmd] = {
+		                         tpe: Type[ID, T],
+		                         newVM: ValuesMap,
+		                         mainEntity: Boolean,
+		                         updateConfig: UpdateConfig
+		                         ): List[PersistCmd] = {
 		alreadyProcessed.get(newVM.identity) match {
 			case None =>
 				val table = tpe.table
@@ -50,15 +50,15 @@ class CmdPhase(typeManager: TypeManager) {
 	}
 
 	private def update[ID, T](
-		tpe: Type[ID, T],
-		oldVM: ValuesMap,
-		newVM: ValuesMap,
-		mainEntity: Boolean,
-		updateConfig: UpdateConfig
-		): List[PersistCmd] = {
+		                         tpe: Type[ID, T],
+		                         oldVM: ValuesMap,
+		                         newVM: ValuesMap,
+		                         mainEntity: Boolean,
+		                         updateConfig: UpdateConfig
+		                         ): List[PersistCmd] = {
 
-		if (oldVM.mock)
-			Nil
+		if (oldVM.mock && false)
+			MockCmd(tpe, oldVM, newVM) :: Nil
 		else {
 			val op = alreadyProcessed.get(newVM.identity)
 			if (op.isDefined) {
@@ -89,11 +89,11 @@ class CmdPhase(typeManager: TypeManager) {
 	 * ---------------------------------------------------------------------------------------------
 	 */
 	private def related[ID, T](
-		tpe: Type[ID, T],
-		oldVMO: Option[ValuesMap],
-		newVM: ValuesMap,
-		updateConfig: UpdateConfig
-		): List[PersistCmd] = {
+		                          tpe: Type[ID, T],
+		                          oldVMO: Option[ValuesMap],
+		                          newVM: ValuesMap,
+		                          updateConfig: UpdateConfig
+		                          ): List[PersistCmd] = {
 		tpe.table.relationshipColumnInfos(updateConfig.skip).map {
 			/**
 			 * ---------------------------------------------------------------------------------------------
