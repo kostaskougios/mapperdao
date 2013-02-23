@@ -8,9 +8,12 @@ import com.googlecode.mapperdao.state.prioritise.Priority
  *          Date: 22/02/13
  */
 case class MockCmd[ID, T](
-	                         tpe: Type[ID, T],
-	                         oldVM: ValuesMap,
-	                         newVM: ValuesMap
-	                         ) extends PersistCmd {
+	tpe: Type[ID, T],
+	oldVM: ValuesMap,
+	newVM: ValuesMap
+	) extends PersistCmd
+{
 	def priority = Priority.Low
+
+	def identity = newVM.identity
 }

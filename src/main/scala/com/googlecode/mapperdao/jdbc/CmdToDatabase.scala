@@ -17,11 +17,12 @@ import state.prioritise.Prioritized
  *         22 Nov 2012
  */
 class CmdToDatabase(
-	                   updateConfig: UpdateConfig,
-	                   protected val driver: Driver,
-	                   typeManager: TypeManager,
-	                   prioritized: Prioritized
-	                   ) {
+	updateConfig: UpdateConfig,
+	protected val driver: Driver,
+	typeManager: TypeManager,
+	prioritized: Prioritized
+	)
+{
 
 	private val jdbc = driver.jdbc
 
@@ -43,9 +44,9 @@ class CmdToDatabase(
 	}
 
 	private case class Node(
-		                       sql: driver.sqlBuilder.Result,
-		                       cmd: PersistCmd
-		                       )
+		sql: driver.sqlBuilder.Result,
+		cmd: PersistCmd
+		)
 
 	def execute: List[PersistedNode[_, _]] = {
 
@@ -284,7 +285,8 @@ class CmdToDatabase(
 				Nil
 			case UpdateExternalOneToManyCmd(foreignEntity, oneToMany, entityVM, added, intersected, removed) =>
 				Nil
-			case MockCmd(_, _, _) =>
+			case mc@MockCmd(_, _, _) =>
+				persistedIdentities += mc.identity
 				Nil
 		}
 }
