@@ -12,12 +12,13 @@ import state.persisted.{ExternalEntityPersistedNode, EntityPersistedNode, Persis
  *         11 Dec 2012
  */
 class RecreationPhase(
-	                     updateConfig: UpdateConfig,
-	                     mockFactory: MockFactory,
-	                     typeManager: TypeManager,
-	                     entityMap: UpdateEntityMap,
-	                     nodes: List[PersistedNode[_, _]]
-	                     ) {
+	updateConfig: UpdateConfig,
+	mockFactory: MockFactory,
+	typeManager: TypeManager,
+	entityMap: UpdateEntityMap,
+	nodes: List[PersistedNode[_, _]]
+	)
+{
 
 	private val byIdentity: Map[Int, PersistedNode[_, _]] = nodes.map {
 		node =>
@@ -44,7 +45,9 @@ class RecreationPhase(
 							val mockO = mockFactory.createMock(updateConfig.data, tpe, modified)
 							entityMap.put(node.identity, mockO)
 
-							val related = table.relationshipColumnInfos(updateConfig.skip).map {
+							val related = if (newVM.mock)
+								Nil
+							else table.relationshipColumnInfos(updateConfig.skip).map {
 								case ColumnInfoTraversableManyToMany(column, _, _) =>
 									val mtm = newVM.manyToMany(column)
 									val relatedNodes = toNodes(mtm)

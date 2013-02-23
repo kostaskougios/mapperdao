@@ -17,7 +17,8 @@ case class Table[ID, T](
 	columnInfosPlain: List[ColumnInfoBase[T, _]],
 	extraColumnInfosPersisted: List[ColumnInfoBase[T with DeclaredIds[ID], _]],
 	val unusedPKColumnInfos: List[ColumnInfoBase[Any, Any]]
-	) {
+	)
+{
 
 	val columns: List[ColumnBase] = extraColumnInfosPersisted.map(_.column) ::: columnInfosPlain.map(_.column)
 	// the primary keys for this table
@@ -189,6 +190,8 @@ case class Table[ID, T](
 
 	val selectColumns = simpleTypeColumns ::: manyToOneColumns.map(_.columns).flatten ::: oneToOneColumns.map(_.selfColumns).flatten
 	val distinctSelectColumnsForSelect = (selectColumns ::: unusedPKs).distinct
+
+	override def toString = "Table(" + name + ")"
 }
 
 case class LinkTable(name: String, left: List[Column], right: List[Column])
