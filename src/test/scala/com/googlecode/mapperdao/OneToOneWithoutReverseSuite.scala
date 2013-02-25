@@ -18,6 +18,17 @@ class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
 
 	val p = ProductEntity
 	val i = InventoryEntity
+
+	test("update from null to existing value ") {
+		createTables
+		val inserted = mapperDao.insert(InventoryEntity, Inventory(10, Product(1), 5))
+		val updated = mapperDao.update(InventoryEntity, inserted, Inventory(10, null, 7))
+		updated.product should be(null)
+		val reUdated = mapperDao.update(InventoryEntity, updated, Inventory(10, mapperDao.select(ProductEntity, 1).get, 8))
+		reUdated.product should be === Product(1)
+		mapperDao.select(InventoryEntity, 10).get should be === reUdated
+	}
+
 	test("query on product") {
 		createTables
 
@@ -57,16 +68,6 @@ class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
 		updated should be === Inventory(8, Product(1), 5)
 		mapperDao.select(InventoryEntity, 8).get should be === updated
 		mapperDao.select(InventoryEntity, 10) should be(None)
-	}
-
-	test("update from null to existing value ") {
-		createTables
-		val inserted = mapperDao.insert(InventoryEntity, Inventory(10, Product(1), 5))
-		val updated = mapperDao.update(InventoryEntity, inserted, Inventory(10, null, 7))
-		updated.product should be(null)
-		val reUdated = mapperDao.update(InventoryEntity, updated, Inventory(10, mapperDao.select(ProductEntity, 1).get, 8))
-		reUdated.product should be === Product(1)
-		mapperDao.select(InventoryEntity, 10).get should be === reUdated
 	}
 
 	test("update from null to new value ") {

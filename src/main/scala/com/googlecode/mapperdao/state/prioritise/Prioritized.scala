@@ -113,10 +113,11 @@ case class Prioritized(
 							foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
 						fks
 					case OneToOne(foreign, selfColumns) =>
-						val fks = if (foreignVM == null)
+						val fVM = oldForeignVMO.getOrElse(foreignVM)
+						val fks = if (fVM == null)
 							selfColumns zip Prioritized.nullList
 						else
-							selfColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
+							selfColumns zip fVM.toListOfPrimaryKeys(foreignTpe)
 						fks
 				}
 		}.flatten
