@@ -9,13 +9,14 @@ import com.googlecode.mapperdao.jdbc.Setup
 /**
  * @author kostantinos.kougios
  *
- * 21 Sep 2012
+ *         21 Sep 2012
  */
 @RunWith(classOf[JUnitRunner])
-class MergeSuite extends FunSuite with ShouldMatchers {
+class MergeSuite extends FunSuite with ShouldMatchers
+{
 	if (Setup.database == "h2") {
 		import CommonEntities._
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity))
+		val (jdbc, mapperDao, _) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity))
 		val company = Company("acme")
 
 		test("merge entity") {

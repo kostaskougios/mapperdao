@@ -10,17 +10,19 @@ import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
 /**
  * @author kostantinos.kougios
  *
- * 17 Oct 2012
+ *         17 Oct 2012
  */
 @RunWith(classOf[JUnitRunner])
-class DeleteSuite extends FunSuite with ShouldMatchers {
+class DeleteSuite extends FunSuite with ShouldMatchers
+{
+
 	import CommonEntities._
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
 	test("delete with errors") {
 		createProductAttribute(jdbc)
-		val (p1, p2) = createTestData
+		createTestData
 
 		import Delete._
 		val pe = ProductEntity
@@ -81,7 +83,7 @@ class DeleteSuite extends FunSuite with ShouldMatchers {
 
 	test("delete simple where clause") {
 		createProductAttribute(jdbc)
-		val (p1, p2) = createTestData
+		val (_, p2) = createTestData
 
 		import Delete._
 		val pe = ProductEntity
