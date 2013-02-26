@@ -11,7 +11,8 @@ import com.googlecode.mapperdao.utils.Helpers
  * @author kostantinos.kougios
  */
 @RunWith(classOf[JUnitRunner])
-class OneToOneDeclarePrimaryKeySuite extends FunSuite with ShouldMatchers {
+class OneToOneDeclarePrimaryKeySuite extends FunSuite with ShouldMatchers
+{
 	if (Setup.database == "h2") {
 		implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
 
@@ -23,7 +24,8 @@ class OneToOneDeclarePrimaryKeySuite extends FunSuite with ShouldMatchers {
 			val i5 = mapperDao.insert(InventoryEntity, Inventory(Product(1), 5))
 			val i6 = mapperDao.insert(InventoryEntity, Inventory(Product(2), 6))
 
-			val si5 = mapperDao.select(InventoryEntity, Helpers.asNaturalIntId(i5.product)).get
+			val ip5Id = Helpers.asNaturalIntId(i5.product)
+			val si5 = mapperDao.select(InventoryEntity, ip5Id).get
 			val ui5 = mapperDao.update(InventoryEntity, si5, si5.copy(stock = 15))
 			ui5 should be === Inventory(Product(1), 15)
 
@@ -44,40 +46,46 @@ class OneToOneDeclarePrimaryKeySuite extends FunSuite with ShouldMatchers {
 			val p2 = Helpers.asSurrogateIntId(inventories(2).product)
 			(
 				select
-				from i
-				join (i, i.product, p)
-				where i.product === p2
-			).toSet should be === Set(inventories(2))
+					from i
+					join(i, i.product, p)
+					where i.product === p2
+				).toSet should be === Set(inventories(2))
 
 			(
 				select
-				from i
-				where i.stock <= 7
-			).toSet should be === Set(inventories(0), inventories(1), inventories(2))
+					from i
+					where i.stock <= 7
+				).toSet should be === Set(inventories(0), inventories(1), inventories(2))
 
 		}
 
-		def createTables =
-			{
-				Setup.dropAllTables(jdbc)
-				Setup.queries(this, jdbc).update("ddl")
-			}
+		def createTables = {
+			Setup.dropAllTables(jdbc)
+			Setup.queries(this, jdbc).update("ddl")
+		}
 	}
+
 	case class Inventory(val product: Product, val stock: Int)
+
 	case class Product(val id: Int)
 
-	object InventoryEntity extends Entity[Product with NaturalIntId, With1Id[Product with NaturalIntId], Inventory] {
+	object InventoryEntity extends Entity[Product with NaturalIntId, Inventory]
+	{
+		type Stored = With1Id[Product with NaturalIntId]
 		val product = onetoone(ProductEntity) to (_.product)
 		val stock = column("stock") to (_.stock)
 
 		declarePrimaryKey(product)
 
-		def constructor(implicit m) = new Inventory(product, stock) with With1Id[Product with NaturalIntId]
+		def constructor(implicit m) = new Inventory(product, stock) with Stored
 	}
 
-	object ProductEntity extends Entity[Int, NaturalIntId, Product] {
+	object ProductEntity extends Entity[Int, Product]
+	{
+		type Stored = NaturalIntId
 		val id = key("id") to (_.id)
 
-		def constructor(implicit m) = new Product(id) with NaturalIntId
+		def constructor(implicit m) = new Product(id) with Stored
 	}
+
 }
