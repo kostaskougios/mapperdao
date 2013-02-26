@@ -2,9 +2,6 @@ package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.exceptions.QueryException
 import com.googlecode.mapperdao.drivers.Driver
-import java.util.concurrent.ConcurrentHashMap
-import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
-import com.googlecode.mapperdao.utils.NYI
 
 /**
  * the QueryDao implementation
@@ -15,14 +12,15 @@ import com.googlecode.mapperdao.utils.NYI
  *
  *         18 Aug 2011
  */
-final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends QueryDao {
+final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends QueryDao
+{
 
 	import QueryDao._
 
-	def query[ID, T](queryConfig: QueryConfig, qe: Query.Builder[ID, T]): List[T with DeclaredIds[ID]] = {
+	def query[ID, PC, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): List[T with PC] = {
 		if (qe == null) throw new NullPointerException("qe can't be null")
 		val r = sqlAndArgs(queryConfig, qe).result
-		queryInner(queryConfig, qe.entity, r.sql, r.values)
+		queryInner(queryConfig, qe.entity, r.sql, r.values).asInstanceOf[List[T with PC]]
 	}
 
 	def lowLevelQuery[ID, T](queryConfig: QueryConfig, entity: Entity[ID, T], sql: String, args: List[Any]): List[T with DeclaredIds[ID]] =
@@ -41,7 +39,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		}
 	}
 
-	def count[ID, T](queryConfig: QueryConfig, qe: Query.Builder[ID, T]): Long = {
+	def count[ID, PC, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): Long = {
 		if (qe == null) throw new NullPointerException("qe can't be null")
 		val aliases = new Aliases(typeRegistry)
 		val e = qe.entity
@@ -54,7 +52,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		driver.queryForLong(queryConfig, r.sql, r.values)
 	}
 
-	private def sqlAndArgs[ID, T](queryConfig: QueryConfig, qe: Query.Builder[ID, T]) = {
+	private def sqlAndArgs[ID, PC, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]) = {
 		val e = qe.entity
 		val tpe = e.tpe
 		val columns = tpe.table.selectColumns
@@ -71,7 +69,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		outer
 	}
 
-	private def joins[ID, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, T], aliases: Aliases) = {
+	private def joins[ID, PC, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], aliases: Aliases) = {
 		// iterate through the joins in the correct order
 		qe.joins.reverse.foreach {
 			case Query.Join(joinEntity, ci, foreignEntity) =>
@@ -125,16 +123,18 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		}
 	}
 
-	private def whereAndArgs[ID, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, T], aliases: Aliases) =
+	private def whereAndArgs[ID, PC, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], aliases: Aliases) =
 	// append the where clause and get the list of arguments
 		if (qe.wheres.isDefined) {
 			val e = queryExpressions(aliases, qe.wheres.get.clauses)
 			q.where(e)
 		}
 
-	private def orderBy[ID, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, T], aliases: Aliases) =
+	private def orderBy[ID, PC, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], aliases: Aliases) =
 		if (!qe.order.isEmpty) {
-			val orderColumns = qe.order.map { case (ci, ascDesc) => (ci.column, ascDesc) }
+			val orderColumns = qe.order.map {
+				case (ci, ascDesc) => (ci.column, ascDesc)
+			}
 			if (driver.shouldCreateOrderByClause(queryConfig)) {
 				val obb = new driver.sqlBuilder.OrderByBuilder(
 					orderColumns.map {
@@ -149,7 +149,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	private def joinTable[JID, JT, FID, FT, QID, QT](
 		aliases: QueryDao.Aliases,
 		join: Query.SJoin[JID, JT, FID, FT, QID, QT]
-	) = {
+		) = {
 		val jEntity = join.entity
 		val jTable = jEntity.tpe.table
 		val qAlias = aliases(jEntity)
@@ -164,7 +164,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	private def queryExpressions[ID, T](
 		aliases: QueryDao.Aliases,
 		clauses: OpBase
-	): driver.sqlBuilder.Expression = {
+		): driver.sqlBuilder.Expression = {
 		def inner(op: OpBase): driver.sqlBuilder.Expression = op match {
 			case o: Operation[_] =>
 				o.right match {
@@ -306,7 +306,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		joinEntity: Entity[JID, JT],
 		foreignEntity: Entity[FID, FT],
 		oneToOneReverse: OneToOneReverse[_, _]
-	) = {
+		) = {
 		val tpe = joinEntity.tpe
 		val table = tpe.table
 		val foreignTpe = foreignEntity.tpe
@@ -327,7 +327,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		joinEntity: Entity[JID, JT],
 		foreignEntity: Entity[FID, FT],
 		oneToOne: OneToOne[_, _]
-	) = {
+		) = {
 		val tpe = joinEntity.tpe
 		val foreignTpe = foreignEntity.tpe
 		val foreignTable = foreignTpe.table
@@ -348,7 +348,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		joinEntity: Entity[JID, JT],
 		foreignEntity: Entity[FID, FT],
 		manyToOne: ManyToOne[_, _]
-	) = {
+		) = {
 		val foreignTable = foreignEntity.tpe.table
 		val fAlias = aliases(foreignEntity)
 		val jAlias = aliases(joinEntity)
@@ -367,7 +367,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		joinEntity: Entity[JID, JT],
 		foreignEntity: Entity[FID, FT],
 		oneToMany: OneToMany[_, _]
-	) = {
+		) = {
 		val joinTpe = joinEntity.tpe
 		val foreignTpe = foreignEntity.tpe
 
@@ -388,7 +388,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		joinEntity: Entity[JID, JT],
 		foreignEntity: Entity[FID, FT],
 		manyToMany: ManyToMany[_, _]
-	) = {
+		) = {
 		val joinTpe = joinEntity.tpe
 		val foreignTpe = foreignEntity.tpe
 

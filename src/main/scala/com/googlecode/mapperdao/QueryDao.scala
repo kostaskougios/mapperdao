@@ -1,6 +1,5 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.exceptions.QueryException
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.jdbc.UpdateResult
 import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
@@ -21,7 +20,8 @@ import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
  * @author kostantinos.kougios
  *
  */
-trait QueryDao {
+trait QueryDao
+{
 	val defaultQueryConfig = QueryConfig.default
 
 	/**
@@ -34,7 +34,7 @@ trait QueryDao {
 	 * @param	qe		a query
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 */
-	def query[ID, T](qe: Query.Where[ID, T]): List[T with DeclaredIds[ID]] = query(qe.queryEntity)
+	def query[ID, PC, T](qe: Query.Where[ID, PC, T]): List[T with PC] = query(qe.queryEntity)
 
 	/**
 	 * runs a query and retuns a list of entities.
@@ -48,7 +48,7 @@ trait QueryDao {
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 * @see		#QueryConfig
 	 */
-	def query[ID, T](queryConfig: QueryConfig, qe: Query.Where[ID, T]): List[T with DeclaredIds[ID]] = query(queryConfig, qe.queryEntity)
+	def query[ID, PC, T](queryConfig: QueryConfig, qe: Query.Where[ID, PC, T]): List[T with PC] = query(queryConfig, qe.queryEntity)
 
 	/**
 	 * runs a query and retuns a list of entities.
@@ -60,7 +60,7 @@ trait QueryDao {
 	 * @param	qe		a query
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 */
-	def query[ID, T](qe: Query.Builder[ID, T]): List[T with DeclaredIds[ID]] = query(defaultQueryConfig, qe)
+	def query[ID, PC, T](qe: Query.Builder[ID, PC, T]): List[T with PC] = query(defaultQueryConfig, qe)
 
 	/**
 	 * runs a query and retuns a list of entities.
@@ -74,7 +74,7 @@ trait QueryDao {
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 * @see		#QueryConfig
 	 */
-	def query[ID, T](queryConfig: QueryConfig, qe: Query.Builder[ID, T]): List[T with DeclaredIds[ID]]
+	def query[ID, PC, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): List[T with PC]
 
 	/**
 	 * counts rows, i.e.
@@ -82,37 +82,37 @@ trait QueryDao {
 	 * val qe=(select from ProductEntity where title==="jeans")
 	 * val count=queryDao.count(qe) // the number of jeans
 	 */
-	def count[ID, T](qe: Query.Where[ID, T], queryConfig: QueryConfig): Long = count(queryConfig, qe.queryEntity)
+	def count[ID, PC, T](qe: Query.Where[ID, PC, T], queryConfig: QueryConfig): Long = count(queryConfig, qe.queryEntity)
 
-	def count[ID, T](qe: Query.Where[ID, T]): Long = count(qe, QueryConfig())
+	def count[ID, PC, T](qe: Query.Where[ID, PC, T]): Long = count(qe, QueryConfig())
 
-	def count[ID, T](qe: Query.Builder[ID, T]): Long = count(QueryConfig(), qe)
+	def count[ID, PC, T](qe: Query.Builder[ID, PC, T]): Long = count(QueryConfig(), qe)
 
-	def count[ID, T](queryConfig: QueryConfig, qe: Query.Builder[ID, T]): Long
-
-	/**
-	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
-	 * an IllegalStateException is thrown.
-	 */
-	def querySingleResult[ID, T](qe: Query.Where[ID, T]): Option[T with DeclaredIds[ID]] = querySingleResult(defaultQueryConfig, qe.queryEntity)
+	def count[ID, PC, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): Long
 
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, T](queryConfig: QueryConfig, qe: Query.Where[ID, T]): Option[T with DeclaredIds[ID]] = querySingleResult(queryConfig, qe.queryEntity)
+	def querySingleResult[ID, PC, T](qe: Query.Where[ID, PC, T]): Option[T with PC] = querySingleResult(defaultQueryConfig, qe.queryEntity)
 
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, T](qe: Query.Builder[ID, T]): Option[T with DeclaredIds[ID]] = querySingleResult(defaultQueryConfig, qe)
+	def querySingleResult[ID, PC, T](queryConfig: QueryConfig, qe: Query.Where[ID, PC, T]): Option[T with PC] = querySingleResult(queryConfig, qe.queryEntity)
 
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, T](queryConfig: QueryConfig, qe: Query.Builder[ID, T]): Option[T with DeclaredIds[ID]] = {
+	def querySingleResult[ID, PC, T](qe: Query.Builder[ID, PC, T]): Option[T with PC] = querySingleResult(defaultQueryConfig, qe)
+
+	/**
+	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
+	 * an IllegalStateException is thrown.
+	 */
+	def querySingleResult[ID, PC, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): Option[T with PC] = {
 		val l = query(queryConfig, qe)
 		// l.size might be costly, so we'll test if l is empty first
 		if (l.isEmpty) None
@@ -175,12 +175,14 @@ trait QueryDao {
 	def update[ID, T](u: Update.Updatable[ID, T]): UpdateResult
 }
 
-object QueryDao {
+object QueryDao
+{
 
 	def apply(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl): QueryDao = new QueryDaoImpl(typeRegistry, driver, mapperDao)
 
 	// creates aliases for tables
-	class Aliases(typeRegistry: TypeRegistry, nullMode: Boolean = false) {
+	class Aliases(typeRegistry: TypeRegistry, nullMode: Boolean = false)
+	{
 		private val aliases = new java.util.IdentityHashMap[Any, String]
 		private var aliasCount = new scala.collection.mutable.HashMap[String, Int]
 

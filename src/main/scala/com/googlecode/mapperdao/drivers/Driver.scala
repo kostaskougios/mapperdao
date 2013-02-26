@@ -14,7 +14,8 @@ import com.googlecode.mapperdao.jdbc.Batch
  *
  *         14 Jul 2011
  */
-abstract class Driver {
+abstract class Driver
+{
 	val jdbc: Jdbc
 	val typeRegistry: TypeRegistry
 	val typeManager: TypeManager
@@ -278,11 +279,11 @@ abstract class Driver {
 	 */
 
 	// select ... from 
-	def startQuery[ID, T](
+	def startQuery[ID, PC, T](
 		q: sqlBuilder.SqlSelectBuilder,
 		queryConfig: QueryConfig,
 		aliases: QueryDao.Aliases,
-		qe: Query.Builder[ID, T], columns: List[SimpleColumn]
+		qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]
 		) = {
 		val entity = qe.entity
 		val tpe = entity.tpe
@@ -294,15 +295,15 @@ abstract class Driver {
 		q.from(tpe.table.name, alias, hints)
 	}
 
-	def queryAfterSelect[ID, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[ID, T], columns: List[SimpleColumn]): Unit = {}
+	def queryAfterSelect[ID, PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]): Unit = {}
 
 	def shouldCreateOrderByClause(queryConfig: QueryConfig): Boolean = true
 
 	// called at the start of each query sql generation, sql is empty at this point
-	def beforeStartOfQuery[ID, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, T], columns: List[SimpleColumn]): sqlBuilder.SqlSelectBuilder = q
+	def beforeStartOfQuery[ID, PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]): sqlBuilder.SqlSelectBuilder = q
 
 	// called at the end of each query sql generation
-	def endOfQuery[ID, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, T]): sqlBuilder.SqlSelectBuilder = q
+	def endOfQuery[ID, PC, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): sqlBuilder.SqlSelectBuilder = q
 
 	/**
 	 * =====================================================================================

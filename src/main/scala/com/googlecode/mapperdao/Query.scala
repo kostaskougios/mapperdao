@@ -1,6 +1,5 @@
 package com.googlecode.mapperdao
 
-import org.joda.time.DateTime
 
 /**
  * query builder and DSL
@@ -29,17 +28,20 @@ import org.joda.time.DateTime
 object Query extends SqlImplicitConvertions
 with SqlRelatedImplicitConvertions
 with SqlManyToOneImplicitConvertions
-with SqlOneToOneImplicitConvertions {
+with SqlOneToOneImplicitConvertions
+{
 
 	// starting point of a query, "select" syntactic sugar
 	def select[ID, T] = new QueryFrom[ID, T]
 
 	// "from" syntactic sugar
-	protected class QueryFrom[ID, T] {
-		def from(entity: Entity[ID, T]) = new Builder(entity)
+	protected class QueryFrom[ID, T]
+	{
+		def from(entity: Entity[ID, T]) = new Builder[ID, entity.Stored, T](entity)
 	}
 
-	trait OrderBy[Q] {
+	trait OrderBy[Q]
+	{
 		self: Q =>
 		protected def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)])
 
@@ -72,8 +74,9 @@ with SqlOneToOneImplicitConvertions {
 	/**
 	 * main query builder, keeps track of all 'where', joins and order by.
 	 */
-	class Builder[ID, T](protected[mapperdao] val entity: Entity[ID, T]) extends OrderBy[Builder[ID, T]] {
-		protected[mapperdao] var wheres: Option[Where[ID, T]] = None
+	class Builder[ID, PC, T](protected[mapperdao] val entity: Entity[ID, T]) extends OrderBy[Builder[ID, PC, T]]
+	{
+		protected[mapperdao] var wheres: Option[Where[ID, PC, T]] = None
 		protected[mapperdao] var joins = List[Any]()
 		protected[mapperdao] var order = List[(ColumnInfo[_, _], AscDesc)]()
 
@@ -91,7 +94,7 @@ with SqlOneToOneImplicitConvertions {
 			joinEntity: Entity[JID, JT],
 			ci: ColumnInfoRelationshipBase[JT, _, FID, FT],
 			foreignEntity: Entity[FID, FT]
-		) = {
+			) = {
 			val j = new Join(joinEntity, ci, foreignEntity)
 			joins ::= j
 			this
@@ -104,26 +107,29 @@ with SqlOneToOneImplicitConvertions {
 			on
 		}
 
-		def toList(implicit queryDao: QueryDao): List[T with DeclaredIds[ID]] = toList(QueryConfig.default)(queryDao)
+		def toList(implicit queryDao: QueryDao): List[T with PC] = toList(QueryConfig.default)(queryDao)
 
-		def toList(queryConfig: QueryConfig)(implicit queryDao: QueryDao): List[T with DeclaredIds[ID]] = queryDao.query(queryConfig, this)
+		def toList(queryConfig: QueryConfig)(implicit queryDao: QueryDao): List[T with PC] = queryDao.query(queryConfig, this)
 
-		def toSet(implicit queryDao: QueryDao): Set[T with DeclaredIds[ID]] = toSet(QueryConfig.default)(queryDao)
+		def toSet(implicit queryDao: QueryDao): Set[T with PC] = toSet(QueryConfig.default)(queryDao)
 
-		def toSet(queryConfig: QueryConfig)(implicit queryDao: QueryDao): Set[T with DeclaredIds[ID]] = queryDao.query(queryConfig, this).toSet
+		def toSet(queryConfig: QueryConfig)(implicit queryDao: QueryDao): Set[T with PC] = queryDao.query(queryConfig, this).toSet
 
 		override def toString = "select from %s join %s where %s".format(entity, joins, wheres)
 	}
 
-	sealed abstract class AscDesc {
+	sealed abstract class AscDesc
+	{
 		val sql: String
 	}
 
-	object asc extends AscDesc {
+	object asc extends AscDesc
+	{
 		val sql = "asc"
 	}
 
-	object desc extends AscDesc {
+	object desc extends AscDesc
+	{
 		val sql = "desc"
 	}
 
@@ -131,16 +137,17 @@ with SqlOneToOneImplicitConvertions {
 		val joinEntity: Entity[JID, JT],
 		val ci: ColumnInfoRelationshipBase[JT, _, FID, FT],
 		val foreignEntity: Entity[FID, FT]
-	)
+		)
 
 	protected[mapperdao] case class SJoin[JID, JT, FID, FT, QID, QT](
 		// for join on functionality
 		val entity: Entity[JID, JT],
-		val on: JoinOn[QID, QT]
-	)
+		val on: JoinOn[QID, _, QT]
+		)
 
-	protected[mapperdao] class JoinOn[ID, T](protected[mapperdao] val queryEntity: Builder[ID, T]) {
-		protected[mapperdao] var ons: Option[Where[ID, T]] = None
+	protected[mapperdao] class JoinOn[ID, PC, T](protected[mapperdao] val queryEntity: Builder[ID, PC, T])
+	{
+		protected[mapperdao] var ons: Option[Where[ID, PC, T]] = None
 
 		def on = {
 			val qe = new Where(queryEntity)
@@ -149,11 +156,12 @@ with SqlOneToOneImplicitConvertions {
 		}
 	}
 
-	protected[mapperdao] class Where[ID, T](
-		protected[mapperdao] val queryEntity: Builder[ID, T]
-	)
-		extends OrderBy[Where[ID, T]]
-		with SqlWhereMixins[Where[ID, T]] {
+	protected[mapperdao] class Where[ID, PC, T](
+		protected[mapperdao] val queryEntity: Builder[ID, PC, T]
+		)
+		extends OrderBy[Where[ID, PC, T]]
+		with SqlWhereMixins[Where[ID, PC, T]]
+	{
 
 		override def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)]) {
 			queryEntity.order :::= l
@@ -165,13 +173,13 @@ with SqlOneToOneImplicitConvertions {
 			qe
 		}
 
-		def toList(implicit queryDao: QueryDao): List[T with DeclaredIds[ID]] = toList(QueryConfig.default)(queryDao)
+		def toList(implicit queryDao: QueryDao): List[T with PC] = toList(QueryConfig.default)(queryDao)
 
-		def toList(queryConfig: QueryConfig)(implicit queryDao: QueryDao): List[T with DeclaredIds[ID]] = queryDao.query(queryConfig, this)
+		def toList(queryConfig: QueryConfig)(implicit queryDao: QueryDao): List[T with PC] = queryDao.query(queryConfig, this)
 
-		def toSet(implicit queryDao: QueryDao): Set[T with DeclaredIds[ID]] = toSet(QueryConfig.default)(queryDao)
+		def toSet(implicit queryDao: QueryDao): Set[T with PC] = toSet(QueryConfig.default)(queryDao)
 
-		def toSet(queryConfig: QueryConfig)(implicit queryDao: QueryDao): Set[T with DeclaredIds[ID]] = queryDao.query(queryConfig, this).toSet
+		def toSet(queryConfig: QueryConfig)(implicit queryDao: QueryDao): Set[T with PC] = queryDao.query(queryConfig, this).toSet
 
 		override def toString = "Where(%s)".format(clauses)
 	}
