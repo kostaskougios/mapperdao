@@ -21,8 +21,7 @@ class CmdToDatabase(
 	protected val driver: Driver,
 	typeManager: TypeManager,
 	prioritized: Prioritized
-	)
-{
+	) {
 
 	private val jdbc = driver.jdbc
 
@@ -162,6 +161,8 @@ class CmdToDatabase(
 			EntityPersistedNode(tpe, None, newVM, mainEntity) :: Nil
 		case UpdateCmd(tpe, oldVM, newVM, _, mainEntity) =>
 			EntityPersistedNode(tpe, Some(oldVM), newVM, mainEntity) :: Nil
+		case MockCmd(tpe, oldVM, newVM) =>
+			EntityPersistedNode(tpe, Some(oldVM), newVM, false) :: Nil
 		case UpdateExternalManyToManyCmd(tpe, newVM, foreignEntity, manyToMany, added, intersect, removed) =>
 			val add = added.map {
 				fo =>
@@ -195,8 +196,10 @@ class CmdToDatabase(
 				case (o, n) =>
 					ExternalEntityPersistedNode(foreignEntity, n)
 			}
-		case MockCmd(tpe, oldVM, newVM) =>
-			EntityPersistedNode(tpe, Some(oldVM), newVM, false) :: Nil
+		case InsertOneToOneReverseExternalCmd(foreignEntity, oneToOneReverse, entityVM, ft) =>
+			val ue = UpdateExternalOneToOneReverse(updateConfig, entityVM, ft)
+			foreignEntity.oneToOneOnInsertMap(oneToOneReverse)(ue)
+			ExternalEntityPersistedNode(foreignEntity, ft) :: Nil
 	}.flatten
 
 	private def toNodes(cmds: List[PersistCmd]) =
@@ -281,12 +284,14 @@ class CmdToDatabase(
 						driver.insertManyToManySql(manyToMany.column, left, right).result
 				}.toList
 				(rSqls ::: aSqls).toList
+			case mc@MockCmd(_, _, _) =>
+				persistedIdentities += mc.identity
+				Nil
 			case InsertOneToManyExternalCmd(foreignEntity, oneToMany, entityVM, added) =>
 				Nil
 			case UpdateExternalOneToManyCmd(foreignEntity, oneToMany, entityVM, added, intersected, removed) =>
 				Nil
-			case mc@MockCmd(_, _, _) =>
-				persistedIdentities += mc.identity
+			case InsertOneToOneReverseExternalCmd(foreignEntity, oneToMany, entityVM, ft) =>
 				Nil
 		}
 }

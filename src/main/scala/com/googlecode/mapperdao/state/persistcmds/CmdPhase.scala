@@ -385,9 +385,43 @@ class CmdPhase(typeManager: TypeManager) {
 			 * One-To-One-Reverse
 			 * ---------------------------------------------------------------------------------------------
 			 */
-			case ColumnInfoOneToOneReverse(column, columnToValue, _) =>
+			case ci@ColumnInfoOneToOneReverse(column, columnToValue, _) =>
 				val fo = newVM.oneToOneReverse(column)
 				column.foreign.entity match {
+					/**
+					 * ---------------------------------------------------------------------------------------------
+					 * External Entity
+					 * ---------------------------------------------------------------------------------------------
+					 */
+					case foreignEE: ExternalEntity[_, _] =>
+						// insert/update
+						if (oldVMO.isDefined) {
+							// entity is updated
+							val oldVM = oldVMO.get
+							val oldT = oldVM.oneToOneReverse(column)
+							val newT = newVM.oneToOneReverse(column)
+
+							UpdateExternalOneToOneReverseCmd(
+								foreignEE,
+								ci,
+								newVM,
+								oldT,
+								newT
+							) :: Nil
+						} else {
+							val added = newVM.oneToOneReverse(column)
+							InsertOneToOneReverseExternalCmd(
+								foreignEE,
+								ci,
+								newVM,
+								added) :: Nil
+						}
+
+					/**
+					 * ---------------------------------------------------------------------------------------------
+					 * Normal Entity
+					 * ---------------------------------------------------------------------------------------------
+					 */
 					case foreignEntity =>
 						val foreignTpe = foreignEntity.tpe
 						if (fo == null) {
