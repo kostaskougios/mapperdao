@@ -13,18 +13,19 @@ import org.joda.time.chrono.ISOChronology
 /**
  * @author kostantinos.kougios
  *
- * 15 May 2012
+ *         15 May 2012
  */
 @RunWith(classOf[JUnitRunner])
-class ValuesMapSuite extends FunSuite with ShouldMatchers {
+class ValuesMapSuite extends FunSuite with ShouldMatchers
+{
 	if (Setup.database == "h2") {
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(TypeEntity))
+		Setup.setupMapperDao(TypeRegistry(TypeEntity))
 		val typeManager = new DefaultTypeManager(ISOChronology.getInstance)
 
 		test("calendar") {
 			val date = Setup.now
 			val o = Type(date.toCalendar(null), null, null)
-			val vm = ValuesMap.fromEntity(typeManager, TypeEntity.tpe, o)
+			val vm = ValuesMap.fromType(typeManager, TypeEntity.tpe, o)
 			val v = vm.raw(TypeEntity.cal).get
 			v.getClass should be === classOf[DateTime]
 			v should be === date
@@ -33,7 +34,7 @@ class ValuesMapSuite extends FunSuite with ShouldMatchers {
 		test("date") {
 			val date = Setup.now
 			val o = Type(null, date.toDate, null)
-			val vm = ValuesMap.fromEntity(typeManager, TypeEntity.tpe, o)
+			val vm = ValuesMap.fromType(typeManager, TypeEntity.tpe, o)
 			val v = vm.raw(TypeEntity.dt).get
 			v.getClass should be === classOf[DateTime]
 			v should be === date
@@ -42,7 +43,7 @@ class ValuesMapSuite extends FunSuite with ShouldMatchers {
 		test("datetime") {
 			val date = Setup.now
 			val o = Type(null, null, date)
-			val vm = ValuesMap.fromEntity(typeManager, TypeEntity.tpe, o)
+			val vm = ValuesMap.fromType(typeManager, TypeEntity.tpe, o)
 			val v = vm.raw(TypeEntity.joda).get
 			v.getClass should be === classOf[DateTime]
 			v should be === date
@@ -50,11 +51,15 @@ class ValuesMapSuite extends FunSuite with ShouldMatchers {
 	}
 
 	case class Type(cal: Calendar, dt: Date, joda: DateTime)
-	object TypeEntity extends Entity[Unit, NoId, Type] {
+
+	object TypeEntity extends Entity[Unit, Type]
+	{
+		type Stored = NoId
 		val cal = column("cal") to (_.cal)
 		val dt = column("dt") to (_.dt)
 		val joda = column("joda") to (_.joda)
 
-		def constructor(implicit m) = new Type(cal, dt, joda) with NoId
+		def constructor(implicit m) = new Type(cal, dt, joda) with Stored
 	}
+
 }
