@@ -10,7 +10,8 @@ import utils.TraversableSeparation
  *
  *         21 Nov 2012
  */
-class CmdPhase(typeManager: TypeManager) {
+class CmdPhase(typeManager: TypeManager)
+{
 
 	private var alreadyProcessed = Map[Int, List[PersistCmd]]()
 
@@ -410,10 +411,10 @@ class CmdPhase(typeManager: TypeManager) {
 							) :: Nil
 						} else {
 							val added = newVM.oneToOneReverse(column)
-							InsertOneToOneReverseExternalCmd(
+							InsertOneToOneReverseExternalCmd[ID, T, Any, Any](
 								tpe,
-								foreignEE,
-								ci,
+								foreignEE.asInstanceOf[ExternalEntity[Any, Any]],
+								ci.asInstanceOf[ColumnInfoOneToOneReverse[ID, Any, Any]],
 								newVM,
 								added) :: Nil
 						}

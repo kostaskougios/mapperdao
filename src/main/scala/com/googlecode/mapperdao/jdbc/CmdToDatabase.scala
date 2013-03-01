@@ -21,7 +21,8 @@ class CmdToDatabase(
 	protected val driver: Driver,
 	typeManager: TypeManager,
 	prioritized: Prioritized
-	) {
+	)
+{
 
 	private val jdbc = driver.jdbc
 
@@ -198,8 +199,9 @@ class CmdToDatabase(
 			}
 		case InsertOneToOneReverseExternalCmd(tpe, foreignEntity, oneToOneReverse, entityVM, ft) =>
 			val o = tpe.constructor(None, entityVM)
-			val ue = InsertExternalOneToOneReverse(updateConfig, o, ft)
-			foreignEntity.oneToOneOnInsertMap(oneToOneReverse)(ue)
+			val ue = InsertExternalOneToOneReverse[Any, Any](updateConfig, o, ft)
+			val m = foreignEntity.oneToOneOnInsertMap(oneToOneReverse).asInstanceOf[foreignEntity.OnInsertOneToOneReverse[Any]]
+			m(ue)
 			ExternalEntityPersistedNode(foreignEntity, ft) :: Nil
 	}.flatten
 
