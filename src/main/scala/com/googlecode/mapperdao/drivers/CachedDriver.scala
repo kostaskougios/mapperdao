@@ -1,7 +1,5 @@
 package com.googlecode.mapperdao.drivers
 
-import com.googlecode.mapperdao.jdbc.JdbcMap
-import com.googlecode.mapperdao.jdbc.UpdateResult
 import com.googlecode.mapperdao._
 
 /**
@@ -11,7 +9,8 @@ import com.googlecode.mapperdao._
  *
  *         21 Mar 2012
  */
-trait CachedDriver extends Driver {
+trait CachedDriver extends Driver
+{
 	val cache: Cache
 
 	override def doSelect[ID, T](selectConfig: SelectConfig, tpe: Type[ID, T], where: List[(SimpleColumn, Any)]) = {
@@ -34,7 +33,7 @@ trait CachedDriver extends Driver {
 		ftpe: Type[FID, F],
 		manyToMany: ManyToMany[FID, F],
 		leftKeyValues: List[(SimpleColumn, Any)]
-	) = {
+		) = {
 		val key = manyToMany.linkTable.name :: leftKeyValues
 
 		selectConfig.cacheOptions match {
@@ -82,7 +81,7 @@ trait CachedDriver extends Driver {
 		tpe: Type[ID, T],
 		args: List[(SimpleColumn, Any)],
 		pkArgs: List[(SimpleColumn, Any)]
-	) = {
+		) = {
 		val u = super.updateSql(tpe, args, pkArgs)
 
 		val table = tpe.table
@@ -103,7 +102,7 @@ trait CachedDriver extends Driver {
 		manyToMany: ManyToMany[_, _],
 		leftKeyValues: List[Any],
 		rightKeyValues: List[Any]
-	) = {
+		) = {
 		val u = super.deleteManyToManySql(manyToMany, leftKeyValues, rightKeyValues)
 		cache.flush(manyToMany.linkTable.name :: leftKeyValues)
 		cache.flush(manyToMany.linkTable.name :: rightKeyValues)
@@ -114,7 +113,7 @@ trait CachedDriver extends Driver {
 		manyToMany: ManyToMany[_, _],
 		left: List[Any],
 		right: List[Any]
-	) = {
+		) = {
 		val u = super.insertManyToManySql(manyToMany, left, right)
 
 		val lkey = manyToMany.linkTable.name :: (manyToMany.linkTable.left zip left)
