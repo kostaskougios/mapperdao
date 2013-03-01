@@ -119,13 +119,13 @@ abstract class Driver
 	 */
 	def deleteManyToManySql(
 		manyToMany: ManyToMany[_, _],
-		leftKeyValues: List[Any],
-		rightKeyValues: List[Any]
+		leftKeys: List[(SimpleColumn, Any)],
+		rightKeys: List[(SimpleColumn, Any)]
 		) = {
 		val linkTable = manyToMany.linkTable
 		val s = new sqlBuilder.DeleteBuilder
 		s.from(linkTable.name)
-		val cav = (linkTable.left ::: linkTable.right) zip (leftKeyValues ::: rightKeyValues)
+		val cav = leftKeys ::: rightKeys
 		s.where(cav, "=")
 		s
 	}

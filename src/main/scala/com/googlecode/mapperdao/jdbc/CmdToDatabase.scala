@@ -250,8 +250,8 @@ class CmdToDatabase(
 				driver.insertManyToManySql(manyToMany, left, right).result :: Nil
 
 			case DeleteManyToManyCmd(tpe, foreignTpe, manyToMany, entityVM, foreignEntityVM) =>
-				val left = entityVM.toListOfPrimaryKeys(tpe)
-				val right = foreignEntityVM.toListOfPrimaryKeys(foreignTpe)
+				val left = manyToMany.linkTable.left zip entityVM.toListOfPrimaryKeys(tpe)
+				val right = manyToMany.linkTable.right zip foreignEntityVM.toListOfPrimaryKeys(foreignTpe)
 				driver.deleteManyToManySql(manyToMany, left, right).result :: Nil
 
 			case dc@DeleteCmd(tpe, vm) =>
@@ -273,8 +273,8 @@ class CmdToDatabase(
 
 				val rSqls = removed.map {
 					fo =>
-						val left = newVM.toListOfPrimaryKeys(tpe)
-						val right = fTable.toListOfPrimaryKeyValues(fo)
+						val left = newVM.toListOfPrimaryKeyAndValueTuple(tpe)
+						val right = fTable.toListOfPrimaryKeyAndValueTuples(fo)
 						driver.deleteManyToManySql(manyToMany.column, left, right).result
 				}.toList
 

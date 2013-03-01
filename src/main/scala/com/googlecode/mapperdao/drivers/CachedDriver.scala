@@ -100,8 +100,8 @@ trait CachedDriver extends Driver
 
 	override def deleteManyToManySql(
 		manyToMany: ManyToMany[_, _],
-		leftKeyValues: List[Any],
-		rightKeyValues: List[Any]
+		leftKeyValues: List[(SimpleColumn, Any)],
+		rightKeyValues: List[(SimpleColumn, Any)]
 		) = {
 		val u = super.deleteManyToManySql(manyToMany, leftKeyValues, rightKeyValues)
 		cache.flush(manyToMany.linkTable.name :: leftKeyValues)
