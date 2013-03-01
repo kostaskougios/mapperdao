@@ -10,10 +10,11 @@ import org.scalatest.matchers.ShouldMatchers
 /**
  * @author kostantinos.kougios
  *
- * 28 Aug 2011
+ *         28 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class SimpleSelfJoinQuerySuite extends FunSuite with ShouldMatchers {
+class SimpleSelfJoinQuerySuite extends FunSuite with ShouldMatchers
+{
 
 	val JobPositionEntity = new JobPositionEntityBase
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
@@ -36,26 +37,29 @@ class SimpleSelfJoinQuerySuite extends FunSuite with ShouldMatchers {
 		Setup.queries(this, jdbc).update("ddl")
 	}
 
-	def q11 =
-		{
-			import Query._
-			// main table
-			val jp1 = JobPositionEntity
-			// alias of same table
-			val jp2 = new JobPositionEntityBase
+	def q11 = {
+		import Query._
+		// main table
+		val jp1 = JobPositionEntity
+		// alias of same table
+		val jp2 = new JobPositionEntityBase
 
-			select from jp1 join
-				jp2 on
-				jp1.name === jp2.name and
-				jp1.id <> jp2.id
-		}
+		select from jp1 join
+			jp2 on
+			jp1.name === jp2.name and
+			jp1.id <> jp2.id
+	}
+
 	case class JobPosition(val id: Int, var name: String, val start: DateTime)
 
-	class JobPositionEntityBase extends Entity[Int, SurrogateIntId, JobPosition] {
+	class JobPositionEntityBase extends Entity[Int, JobPosition]
+	{
+		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val start = column("start") to (_.start)
 
-		def constructor(implicit m) = new JobPosition(id, name, start) with SurrogateIntId
+		def constructor(implicit m) = new JobPosition(id, name, start) with Stored
 	}
+
 }
