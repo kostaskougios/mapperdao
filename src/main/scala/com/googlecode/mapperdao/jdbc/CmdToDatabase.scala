@@ -203,6 +203,12 @@ class CmdToDatabase(
 			val m = foreignEntity.oneToOneOnInsertMap(oneToOneReverse).asInstanceOf[foreignEntity.OnInsertOneToOneReverse[Any]]
 			m(ue)
 			ExternalEntityPersistedNode(foreignEntity, ft) :: Nil
+		case UpdateExternalOneToOneReverseCmd(tpe, foreignEntity, oneToOneReverse, entityVM, oldFT, newFT) =>
+			val o = tpe.constructor(None, entityVM)
+			val ue = UpdateExternalOneToOneReverse[Any, Any](updateConfig, o, oldFT, newFT)
+			val m = foreignEntity.oneToOneOnUpdateMap(oneToOneReverse).asInstanceOf[foreignEntity.OnUpdateOneToOneReverse[Any]]
+			m(ue)
+			ExternalEntityPersistedNode(foreignEntity, newFT) :: Nil
 	}.flatten
 
 	private def toNodes(cmds: List[PersistCmd]) =
@@ -294,7 +300,9 @@ class CmdToDatabase(
 				Nil
 			case UpdateExternalOneToManyCmd(foreignEntity, oneToMany, entityVM, added, intersected, removed) =>
 				Nil
-			case InsertOneToOneReverseExternalCmd(tpe, foreignEntity, oneToMany, entityVM, ft) =>
+			case InsertOneToOneReverseExternalCmd(tpe, foreignEntity, oneToOne, entityVM, ft) =>
+				Nil
+			case UpdateExternalOneToOneReverseCmd(tpe, foreignEntity, oneToOne, entityVM, oldFT, newFT) =>
 				Nil
 		}
 }

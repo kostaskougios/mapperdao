@@ -402,9 +402,10 @@ class CmdPhase(typeManager: TypeManager)
 							val oldT = oldVM.oneToOneReverse(column)
 							val newT = newVM.oneToOneReverse(column)
 
-							UpdateExternalOneToOneReverseCmd(
-								foreignEE,
-								ci,
+							UpdateExternalOneToOneReverseCmd[ID, T, Any, Any](
+								tpe,
+								foreignEE.asInstanceOf[ExternalEntity[Any, Any]],
+								ci.asInstanceOf[ColumnInfoOneToOneReverse[ID, Any, Any]],
 								newVM,
 								oldT,
 								newT
