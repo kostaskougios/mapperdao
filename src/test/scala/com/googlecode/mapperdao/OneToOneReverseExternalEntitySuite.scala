@@ -12,7 +12,8 @@ import com.googlecode.mapperdao.jdbc.Setup
  *         24 Jan 2012
  */
 @RunWith(classOf[JUnitRunner])
-class OneToOneReverseExternalEntitySuite extends FunSuite with ShouldMatchers {
+class OneToOneReverseExternalEntitySuite extends FunSuite with ShouldMatchers
+{
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
 
 	if (Setup.database == "h2") {
@@ -70,7 +71,8 @@ class OneToOneReverseExternalEntitySuite extends FunSuite with ShouldMatchers {
 
 	case class Product(val id: Int, val inventory: Inventory)
 
-	object ProductEntity extends Entity[Int, Product] {
+	object ProductEntity extends Entity[Int, Product]
+	{
 		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
@@ -78,14 +80,15 @@ class OneToOneReverseExternalEntitySuite extends FunSuite with ShouldMatchers {
 		def constructor(implicit m) = new Product(id, inventory) with Stored
 	}
 
-	object InventoryEntity extends ExternalEntity[Int, Inventory] {
+	object InventoryEntity extends ExternalEntity[Int, Inventory]
+	{
 
 		var inventory = Map[Int, Inventory]()
 		var onInsertCalled = 0
 		onInsertOneToOneReverse(ProductEntity.inventory) {
-			i =>
+			case InsertExternalOneToOneReverse(updateConfig, entity, foreign) =>
 				onInsertCalled += 1
-				inventory = inventory + (i.foreign.id -> i.foreign)
+				inventory = inventory + (entity.id -> foreign)
 		}
 
 		onSelectOneToOneReverse(ProductEntity.inventory) {
