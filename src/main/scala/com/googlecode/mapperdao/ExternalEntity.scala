@@ -94,7 +94,7 @@ abstract class ExternalEntity[FID, F](table: String, clz: Class[F]) extends Enti
 
 	def onInsertOneToOneReverse[T](ci: => ColumnInfoOneToOneReverse[T, _, F])(handler: OnInsertOneToOneReverse[T]) = lazyActions(() => oneToOneOnInsertMap +(ci, handler))
 
-	def onInsertOneToOneReverse(handler: OnInsertOneToOneReverse[Any]) {
+	def onInsertOneToOneReverse[T](handler: OnInsertOneToOneReverse[T]) {
 		oneToOneOnInsertMap.default = Some(handler)
 	}
 

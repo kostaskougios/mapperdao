@@ -411,6 +411,7 @@ class CmdPhase(typeManager: TypeManager) {
 						} else {
 							val added = newVM.oneToOneReverse(column)
 							InsertOneToOneReverseExternalCmd(
+								tpe,
 								foreignEE,
 								ci,
 								newVM,

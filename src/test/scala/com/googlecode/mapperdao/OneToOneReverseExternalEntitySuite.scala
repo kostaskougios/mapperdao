@@ -85,7 +85,7 @@ class OneToOneReverseExternalEntitySuite extends FunSuite with ShouldMatchers {
 		onInsertOneToOneReverse(ProductEntity.inventory) {
 			i =>
 				onInsertCalled += 1
-				inventory = inventory + (i.entity.id -> i.foreign)
+				inventory = inventory + (i.foreign.id -> i.foreign)
 		}
 
 		onSelectOneToOneReverse(ProductEntity.inventory) {
