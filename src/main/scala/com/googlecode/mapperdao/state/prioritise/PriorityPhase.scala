@@ -1,8 +1,11 @@
 package com.googlecode.mapperdao.state.prioritise
 
 import com.googlecode.mapperdao._
-import state.persistcmds.{DependsCmd, RelatedCmd, PersistCmd, CmdWithType}
+import state.persistcmds._
+import com.googlecode.mapperdao.ColumnInfoOneToOneReverse
 import com.googlecode.mapperdao.ColumnInfoTraversableOneToMany
+import state.persistcmds.DependsCmd
+import com.googlecode.mapperdao.ColumnInfoOneToOne
 import com.googlecode.mapperdao.ColumnInfoTraversableManyToMany
 import com.googlecode.mapperdao.ColumnInfoManyToOne
 
@@ -11,7 +14,8 @@ import com.googlecode.mapperdao.ColumnInfoManyToOne
  *
  *         15 Dec 2012
  */
-class PriorityPhase(updateConfig: UpdateConfig) {
+class PriorityPhase(updateConfig: UpdateConfig)
+{
 	private var visited = Set[Type[_, _]]()
 
 	def prioritise[ID, T](
@@ -30,7 +34,11 @@ class PriorityPhase(updateConfig: UpdateConfig) {
 			case d: DependsCmd => d
 		}
 
-		val groupped = high.collect {
+		val (delete, rest) = high.partition {
+			case DeleteCmd(_, _) => true
+			case _ => false
+		}
+		val groupped = rest.collect {
 			case we: CmdWithType[_, _] => we
 		}.groupBy(_.tpe)
 
@@ -38,7 +46,18 @@ class PriorityPhase(updateConfig: UpdateConfig) {
 			e =>
 				groupped(e)
 		}
-		Prioritized(h, low, related, dependent)
+
+		// delete cmds.
+		val deleteGroupped = delete.collect {
+			case we: DeleteCmd[_, _] => we
+		}.groupBy(_.tpe)
+		// delete cmds are executed in reverse priority order (least significant is deleted first)
+		val d = prie.reverse.filter(deleteGroupped.contains(_)).map {
+			e =>
+				deleteGroupped(e)
+		}
+
+		Prioritized(d ::: h, low, related, dependent)
 	}
 
 	def prioritiseType(tpe: Type[_, _]): List[Type[_, _]] =

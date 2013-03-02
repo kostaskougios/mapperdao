@@ -319,12 +319,9 @@ class CmdPhase(typeManager: TypeManager)
 									EntityRelatedCmd(foreignVM.identity, column, foreignVM, None, tpe, newVM, oldVMO, true) :: insertOrUpdate(foreignTpe, fo, updateConfig)
 							}.flatten
 							val removedCms = removed.toList.map {
-								case fo: DeclaredIds[_] =>
-									DeleteCmd(
-										foreignTpe,
-										fo.mapperDaoValuesMap
-									)
-							}
+								case fo: Persisted =>
+									doDelete(foreignTpe, fo.mapperDaoValuesMap, updateConfig.deleteConfig)
+							}.flatten
 
 							val intersectCmds = intersect.toList.map {
 								case (oldO: Persisted, newO) =>
@@ -436,7 +433,7 @@ class CmdPhase(typeManager: TypeManager)
 									}
 							}
 							if (oldFVM.isDefined && oldFVM.get != null) {
-								EntityRelatedCmd(0, column, null, oldFVM, tpe, newVM, oldVMO, true) :: DeleteCmd(foreignTpe, oldFVM.get) :: Nil
+								EntityRelatedCmd(0, column, null, oldFVM, tpe, newVM, oldVMO, true) :: doDelete(foreignTpe, oldFVM.get, updateConfig.deleteConfig)
 							} else {
 								Nil
 							}
@@ -484,6 +481,28 @@ class CmdPhase(typeManager: TypeManager)
 	private def doUpdate[ID, T](tpe: Type[ID, T], p: T with DeclaredIds[ID], updateConfig: UpdateConfig) = {
 		val newVM = vmFor(tpe, p)
 		update(tpe, p.mapperDaoValuesMap, newVM, false, updateConfig)
+	}
+
+	private def doDelete[ID, T](tpe: Type[ID, T], vm: ValuesMap, deleteConfig: DeleteConfig): List[PersistCmd] = {
+		(
+			if (deleteConfig.propagate) {
+				val l = tpe.table.relationshipColumnInfos(deleteConfig.skip).collect {
+					case ColumnInfoTraversableOneToMany(column, columnToValue, _, entityOfT) =>
+						val foreignTpe = column.foreign.entity.tpe
+						val fos = vm.oneToMany(column)
+						fos.collect {
+							case fo: Persisted =>
+								doDelete(foreignTpe, fo.mapperDaoValuesMap, deleteConfig)
+						}
+				}.flatten
+				l.flatten
+			} else Nil
+			) ::: (
+			DeleteCmd[ID, T](
+				tpe,
+				vm
+			) :: Nil
+			)
 	}
 
 	def findVM(fo: Any) = vms(System.identityHashCode(fo))
