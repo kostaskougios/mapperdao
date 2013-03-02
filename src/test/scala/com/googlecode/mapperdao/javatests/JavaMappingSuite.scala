@@ -8,7 +8,6 @@ import com.googlecode.mapperdao.Entity
 import com.googlecode.mapperdao.SurrogateIntId
 import scala.collection.JavaConverters._
 import com.googlecode.mapperdao.ValuesMap
-import scala.Product
 
 /**
  * @author kostantinos.kougios
