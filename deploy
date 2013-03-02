@@ -1,9 +1,9 @@
 # deploy after all tests run
 
-mvn help:effective-pom -P scala2.10,sonatype-deploy,optimized -Dexclude -Doutput=tmp.pom
+mvn help:effective-pom -P scala2.10,sonatype-deploy,optimized -Doutput=tmp.pom
 mvn -DskipTests -f tmp.pom clean source:jar scala:doc-jar package deploy || { exit 1; }
 
-mvn help:effective-pom -DskipTests -P scala2.9,sonatype-deploy,optimized -Doutput=tmp.pom
+mvn help:effective-pom -DskipTests -P scala2.9,sonatype-deploy,optimized -Dexclude -Doutput=tmp.pom
 mvn -f tmp.pom -DskipTests clean source:jar scala:doc-jar package deploy || { exit 1; }
 
 rm tmp.pom
