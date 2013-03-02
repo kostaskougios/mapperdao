@@ -271,10 +271,11 @@ class CmdToDatabase(
 				val de = DeleteExternalManyToMany(updateConfig.deleteConfig, removed)
 				foreignEntity.manyToManyOnUpdateMap(manyToMany)(de)
 
+				val linkTable = manyToMany.column.linkTable
 				val rSqls = removed.map {
 					fo =>
-						val left = newVM.toListOfPrimaryKeyAndValueTuple(tpe)
-						val right = fTable.toListOfPrimaryKeyAndValueTuples(fo)
+						val left = linkTable.left zip newVM.toListOfPrimaryKeys(tpe)
+						val right = linkTable.right zip fTable.toListOfPrimaryKeyValues(fo)
 						driver.deleteManyToManySql(manyToMany.column, left, right).result
 				}.toList
 
