@@ -1,4 +1,5 @@
 package com.googlecode.mapperdao.utils
+
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
@@ -7,10 +8,11 @@ import org.scalatest.matchers.ShouldMatchers
 /**
  * @author kostantinos.kougios
  *
- * 26 Oct 2011
+ *         26 Oct 2011
  */
 @RunWith(classOf[JUnitRunner])
-class HelpersSuite extends FunSuite with ShouldMatchers {
+class HelpersSuite extends FunSuite with ShouldMatchers
+{
 
 	import Helpers._
 

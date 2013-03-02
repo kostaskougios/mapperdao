@@ -2,13 +2,6 @@ package com.googlecode.mapperdao.utils
 
 import com.googlecode.mapperdao.MapperDao
 import com.googlecode.mapperdao.Entity
-import com.googlecode.mapperdao.QueryDao
-import com.googlecode.mapperdao.Query
-import org.springframework.transaction.PlatformTransactionManager
-import com.googlecode.mapperdao.jdbc.Transaction
-import Transaction._
-import com.googlecode.mapperdao.TypeRegistry
-import com.googlecode.mapperdao.QueryConfig
 import com.googlecode.mapperdao.SelectConfig
 import com.googlecode.mapperdao.UpdateConfig
 import com.googlecode.mapperdao.DeleteConfig
@@ -26,7 +19,8 @@ import com.googlecode.mapperdao.DeclaredIds
  *
  *         30 Aug 2011
  */
-trait CRUD[ID, T] {
+trait CRUD[ID, T]
+{
 	protected val mapperDao: MapperDao
 	protected val entity: Entity[ID, T]
 
@@ -61,8 +55,6 @@ trait CRUD[ID, T] {
 	/**
 	 * select an entity by it's primary key
 	 *
-	 * @param clz		Class[T], classOf[Entity]
-	 * @param id		the id
 	 * @return			Option[T] or None
 	 */
 	def retrieve(pk: ID): Option[T with DeclaredIds[ID]] = mapperDao.select(selectConfig, entity, pk)
