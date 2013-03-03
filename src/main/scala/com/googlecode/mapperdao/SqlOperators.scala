@@ -68,7 +68,7 @@ case class OneToManyDeclaredPrimaryKeyOperation[ID, T, FID, F](
 	left: OneToMany[FID, F],
 	operand: Operand,
 	right: T,
-	entityOfT: Entity[ID, T]
+	entityOfT: Entity[ID,Persisted, T]
 ) extends OpBase {
 	if (right == null) throw new NullPointerException("Value can't be null in one-to-many FK queries. Expression was on %s.".format(left))
 

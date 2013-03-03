@@ -8,5 +8,5 @@ package com.googlecode.mapperdao
  *         6 May 2012
  */
 trait QueryRunStrategy {
-	def run[ID, T](mapperDao: MapperDaoImpl, entity: Entity[ID, T], queryConfig: QueryConfig, lm: List[DatabaseValues]): List[T with DeclaredIds[ID]]
+	def run[ID, T](mapperDao: MapperDaoImpl, entity: Entity[ID,_, T], queryConfig: QueryConfig, lm: List[DatabaseValues]): List[T with Persisted]
 }

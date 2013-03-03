@@ -27,7 +27,7 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 	}
 
 	override def before[ID, T](
-		entity: Entity[ID, T],
+		entity: Entity[ID,_, T],
 		selectConfig: SelectConfig,
 		om: DatabaseValues, entities: EntityMap
 	) = {
@@ -49,7 +49,7 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 								}
 								ee.oneToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, _, Any]])(SelectExternalOneToMany(selectConfig, ids))
 							}
-						case _: Entity[Any, Any] =>
+						case _: Entity[Any,Persisted, Any] =>
 							// try to capture as few variables as possible
 							// for optimal memory usage for lazy loaded entities
 							val down = entities.down(selectConfig, tpe, ci, om)

@@ -8,7 +8,7 @@ case class FloatValue(val value: Float) extends SimpleTypeValue[Float, FloatValu
 }
 
 protected class FloatEntityOTM(table: String, fkColumn: String, soleColumn: String)
-	extends Entity[Unit, FloatValue](table, classOf[FloatValue]) {
+	extends Entity[Unit,NoId, FloatValue](table, classOf[FloatValue]) {
 	type Stored = NoId
 	val value = column(soleColumn) to (_.value)
 	declarePrimaryKey(value)
@@ -17,7 +17,7 @@ protected class FloatEntityOTM(table: String, fkColumn: String, soleColumn: Stri
 }
 
 abstract class FloatEntityManyToManyBase[ID](table: String, soleColumn: String)
-	extends Entity[ID, FloatValue](table, classOf[FloatValue]) {
+	extends Entity[ID,SurrogateIntId, FloatValue](table, classOf[FloatValue]) {
 	val value = column(soleColumn) to (_.value)
 }
 

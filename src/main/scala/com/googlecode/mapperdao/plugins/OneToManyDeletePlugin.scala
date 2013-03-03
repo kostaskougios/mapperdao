@@ -7,7 +7,7 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 	override def idColumnValueContribution[ID, T](
 		tpe: Type[ID, T],
 		deleteConfig: DeleteConfig,
-		o: T with DeclaredIds[ID],
+		o: T with Persisted,
 		entityMap: UpdateEntityMap
 		): List[(SimpleColumn, Any)] = {
 		val UpdateInfo(parentO, ci, parentEntity) = entityMap.peek[Any, Any, Traversable[T], Any, T]
@@ -20,9 +20,9 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 	}
 
 	override def before[ID, T](
-		entity: Entity[ID, T],
+		entity: Entity[ID,_, T],
 		deleteConfig: DeleteConfig,
-		o: T with DeclaredIds[ID],
+		o: T with Persisted,
 		keyValues: List[(ColumnBase, Any)],
 		entityMap: UpdateEntityMap
 		) =
@@ -39,7 +39,7 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 								.asInstanceOf[ee.OnDeleteOneToMany[T]]
 							handler(DeleteExternalOneToMany(deleteConfig, o, fOTraversable))
 
-						case fe: Entity[Any, Any] =>
+						case fe: Entity[Any,_, Any] =>
 							if (fOTraversable != null) fOTraversable.foreach {
 								fO =>
 									val fOPersisted = fO.asInstanceOf[DeclaredIds[Any]]

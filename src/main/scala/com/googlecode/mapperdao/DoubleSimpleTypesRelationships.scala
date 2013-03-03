@@ -8,7 +8,7 @@ case class DoubleValue(val value: Double) extends SimpleTypeValue[Double, Double
 }
 
 protected class DoubleEntityOTM(table: String, fkColumn: String, soleColumn: String)
-	extends Entity[Unit, DoubleValue](table, classOf[DoubleValue]) {
+	extends Entity[Unit,NoId, DoubleValue](table, classOf[DoubleValue]) {
 	type Stored = NoId
 	val value = column(soleColumn) to (_.value)
 	declarePrimaryKey(value)
@@ -17,7 +17,7 @@ protected class DoubleEntityOTM(table: String, fkColumn: String, soleColumn: Str
 }
 
 abstract class DoubleEntityManyToManyBase[ID](table: String, soleColumn: String)
-	extends Entity[ID, DoubleValue](table, classOf[DoubleValue]) {
+	extends Entity[ID,SurrogateIntId, DoubleValue](table, classOf[DoubleValue]) {
 	val value = column(soleColumn) to (_.value)
 }
 

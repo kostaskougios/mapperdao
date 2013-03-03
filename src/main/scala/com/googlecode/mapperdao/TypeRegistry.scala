@@ -9,8 +9,8 @@ import java.util.IdentityHashMap
  *
  *         25 Jul 2011
  */
-final class TypeRegistry private(val entities: List[Entity[_, _]]) {
-	private val columnsToEntity = new IdentityHashMap[ColumnBase, Entity[Any, Any]]
+final class TypeRegistry private(val entities: List[Entity[_,_, _]]) {
+	private val columnsToEntity = new IdentityHashMap[ColumnBase, Entity[Any,_, Any]]
 
 	entities.foreach {
 		entity =>
@@ -21,11 +21,11 @@ final class TypeRegistry private(val entities: List[Entity[_, _]]) {
 			} ::: entity.tpe.table.columns
 			columns.foreach {
 				c =>
-					columnsToEntity.put(c, entity.asInstanceOf[Entity[Any, Any]])
+					columnsToEntity.put(c, entity.asInstanceOf[Entity[Any,_, Any]])
 			}
 	}
 
-	def entityOf(column: ColumnBase): Entity[Any, Any] = {
+	def entityOf(column: ColumnBase): Entity[Any,_, Any] = {
 		val e = columnsToEntity.get(column)
 		if (e == null)
 			throw new IllegalArgumentException("can't find entity for column %s, is entity registered with this type registry?".format(column))
@@ -39,7 +39,7 @@ object TypeRegistry {
 	/**
 	 * creates a TypeRegistry, registers all types and initializes the TypeRegistry.
 	 */
-	def apply(types: Entity[_, _]*): TypeRegistry = new TypeRegistry(types.toList)
+	def apply(types: Entity[_,_, _]*): TypeRegistry = new TypeRegistry(types.toList)
 
-	def apply(types: List[Entity[_, _]]): TypeRegistry = new TypeRegistry(types)
+	def apply(types: List[Entity[_,_, _]]): TypeRegistry = new TypeRegistry(types)
 }

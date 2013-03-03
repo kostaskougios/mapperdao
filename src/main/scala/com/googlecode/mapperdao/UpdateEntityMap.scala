@@ -17,7 +17,7 @@ protected class UpdateEntityMap {
 	def down[PID, PT, V, FID, F](
 		o: PT,
 		ci: ColumnInfoRelationshipBase[PT, V, FID, F],
-		parentEntity: Entity[PID, PT]
+		parentEntity: Entity[PID,Persisted, PT]
 		): Unit =
 		stack = stack.push(UpdateInfo(o, ci, parentEntity))
 
@@ -43,5 +43,5 @@ protected class UpdateEntityMap {
 protected case class UpdateInfo[PID, PT, V, FID, F](
 	val o: PT,
 	val ci: ColumnInfoRelationshipBase[PT, V, FID, F],
-	parentEntity: Entity[PID, PT]
+	parentEntity: Entity[PID,Persisted, PT]
 	)

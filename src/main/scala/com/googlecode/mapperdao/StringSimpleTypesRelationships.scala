@@ -8,7 +8,7 @@ case class StringValue(val value: String) extends SimpleTypeValue[String, String
 }
 
 protected class StringEntityOneToMany(table: String, fkColumn: String, soleColumn: String)
-	extends Entity[Unit, StringValue](table, classOf[StringValue]) {
+	extends Entity[Unit, NoId,StringValue](table, classOf[StringValue]) {
 	type Stored = NoId
 	val value = column(soleColumn) to (_.value)
 
@@ -18,7 +18,7 @@ protected class StringEntityOneToMany(table: String, fkColumn: String, soleColum
 }
 
 abstract class StringEntityManyToManyBase[ID](table: String, soleColumn: String)
-	extends Entity[ID, StringValue](table, classOf[StringValue]) {
+	extends Entity[ID, SurrogateIntId,StringValue](table, classOf[StringValue]) {
 	val value = column(soleColumn) to (_.value)
 }
 

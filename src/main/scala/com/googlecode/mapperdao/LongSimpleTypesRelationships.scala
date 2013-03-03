@@ -8,7 +8,7 @@ case class LongValue(val value: Long) extends SimpleTypeValue[Long, LongValue] {
 }
 
 protected class LongEntityOTM(table: String, fkColumn: String, soleColumn: String)
-	extends Entity[Unit, LongValue](table, classOf[LongValue]) {
+	extends Entity[Unit,NoId, LongValue](table, classOf[LongValue]) {
 	type Stored = NoId
 	val value = column(soleColumn) to (_.value)
 	declarePrimaryKey(value)
@@ -16,7 +16,7 @@ protected class LongEntityOTM(table: String, fkColumn: String, soleColumn: Strin
 	def constructor(implicit m: ValuesMap) = new LongValue(value) with NoId
 }
 
-abstract class LongEntityManyToManyBase[ID](table: String, soleColumn: String) extends Entity[ID, LongValue](table, classOf[LongValue]) {
+abstract class LongEntityManyToManyBase[ID](table: String, soleColumn: String) extends Entity[ID,SurrogateIntId, LongValue](table, classOf[LongValue]) {
 	val value = column(soleColumn) to (_.value)
 }
 

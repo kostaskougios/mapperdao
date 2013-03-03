@@ -6,7 +6,7 @@ package com.googlecode.mapperdao
  */
 protected case class EntityType[ID, T](
 	clz: Class[T],
-	constructor: (Option[_], ValuesMap) => T with DeclaredIds[ID],
+	constructor: (Option[_], ValuesMap) => T with Persisted,
 	table: Table[ID, T]
 	) extends Type[ID, T]
 {

@@ -12,7 +12,6 @@ import com.googlecode.mapperdao.SelectExternalManyToMany
 import com.googlecode.mapperdao.Type
 import com.googlecode.mapperdao.TypeRegistry
 import com.googlecode.mapperdao.DatabaseValues
-import com.googlecode.mapperdao.DeclaredIds
 
 /**
  * @author kostantinos.kougios
@@ -28,7 +27,7 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 	) = Nil
 
 	override def before[ID, T](
-		entity: Entity[ID, T],
+		entity: Entity[ID,_, T],
 		selectConfig: SelectConfig,
 		om: DatabaseValues,
 		entities: EntityMap

@@ -8,7 +8,7 @@ case class IntValue(val value: Int) extends SimpleTypeValue[Int, IntValue] {
 }
 
 protected class IntEntityOTM(table: String, fkColumn: String, soleColumn: String)
-	extends Entity[Unit, IntValue](table, classOf[IntValue]) {
+	extends Entity[Unit,NoId, IntValue](table, classOf[IntValue]) {
 	type Stored = NoId
 	val value = column(soleColumn) to (_.value)
 	declarePrimaryKey(value)
@@ -17,7 +17,7 @@ protected class IntEntityOTM(table: String, fkColumn: String, soleColumn: String
 }
 
 abstract class IntEntityManyToManyBase[ID](table: String, soleColumn: String)
-	extends Entity[ID, IntValue](table, classOf[IntValue]) {
+	extends Entity[ID,SurrogateIntId, IntValue](table, classOf[IntValue]) {
 	val value = column(soleColumn) to (_.value)
 }
 

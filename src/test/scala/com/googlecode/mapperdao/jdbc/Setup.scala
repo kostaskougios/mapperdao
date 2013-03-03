@@ -70,7 +70,7 @@ object Setup {
 			properties.getProperty("password"), true)
 	}
 
-	def from(dataSource: DataSource, entities: List[Entity[_, _]]) = {
+	def from(dataSource: DataSource, entities: List[Entity[_,_, _]]) = {
 		val (j, m, q, t) = S.create(Database.byName(database), dataSource, TypeRegistry(entities))
 		(j, m, q, t)
 	}

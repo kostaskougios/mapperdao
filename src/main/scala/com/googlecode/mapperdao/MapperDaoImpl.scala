@@ -83,8 +83,8 @@ protected final class MapperDaoImpl(
 	override def updateMutable0[ID, T](
 		updateConfig: UpdateConfig,
 		tpe: Type[ID, T],
-		os: List[T with DeclaredIds[ID]]
-		): List[T with DeclaredIds[ID]] = {
+		os: List[T with Persisted]
+		): List[T with Persisted] = {
 		val osAndNewValues = os.map {
 			o =>
 				o match {
@@ -101,8 +101,8 @@ protected final class MapperDaoImpl(
 	override def updateImmutable0[ID, T](
 		updateConfig: UpdateConfig,
 		tpe: Type[ID, T],
-		os: List[(T with DeclaredIds[ID], T)]
-		): List[T with DeclaredIds[ID]] = {
+		os: List[(T with Persisted, T)]
+		): List[T with Persisted] = {
 		val osAndNewValues = os.map {
 			case (oldO, newO) =>
 				oldO.mapperDaoDiscarded = true
@@ -115,8 +115,8 @@ protected final class MapperDaoImpl(
 	private def updateProcess[ID, T](
 		updateConfig: UpdateConfig,
 		tpe: Type[ID, T],
-		os: List[(T with DeclaredIds[ID], ValuesMap)]
-		): List[T with DeclaredIds[ID]] = {
+		os: List[(T with Persisted, ValuesMap)]
+		): List[T with Persisted] = {
 
 		val po = new CmdPhase(typeManager)
 		val cmds = os.map {
@@ -144,7 +144,7 @@ protected final class MapperDaoImpl(
 	 *
 	 * SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
 	 */
-	override def select0[ID, T](selectConfig: SelectConfig, entity: Entity[ID, T], id: ID) = {
+	override def select0[ID, T](selectConfig: SelectConfig, entity: Entity[ID,_, T], id: ID) = {
 		if (id == null) throw new NullPointerException("ids can't be null")
 		val ids = Helpers.idToList(id)
 		val pkSz = entity.tpe.table.primaryKeysSize
@@ -155,16 +155,16 @@ protected final class MapperDaoImpl(
 	}
 
 	private[mapperdao] def selectInner[ID, T](
-		entity: Entity[ID, T],
+		entity: Entity[ID,_, T],
 		selectConfig: SelectConfig,
 		ids: List[Any],
 		entities: EntityMap
-		): Option[T with DeclaredIds[ID]] = {
+		): Option[T with Persisted] = {
 		val clz = entity.clz
 		val tpe = entity.tpe
 		if (tpe.table.primaryKeysSize != ids.size) throw new IllegalStateException("Primary keys number dont match the number of parameters. Primary keys: %s".format(tpe.table.primaryKeys))
 
-		entities.get[T with DeclaredIds[ID]](tpe.clz, ids) {
+		entities.get[T with Persisted](tpe.clz, ids) {
 			try {
 				val (pks, declared) = ids.splitAt(tpe.table.primaryKeys.size)
 				val pkArgs = tpe.table.primaryKeys.zip(pks)
@@ -211,10 +211,10 @@ protected final class MapperDaoImpl(
 
 	private[mapperdao] def toEntities[ID, T](
 		lm: List[DatabaseValues],
-		entity: Entity[ID, T],
+		entity: Entity[ID,_, T],
 		selectConfig: SelectConfig,
 		entities: EntityMap
-		): List[T with DeclaredIds[ID]] = {
+		): List[T with Persisted] = {
 		lm.map {
 			jdbcMap =>
 				val tpe = entity.tpe
@@ -233,7 +233,7 @@ protected final class MapperDaoImpl(
 				if (ids.isEmpty)
 					throw new IllegalStateException("entity %s without primary key, please use declarePrimaryKeys() to declare the primary key columns of tables into your entity declaration")
 
-				entities.get[T with DeclaredIds[ID]](tpe.clz, ids) {
+				entities.get[T with Persisted](tpe.clz, ids) {
 					val mods = jdbcMap.toMap
 					val mock = mockFactory.createMock(selectConfig.data, entity.tpe, mods)
 					entities.putMock(tpe.clz, ids, mock)
@@ -258,7 +258,7 @@ protected final class MapperDaoImpl(
 	}
 
 	private def lazyLoadEntity[ID, T](
-		entity: Entity[ID, T],
+		entity: Entity[ID,_, T],
 		selectConfig: SelectConfig,
 		vm: ValuesMap
 		) = {
@@ -296,7 +296,7 @@ protected final class MapperDaoImpl(
 	 * doing infinite loops.
 	 */
 
-	override def delete[ID, T](entity: Entity[ID, T], id: ID): Unit = {
+	override def delete[ID,PC<:Persisted, T](entity: Entity[ID,PC, T], id: ID): Unit = {
 		val ids = Helpers.idToList(id)
 		val tpe = entity.tpe
 		val table = tpe.table
@@ -310,7 +310,7 @@ protected final class MapperDaoImpl(
 	/**
 	 * deletes an entity from the database
 	 */
-	override def delete[ID, T](deleteConfig: DeleteConfig, entity: Entity[ID, T], o: T with DeclaredIds[ID]): T = {
+	override def delete[ID,PC<:Persisted, T](deleteConfig: DeleteConfig, entity: Entity[ID,PC, T], o: T with PC): T = {
 		val entityMap = new UpdateEntityMap
 		val deleted = deleteInner(deleteConfig, entity, o, entityMap)
 		entityMap.done
@@ -319,8 +319,8 @@ protected final class MapperDaoImpl(
 
 	private[mapperdao] def deleteInner[ID, T](
 		deleteConfig: DeleteConfig,
-		entity: Entity[ID, T],
-		o: T with DeclaredIds[ID],
+		entity: Entity[ID,Persisted, T],
+		o: T with Persisted,
 		entityMap: UpdateEntityMap
 		): T = {
 		if (o.mapperDaoDiscarded) throw new IllegalArgumentException("can't operate on an object twice. An object that was updated/deleted must be discarded and replaced by the return value of update(), i.e. onew=update(o) or just be disposed if it was deleted. The offending object was : " + o);
@@ -349,14 +349,14 @@ protected final class MapperDaoImpl(
 		}
 	}
 
-	override def unlink[ID, T](entity: Entity[ID, T], o: T): T = {
+	override def unlink[ID,PC<:Persisted, T](entity: Entity[ID,PC, T], o: T): T = {
 		val unlinkVisitor = new UnlinkEntityRelationshipVisitor
 		unlinkVisitor.visit(entity, o)
 		unlinkVisitor.unlink(o)
 		o
 	}
 
-	override def link0[ID, T](entity: Entity[ID, T], o: T with Persisted) = {
+	override def link0[ID, T](entity: Entity[ID,Persisted, T], o: T with Persisted) = {
 		val vm = ValuesMap.fromType(typeManager, entity.tpe, o)
 		val r = entity.constructor(None, vm)
 		r.mapperDaoValuesMap = vm
@@ -366,10 +366,10 @@ protected final class MapperDaoImpl(
 	override def merge0[ID, T](
 		selectConfig: SelectConfig,
 		updateConfig: UpdateConfig,
-		entity: Entity[ID, T],
+		entity: Entity[ID,Persisted, T],
 		o: T,
 		ids: ID
-		): T with DeclaredIds[ID] =
+		): T with Persisted =
 		select(selectConfig, entity, ids) match {
 			case None => insert(updateConfig, entity, o)
 			case Some(oldO) =>

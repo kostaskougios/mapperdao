@@ -51,13 +51,13 @@ import com.googlecode.mapperdao.utils.LazyActions
  *
  *         13 Aug 2011
  */
-abstract class Entity[ID, T](val table: String, val clz: Class[T]) {
+abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class[T]) {
 
 	/**
 	 * declares the extra trait that will be mixed into every persisted instance
 	 * of T. So T becomes T with Stored when it is persisted.
 	 */
-	type Stored <: DeclaredIds[ID]
+	type Stored = PC
 
 	def this(table: String)(implicit m: ClassManifest[T]) = this(table, m.erasure.asInstanceOf[Class[T]])
 
@@ -70,7 +70,7 @@ abstract class Entity[ID, T](val table: String, val clz: Class[T]) {
 	 */
 	def constructor(implicit m: ValuesMap): T with Stored
 
-	def constructor(implicit data: Option[_], m: ValuesMap): T with Stored = constructor(m)
+	def constructor(implicit data: Option[_], m: ValuesMap): T with PC = constructor(m)
 
 	protected val tableLower = table.toLowerCase
 
@@ -81,7 +81,7 @@ abstract class Entity[ID, T](val table: String, val clz: Class[T]) {
 	private[mapperdao] var onlyForQueryColumns = List[ColumnInfoBase[T, _]]()
 	private var unusedPKs = new LazyActions[ColumnInfoBase[Any, Any]]
 	protected[mapperdao] lazy val tpe = {
-		val con: (Option[_], ValuesMap) => T with DeclaredIds[ID] = (d, m) => {
+		val con: (Option[_], ValuesMap) => T with Persisted = (d, m) => {
 			// construct the object
 			val o = constructor(d, m)
 			// set the values map
@@ -94,7 +94,7 @@ abstract class Entity[ID, T](val table: String, val clz: Class[T]) {
 	override def hashCode = table.hashCode
 
 	override def equals(o: Any) = o match {
-		case e: Entity[_, _] => table == e.table && clz == e.clz
+		case e: Entity[_,_, _] => table == e.table && clz == e.clz
 		case _ => false
 	}
 
@@ -416,11 +416,11 @@ abstract class Entity[ID, T](val table: String, val clz: Class[T]) {
 	 * or, to override the default naming convention
 	 * val attributes=manytomany(AttributeEntity) join("Product_To_Attributes","p_id","a_id") to (_.attributes)
 	 */
-	def manytomany[FID, FT](referenced: Entity[FID, FT]) = new ManyToManyBuilder(referenced, false)
+	def manytomany[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT]) = new ManyToManyBuilder(referenced, false)
 
-	def manytomanyreverse[FID, FT](referenced: Entity[FID, FT]) = new ManyToManyBuilder(referenced, true)
+	def manytomanyreverse[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT]) = new ManyToManyBuilder(referenced, true)
 
-	protected class ManyToManyBuilder[FID, FT](referenced: Entity[FID, FT], reverse: Boolean)
+	protected class ManyToManyBuilder[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT], reverse: Boolean)
 		extends GetterDefinition with OnlyForQueryDefinition {
 		val clz = Entity.this.clz
 		private var linkTable = if (reverse) referenced.table + "_" + table else table + "_" + referenced.table
@@ -512,9 +512,9 @@ abstract class Entity[ID, T](val table: String, val clz: Class[T]) {
 	 * or
 	 * val inventory=onetoone(InventoryEntity) option (_.inventory)
 	 */
-	def onetoone[FID, FT](referenced: Entity[FID, FT]) = new OneToOneBuilder(referenced)
+	def onetoone[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT]) = new OneToOneBuilder(referenced)
 
-	protected class OneToOneBuilder[FID, FT](referenced: Entity[FID, FT])
+	protected class OneToOneBuilder[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT])
 		extends OnlyForQueryDefinition {
 		private var cols = referenced.keysDuringDeclaration.map {
 			k =>
@@ -550,9 +550,9 @@ abstract class Entity[ID, T](val table: String, val clz: Class[T]) {
 	 * one-to-one reverse, i.e.
 	 * val product=onetoonereverse(ProductEntity) to (_.product)
 	 */
-	def onetoonereverse[FID, FT](referenced: Entity[FID, FT]) = new OneToOneReverseBuilder(referenced)
+	def onetoonereverse[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT]) = new OneToOneReverseBuilder(referenced)
 
-	protected class OneToOneReverseBuilder[FID, FT](referenced: Entity[FID, FT])
+	protected class OneToOneReverseBuilder[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT])
 		extends GetterDefinition
 		with OnlyForQueryDefinition {
 		val clz = Entity.this.clz
@@ -588,9 +588,9 @@ abstract class Entity[ID, T](val table: String, val clz: Class[T]) {
 	 *
 	 * val houses=onetomany(HouseEntity) to (_.houses)
 	 */
-	def onetomany[FID, FT](referenced: Entity[FID, FT]) = new OneToManyBuilder(referenced)
+	def onetomany[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT]) = new OneToManyBuilder(referenced)
 
-	protected class OneToManyBuilder[FID, FT](referenced: Entity[FID, FT])
+	protected class OneToManyBuilder[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT])
 		extends GetterDefinition
 		with OnlyForQueryDefinition {
 		val clz = Entity.this.clz
@@ -659,9 +659,9 @@ abstract class Entity[ID, T](val table: String, val clz: Class[T]) {
 	 *
 	 * val person=manytoone(PersonEntity) to (_.person)
 	 */
-	def manytoone[FID, FT](referenced: Entity[FID, FT]) = new ManyToOneBuilder(referenced)
+	def manytoone[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT]) = new ManyToOneBuilder(referenced)
 
-	protected class ManyToOneBuilder[FID, FT](referenced: Entity[FID, FT])
+	protected class ManyToOneBuilder[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT])
 		extends GetterDefinition
 		with OnlyForQueryDefinition {
 

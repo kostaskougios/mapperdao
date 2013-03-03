@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao.state.persistcmds
 
-import com.googlecode.mapperdao.{ColumnInfoManyToOne, ValuesMap, ExternalEntity}
+import com.googlecode.mapperdao.{Persisted, ColumnInfoManyToOne, ValuesMap, ExternalEntity}
 import com.googlecode.mapperdao.state.prioritise.Priority
 
 /**

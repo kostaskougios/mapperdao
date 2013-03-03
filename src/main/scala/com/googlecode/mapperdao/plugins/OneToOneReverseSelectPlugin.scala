@@ -27,7 +27,7 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 	}
 
 	override def before[ID, T](
-		entity: Entity[ID, T],
+		entity: Entity[ID,Persisted, T],
 		selectConfig: SelectConfig,
 		om: DatabaseValues,
 		entities: EntityMap

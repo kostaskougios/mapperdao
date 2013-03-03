@@ -11,10 +11,10 @@ import com.googlecode.mapperdao._
  *
  * @author kostantinos.kougios
  */
-trait All[ID, T] {
+trait All[ID,PC<:Persisted, T] {
 	// the following must be overriden by classes extending this trait
 	protected val queryDao: QueryDao
-	protected val entity: Entity[ID, T]
+	protected val entity: Entity[ID,PC, T]
 
 	// override these as necessary
 	protected val queryConfig = QueryConfig.default
@@ -26,7 +26,7 @@ trait All[ID, T] {
 	/**
 	 * returns all T's, use page() to get a specific page of rows
 	 */
-	def all: List[T with DeclaredIds[ID]] = queryDao.query(queryConfig, allQuery)
+	def all: List[T with PC] = queryDao.query(queryConfig, allQuery)
 
 	/**
 	 * counts all rows for this entity
@@ -36,7 +36,7 @@ trait All[ID, T] {
 	/**
 	 * returns a page of T's
 	 */
-	def page(pageNumber: Long, rowsPerPage: Long): List[T with DeclaredIds[ID]] =
+	def page(pageNumber: Long, rowsPerPage: Long): List[T with PC] =
 		queryDao.query(
 			QueryConfig.pagination(
 				pageNumber,

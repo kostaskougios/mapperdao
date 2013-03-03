@@ -14,7 +14,7 @@ private[mapperdao] class ParQueryRunStrategy extends QueryRunStrategy {
 
 	override def run[ID, T](
 		mapperDao: MapperDaoImpl,
-		entity: Entity[ID, T],
+		entity: Entity[ID,Persisted, T],
 		queryConfig: QueryConfig,
 		lm: List[DatabaseValues]
 	) = {

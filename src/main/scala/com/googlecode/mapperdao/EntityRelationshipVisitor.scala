@@ -20,9 +20,9 @@ abstract class EntityRelationshipVisitor[R](
 	private def isLoaded(vmo: Option[ValuesMap], ci: ColumnInfoRelationshipBase[_, _, _, _]) =
 		vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(visitUnlinked)
 
-	def visit[ID, T](entity: Entity[ID, T], o: T): R = visit(entity, o, 1)
+	def visit[ID, T](entity: Entity[ID,_, T], o: T): R = visit(entity, o, 1)
 
-	def visit[ID, T](entity: Entity[ID, T], o: T, currDepth: Int): R = {
+	def visit[ID, T](entity: Entity[ID,_, T], o: T, currDepth: Int): R = {
 		val r = m.get(o)
 		val result = if (r == null && currDepth < maxDepth) {
 			val vmo = o match {
@@ -76,7 +76,7 @@ abstract class EntityRelationshipVisitor[R](
 
 	def simple[T](ci: ColumnInfo[T, _], v: Any): Any = {}
 
-	def createR(collected: List[(ColumnInfoBase[Any, _], Any)], entity: Entity[_, _], o: Any): R = {
+	def createR(collected: List[(ColumnInfoBase[Any, _], Any)], entity: Entity[_,_, _], o: Any): R = {
 		null.asInstanceOf[R]
 	}
 }

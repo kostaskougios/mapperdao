@@ -17,7 +17,7 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 	) = Nil
 
 	override def before[ID, T](
-		entity: Entity[ID, T],
+		entity: Entity[ID,_, T],
 		selectConfig: SelectConfig,
 		om: DatabaseValues,
 		entities: EntityMap

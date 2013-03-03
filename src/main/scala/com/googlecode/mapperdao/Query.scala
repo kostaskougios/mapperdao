@@ -32,12 +32,12 @@ with SqlOneToOneImplicitConvertions
 {
 
 	// starting point of a query, "select" syntactic sugar
-	def select[ID, T] = new QueryFrom[ID, T]
+	def select[ID,PC<:Persisted, T] = new QueryFrom[ID,PC, T]
 
 	// "from" syntactic sugar
-	protected class QueryFrom[ID, T]
+	protected class QueryFrom[ID,PC<:Persisted, T]
 	{
-		def from(entity: Entity[ID, T]) = new Builder[ID, entity.Stored, T](entity)
+		def from(entity: Entity[ID,PC, T]) = new Builder[ID, PC, T](entity)
 	}
 
 	trait OrderBy[Q]
@@ -74,7 +74,7 @@ with SqlOneToOneImplicitConvertions
 	/**
 	 * main query builder, keeps track of all 'where', joins and order by.
 	 */
-	class Builder[ID, PC, T](protected[mapperdao] val entity: Entity[ID, T]) extends OrderBy[Builder[ID, PC, T]]
+	class Builder[ID, PC<:Persisted, T](protected[mapperdao] val entity: Entity[ID,PC, T]) extends OrderBy[Builder[ID, PC, T]]
 	{
 		protected[mapperdao] var wheres: Option[Where[ID, PC, T]] = None
 		protected[mapperdao] var joins = List[Any]()
@@ -91,16 +91,16 @@ with SqlOneToOneImplicitConvertions
 		}
 
 		def join[JID, JT, FID, FT](
-			joinEntity: Entity[JID, JT],
+			joinEntity: Entity[JID,_, JT],
 			ci: ColumnInfoRelationshipBase[JT, _, FID, FT],
-			foreignEntity: Entity[FID, FT]
+			foreignEntity: Entity[FID,_, FT]
 			) = {
 			val j = new Join(joinEntity, ci, foreignEntity)
 			joins ::= j
 			this
 		}
 
-		def join[JID, JT](entity: Entity[JID, JT]) = {
+		def join[JID, JT](entity: Entity[JID,_, JT]) = {
 			val on = new JoinOn(this)
 			val j = new SJoin(entity, on)
 			joins ::= j
@@ -134,18 +134,18 @@ with SqlOneToOneImplicitConvertions
 	}
 
 	protected[mapperdao] case class Join[JID, JT, FID, FT](
-		val joinEntity: Entity[JID, JT],
+		val joinEntity: Entity[JID,_, JT],
 		val ci: ColumnInfoRelationshipBase[JT, _, FID, FT],
-		val foreignEntity: Entity[FID, FT]
+		val foreignEntity: Entity[FID,_, FT]
 		)
 
 	protected[mapperdao] case class SJoin[JID, JT, FID, FT, QID, QT](
 		// for join on functionality
-		val entity: Entity[JID, JT],
+		val entity: Entity[JID,_, JT],
 		val on: JoinOn[QID, _, QT]
 		)
 
-	protected[mapperdao] class JoinOn[ID, PC, T](protected[mapperdao] val queryEntity: Builder[ID, PC, T])
+	protected[mapperdao] class JoinOn[ID, PC<:Persisted, T](protected[mapperdao] val queryEntity: Builder[ID, PC, T])
 	{
 		protected[mapperdao] var ons: Option[Where[ID, PC, T]] = None
 
@@ -156,7 +156,7 @@ with SqlOneToOneImplicitConvertions
 		}
 	}
 
-	protected[mapperdao] class Where[ID, PC, T](
+	protected[mapperdao] class Where[ID, PC<:Persisted, T](
 		protected[mapperdao] val queryEntity: Builder[ID, PC, T]
 		)
 		extends OrderBy[Where[ID, PC, T]]

@@ -11,10 +11,10 @@ object Update extends SqlImplicitConvertions
 with SqlManyToOneImplicitConvertions
 with SqlOneToOneImplicitConvertions {
 
-	def update[ID, T](entity: Entity[ID, T]) =
+	def update[ID,PC<:Persisted, T](entity: Entity[ID,PC, T]) =
 		new UpdateStart(entity)
 
-	protected class UpdateStart[ID, T](entity: Entity[ID, T]) {
+	protected class UpdateStart[ID,PC<:Persisted, T](entity: Entity[ID,PC, T]) {
 		def set = new UpdateSet
 
 		class UpdateSet extends Updatable[ID, T] {
@@ -122,7 +122,7 @@ with SqlOneToOneImplicitConvertions {
 	}
 
 	trait Updatable[ID, T] {
-		private[mapperdao] def entity: Entity[ID, T]
+		private[mapperdao] def entity: Entity[ID,Persisted, T]
 
 		private[mapperdao] def setClauses: OpBase with EqualityOperation
 

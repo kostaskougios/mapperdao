@@ -6,14 +6,14 @@ class ManyToOneDeletePlugin extends BeforeDelete {
 	override def idColumnValueContribution[ID, T](
 		tpe: Type[ID, T],
 		deleteConfig: DeleteConfig,
-		o: T with DeclaredIds[ID],
+		o: T with Persisted,
 		entityMap: UpdateEntityMap
 		) = Nil
 
 	override def before[ID, T](
-		entity: Entity[ID, T],
+		entity: Entity[ID,_, T],
 		deleteConfig: DeleteConfig,
-		o: T with DeclaredIds[ID],
+		o: T with Persisted,
 		keyValues: List[(ColumnBase, Any)],
 		entityMap: UpdateEntityMap
 		) {

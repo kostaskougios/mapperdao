@@ -8,14 +8,14 @@ class OneToOneReverseDeletePlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 	override def idColumnValueContribution[ID, T](
 		tpe: Type[ID, T],
 		deleteConfig: DeleteConfig,
-		o: T with DeclaredIds[ID],
+		o: T with Persisted,
 		entityMap: UpdateEntityMap
 	): List[(SimpleColumn, Any)] = Nil
 
 	override def before[ID, T](
-		entity: Entity[ID, T],
+		entity: Entity[ID,_, T],
 		deleteConfig: DeleteConfig,
-		o: T with DeclaredIds[ID],
+		o: T with Persisted,
 		keyValues: List[(ColumnBase, Any)],
 		entityMap: UpdateEntityMap
 	) =
@@ -30,7 +30,7 @@ class OneToOneReverseDeletePlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 							val handler = ee.oneToOneOnDeleteMap(cis.asInstanceOf[ColumnInfoOneToOneReverse[T, _, Any]])
 								.asInstanceOf[ee.OnDeleteOneToOneReverse[T]]
 							handler(DeleteExternalOneToOneReverse(deleteConfig, o, fo))
-						case fe: Entity[Any, Any] =>
+						case fe: Entity[Any,_, Any] =>
 							val ftpe = fe.tpe
 							driver.doDeleteOneToOneReverse(tpe, ftpe, cis.column.asInstanceOf[OneToOneReverse[Any, Any]], keyValues.map(_._2))
 					}

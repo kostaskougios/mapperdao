@@ -13,7 +13,7 @@ private[mapperdao] class DefaultQueryRunStrategy extends QueryRunStrategy {
 
 	override def run[ID, T](
 		mapperDao: MapperDaoImpl,
-		entity: Entity[ID, T],
+		entity: Entity[ID,_, T],
 		queryConfig: QueryConfig,
 		lm: List[DatabaseValues]
 	) = {

@@ -26,7 +26,7 @@ private[mapperdao] class LazyLoadManager {
 
 	private val classCache = new scala.collection.mutable.HashMap[CacheKey, (Class[_], Map[String, ColumnInfoRelationshipBase[_, Any, Any, Any]])]
 
-	def proxyFor[ID, T](constructed: T with DeclaredIds[ID], entity: Entity[ID, T], lazyLoad: LazyLoad, vm: ValuesMap): T with DeclaredIds[ID] = {
+	def proxyFor[ID, T](constructed: T with Persisted, entity: Entity[ID,_, T], lazyLoad: LazyLoad, vm: ValuesMap): T with Persisted = {
 		if (constructed == null) throw new NullPointerException("constructed can't be null")
 
 		val clz = entity.clz
@@ -121,7 +121,7 @@ private[mapperdao] class LazyLoadManager {
 
 	private def hasLongId(clz: Class[_]) = classOf[SurrogateLongId].isAssignableFrom(clz)
 
-	def isLazyLoaded(lazyLoad: LazyLoad, entity: Entity[_, _]) =
+	def isLazyLoaded(lazyLoad: LazyLoad, entity: Entity[_,_, _]) =
 		(lazyLoad.all ||
 			lazyLoad.isAnyColumnLazyLoaded(
 				entity.tpe.table.allRelationshipColumnInfosSet.asInstanceOf[Set[ColumnInfoRelationshipBase[_, _, _, _]]]

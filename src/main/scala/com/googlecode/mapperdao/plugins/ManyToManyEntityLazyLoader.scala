@@ -10,7 +10,7 @@ import com.googlecode.mapperdao._
 class ManyToManyEntityLazyLoader[ID, T, FID, F](
 	mapperDao: MapperDaoImpl,
 	selectConfig: SelectConfig,
-	entity: Entity[ID, T],
+	entity: Entity[ID,_, T],
 	entityMap: EntityMap,
 	om: DatabaseValues,
 	ci: ColumnInfoTraversableManyToMany[T, FID, F]

@@ -17,7 +17,7 @@ trait BeforeSelect {
 	): List[Any]
 
 	def before[ID, T](
-		entity: Entity[ID, T],
+		entity: Entity[ID,_, T],
 		selectConfig: SelectConfig,
 		om: DatabaseValues,
 		entities: EntityMap
@@ -38,14 +38,14 @@ trait BeforeDelete {
 	def idColumnValueContribution[ID, T](
 		tpe: Type[ID, T],
 		deleteConfig: DeleteConfig,
-		o: T with DeclaredIds[ID],
+		o: T with Persisted,
 		entityMap: UpdateEntityMap
 	): List[(SimpleColumn, Any)]
 
 	def before[ID, T](
-		entity: Entity[ID, T],
+		entity: Entity[ID,_, T],
 		deleteConfig: DeleteConfig,
-		o: T with DeclaredIds[ID],
+		o: T with Persisted,
 		keyValues: List[(ColumnBase, Any)],
 		entityMap: UpdateEntityMap
 	): Unit

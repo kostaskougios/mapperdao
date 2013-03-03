@@ -15,7 +15,7 @@ import com.googlecode.mapperdao.DatabaseValues
 class OneToManyEntityLazyLoader[ID, T, FID, F](
 	mapperDao: MapperDaoImpl,
 	selectConfig: SelectConfig,
-	entity: Entity[ID, T],
+	entity: Entity[ID,_, T],
 	down: EntityMap,
 	om: DatabaseValues,
 	ci: ColumnInfoTraversableOneToMany[ID, T, FID, F]
