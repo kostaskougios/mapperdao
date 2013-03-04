@@ -14,10 +14,10 @@ import com.googlecode.mapperdao._
  *
  *         30 Aug 2011
  */
-trait CRUD[ID,PC<:Persisted, T]
+trait CRUD[ID, PC <: Persisted, T]
 {
 	protected val mapperDao: MapperDao
-	protected val entity: Entity[ID,PC, T]
+	protected val entity: Entity[ID, PC, T]
 
 	// override these to customise them
 	protected val selectConfig = SelectConfig.default

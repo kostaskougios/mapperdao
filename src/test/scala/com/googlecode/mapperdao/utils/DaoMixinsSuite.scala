@@ -25,14 +25,14 @@ class DaoMixinsSuite extends FunSuite with ShouldMatchers
 
 	val txManager = Transaction.transactionManager(jdbc)
 
-	object ProductDao extends CRUD[Long, Product] with SurrogateLongIdAll[Product]
+	object ProductDao extends CRUD[Long,SurrogateLongId, Product] with SurrogateLongIdAll[Product]
 	{
 		protected val entity = ProductEntity
 		protected val queryDao = DaoMixinsSuite.this.queryDao
 		protected val mapperDao = DaoMixinsSuite.this.mapperDao
 	}
 
-	object ProductDaoTransactional extends TransactionalCRUD[Long, Product] with SurrogateLongIdAll[Product]
+	object ProductDaoTransactional extends TransactionalCRUD[Long,SurrogateLongId, Product] with SurrogateLongIdAll[Product]
 	{
 		protected val entity = ProductEntity
 		protected val queryDao = DaoMixinsSuite.this.queryDao
