@@ -99,8 +99,7 @@ object ManyToOneAndOneToManyCyclicSuite {
 
 	case class Company(val id: Int, val name: String, employees: List[Person])
 
-	object PersonEntity extends Entity[Int, Person] {
-		type Stored = SurrogateIntId
+	object PersonEntity extends Entity[Int,SurrogateIntId, Person] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val company = manytoone(CompanyEntity) to (_.company)
@@ -108,8 +107,7 @@ object ManyToOneAndOneToManyCyclicSuite {
 		def constructor(implicit m) = new Person(id, name, company) with SurrogateIntId
 	}
 
-	object CompanyEntity extends Entity[Int, Company] {
-		type Stored = SurrogateIntId
+	object CompanyEntity extends Entity[Int,SurrogateIntId, Company] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val employees = onetomany(PersonEntity) to (_.employees)

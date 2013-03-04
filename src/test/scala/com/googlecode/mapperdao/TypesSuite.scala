@@ -269,9 +269,8 @@ class TypesSuite extends FunSuite with ShouldMatchers
 
 	case class Dates(id: Int, localDate: LocalDate = null, time: LocalTime = null)
 
-	object DatesEntity extends Entity[Int, Dates]
+	object DatesEntity extends Entity[Int,NaturalIntId, Dates]
 	{
-		type Stored = NaturalIntId
 		val id = key("id") to (_.id)
 		val localDate = column("localDate") to (_.localDate)
 		val time = column("time") to (_.time)
@@ -281,9 +280,8 @@ class TypesSuite extends FunSuite with ShouldMatchers
 
 	case class ODates(id: Int, localDate: Option[LocalDate])
 
-	object ODatesEntity extends Entity[Int, ODates]("Dates")
+	object ODatesEntity extends Entity[Int,NaturalIntId, ODates]("Dates")
 	{
-		type Stored = NaturalIntId
 		val id = key("id") to (_.id)
 		val localDate = column("localDate") option (_.localDate)
 
@@ -297,9 +295,8 @@ class TypesSuite extends FunSuite with ShouldMatchers
 		nvarchar: String = null,
 		text: String = null)
 
-	object BDEntity extends Entity[Int, BD]
+	object BDEntity extends Entity[Int,NaturalIntId, BD]
 	{
-		type Stored = NaturalIntId
 		val id = key("id") to (_.id)
 		val big = column("big") to (_.big)
 		val bool = column("bool") to (_.bool)
@@ -321,9 +318,8 @@ class TypesSuite extends FunSuite with ShouldMatchers
 		float: Option[Float] = None,
 		double: Option[Double] = None)
 
-	object OBDEntity extends Entity[Int, OBD]
+	object OBDEntity extends Entity[Int,NaturalIntId, OBD]
 	{
-		type Stored = NaturalIntId
 		val id = key("id") to (_.id)
 		val big = column("big") option (_.big)
 		val bool = column("bool") option (_.bool)

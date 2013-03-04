@@ -52,9 +52,8 @@ class NullValuesSuite extends FunSuite with ShouldMatchers
 
 	case class Values(id: Int, i: java.lang.Integer, l: java.lang.Long, f: java.lang.Float, d: java.lang.Double)
 
-	object ValuesEntity extends Entity[Int, Values]
+	object ValuesEntity extends Entity[Int,SurrogateIntId, Values]
 	{
-		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val i = column("i") to (_.i)
 		val l = column("l") to (_.l)

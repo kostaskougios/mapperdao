@@ -61,8 +61,7 @@ class OneToManyWithoutFKQuerySuite extends FunSuite with ShouldMatchers {
 		}
 	}
 
-	object InfoEntity extends Entity[Location, Info] {
-		type Stored = With1Id[Location]
+	object InfoEntity extends Entity[Location,With1Id[Location], Info] {
 		val title = column("title") to (_.title)
 		val loc = manytoone(LocationEntity) to (_.loc)
 
@@ -71,8 +70,7 @@ class OneToManyWithoutFKQuerySuite extends FunSuite with ShouldMatchers {
 		def constructor(implicit m) = new Info(title, loc) with Stored
 	}
 
-	object ProductEntity extends Entity[Int, Product] {
-		type Stored = SurrogateIntId
+	object ProductEntity extends Entity[Int,SurrogateIntId, Product] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val infos = onetomany(InfoEntity) to (_.infos)

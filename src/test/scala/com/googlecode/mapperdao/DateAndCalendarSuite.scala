@@ -19,8 +19,7 @@ class DateAndCalendarSuite extends FunSuite with ShouldMatchers {
 
 	case class DC(id: Int, date: Date, calendar: Calendar)
 
-	object DCEntity extends Entity[Int, DC] {
-		type Stored = NaturalIntId
+	object DCEntity extends Entity[Int,NaturalIntId, DC] {
 		val id = key("id") to (_.id)
 		val date = column("dt") to (_.date)
 		val calendar = column("cal") to (_.calendar)

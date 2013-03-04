@@ -79,9 +79,8 @@ class TraversableSeparationSuite extends FunSuite with ShouldMatchers
 
 	def xwith(id: Int) = new X(id) with NaturalIntId
 
-	object XEntity extends Entity[Int, X]
+	object XEntity extends Entity[Int,NaturalIntId, X]
 	{
-		type Stored = NaturalIntId
 		val id = key("id") to (_.id)
 
 		def constructor(implicit m) = new X(id) with Stored

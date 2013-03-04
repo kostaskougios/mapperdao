@@ -69,9 +69,8 @@ class OneToOneDeclarePrimaryKeySuite extends FunSuite with ShouldMatchers
 
 	case class Product(val id: Int)
 
-	object InventoryEntity extends Entity[Product with NaturalIntId, Inventory]
+	object InventoryEntity extends Entity[Product with NaturalIntId,With1Id[Product with NaturalIntId], Inventory]
 	{
-		type Stored = With1Id[Product with NaturalIntId]
 		val product = onetoone(ProductEntity) to (_.product)
 		val stock = column("stock") to (_.stock)
 
@@ -80,9 +79,8 @@ class OneToOneDeclarePrimaryKeySuite extends FunSuite with ShouldMatchers
 		def constructor(implicit m) = new Inventory(product, stock) with Stored
 	}
 
-	object ProductEntity extends Entity[Int, Product]
+	object ProductEntity extends Entity[Int,NaturalIntId, Product]
 	{
-		type Stored = NaturalIntId
 		val id = key("id") to (_.id)
 
 		def constructor(implicit m) = new Product(id) with Stored

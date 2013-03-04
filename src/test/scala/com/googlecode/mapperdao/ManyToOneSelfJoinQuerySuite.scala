@@ -14,7 +14,7 @@ import org.scalatest.matchers.ShouldMatchers
 @RunWith(classOf[JUnitRunner])
 class ManyToOneSelfJoinQuerySuite extends FunSuite with ShouldMatchers {
 
-	import ManyToOneSelfJoinQuerySpec._
+	import ManyToOneSelfJoinQuerySuite._
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, HouseEntity, AddressEntity))
 
@@ -67,7 +67,7 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with ShouldMatchers {
 	}
 }
 
-object ManyToOneSelfJoinQuerySpec {
+object ManyToOneSelfJoinQuerySuite {
 
 	object TestQueries {
 
@@ -92,8 +92,7 @@ object ManyToOneSelfJoinQuerySpec {
 
 	case class Address(val id: Int, val postCode: String)
 
-	object PersonEntity extends Entity[Int, Person] {
-		type Stored = SurrogateIntId
+	object PersonEntity extends Entity[Int,SurrogateIntId, Person] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val lives = manytoone(HouseEntity) foreignkey "lives_id" to (_.lives)
@@ -101,8 +100,7 @@ object ManyToOneSelfJoinQuerySpec {
 		def constructor(implicit m) = new Person(id, name, lives) with Stored
 	}
 
-	class HouseEntityBase extends Entity[Int, House] {
-		type Stored = SurrogateIntId
+	class HouseEntityBase extends Entity[Int,SurrogateIntId, House] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val address = manytoone(AddressEntity) to (_.address)
@@ -112,8 +110,7 @@ object ManyToOneSelfJoinQuerySpec {
 
 	val HouseEntity = new HouseEntityBase
 
-	object AddressEntity extends Entity[Int, Address] {
-		type Stored = SurrogateIntId
+	object AddressEntity extends Entity[Int,SurrogateIntId, Address] {
 		val id = key("id") to (_.id)
 		val postCode = column("postcode") to (_.postCode)
 

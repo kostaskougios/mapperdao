@@ -104,16 +104,14 @@ object OneToOneMutableTwoWaySuite {
 
 	case class Product(var id: Int, var inventory: Inventory)
 
-	object InventoryEntity extends Entity[Unit, Inventory] {
-		type Stored = NoId
+	object InventoryEntity extends Entity[Unit,NoId, Inventory] {
 		val product = onetoone(ProductEntity) to (_.product)
 		val stock = column("stock") to (_.stock)
 
 		def constructor(implicit m) = new Inventory(product, stock) with Stored
 	}
 
-	object ProductEntity extends Entity[Int, Product] {
-		type Stored = NaturalIntId
+	object ProductEntity extends Entity[Int,NaturalIntId, Product] {
 		val id = key("id") to (_.id)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 

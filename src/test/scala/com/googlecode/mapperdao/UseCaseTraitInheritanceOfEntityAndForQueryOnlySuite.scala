@@ -75,8 +75,7 @@ object UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite {
 
 	case class Product(refCode: String, name: String)
 
-	object TagEntity extends Entity[(String, Product with NaturalStringId), Tag] {
-		type Stored = With2Ids[String, Product with NaturalStringId]
+	object TagEntity extends Entity[(String, Product with NaturalStringId),With2Ids[String, Product with NaturalStringId], Tag] {
 		val tag = key("tag") to (_.tag)
 		val product = manytoone(SimpleProductEntity) to (_.product)
 
@@ -85,8 +84,7 @@ object UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite {
 		def constructor(implicit m: ValuesMap) = new Tag(tag, product) with Stored
 	}
 
-	trait ProductEntity[T <: Product] extends Entity[String, T] {
-		type Stored = NaturalStringId
+	trait ProductEntity[T <: Product] extends Entity[String, NaturalStringId,T] {
 		val name = column("name") to (_.name)
 	}
 

@@ -73,9 +73,8 @@ class OneToOneReverseExternalEntitySuite extends FunSuite with ShouldMatchers
 
 	case class Product(val id: Int, val inventory: Inventory)
 
-	object ProductEntity extends Entity[Int, Product]
+	object ProductEntity extends Entity[Int,SurrogateIntId, Product]
 	{
-		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 

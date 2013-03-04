@@ -276,8 +276,7 @@ object ManyToOneSuite {
 
 	case class House(val id: Int, val address: String)
 
-	object PersonEntity extends Entity[Int, Person] {
-		type Stored = SurrogateIntId
+	object PersonEntity extends Entity[Int,SurrogateIntId, Person] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val company = manytoone(CompanyEntity) to (_.company)
@@ -286,16 +285,14 @@ object ManyToOneSuite {
 		def constructor(implicit m) = new Person(id, name, company, lives) with Stored
 	}
 
-	object CompanyEntity extends Entity[Int, Company] {
-		type Stored = SurrogateIntId
+	object CompanyEntity extends Entity[Int,SurrogateIntId, Company] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 
 		def constructor(implicit m) = new Company(id, name) with Stored
 	}
 
-	object HouseEntity extends Entity[Int, House] {
-		type Stored = SurrogateIntId
+	object HouseEntity extends Entity[Int,SurrogateIntId, House] {
 		val id = key("id") to (_.id)
 		val address = column("address") to (_.address)
 

@@ -99,8 +99,7 @@ class ManyToManyManuallyLazyLoadSuite extends FunSuite with ShouldMatchers {
 
 	case class Attribute(val id: Int, val name: String, val value: String)
 
-	object ProductEntity extends Entity[Int, Product] {
-		type Stored = SurrogateIntId
+	object ProductEntity extends Entity[Int,SurrogateIntId, Product] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
@@ -108,8 +107,7 @@ class ManyToManyManuallyLazyLoadSuite extends FunSuite with ShouldMatchers {
 		def constructor(implicit m) = new Product(id, name, attributes) with Stored
 	}
 
-	object AttributeEntity extends Entity[Int, Attribute] {
-		type Stored = SurrogateIntId
+	object AttributeEntity extends Entity[Int,SurrogateIntId, Attribute] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)

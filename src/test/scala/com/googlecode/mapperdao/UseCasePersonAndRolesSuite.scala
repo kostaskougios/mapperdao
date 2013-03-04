@@ -322,8 +322,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 
 	case class InterPartyRelationship(from: Person, to: Person, fromDate: Option[DateTime], toDate: Option[DateTime])
 
-	object RoleTypeEntity extends Entity[String, RoleType] {
-		type Stored = NaturalStringId
+	object RoleTypeEntity extends Entity[String,NaturalStringId, RoleType] {
 		val name = key("name") to (_.name)
 		val description = column("description") option (_.description)
 
@@ -331,8 +330,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			new RoleType(name, description) with Stored
 	}
 
-	object PersonEntity extends Entity[String, Person] {
-		type Stored = NaturalStringId
+	object PersonEntity extends Entity[String,NaturalStringId, Person] {
 		val id = key("id") to (_.id)
 		val firstName = column("firstname") to (_.firstName)
 		val lastName = column("lastname") to (_.lastName)
@@ -346,8 +344,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 	type PNSI = Person with NaturalStringId
 	type SPRKey = With2Ids[RNSI, PNSI]
 
-	object SinglePartyRoleEntity extends Entity[(RNSI, PNSI), SinglePartyRole] {
-		type Stored = SPRKey
+	object SinglePartyRoleEntity extends Entity[(RNSI, PNSI),SPRKey, SinglePartyRole] {
 		val roleType = manytoone(RoleTypeEntity) to (_.roleType)
 		val fromDate = column("fromDate") option (_.fromDate)
 		val toDate = column("toDate") option (_.toDate)
@@ -358,8 +355,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 		def constructor(implicit m: ValuesMap) = new SinglePartyRole(roleType, fromDate, toDate) with Stored
 	}
 
-	class InterPartyRelationshipEntityBase extends Entity[(PNSI, PNSI), InterPartyRelationship] {
-		type Stored = With2Ids[PNSI, PNSI]
+	class InterPartyRelationshipEntityBase extends Entity[(PNSI, PNSI),With2Ids[PNSI, PNSI], InterPartyRelationship] {
 		val from = manytoone(PersonEntity) foreignkey ("from_id") to (_.from)
 		val to = manytoone(PersonEntity) foreignkey ("to_id") to (_.to)
 		val fromDate = column("fromDate") option (_.fromDate)

@@ -179,8 +179,7 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 
 	case class Company(val no: String, val name: String)
 
-	object EmployeeEntity extends Entity[String, Employee] {
-		type Stored = NaturalStringId
+	object EmployeeEntity extends Entity[String,NaturalStringId, Employee] {
 		val no = key("no") to (_.no)
 		val workedAt = onetomany(WorkedAtEntity) foreignkey "employee_no" to (_.workedAt)
 
@@ -189,8 +188,7 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 		}
 	}
 
-	object WorkedAtEntity extends Entity[(String, String), WorkedAt] {
-		type Stored = NaturalStringAndStringIds
+	object WorkedAtEntity extends Entity[(String, String),NaturalStringAndStringIds, WorkedAt] {
 		val employee_no = key("employee_no") to (wat => if (wat.employee == null) null else wat.employee.no)
 		val company_no = key("company_no") to (wat => if (wat.company == null) null else wat.company.no)
 		val year = column("year") to (_.year)
@@ -201,8 +199,7 @@ object IntermediateImmutableEntityWithStringFKsSpec {
 		def constructor(implicit m) = new WorkedAt(employee, company, year) with Stored
 	}
 
-	object CompanyEntity extends Entity[String, Company] {
-		type Stored = NaturalStringId
+	object CompanyEntity extends Entity[String,NaturalStringId, Company] {
 		val no = key("no") to (_.no)
 		val name = column("name") to (_.name)
 

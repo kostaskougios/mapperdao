@@ -194,8 +194,7 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers {
 
 	case class Person(val id: Int, var name: String, val surname: String, var age: Int, var positions: List[JobPosition])
 
-	object JobPositionEntity extends Entity[Int, JobPosition] {
-		type Stored = SurrogateIntId
+	object JobPositionEntity extends Entity[Int,SurrogateIntId, JobPosition] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val rank = column("rank") to (_.rank)
@@ -204,8 +203,7 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers {
 		def constructor(implicit m) = new JobPosition(id, name, rank, personId) with Stored
 	}
 
-	object PersonEntity extends Entity[Int, Person] {
-		type Stored = SurrogateIntId
+	object PersonEntity extends Entity[Int,SurrogateIntId, Person] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val surname = column("surname") to (_.surname)

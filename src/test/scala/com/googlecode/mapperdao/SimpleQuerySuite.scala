@@ -320,9 +320,8 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 
 	case class JobPosition(val id: Int, var name: String, val start: DateTime)
 
-	object JobPositionEntity extends Entity[Int, JobPosition]
+	object JobPositionEntity extends Entity[Int,SurrogateIntId, JobPosition]
 	{
-		type Stored = SurrogateIntId
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val start = column("start") to (_.start)

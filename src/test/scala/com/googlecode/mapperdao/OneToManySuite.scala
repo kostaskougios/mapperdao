@@ -283,8 +283,7 @@ object OneToManySuite {
 	 * Mapping for JobPosition class
 	 * ============================================================================================================
 	 */
-	object JobPositionEntity extends Entity[Int, JobPosition] {
-		type Stored = SurrogateIntId
+	object JobPositionEntity extends Entity[Int,SurrogateIntId, JobPosition] {
 
 		// now a description of the table and it's columns follows.
 		// each column is followed by a function JobPosition=>T, that
@@ -298,16 +297,14 @@ object OneToManySuite {
 		def constructor(implicit m) = new JobPosition(id, name, rank) with Stored
 	}
 
-	object HouseEntity extends Entity[Int, House] {
-		type Stored = SurrogateIntId
+	object HouseEntity extends Entity[Int,SurrogateIntId, House] {
 		val id = key("id") to (_.id)
 		val address = column("address") to (_.address)
 
 		def constructor(implicit m) = new House(id, address) with Stored
 	}
 
-	object PersonEntity extends Entity[Int, Person] {
-		type Stored = SurrogateIntId
+	object PersonEntity extends Entity[Int,SurrogateIntId, Person] {
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val surname = column("surname") to (_.surname)

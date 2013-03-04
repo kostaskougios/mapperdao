@@ -43,27 +43,24 @@ object UpdateConfigSuiteOneToManyDecl
 
 	case class Floor(val id: Int, val description: String)
 
-	object FloorEntity extends Entity[Int, Floor]
+	object FloorEntity extends Entity[Int,NaturalIntId, Floor]
 	{
-		type Stored = NaturalIntId
 		val id = key("id") to (_.id)
 		val description = column("description") to (_.description)
 
 		def constructor(implicit m) = new Floor(id, description) with Stored
 	}
 
-	object HouseEntity extends Entity[Int, House]
+	object HouseEntity extends Entity[Int,NaturalIntId, House]
 	{
-		type Stored = NaturalIntId
 		val id = key("id") to (_.id)
 		val floors = onetomany(FloorEntity) to (_.floors)
 
 		def constructor(implicit m) = new House(id, floors) with Stored
 	}
 
-	object PersonEntity extends Entity[Int, Person]
+	object PersonEntity extends Entity[Int,NaturalIntId, Person]
 	{
-		type Stored = NaturalIntId
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val houses = onetomany(HouseEntity) to (_.owns)
