@@ -20,7 +20,7 @@ class MockFactory(typeManager: TypeManager) {
 		data: Option[Any],
 		tpe: Type[ID, T],
 		mods: Map[String, Any]
-		): T with DeclaredIds[ID] = {
+		): T with Persisted = {
 		val mockMods = new scala.collection.mutable.HashMap[String, Any] ++ mods
 		mockPlugins.foreach {
 			_.updateMock(tpe, mockMods)

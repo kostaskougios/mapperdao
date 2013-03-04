@@ -14,14 +14,14 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 		tpe: Type[ID, T],
 		om: DatabaseValues,
 		entities: EntityMap
-	) = Nil
+		) = Nil
 
 	override def before[ID, T](
-		entity: Entity[ID,_, T],
+		entity: Entity[ID, Persisted, T],
 		selectConfig: SelectConfig,
 		om: DatabaseValues,
 		entities: EntityMap
-	) = {
+		) = {
 		val tpe = entity.tpe
 		val table = tpe.table
 		// one to one

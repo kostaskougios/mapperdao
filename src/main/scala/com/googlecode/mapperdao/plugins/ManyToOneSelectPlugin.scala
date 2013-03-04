@@ -1,9 +1,6 @@
 package com.googlecode.mapperdao.plugins
 
-import com.googlecode.mapperdao.utils.Equality
-import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.utils.Helpers
 
 /**
  * @author kostantinos.kougios
@@ -16,14 +13,14 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 		tpe: Type[ID, T],
 		om: DatabaseValues,
 		entities: EntityMap
-	) = Nil
+		) = Nil
 
 	override def before[ID, T](
-		entity: Entity[ID,_, T],
+		entity: Entity[ID, Persisted, T],
 		selectConfig: SelectConfig,
 		om: DatabaseValues,
 		entities: EntityMap
-	) = {
+		) = {
 		val tpe = entity.tpe
 		val table = tpe.table
 		// many to one

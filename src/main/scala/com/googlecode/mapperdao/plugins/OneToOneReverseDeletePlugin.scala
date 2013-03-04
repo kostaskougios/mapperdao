@@ -10,15 +10,15 @@ class OneToOneReverseDeletePlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 		deleteConfig: DeleteConfig,
 		o: T with Persisted,
 		entityMap: UpdateEntityMap
-	): List[(SimpleColumn, Any)] = Nil
+		): List[(SimpleColumn, Any)] = Nil
 
 	override def before[ID, T](
-		entity: Entity[ID,_, T],
+		entity: Entity[ID, Persisted, T],
 		deleteConfig: DeleteConfig,
 		o: T with Persisted,
 		keyValues: List[(ColumnBase, Any)],
 		entityMap: UpdateEntityMap
-	) =
+		) =
 		if (deleteConfig.propagate) {
 			val tpe = entity.tpe
 			tpe.table.oneToOneReverseColumnInfos.filterNot(deleteConfig.skip(_)).foreach {
@@ -30,7 +30,7 @@ class OneToOneReverseDeletePlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 							val handler = ee.oneToOneOnDeleteMap(cis.asInstanceOf[ColumnInfoOneToOneReverse[T, _, Any]])
 								.asInstanceOf[ee.OnDeleteOneToOneReverse[T]]
 							handler(DeleteExternalOneToOneReverse(deleteConfig, o, fo))
-						case fe: Entity[Any,_, Any] =>
+						case fe: Entity[Any, _, Any] =>
 							val ftpe = fe.tpe
 							driver.doDeleteOneToOneReverse(tpe, ftpe, cis.column.asInstanceOf[OneToOneReverse[Any, Any]], keyValues.map(_._2))
 					}

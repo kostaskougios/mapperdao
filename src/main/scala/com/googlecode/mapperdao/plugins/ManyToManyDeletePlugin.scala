@@ -13,9 +13,9 @@ class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDaoImpl) extends B
 		): List[(SimpleColumn, Any)] = Nil
 
 	override def before[ID, T](
-		entity: Entity[ID,Persisted, T],
+		entity: Entity[ID, Persisted, T],
 		deleteConfig: DeleteConfig,
-		o: T with DeclaredIds[ID],
+		o: T with Persisted,
 		keyValues: List[(ColumnBase, Any)],
 		entityMap: UpdateEntityMap
 		) =

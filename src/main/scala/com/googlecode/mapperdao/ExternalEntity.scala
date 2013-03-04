@@ -51,8 +51,7 @@ import com.googlecode.mapperdao.utils.MapWithDefault
  * </code>
  *
  */
-abstract class ExternalEntity[FID, F](table: String, clz: Class[F]) extends Entity[FID,AnyRef, F](table, clz)
-{
+abstract class ExternalEntity[FID, F](table: String, clz: Class[F]) extends Entity[FID, Persisted, F](table, clz) {
 	def this()(implicit m: ClassManifest[F]) = this(m.erasure.getSimpleName, m.erasure.asInstanceOf[Class[F]])
 
 	def this(table: String)(implicit m: ClassManifest[F]) = this(table, m.erasure.asInstanceOf[Class[F]])

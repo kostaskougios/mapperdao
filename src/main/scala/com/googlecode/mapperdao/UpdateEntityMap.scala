@@ -7,17 +7,17 @@ protected class UpdateEntityMap {
 	private val m = new mutable.HashMap[Int, Any]
 	private var stack = Stack[UpdateInfo[_, _, _, _, _]]()
 
-	def put[T](identity: Int, mock: DeclaredIds[_] with T): Unit = m.put(identity, mock)
+	def put[T](identity: Int, mock: Persisted with T): Unit = m.put(identity, mock)
 
-	def get[T](identity: Int): Option[DeclaredIds[_] with T] = {
-		val g = m.get(identity).asInstanceOf[Option[DeclaredIds[_] with T]]
+	def get[T](identity: Int): Option[Persisted with T] = {
+		val g = m.get(identity).asInstanceOf[Option[Persisted with T]]
 		g
 	}
 
 	def down[PID, PT, V, FID, F](
 		o: PT,
 		ci: ColumnInfoRelationshipBase[PT, V, FID, F],
-		parentEntity: Entity[PID,Persisted, PT]
+		parentEntity: Entity[PID, Persisted, PT]
 		): Unit =
 		stack = stack.push(UpdateInfo(o, ci, parentEntity))
 
@@ -43,5 +43,5 @@ protected class UpdateEntityMap {
 protected case class UpdateInfo[PID, PT, V, FID, F](
 	val o: PT,
 	val ci: ColumnInfoRelationshipBase[PT, V, FID, F],
-	parentEntity: Entity[PID,Persisted, PT]
+	parentEntity: Entity[PID, Persisted, PT]
 	)

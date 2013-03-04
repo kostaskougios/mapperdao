@@ -1,17 +1,11 @@
 package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao.drivers.Driver
-import com.googlecode.mapperdao.ColumnInfoTraversableManyToMany
-import com.googlecode.mapperdao.Entity
-import com.googlecode.mapperdao.EntityMap
-import com.googlecode.mapperdao.ExternalEntity
-import com.googlecode.mapperdao.ManyToMany
-import com.googlecode.mapperdao.MapperDaoImpl
-import com.googlecode.mapperdao.SelectConfig
+import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.SelectExternalManyToMany
-import com.googlecode.mapperdao.Type
-import com.googlecode.mapperdao.TypeRegistry
-import com.googlecode.mapperdao.DatabaseValues
+import com.googlecode.mapperdao.EntityMap
+import com.googlecode.mapperdao.ColumnInfoTraversableManyToMany
+import com.googlecode.mapperdao.ManyToMany
 
 /**
  * @author kostantinos.kougios
@@ -24,14 +18,14 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 		tpe: Type[ID, T],
 		om: DatabaseValues,
 		entities: EntityMap
-	) = Nil
+		) = Nil
 
 	override def before[ID, T](
-		entity: Entity[ID,_, T],
+		entity: Entity[ID, Persisted, T],
 		selectConfig: SelectConfig,
 		om: DatabaseValues,
 		entities: EntityMap
-	) = {
+		) = {
 		val tpe = entity.tpe
 		val table = tpe.table
 		// many to many
@@ -50,7 +44,9 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 									val fe = c.foreign.entity
 									val ftpe = fe.tpe.asInstanceOf[Type[Any, Any]]
 
-									val ids = tpe.table.primaryKeys.map { pk => om(pk) }
+									val ids = tpe.table.primaryKeys.map {
+										pk => om(pk)
+									}
 									val keys = c.linkTable.left zip ids
 									val allIds = driver.doSelectManyToManyForExternalEntity(selectConfig, tpe, ftpe, c.asInstanceOf[ManyToMany[Any, Any]], keys)
 

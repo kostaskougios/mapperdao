@@ -9,7 +9,7 @@ package com.googlecode.mapperdao
  */
 trait Type[ID, T] {
 	val clz: Class[T]
-	val constructor: (Option[_], ValuesMap) => T with DeclaredIds[ID]
+	val constructor: (Option[_], ValuesMap) => T with Persisted
 	val table: Table[ID, T]
 }
 

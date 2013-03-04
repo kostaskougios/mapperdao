@@ -19,8 +19,7 @@ import state.enhancevm.EnhanceVMPhase
 protected final class MapperDaoImpl(
 	val driver: Driver,
 	val typeManager: TypeManager
-	) extends MapperDao
-{
+	) extends MapperDao {
 	private val typeRegistry = driver.typeRegistry
 	private val lazyLoadManager = new LazyLoadManager
 	private val mockFactory = new MockFactory(typeManager)
@@ -144,7 +143,7 @@ protected final class MapperDaoImpl(
 	 *
 	 * SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
 	 */
-	override def select0[ID, T](selectConfig: SelectConfig, entity: Entity[ID,_, T], id: ID) = {
+	override def select0[ID, T](selectConfig: SelectConfig, entity: Entity[ID, Persisted, T], id: ID) = {
 		if (id == null) throw new NullPointerException("ids can't be null")
 		val ids = Helpers.idToList(id)
 		val pkSz = entity.tpe.table.primaryKeysSize
@@ -155,7 +154,7 @@ protected final class MapperDaoImpl(
 	}
 
 	private[mapperdao] def selectInner[ID, T](
-		entity: Entity[ID,_, T],
+		entity: Entity[ID, Persisted, T],
 		selectConfig: SelectConfig,
 		ids: List[Any],
 		entities: EntityMap
@@ -211,7 +210,7 @@ protected final class MapperDaoImpl(
 
 	private[mapperdao] def toEntities[ID, T](
 		lm: List[DatabaseValues],
-		entity: Entity[ID,_, T],
+		entity: Entity[ID, Persisted, T],
 		selectConfig: SelectConfig,
 		entities: EntityMap
 		): List[T with Persisted] = {
@@ -258,7 +257,7 @@ protected final class MapperDaoImpl(
 	}
 
 	private def lazyLoadEntity[ID, T](
-		entity: Entity[ID,_, T],
+		entity: Entity[ID, _, T],
 		selectConfig: SelectConfig,
 		vm: ValuesMap
 		) = {
@@ -296,7 +295,7 @@ protected final class MapperDaoImpl(
 	 * doing infinite loops.
 	 */
 
-	override def delete[ID,PC<:Persisted, T](entity: Entity[ID,PC, T], id: ID): Unit = {
+	override def delete[ID, PC <: Persisted, T](entity: Entity[ID, PC, T], id: ID): Unit = {
 		val ids = Helpers.idToList(id)
 		val tpe = entity.tpe
 		val table = tpe.table
@@ -310,7 +309,7 @@ protected final class MapperDaoImpl(
 	/**
 	 * deletes an entity from the database
 	 */
-	override def delete[ID,PC<:Persisted, T](deleteConfig: DeleteConfig, entity: Entity[ID,PC, T], o: T with PC): T = {
+	override def delete[ID, PC <: Persisted, T](deleteConfig: DeleteConfig, entity: Entity[ID, PC, T], o: T with PC): T = {
 		val entityMap = new UpdateEntityMap
 		val deleted = deleteInner(deleteConfig, entity, o, entityMap)
 		entityMap.done
@@ -319,7 +318,7 @@ protected final class MapperDaoImpl(
 
 	private[mapperdao] def deleteInner[ID, T](
 		deleteConfig: DeleteConfig,
-		entity: Entity[ID,Persisted, T],
+		entity: Entity[ID, Persisted, T],
 		o: T with Persisted,
 		entityMap: UpdateEntityMap
 		): T = {
@@ -349,14 +348,14 @@ protected final class MapperDaoImpl(
 		}
 	}
 
-	override def unlink[ID,PC<:Persisted, T](entity: Entity[ID,PC, T], o: T): T = {
+	override def unlink[ID, PC <: Persisted, T](entity: Entity[ID, PC, T], o: T): T = {
 		val unlinkVisitor = new UnlinkEntityRelationshipVisitor
 		unlinkVisitor.visit(entity, o)
 		unlinkVisitor.unlink(o)
 		o
 	}
 
-	override def link0[ID, T](entity: Entity[ID,Persisted, T], o: T with Persisted) = {
+	override def link0[ID, T](entity: Entity[ID, Persisted, T], o: T with Persisted) = {
 		val vm = ValuesMap.fromType(typeManager, entity.tpe, o)
 		val r = entity.constructor(None, vm)
 		r.mapperDaoValuesMap = vm
@@ -366,7 +365,7 @@ protected final class MapperDaoImpl(
 	override def merge0[ID, T](
 		selectConfig: SelectConfig,
 		updateConfig: UpdateConfig,
-		entity: Entity[ID,Persisted, T],
+		entity: Entity[ID, Persisted, T],
 		o: T,
 		ids: ID
 		): T with Persisted =

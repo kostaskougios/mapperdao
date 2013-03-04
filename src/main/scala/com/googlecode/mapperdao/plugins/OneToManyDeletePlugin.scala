@@ -20,7 +20,7 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 	}
 
 	override def before[ID, T](
-		entity: Entity[ID,_, T],
+		entity: Entity[ID, Persisted, T],
 		deleteConfig: DeleteConfig,
 		o: T with Persisted,
 		keyValues: List[(ColumnBase, Any)],
@@ -39,7 +39,7 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 								.asInstanceOf[ee.OnDeleteOneToMany[T]]
 							handler(DeleteExternalOneToMany(deleteConfig, o, fOTraversable))
 
-						case fe: Entity[Any,_, Any] =>
+						case fe: Entity[Any, _, Any] =>
 							if (fOTraversable != null) fOTraversable.foreach {
 								fO =>
 									val fOPersisted = fO.asInstanceOf[DeclaredIds[Any]]

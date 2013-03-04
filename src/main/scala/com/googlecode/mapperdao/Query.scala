@@ -28,20 +28,17 @@ package com.googlecode.mapperdao
 object Query extends SqlImplicitConvertions
 with SqlRelatedImplicitConvertions
 with SqlManyToOneImplicitConvertions
-with SqlOneToOneImplicitConvertions
-{
+with SqlOneToOneImplicitConvertions {
 
 	// starting point of a query, "select" syntactic sugar
-	def select[ID,PC<:Persisted, T] = new QueryFrom[ID,PC, T]
+	def select[ID, PC <: Persisted, T] = new QueryFrom[ID, PC, T]
 
 	// "from" syntactic sugar
-	protected class QueryFrom[ID,PC<:Persisted, T]
-	{
-		def from(entity: Entity[ID,PC, T]) = new Builder[ID, PC, T](entity)
+	protected class QueryFrom[ID, PC <: Persisted, T] {
+		def from(entity: Entity[ID, PC, T]) = new Builder[ID, PC, T](entity)
 	}
 
-	trait OrderBy[Q]
-	{
+	trait OrderBy[Q] {
 		self: Q =>
 		protected def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)])
 
@@ -74,8 +71,7 @@ with SqlOneToOneImplicitConvertions
 	/**
 	 * main query builder, keeps track of all 'where', joins and order by.
 	 */
-	class Builder[ID, PC<:Persisted, T](protected[mapperdao] val entity: Entity[ID,PC, T]) extends OrderBy[Builder[ID, PC, T]]
-	{
+	class Builder[ID, PC <: Persisted, T](protected[mapperdao] val entity: Entity[ID, PC, T]) extends OrderBy[Builder[ID, PC, T]] {
 		protected[mapperdao] var wheres: Option[Where[ID, PC, T]] = None
 		protected[mapperdao] var joins = List[Any]()
 		protected[mapperdao] var order = List[(ColumnInfo[_, _], AscDesc)]()
@@ -91,16 +87,16 @@ with SqlOneToOneImplicitConvertions
 		}
 
 		def join[JID, JT, FID, FT](
-			joinEntity: Entity[JID,_, JT],
+			joinEntity: Entity[JID, Persisted, JT],
 			ci: ColumnInfoRelationshipBase[JT, _, FID, FT],
-			foreignEntity: Entity[FID,_, FT]
+			foreignEntity: Entity[FID, Persisted, FT]
 			) = {
 			val j = new Join(joinEntity, ci, foreignEntity)
 			joins ::= j
 			this
 		}
 
-		def join[JID, JT](entity: Entity[JID,_, JT]) = {
+		def join[JID, JPC <: Persisted, JT](entity: Entity[JID, JPC, JT]) = {
 			val on = new JoinOn(this)
 			val j = new SJoin(entity, on)
 			joins ::= j
@@ -118,35 +114,31 @@ with SqlOneToOneImplicitConvertions
 		override def toString = "select from %s join %s where %s".format(entity, joins, wheres)
 	}
 
-	sealed abstract class AscDesc
-	{
+	sealed abstract class AscDesc {
 		val sql: String
 	}
 
-	object asc extends AscDesc
-	{
+	object asc extends AscDesc {
 		val sql = "asc"
 	}
 
-	object desc extends AscDesc
-	{
+	object desc extends AscDesc {
 		val sql = "desc"
 	}
 
 	protected[mapperdao] case class Join[JID, JT, FID, FT](
-		val joinEntity: Entity[JID,_, JT],
+		val joinEntity: Entity[JID, Persisted, JT],
 		val ci: ColumnInfoRelationshipBase[JT, _, FID, FT],
-		val foreignEntity: Entity[FID,_, FT]
+		val foreignEntity: Entity[FID, Persisted, FT]
 		)
 
-	protected[mapperdao] case class SJoin[JID, JT, FID, FT, QID, QT](
+	protected[mapperdao] case class SJoin[JID, JT, FID, FT, QID, QPC <: Persisted, QT](
 		// for join on functionality
-		val entity: Entity[JID,_, JT],
-		val on: JoinOn[QID, _, QT]
+		val entity: Entity[JID, Persisted, JT],
+		val on: JoinOn[QID, QPC, QT]
 		)
 
-	protected[mapperdao] class JoinOn[ID, PC<:Persisted, T](protected[mapperdao] val queryEntity: Builder[ID, PC, T])
-	{
+	protected[mapperdao] class JoinOn[ID, PC <: Persisted, T](protected[mapperdao] val queryEntity: Builder[ID, PC, T]) {
 		protected[mapperdao] var ons: Option[Where[ID, PC, T]] = None
 
 		def on = {
@@ -156,12 +148,11 @@ with SqlOneToOneImplicitConvertions
 		}
 	}
 
-	protected[mapperdao] class Where[ID, PC<:Persisted, T](
+	protected[mapperdao] class Where[ID, PC <: Persisted, T](
 		protected[mapperdao] val queryEntity: Builder[ID, PC, T]
 		)
 		extends OrderBy[Where[ID, PC, T]]
-		with SqlWhereMixins[Where[ID, PC, T]]
-	{
+		with SqlWhereMixins[Where[ID, PC, T]] {
 
 		override def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)]) {
 			queryEntity.order :::= l

@@ -26,8 +26,7 @@ object CommonEntities {
 
 	case class Attribute(val name: String, val value: String)
 
-	object ProductEntity extends Entity[Int, Product] {
-		type Stored = SurrogateIntId
+	object ProductEntity extends Entity[Int, SurrogateIntId, Product] {
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("ProductSeq")
 			case _ => None
@@ -40,8 +39,7 @@ object CommonEntities {
 		}
 	}
 
-	object AttributeEntity extends Entity[Int, Attribute] {
-		type Stored = SurrogateIntId
+	object AttributeEntity extends Entity[Int, SurrogateIntId, Attribute] {
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("AttributeSeq")
 			case _ => None
@@ -71,8 +69,7 @@ object CommonEntities {
 
 	case class Company(val name: String)
 
-	object PersonEntity extends Entity[Int, Person] {
-		type Stored = SurrogateIntId
+	object PersonEntity extends Entity[Int, SurrogateIntId, Person] {
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("PersonSeq")
 			case _ => None
@@ -85,8 +82,7 @@ object CommonEntities {
 		}
 	}
 
-	object CompanyEntity extends Entity[Int, Company] {
-		type Stored = SurrogateIntId
+	object CompanyEntity extends Entity[Int, SurrogateIntId, Company] {
 
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("CompanySeq")
@@ -106,8 +102,7 @@ object CommonEntities {
 
 	case class House(val address: String)
 
-	object HouseEntity extends Entity[Int, House] {
-		type Stored = SurrogateIntId
+	object HouseEntity extends Entity[Int, SurrogateIntId, House] {
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("HouseSeq")
 			case _ => None
@@ -119,8 +114,7 @@ object CommonEntities {
 		}
 	}
 
-	object OwnerEntity extends Entity[Int, Owner] {
-		type Stored = SurrogateIntId
+	object OwnerEntity extends Entity[Int, SurrogateIntId, Owner] {
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("OwnerSeq")
 			case _ => None
@@ -148,9 +142,7 @@ object CommonEntities {
 
 	case class Wife(name: String, age: Int)
 
-	object HusbandEntity extends Entity[Unit, Husband] {
-		type Stored = NoId
-
+	object HusbandEntity extends Entity[Unit, NoId, Husband] {
 		val name = column("name") to (_.name)
 		val age = column("age") to (_.age)
 		val wife = onetoone(WifeEntity) to (_.wife)
@@ -160,8 +152,7 @@ object CommonEntities {
 		def constructor(implicit m) = new Husband(name, age, wife) with Stored
 	}
 
-	object WifeEntity extends Entity[Int, Wife] {
-		type Stored = SurrogateIntId
+	object WifeEntity extends Entity[Int, SurrogateIntId, Wife] {
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("WifeSeq")
 			case _ => None
@@ -187,8 +178,7 @@ object CommonEntities {
 
 	case class Image(name: String, data: Array[Byte])
 
-	object ImageEntity extends Entity[Int, Image] {
-		type Stored = SurrogateIntId
+	object ImageEntity extends Entity[Int, SurrogateIntId, Image] {
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("ImageSeq")
 			case _ => None

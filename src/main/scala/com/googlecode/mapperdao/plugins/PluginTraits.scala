@@ -14,21 +14,21 @@ trait BeforeSelect {
 		tpe: Type[ID, T],
 		om: DatabaseValues,
 		entities: EntityMap
-	): List[Any]
+		): List[Any]
 
 	def before[ID, T](
-		entity: Entity[ID,_, T],
+		entity: Entity[ID, Persisted, T],
 		selectConfig: SelectConfig,
 		om: DatabaseValues,
 		entities: EntityMap
-	): List[SelectMod]
+		): List[SelectMod]
 }
 
 trait SelectMock {
 	def updateMock[ID, T](
 		tpe: Type[ID, T],
 		mods: scala.collection.mutable.Map[String, Any]
-	)
+		)
 }
 
 /**
@@ -40,13 +40,13 @@ trait BeforeDelete {
 		deleteConfig: DeleteConfig,
 		o: T with Persisted,
 		entityMap: UpdateEntityMap
-	): List[(SimpleColumn, Any)]
+		): List[(SimpleColumn, Any)]
 
 	def before[ID, T](
-		entity: Entity[ID,_, T],
+		entity: Entity[ID, Persisted, T],
 		deleteConfig: DeleteConfig,
 		o: T with Persisted,
 		keyValues: List[(ColumnBase, Any)],
 		entityMap: UpdateEntityMap
-	): Unit
+		): Unit
 }
