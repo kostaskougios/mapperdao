@@ -1,10 +1,9 @@
 package com.googlecode.mapperdao
 
+import internal.Utils
 import java.util.Calendar
 import java.util.Date
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
-import scala.collection.JavaConverters.seqAsJavaListConverter
-import scala.collection.JavaConverters.setAsJavaSetConverter
 import org.joda.time.DateTime
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
@@ -79,7 +78,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	private var persistedColumns = List[ColumnInfoBase[T with DeclaredIds[ID], _]]()
 	private var columns = List[ColumnInfoBase[T, _]]()
 	private[mapperdao] var onlyForQueryColumns = List[ColumnInfoBase[T, _]]()
-	private var unusedPKs = new LazyActions[ColumnInfoBase[Any, Any]]
+	private val unusedPKs = new LazyActions[ColumnInfoBase[Any, Any]]
 	protected[mapperdao] lazy val tpe = {
 		val con: (Option[_], ValuesMap) => T with Persisted = (d, m) => {
 			// construct the object
@@ -94,7 +93,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	override def hashCode = table.hashCode
 
 	override def equals(o: Any) = o match {
-		case e: Entity[_,_, _] => table == e.table && clz == e.clz
+		case e: Entity[_, _, _] => table == e.table && clz == e.clz
 		case _ => false
 	}
 
@@ -416,11 +415,11 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 * or, to override the default naming convention
 	 * val attributes=manytomany(AttributeEntity) join("Product_To_Attributes","p_id","a_id") to (_.attributes)
 	 */
-	def manytomany[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT]) = new ManyToManyBuilder(referenced, false)
+	def manytomany[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new ManyToManyBuilder(referenced, false)
 
-	def manytomanyreverse[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT]) = new ManyToManyBuilder(referenced, true)
+	def manytomanyreverse[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new ManyToManyBuilder(referenced, true)
 
-	protected class ManyToManyBuilder[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT], reverse: Boolean)
+	protected class ManyToManyBuilder[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT], reverse: Boolean)
 		extends GetterDefinition with OnlyForQueryDefinition {
 		val clz = Entity.this.clz
 		private var linkTable = if (reverse) referenced.table + "_" + table else table + "_" + referenced.table
@@ -512,9 +511,9 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 * or
 	 * val inventory=onetoone(InventoryEntity) option (_.inventory)
 	 */
-	def onetoone[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT]) = new OneToOneBuilder(referenced)
+	def onetoone[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new OneToOneBuilder(referenced)
 
-	protected class OneToOneBuilder[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT])
+	protected class OneToOneBuilder[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT])
 		extends OnlyForQueryDefinition {
 		private var cols = referenced.keysDuringDeclaration.map {
 			k =>
@@ -550,9 +549,9 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 * one-to-one reverse, i.e.
 	 * val product=onetoonereverse(ProductEntity) to (_.product)
 	 */
-	def onetoonereverse[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT]) = new OneToOneReverseBuilder(referenced)
+	def onetoonereverse[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new OneToOneReverseBuilder(referenced)
 
-	protected class OneToOneReverseBuilder[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT])
+	protected class OneToOneReverseBuilder[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT])
 		extends GetterDefinition
 		with OnlyForQueryDefinition {
 		val clz = Entity.this.clz
@@ -588,9 +587,9 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 *
 	 * val houses=onetomany(HouseEntity) to (_.houses)
 	 */
-	def onetomany[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT]) = new OneToManyBuilder(referenced)
+	def onetomany[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new OneToManyBuilder(referenced)
 
-	protected class OneToManyBuilder[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT])
+	protected class OneToManyBuilder[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT])
 		extends GetterDefinition
 		with OnlyForQueryDefinition {
 		val clz = Entity.this.clz
@@ -659,9 +658,9 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 *
 	 * val person=manytoone(PersonEntity) to (_.person)
 	 */
-	def manytoone[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT]) = new ManyToOneBuilder(referenced)
+	def manytoone[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new ManyToOneBuilder(referenced)
 
-	protected class ManyToOneBuilder[FID,FPC<:Persisted, FT](referenced: Entity[FID,FPC, FT])
+	protected class ManyToOneBuilder[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT])
 		extends GetterDefinition
 		with OnlyForQueryDefinition {
 
@@ -720,23 +719,23 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	protected implicit def columnTraversableManyToManyToJSet[FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F])(implicit m: ValuesMap): java.util.Set[F] =
 		m(ci) match {
 			case null => null
-			case v => v.toSet.asJava
+			case v => Utils.toJavaSet(v)
 		}
 
 	protected implicit def columnTraversableManyToManyToJList[FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F])(implicit m: ValuesMap): java.util.List[F] = m(ci) match {
 		case null => null
-		case v => v.toList.asJava
+		case v => Utils.toJavaList(v)
 	}
 
 	// one to many : Java
 	protected implicit def columnTraversableOneToManyJList[FID, F](ci: ColumnInfoTraversableOneToMany[ID, T, FID, F])(implicit m: ValuesMap): java.util.List[F] = m(ci) match {
 		case null => null
-		case v => v.toList.asJava
+		case v => Utils.toJavaList(v)
 	}
 
 	protected implicit def columnTraversableOneToManyJSet[FID, F](ci: ColumnInfoTraversableOneToMany[ID, T, FID, F])(implicit m: ValuesMap): java.util.Set[F] = m(ci) match {
 		case null => null
-		case v => v.toSet.asJava
+		case v => Utils.toJavaSet(v)
 	}
 
 	// ===================== /Java section ================================
