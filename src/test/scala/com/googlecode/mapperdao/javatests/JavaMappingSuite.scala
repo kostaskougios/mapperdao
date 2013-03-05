@@ -18,7 +18,7 @@ import com.googlecode.mapperdao.CommonEntities.createProductAttribute
 class JavaMappingSuite extends FunSuite with ShouldMatchers {
 	test("CRUD") {
 
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntityMTM, AttributeEntity))
+		val (jdbc, mapperDao, _) = Setup.setupMapperDao(TypeRegistry(ProductEntityMTM, AttributeEntity))
 		createProductAttribute(jdbc)
 
 		val p = new Product
@@ -46,6 +46,20 @@ class JavaMappingSuite extends FunSuite with ShouldMatchers {
 		s1.getName should be("changed")
 		s1.getAttributes.size should be(1)
 		s1.getAttributes.contains(a2) should be(true)
+
+		s1.setName("changed again")
+		s1.getAttributes.add(a1)
+		val u2=mapperDao.update(ProductEntityMTM,s1)
+		u2.getName should be ("changed again")
+		u2.getAttributes.size should be (2)
+		u2.getAttributes.contains(a1) should be(true)
+		u2.getAttributes.contains(a2) should be(true)
+
+		val s2 = mapperDao.select(ProductEntityMTM, u2.id).get
+		s2.getName should be ("changed again")
+		s2.getAttributes.size should be (2)
+		s2.getAttributes.contains(a1) should be(true)
+		s2.getAttributes.contains(a2) should be(true)
 	}
 
 	test("many to many, get") {
