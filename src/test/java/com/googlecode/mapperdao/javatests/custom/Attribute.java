@@ -2,7 +2,6 @@ package com.googlecode.mapperdao.javatests.custom;
 
 /**
  * @author kostantinos.kougios
- *         <p/>
  *         3 Jul 2012
  */
 public class Attribute

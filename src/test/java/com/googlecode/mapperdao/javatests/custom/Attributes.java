@@ -25,4 +25,24 @@ public class Attributes implements Iterable<Attribute>
 			l.add(a);
 		}
 	}
+
+	public int size()
+	{
+		return l.size();
+	}
+
+	public boolean contains(Attribute a)
+	{
+		return l.contains(a);
+	}
+
+	public boolean remove(Attribute a)
+	{
+		return l.remove(a);
+	}
+
+	public boolean add(Attribute a)
+	{
+		return l.add(a);
+	}
 }

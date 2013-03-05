@@ -1,14 +1,25 @@
 package com.googlecode.mapperdao.javatests.custom;
 
+import java.util.Arrays;
+
 /**
  * @author kostantinos.kougios
- *         <p/>
  *         3 Jul 2012
  */
 public class Product
 {
 	private String name;
 	private Attributes attributes;
+
+	public Product()
+	{
+	}
+
+	public Product(String name, Attribute... attributes)
+	{
+		this.name = name;
+		this.attributes = new Attributes(Arrays.asList(attributes));
+	}
 
 	public Attributes getAttributes()
 	{
