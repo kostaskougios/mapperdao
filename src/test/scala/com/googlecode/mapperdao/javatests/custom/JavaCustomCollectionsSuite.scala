@@ -73,6 +73,7 @@ class JavaCustomCollectionsSuite extends FunSuite with ShouldMatchers
 			select
 				from pe
 				where (pe.name like "test%")
+				orderBy (pe.id)
 			).toList(queryDao)
 
 		products.head.setName("changed")
@@ -83,6 +84,7 @@ class JavaCustomCollectionsSuite extends FunSuite with ShouldMatchers
 		val List(s1, _) = (
 			select
 				from pe
+				orderBy (pe.id)
 			).toList(queryDao)
 
 		s1.getAttributes.size should be(1)
@@ -104,6 +106,7 @@ class JavaCustomCollectionsSuite extends FunSuite with ShouldMatchers
 			select
 				from pe
 				where (pe.name like "test%")
+				orderBy (pe.id)
 			).toList(qc)(queryDao)
 
 		products.head.setName("changed")
@@ -114,6 +117,7 @@ class JavaCustomCollectionsSuite extends FunSuite with ShouldMatchers
 		val List(s1, _) = (
 			select
 				from pe
+				orderBy (pe.id)
 			).toList(qc)(queryDao)
 
 		s1.getAttributes.size should be(1)

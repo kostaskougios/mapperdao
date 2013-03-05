@@ -79,7 +79,7 @@ protected class LazyLoadProxyMethod[T](
 
 					// free up some memory
 					if (t.mapperDaoValuesMap != null)
-						t.mapperDaoValuesMap(ci) = r
+						t.mapperDaoValuesMap(ci) = v
 
 					if (toLazyLoad != null && toLazyLoad.isEmpty) {
 						toLazyLoad = null
