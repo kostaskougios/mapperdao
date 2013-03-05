@@ -59,6 +59,8 @@ class CmdPhase(typeManager: TypeManager)
 		updateConfig: UpdateConfig
 		): List[PersistCmd] = {
 
+		if (oldVM == null) throw new NullPointerException("mapperdao internal state not present, did you discard it? For " + tpe.clz)
+
 		if (oldVM.mock) {
 			newVM.mock = true
 			MockCmd(tpe, oldVM, newVM) :: Nil
