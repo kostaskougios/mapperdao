@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.utils.LazyActions
-import com.googlecode.mapperdao.utils.MapWithDefault
+import internal.MapWithDefault
 
 /**
  * external entities allow loading entities via a custom dao or i.e. hibernate,
