@@ -1,4 +1,4 @@
-package com.googlecode.mapperdao.utils
+package com.googlecode.mapperdao.internal
 
 import com.googlecode.mapperdao.ColumnBase
 import com.googlecode.mapperdao.ValuesMap
@@ -11,7 +11,8 @@ import com.googlecode.mapperdao.ValuesMap
  *
  *         7 Sep 2011
  */
-protected[mapperdao] object Equality {
+protected[mapperdao] object Equality
+{
 
 	def isEqual(o1: Any, o2: Any): Boolean = o1 match {
 		case a1: Any => o2 match {

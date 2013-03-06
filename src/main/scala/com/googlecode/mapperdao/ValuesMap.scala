@@ -1,13 +1,12 @@
 package com.googlecode.mapperdao
 
-import internal.{SynchronizedMemoryEfficientMap, MemoryEfficientMap}
+import internal.{Equality, SynchronizedMemoryEfficientMap, MemoryEfficientMap}
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
 import org.joda.time.DateTime
 
-import com.googlecode.mapperdao.utils.Equality
 import scala.collection.JavaConverters._
 
 /**
@@ -22,7 +21,8 @@ import scala.collection.JavaConverters._
  */
 class ValuesMap private[mapperdao](private[mapperdao] var identity: Int, mOrig: scala.collection.Map[String, Any])
 	extends MemoryEfficientMap[String, Any]
-	with SynchronizedMemoryEfficientMap[String, Any] {
+	with SynchronizedMemoryEfficientMap[String, Any]
+{
 	if (identity <= 0) throw new IllegalStateException("invalid id of " + identity)
 
 	// is the object a mock object?
@@ -239,7 +239,8 @@ class ValuesMap private[mapperdao](private[mapperdao] var identity: Int, mOrig: 
 	}
 }
 
-object ValuesMap {
+object ValuesMap
+{
 
 	protected[mapperdao] def entityToMap[ID, T](
 		typeManager: TypeManager,
