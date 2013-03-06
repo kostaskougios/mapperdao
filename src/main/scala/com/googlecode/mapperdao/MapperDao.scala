@@ -54,7 +54,7 @@ trait MapperDao {
 		): List[T with PC] = insert0(updateConfig, entity.tpe, os).asInstanceOf[List[T with PC]]
 
 	/**
-	 * weird: scala compiler doesn't like methods overriding insert():List[T with entity.PC]
+	 * internally we throw away PC (as scala compiler is pretty tough on it)
 	 */
 	protected def insert0[ID, T](
 		updateConfig: UpdateConfig,
@@ -103,6 +103,9 @@ trait MapperDao {
 		os: List[T with PC]
 		): List[T with PC] = updateMutable0(updateConfig, entity.tpe, os.asInstanceOf[List[T with Persisted]]).asInstanceOf[List[T with PC]]
 
+	/**
+	 * internally we throw away PC (as scala compiler is pretty tough on it)
+	 */
 	protected def updateMutable0[ID, T](
 		updateConfig: UpdateConfig,
 		tpe: Type[ID, T],
@@ -158,6 +161,9 @@ trait MapperDao {
 		os: List[(T with PC, T)]
 		): List[T with PC] = updateImmutable0[ID, T](updateConfig, entity.tpe, os.asInstanceOf[List[(T with Persisted, T)]]).asInstanceOf[List[T with PC]]
 
+	/**
+	 * internally we throw awat PC (as scala compiler is pretty tough on it)
+	 */
 	protected def updateImmutable0[ID, T](
 		updateConfig: UpdateConfig,
 		tpe: Type[ID, T],
@@ -194,6 +200,9 @@ trait MapperDao {
 		id: ID
 		): T with PC = merge0(selectConfig, updateConfig, entity, o, id).asInstanceOf[T with PC]
 
+	/**
+	 * internally we throw awat PC (as scala compiler is pretty tough on it)
+	 */
 	protected def merge0[ID, T](
 		selectConfig: SelectConfig,
 		updateConfig: UpdateConfig,
@@ -227,6 +236,9 @@ trait MapperDao {
 	def select[ID, PC <: Persisted, T](selectConfig: SelectConfig, entity: Entity[ID, PC, T], id: ID): Option[T with PC] =
 		select0(selectConfig, entity, id).asInstanceOf[Option[T with PC]]
 
+	/**
+	 * internally we throw away PC (as scala compiler is pretty tough on it)
+	 */
 	protected def select0[ID, T](selectConfig: SelectConfig, entity: Entity[ID, Persisted, T], id: ID): Option[T with Persisted]
 
 	/**
@@ -275,5 +287,8 @@ trait MapperDao {
 
 	def link[ID, PC <: Persisted, T](entity: Entity[ID, PC, T], o: T with PC): T with PC = link0[ID, T](entity, o.asInstanceOf[T with Persisted]).asInstanceOf[T with PC]
 
+	/**
+	 * internally we throw away PC (as scala compiler is pretty tough on it)
+	 */
 	protected def link0[ID, T](entity: Entity[ID, Persisted, T], o: T with Persisted): T with Persisted = throw new IllegalStateException("Not supported")
 }
