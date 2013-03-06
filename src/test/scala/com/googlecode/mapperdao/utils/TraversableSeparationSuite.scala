@@ -9,6 +9,7 @@ import com.googlecode.mapperdao.Entity
 import com.googlecode.mapperdao.StringEntity
 import com.googlecode.mapperdao.NaturalIntId
 import com.googlecode.mapperdao.NoId
+import com.googlecode.mapperdao.internal.TraversableSeparation
 
 /**
  * @author kostantinos.kougios
@@ -79,7 +80,7 @@ class TraversableSeparationSuite extends FunSuite with ShouldMatchers
 
 	def xwith(id: Int) = new X(id) with NaturalIntId
 
-	object XEntity extends Entity[Int,NaturalIntId, X]
+	object XEntity extends Entity[Int, NaturalIntId, X]
 	{
 		val id = key("id") to (_.id)
 

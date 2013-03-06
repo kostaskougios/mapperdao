@@ -1,4 +1,4 @@
-package com.googlecode.mapperdao.utils
+package com.googlecode.mapperdao.internal
 
 import com.googlecode.mapperdao._
 
@@ -12,13 +12,13 @@ import com.googlecode.mapperdao._
  *         30 Apr 2012
  */
 protected class EntityComparisonMap[ID, T](
-	entity: Entity[ID,Persisted, T],
+	entity: Entity[ID, Persisted, T],
 	keyMode: EntityComparisonMap.EqualsMode[T]
-	) {
+	)
+{
 	private var m = Map[Any, T]()
 
-	def add(o: T): Unit =
-		m = m + (key(o) -> o)
+	def add(o: T): Unit = m = m + (key(o) -> o)
 
 	def addAll(l: Traversable[T]): Unit = l foreach {
 		o => add(o)
@@ -33,13 +33,16 @@ protected class EntityComparisonMap[ID, T](
 	override def toString = "EntityMap(%s)".format(m)
 }
 
-protected object EntityComparisonMap {
+protected object EntityComparisonMap
+{
 
-	abstract class EqualsMode[T] {
+	abstract class EqualsMode[T]
+	{
 		def key(o: T): Any
 	}
 
-	class EntityEquals[T](entity: Entity[_,Persisted, T]) extends EqualsMode[T] {
+	class EntityEquals[T](entity: Entity[_, Persisted, T]) extends EqualsMode[T]
+	{
 		override def key(o: T) = o match {
 			case p: Persisted =>
 				val table = entity.tpe.table
@@ -56,7 +59,8 @@ protected object EntityComparisonMap {
 		}
 	}
 
-	class ByObjectEquals[T] extends EqualsMode[T] {
+	class ByObjectEquals[T] extends EqualsMode[T]
+	{
 		override def key(o: T) = o
 	}
 

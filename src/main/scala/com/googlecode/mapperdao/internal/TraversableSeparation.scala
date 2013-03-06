@@ -1,4 +1,4 @@
-package com.googlecode.mapperdao.utils
+package com.googlecode.mapperdao.internal
 
 import com.googlecode.mapperdao._
 
@@ -10,8 +10,9 @@ import com.googlecode.mapperdao._
  *
  *         6 Sep 2011
  */
-protected[mapperdao] object TraversableSeparation {
-	def separate[ID, T](entity: Entity[ID,Persisted, T], oldT: Traversable[T], newT: Traversable[T]) = {
+protected[mapperdao] object TraversableSeparation
+{
+	def separate[ID, T](entity: Entity[ID, Persisted, T], oldT: Traversable[T], newT: Traversable[T]) = {
 		if (oldT.isEmpty)
 			(newT, Nil, Nil)
 		else if (newT.isEmpty)

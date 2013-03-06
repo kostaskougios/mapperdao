@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
-import utils.TraversableSeparation
+import internal.TraversableSeparation
 
 /**
  * entities are converted to PersistOps
