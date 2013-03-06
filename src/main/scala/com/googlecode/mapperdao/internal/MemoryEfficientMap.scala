@@ -1,4 +1,4 @@
-package com.googlecode.mapperdao.utils
+package com.googlecode.mapperdao.internal
 
 /**
  * a "map" for maps with few items that is memory efficient and can

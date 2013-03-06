@@ -1,13 +1,12 @@
 package com.googlecode.mapperdao
 
-import internal.Utils
+import internal.{LazyActions, Utils}
 import java.util.Calendar
 import java.util.Date
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import org.joda.time.DateTime
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
-import com.googlecode.mapperdao.utils.LazyActions
 
 /**
  * the main class that must be inherited to create entities.

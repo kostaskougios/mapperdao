@@ -1,10 +1,12 @@
-package com.googlecode.mapperdao.utils
+package com.googlecode.mapperdao.internal
+
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.ListBuffer
+
 /**
  * @author kostantinos.kougios
  *
- * 31 Aug 2011
+ *         31 Aug 2011
  */
 private[mapperdao] class MapOfList[K, V](keyModifier: K => K) extends Traversable[(K, List[V])] {
 	val m = new HashMap[K, ListBuffer[V]]
@@ -17,8 +19,9 @@ private[mapperdao] class MapOfList[K, V](keyModifier: K => K) extends Traversabl
 	}
 
 	override def foreach[U](f: ((K, List[V])) => U): Unit =
-		m.foreach { e =>
-			f(keyModifier(e._1), e._2.toList)
+		m.foreach {
+			e =>
+				f(keyModifier(e._1), e._2.toList)
 		}
 
 }
