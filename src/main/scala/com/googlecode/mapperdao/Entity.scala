@@ -73,7 +73,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 
 	protected val tableLower = table.toLowerCase
 
-	private[mapperdao] def init {}
+	private[mapperdao] def init() {}
 
 	private var persistedColumns = List[ColumnInfoBase[T with DeclaredIds[ID], _]]()
 	private var columns = List[ColumnInfoBase[T, _]]()

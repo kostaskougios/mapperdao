@@ -5,8 +5,9 @@ package com.googlecode.mapperdao
  *
  * @author kostantinos.kougios
  *
- * May 24, 2012
+ *         May 24, 2012
  */
-protected trait LazyLoaded {
-	def freeLazyLoadMemoryData(): Unit
+protected trait LazyLoaded
+{
+	def freeLazyLoadMemoryData()
 }

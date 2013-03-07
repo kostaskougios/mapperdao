@@ -10,7 +10,8 @@ package com.googlecode.mapperdao
  *
  * @author kostantinos.kougios
  */
-trait MapperDao {
+trait MapperDao
+{
 	// default configurations, can be overriden
 	protected val defaultSelectConfig = SelectConfig.default
 	protected val defaultDeleteConfig = DeleteConfig.default
@@ -275,7 +276,7 @@ trait MapperDao {
 	 * delete(deleteConfig, entity, o). (In any case to do the same at the database level,
 	 * queries would be required in order to delete the related data)
 	 */
-	def delete[ID, PC <: Persisted, T](entity: Entity[ID, PC, T], id: ID): Unit
+	def delete[ID, PC <: Persisted, T](entity: Entity[ID, PC, T], id: ID)
 
 	/**
 	 * unlinks an entity from mapperdao. The entity is not tracked for changes and can't

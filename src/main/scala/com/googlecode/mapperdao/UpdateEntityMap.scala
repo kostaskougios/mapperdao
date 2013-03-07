@@ -28,11 +28,11 @@ protected class UpdateEntityMap
 	def peek[PID, PT, V, FID, F] =
 		(if (stack.isEmpty) UpdateInfo(null, null, null) else stack.top).asInstanceOf[UpdateInfo[PID, PT, V, FID, F]]
 
-	def up {
+	def up() {
 		stack = stack.pop
 	}
 
-	def done {
+	def done() {
 		if (!stack.isEmpty) throw new InternalError("stack should be empty but is " + stack)
 	}
 

@@ -9,7 +9,8 @@ import com.googlecode.mapperdao._
  *
  *         31 Aug 2011
  */
-trait BeforeSelect {
+trait BeforeSelect
+{
 	def idContribution[ID, T](
 		tpe: Type[ID, T],
 		om: DatabaseValues,
@@ -24,7 +25,8 @@ trait BeforeSelect {
 		): List[SelectMod]
 }
 
-trait SelectMock {
+trait SelectMock
+{
 	def updateMock[ID, T](
 		tpe: Type[ID, T],
 		mods: scala.collection.mutable.Map[String, Any]
@@ -34,7 +36,8 @@ trait SelectMock {
 /**
  * plugins executed before deleting an entity
  */
-trait BeforeDelete {
+trait BeforeDelete
+{
 	def idColumnValueContribution[ID, T](
 		tpe: Type[ID, T],
 		deleteConfig: DeleteConfig,
@@ -48,5 +51,5 @@ trait BeforeDelete {
 		o: T with Persisted,
 		keyValues: List[(ColumnBase, Any)],
 		entityMap: UpdateEntityMap
-		): Unit
+		)
 }
