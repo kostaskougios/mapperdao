@@ -18,7 +18,8 @@ case class Prioritized(
 	low: List[PersistCmd],
 	related: List[RelatedCmd],
 	dependent: List[DependsCmd]
-	) {
+	)
+{
 	private val relatedById = related.filter(_.newVM != null).groupBy(_.newVM.identity) ++ (
 		related.filterNot(_.oldVMO == None).groupBy(_.oldVMO.get.identity)
 		)
@@ -26,7 +27,7 @@ case class Prioritized(
 	def relatedFor(vm: ValuesMap) = relatedById.getOrElse(vm.identity, Nil)
 
 	def relatedColumns(vm: ValuesMap, applyOnOldValue: Boolean) = relatedFor(vm).map {
-		case EntityRelatedCmd(_, column, vm, _, foreignTpe, foreignVM, oldForeignVMO, _) =>
+		case EntityRelatedCmd(_, column, newVM, _, foreignTpe, foreignVM, oldForeignVMO, _) =>
 			column match {
 				case ManyToOne(columns, foreign) =>
 					columns zip (
@@ -124,6 +125,7 @@ case class Prioritized(
 	}
 }
 
-object Prioritized {
+object Prioritized
+{
 	private val nullList = List(null, null, null, null)
 }

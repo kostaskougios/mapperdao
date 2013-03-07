@@ -15,12 +15,13 @@ import org.joda.time.LocalTime
  *
  *         1 Aug 2011
  */
-class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) extends TypeManager {
+class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) extends TypeManager
+{
 
 	override def normalize(v: Any) = v match {
 		case d: Date => new DateTime(d, chronology)
 		case c: Calendar => new DateTime(c, chronology)
-		case v => v
+		case x => x
 	}
 
 	override def toActualType(tpe: Class[_], o: Any): Any = {
@@ -190,7 +191,7 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 	private def columnToCorrectedValue[FID, F](
 		column: ColumnRelationshipBase[FID, F],
 		foreign: TypeRef[FID, F], j: JdbcMap
-	) = {
+		) = {
 		val fe = foreign.entity
 		val ftable = fe.tpe.table
 		val columnNames = column.columns.map(_.nameLowerCase)

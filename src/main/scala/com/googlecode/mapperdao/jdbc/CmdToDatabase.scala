@@ -10,7 +10,7 @@ import state.prioritise.Prioritized
 
 /**
  * converts commands to database operations, executes
- * them and returns the resulting persisted nodes.
+ * them and returns the resulting persisted allNodes.
  *
  * @author kostantinos.kougios
  *
@@ -93,9 +93,9 @@ class CmdToDatabase(
 		case _ => true
 	}
 
-	private def toDb(nodes: List[Node]) {
+	private def toDb(allNodes: List[Node]) {
 		// group the sql's and batch-execute them
-		nodes.groupBy {
+		allNodes.groupBy {
 			_.sql.sql
 		}.foreach {
 			case (sql, nodes) =>
@@ -119,7 +119,7 @@ class CmdToDatabase(
 						// do the batch update
 						val br = jdbc.batchUpdate(bo, sql, args)
 
-						// now extract the keys and set them into the nodes
+						// now extract the keys and set them into the allNodes
 						if (br.keys != null) {
 							val keys: Array[List[(SimpleColumn, Any)]] = br.keys.map {
 								m: java.util.Map[String, Object] =>

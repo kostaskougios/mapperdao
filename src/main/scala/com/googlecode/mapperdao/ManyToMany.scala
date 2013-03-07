@@ -2,9 +2,10 @@ package com.googlecode.mapperdao
 
 case class ManyToMany[FID, F](
 	linkTable: LinkTable,
-	val foreign: TypeRef[FID, F]
-)
-	extends ColumnRelationshipBase[FID, F] {
+	foreign: TypeRef[FID, F]
+	)
+	extends ColumnRelationshipBase[FID, F]
+{
 	def alias = foreign.alias
 
 	override def columns: List[Column] = Nil

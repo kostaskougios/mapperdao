@@ -42,7 +42,7 @@ protected class UpdateEntityMap
 }
 
 protected case class UpdateInfo[PID, PT, V, FID, F](
-	val o: PT,
-	val ci: ColumnInfoRelationshipBase[PT, V, FID, F],
+	o: PT,
+	ci: ColumnInfoRelationshipBase[PT, V, FID, F],
 	parentEntity: Entity[PID, Persisted, PT]
 	)

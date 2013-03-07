@@ -16,7 +16,7 @@ case class Table[ID, T](
 	name: String,
 	columnInfosPlain: List[ColumnInfoBase[T, _]],
 	extraColumnInfosPersisted: List[ColumnInfoBase[T with DeclaredIds[ID], _]],
-	val unusedPKColumnInfos: List[ColumnInfoBase[Any, Any]]
+	unusedPKColumnInfos: List[ColumnInfoBase[Any, Any]]
 	)
 {
 

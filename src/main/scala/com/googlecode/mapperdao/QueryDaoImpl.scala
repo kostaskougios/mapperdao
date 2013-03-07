@@ -12,7 +12,8 @@ import com.googlecode.mapperdao.drivers.Driver
  *
  *         18 Aug 2011
  */
-final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends QueryDao {
+final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends QueryDao
+{
 
 	import QueryDao._
 
@@ -31,7 +32,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 
 			queryConfig.multi.runStrategy.run(mapperDao, entity, queryConfig, lm)
 		} catch {
-			case e =>
+			case e: Throwable =>
 				val extra = "\n------\nThe query:%s\nThe arguments:%s\n------\n".format(sql, args)
 				val msg = "An error occured during execution of query %s.\nQuery Information:%s\nIssue:\n%s".format(sql, extra, e.getMessage)
 				throw new QueryException(msg, e)

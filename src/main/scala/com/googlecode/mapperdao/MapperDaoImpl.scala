@@ -19,7 +19,8 @@ import state.enhancevm.EnhanceVMPhase
 protected final class MapperDaoImpl(
 	val driver: Driver,
 	val typeManager: TypeManager
-	) extends MapperDao {
+	) extends MapperDao
+{
 	private val typeRegistry = driver.typeRegistry
 	private val lazyLoadManager = new LazyLoadManager
 	private val mockFactory = new MockFactory(typeManager)
@@ -203,7 +204,7 @@ protected final class MapperDaoImpl(
 					Some(l.head)
 				}
 			} catch {
-				case e => throw new QueryException("An error occured during select of entity %s and primary keys %s".format(entity, ids), e)
+				case e: Throwable => throw new QueryException("An error occured during select of entity %s and primary keys %s".format(entity, ids), e)
 			}
 		}
 	}
@@ -322,7 +323,7 @@ protected final class MapperDaoImpl(
 		o: T with Persisted,
 		entityMap: UpdateEntityMap
 		): T = {
-		if (o.mapperDaoDiscarded) throw new IllegalArgumentException("can't operate on an object twice. An object that was updated/deleted must be discarded and replaced by the return value of update(), i.e. onew=update(o) or just be disposed if it was deleted. The offending object was : " + o);
+		if (o.mapperDaoDiscarded) throw new IllegalArgumentException("can't operate on an object twice. An object that was updated/deleted must be discarded and replaced by the return value of update(), i.e. onew=update(o) or just be disposed if it was deleted. The offending object was : " + o)
 
 		val tpe = entity.tpe
 		val table = tpe.table

@@ -140,8 +140,8 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 
 		private def functionToValues[T](v: SqlFunctionValue[T]): List[SqlParameterValue] =
 			v.values.collect {
-				case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) =>
-					List(Jdbc.toSqlParameter(v.getClass, v))
+				case value if (Jdbc.isPrimitiveJdbcType(value.getClass)) =>
+					List(Jdbc.toSqlParameter(value.getClass, value))
 				case iv: SqlFunctionValue[_] =>
 					functionToValues(iv)
 			}.flatten
@@ -355,7 +355,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		}
 
 		def orderBy(obb: OrderByBuilder) = {
-			orderByBuilder = Some(obb);
+			orderByBuilder = Some(obb)
 			this
 		}
 
@@ -444,7 +444,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		private var css: List[(SimpleColumn, String)] = Nil
 
 		def into(table: Table): this.type = {
-			this.table = table;
+			this.table = table
 			this
 		}
 

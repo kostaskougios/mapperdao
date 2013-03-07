@@ -79,7 +79,7 @@ class ValuesMap private[mapperdao](private[mapperdao] var identity: Int, mOrig: 
 					val v = f()
 					putMEM(column, v)
 					v
-				case v => v
+				case value => value
 			}
 		}
 		ValuesMap.deepClone(v).asInstanceOf[T]

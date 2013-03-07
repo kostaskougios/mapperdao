@@ -62,7 +62,7 @@ private[mapperdao] case class EntityMap(
 }
 
 protected case class SelectInfo[ID, T, V, FID, F](
-	val tpe: Type[ID, T],
-	val ci: ColumnInfoRelationshipBase[T, V, FID, F],
-	val databaseValues: DatabaseValues
+	tpe: Type[ID, T],
+	ci: ColumnInfoRelationshipBase[T, V, FID, F],
+	databaseValues: DatabaseValues
 	)

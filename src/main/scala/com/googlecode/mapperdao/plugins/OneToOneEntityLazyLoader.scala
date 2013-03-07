@@ -13,7 +13,8 @@ class OneToOneEntityLazyLoader[T, FID, F](
 	down: EntityMap,
 	ci: ColumnInfoOneToOne[T, FID, F],
 	foreignKeyValues: List[Any]
-) extends (() => Any) {
+	) extends (() => Any)
+{
 	def apply = {
 		val c = ci.column
 		val fe = c.foreign.entity
@@ -22,7 +23,7 @@ class OneToOneEntityLazyLoader[T, FID, F](
 		val foreignKeys = ftable.primaryKeys zip foreignKeyValues
 		val fom = mapperDao.driver.doSelect(selectConfig, ftpe, foreignKeys)
 		val otmL = mapperDao.toEntities(fom, fe, selectConfig, down)
-		if (otmL.size != 1) throw new IllegalStateException("expected 1 row but got " + otmL);
+		if (otmL.size != 1) throw new IllegalStateException("expected 1 row but got " + otmL)
 		otmL.head
 	}
 }

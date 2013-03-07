@@ -6,9 +6,10 @@ package com.googlecode.mapperdao
  *
  * @author kostantinos.kougios
  *
- * 5 Nov 2011
+ *         5 Nov 2011
  */
 
-trait SimpleTypeValue[T, E] extends Comparable[E] {
+trait SimpleTypeValue[T, E] extends Comparable[E]
+{
 	val value: T
 }
