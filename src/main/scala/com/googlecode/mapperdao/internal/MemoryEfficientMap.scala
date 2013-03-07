@@ -8,7 +8,8 @@ package com.googlecode.mapperdao.internal
  *
  *         28 May 2012
  */
-private[mapperdao] trait MemoryEfficientMap[K, V] {
+private[mapperdao] trait MemoryEfficientMap[K, V]
+{
 
 	private var keys: Array[Any] = _
 	private var values: Array[Any] = _
@@ -76,11 +77,12 @@ private[mapperdao] trait MemoryEfficientMap[K, V] {
 			b append (keys(i)) append (" -> ") append (values(i))
 		}
 
-		b append (")") toString
+		b append (")") toString()
 	}
 }
 
-abstract trait SynchronizedMemoryEfficientMap[K, V] extends MemoryEfficientMap[K, V] {
+abstract trait SynchronizedMemoryEfficientMap[K, V] extends MemoryEfficientMap[K, V]
+{
 	override def getMEM(k: K): V = synchronized {
 		super.getMEM(k)
 	}

@@ -1,7 +1,5 @@
 package com.googlecode.mapperdao
 
-import java.util.IdentityHashMap
-import com.googlecode.mapperdao.jdbc.JdbcMap
 import scala.collection.mutable.{HashMap => TMap}
 
 /**
@@ -14,7 +12,8 @@ import scala.collection.mutable.{HashMap => TMap}
 private[mapperdao] case class EntityMap(
 	private val m: TMap[List[Any], Option[_]] = TMap(),
 	private val parent: SelectInfo[Any, Any, Any, Any, Any] = SelectInfo(null, null, null)
-) {
+	)
+{
 
 	protected def key(clz: Class[_], ids: List[Any]) = clz :: ids
 
@@ -53,17 +52,17 @@ private[mapperdao] case class EntityMap(
 		tpe: Type[ID, T],
 		ci: ColumnInfoRelationshipBase[T, V, FID, F],
 		dv: DatabaseValues
-	): EntityMap =
+		): EntityMap =
 		copy(parent = SelectInfo(tpe.asInstanceOf[Type[Any, Any]], ci.asInstanceOf[ColumnInfoRelationshipBase[Any, Any, Any, Any]], dv))
 
 	def peek[ID, T, V, FID, F] =
 		parent.asInstanceOf[SelectInfo[ID, T, V, FID, F]]
 
-	override def toString = "EntityMapImpl(%s)".format(m.toString)
+	override def toString = "EntityMapImpl(%s)".format(m.toString())
 }
 
 protected case class SelectInfo[ID, T, V, FID, F](
 	val tpe: Type[ID, T],
 	val ci: ColumnInfoRelationshipBase[T, V, FID, F],
 	val databaseValues: DatabaseValues
-)
+	)

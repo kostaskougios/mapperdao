@@ -131,7 +131,7 @@ class Jdbc private(val dataSource: DataSource, val chronology: Chronology)
 				builder += new JdbcMap(m)
 				true
 		}, a)
-		builder.result
+		builder.result()
 	}
 
 	def queryForInt(sql: String, args: List[Any]): Int = queryForInt(sql, args: _*)

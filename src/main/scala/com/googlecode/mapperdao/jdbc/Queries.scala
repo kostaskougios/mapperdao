@@ -9,7 +9,8 @@ import scala.io.Source
  *
  *         30 Sep 2011
  */
-class Queries private(jdbc: Jdbc, source: Source) {
+class Queries private(jdbc: Jdbc, source: Source)
+{
 
 	if (jdbc == null) throw new NullPointerException("jdbc parameter is null")
 	if (source == null) throw new NullPointerException("source parameter is null")
@@ -18,7 +19,7 @@ class Queries private(jdbc: Jdbc, source: Source) {
 		val lines = source.getLines().toList.reverse.iterator
 
 		def parseSql(list: List[String]): List[String] = {
-			val line = lines.next
+			val line = lines.next()
 			if (line.trim == ";") {
 				val s = list.mkString("\n").trim()
 				if (s.isEmpty) parseSql(Nil) else parseSql(Nil) ::: List(s)
@@ -47,7 +48,8 @@ class Queries private(jdbc: Jdbc, source: Source) {
 	override def toString = "Queries(%s)".format(m)
 }
 
-object Queries {
+object Queries
+{
 	def apply(jdbc: Jdbc, source: Source) = new Queries(jdbc, source)
 
 	def fromClassPath(clz: Class[_], jdbc: Jdbc, resource: String) = {

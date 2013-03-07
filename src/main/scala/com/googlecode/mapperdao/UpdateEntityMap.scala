@@ -3,7 +3,8 @@ package com.googlecode.mapperdao
 import scala.collection.immutable.Stack
 import collection.mutable
 
-protected class UpdateEntityMap {
+protected class UpdateEntityMap
+{
 	private val m = new mutable.HashMap[Int, Any]
 	private var stack = Stack[UpdateInfo[_, _, _, _, _]]()
 
@@ -36,7 +37,7 @@ protected class UpdateEntityMap {
 			u =>
 				sb append u.o append ('\n')
 		}
-		sb.toString
+		sb.toString()
 	}
 }
 
