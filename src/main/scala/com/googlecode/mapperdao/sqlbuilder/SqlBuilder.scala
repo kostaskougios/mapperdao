@@ -153,7 +153,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		private def functionToSql[T](v: SqlFunctionValue[T]): String = {
 			val sb = new StringBuilder(functionCall(v)) append '('
 			sb append v.values.map {
-				case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) =>
+				case value if (Jdbc.isPrimitiveJdbcType(value.getClass)) =>
 					"?"
 				case ci: ColumnInfo[_, _] => aliases(ci.column) + "." + ci.column.name
 				case ci: ColumnInfoManyToOne[_, _, _] =>

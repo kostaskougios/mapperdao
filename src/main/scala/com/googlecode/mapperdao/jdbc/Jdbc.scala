@@ -254,7 +254,7 @@ class Jdbc private(val dataSource: DataSource, val chronology: Chronology)
 			case spv: SqlParameterValue =>
 				val v = rc(spv.getValue)
 				new SqlParameterValue(spv.getSqlType, v)
-			case o => rc(o)
+			case obj => rc(obj)
 		}
 	}
 

@@ -102,7 +102,7 @@ case class Prioritized(
 	def relatedKeys(vm: ValuesMap) = {
 		val rel = relatedFor(vm)
 		rel.collect {
-			case EntityRelatedCmd(_, column, vm, _, foreignTpe, foreignVM, oldForeignVMO, true) =>
+			case EntityRelatedCmd(_, column, newVM, _, foreignTpe, foreignVM, oldForeignVMO, true) =>
 				column match {
 					case OneToMany(foreign, foreignColumns) =>
 						val fks = foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
