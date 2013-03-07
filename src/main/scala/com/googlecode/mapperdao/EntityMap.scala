@@ -17,7 +17,7 @@ private[mapperdao] case class EntityMap(
 
 	protected def key(clz: Class[_], ids: List[Any]) = clz :: ids
 
-	def putMock[T](clz: Class[_], ids: List[Any], entity: T): Unit = {
+	def putMock[T](clz: Class[_], ids: List[Any], entity: T) {
 		val k = key(clz, ids)
 		m.synchronized {
 			if (m.contains(k)) {

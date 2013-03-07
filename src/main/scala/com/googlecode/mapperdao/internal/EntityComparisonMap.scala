@@ -18,10 +18,14 @@ protected class EntityComparisonMap[ID, T](
 {
 	private var m = Map[Any, T]()
 
-	def add(o: T): Unit = m = m + (key(o) -> o)
+	def add(o: T) {
+		m = m + (key(o) -> o)
+	}
 
-	def addAll(l: Traversable[T]): Unit = l foreach {
-		o => add(o)
+	def addAll(l: Traversable[T]) {
+		l foreach {
+			o => add(o)
+		}
 	}
 
 	def contains(o: T) = m.contains(key(o))

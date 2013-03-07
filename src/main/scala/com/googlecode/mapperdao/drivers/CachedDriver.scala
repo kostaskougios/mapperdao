@@ -124,7 +124,7 @@ trait CachedDriver extends Driver
 		u
 	}
 
-	override def doDelete[ID, T](tpe: Type[ID, T], whereColumnValues: List[(SimpleColumn, Any)]) = {
+	override def doDelete[ID, T](tpe: Type[ID, T], whereColumnValues: List[(SimpleColumn, Any)]) {
 		super.doDelete(tpe, whereColumnValues)
 		val key = tpe.table.name :: whereColumnValues
 		cache.flush(key)

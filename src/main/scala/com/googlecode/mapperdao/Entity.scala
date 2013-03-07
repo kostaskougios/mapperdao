@@ -49,7 +49,8 @@ import org.joda.time.LocalTime
  *
  *         13 Aug 2011
  */
-abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class[T]) {
+abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class[T])
+{
 
 	/**
 	 * declares the extra trait that will be mixed into every persisted instance
@@ -72,7 +73,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 
 	protected val tableLower = table.toLowerCase
 
-	private[mapperdao] def init: Unit = {}
+	private[mapperdao] def init {}
 
 	private var persistedColumns = List[ColumnInfoBase[T with DeclaredIds[ID], _]]()
 	private var columns = List[ColumnInfoBase[T, _]]()
@@ -360,7 +361,8 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 */
 	def key(column: String) = new PKBuilder(column)
 
-	protected class PKBuilder(columnName: String) {
+	protected class PKBuilder(columnName: String)
+	{
 		private var seq: Option[String] = None
 
 		def to[V](columnToValue: T => V)(implicit m: Manifest[V]): ColumnInfo[T, V] = {
@@ -396,7 +398,8 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	def column(column: String) = new ColumnBuilder(column)
 
 	protected class ColumnBuilder(column: String)
-		extends OnlyForQueryDefinition {
+		extends OnlyForQueryDefinition
+	{
 		def to[V](columnToValue: T => V)(implicit m: Manifest[V]): ColumnInfo[T, V] = {
 			val tpe = m.erasure.asInstanceOf[Class[V]]
 			val ci = ColumnInfo[T, V](Column(column, tpe), columnToValue, tpe)
@@ -419,7 +422,8 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	def manytomanyreverse[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new ManyToManyBuilder(referenced, true)
 
 	protected class ManyToManyBuilder[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT], reverse: Boolean)
-		extends GetterDefinition with OnlyForQueryDefinition {
+		extends GetterDefinition with OnlyForQueryDefinition
+	{
 		val clz = Entity.this.clz
 		private var linkTable = if (reverse) referenced.table + "_" + table else table + "_" + referenced.table
 
@@ -513,7 +517,8 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	def onetoone[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new OneToOneBuilder(referenced)
 
 	protected class OneToOneBuilder[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT])
-		extends OnlyForQueryDefinition {
+		extends OnlyForQueryDefinition
+	{
 		private var cols = referenced.keysDuringDeclaration.map {
 			k =>
 				referenced.tableLower + "_" + k.name
@@ -552,7 +557,8 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 
 	protected class OneToOneReverseBuilder[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT])
 		extends GetterDefinition
-		with OnlyForQueryDefinition {
+		with OnlyForQueryDefinition
+	{
 		val clz = Entity.this.clz
 		private var fkcols = keysDuringDeclaration.map {
 			k =>
@@ -590,7 +596,8 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 
 	protected class OneToManyBuilder[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT])
 		extends GetterDefinition
-		with OnlyForQueryDefinition {
+		with OnlyForQueryDefinition
+	{
 		val clz = Entity.this.clz
 		private var fkcols = keysDuringDeclaration.map(tableLower + "_" + _.name)
 		if (fkcols.isEmpty) throw new IllegalStateException("couldn't find any declared keys for %s, are keys declared before this onetomany?".format(clz))
@@ -661,7 +668,8 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 
 	protected class ManyToOneBuilder[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT])
 		extends GetterDefinition
-		with OnlyForQueryDefinition {
+		with OnlyForQueryDefinition
+	{
 
 		val clz = Entity.this.clz
 		private var fkcols = referenced.keysDuringDeclaration map {

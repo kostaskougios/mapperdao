@@ -296,7 +296,7 @@ protected final class MapperDaoImpl(
 	 * doing infinite loops.
 	 */
 
-	override def delete[ID, PC <: Persisted, T](entity: Entity[ID, PC, T], id: ID): Unit = {
+	override def delete[ID, PC <: Persisted, T](entity: Entity[ID, PC, T], id: ID) {
 		val ids = Helpers.idToList(id)
 		val tpe = entity.tpe
 		val table = tpe.table

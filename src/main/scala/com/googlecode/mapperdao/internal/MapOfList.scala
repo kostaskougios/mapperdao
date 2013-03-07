@@ -8,7 +8,8 @@ import scala.collection.mutable.ListBuffer
  *
  *         31 Aug 2011
  */
-private[mapperdao] class MapOfList[K, V](keyModifier: K => K) extends Traversable[(K, List[V])] {
+private[mapperdao] class MapOfList[K, V](keyModifier: K => K) extends Traversable[(K, List[V])]
+{
 	val m = new HashMap[K, ListBuffer[V]]
 
 	def update(k: K, v: V) {
@@ -18,14 +19,16 @@ private[mapperdao] class MapOfList[K, V](keyModifier: K => K) extends Traversabl
 		l += v
 	}
 
-	override def foreach[U](f: ((K, List[V])) => U): Unit =
+	override def foreach[U](f: ((K, List[V])) => U) {
 		m.foreach {
 			e =>
 				f(keyModifier(e._1), e._2.toList)
 		}
+	}
 
 }
 
-object MapOfList {
+object MapOfList
+{
 	def stringToLowerCaseModifier(key: String) = key.toLowerCase
 }

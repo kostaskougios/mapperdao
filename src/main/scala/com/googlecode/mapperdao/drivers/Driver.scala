@@ -14,7 +14,8 @@ import com.googlecode.mapperdao.jdbc.Batch
  *
  *         14 Jul 2011
  */
-abstract class Driver {
+abstract class Driver
+{
 	val jdbc: Jdbc
 	val typeRegistry: TypeRegistry
 	val typeManager: TypeManager
@@ -247,7 +248,7 @@ abstract class Driver {
 	 * DELETE
 	 * =====================================================================================
 	 */
-	def doDelete[ID, T](tpe: Type[ID, T], whereColumnValues: List[(SimpleColumn, Any)]): Unit = {
+	def doDelete[ID, T](tpe: Type[ID, T], whereColumnValues: List[(SimpleColumn, Any)]) {
 		val s = deleteSql(tpe, whereColumnValues).result
 		jdbc.update(s.sql, s.values)
 	}
@@ -259,7 +260,7 @@ abstract class Driver {
 		s
 	}
 
-	def doDeleteOneToOneReverse[ID, T, FID, FT](tpe: Type[ID, T], ftpe: Type[FID, FT], oneToOneReverse: OneToOneReverse[FID, FT], keyValues: List[Any]): Unit = {
+	def doDeleteOneToOneReverse[ID, T, FID, FT](tpe: Type[ID, T], ftpe: Type[FID, FT], oneToOneReverse: OneToOneReverse[FID, FT], keyValues: List[Any]) {
 		val r = deleteOneToOneReverseSql(tpe, ftpe, oneToOneReverse.foreignColumns zip keyValues).result
 		jdbc.update(r.sql, r.values)
 	}
@@ -294,7 +295,7 @@ abstract class Driver {
 		q.from(tpe.table.name, alias, hints)
 	}
 
-	def queryAfterSelect[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]): Unit = {}
+	def queryAfterSelect[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]) {}
 
 	def shouldCreateOrderByClause(queryConfig: QueryConfig): Boolean = true
 

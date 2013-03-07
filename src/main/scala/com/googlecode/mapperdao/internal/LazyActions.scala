@@ -7,11 +7,14 @@ package com.googlecode.mapperdao.internal
  *
  *         29 Jan 2012
  */
-private[mapperdao] class LazyActions[T] {
+private[mapperdao] class LazyActions[T]
+{
 	type Action = () => T
 	private var actions = List[Action]()
 
-	def apply(action: Action): Unit = actions = action :: actions
+	def apply(action: Action) {
+		actions = action :: actions
+	}
 
 	def executeAll: List[T] = actions.map {
 		_()

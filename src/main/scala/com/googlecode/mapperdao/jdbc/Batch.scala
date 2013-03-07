@@ -24,7 +24,7 @@ protected class Batch(jdbc: JdbcOperations)
 
 		val pss = new BatchPreparedStatementSetter
 		{
-			def setValues(ps: PreparedStatement, i: Int) = {
+			def setValues(ps: PreparedStatement, i: Int) {
 				var idx = 1
 				args(i).foreach {
 					arg =>

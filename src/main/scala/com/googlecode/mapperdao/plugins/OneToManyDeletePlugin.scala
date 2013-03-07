@@ -2,7 +2,8 @@ package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao._
 
-class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeDelete {
+class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeDelete
+{
 
 	override def idColumnValueContribution[ID, T](
 		tpe: Type[ID, T],
@@ -25,7 +26,7 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 		o: T with Persisted,
 		keyValues: List[(ColumnBase, Any)],
 		entityMap: UpdateEntityMap
-		) =
+		) {
 		if (deleteConfig.propagate) {
 			val tpe = entity.tpe
 			tpe.table.oneToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach {
@@ -50,4 +51,5 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 					}
 			}
 		}
+	}
 }

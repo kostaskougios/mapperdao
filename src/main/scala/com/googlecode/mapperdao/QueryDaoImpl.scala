@@ -97,24 +97,26 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				q.innerJoin(joined)
 		}
 
-		def joins(op: OpBase): Unit = op match {
-			case and: AndOp =>
-				joins(and.left)
-				joins(and.right)
-			case and: OrOp =>
-				joins(and.left)
-				joins(and.right)
-			case OneToManyOperation(left: OneToMany[Any, _], operand: Operand, right: Any) =>
-				val entity = typeRegistry.entityOf(left)
-				val foreignEntity = left.foreign.entity
-				q.innerJoin(oneToManyJoin(aliases, entity, foreignEntity, left))
+		def joins(op: OpBase) {
+			op match {
+				case and: AndOp =>
+					joins(and.left)
+					joins(and.right)
+				case and: OrOp =>
+					joins(and.left)
+					joins(and.right)
+				case OneToManyOperation(left: OneToMany[Any, _], operand: Operand, right: Any) =>
+					val entity = typeRegistry.entityOf(left)
+					val foreignEntity = left.foreign.entity
+					q.innerJoin(oneToManyJoin(aliases, entity, foreignEntity, left))
 
-			case ManyToManyOperation(left: ManyToMany[Any, _], operand: Operand, right: Any) =>
-				val foreignEntity = left.foreign.entity
-				val entity = typeRegistry.entityOf(left)
-				val List(leftJ, _) = manyToManyJoin(aliases, entity, foreignEntity, left)
-				q.innerJoin(leftJ)
-			case _ => //noop
+				case ManyToManyOperation(left: ManyToMany[Any, _], operand: Operand, right: Any) =>
+					val foreignEntity = left.foreign.entity
+					val entity = typeRegistry.entityOf(left)
+					val List(leftJ, _) = manyToManyJoin(aliases, entity, foreignEntity, left)
+					q.innerJoin(leftJ)
+				case _ => //noop
+			}
 		}
 		// also where clauses might imply joins
 		qe.wheres.map(_.clauses).map {
@@ -418,7 +420,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	 * aggregate methods
 	 * =====================================================================================
 	 */
-	private def countSql[ID, PC <: Persisted, T](q: driver.sqlBuilder.SqlSelectBuilder, aliases: QueryDao.Aliases, entity: Entity[ID, PC, T]): Unit = {
+	private def countSql[ID, PC <: Persisted, T](q: driver.sqlBuilder.SqlSelectBuilder, aliases: QueryDao.Aliases, entity: Entity[ID, PC, T]) {
 		val table = entity.tpe.table
 		val alias = aliases(entity)
 		q.columnNames(null, List("count(*)"))

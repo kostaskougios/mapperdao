@@ -4,7 +4,7 @@ import org.springframework.transaction.PlatformTransactionManager
 import com.googlecode.mapperdao.jdbc.Transaction.Isolation
 import com.googlecode.mapperdao.jdbc.Transaction.Propagation
 import com.googlecode.mapperdao.jdbc.Transaction
-import com.googlecode.mapperdao.{Persisted, DeclaredIds}
+import com.googlecode.mapperdao.Persisted
 
 /**
  * CRUD with TransactionalCRUD will run CRUD methods within transactions
@@ -18,7 +18,8 @@ import com.googlecode.mapperdao.{Persisted, DeclaredIds}
  * PC is the key type, i.e. SurrogateIntId.
  * ID is the type of the key, i.e. Int or String
  */
-trait TransactionalCRUD[ID,PC<:Persisted, T] extends CRUD[ID,PC, T] {
+trait TransactionalCRUD[ID, PC <: Persisted, T] extends CRUD[ID, PC, T]
+{
 	protected val txManager: PlatformTransactionManager
 
 	/**
@@ -56,8 +57,10 @@ trait TransactionalCRUD[ID,PC<:Persisted, T] extends CRUD[ID,PC, T] {
 			super.delete(t)
 	}
 
-	override def delete(id: ID): Unit = prepareTransaction {
-		() =>
-			super.delete(id)
+	override def delete(id: ID) {
+		prepareTransaction {
+			() =>
+				super.delete(id)
+		}
 	}
 }

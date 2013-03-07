@@ -65,7 +65,9 @@ trait CRUD[ID, PC <: Persisted, T]
 	 * The delete will cascade to related entities only if there are cascade constraints
 	 * on the foreign keys in the database.
 	 */
-	def delete(id: ID): Unit = mapperDao.delete(entity, id)
+	def delete(id: ID) {
+		mapperDao.delete(entity, id)
+	}
 
 	/**
 	 * unlinks an entity from mapperdao. The entity is not tracked for changes and can't

@@ -87,8 +87,9 @@ abstract trait SynchronizedMemoryEfficientMap[K, V] extends MemoryEfficientMap[K
 		super.getMEM(k)
 	}
 
-	override def putMEM(k: K, v: V) =
+	override def putMEM(k: K, v: V) {
 		synchronized {
 			super.putMEM(k, v)
 		}
+	}
 }
