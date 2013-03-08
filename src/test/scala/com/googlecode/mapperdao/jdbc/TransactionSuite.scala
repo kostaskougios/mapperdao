@@ -30,7 +30,7 @@ class TransactionSuite extends FunSuite with ShouldMatchers
 		before
 		tx {
 			() =>
-				for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i);
+				for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i)
 		}
 
 		jdbc.queryForInt("select count(*) from tx") should be === 5
@@ -41,7 +41,7 @@ class TransactionSuite extends FunSuite with ShouldMatchers
 		try {
 			tx {
 				() =>
-					for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i);
+					for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i)
 					throw new IllegalStateException
 			}
 		} catch {
@@ -55,7 +55,7 @@ class TransactionSuite extends FunSuite with ShouldMatchers
 		before
 		tx {
 			status =>
-				for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i);
+				for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i)
 				status.setRollbackOnly
 		}
 

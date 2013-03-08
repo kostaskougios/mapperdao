@@ -12,7 +12,8 @@ import org.scalatest.matchers.ShouldMatchers
  *         28 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToOneSelfJoinQuerySuite extends FunSuite with ShouldMatchers {
+class ManyToOneSelfJoinQuerySuite extends FunSuite with ShouldMatchers
+{
 
 	import ManyToOneSelfJoinQuerySuite._
 
@@ -23,7 +24,7 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with ShouldMatchers {
 	import queryDao._
 
 	test("self join query on house") {
-		createTables
+		createTables()
 		val a0 = insert(AddressEntity, Address(100, "SE1 1AA"))
 		val a1 = insert(AddressEntity, Address(101, "SE2 2BB"))
 		val h0 = insert(HouseEntity, House(10, "Appartment A", a0))
@@ -37,7 +38,7 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with ShouldMatchers {
 		query(q0).toSet should be === Set(p0, p1, p2)
 	}
 
-	def createTables {
+	def createTables() {
 		Setup.dropAllTables(jdbc)
 		jdbc.update( """
 			create table Address (
@@ -67,9 +68,11 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with ShouldMatchers {
 	}
 }
 
-object ManyToOneSelfJoinQuerySuite {
+object ManyToOneSelfJoinQuerySuite
+{
 
-	object TestQueries {
+	object TestQueries
+	{
 
 		import Query._
 
@@ -86,13 +89,14 @@ object ManyToOneSelfJoinQuerySuite {
 		}
 	}
 
-	case class Person(val id: Int, var name: String, lives: House)
+	case class Person(id: Int, var name: String, lives: House)
 
-	case class House(val id: Int, val name: String, val address: Address)
+	case class House(id: Int, name: String, address: Address)
 
-	case class Address(val id: Int, val postCode: String)
+	case class Address(id: Int, postCode: String)
 
-	object PersonEntity extends Entity[Int,SurrogateIntId, Person] {
+	object PersonEntity extends Entity[Int, SurrogateIntId, Person]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val lives = manytoone(HouseEntity) foreignkey "lives_id" to (_.lives)
@@ -100,7 +104,8 @@ object ManyToOneSelfJoinQuerySuite {
 		def constructor(implicit m) = new Person(id, name, lives) with Stored
 	}
 
-	class HouseEntityBase extends Entity[Int,SurrogateIntId, House] {
+	class HouseEntityBase extends Entity[Int, SurrogateIntId, House]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val address = manytoone(AddressEntity) to (_.address)
@@ -110,7 +115,8 @@ object ManyToOneSelfJoinQuerySuite {
 
 	val HouseEntity = new HouseEntityBase
 
-	object AddressEntity extends Entity[Int,SurrogateIntId, Address] {
+	object AddressEntity extends Entity[Int, SurrogateIntId, Address]
+	{
 		val id = key("id") to (_.id)
 		val postCode = column("postcode") to (_.postCode)
 

@@ -12,7 +12,8 @@ import org.scalatest.matchers.ShouldMatchers
  *         31 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToOneImmutableOneWaySuite extends FunSuite with ShouldMatchers {
+class OneToOneImmutableOneWaySuite extends FunSuite with ShouldMatchers
+{
 
 	import OneToOneImmutableOneWaySuite._
 
@@ -83,19 +84,22 @@ class OneToOneImmutableOneWaySuite extends FunSuite with ShouldMatchers {
 	}
 }
 
-object OneToOneImmutableOneWaySuite {
+object OneToOneImmutableOneWaySuite
+{
 
-	case class Inventory(val stock: Int)
+	case class Inventory(stock: Int)
 
-	case class Product(val id: Int, val inventory: Inventory)
+	case class Product(id: Int, inventory: Inventory)
 
-	object InventoryEntity extends Entity[Unit, NoId,Inventory] {
+	object InventoryEntity extends Entity[Unit, NoId, Inventory]
+	{
 		val stock = column("stock") to (_.stock)
 
 		def constructor(implicit m) = new Inventory(stock) with Stored
 	}
 
-	object ProductEntity extends Entity[Int,SurrogateIntId, Product] {
+	object ProductEntity extends Entity[Int, SurrogateIntId, Product]
+	{
 		val id = key("id") to (_.id)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 

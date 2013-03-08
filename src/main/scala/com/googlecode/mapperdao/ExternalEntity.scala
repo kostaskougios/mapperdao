@@ -198,7 +198,7 @@ abstract class ExternalEntity[FID, F](table: String, clz: Class[F]) extends Enti
 	}
 
 	override def init {
-		super.init
+		super.init()
 		lazyActions.executeAll
 	}
 }

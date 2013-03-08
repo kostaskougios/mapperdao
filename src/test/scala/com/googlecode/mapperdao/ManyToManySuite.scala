@@ -12,7 +12,8 @@ import org.scalatest.matchers.ShouldMatchers
  *         8 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToManySuite extends FunSuite with ShouldMatchers {
+class ManyToManySuite extends FunSuite with ShouldMatchers
+{
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
@@ -162,7 +163,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		val product = Product(1, "blue jean", Set(Attribute(5, "colour", "blue"), Attribute(6, "size", "medium"), Attribute(7, "size", "large")))
 		val inserted = mapperDao.insert(ProductEntity, product)
 
-		val changed = Product(1, "just jean", inserted.attributes.filterNot(_.name == "size"));
+		val changed = Product(1, "just jean", inserted.attributes.filterNot(_.name == "size"))
 		val updated = mapperDao.update(ProductEntity, inserted, changed)
 		updated should be === changed
 
@@ -182,7 +183,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		val a5l = mapperDao.select(AttributeEntity, 5).get
 		val a7l = mapperDao.select(AttributeEntity, 7).get
 
-		val changed = Product(1, "just jean", Set(a5l, a7l));
+		val changed = Product(1, "just jean", Set(a5l, a7l))
 		val updated = mapperDao.update(ProductEntity, inserted, changed)
 		updated should be === changed
 
@@ -202,7 +203,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		val a5l = mapperDao.select(AttributeEntity, 5).get
 		val a7l = mapperDao.select(AttributeEntity, 7).get
 
-		val changed = Product(1, "just jean", Set(a5l, a6, a7l));
+		val changed = Product(1, "just jean", Set(a5l, a6, a7l))
 		val updated = mapperDao.update(ProductEntity, inserted, changed)
 		updated should be === changed
 
@@ -222,7 +223,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		val a5l = mapperDao.select(AttributeEntity, 5).get
 		val a7l = mapperDao.select(AttributeEntity, 7).get
 
-		val changed = Product(1, "just jean", Set(a5l, a7l));
+		val changed = Product(1, "just jean", Set(a5l, a7l))
 		val updated = mapperDao.update(ProductEntity, inserted, changed)
 		updated should be === changed
 
@@ -236,7 +237,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		val product = Product(1, "blue jean", Set(Attribute(5, "colour", "blue")))
 		val inserted = mapperDao.insert(ProductEntity, product)
 
-		val changed = Product(1, "just jean", inserted.attributes + Attribute(6, "size", "medium") + Attribute(7, "size", "large"));
+		val changed = Product(1, "just jean", inserted.attributes + Attribute(6, "size", "medium") + Attribute(7, "size", "large"))
 		val updated = mapperDao.update(ProductEntity, inserted, changed)
 		updated should be === changed
 
@@ -252,7 +253,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 
 		val persistedA = mapperDao.insert(AttributeEntity, Attribute(6, "size", "medium"))
 
-		val changed = Product(1, "just jean", inserted.attributes + persistedA + Attribute(7, "size", "large"));
+		val changed = Product(1, "just jean", inserted.attributes + persistedA + Attribute(7, "size", "large"))
 		val updated = mapperDao.update(ProductEntity, inserted, changed)
 		updated should be === changed
 
@@ -266,11 +267,12 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		Setup.queries(this, jdbc).update("ddl")
 	}
 
-	case class Product(val id: Int, val name: String, val attributes: Set[Attribute])
+	case class Product(id: Int, name: String, attributes: Set[Attribute])
 
-	case class Attribute(val id: Int, val name: String, val value: String)
+	case class Attribute(id: Int, name: String, value: String)
 
-	object ProductEntity extends Entity[Int,NaturalIntId, Product] {
+	object ProductEntity extends Entity[Int, NaturalIntId, Product]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
@@ -278,7 +280,8 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		def constructor(implicit m) = new Product(id, name, attributes) with Stored
 	}
 
-	object AttributeEntity extends Entity[Int,NaturalIntId, Attribute] {
+	object AttributeEntity extends Entity[Int, NaturalIntId, Attribute]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)

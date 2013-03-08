@@ -20,7 +20,7 @@ class SimpleSelfJoinQuerySuite extends FunSuite with ShouldMatchers
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
 
 	test("query join with alias") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val j1 = mapperDao.insert(JobPositionEntity, JobPosition(1, "developer", now))
@@ -32,7 +32,7 @@ class SimpleSelfJoinQuerySuite extends FunSuite with ShouldMatchers
 		queryDao.query(q11).toSet should be === Set(j2, j4, j5)
 	}
 
-	def createJobPositionTable {
+	def createJobPositionTable() {
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
@@ -50,9 +50,9 @@ class SimpleSelfJoinQuerySuite extends FunSuite with ShouldMatchers
 			jp1.id <> jp2.id
 	}
 
-	case class JobPosition(val id: Int, var name: String, val start: DateTime)
+	case class JobPosition(id: Int, var name: String, start: DateTime)
 
-	class JobPositionEntityBase extends Entity[Int,SurrogateIntId, JobPosition]
+	class JobPositionEntityBase extends Entity[Int, SurrogateIntId, JobPosition]
 	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)

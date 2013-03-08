@@ -1,6 +1,5 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.Query._
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -14,7 +13,8 @@ import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
  *         28 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToManyQuerySuite extends FunSuite with ShouldMatchers {
+class ManyToManyQuerySuite extends FunSuite with ShouldMatchers
+{
 	implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
 	import Query._
@@ -195,11 +195,12 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers {
 					 """)
 	}
 
-	case class Product(val id: Int, val name: String, val attributes: Set[Attribute])
+	case class Product(id: Int, name: String, attributes: Set[Attribute])
 
-	case class Attribute(val id: Int, val name: String, val value: String)
+	case class Attribute(id: Int, name: String, value: String)
 
-	object ProductEntity extends Entity[Int,SurrogateIntId, Product] {
+	object ProductEntity extends Entity[Int, SurrogateIntId, Product]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
@@ -207,7 +208,8 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers {
 		def constructor(implicit m) = new Product(id, name, attributes) with Stored
 	}
 
-	object AttributeEntity extends Entity[Int,SurrogateIntId, Attribute] {
+	object AttributeEntity extends Entity[Int, SurrogateIntId, Attribute]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)

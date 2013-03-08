@@ -12,7 +12,8 @@ import org.scalatest.matchers.ShouldMatchers
  *         20 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToOneQuerySuite extends FunSuite with ShouldMatchers {
+class ManyToOneQuerySuite extends FunSuite with ShouldMatchers
+{
 
 	import ManyToOneQuerySuite._
 
@@ -23,41 +24,41 @@ class ManyToOneQuerySuite extends FunSuite with ShouldMatchers {
 	import queryDao._
 
 	test("query 2 level join") {
-		createTables
+		createTables()
 		val (p0, p1, p2, p3, p4) = testData1
 		query(q1) should be === List(p0, p1, p2)
 	}
 
 	test("query with limits (offset only)") {
-		createTables
+		createTables()
 		val (p0, p1, p2, p3, p4) = testData1
 
 		query(QueryConfig(offset = Some(2)), q0Limits).toSet should be === Set(p2, p3, p4)
 	}
 
 	test("query with limits (limit only)") {
-		createTables
+		createTables()
 		val (p0, p1, p2, p3, p4) = testData1
 
 		query(QueryConfig(limit = Some(2)), q0Limits).toSet should be === Set(p0, p1)
 	}
 
 	test("query with limits") {
-		createTables
+		createTables()
 		val (p0, p1, p2, p3, p4) = testData1
 
 		query(QueryConfig(offset = Some(2), limit = Some(1)), q0Limits).toSet should be === Set(p2)
 	}
 
 	test("query with skip") {
-		createTables
+		createTables()
 		val (p0, p1, p2, p3, p4) = testData1
 
 		query(QueryConfig(skip = Set(PersonEntity.lives)), q0ForSkip) should be === List(Person(3, "p3", null), Person(4, "p4", null))
 	}
 
 	test("query on FK for null") {
-		createTables
+		createTables()
 		val (p0, p1, p2, p3, p4) = testData1
 		val p5 = insert(PersonEntity, Person(5, "p5", null))
 		val p6 = insert(PersonEntity, Person(6, "p6", null))
@@ -66,7 +67,7 @@ class ManyToOneQuerySuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("query on FK") {
-		createTables
+		createTables()
 		val (p0, p1, p2, p3, p4) = testData1
 		query(q3(p4.lives)) should be === List(p3, p4)
 		query(q3(p0.lives)) should be === List(p0, p1, p2)
@@ -74,20 +75,20 @@ class ManyToOneQuerySuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("query 1 level join") {
-		createTables
+		createTables()
 		val (p0, p1, p2, p3, p4) = testData1
 
 		query(q0) should be === List(p3, p4)
 	}
 
 	test("query 2 level join with or") {
-		createTables
+		createTables()
 		val (p0, p1, p2, p3, p4) = testData1
 		query(q2) should be === List(p0, p1, p2, p3, p4)
 	}
 
 	def testData1 = {
-		createTables
+		createTables()
 		val a0 = insert(AddressEntity, Address(100, "SE1 1AA"))
 		val a1 = insert(AddressEntity, Address(101, "SE2 2BB"))
 		val h0 = insert(HouseEntity, House(10, "Appartment A", a0))
@@ -100,7 +101,7 @@ class ManyToOneQuerySuite extends FunSuite with ShouldMatchers {
 		(p0, p1, p2, p3, p4)
 	}
 
-	def createTables {
+	def createTables() {
 		Setup.dropAllTables(jdbc)
 		jdbc.update( """
 			create table Address (
@@ -130,9 +131,11 @@ class ManyToOneQuerySuite extends FunSuite with ShouldMatchers {
 	}
 }
 
-object ManyToOneQuerySuite {
+object ManyToOneQuerySuite
+{
 
-	object MTOQuerySpec {
+	object MTOQuerySpec
+	{
 
 		import Query._
 
@@ -168,13 +171,14 @@ object ManyToOneQuerySuite {
 			)
 	}
 
-	case class Person(val id: Int, var name: String, lives: House)
+	case class Person(id: Int, var name: String, lives: House)
 
-	case class House(val id: Int, val name: String, val address: Address)
+	case class House(id: Int, name: String, address: Address)
 
-	case class Address(val id: Int, val postCode: String)
+	case class Address(id: Int, postCode: String)
 
-	object PersonEntity extends Entity[Int,SurrogateIntId, Person] {
+	object PersonEntity extends Entity[Int, SurrogateIntId, Person]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val lives = manytoone(HouseEntity) foreignkey "lives_id" to (_.lives)
@@ -182,7 +186,8 @@ object ManyToOneQuerySuite {
 		def constructor(implicit m) = new Person(id, name, lives) with Stored
 	}
 
-	class HouseEntityBase extends Entity[Int,SurrogateIntId, House] {
+	class HouseEntityBase extends Entity[Int, SurrogateIntId, House]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val address = manytoone(AddressEntity) to (_.address)
@@ -192,7 +197,8 @@ object ManyToOneQuerySuite {
 
 	val HouseEntity = new HouseEntityBase
 
-	object AddressEntity extends Entity[Int,SurrogateIntId, Address] {
+	object AddressEntity extends Entity[Int, SurrogateIntId, Address]
+	{
 		val id = key("id") to (_.id)
 		val postCode = column("postcode") to (_.postCode)
 

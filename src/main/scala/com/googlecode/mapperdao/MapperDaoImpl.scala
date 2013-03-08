@@ -313,7 +313,7 @@ protected final class MapperDaoImpl(
 	override def delete[ID, PC <: Persisted, T](deleteConfig: DeleteConfig, entity: Entity[ID, PC, T], o: T with PC): T = {
 		val entityMap = new UpdateEntityMap
 		val deleted = deleteInner(deleteConfig, entity, o, entityMap)
-		entityMap.done
+		entityMap.done()
 		deleted
 	}
 

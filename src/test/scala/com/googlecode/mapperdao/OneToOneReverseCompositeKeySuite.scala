@@ -123,7 +123,7 @@ class OneToOneReverseCompositeKeySuite extends FunSuite with ShouldMatchers
 			mapperDao.insert(InventoryEntity, Inventory(noiseId, "noise-ref", Product("a nice & noisy product " + noiseId, null), 8))
 		}
 
-		def createTables() = {
+		def createTables() {
 			Setup.dropAllTables(jdbc)
 			Setup.queries(this, jdbc).update("ddl")
 			if (Setup.database == "oracle") {
@@ -141,7 +141,7 @@ object OneToOneReverseCompositeKeySuite
 
 	case class Product(name: String, inventory: Inventory)
 
-	object InventoryEntity extends Entity[(Int, String), NaturalIntAndNaturalStringIds,Inventory]
+	object InventoryEntity extends Entity[(Int, String), NaturalIntAndNaturalStringIds, Inventory]
 	{
 		val id = key("id") to (_.id)
 		val refCode = key("refCode") to (_.refCode)
@@ -151,7 +151,7 @@ object OneToOneReverseCompositeKeySuite
 		def constructor(implicit m) = new Inventory(id, refCode, product, stock) with Stored
 	}
 
-	object ProductEntity extends Entity[Int,SurrogateIntId, Product]
+	object ProductEntity extends Entity[Int, SurrogateIntId, Product]
 	{
 		val id = key("id") sequence (
 			if (database == "oracle") Some("ProductSeq") else None

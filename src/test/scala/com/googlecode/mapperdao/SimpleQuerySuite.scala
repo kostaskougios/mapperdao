@@ -19,7 +19,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
 
 	test("query select complex parenthesis") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val j10 = mapperDao.insert(JobPositionEntity, JobPosition(10, "correct", now))
@@ -40,7 +40,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("query select where string value like") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val j5 = mapperDao.insert(JobPositionEntity, JobPosition(5, "developer", now))
@@ -53,7 +53,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("query with both limits , with orderby") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val l = for (i <- 0 to 10) yield mapperDao.insert(JobPositionEntity, JobPosition(i, "x" + i, now))
@@ -61,7 +61,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("query with limits (limit only)") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val l = for (i <- 0 to 10) yield mapperDao.insert(JobPositionEntity, JobPosition(i, "x" + i, now))
@@ -69,7 +69,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("count with where clause") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val j1 = mapperDao.insert(JobPositionEntity, JobPosition(5, "developer", now))
@@ -80,7 +80,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("count of rows") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		for (i <- 0 to 7) mapperDao.insert(JobPositionEntity, JobPosition(i, "x" + i, now))
@@ -88,7 +88,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("query with limits (offset only)") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val l = for (i <- 0 to 10) yield mapperDao.insert(JobPositionEntity, JobPosition(i, "x" + i, now))
@@ -96,7 +96,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("query with both limits") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val l = for (i <- 0 to 10) yield mapperDao.insert(JobPositionEntity, JobPosition(i, "x" + i, now))
@@ -104,7 +104,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("query builder") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val l = for (i <- 0 to 10) yield mapperDao.insert(JobPositionEntity, JobPosition(i, "x" + i, now))
@@ -112,7 +112,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("query with order by 1 column") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val j1 = mapperDao.insert(JobPositionEntity, JobPosition(5, "developer", now))
@@ -123,7 +123,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("query with order by 2 column") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val j1 = mapperDao.insert(JobPositionEntity, JobPosition(5, "C developer", now))
@@ -135,7 +135,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("query with order by 2 column desc,asc") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val j1 = mapperDao.insert(JobPositionEntity, JobPosition(5, "C developer", now))
@@ -147,7 +147,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("query select *") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val j1 = mapperDao.insert(JobPositionEntity, JobPosition(5, "developer", now))
@@ -157,7 +157,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("query select where string value") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val j1 = mapperDao.insert(JobPositionEntity, JobPosition(5, "developer", now))
@@ -168,7 +168,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("query select where string value === and int value >") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val j5 = mapperDao.insert(JobPositionEntity, JobPosition(5, "developer", now))
@@ -181,7 +181,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("query select where string value === or int value <") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val j5 = mapperDao.insert(JobPositionEntity, JobPosition(5, "developer", now))
@@ -194,7 +194,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("query select where int value <=") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val j5 = mapperDao.insert(JobPositionEntity, JobPosition(5, "developer", now))
@@ -207,7 +207,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("query select where int value >=") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val j5 = mapperDao.insert(JobPositionEntity, JobPosition(5, "developer", now))
@@ -220,7 +220,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("query select where int value =") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val j5 = mapperDao.insert(JobPositionEntity, JobPosition(5, "developer", now))
@@ -233,7 +233,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("query select parenthesis") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val j5 = mapperDao.insert(JobPositionEntity, JobPosition(5, "developer", now))
@@ -246,7 +246,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	}
 
 	test("query select datetime") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val now = Setup.now
 		val j5 = mapperDao.insert(JobPositionEntity, JobPosition(5, "developer", now.minusDays(2)))
@@ -259,7 +259,7 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 		queryDao.query(q10Alias).toSet should be === Set(j8, j12)
 	}
 
-	def createJobPositionTable {
+	def createJobPositionTable() {
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
@@ -318,9 +318,9 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 
 	def qOrderBy3Alias2 = select from jpe orderBy(jpe.name, desc, jpe.start, asc)
 
-	case class JobPosition(val id: Int, var name: String, val start: DateTime)
+	case class JobPosition(id: Int, var name: String, start: DateTime)
 
-	object JobPositionEntity extends Entity[Int,SurrogateIntId, JobPosition]
+	object JobPositionEntity extends Entity[Int, SurrogateIntId, JobPosition]
 	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)

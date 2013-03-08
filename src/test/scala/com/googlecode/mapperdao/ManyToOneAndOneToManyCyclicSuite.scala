@@ -12,7 +12,8 @@ import org.scalatest.matchers.ShouldMatchers
  *         14 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToOneAndOneToManyCyclicSuite extends FunSuite with ShouldMatchers {
+class ManyToOneAndOneToManyCyclicSuite extends FunSuite with ShouldMatchers
+{
 
 	import ManyToOneAndOneToManyCyclicSuite._
 
@@ -93,13 +94,15 @@ class ManyToOneAndOneToManyCyclicSuite extends FunSuite with ShouldMatchers {
 	}
 }
 
-object ManyToOneAndOneToManyCyclicSuite {
+object ManyToOneAndOneToManyCyclicSuite
+{
 
-	case class Person(val id: Int, val name: String, val company: Company)
+	case class Person(id: Int, name: String, company: Company)
 
-	case class Company(val id: Int, val name: String, employees: List[Person])
+	case class Company(id: Int, name: String, employees: List[Person])
 
-	object PersonEntity extends Entity[Int,SurrogateIntId, Person] {
+	object PersonEntity extends Entity[Int, SurrogateIntId, Person]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val company = manytoone(CompanyEntity) to (_.company)
@@ -107,7 +110,8 @@ object ManyToOneAndOneToManyCyclicSuite {
 		def constructor(implicit m) = new Person(id, name, company) with SurrogateIntId
 	}
 
-	object CompanyEntity extends Entity[Int,SurrogateIntId, Company] {
+	object CompanyEntity extends Entity[Int, SurrogateIntId, Company]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val employees = onetomany(PersonEntity) to (_.employees)

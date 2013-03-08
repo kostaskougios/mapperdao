@@ -14,14 +14,15 @@ import org.scalatest.matchers.ShouldMatchers
  *         5 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers {
+class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers
+{
 
 	import OneToManySelfReferencedSuite._
 
 	val (jdbc, mapperDao, queryDao) = setup
 
 	test("batch insert") {
-		createTables
+		createTables()
 
 		val p1 = new Person("P1", Set(new Person("F1", Set()), new Person("F2", Set())))
 		val p2 = new Person("P2", Set(new Person("F3", Set()), new Person("F4", Set())))
@@ -35,7 +36,7 @@ class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("batch update on inserted") {
-		createTables
+		createTables()
 
 		val f1 = new Person("F1", Set())
 		val p1 = new Person("P1", Set(f1, new Person("F2", Set())))
@@ -54,7 +55,7 @@ class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("batch update on selected") {
-		createTables
+		createTables()
 
 		val f1 = new Person("F1", Set())
 		val p1 = new Person("P1", Set(f1, new Person("F2", Set())))
@@ -76,7 +77,7 @@ class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("insert") {
-		createTables
+		createTables()
 
 		val person = new Person("main-person", Set(new Person("friend1", Set()), new Person("friend2", Set())))
 		val inserted = mapperDao.insert(PersonEntity, person)
@@ -84,7 +85,7 @@ class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("insert and select") {
-		createTables
+		createTables()
 
 		val person = new Person("main-person", Set(new Person("friend1", Set()), new Person("friend2", Set())))
 		val inserted = mapperDao.insert(PersonEntity, person)
@@ -93,7 +94,7 @@ class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("update, remove from traversable") {
-		createTables
+		createTables()
 
 		val person = new Person("main-person", Set(new Person("friend1", Set()), new Person("friend2", Set())))
 		val inserted = mapperDao.insert(PersonEntity, person)
@@ -106,7 +107,7 @@ class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("update, add to traversable") {
-		createTables
+		createTables()
 
 		val person = new Person("main-person", Set(new Person("friend1", Set()), new Person("friend2", Set())))
 		val inserted = mapperDao.insert(PersonEntity, person)
@@ -119,7 +120,7 @@ class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("3 levels deep") {
-		createTables
+		createTables()
 
 		val person = Person("level1", Set(Person("level2-friend1", Set(Person("level3-friend1-1", Set()), Person("level3-friend1-2", Set()))), Person("level2-friend2", Set(Person("level3-friend2-1", Set())))))
 		val inserted = mapperDao.insert(PersonEntity, person)
@@ -151,7 +152,7 @@ class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers {
 		Setup.setupMapperDao(typeRegistry)
 	}
 
-	def createTables {
+	def createTables() {
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 		Setup.database match {
@@ -162,11 +163,13 @@ class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers {
 	}
 }
 
-object OneToManySelfReferencedSuite {
+object OneToManySelfReferencedSuite
+{
 
-	case class Person(val name: String, val friends: Set[Person])
+	case class Person(name: String, friends: Set[Person])
 
-	object PersonEntity extends Entity[Int,SurrogateIntId, Person] {
+	object PersonEntity extends Entity[Int, SurrogateIntId, Person]
+	{
 		val aid = key("id") sequence (Setup.database match {
 			case "oracle" => Some("myseq")
 			case _ => None
@@ -174,7 +177,8 @@ object OneToManySelfReferencedSuite {
 		val name = column("name") to (_.name)
 		val friends = onetomany(PersonEntity) foreignkey "friend_id" to (_.friends)
 
-		def constructor(implicit m) = new Person(name, friends) with Stored {
+		def constructor(implicit m) = new Person(name, friends) with Stored
+		{
 			val id: Int = aid
 		}
 	}

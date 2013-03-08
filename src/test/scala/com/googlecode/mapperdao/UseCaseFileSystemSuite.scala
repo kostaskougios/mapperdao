@@ -87,7 +87,7 @@ object UseCaseFileSystemSuite
 	 */
 	abstract class Node(val uri: String)
 
-	case class Directory(override val uri: String, val parent: Option[Directory], nodes: List[Node]) extends Node(uri)
+	case class Directory(override val uri: String, parent: Option[Directory], nodes: List[Node]) extends Node(uri)
 
 	abstract class FileNode(override val uri: String, val parent: Directory) extends Node(uri)
 

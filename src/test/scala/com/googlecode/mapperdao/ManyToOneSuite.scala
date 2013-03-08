@@ -13,7 +13,8 @@ import com.googlecode.mapperdao.utils.Helpers
  *         13 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToOneSuite extends FunSuite with ShouldMatchers {
+class ManyToOneSuite extends FunSuite with ShouldMatchers
+{
 
 	import ManyToOneSuite._
 
@@ -268,15 +269,17 @@ class ManyToOneSuite extends FunSuite with ShouldMatchers {
 	}
 }
 
-object ManyToOneSuite {
+object ManyToOneSuite
+{
 
-	case class Person(val id: Int, val name: String, val company: Company, val lives: House)
+	case class Person(id: Int, name: String, company: Company, lives: House)
 
-	case class Company(val id: Int, val name: String)
+	case class Company(id: Int, name: String)
 
-	case class House(val id: Int, val address: String)
+	case class House(id: Int, address: String)
 
-	object PersonEntity extends Entity[Int,SurrogateIntId, Person] {
+	object PersonEntity extends Entity[Int, SurrogateIntId, Person]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val company = manytoone(CompanyEntity) to (_.company)
@@ -285,14 +288,16 @@ object ManyToOneSuite {
 		def constructor(implicit m) = new Person(id, name, company, lives) with Stored
 	}
 
-	object CompanyEntity extends Entity[Int,SurrogateIntId, Company] {
+	object CompanyEntity extends Entity[Int, SurrogateIntId, Company]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 
 		def constructor(implicit m) = new Company(id, name) with Stored
 	}
 
-	object HouseEntity extends Entity[Int,SurrogateIntId, House] {
+	object HouseEntity extends Entity[Int, SurrogateIntId, House]
+	{
 		val id = key("id") to (_.id)
 		val address = column("address") to (_.address)
 

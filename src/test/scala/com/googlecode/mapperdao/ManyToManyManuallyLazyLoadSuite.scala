@@ -13,7 +13,8 @@ import com.googlecode.classgenerator.ReflectionManager
  *         April 2012
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToManyManuallyLazyLoadSuite extends FunSuite with ShouldMatchers {
+class ManyToManyManuallyLazyLoadSuite extends FunSuite with ShouldMatchers
+{
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 	val reflectionManager = new ReflectionManager
@@ -87,7 +88,8 @@ class ManyToManyManuallyLazyLoadSuite extends FunSuite with ShouldMatchers {
 		Setup.queries(this, jdbc).update("ddl")
 	}
 
-	class Product(val id: Int, val name: String, attrs: => Set[Attribute]) {
+	class Product(val id: Int, val name: String, attrs: => Set[Attribute])
+	{
 		def attributes = attrs
 
 		override def equals(o: Any) = o match {
@@ -97,9 +99,10 @@ class ManyToManyManuallyLazyLoadSuite extends FunSuite with ShouldMatchers {
 		}
 	}
 
-	case class Attribute(val id: Int, val name: String, val value: String)
+	case class Attribute(id: Int, name: String, value: String)
 
-	object ProductEntity extends Entity[Int,SurrogateIntId, Product] {
+	object ProductEntity extends Entity[Int, SurrogateIntId, Product]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
@@ -107,7 +110,8 @@ class ManyToManyManuallyLazyLoadSuite extends FunSuite with ShouldMatchers {
 		def constructor(implicit m) = new Product(id, name, attributes) with Stored
 	}
 
-	object AttributeEntity extends Entity[Int,SurrogateIntId, Attribute] {
+	object AttributeEntity extends Entity[Int, SurrogateIntId, Attribute]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)

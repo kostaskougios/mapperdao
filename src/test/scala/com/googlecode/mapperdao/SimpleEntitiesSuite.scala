@@ -16,11 +16,12 @@ import com.googlecode.mapperdao.utils.Helpers
  *         12 Jul 2011
  */
 @RunWith(classOf[JUnitRunner])
-class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
+class SimpleEntitiesSuite extends FunSuite with ShouldMatchers
+{
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
 
 	test("delete by id") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val date = Setup.now
 		mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date, 10))
@@ -30,7 +31,7 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("update id, immutable") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val date = Setup.now
 		val jp = JobPosition(5, "Developer", date, date - 2.months, 10)
@@ -45,7 +46,7 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("update id, mutable") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val date = Setup.now
 		val jp = JobPosition(5, "Developer", date, date - 2.months, 10)
@@ -59,14 +60,14 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("immutable update") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		val date = Setup.now
 		val jp = new JobPosition(5, "Developer", date, date - 2.months, 10)
 		val inserted = mapperDao.insert(JobPositionEntity, jp)
 
 		var updated: JobPosition = inserted
-		def doUpdate(from: JobPosition, to: JobPosition) = {
+		def doUpdate(from: JobPosition, to: JobPosition) {
 			updated = mapperDao.update(JobPositionEntity, Helpers.asNaturalIntId(from), to)
 			updated should be === to
 			mapperDao.select(JobPositionEntity, 5).get should be === to
@@ -79,7 +80,7 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 
 	test("mutable CRUD (simple type, no joins)") {
 
-		createJobPositionTable
+		createJobPositionTable()
 
 		val date = Setup.now
 		val jp = new JobPosition(5, "Developer", date, date, 10)
@@ -107,7 +108,7 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 
 	test("immutable CRUD (simple type, no joins)") {
 
-		createJobPositionTable
+		createJobPositionTable()
 
 		val date = Setup.now
 		val jp = new JobPosition(5, "Developer", date, date, 10, true)
@@ -133,7 +134,7 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("transaction, commit") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		import com.googlecode.mapperdao.jdbc.Transaction
 		import Transaction._
@@ -151,7 +152,7 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("transaction, rollback") {
-		createJobPositionTable
+		createJobPositionTable()
 
 		import com.googlecode.mapperdao.jdbc.Transaction
 		import Transaction._
@@ -172,7 +173,7 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 		mapperDao.select(JobPositionEntity, 5) should be === None
 	}
 
-	def createJobPositionTable {
+	def createJobPositionTable() {
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
@@ -189,7 +190,8 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 	 * Also the only reason for this class to be mutable is for testing. In a real application
 	 * it would better be immutable.
 	 */
-	case class JobPosition(var id: Int, var name: String, val start: DateTime, val end: DateTime, var rank: Int, married: Boolean = false) {
+	case class JobPosition(var id: Int, var name: String, start: DateTime, end: DateTime, var rank: Int, married: Boolean = false)
+	{
 		// this can have any arbitrary methods, no problem!
 		def daysDiff = (end.getMillis - start.getMillis) / (3600 * 24)
 
@@ -202,7 +204,8 @@ class SimpleEntitiesSuite extends FunSuite with ShouldMatchers {
 	 * Mapping for JobPosition class
 	 * ============================================================================================================
 	 */
-	object JobPositionEntity extends Entity[Int,NaturalIntId, JobPosition] {
+	object JobPositionEntity extends Entity[Int, NaturalIntId, JobPosition]
+	{
 		// now a description of the table and it's columns follows.
 		// each column is followed by a function JobPosition=>Any, that
 		// returns the value of the property for that column.

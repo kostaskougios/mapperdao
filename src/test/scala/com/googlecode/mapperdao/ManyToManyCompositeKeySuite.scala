@@ -177,7 +177,7 @@ class ManyToManyCompositeKeySuite extends FunSuite with ShouldMatchers
 		}
 
 		def noise = mapperDao.insert(UserEntity, User("refX", "user X", Set(Account(50, "Noise1"), Account(51, "Noise2"), Account(52, "Noise3"))))
-		def createTables() = {
+		def createTables() {
 			Setup.dropAllTables(jdbc)
 			Setup.queries(this, jdbc).update("ddl")
 			if (Setup.database == "oracle") {
@@ -193,7 +193,7 @@ class ManyToManyCompositeKeySuite extends FunSuite with ShouldMatchers
 
 	// we need to take special care for oracle which doesn't
 	// seem to like "User" table (quoted or not).
-	object UserEntity extends Entity[(Int, String),SurrogateIntAndNaturalStringId, User](if (database == "oracle") "UserX" else "User")
+	object UserEntity extends Entity[(Int, String), SurrogateIntAndNaturalStringId, User](if (database == "oracle") "UserX" else "User")
 	{
 		val id = key("id") sequence (
 			if (database == "oracle") Some("UserSeq") else None
@@ -208,7 +208,7 @@ class ManyToManyCompositeKeySuite extends FunSuite with ShouldMatchers
 		}
 	}
 
-	object AccountEntity extends Entity[(Int, Long),SurrogateIntAndNaturalLongId, Account]
+	object AccountEntity extends Entity[(Int, Long), SurrogateIntAndNaturalLongId, Account]
 	{
 		val id = key("id") sequence (
 			if (database == "oracle") Some("account_seq") else None

@@ -25,14 +25,14 @@ class DaoMixinsSuite extends FunSuite with ShouldMatchers
 
 	val txManager = Transaction.transactionManager(jdbc)
 
-	object ProductDao extends CRUD[Long,SurrogateLongId, Product] with SurrogateLongIdAll[Product]
+	object ProductDao extends CRUD[Long, SurrogateLongId, Product] with SurrogateLongIdAll[Product]
 	{
 		protected val entity = ProductEntity
 		protected val queryDao = DaoMixinsSuite.this.queryDao
 		protected val mapperDao = DaoMixinsSuite.this.mapperDao
 	}
 
-	object ProductDaoTransactional extends TransactionalCRUD[Long,SurrogateLongId, Product] with SurrogateLongIdAll[Product]
+	object ProductDaoTransactional extends TransactionalCRUD[Long, SurrogateLongId, Product] with SurrogateLongIdAll[Product]
 	{
 		protected val entity = ProductEntity
 		protected val queryDao = DaoMixinsSuite.this.queryDao
@@ -129,11 +129,11 @@ class DaoMixinsSuite extends FunSuite with ShouldMatchers
 object DaoMixinsSuite
 {
 
-	case class Product(val id: Long, val name: String, val attributes: Set[Attribute])
+	case class Product(id: Long, name: String, attributes: Set[Attribute])
 
-	case class Attribute(val id: Int, val name: String, val value: String)
+	case class Attribute(id: Int, name: String, value: String)
 
-	object ProductEntity extends Entity[Long,SurrogateLongId, Product]
+	object ProductEntity extends Entity[Long, SurrogateLongId, Product]
 	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
@@ -142,7 +142,7 @@ object DaoMixinsSuite
 		def constructor(implicit m: ValuesMap) = new Product(id, name, attributes) with Stored
 	}
 
-	object AttributeEntity extends Entity[Int,SurrogateIntId, Attribute]
+	object AttributeEntity extends Entity[Int, SurrogateIntId, Attribute]
 	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)

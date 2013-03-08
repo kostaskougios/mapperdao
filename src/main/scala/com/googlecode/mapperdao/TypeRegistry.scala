@@ -9,12 +9,13 @@ import java.util.IdentityHashMap
  *
  *         25 Jul 2011
  */
-final class TypeRegistry private(val entities: List[Entity[_, _, _]]) {
+final class TypeRegistry private(val entities: List[Entity[_, _, _]])
+{
 	private val columnsToEntity = new IdentityHashMap[ColumnBase, Entity[Any, Persisted, Any]]
 
 	entities.foreach {
 		entity =>
-			entity.init
+			entity.init()
 			val columns = entity.onlyForQueryColumns.map {
 				ci =>
 					ci.column
@@ -35,7 +36,8 @@ final class TypeRegistry private(val entities: List[Entity[_, _, _]]) {
 	override def toString = "TypeRegistry(%s)".format(entities)
 }
 
-object TypeRegistry {
+object TypeRegistry
+{
 	/**
 	 * creates a TypeRegistry, registers all types and initializes the TypeRegistry.
 	 */

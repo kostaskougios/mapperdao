@@ -14,11 +14,11 @@ import org.scalatest.matchers.ShouldMatchers
 class QueryDomainModelSuite extends FunSuite with ShouldMatchers
 {
 
-	case class Product(val id: Int, val name: String, val attributes: Set[Attribute])
+	case class Product(id: Int, name: String, attributes: Set[Attribute])
 
-	case class Attribute(val id: Int, val name: String, val value: String)
+	case class Attribute(id: Int, name: String, value: String)
 
-	object ProductEntity extends Entity[Int,SurrogateIntId, Product]
+	object ProductEntity extends Entity[Int, SurrogateIntId, Product]
 	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
@@ -27,7 +27,7 @@ class QueryDomainModelSuite extends FunSuite with ShouldMatchers
 		def constructor(implicit m) = new Product(id, name, attributes) with Stored
 	}
 
-	object AttributeEntity extends Entity[Int,SurrogateIntId, Attribute]
+	object AttributeEntity extends Entity[Int, SurrogateIntId, Attribute]
 	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)

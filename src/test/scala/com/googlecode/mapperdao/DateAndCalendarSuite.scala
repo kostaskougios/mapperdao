@@ -15,11 +15,13 @@ import org.scalatest.matchers.ShouldMatchers
  *         9 Dec 2011
  */
 @RunWith(classOf[JUnitRunner])
-class DateAndCalendarSuite extends FunSuite with ShouldMatchers {
+class DateAndCalendarSuite extends FunSuite with ShouldMatchers
+{
 
 	case class DC(id: Int, date: Date, calendar: Calendar)
 
-	object DCEntity extends Entity[Int,NaturalIntId, DC] {
+	object DCEntity extends Entity[Int, NaturalIntId, DC]
+	{
 		val id = key("id") to (_.id)
 		val date = column("dt") to (_.date)
 		val calendar = column("cal") to (_.calendar)
@@ -30,7 +32,7 @@ class DateAndCalendarSuite extends FunSuite with ShouldMatchers {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(DCEntity))
 
 	test("CRUD") {
-		createTables
+		createTables()
 
 		val date = Setup.now.toDate
 		val calendar = Setup.now.toCalendar(Locale.getDefault)
@@ -46,7 +48,7 @@ class DateAndCalendarSuite extends FunSuite with ShouldMatchers {
 		mapperDao.select(DCEntity, 1).get should be === updated
 	}
 
-	def createTables {
+	def createTables() {
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}

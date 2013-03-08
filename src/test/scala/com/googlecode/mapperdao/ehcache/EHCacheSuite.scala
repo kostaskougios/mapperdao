@@ -108,7 +108,7 @@ class EHCacheSuite extends FunSuite with ShouldMatchers with BeforeAndAfter
 							exit()
 					}
 				}
-			}.start
+			}.start()
 
 			val actors = for (i <- 1 to 100) yield createActor
 			for (i <- 1 to 10000) {

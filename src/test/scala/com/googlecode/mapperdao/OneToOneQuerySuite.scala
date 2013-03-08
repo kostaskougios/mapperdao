@@ -74,7 +74,7 @@ class OneToOneQuerySuite extends FunSuite with ShouldMatchers
 					id int not null,
 					primary key (id)
 				)
-		             """)
+					 """)
 		jdbc.update( """
 				create table Inventory (
 					product_id int not null,
@@ -83,7 +83,7 @@ class OneToOneQuerySuite extends FunSuite with ShouldMatchers
 					primary key (product_id),
 					foreign key (product_id) references Product(id) on delete cascade
 				)
-		             """)
+					 """)
 	}
 
 	val p = ProductEntity
@@ -105,11 +105,11 @@ class OneToOneQuerySuite extends FunSuite with ShouldMatchers
 			and i.sold < 13
 		)
 
-	case class Inventory(val stock: Int, val sold: Int)
+	case class Inventory(stock: Int, sold: Int)
 
-	case class Product(val id: Int, val inventory: Inventory)
+	case class Product(id: Int, inventory: Inventory)
 
-	class InventoryEntityBase extends Entity[Unit,NoId, Inventory]
+	class InventoryEntityBase extends Entity[Unit, NoId, Inventory]
 	{
 		val stock = column("stock") to (_.stock)
 		val sold = column("sold") to (_.sold)
@@ -117,7 +117,7 @@ class OneToOneQuerySuite extends FunSuite with ShouldMatchers
 		def constructor(implicit m) = new Inventory(stock, sold) with Stored
 	}
 
-	class ProductEntityBase extends Entity[Int, SurrogateIntId,Product]
+	class ProductEntityBase extends Entity[Int, SurrogateIntId, Product]
 	{
 		val id = key("id") to (_.id)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)

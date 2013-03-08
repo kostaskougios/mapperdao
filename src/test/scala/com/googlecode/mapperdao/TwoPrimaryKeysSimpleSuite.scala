@@ -12,7 +12,8 @@ import org.scalatest.matchers.ShouldMatchers
  *         5 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class TwoPrimaryKeysSimpleSuite extends FunSuite with ShouldMatchers {
+class TwoPrimaryKeysSimpleSuite extends FunSuite with ShouldMatchers
+{
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(UserEntity))
 
 	test("insert") {
@@ -82,9 +83,10 @@ class TwoPrimaryKeysSimpleSuite extends FunSuite with ShouldMatchers {
 		Setup.queries(this, jdbc).update("ddl")
 	}
 
-	case class User(val name: String, val surname: String, val age: Int)
+	case class User(name: String, surname: String, age: Int)
 
-	object UserEntity extends Entity[(String, String),NaturalStringAndStringIds, User] {
+	object UserEntity extends Entity[(String, String), NaturalStringAndStringIds, User]
+	{
 		val name = key("name") to (_.name)
 		val surname = key("surname") to (_.surname)
 		val age = column("age") to (_.age)

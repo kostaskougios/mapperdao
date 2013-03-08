@@ -14,7 +14,8 @@ import com.googlecode.mapperdao.utils.Helpers
  *         April 2012
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
+class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers
+{
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 	val reflectionManager = new ReflectionManager
@@ -236,13 +237,14 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 		Setup.queries(this, jdbc).update("ddl")
 	}
 
-	case class Product(val id: Int, val name: String, var attributes: Set[Attribute], val properties: Set[Property] = Set())
+	case class Product(id: Int, name: String, var attributes: Set[Attribute], properties: Set[Property] = Set())
 
-	case class Attribute(val id: Int, val name: String, val value: String)
+	case class Attribute(id: Int, name: String, value: String)
 
-	case class Property(val id: Int, val name: String, val value: String)
+	case class Property(id: Int, name: String, value: String)
 
-	object ProductEntity extends Entity[Int,NaturalIntId, Product] {
+	object ProductEntity extends Entity[Int, NaturalIntId, Product]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) getter ("attributes") to (_.attributes)
@@ -251,7 +253,8 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 		def constructor(implicit m) = new Product(id, name, attributes, properties) with Stored
 	}
 
-	object AttributeEntity extends Entity[Int,NaturalIntId, Attribute] {
+	object AttributeEntity extends Entity[Int, NaturalIntId, Attribute]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
@@ -259,7 +262,8 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers {
 		def constructor(implicit m) = new Attribute(id, name, value) with Stored
 	}
 
-	object PropertyEntity extends Entity[Int,NaturalIntId, Property] {
+	object PropertyEntity extends Entity[Int, NaturalIntId, Property]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)

@@ -22,7 +22,8 @@ import org.springframework.jdbc.datasource.SingleConnectionDataSource
  *
  *         31 Jul 2011
  */
-object Setup {
+object Setup
+{
 	private val logger = LoggerFactory.getLogger(getClass)
 
 	val typeManager = new DefaultTypeManager(ISOChronology.getInstance)
@@ -70,7 +71,7 @@ object Setup {
 			properties.getProperty("password"), true)
 	}
 
-	def from(dataSource: DataSource, entities: List[Entity[_,_, _]]) = {
+	def from(dataSource: DataSource, entities: List[Entity[_, _, _]]) = {
 		val (j, m, q, t) = S.create(Database.byName(database), dataSource, TypeRegistry(entities))
 		(j, m, q, t)
 	}
@@ -160,7 +161,9 @@ object Setup {
 		if (errors > 0) dropAllTables(jdbc) else 0
 	}
 
-	def createMySeq(jdbc: Jdbc) = createSeq(jdbc, "myseq")
+	def createMySeq(jdbc: Jdbc) {
+		createSeq(jdbc, "myseq")
+	}
 
 	def createSeq(jdbc: Jdbc, name: String) {
 		try {

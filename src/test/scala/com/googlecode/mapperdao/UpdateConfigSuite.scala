@@ -27,7 +27,7 @@ class UpdateConfigSuite extends FunSuite with ShouldMatchers
 		jdbc.queryForInt("select count(*) from Floor") should be === 2
 	}
 
-	def prepareDb(jdbc: Jdbc, tableCreationScript: String): Unit = {
+	def prepareDb(jdbc: Jdbc, tableCreationScript: String) {
 		Setup.dropAllTables(jdbc)
 		val queries = Setup.queries(this, jdbc)
 		queries.update(tableCreationScript)
@@ -37,13 +37,13 @@ class UpdateConfigSuite extends FunSuite with ShouldMatchers
 object UpdateConfigSuiteOneToManyDecl
 {
 
-	case class Person(val id: Int, var name: String, owns: Set[House])
+	case class Person(id: Int, var name: String, owns: Set[House])
 
-	case class House(val id: Int, val floors: Set[Floor])
+	case class House(id: Int, floors: Set[Floor])
 
-	case class Floor(val id: Int, val description: String)
+	case class Floor(id: Int, description: String)
 
-	object FloorEntity extends Entity[Int,NaturalIntId, Floor]
+	object FloorEntity extends Entity[Int, NaturalIntId, Floor]
 	{
 		val id = key("id") to (_.id)
 		val description = column("description") to (_.description)
@@ -51,7 +51,7 @@ object UpdateConfigSuiteOneToManyDecl
 		def constructor(implicit m) = new Floor(id, description) with Stored
 	}
 
-	object HouseEntity extends Entity[Int,NaturalIntId, House]
+	object HouseEntity extends Entity[Int, NaturalIntId, House]
 	{
 		val id = key("id") to (_.id)
 		val floors = onetomany(FloorEntity) to (_.floors)
@@ -59,7 +59,7 @@ object UpdateConfigSuiteOneToManyDecl
 		def constructor(implicit m) = new House(id, floors) with Stored
 	}
 
-	object PersonEntity extends Entity[Int,NaturalIntId, Person]
+	object PersonEntity extends Entity[Int, NaturalIntId, Person]
 	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
