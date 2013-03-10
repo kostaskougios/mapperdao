@@ -148,10 +148,10 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers
 			createTables
 			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
 			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
-			val inserted = mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2)))
+			mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2)))
 
 			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad.all), ProductEntity, 2).get
-			val updated = mapperDao.update(UpdateConfig(skip = Set(ProductEntity.attributes, ProductEntity.properties)), ProductEntity, selected, Product(2, "blue jean new", Set(a1)))
+			mapperDao.update(UpdateConfig(skip = Set(ProductEntity.attributes, ProductEntity.properties)), ProductEntity, selected, Product(2, "blue jean new", Set(a1)))
 			verifyNotLoadded(selected)
 			val reloaded = mapperDao.select(ProductEntity, 2).get
 			reloaded should be === Product(2, "blue jean new", Set(a1, a2))
@@ -175,7 +175,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with ShouldMatchers
 			createTables
 			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
 			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
-			val inserted = mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2)))
+			mapperDao.insert(ProductEntity, Product(2, "blue jean", Set(a1, a2)))
 
 			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad.all), ProductEntity, 2).get
 			val updated = mapperDao.update(ProductEntity, selected, Product(2, "blue jean new", Set(a1)))
