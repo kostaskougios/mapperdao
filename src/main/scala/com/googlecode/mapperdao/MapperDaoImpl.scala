@@ -135,7 +135,7 @@ protected final class MapperDaoImpl(
 		enhanceVM.execute(pri)
 
 		val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap, nodes)
-		recreationPhase.execute.asInstanceOf[List[T with DeclaredIds[ID]]]
+		recreationPhase.execute.asInstanceOf[List[T with Persisted]]
 	}
 
 	/**
