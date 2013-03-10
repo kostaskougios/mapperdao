@@ -23,6 +23,18 @@ class OneToManyDeclarePrimaryKeysIssueSuite extends FunSuite with ShouldMatchers
 			mapperDao.select(ProductEntity, i1.id).get should be(i1)
 		}
 
+		test("update, same -many values for 2 products") {
+			createTables()
+			val p1 = Product("p1", List(Property("pro1", "val1"), Property("pro2", "val2")))
+			val p2 = Product("p2", List(Property("pro1", "val1"), Property("pro2", "val2")))
+			val List(i1, i2) = mapperDao.insertBatch(ProductEntity, List(p1, p2))
+
+			val u2 = i2.copy(properties = i2.properties.filter(_.name == "pro1"))
+			val up2 = mapperDao.update(ProductEntity, i2, u2)
+			mapperDao.select(ProductEntity, i1.id).get should be(p1)
+			mapperDao.select(ProductEntity, i2.id).get should be(up2)
+		}
+
 		def createTables() {
 			Setup.dropAllTables(jdbc)
 			Setup.queries(this, jdbc).update("ddl")
