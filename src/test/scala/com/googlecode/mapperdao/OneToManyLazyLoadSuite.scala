@@ -47,6 +47,17 @@ class OneToManyLazyLoadSuite extends FunSuite with ShouldMatchers
 			mapperDao.select(selectConfigCar, PersonEntity, inserted.id).get should be === updated
 		}
 
+		test("update, 1 entity lazy loaded and not changed") {
+			createTables
+			val person = Person("Kostas", Set(House("Rhodes"), House("Athens")), List(Car("car1"), Car("car2")))
+			val inserted = mapperDao.insert(PersonEntity, person)
+			val selected = mapperDao.select(selectConfigCar, PersonEntity, inserted.id).get
+			val updated = mapperDao.update(PersonEntity, selected, person)
+			updated should be(person)
+
+			mapperDao.select(selectConfigCar, PersonEntity, inserted.id).get should be(updated)
+		}
+
 		test("select, 1 entity lazy loaded, is lazy") {
 			createTables
 			val person = Person("Kostas", Set(House("Rhodes"), House("Athens")), List(Car("car1"), Car("car2")))
