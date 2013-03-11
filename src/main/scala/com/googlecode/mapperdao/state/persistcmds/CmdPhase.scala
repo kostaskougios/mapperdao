@@ -322,7 +322,8 @@ class CmdPhase(typeManager: TypeManager)
 							}.flatten
 							val removedCms = removed.toList.map {
 								case fo: Persisted =>
-									doDelete(foreignTpe, fo.mapperDaoValuesMap, updateConfig.deleteConfig)
+									val foreignVM = fo.mapperDaoValuesMap
+									EntityRelatedCmd(foreignVM.identity, column, foreignVM, None, tpe, newVM, oldVMO, true) :: doDelete(foreignTpe, fo.mapperDaoValuesMap, updateConfig.deleteConfig)
 							}.flatten
 
 							val intersectCmds = intersect.toList.map {

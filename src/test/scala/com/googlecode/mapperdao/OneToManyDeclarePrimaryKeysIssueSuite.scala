@@ -35,6 +35,30 @@ class OneToManyDeclarePrimaryKeysIssueSuite extends FunSuite with ShouldMatchers
 			mapperDao.select(ProductEntity, i2.id).get should be(up2)
 		}
 
+		test("update, change -many values for 2 products") {
+			createTables()
+			val p1 = Product("p1", List(Property("pro1", "val1"), Property("pro2", "val2")))
+			val p2 = Product("p2", List(Property("pro1", "val1"), Property("pro2", "val2")))
+			val List(i1, i2) = mapperDao.insertBatch(ProductEntity, List(p1, p2))
+
+			val u1 = i1.copy(properties = i1.properties.filter(_.name == "pro2"))
+			val u2 = i2.copy(properties = i2.properties.filter(_.name == "pro1"))
+			val List(up1, up2) = mapperDao.updateBatch(ProductEntity, List((i1, u1), (i2, u2)))
+			mapperDao.select(ProductEntity, i1.id).get should be(up1)
+			mapperDao.select(ProductEntity, i2.id).get should be(up2)
+		}
+
+		test("deleting one of the main entities doesnt delete related data of the other") {
+			createTables()
+			val p1 = Product("p1", List(Property("pro1", "val1"), Property("pro2", "val2")))
+			val p2 = Product("p2", List(Property("pro1", "val1"), Property("pro2", "val2")))
+			val List(i1, i2) = mapperDao.insertBatch(ProductEntity, List(p1, p2))
+
+			mapperDao.delete(ProductEntity, i1)
+			mapperDao.select(ProductEntity, i1.id) should be(None)
+			mapperDao.select(ProductEntity, i2.id).get should be(i2)
+		}
+
 		def createTables() {
 			Setup.dropAllTables(jdbc)
 			Setup.queries(this, jdbc).update("ddl")

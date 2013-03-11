@@ -145,6 +145,11 @@ trait MapperDao
 	}
 
 	/**
+	 * this method batch-updates immutable entities.
+	 *
+	 * The returned list contains the updated entities in the same
+	 * order as the os param.
+	 *
 	 * we can't call this "update" cause due to erasure it will have the same signature like other update
 	 * methods.
 	 */
