@@ -20,12 +20,22 @@ class UseCaseHierarchicalCategoriesSuite extends FunSuite with ShouldMatchers
 	if (Setup.database == "h2") {
 		test("hierarchy") {
 			createTables()
+			/**
+			 * create an entity that the memory representation
+			 * can't match the db one. The parent has children
+			 * and child1,2 have parent.
+			 */
 			val parent = Category("parent", None, Nil)
 			val child1 = Category("child1", None, Nil)
 			val child2 = Category("child2", None, Nil)
 			val cat = Category("main", Some(parent), List(child1, child2))
 			val i = mapperDao.insert(CategoryEntity, cat)
 			i should be(cat)
+			i.children should be(cat.children)
+
+			val s = mapperDao.select(CategoryEntity, i.id).get
+			s should be(cat)
+			s.children.map(_.name).toSet should be(Set("child1", "child2"))
 		}
 
 		def createTables() {
@@ -40,6 +50,12 @@ object UseCaseHierarchicalCategoriesSuite
 {
 
 	case class Category(name: String, parent: Option[Category], children: List[Category])
+	{
+		override def equals(obj: Any) = obj match {
+			case c: Category =>
+				c.name == name && c.parent == parent
+		}
+	}
 
 	object CategoryEntity extends Entity[Int, SurrogateIntId, Category]
 	{

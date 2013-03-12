@@ -227,7 +227,16 @@ class CmdToDatabase(
 		cmd match {
 			case ic@InsertCmd(tpe, newVM, columns, _) =>
 				persistedIdentities += ic.identity
-				val related = prioritized.relatedColumns(newVM, false).distinct.filterNot(t => columns.contains(t))
+
+				// now we need to remove duplicates and also make sure that in case of
+				// the same column having 2 values, we take the not-null one (if present)
+				// see UseCaseHierarchicalCategoriesSuite
+				val relatedColumns = prioritized.relatedColumns(newVM, false)
+				val rcMap = relatedColumns.filterNot(_._2 == null).toMap
+				val related = relatedColumns.map {
+					case (c, v) =>
+						(c, rcMap.getOrElse(c, v))
+				}.distinct.filterNot(t => columns.contains(t))
 				driver.insertSql(tpe, columns ::: related).result :: Nil
 
 			case uc@UpdateCmd(tpe, oldVM, newVM, columns, _) =>
