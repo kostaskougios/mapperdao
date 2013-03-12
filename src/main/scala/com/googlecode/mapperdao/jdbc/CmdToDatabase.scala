@@ -243,7 +243,7 @@ class CmdToDatabase(
 				persistedIdentities += uc.identity
 				val oldRelated = prioritized.relatedColumns(oldVM, true)
 				val newRelated = prioritized.relatedColumns(newVM, false)
-				val set = columns ::: newRelated.filterNot(n => oldRelated.contains(n) || columns.contains(n))
+				val set = columns ::: newRelated.filterNot(n => oldRelated.contains(n) || columns.contains(n)).distinct
 				if (set.isEmpty)
 					Nil
 				else {
