@@ -14,34 +14,42 @@ import state.prioritise.PriorityPhase
  *          Date: 25/01/13
  */
 @RunWith(classOf[JUnitRunner])
-class CmdToDatabaseSuite extends FunSuite with ShouldMatchers with EasyMockSugar {
+class CmdToDatabaseSuite extends FunSuite with ShouldMatchers with EasyMockSugar
+{
 
 	import OneToManyDeclarePrimaryKeysSuite._
 
-	val typeManager = new DefaultTypeManager
-	val (jdbc, mapperDao: MapperDaoImpl, _) = Setup.setupMapperDao(TypeRegistry(HouseEntity, PersonEntity))
-	val driver = mapperDao.driver
+	def prepare(l: List[Entity[_, Persisted, _]]) = {
+		val typeManager = new DefaultTypeManager
+		val (jdbc, mapperDao: MapperDaoImpl, _) = Setup.setupMapperDao(TypeRegistry(l))
+		val driver = mapperDao.driver
+		(typeManager, jdbc, mapperDao, driver)
+	}
 
 	val uc = UpdateConfig.default
 
 	test("optimized updates for one to many and declared keys") {
-
-		val sw = mapperDao.link(PostCodeEntity, new PostCode("SW") with PostCodeEntity.Stored {
+		val (typeManager, jdbc, mapperDao, driver) = prepare(List(HouseEntity, PersonEntity))
+		val sw = mapperDao.link(PostCodeEntity, new PostCode("SW") with PostCodeEntity.Stored
+		{
 			val id = 1000
 		})
 
-		val se = mapperDao.link(PostCodeEntity, new PostCode("SE") with PostCodeEntity.Stored {
+		val se = mapperDao.link(PostCodeEntity, new PostCode("SE") with PostCodeEntity.Stored
+		{
 			val id = 1001
 		})
 
 		val house1 = mapperDao.link(HouseEntity, new House("old address", sw) with HouseEntity.Stored)
 		val house2 = mapperDao.link(HouseEntity, new House("address2", se) with HouseEntity.Stored)
 
-		val oldP = new Person("kostas", Set(house1, house2)) with PersonEntity.Stored {
+		val oldP = new Person("kostas", Set(house1, house2)) with PersonEntity.Stored
+		{
 			val id = 10
 		}
 		house1.address = "new address"
-		val newP = new Person("kostas", Set(house1, house2)) with PersonEntity.Stored {
+		val newP = new Person("kostas", Set(house1, house2)) with PersonEntity.Stored
+		{
 			val id = 10
 		}
 
