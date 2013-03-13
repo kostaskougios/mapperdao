@@ -405,7 +405,7 @@
             </properties>
             <activation>
                 <property>
-                    <name>exclude</name>
+                    <name>!exclude</name>
                 </property>
             </activation>
             <dependencies>
@@ -424,7 +424,7 @@
             </properties>
             <activation>
                 <property>
-                    <name>!exclude</name>
+                    <name>exclude</name>
                 </property>
             </activation>
             <dependencies>

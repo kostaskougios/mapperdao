@@ -146,7 +146,7 @@ class JavaCustomCollectionsSuite extends FunSuite with ShouldMatchers
 				val id: Int = ProductEntity.id
 			}
 			p.setName(name)
-			p.setAttributes(new Attributes(columnTraversableManyToManyToJList(attributes)))
+			p.setAttributes(new Attributes(toJavaList(attributes)))
 			p
 		}
 	}
