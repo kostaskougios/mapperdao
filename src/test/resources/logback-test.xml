@@ -6,7 +6,7 @@
             <pattern>[%thread] %-5level %logger{16} - %msg%n</pattern>
         </encoder>
     </appender>
-    <root level="debug">
+    <root level="info">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

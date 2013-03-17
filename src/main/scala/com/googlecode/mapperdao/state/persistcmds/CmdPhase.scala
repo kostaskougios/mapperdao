@@ -217,6 +217,11 @@ class CmdPhase(typeManager: TypeManager)
 						// insert/update
 						val foreignTpe = foreignEE.tpe
 						val v = foreignTpe.table.toListOfPrimaryKeyValues(fo)
+						val oldV = oldVMO.map {
+							oldVM =>
+								val oldFo = oldVM.manyToOne(column)
+								foreignTpe.table.toListOfPrimaryKeyValues(oldFo)
+						}
 						(
 							ExternalEntityRelatedCmd(
 								if (fo != null) System.identityHashCode(fo) else 0,
@@ -224,7 +229,8 @@ class CmdPhase(typeManager: TypeManager)
 								newVM,
 								oldVMO,
 								foreignTpe,
-								v
+								v,
+								oldV
 							)
 								:: UpdateExternalManyToOneCmd(foreignEE, ci, newVM, fo)
 								:: Nil

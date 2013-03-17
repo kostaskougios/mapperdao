@@ -89,11 +89,13 @@ case class Prioritized(
 						}
 						)
 			}
-		case ExternalEntityRelatedCmd(_, column, _, _, foreignTpe, foreignKeys) =>
+		case ExternalEntityRelatedCmd(_, column, _, _, foreignTpe, foreignKeys, oldForeignKeys) =>
 			column match {
 				case ManyToOne(columns, foreign) =>
 					if (applyOnOldValue)
-						Nil
+						if (oldForeignKeys.isDefined)
+							columns zip oldForeignKeys.get
+						else Nil
 					else
 						columns zip foreignKeys
 			}
