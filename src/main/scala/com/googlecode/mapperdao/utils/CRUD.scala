@@ -39,6 +39,8 @@ trait CRUD[ID, PC <: Persisted, T]
 	 */
 	def update(t: T with PC): T with PC = mapperDao.update(updateConfig, entity, t)
 
+	def updateBatchMutable(t: List[T with PC]): List[T with PC] = mapperDao.updateBatchMutable(updateConfig, entity, t)
+
 	def merge(t: T, id: ID): T with PC = mapperDao.merge(selectConfig, updateConfig, entity, t, id)
 
 	/**
@@ -48,6 +50,8 @@ trait CRUD[ID, PC <: Persisted, T]
 	 * The whole tree will be updated (if necessary).
 	 */
 	def update(oldValue: T with PC, newValue: T): T with PC = mapperDao.update(updateConfig, entity, oldValue, newValue)
+
+	def updateBatch(t: List[(T with PC, T)]): List[T with PC] = mapperDao.updateBatch(updateConfig, entity, t)
 
 	/**
 	 * select an entity by it's primary key
