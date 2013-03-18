@@ -1,6 +1,5 @@
 package com.googlecode.mapperdao.drivers
-import com.googlecode.mapperdao.jdbc.JdbcMap
-import com.googlecode.mapperdao.jdbc.UpdateResult
+
 import com.googlecode.mapperdao._
 
 /**
@@ -8,12 +7,13 @@ import com.googlecode.mapperdao._
  *
  * @author kostantinos.kougios
  *
- * 21 Mar 2012
+ *         21 Mar 2012
  */
-trait CachedDriver extends Driver {
+trait CachedDriver extends Driver
+{
 	val cache: Cache
 
-	override def doSelect[ID, PC <: DeclaredIds[ID], T](selectConfig: SelectConfig, tpe: Type[ID, PC, T], where: List[(SimpleColumn, Any)]) = {
+	override def doSelect[ID, T](selectConfig: SelectConfig, tpe: Type[ID, T], where: List[(SimpleColumn, Any)]) = {
 		val key = tpe.table.name :: where
 		selectConfig.cacheOptions match {
 			case CacheOptions.NoCache =>
@@ -26,12 +26,14 @@ trait CachedDriver extends Driver {
 				}
 		}
 	}
-	override def doSelectManyToMany[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](
+
+	override def doSelectManyToMany[ID, T, FID, F](
 		selectConfig: SelectConfig,
-		tpe: Type[ID, PC, T],
-		ftpe: Type[FID, FPC, F],
-		manyToMany: ManyToMany[FID, FPC, F],
-		leftKeyValues: List[(SimpleColumn, Any)]) = {
+		tpe: Type[ID, T],
+		ftpe: Type[FID, F],
+		manyToMany: ManyToMany[FID, F],
+		leftKeyValues: List[(SimpleColumn, Any)]
+		) = {
 		val key = manyToMany.linkTable.name :: leftKeyValues
 
 		selectConfig.cacheOptions match {
@@ -46,7 +48,8 @@ trait CachedDriver extends Driver {
 
 		}
 	}
-	override def queryForList[ID, PC <: DeclaredIds[ID], T](queryConfig: QueryConfig, tpe: Type[ID, PC, T], sql: String, args: List[Any]) = {
+
+	override def queryForList[ID, T](queryConfig: QueryConfig, tpe: Type[ID, T], sql: String, args: List[Any]) = {
 		val key = List("query", sql, args)
 		queryConfig.cacheOptions match {
 			case CacheOptions.NoCache =>
@@ -59,6 +62,7 @@ trait CachedDriver extends Driver {
 				}
 		}
 	}
+
 	override def queryForLong(queryConfig: QueryConfig, sql: String, args: List[Any]): Long = {
 		val key = List("query", sql, args)
 		queryConfig.cacheOptions match {
@@ -73,8 +77,12 @@ trait CachedDriver extends Driver {
 		}
 	}
 
-	override def doUpdate[ID, PC <: DeclaredIds[ID], T](tpe: Type[ID, PC, T], args: List[(SimpleColumn, Any)], pkArgs: List[(SimpleColumn, Any)]): UpdateResult = {
-		val u = super.doUpdate(tpe, args, pkArgs)
+	override def updateSql[ID, T](
+		tpe: Type[ID, T],
+		args: List[(SimpleColumn, Any)],
+		pkArgs: List[(SimpleColumn, Any)]
+		) = {
+		val u = super.updateSql(tpe, args, pkArgs)
 
 		val table = tpe.table
 		// flush main cache for entity
@@ -82,36 +90,33 @@ trait CachedDriver extends Driver {
 		cache.flush(key)
 
 		// flush one-to-many caches
-		table.oneToManyColumns.foreach { c =>
-			val k = c.foreign.entity.tpe.table.name :: (c.columns zip pkArgs.map(_._2))
-			cache.flush(k)
+		table.oneToManyColumns.foreach {
+			c =>
+				val k = c.foreign.entity.tpe.table.name :: (c.columns zip pkArgs.map(_._2))
+				cache.flush(k)
 		}
 		u
 	}
 
-	override def doDeleteManyToManyRef[ID, PC <: DeclaredIds[ID], T, PID, PR <: DeclaredIds[PID], R](
-		tpe: Type[ID, PC, T],
-		ftpe: Type[PID, PR, R],
-		manyToMany: ManyToMany[_, _, _],
+	override def deleteManyToManySql(
+		manyToMany: ManyToMany[_, _],
 		leftKeyValues: List[(SimpleColumn, Any)],
-		rightKeyValues: List[(SimpleColumn, Any)]): UpdateResult = {
-		val u = super.doDeleteManyToManyRef(tpe, ftpe, manyToMany, leftKeyValues, rightKeyValues)
+		rightKeyValues: List[(SimpleColumn, Any)]
+		) = {
+		val u = super.deleteManyToManySql(manyToMany, leftKeyValues, rightKeyValues)
 		cache.flush(manyToMany.linkTable.name :: leftKeyValues)
 		cache.flush(manyToMany.linkTable.name :: rightKeyValues)
 		u
 	}
 
-	override def doInsertManyToMany[ID, PC <: DeclaredIds[ID], T, FID, FPC <: DeclaredIds[FID], F](
-		tpe: Type[ID, PC, T],
-		manyToMany: ManyToMany[FID, FPC, F],
+	override def insertManyToManySql(
+		manyToMany: ManyToMany[_, _],
 		left: List[Any],
-		right: List[Any]): Unit = {
-
-		val u = super.doInsertManyToMany(tpe, manyToMany, left, right)
+		right: List[Any]
+		) = {
+		val u = super.insertManyToManySql(manyToMany, left, right)
 
 		val lkey = manyToMany.linkTable.name :: (manyToMany.linkTable.left zip left)
-
-		//		println("\n\n ** flush: " + lkey + "\n\n")
 
 		cache.flush(lkey)
 		val rkey = manyToMany.linkTable.name :: (manyToMany.linkTable.right zip right)
@@ -119,7 +124,7 @@ trait CachedDriver extends Driver {
 		u
 	}
 
-	override def doDelete[ID, PC <: DeclaredIds[ID], T](tpe: Type[ID, PC, T], whereColumnValues: List[(SimpleColumn, Any)]) = {
+	override def doDelete[ID, T](tpe: Type[ID, T], whereColumnValues: List[(SimpleColumn, Any)]) {
 		super.doDelete(tpe, whereColumnValues)
 		val key = tpe.table.name :: whereColumnValues
 		cache.flush(key)

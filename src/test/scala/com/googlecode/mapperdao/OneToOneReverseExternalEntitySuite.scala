@@ -1,4 +1,5 @@
 package com.googlecode.mapperdao
+
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
@@ -8,15 +9,16 @@ import com.googlecode.mapperdao.jdbc.Setup
 /**
  * @author kostantinos.kougios
  *
- * 24 Jan 2012
+ *         24 Jan 2012
  */
 @RunWith(classOf[JUnitRunner])
-class OneToOneReverseExternalEntitySuite extends FunSuite with ShouldMatchers {
+class OneToOneReverseExternalEntitySuite extends FunSuite with ShouldMatchers
+{
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
 
 	if (Setup.database == "h2") {
 		test("persist/select") {
-			createTables
+			createTables()
 			val product = Product(5, Inventory(105, 205))
 			val inserted = mapperDao.insert(ProductEntity, product)
 			inserted should be === product
@@ -24,15 +26,17 @@ class OneToOneReverseExternalEntitySuite extends FunSuite with ShouldMatchers {
 			val selected = mapperDao.select(ProductEntity, inserted.id).get
 			selected should be === inserted
 		}
+
 		test("update/select") {
-			createTables
+			createTables()
 			val inserted = mapperDao.insert(ProductEntity, Product(5, Inventory(105, 205)))
 			val updated = mapperDao.update(ProductEntity, inserted, Product(5, Inventory(106, 206)))
 			InventoryEntity.onUpdateCalled should be === 1
 			mapperDao.select(ProductEntity, inserted.id).get should be === updated
 		}
+
 		test("delete without propagate") {
-			createTables
+			createTables()
 			val inserted = mapperDao.insert(ProductEntity, Product(5, Inventory(105, 205)))
 			mapperDao.delete(ProductEntity, inserted)
 			InventoryEntity.onDeleteCalled should be === 0
@@ -40,7 +44,7 @@ class OneToOneReverseExternalEntitySuite extends FunSuite with ShouldMatchers {
 		}
 
 		test("delete with propagate") {
-			createTables
+			createTables()
 			val inserted = mapperDao.insert(ProductEntity, Product(5, Inventory(105, 205)))
 			mapperDao.delete(DeleteConfig(propagate = true), ProductEntity, inserted)
 			InventoryEntity.onDeleteCalled should be === 1
@@ -48,15 +52,16 @@ class OneToOneReverseExternalEntitySuite extends FunSuite with ShouldMatchers {
 		}
 
 		test("query") {
-			createTables
+			createTables()
 			val inserted1 = mapperDao.insert(ProductEntity, Product(5, Inventory(105, 205)))
-			val inserted2 = mapperDao.insert(ProductEntity, Product(6, Inventory(106, 206)))
+			mapperDao.insert(ProductEntity, Product(6, Inventory(106, 206)))
 			import Query._
 			val pe = ProductEntity
 			queryDao.query(select from pe where pe.id === 5) should be === List(inserted1)
 		}
 	}
-	def createTables {
+
+	def createTables() {
 		InventoryEntity.onInsertCalled = 0
 		InventoryEntity.onUpdateCalled = 0
 		InventoryEntity.onDeleteCalled = 0
@@ -64,22 +69,26 @@ class OneToOneReverseExternalEntitySuite extends FunSuite with ShouldMatchers {
 		Setup.queries(this, jdbc).update("ddl")
 	}
 
-	case class Inventory(val id: Int, val stock: Int)
-	case class Product(val id: Int, val inventory: Inventory)
+	case class Inventory(id: Int, stock: Int)
 
-	object ProductEntity extends Entity[Int, SurrogateIntId, Product] {
+	case class Product(id: Int, inventory: Inventory)
+
+	object ProductEntity extends Entity[Int, SurrogateIntId, Product]
+	{
 		val id = key("id") to (_.id)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 
-		def constructor(implicit m) = new Product(id, inventory) with SurrogateIntId
+		def constructor(implicit m) = new Product(id, inventory) with Stored
 	}
-	object InventoryEntity extends ExternalEntity[Int, Inventory] {
 
+	object InventoryEntity extends ExternalEntity[Int, Inventory]
+	{
 		var inventory = Map[Int, Inventory]()
 		var onInsertCalled = 0
-		onInsertOneToOneReverse(ProductEntity.inventory) { i =>
-			onInsertCalled += 1
-			inventory = inventory + (i.entity.id -> i.foreign)
+		onInsertOneToOneReverse(ProductEntity.inventory) {
+			case InsertExternalOneToOneReverse(updateConfig, entity, foreign) =>
+				onInsertCalled += 1
+				inventory = inventory + (entity.id -> foreign)
 		}
 
 		onSelectOneToOneReverse(ProductEntity.inventory) {
@@ -90,15 +99,18 @@ class OneToOneReverseExternalEntitySuite extends FunSuite with ShouldMatchers {
 		}
 
 		var onUpdateCalled = 0
-		onUpdateOneToOneReverse(ProductEntity.inventory) { u =>
-			onUpdateCalled += 1
-			inventory = inventory + (u.entity.id -> u.foreign)
+		onUpdateOneToOneReverse(ProductEntity.inventory) {
+			case UpdateExternalOneToOneReverse(updateConfig, o, oldFT, newFT) =>
+				onUpdateCalled += 1
+				inventory = inventory + (o.id -> newFT)
 		}
 
 		var onDeleteCalled = 0
-		onDeleteOneToOneReverse(ProductEntity.inventory) { d =>
-			inventory -= d.entity.id
-			onDeleteCalled += 1
+		onDeleteOneToOneReverse(ProductEntity.inventory) {
+			d =>
+				inventory -= d.entity.id
+				onDeleteCalled += 1
 		}
 	}
+
 }

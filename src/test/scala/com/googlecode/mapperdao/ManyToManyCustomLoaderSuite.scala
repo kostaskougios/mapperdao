@@ -10,11 +10,13 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
 /**
  * @author kostantinos.kougios
  *
- * 30 May 2012
+ *         30 May 2012
  */
 @RunWith(classOf[JUnitRunner])
 class ManyToManyCustomLoaderSuite extends FunSuite with ShouldMatchers {
+
 	import CommonEntities._
+
 	if (Setup.database == "h2") {
 		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
@@ -30,11 +32,12 @@ class ManyToManyCustomLoaderSuite extends FunSuite with ShouldMatchers {
 								}
 							)
 						case _ =>
-							values.map { v =>
-								val id = v.int("attribute_id")
-								val a = AttributeEntity
-								import Query._
-								queryDao.querySingleResult(select from a where a.id === id).get
+							values.map {
+								v =>
+									val id = v.int("attribute_id")
+									val a = AttributeEntity
+									import Query._
+									queryDao.querySingleResult(select from a where a.id === id).get
 							}
 					}
 			)

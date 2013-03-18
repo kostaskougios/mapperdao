@@ -9,10 +9,11 @@ import org.scalatest.matchers.ShouldMatchers
 /**
  * @author kostantinos.kougios
  *
- * 1 Sep 2011
+ *         1 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToOneQuerySuite extends FunSuite with ShouldMatchers {
+class OneToOneQuerySuite extends FunSuite with ShouldMatchers
+{
 	val InventoryEntity = new InventoryEntityBase
 	val ProductEntity = new ProductEntityBase
 
@@ -66,16 +67,15 @@ class OneToOneQuerySuite extends FunSuite with ShouldMatchers {
 		queryDao.query(q1).toSet should be === Set(p2)
 	}
 
-	def createTables =
-		{
-			Setup.dropAllTables(jdbc)
-			jdbc.update("""
+	def createTables = {
+		Setup.dropAllTables(jdbc)
+		jdbc.update( """
 				create table Product (
 					id int not null,
 					primary key (id)
 				)
-			""")
-			jdbc.update("""
+					 """)
+		jdbc.update( """
 				create table Inventory (
 					product_id int not null,
 					stock int not null,
@@ -83,36 +83,46 @@ class OneToOneQuerySuite extends FunSuite with ShouldMatchers {
 					primary key (product_id),
 					foreign key (product_id) references Product(id) on delete cascade
 				)
-			""")
-		}
+					 """)
+	}
+
 	val p = ProductEntity
 	val i = InventoryEntity
+
 	import Query._
-	def q0 = select from p join (p, p.inventory, i) where i.stock > 5
+
+	def q0 = select from p join(p, p.inventory, i) where i.stock > 5
+
 	def q0Limits = select from p
-	def q0WithSkip = select from p join (p, p.inventory, i) where i.stock > 5
+
+	def q0WithSkip = select from p join(p, p.inventory, i) where i.stock > 5
+
 	def q1 = (
 		select from p
-		join (p, p.inventory, i)
-		where
-		i.stock > 5
-		and i.sold < 13
-	)
+			join(p, p.inventory, i)
+			where
+			i.stock > 5
+			and i.sold < 13
+		)
 
-	case class Inventory(val stock: Int, val sold: Int)
-	case class Product(val id: Int, val inventory: Inventory)
+	case class Inventory(stock: Int, sold: Int)
 
-	class InventoryEntityBase extends Entity[Unit, NoId, Inventory] {
+	case class Product(id: Int, inventory: Inventory)
+
+	class InventoryEntityBase extends Entity[Unit, NoId, Inventory]
+	{
 		val stock = column("stock") to (_.stock)
 		val sold = column("sold") to (_.sold)
 
-		def constructor(implicit m) = new Inventory(stock, sold) with NoId
+		def constructor(implicit m) = new Inventory(stock, sold) with Stored
 	}
 
-	class ProductEntityBase extends Entity[Int, SurrogateIntId, Product] {
+	class ProductEntityBase extends Entity[Int, SurrogateIntId, Product]
+	{
 		val id = key("id") to (_.id)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 
-		def constructor(implicit m) = new Product(id, inventory) with SurrogateIntId
+		def constructor(implicit m) = new Product(id, inventory) with Stored
 	}
+
 }

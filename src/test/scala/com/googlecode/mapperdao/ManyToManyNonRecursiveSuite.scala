@@ -10,16 +10,17 @@ import com.googlecode.mapperdao.utils.Helpers
 /**
  * @author kostantinos.kougios
  *
- * 8 Aug 2011
+ *         8 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
+class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers
+{
 	val typeRegistry = TypeRegistry(ProductEntity, AttributeEntity)
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(typeRegistry)
 
 	test("update, add with new set") {
-		createTables
+		createTables()
 		val a1 = mapperDao.insert(AttributeEntity, Attribute("colour", "blue"))
 		val a2 = mapperDao.insert(AttributeEntity, Attribute("size", "medium"))
 		val a1l = mapperDao.select(AttributeEntity, a1.id).get
@@ -40,7 +41,7 @@ class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("update, remove with new set") {
-		createTables
+		createTables()
 		val a1 = mapperDao.insert(AttributeEntity, Attribute("colour", "blue"))
 		val a2 = mapperDao.insert(AttributeEntity, Attribute("size", "medium"))
 		val a1l = mapperDao.select(AttributeEntity, a1.id).get
@@ -61,7 +62,7 @@ class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("insert tree of entities") {
-		createTables
+		createTables()
 		val product = Product("blue jean", Set(Attribute("colour", "blue"), Attribute("size", "medium")))
 		val inserted = mapperDao.insert(ProductEntity, product)
 		inserted should be === product
@@ -75,7 +76,7 @@ class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("insert tree of entities  leaf entities") {
-		createTables
+		createTables()
 		val a1 = mapperDao.insert(AttributeEntity, Attribute("colour", "blue"))
 		val a2 = mapperDao.insert(AttributeEntity, Attribute("size", "medium"))
 		val product = Product("blue jean", Set(a1, a2))
@@ -85,22 +86,23 @@ class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 		mapperDao.select(ProductEntity, inserted.id).get should be === inserted
 	}
 
-	def createTables =
-		{
-			Setup.dropAllTables(jdbc)
-			Setup.queries(this, jdbc).update("ddl")
-			Setup.database match {
-				case "oracle" =>
-					Setup.createSeq(jdbc, "ProductSeq")
-					Setup.createSeq(jdbc, "AttributeSeq")
-				case _ =>
-			}
+	def createTables() {
+		Setup.dropAllTables(jdbc)
+		Setup.queries(this, jdbc).update("ddl")
+		Setup.database match {
+			case "oracle" =>
+				Setup.createSeq(jdbc, "ProductSeq")
+				Setup.createSeq(jdbc, "AttributeSeq")
+			case _ =>
 		}
+	}
 
-	case class Product(val name: String, val attributes: Set[Attribute])
-	case class Attribute(val name: String, val value: String)
+	case class Product(name: String, attributes: Set[Attribute])
 
-	object ProductEntity extends Entity[Int, SurrogateIntId, Product] {
+	case class Attribute(name: String, value: String)
+
+	object ProductEntity extends Entity[Int, SurrogateIntId, Product]
+	{
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("ProductSeq")
 			case _ => None
@@ -108,11 +110,14 @@ class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
 
-		def constructor(implicit m) = new Product(name, attributes) with SurrogateIntId {
+		def constructor(implicit m) = new Product(name, attributes) with Stored
+		{
 			val id: Int = ProductEntity.id // we explicitly convert this to an int because mysql serial values are always BigInteger (a bug maybe?)
 		}
 	}
-	object AttributeEntity extends Entity[Int, SurrogateIntId, Attribute] {
+
+	object AttributeEntity extends Entity[Int, SurrogateIntId, Attribute]
+	{
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("AttributeSeq")
 			case _ => None
@@ -120,8 +125,10 @@ class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers {
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m) = new Attribute(name, value) with SurrogateIntId {
+		def constructor(implicit m) = new Attribute(name, value) with Stored
+		{
 			val id: Int = AttributeEntity.id // we explicitly convert this to an int because mysql serial values are always BigInteger (a bug maybe?)
 		}
 	}
+
 }

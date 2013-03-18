@@ -5,10 +5,11 @@ package com.googlecode.mapperdao.drivers
  *
  * @author kostantinos.kougios
  *
- * May 11, 2012
+ *         May 11, 2012
  */
-case class SelectHints(val afterTableName: List[AfterTableNameSelectHint])
+case class SelectHints(afterTableName: List[AfterTableNameSelectHint])
 
-object SelectHints {
+object SelectHints
+{
 	val None = new SelectHints(Nil)
 }

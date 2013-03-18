@@ -9,11 +9,14 @@ import org.scalatest.matchers.ShouldMatchers
 /**
  * @author kostantinos.kougios
  *
- * 29 Aug 2011
+ *         29 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToManyQueryWithAliasesSuite extends FunSuite with ShouldMatchers {
+class ManyToManyQueryWithAliasesSuite extends FunSuite with ShouldMatchers
+{
+
 	import ManyToManyQueryWithAliasesSuite._
+
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(AttributeEntity, ProductEntity))
 
 	import Query._
@@ -53,53 +56,58 @@ class ManyToManyQueryWithAliasesSuite extends FunSuite with ShouldMatchers {
 		queryDao.query(q0).toSet should be === Set(p2)
 	}
 
-	def createTables =
-		{
-			Setup.dropAllTables(jdbc)
-			jdbc.update("""
+	def createTables = {
+		Setup.dropAllTables(jdbc)
+		jdbc.update( """
 					create table Product (
 						id int not null,
 						name varchar(100) not null,
 						primary key(id)
 					)
-			""")
-			jdbc.update("""
+					 """)
+		jdbc.update( """
 					create table Attribute (
 						id int not null,
 						name varchar(100) not null,
 						value varchar(100) not null,
 						primary key(id)
 					)
-			""")
-			jdbc.update("""
+					 """)
+		jdbc.update( """
 					create table Product_Attribute (
 						product_id int not null,
 						attribute_id int not null,
 						primary key(product_id,attribute_id)
 					)
-			""")
-		}
+					 """)
+	}
 }
 
-object ManyToManyQueryWithAliasesSuite {
-	case class Product(val id: Int, val name: String, val attributes: Set[Attribute])
-	case class Attribute(val id: Int, val name: String, val value: String)
+object ManyToManyQueryWithAliasesSuite
+{
 
-	class AttributeEntityBase extends Entity[Int, SurrogateIntId, Attribute] {
+	case class Product(id: Int, name: String, attributes: Set[Attribute])
+
+	case class Attribute(id: Int, name: String, value: String)
+
+	class AttributeEntityBase extends Entity[Int, SurrogateIntId, Attribute]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m) = new Attribute(id, name, value) with SurrogateIntId
+		def constructor(implicit m) = new Attribute(id, name, value) with Stored
 	}
 
-	class ProductEntityBase extends Entity[Int, SurrogateIntId, Product] {
+	class ProductEntityBase extends Entity[Int, SurrogateIntId, Product]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
 
-		def constructor(implicit m) = new Product(id, name, attributes) with SurrogateIntId
+		def constructor(implicit m) = new Product(id, name, attributes) with Stored
 	}
+
 	val AttributeEntity = new AttributeEntityBase
 	val ProductEntity = new ProductEntityBase
 }

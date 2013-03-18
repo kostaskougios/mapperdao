@@ -1,37 +1,32 @@
 package com.googlecode.mapperdao.plugins
 
-import com.googlecode.mapperdao.jdbc.JdbcMap
-import com.googlecode.mapperdao.utils.Equality
-import com.googlecode.mapperdao.utils.MapOfList
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.utils.Helpers
-import com.googlecode.mapperdao.events.Events
 
 class ManyToOneDeletePlugin extends BeforeDelete {
-	override def idColumnValueContribution[ID, PC <: DeclaredIds[ID], T](
-		tpe: Type[ID, PC, T],
+	override def idColumnValueContribution[ID, T](
+		tpe: Type[ID, T],
 		deleteConfig: DeleteConfig,
-		events: Events,
-		o: T with PC,
-		entityMap: UpdateEntityMap) = Nil
+		o: T with Persisted,
+		entityMap: UpdateEntityMap
+		) = Nil
 
-	override def before[ID, PC <: DeclaredIds[ID], T](
-		entity: Entity[ID, PC, T],
+	override def before[ID, T](
+		entity: Entity[ID, Persisted, T],
 		deleteConfig: DeleteConfig,
-		events: Events,
-		o: T with PC,
+		o: T with Persisted,
 		keyValues: List[(ColumnBase, Any)],
-		entityMap: UpdateEntityMap) {
+		entityMap: UpdateEntityMap
+		) {
 		if (deleteConfig.propagate) {
-			entity.tpe.table.manyToOneColumnInfos.filterNot(deleteConfig.skip.contains(_)).foreach { cis =>
-				cis.column.foreign.entity match {
-					case ee: ExternalEntity[Any, Any] =>
-						val v = cis.columnToValue(o)
-						val handler = ee.manyToOneOnDeleteMap(cis.asInstanceOf[ColumnInfoManyToOne[T, _, _, Any]])
-							.asInstanceOf[ee.OnDeleteManyToOne[Any]]
-						handler(DeleteExternalManyToOne(deleteConfig, o, v))
-					case _ =>
-				}
+			entity.tpe.table.manyToOneColumnInfos.filterNot(deleteConfig.skip.contains(_)).foreach {
+				cis =>
+					cis.column.foreign.entity match {
+						case ee: ExternalEntity[Any, Any] =>
+							val v = cis.columnToValue(o)
+							val handler = ee.manyToOneOnDeleteMap(cis.asInstanceOf[ColumnInfoManyToOne[T, _, Any]])
+							handler(DeleteExternalManyToOne(deleteConfig, v))
+						case _ =>
+					}
 			}
 		}
 	}

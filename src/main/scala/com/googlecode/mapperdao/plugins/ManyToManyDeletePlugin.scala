@@ -1,42 +1,40 @@
 package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao.drivers.Driver
-import com.googlecode.mapperdao.events.Events
 import com.googlecode.mapperdao._
 
-class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDaoImpl) extends BeforeDelete {
+class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDaoImpl) extends BeforeDelete
+{
 
-	override def idColumnValueContribution[ID, PC <: DeclaredIds[ID], T](
-		tpe: Type[ID, PC, T],
+	override def idColumnValueContribution[ID, T](
+		tpe: Type[ID, T],
 		deleteConfig: DeleteConfig,
-		events: Events, o: T with PC,
-		entityMap: UpdateEntityMap): List[(SimpleColumn, Any)] = Nil
+		o: T with Persisted,
+		entityMap: UpdateEntityMap
+		): List[(SimpleColumn, Any)] = Nil
 
-	override def before[ID, PC <: DeclaredIds[ID], T](
-		entity: Entity[ID, PC, T],
+	override def before[ID, T](
+		entity: Entity[ID, Persisted, T],
 		deleteConfig: DeleteConfig,
-		events: Events, o: T with PC,
+		o: T with Persisted,
 		keyValues: List[(ColumnBase, Any)],
-		entityMap: UpdateEntityMap) =
+		entityMap: UpdateEntityMap
+		) {
 		if (deleteConfig.propagate) {
 			val tpe = entity.tpe
-			tpe.table.manyToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach { ci =>
-				// execute before-delete-relationship events
-				events.executeBeforeDeleteRelationshipEvents(tpe, ci, o)
+			tpe.table.manyToManyColumnInfos.filterNot(deleteConfig.skip(_)).foreach {
+				ci =>
+					driver.doDeleteAllManyToManyRef(tpe, ci.column, keyValues.map(_._2))
 
-				driver.doDeleteAllManyToManyRef(tpe, ci.column, keyValues.map(_._2))
+					ci.column.foreign.entity match {
+						case ee: ExternalEntity[Any, Any] =>
+							val fos = ci.columnToValue(o)
 
-				ci.column.foreign.entity match {
-					case ee: ExternalEntity[Any, Any] =>
-						val fo = ci.columnToValue(o)
-						val handler = ee.manyToManyOnDeleteMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[_, _, _, Any]])
-							.asInstanceOf[ee.OnDeleteManyToMany[T]]
-						handler(DeleteExternalManyToMany(deleteConfig, o, fo))
-					case _ =>
-				}
-
-				// execute after-delete-relationship events
-				events.executeAfterDeleteRelationshipEvents(tpe, ci, o)
+							val de = DeleteExternalManyToMany(deleteConfig, fos)
+							ee.manyToManyOnUpdateMap(ci.asInstanceOf[ColumnInfoTraversableManyToMany[T, Any, Any]])(de)
+						case _ =>
+					}
 			}
 		}
+	}
 }

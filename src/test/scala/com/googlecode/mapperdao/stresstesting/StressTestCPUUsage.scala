@@ -12,9 +12,11 @@ import net.sf.ehcache.CacheManager
 /**
  * @author kostantinos.kougios
  *
- * 27 May 2012
+ *         27 May 2012
  */
-object StressTestCPUUsage extends App {
+object StressTestCPUUsage extends App
+{
+
 	import CommonEntities._
 
 	val cache = if (args(1).contains("cached")) {
@@ -52,5 +54,6 @@ object StressTestCPUUsage extends App {
 	println("throughput	:	%d per sec".format((1000 * loops) / dt))
 
 	def select = () => mapperDao.select(ProductEntity, data1.id)
+
 	def lazySelect = () => mapperDao.select(SelectConfig(lazyLoad = LazyLoad.all), ProductEntity, data1.id)
 }

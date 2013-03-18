@@ -7,4 +7,10 @@ package com.googlecode.mapperdao
  *
  * @author kostantinos.kougios
  */
-case class Type[ID, PC <: DeclaredIds[ID], T](val clz: Class[T], val constructor: (Option[_], ValuesMap) => T with PC, table: Table[ID, PC, T])
+trait Type[ID, T] {
+	val clz: Class[T]
+	val constructor: (Option[_], ValuesMap) => T with Persisted
+	val table: Table[ID, T]
+}
+
+

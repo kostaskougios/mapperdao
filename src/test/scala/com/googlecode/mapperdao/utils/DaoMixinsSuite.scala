@@ -1,33 +1,39 @@
 package com.googlecode.mapperdao.utils
+
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.jdbc.{ Setup => TestSetup }
+import com.googlecode.mapperdao.jdbc.{Setup => TestSetup}
 import com.googlecode.mapperdao.jdbc.Transaction
 import com.googlecode.mapperdao.jdbc.Transaction._
-import com.googlecode.mapperdao.exceptions.PersistException
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
+import org.springframework.dao.DataIntegrityViolationException
 
 /**
  * @author kostantinos.kougios
  *
- * 14 Sep 2011
+ *         14 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class DaoMixinsSuite extends FunSuite with ShouldMatchers {
-	import DaoMixinsSpec._
+class DaoMixinsSuite extends FunSuite with ShouldMatchers
+{
+
+	import DaoMixinsSuite._
 
 	val (jdbc, mapperDao, queryDao) = TestSetup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
 	val txManager = Transaction.transactionManager(jdbc)
 
-	object ProductDao extends CRUD[Long, SurrogateLongId, Product] with SurrogateLongIdAll[Product] {
+	object ProductDao extends CRUD[Long, SurrogateLongId, Product] with SurrogateLongIdAll[Product]
+	{
 		protected val entity = ProductEntity
 		protected val queryDao = DaoMixinsSuite.this.queryDao
 		protected val mapperDao = DaoMixinsSuite.this.mapperDao
 	}
-	object ProductDaoTransactional extends TransactionalCRUD[Long, SurrogateLongId, Product] with SurrogateLongIdAll[Product] {
+
+	object ProductDaoTransactional extends TransactionalCRUD[Long, SurrogateLongId, Product] with SurrogateLongIdAll[Product]
+	{
 		protected val entity = ProductEntity
 		protected val queryDao = DaoMixinsSuite.this.queryDao
 		protected val mapperDao = DaoMixinsSuite.this.mapperDao
@@ -68,7 +74,9 @@ class DaoMixinsSuite extends FunSuite with ShouldMatchers {
 
 	test("crud for transactional dao, create rolls back") {
 		createTables
-		evaluating { ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, null, "value10")))) } should produce[PersistException]
+		evaluating {
+			ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, null, "value10"))))
+		} should produce[DataIntegrityViolationException]
 		ProductDaoTransactional.all.toSet should be === Set()
 	}
 
@@ -77,7 +85,9 @@ class DaoMixinsSuite extends FunSuite with ShouldMatchers {
 		val p1 = ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, "name10", "value10"))))
 		val p2 = ProductDaoTransactional.create(Product(2, "product2", Set(Attribute(11, "name11", "value11"), Attribute(12, "name12", "value12"))))
 
-		evaluating { ProductDaoTransactional.update(p1, Product(1, "product1X", p1.attributes + Attribute(50, null, "value50X"))) } should produce[PersistException]
+		evaluating {
+			ProductDaoTransactional.update(p1, Product(1, "product1X", p1.attributes + Attribute(50, null, "value50X")))
+		} should produce[DataIntegrityViolationException]
 
 		ProductDaoTransactional.all.toSet should be === Set(p1, p2)
 	}
@@ -87,10 +97,11 @@ class DaoMixinsSuite extends FunSuite with ShouldMatchers {
 		val p1 = ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, "name10", "value10"))))
 		val p2 = ProductDaoTransactional.create(Product(2, "product2", Set(Attribute(11, "name11", "value11"), Attribute(12, "name12", "value12"))))
 
-		Transaction.get(txManager, Propagation.Nested, Isolation.Serializable, -1) { status =>
-			ProductDaoTransactional.delete(p1)
-			ProductDaoTransactional.delete(p2)
-			status.setRollbackOnly
+		Transaction.get(txManager, Propagation.Nested, Isolation.Serializable, -1) {
+			status =>
+				ProductDaoTransactional.delete(p1)
+				ProductDaoTransactional.delete(p2)
+				status.setRollbackOnly
 		}
 
 		ProductDaoTransactional.all.toSet should be === Set(p1, p2)
@@ -109,30 +120,35 @@ class DaoMixinsSuite extends FunSuite with ShouldMatchers {
 		ProductDao.all.toSet should be === Set(p1u)
 	}
 
-	def createTables =
-		{
-			TestSetup.dropAllTables(jdbc)
-			TestSetup.queries(this, jdbc).update("ddl")
-		}
+	def createTables = {
+		TestSetup.dropAllTables(jdbc)
+		TestSetup.queries(this, jdbc).update("ddl")
+	}
 }
 
-object DaoMixinsSpec {
-	case class Product(val id: Long, val name: String, val attributes: Set[Attribute])
-	case class Attribute(val id: Int, val name: String, val value: String)
+object DaoMixinsSuite
+{
 
-	object ProductEntity extends Entity[Long, SurrogateLongId, Product] {
+	case class Product(id: Long, name: String, attributes: Set[Attribute])
+
+	case class Attribute(id: Int, name: String, value: String)
+
+	object ProductEntity extends Entity[Long, SurrogateLongId, Product]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
 
-		def constructor(implicit m: ValuesMap) = new Product(id, name, attributes) with SurrogateLongId
+		def constructor(implicit m: ValuesMap) = new Product(id, name, attributes) with Stored
 	}
 
-	object AttributeEntity extends Entity[Int, SurrogateIntId, Attribute] {
+	object AttributeEntity extends Entity[Int, SurrogateIntId, Attribute]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m: ValuesMap) = new Attribute(id, name, value) with SurrogateIntId
+		def constructor(implicit m: ValuesMap) = new Attribute(id, name, value) with Stored
 	}
+
 }

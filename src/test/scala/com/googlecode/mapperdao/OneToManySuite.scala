@@ -12,17 +12,77 @@ import com.googlecode.mapperdao.utils.Helpers
  *
  * @author kostantinos.kougios
  *
- * 12 Jul 2011
+ *         12 Jul 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToManySuite extends FunSuite with ShouldMatchers {
+class OneToManySuite extends FunSuite with ShouldMatchers
+{
 
-	import OneToManySpec._
+	import OneToManySuite._
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity, HouseEntity, PersonEntity))
 
+	test("insert batch") {
+		createTables()
+		val jp1 = new JobPosition(3, "J1", 10)
+		val jp2 = new JobPosition(5, "J2", 10)
+		val jp3 = new JobPosition(7, "J3", 10)
+		val p1 = new Person(3, "P1", "X", Set(House(1, "H1"), House(2, "H2")), 16, List(jp1))
+		val p2 = new Person(4, "P2", "Y", Set(House(3, "H3"), House(4, "H4")), 25, List(jp2, jp3))
+
+		val List(i1, i2) = mapperDao.insertBatch(PersonEntity, List(p1, p2))
+		i1 should be(p1)
+		i2 should be(p2)
+
+		mapperDao.select(PersonEntity, i1.id).get should be(i1)
+		mapperDao.select(PersonEntity, i2.id).get should be(i2)
+	}
+
+	test("update batch on inserted") {
+		createTables()
+		val jp1 = new JobPosition(3, "J1", 10)
+		val jp2 = new JobPosition(5, "J2", 10)
+		val jp3 = new JobPosition(7, "J3", 10)
+		val p1 = new Person(3, "P1", "X", Set(House(1, "H1"), House(2, "H2")), 16, List(jp1))
+		val p2 = new Person(4, "P2", "Y", Set(House(3, "H3"), House(4, "H4")), 25, List(jp2, jp3))
+
+		val List(i1, i2) = mapperDao.insertBatch(PersonEntity, List(p1, p2))
+
+		val u1 = i1.copy(owns = i1.owns - House(1, "H1") + House(11, "H11"))
+		val u2 = i2.copy(owns = i2.owns - House(3, "H3") + House(13, "H13"))
+		val List(up1, up2) = mapperDao.updateBatch(PersonEntity, List((i1, u1), (i2, u2)))
+		up1 should be(u1)
+		up2 should be(u2)
+
+		mapperDao.select(PersonEntity, up1.id).get should be(up1)
+		mapperDao.select(PersonEntity, up2.id).get should be(up2)
+	}
+
+	test("update batch on selected") {
+		createTables()
+		val jp1 = new JobPosition(3, "J1", 10)
+		val jp2 = new JobPosition(5, "J2", 10)
+		val jp3 = new JobPosition(7, "J3", 10)
+		val p1 = new Person(3, "P1", "X", Set(House(1, "H1"), House(2, "H2")), 16, List(jp1))
+		val p2 = new Person(4, "P2", "Y", Set(House(3, "H3"), House(4, "H4")), 25, List(jp2, jp3))
+
+		val List(i1, i2) = mapperDao.insertBatch(PersonEntity, List(p1, p2)).map {
+			p =>
+				mapperDao.select(PersonEntity, p.id).get
+		}
+
+		val u1 = i1.copy(owns = i1.owns - House(1, "H1") + House(11, "H11"))
+		val u2 = i2.copy(owns = i2.owns - House(3, "H3") + House(13, "H13"))
+		val List(up1, up2) = mapperDao.updateBatch(PersonEntity, List((i1, u1), (i2, u2)))
+		up1 should be(u1)
+		up2 should be(u2)
+
+		mapperDao.select(PersonEntity, up1.id).get should be(up1)
+		mapperDao.select(PersonEntity, up2.id).get should be(up2)
+	}
+
 	test("updating id of many entity") {
-		createTables
+		createTables()
 
 		val jp1 = new JobPosition(3, "C++ Developer", 10)
 		val jp2 = new JobPosition(5, "Scala Developer", 10)
@@ -36,7 +96,7 @@ class OneToManySuite extends FunSuite with ShouldMatchers {
 
 	if (Setup.database != "derby") {
 		test("updating id of primary entity") {
-			createTables
+			createTables()
 
 			val jp1 = new JobPosition(3, "C++ Developer", 10)
 			val jp2 = new JobPosition(5, "Scala Developer", 10)
@@ -51,7 +111,7 @@ class OneToManySuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("updating items, immutable") {
-		createTables
+		createTables()
 
 		val jp1 = new JobPosition(3, "C++ Developer", 10)
 		val jp2 = new JobPosition(5, "Scala Developer", 10)
@@ -62,13 +122,12 @@ class OneToManySuite extends FunSuite with ShouldMatchers {
 		val inserted = mapperDao.insert(PersonEntity, person)
 
 		var updated: Person = inserted
-		def doUpdate(from: Person, to: Person) =
-			{
-				updated = mapperDao.update(PersonEntity, Helpers.asSurrogateIntId(from), to)
-				updated should be === to
-				mapperDao.select(PersonEntity, 3).get should be === updated
-				mapperDao.select(PersonEntity, 3).get should be === to
-			}
+		def doUpdate(from: Person, to: Person) {
+			updated = mapperDao.update(PersonEntity, Helpers.asSurrogateIntId(from), to)
+			updated should be === to
+			mapperDao.select(PersonEntity, 3).get should be === updated
+			mapperDao.select(PersonEntity, 3).get should be === to
+		}
 		doUpdate(updated, new Person(3, "Changed", "K", updated.owns, 18, updated.positions.filterNot(_ == jp1)))
 		doUpdate(updated, new Person(3, "Changed Again", "Surname changed too", updated.owns.filter(_.address == "London"), 18, jp5 :: updated.positions.filterNot(jp ⇒ jp == jp1 || jp == jp3)))
 
@@ -77,7 +136,7 @@ class OneToManySuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("updating items, mutable") {
-		createTables
+		createTables()
 
 		val jp1 = new JobPosition(3, "C++ Developer", 10)
 		val jp2 = new JobPosition(5, "Scala Developer", 10)
@@ -98,7 +157,7 @@ class OneToManySuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("removing items") {
-		createTables
+		createTables()
 
 		val jp1 = new JobPosition(3, "C++ Developer", 10)
 		val jp2 = new JobPosition(5, "Scala Developer", 10)
@@ -118,7 +177,7 @@ class OneToManySuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("adding items") {
-		createTables
+		createTables()
 
 		val person = new Person(3, "Kostas", "K", Set(House(1, "London"), House(2, "Rhodes")), 16, List(new JobPosition(5, "Scala Developer", 10), new JobPosition(7, "Java Developer", 10)))
 		mapperDao.insert(PersonEntity, person)
@@ -139,7 +198,7 @@ class OneToManySuite extends FunSuite with ShouldMatchers {
 	}
 
 	test("CRUD (multi purpose test)") {
-		createTables
+		createTables()
 
 		val person = new Person(3, "Kostas", "K", Set(House(1, "London"), House(2, "Rhodes")), 16, List(new JobPosition(5, "Scala Developer", 10), new JobPosition(7, "Java Developer", 10)))
 		mapperDao.insert(PersonEntity, person)
@@ -181,13 +240,15 @@ class OneToManySuite extends FunSuite with ShouldMatchers {
 		mapperDao.select(PersonEntity, 3).get should be === removedReloaded
 	}
 
-	def createTables {
+	def createTables() {
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update("ddl")
 	}
 }
 
-object OneToManySpec {
+object OneToManySuite
+{
+
 	/**
 	 * ============================================================================================================
 	 * the entities
@@ -200,9 +261,11 @@ object OneToManySpec {
 	 * Also the only reason for this class to be mutable is for testing. In a real application
 	 * it could be immutable.
 	 */
-	case class JobPosition(val id: Int, var name: String, var rank: Int) {
+	case class JobPosition(id: Int, var name: String, var rank: Int)
+	{
 		// this can have any arbitrary methods, no problem!
 		def whatRank = rank
+
 		// also any non persisted fields, no prob! It's up to the mapper which fields will be used
 		val whatever = 5
 	}
@@ -214,48 +277,48 @@ object OneToManySpec {
 	 * Also the only reason for this class to be mutable is for testing. In a real application
 	 * it could be immutable.
 	 */
-	case class Person(val id: Int, var name: String, val surname: String, owns: Set[House], var age: Int, var positions: List[JobPosition])
+	case class Person(id: Int, var name: String, surname: String, owns: Set[House], var age: Int, var positions: List[JobPosition])
 
-	case class House(val id: Int, val address: String)
+	case class House(id: Int, address: String)
 
 	/**
 	 * ============================================================================================================
 	 * Mapping for JobPosition class
 	 * ============================================================================================================
 	 */
-	object JobPositionEntity extends Entity[Int, SurrogateIntId, JobPosition] {
+	object JobPositionEntity extends Entity[Int, SurrogateIntId, JobPosition]
+	{
 
 		// now a description of the table and it's columns follows.
 		// each column is followed by a function JobPosition=>T, that
 		// returns the value of the property for that column.
-		val id = key("id") to (_.id) // this is the primary key
-		val name = column("name") to (_.name) // _.name : JobPosition => Any . Function that maps the column to the value of the object
+		val id = key("id") to (_.id)
+		// this is the primary key
+		val name = column("name") to (_.name)
+		// _.name : JobPosition => Any . Function that maps the column to the value of the object
 		val rank = column("rank") to (_.rank)
 
-		def constructor(implicit m) = new JobPosition(id, name, rank) with SurrogateIntId
+		def constructor(implicit m) = new JobPosition(id, name, rank) with Stored
 	}
 
-	object HouseEntity extends Entity[Int, SurrogateIntId, House] {
+	object HouseEntity extends Entity[Int, SurrogateIntId, House]
+	{
 		val id = key("id") to (_.id)
 		val address = column("address") to (_.address)
 
-		def constructor(implicit m) = new House(id, address) with SurrogateIntId
+		def constructor(implicit m) = new House(id, address) with Stored
 	}
-	object PersonEntity extends Entity[Int, SurrogateIntId, Person] {
+
+	object PersonEntity extends Entity[Int, SurrogateIntId, Person]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val surname = column("surname") to (_.surname)
 		val houses = onetomany(HouseEntity) to (_.owns)
 		val age = column("age") to (_.age)
-		/**
-		 * a traversable one-to-many relationship with JobPositions.
-		 * The type of the relationship is classOf[JobPosition] and the alias
-		 * for retrieving the Traversable is jobPositionsAlias. This is used above, when
-		 * creating Person: new Person(....,m.toList("jobPositionsAlias")) .
-		 * JobPositions table has a person_id foreign key which references Person table.
-		 */
 		val jobPositions = onetomany(JobPositionEntity) to (_.positions)
 
-		def constructor(implicit m) = new Person(id, name, surname, houses, age, m(jobPositions).toList.sortWith(_.id < _.id)) with SurrogateIntId
+		def constructor(implicit m) = new Person(id, name, surname, houses, age, m(jobPositions).toList.sortWith(_.id < _.id)) with Stored
 	}
+
 }

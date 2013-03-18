@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.JdbcMap
-import org.joda.time.DateTime
 
 /**
  * manages types
@@ -11,15 +10,16 @@ import org.joda.time.DateTime
  *
  * @author kostantinos.kougios
  *
- * 30 Jul 2011
+ *         30 Jul 2011
  */
 trait TypeManager {
 
 	def normalize(v: Any): Any
+
 	/**
 	 * converts o to tpe if possible
 	 */
 	def toActualType(tpe: Class[_], o: Any): Any
 
-	def correctTypes[ID, PC <: DeclaredIds[ID], T](table: Table[ID, PC, T], j: JdbcMap): DatabaseValues
+	def correctTypes[ID, T](table: Table[ID, T], j: JdbcMap): DatabaseValues
 }

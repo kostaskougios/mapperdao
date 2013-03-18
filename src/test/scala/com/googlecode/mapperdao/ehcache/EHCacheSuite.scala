@@ -11,17 +11,18 @@ import org.scalatest.FunSuite
 import com.googlecode.mapperdao.CacheOptions
 import net.sf.ehcache.CacheManager
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.BeforeAndAfterAll
 import org.scalatest.BeforeAndAfter
 import com.googlecode.mapperdao.jdbc.Setup
+import scala.Predef._
 
 /**
  * @author kostantinos.kougios
  *
- * 24 Mar 2012
+ *         24 Mar 2012
  */
 @RunWith(classOf[JUnitRunner])
-class EHCacheSuite extends FunSuite with ShouldMatchers with BeforeAndAfter {
+class EHCacheSuite extends FunSuite with ShouldMatchers with BeforeAndAfter
+{
 	if (Setup.database == "h2") {
 		val cacheManager = CacheManager.create
 		val ehCache = cacheManager.getCache("EHCacheSuite")
@@ -107,7 +108,7 @@ class EHCacheSuite extends FunSuite with ShouldMatchers with BeforeAndAfter {
 							exit()
 					}
 				}
-			}.start
+			}.start()
 
 			val actors = for (i <- 1 to 100) yield createActor
 			for (i <- 1 to 10000) {

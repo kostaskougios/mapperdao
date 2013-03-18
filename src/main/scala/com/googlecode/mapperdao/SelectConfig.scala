@@ -1,11 +1,12 @@
 package com.googlecode.mapperdao
+
 import com.googlecode.mapperdao.drivers.SelectHints
 
 /**
  * mapperDao.select configuration.
  *
  * @param	skip	skip one or more relationships from loading. If skipped, a traversable will
- * 					be empty and a reference to an other entity will be null
+ *                   be empty and a reference to an other entity will be null
  * @param	data	any kind of data that will be passed on to Entity.constructor
  *
  * @param	lazyLoad	configure lazy loading of related entities. Please see LazyLoad class
@@ -14,17 +15,18 @@ import com.googlecode.mapperdao.drivers.SelectHints
  *
  * @param	manyToManyCustomLoaders		(optimization) Load many to many relationships manually
  *
- * example: SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
+ *                                          example: SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
  */
 case class SelectConfig(
-		skip: Set[ColumnInfoRelationshipBase[_, _, _, _, _]] = Set(),
-		data: Option[Any] = None,
-		cacheOptions: CacheOption = CacheOptions.NoCache,
-		lazyLoad: LazyLoad = LazyLoad.none,
-		hints: SelectHints = SelectHints.None,
-		manyToManyCustomLoaders: List[CustomLoader[_, _, _, _]] = Nil) {
+	skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
+	data: Option[Any] = None,
+	cacheOptions: CacheOption = CacheOptions.NoCache,
+	lazyLoad: LazyLoad = LazyLoad.none,
+	hints: SelectHints = SelectHints.None,
+	manyToManyCustomLoaders: List[CustomLoader[_, _, _]] = Nil
+) {
 
-	def loaderFor(ci: ColumnInfoRelationshipBase[_, _, _, _, _]) = manyToManyCustomLoaders.find(_.ci == ci)
+	def loaderFor(ci: ColumnInfoRelationshipBase[_, _, _, _]) = manyToManyCustomLoaders.find(_.ci == ci)
 }
 
 object SelectConfig {

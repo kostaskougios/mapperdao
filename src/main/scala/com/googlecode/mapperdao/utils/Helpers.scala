@@ -10,7 +10,8 @@ import com.googlecode.mapperdao._
  *
  *         26 Oct 2011
  */
-object Helpers {
+object Helpers
+{
 
 	/**
 	 * tests any instance to find out if it is a persisted one
@@ -130,7 +131,8 @@ object Helpers {
 		case (a1, a2, a3) => List(a1, a2, a3)
 		case (a1, a2, a3, a4) => List(a1, a2, a3, a4)
 		case (a1, a2, a3, a4, a5) => List(a1, a2, a3, a4, a5)
-		case t: Product => t.productIterator.toList
+		case (a1, a2, a3, a4, a5, a6) => List(a1, a2, a3, a4, a5, a6)
+		case (a1, a2, a3, a4, a5, a6, a7) => List(a1, a2, a3, a4, a5, a6, a7)
 		case a => List(a)
 	}
 
@@ -138,7 +140,7 @@ object Helpers {
 	 * releases the objects used to store state for lazy loading to occur, freeing memory
 	 * but lazy loaded relationships will not be loaded if their fields are accessed.
 	 */
-	def unlinkLazyLoadMemoryData[ID, PC <: DeclaredIds[ID], T](entity: Entity[ID, PC, T], o: Any) {
+	def unlinkLazyLoadMemoryData[ID,PC<:Persisted, T](entity: Entity[ID,PC, T], o: T) {
 		val visitor = new FreeLazyLoadedEntityVisitor
 		visitor.visit(entity, o)
 		visitor.free(o)

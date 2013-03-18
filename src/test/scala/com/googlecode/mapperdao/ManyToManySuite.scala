@@ -1,4 +1,5 @@
 package com.googlecode.mapperdao
+
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -8,12 +9,90 @@ import org.scalatest.matchers.ShouldMatchers
 /**
  * @author kostantinos.kougios
  *
- * 8 Aug 2011
+ *         8 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToManySuite extends FunSuite with ShouldMatchers {
+class ManyToManySuite extends FunSuite with ShouldMatchers
+{
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+
+	test("batch insert") {
+		createTables
+		val p1 = Product(2, "blue jean", Set(Attribute(6, "colour", "blue"), Attribute(9, "size", "medium")))
+		val p2 = Product(3, "green jean", Set(Attribute(16, "colour", "green"), Attribute(19, "size", "small")))
+
+		val inserted = mapperDao.insertBatch(UpdateConfig.default, ProductEntity, p1 :: p2 :: Nil)
+
+		inserted should be(p1 :: p2 :: Nil)
+
+		import Query._
+		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1 :: p2 :: Nil)
+	}
+
+	test("batch update on inserted") {
+		createTables
+		val a1 = Attribute(6, "colour", "blue")
+		val a2 = Attribute(9, "size", "medium")
+		val a3 = Attribute(16, "colour", "green")
+		val a4 = Attribute(19, "size", "small")
+		val p1 = Product(2, "blue jean", Set(a1, a2))
+		val p2 = Product(3, "green jean", Set(a2, a3))
+
+		val List(i1, i2) = mapperDao.insertBatch(UpdateConfig.default, ProductEntity, p1 :: p2 :: Nil)
+
+		val p1u = i1.copy(name = "b jeans", attributes = i1.attributes - a2 + a4)
+		val p2u = i2.copy(name = "g jeans", attributes = i2.attributes - a2 + a4)
+		val updated = mapperDao.updateBatch(UpdateConfig.default, ProductEntity, (i1, p1u) ::(i2, p2u) :: Nil)
+		updated should be(p1u :: p2u :: Nil)
+		import Query._
+		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1u :: p2u :: Nil)
+	}
+
+	test("batch update on selected") {
+		createTables
+		val a1 = Attribute(6, "colour", "blue")
+		val a2 = Attribute(9, "size", "medium")
+		val a3 = Attribute(16, "colour", "green")
+		val a4 = Attribute(19, "size", "small")
+		val p1 = Product(2, "blue jean", Set(a1, a2))
+		val p2 = Product(3, "green jean", Set(a2, a3))
+
+		val List(i1, i2) = mapperDao.insertBatch(UpdateConfig.default, ProductEntity, p1 :: p2 :: Nil).map {
+			i =>
+				mapperDao.select(ProductEntity, i.id).get
+		}
+
+		val p1u = i1.copy(name = "b jeans", attributes = i1.attributes - a2 + a4)
+		val p2u = i2.copy(name = "g jeans", attributes = i2.attributes - a2 + a4)
+		val updated = mapperDao.updateBatch(UpdateConfig.default, ProductEntity, (i1, p1u) ::(i2, p2u) :: Nil)
+		updated should be(p1u :: p2u :: Nil)
+		import Query._
+		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1u :: p2u :: Nil)
+	}
+
+	test("multiple entities, with existing") {
+		createTables
+
+		val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
+		val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
+
+		val p1 = Product(2, "blue jean", Set(a1, a2))
+		val p2 = Product(3, "green jean", Set(a1, a2, Attribute(16, "colour", "green"), Attribute(19, "size", "small")))
+
+		val inserted = mapperDao.insertBatch(UpdateConfig.default, ProductEntity, p1 :: p2 :: Nil)
+
+		inserted should be(p1 :: p2 :: Nil)
+
+		import Query._
+		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1 :: p2 :: Nil)
+
+		val p1u = p1.copy(name = "b jeans", attributes = Set(a1))
+		val p2u = p2.copy(name = "g jeans", attributes = Set(a2))
+		val updated = mapperDao.updateBatch(UpdateConfig.default, ProductEntity, (inserted.head, p1u) ::(inserted.tail.head, p2u) :: Nil)
+		updated should be(p1u :: p2u :: Nil)
+		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1u :: p2u :: Nil)
+	}
 
 	if (Setup.database != "derby") {
 		test("update id of main entity") {
@@ -84,7 +163,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		val product = Product(1, "blue jean", Set(Attribute(5, "colour", "blue"), Attribute(6, "size", "medium"), Attribute(7, "size", "large")))
 		val inserted = mapperDao.insert(ProductEntity, product)
 
-		val changed = Product(1, "just jean", inserted.attributes.filterNot(_.name == "size"));
+		val changed = Product(1, "just jean", inserted.attributes.filterNot(_.name == "size"))
 		val updated = mapperDao.update(ProductEntity, inserted, changed)
 		updated should be === changed
 
@@ -104,7 +183,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		val a5l = mapperDao.select(AttributeEntity, 5).get
 		val a7l = mapperDao.select(AttributeEntity, 7).get
 
-		val changed = Product(1, "just jean", Set(a5l, a7l));
+		val changed = Product(1, "just jean", Set(a5l, a7l))
 		val updated = mapperDao.update(ProductEntity, inserted, changed)
 		updated should be === changed
 
@@ -124,7 +203,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		val a5l = mapperDao.select(AttributeEntity, 5).get
 		val a7l = mapperDao.select(AttributeEntity, 7).get
 
-		val changed = Product(1, "just jean", Set(a5l, a6, a7l));
+		val changed = Product(1, "just jean", Set(a5l, a6, a7l))
 		val updated = mapperDao.update(ProductEntity, inserted, changed)
 		updated should be === changed
 
@@ -144,7 +223,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		val a5l = mapperDao.select(AttributeEntity, 5).get
 		val a7l = mapperDao.select(AttributeEntity, 7).get
 
-		val changed = Product(1, "just jean", Set(a5l, a7l));
+		val changed = Product(1, "just jean", Set(a5l, a7l))
 		val updated = mapperDao.update(ProductEntity, inserted, changed)
 		updated should be === changed
 
@@ -158,7 +237,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		val product = Product(1, "blue jean", Set(Attribute(5, "colour", "blue")))
 		val inserted = mapperDao.insert(ProductEntity, product)
 
-		val changed = Product(1, "just jean", inserted.attributes + Attribute(6, "size", "medium") + Attribute(7, "size", "large"));
+		val changed = Product(1, "just jean", inserted.attributes + Attribute(6, "size", "medium") + Attribute(7, "size", "large"))
 		val updated = mapperDao.update(ProductEntity, inserted, changed)
 		updated should be === changed
 
@@ -174,7 +253,7 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 
 		val persistedA = mapperDao.insert(AttributeEntity, Attribute(6, "size", "medium"))
 
-		val changed = Product(1, "just jean", inserted.attributes + persistedA + Attribute(7, "size", "large"));
+		val changed = Product(1, "just jean", inserted.attributes + persistedA + Attribute(7, "size", "large"))
 		val updated = mapperDao.update(ProductEntity, inserted, changed)
 		updated should be === changed
 
@@ -183,27 +262,31 @@ class ManyToManySuite extends FunSuite with ShouldMatchers {
 		selected should be === updated
 	}
 
-	def createTables =
-		{
-			Setup.dropAllTables(jdbc)
-			Setup.queries(this, jdbc).update("ddl")
-		}
+	def createTables = {
+		Setup.dropAllTables(jdbc)
+		Setup.queries(this, jdbc).update("ddl")
+	}
 
-	case class Product(val id: Int, val name: String, val attributes: Set[Attribute])
-	case class Attribute(val id: Int, val name: String, val value: String)
+	case class Product(id: Int, name: String, attributes: Set[Attribute])
 
-	object ProductEntity extends Entity[Int, SurrogateIntId, Product] {
+	case class Attribute(id: Int, name: String, value: String)
+
+	object ProductEntity extends Entity[Int, NaturalIntId, Product]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
-		def constructor(implicit m) = new Product(id, name, attributes) with SurrogateIntId
+
+		def constructor(implicit m) = new Product(id, name, attributes) with Stored
 	}
 
-	object AttributeEntity extends Entity[Int, SurrogateIntId, Attribute] {
+	object AttributeEntity extends Entity[Int, NaturalIntId, Attribute]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m) = new Attribute(id, name, value) with SurrogateIntId
+		def constructor(implicit m) = new Attribute(id, name, value) with Stored
 	}
+
 }

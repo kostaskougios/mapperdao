@@ -1,7 +1,8 @@
 package com.googlecode.mapperdao
 
-case class ColumnInfoTraversableManyToMany[T, FID, FPC <: DeclaredIds[FID], F](
-	val column: ManyToMany[FID, FPC, F],
-	val columnToValue: T => Traversable[F],
-	val getterMethod: Option[GetterMethod])
-		extends ColumnInfoRelationshipBase[T, Traversable[F], FID, FPC, F]
+case class ColumnInfoTraversableManyToMany[T, FID, F](
+	column: ManyToMany[FID, F],
+	columnToValue: T => Traversable[F],
+	getterMethod: Option[GetterMethod]
+	)
+	extends ColumnInfoRelationshipBase[T, Traversable[F], FID, F]

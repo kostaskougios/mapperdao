@@ -1,5 +1,8 @@
 /.cache
 /target
+.idea
+mapperdao.iml
+lib
 *~
 tmp.pom
 .idea

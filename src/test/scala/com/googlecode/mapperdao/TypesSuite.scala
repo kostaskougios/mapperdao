@@ -10,10 +10,11 @@ import org.scala_tools.time.Imports._
 /**
  * @author kostantinos.kougios
  *
- * 6 Aug 2012
+ *         6 Aug 2012
  */
 @RunWith(classOf[JUnitRunner])
-class TypesSuite extends FunSuite with ShouldMatchers {
+class TypesSuite extends FunSuite with ShouldMatchers
+{
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(BDEntity))
 
 	test("localTime, not null") {
@@ -268,20 +269,23 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 
 	case class Dates(id: Int, localDate: LocalDate = null, time: LocalTime = null)
 
-	object DatesEntity extends Entity[Int, NaturalIntId, Dates] {
+	object DatesEntity extends Entity[Int,NaturalIntId, Dates]
+	{
 		val id = key("id") to (_.id)
 		val localDate = column("localDate") to (_.localDate)
 		val time = column("time") to (_.time)
 
-		def constructor(implicit m) = new Dates(id, localDate, time) with NaturalIntId
+		def constructor(implicit m) = new Dates(id, localDate, time) with Stored
 	}
 
 	case class ODates(id: Int, localDate: Option[LocalDate])
-	object ODatesEntity extends Entity[Int, NaturalIntId, ODates]("Dates") {
+
+	object ODatesEntity extends Entity[Int,NaturalIntId, ODates]("Dates")
+	{
 		val id = key("id") to (_.id)
 		val localDate = column("localDate") option (_.localDate)
 
-		def constructor(implicit m) = new ODates(id, localDate) with NaturalIntId
+		def constructor(implicit m) = new ODates(id, localDate) with Stored
 	}
 
 	case class BD(
@@ -291,14 +295,15 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		nvarchar: String = null,
 		text: String = null)
 
-	object BDEntity extends Entity[Int, NaturalIntId, BD] {
+	object BDEntity extends Entity[Int,NaturalIntId, BD]
+	{
 		val id = key("id") to (_.id)
 		val big = column("big") to (_.big)
 		val bool = column("bool") to (_.bool)
 		val nvarchar = column("nv") to (_.nvarchar)
 		val text = column("tx") to (_.text)
 
-		def constructor(implicit m) = new BD(id, big, bool, nvarchar, text) with NaturalIntId
+		def constructor(implicit m) = new BD(id, big, bool, nvarchar, text) with Stored
 	}
 
 	case class OBD(
@@ -313,7 +318,8 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 		float: Option[Float] = None,
 		double: Option[Double] = None)
 
-	object OBDEntity extends Entity[Int, NaturalIntId, OBD] {
+	object OBDEntity extends Entity[Int,NaturalIntId, OBD]
+	{
 		val id = key("id") to (_.id)
 		val big = column("big") option (_.big)
 		val bool = column("bool") option (_.bool)
@@ -335,6 +341,7 @@ class TypesSuite extends FunSuite with ShouldMatchers {
 			int,
 			long,
 			float,
-			double) with NaturalIntId
+			double) with Stored
 	}
+
 }

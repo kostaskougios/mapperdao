@@ -8,14 +8,16 @@ import org.scalatest.matchers.ShouldMatchers
 /**
  * @author kostantinos.kougios
  *
- * 30 Aug 2011
+ *         30 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class TransactionSuite extends FunSuite with ShouldMatchers {
+class TransactionSuite extends FunSuite with ShouldMatchers
+{
 
 	private val jdbc = Setup.setupJdbc
 
 	import Transaction._
+
 	val txManager = Transaction.transactionManager(jdbc)
 	val tx = Transaction.get(txManager, Propagation.Nested, Isolation.ReadCommited, -1)
 
@@ -26,8 +28,9 @@ class TransactionSuite extends FunSuite with ShouldMatchers {
 
 	test("commit") {
 		before
-		tx { () =>
-			for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i);
+		tx {
+			() =>
+				for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i)
 		}
 
 		jdbc.queryForInt("select count(*) from tx") should be === 5
@@ -36,9 +39,10 @@ class TransactionSuite extends FunSuite with ShouldMatchers {
 	test("rollback") {
 		before
 		try {
-			tx { () =>
-				for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i);
-				throw new IllegalStateException
+			tx {
+				() =>
+					for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i)
+					throw new IllegalStateException
 			}
 		} catch {
 			case e: IllegalStateException => // ignore
@@ -49,9 +53,10 @@ class TransactionSuite extends FunSuite with ShouldMatchers {
 
 	test("manual rollback") {
 		before
-		tx { status =>
-			for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i);
-			status.setRollbackOnly
+		tx {
+			status =>
+				for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i)
+				status.setRollbackOnly
 		}
 
 		jdbc.queryForInt("select count(*) from tx") should be === 0

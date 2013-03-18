@@ -6,18 +6,17 @@ import scala.collection.mutable.ListMap
 
 import org.objenesis.ObjenesisStd
 
-import com.googlecode.classgenerator.runtime.Args
 import com.googlecode.classgenerator.ClassManager
-import com.googlecode.classgenerator.LazyLoadInstanceFactory
 import com.googlecode.classgenerator.MethodImplementation
 import com.googlecode.classgenerator.ReflectionManager
 import javassist._
+
 /**
  * manages lazy loading of classes
  *
  * @author kostantinos.kougios
  *
- * 18 Apr 2012
+ *         18 Apr 2012
  */
 private[mapperdao] class LazyLoadManager {
 
@@ -25,15 +24,15 @@ private[mapperdao] class LazyLoadManager {
 
 	type CacheKey = (Class[_], LazyLoad)
 
-	private val classCache = new scala.collection.mutable.HashMap[CacheKey, (Class[_], Map[String, ColumnInfoRelationshipBase[_, Any, Any, DeclaredIds[Any], Any]])]
+	private val classCache = new scala.collection.mutable.HashMap[CacheKey, (Class[_], Map[String, ColumnInfoRelationshipBase[_, Any, Any, Any]])]
 
-	def proxyFor[ID, PC <: DeclaredIds[ID], T](constructed: T with PC, entity: Entity[ID, PC, T], lazyLoad: LazyLoad, vm: ValuesMap): T with PC = {
+	def proxyFor[ID, T](constructed: T with Persisted, entity: Entity[ID,_, T], lazyLoad: LazyLoad, vm: ValuesMap): T with Persisted = {
 		if (constructed == null) throw new NullPointerException("constructed can't be null")
 
 		val clz = entity.clz
 		val constructedClz = constructed.getClass
 		// find all relationships that should be proxied
-		val relationships = entity.tpe.table.relationshipColumnInfos
+		val relationships = entity.tpe.table.allRelationshipColumnInfos
 
 		val key = (clz, lazyLoad)
 		val lazyRelationships = relationships.filter(lazyLoad.isLazyLoaded(_))
@@ -49,8 +48,9 @@ private[mapperdao] class LazyLoadManager {
 					throw new IllegalStateException("can't lazy load class that doesn't declare any getters for relationships. Entity: %s".format(clz))
 				val proxyClz = createProxyClz(constructedClz, clz, methods)
 
-				val methodToCI = lazyRelationships.map { ci =>
-					(ci.getterMethod.get.getterMethod.getName, ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, DeclaredIds[Any], Any]])
+				val methodToCI = lazyRelationships.map {
+					ci =>
+						(ci.getterMethod.get.getterMethod.getName, ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, Any]])
 				}.toMap
 				val r = (proxyClz, methodToCI)
 				classCache.put(key, r)
@@ -59,7 +59,7 @@ private[mapperdao] class LazyLoadManager {
 		}
 
 		val instantiator = objenesis.getInstantiatorOf(proxyClz)
-		val instance = instantiator.newInstance.asInstanceOf[PC with T with MethodImplementation[T with Persisted]]
+		val instance = instantiator.newInstance.asInstanceOf[DeclaredIds[ID] with T with MethodImplementation[T with Persisted]]
 
 		// copy data from constructed to instance
 		reflectionManager.copy(clz, constructed, instance)
@@ -70,11 +70,12 @@ private[mapperdao] class LazyLoadManager {
 		// prepare the dynamic function
 
 		// memory optimization for unlinked entities
-		val toLazyLoad = ListMap.empty ++ lazyRelationships.map { ci =>
-			(ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, DeclaredIds[Any], Any]], vm.columnValue[() => Any](ci))
+		val toLazyLoad = ListMap.empty ++ lazyRelationships.map {
+			ci =>
+				(ci.asInstanceOf[ColumnInfoRelationshipBase[T, Any, Any, Any]], vm.columnValue[() => Any](ci))
 		}.toMap
 
-		val llpm = new LazyLoadProxyMethod[T](toLazyLoad, methodToCI.asInstanceOf[Map[String, ColumnInfoRelationshipBase[T, Any, Any, DeclaredIds[Any], Any]]])
+		val llpm = new LazyLoadProxyMethod[T](toLazyLoad, methodToCI.asInstanceOf[Map[String, ColumnInfoRelationshipBase[T, Any, Any, Any]]])
 		llpm.mapperDaoValuesMap = vm
 		instance.methodImplementation(llpm)
 		instance
@@ -91,7 +92,7 @@ private[mapperdao] class LazyLoadManager {
 			guardIdField(originalClz)
 			b.interface[SurrogateIntId]
 			b.field("private int id;")
-			b.methodWithSrc("""
+			b.methodWithSrc( """
 					public int id() {
 						return id;
 					}""")
@@ -99,7 +100,7 @@ private[mapperdao] class LazyLoadManager {
 			guardIdField(originalClz)
 			b.interface[SurrogateLongId]
 			b.field("private long id;")
-			b.methodWithSrc("""
+			b.methodWithSrc( """
 					public long id() {
 						return id;
 					}""")
@@ -117,10 +118,15 @@ private[mapperdao] class LazyLoadManager {
 	}
 
 	private def hasIntId(clz: Class[_]) = classOf[SurrogateIntId].isAssignableFrom(clz)
+
 	private def hasLongId(clz: Class[_]) = classOf[SurrogateLongId].isAssignableFrom(clz)
 
-	def isLazyLoaded(lazyLoad: LazyLoad, entity: Entity[_, _, _]) =
-		(lazyLoad.all || lazyLoad.isAnyColumnLazyLoaded(entity.tpe.table.relationshipColumnInfos.toSet)) && !entity.tpe.table.relationshipColumnInfos.isEmpty
+	def isLazyLoaded(lazyLoad: LazyLoad, entity: Entity[_,_, _]) =
+		(lazyLoad.all ||
+			lazyLoad.isAnyColumnLazyLoaded(
+				entity.tpe.table.allRelationshipColumnInfosSet.asInstanceOf[Set[ColumnInfoRelationshipBase[_, _, _, _]]]
+			)
+			) && !entity.tpe.table.allRelationshipColumnInfos.isEmpty
 }
 
 object LazyLoadManager {
@@ -132,8 +138,9 @@ object LazyLoadManager {
 	private val objenesis = new ObjenesisStd
 	private[mapperdao] val reflectionManager = new ReflectionManager
 	private[mapperdao] val persistedMethods = reflectionManager.methods(classOf[Persisted]).toSet
-	private[mapperdao] val persistedMethodNamesToMethod = persistedMethods.map { m =>
-		(m.getName, m)
+	private[mapperdao] val persistedMethodNamesToMethod = persistedMethods.map {
+		m =>
+			(m.getName, m)
 	}.toMap
 
 }

@@ -9,11 +9,13 @@ import org.scalatest.matchers.ShouldMatchers
 /**
  * @author kostantinos.kougios
  *
- * 30 Aug 2011
+ *         30 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
 class OneToOneMutableTwoWaySuite extends FunSuite with ShouldMatchers {
-	import OneToOneMutableTwoWaySpec._
+
+	import OneToOneMutableTwoWaySuite._
+
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
 
 	if (Setup.database != "derby") {
@@ -81,35 +83,39 @@ class OneToOneMutableTwoWaySuite extends FunSuite with ShouldMatchers {
 		mapperDao.select(ProductEntity, inserted.id).get should be === updated
 	}
 
-	def createTables =
-		{
-			Setup.dropAllTables(jdbc)
-			Setup.queries(this, jdbc).update("ddl")
-		}
+	def createTables = {
+		Setup.dropAllTables(jdbc)
+		Setup.queries(this, jdbc).update("ddl")
+	}
 }
 
-object OneToOneMutableTwoWaySpec {
+object OneToOneMutableTwoWaySuite {
+
 	case class Inventory(var product: Product, var stock: Int) {
 		override def hashCode = stock
+
 		override def equals(v: Any) = v match {
 			case i: Inventory => i.stock == stock && ((i.product == null && product == null) || (i.product != null && product != null && i.product.id == product.id))
 			case _ => false
 		}
+
 		override def toString = "Inventory(%d, productId:%d)".format(stock, if (product == null) null else product.id)
 	}
+
 	case class Product(var id: Int, var inventory: Inventory)
 
-	object InventoryEntity extends Entity[Unit, NoId, Inventory] {
+	object InventoryEntity extends Entity[Unit,NoId, Inventory] {
 		val product = onetoone(ProductEntity) to (_.product)
 		val stock = column("stock") to (_.stock)
 
-		def constructor(implicit m) = new Inventory(product, stock) with NoId
+		def constructor(implicit m) = new Inventory(product, stock) with Stored
 	}
 
-	object ProductEntity extends Entity[Int, NaturalIntId, Product] {
+	object ProductEntity extends Entity[Int,NaturalIntId, Product] {
 		val id = key("id") to (_.id)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 
-		def constructor(implicit m) = new Product(id, inventory) with NaturalIntId
+		def constructor(implicit m) = new Product(id, inventory) with Stored
 	}
+
 }

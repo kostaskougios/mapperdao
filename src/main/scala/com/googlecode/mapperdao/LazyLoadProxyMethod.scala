@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.classgenerator.runtime.Args
-import java.lang.reflect.Method
 import LazyLoadManager._
 import com.googlecode.classgenerator._
 
@@ -10,14 +9,17 @@ import com.googlecode.classgenerator._
  *
  * @author kostantinos.kougios
  *
- * 26 May 2012
+ *         26 May 2012
  */
 protected class LazyLoadProxyMethod[T](
-	private var toLazyLoad: scala.collection.mutable.Map[ColumnInfoRelationshipBase[T, Any, Any, DeclaredIds[Any], Any], () => Any],
-	private var methodToCI: Map[String, ColumnInfoRelationshipBase[T, Any, Any, DeclaredIds[Any], Any]])
-		extends (Args[T with Persisted, Any] => Any) with Persisted {
+	private var toLazyLoad: scala.collection.mutable.Map[ColumnInfoRelationshipBase[T, Any, Any, Any], () => Any],
+	private var methodToCI: Map[String, ColumnInfoRelationshipBase[T, Any, Any, Any]]
+	)
+	extends (Args[T with Persisted, Any] => Any) with Persisted
+{
 
 	import LazyLoadProxyMethod._
+
 	// provide an implementation for the proxied methods
 	private val alreadyCalled = scala.collection.mutable.Set.empty[String]
 
@@ -51,7 +53,6 @@ protected class LazyLoadProxyMethod[T](
 
 					val ci = methodToCI(args.methodName)
 					val gm = ci.getterMethod.get
-					val alias = ci.column.alias
 
 					// we need to remove the values
 					// to free memory usage
@@ -65,7 +66,10 @@ protected class LazyLoadProxyMethod[T](
 								val am = ClassManifest.fromClass(ct.asInstanceOf[Class[Any]])
 								v.asInstanceOf[List[_]].toArray(am)
 							} else {
-								val con = converters.getOrElse(returnType, gm.converter.getOrElse(throw new IllegalStateException("type %s not supported for getter. Please define a converter function".format(returnType))))
+								val con = converters.getOrElse(
+									returnType,
+									gm.converter.getOrElse(throw new IllegalStateException("type %s not supported for getter. Please define a converter function: getter(method,field,conversion_function). The conversion function should map the value to a Set or List or Traversable or IndexedSeq".format(returnType)))
+								)
 								con(v)
 							}
 						case _ => v
@@ -75,7 +79,7 @@ protected class LazyLoadProxyMethod[T](
 
 					// free up some memory
 					if (t.mapperDaoValuesMap != null)
-						t.mapperDaoValuesMap(ci) = r
+						t.mapperDaoValuesMap(ci) = v
 
 					if (toLazyLoad != null && toLazyLoad.isEmpty) {
 						toLazyLoad = null
@@ -90,13 +94,22 @@ protected class LazyLoadProxyMethod[T](
 	}
 }
 
-object LazyLoadProxyMethod {
+object LazyLoadProxyMethod
+{
 	// convert collections returned by mapperdao to actual collections
 	// required by entities
 	private val converters = Map[Class[_], Any => Any](
-		classOf[Set[_]] -> { _.asInstanceOf[List[_]].toSet },
-		classOf[List[_]] -> { _.asInstanceOf[List[_]] },
-		classOf[IndexedSeq[_]] -> { _.asInstanceOf[List[_]].toIndexedSeq },
-		classOf[Traversable[_]] -> { _.asInstanceOf[List[_]] }
+		classOf[Set[_]] -> {
+			_.asInstanceOf[List[_]].toSet
+		},
+		classOf[List[_]] -> {
+			_.asInstanceOf[List[_]]
+		},
+		classOf[IndexedSeq[_]] -> {
+			_.asInstanceOf[List[_]].toIndexedSeq
+		},
+		classOf[Traversable[_]] -> {
+			_.asInstanceOf[List[_]]
+		}
 	)
 }

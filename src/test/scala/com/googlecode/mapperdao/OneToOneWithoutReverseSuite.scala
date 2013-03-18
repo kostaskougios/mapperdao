@@ -10,14 +10,26 @@ import com.googlecode.mapperdao.utils.Helpers
 /**
  * @author kostantinos.kougios
  *
- * 1 Sep 2011
+ *         1 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
+class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers
+{
 	implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
 
 	val p = ProductEntity
 	val i = InventoryEntity
+
+	test("update from null to existing value ") {
+		createTables
+		val inserted = mapperDao.insert(InventoryEntity, Inventory(10, Product(1), 5))
+		val updated = mapperDao.update(InventoryEntity, inserted, Inventory(10, null, 7))
+		updated.product should be(null)
+		val reUdated = mapperDao.update(InventoryEntity, updated, Inventory(10, mapperDao.select(ProductEntity, 1).get, 8))
+		reUdated.product should be === Product(1)
+		mapperDao.select(InventoryEntity, 10).get should be === reUdated
+	}
+
 	test("query on product") {
 		createTables
 
@@ -26,9 +38,9 @@ class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
 		val p2 = Helpers.asSurrogateIntId(inventories(2).product)
 		(
 			select
-			from i
-			where i.product === p2
-		).toSet should be === Set(inventories(2))
+				from i
+				where i.product === p2
+			).toSet should be === Set(inventories(2))
 	}
 
 	test("update to null") {
@@ -57,16 +69,6 @@ class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
 		updated should be === Inventory(8, Product(1), 5)
 		mapperDao.select(InventoryEntity, 8).get should be === updated
 		mapperDao.select(InventoryEntity, 10) should be(None)
-	}
-
-	test("update from null to existing value ") {
-		createTables
-		val inserted = mapperDao.insert(InventoryEntity, Inventory(10, Product(1), 5))
-		val updated = mapperDao.update(InventoryEntity, inserted, Inventory(10, null, 7))
-		updated.product should be(null)
-		val reUdated = mapperDao.update(InventoryEntity, updated, Inventory(10, mapperDao.select(ProductEntity, 1).get, 8))
-		reUdated.product should be === Product(1)
-		mapperDao.select(InventoryEntity, 10).get should be === reUdated
 	}
 
 	test("update from null to new value ") {
@@ -103,26 +105,29 @@ class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers {
 		mapperDao.select(InventoryEntity, 10).get should be === inserted
 	}
 
-	def createTables =
-		{
-			Setup.dropAllTables(jdbc)
-			Setup.queries(this, jdbc).update("ddl")
-		}
+	def createTables = {
+		Setup.dropAllTables(jdbc)
+		Setup.queries(this, jdbc).update("ddl")
+	}
 
-	case class Inventory(val id: Int, val product: Product, val stock: Int)
-	case class Product(val id: Int)
+	case class Inventory(id: Int, product: Product, stock: Int)
 
-	object InventoryEntity extends Entity[Int, SurrogateIntId, Inventory] {
+	case class Product(id: Int)
+
+	object InventoryEntity extends Entity[Int, SurrogateIntId, Inventory]
+	{
 		val id = key("id") to (_.id)
 		val product = onetoone(ProductEntity) to (_.product)
 		val stock = column("stock") to (_.stock)
 
-		def constructor(implicit m) = new Inventory(id, product, stock) with SurrogateIntId
+		def constructor(implicit m) = new Inventory(id, product, stock) with Stored
 	}
 
-	object ProductEntity extends Entity[Int, SurrogateIntId, Product] {
+	object ProductEntity extends Entity[Int, SurrogateIntId, Product]
+	{
 		val id = key("id") to (_.id)
 
-		def constructor(implicit m) = new Product(id) with SurrogateIntId
+		def constructor(implicit m) = new Product(id) with Stored
 	}
+
 }

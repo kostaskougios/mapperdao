@@ -1,4 +1,5 @@
 package com.googlecode.mapperdao.utils
+
 import com.googlecode.mapperdao.StringValue
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -6,22 +7,23 @@ import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 import com.googlecode.mapperdao.Entity
 import com.googlecode.mapperdao.StringEntity
-import com.googlecode.mapperdao.Persisted
 import com.googlecode.mapperdao.NaturalIntId
 import com.googlecode.mapperdao.NoId
+import com.googlecode.mapperdao.internal.TraversableSeparation
 
 /**
  * @author kostantinos.kougios
  *
- * 6 Sep 2011
+ *         6 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class TraversableSeparationSuite extends FunSuite with ShouldMatchers {
+class TraversableSeparationSuite extends FunSuite with ShouldMatchers
+{
 
 	test("intersect") {
 		val left = List(xwith(1), xwith(2), xwith(3))
 		val right = List(X(0)) ::: left.filterNot(_ == X(2)) ::: List(X(4), X(5))
-		val (added, intersect, removed) = TraversableSeparation.separate(XEntity, left, right)
+		val (_, intersect, _) = TraversableSeparation.separate(XEntity, left, right)
 		intersect should be === List((X(1), X(1)), (X(3), X(3)))
 		intersect.head._1 should be theSameInstanceAs (left.head)
 		intersect.tail.head._1 should be theSameInstanceAs (left.tail.tail.head)
@@ -75,13 +77,17 @@ class TraversableSeparationSuite extends FunSuite with ShouldMatchers {
 	}
 
 	case class X(id: Int)
+
 	def xwith(id: Int) = new X(id) with NaturalIntId
 
-	object XEntity extends Entity[Int, NaturalIntId, X] {
+	object XEntity extends Entity[Int, NaturalIntId, X]
+	{
 		val id = key("id") to (_.id)
-		def constructor(implicit m) = new X(id) with NaturalIntId
+
+		def constructor(implicit m) = new X(id) with Stored
 	}
 
 	val stringEntity = StringEntity.oneToMany("", "", "")
+
 	def swith(s: String) = new StringValue(s) with NoId
 }

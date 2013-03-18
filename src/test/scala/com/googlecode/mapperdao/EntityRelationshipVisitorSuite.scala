@@ -8,33 +8,39 @@ import org.scalatest.FunSuite
 /**
  * @author kostantinos.kougios
  *
- * 22 May 2012
+ *         22 May 2012
  */
 @RunWith(classOf[JUnitRunner])
-class EntityRelationshipVisitorSuite extends FunSuite with ShouldMatchers {
+class EntityRelationshipVisitorSuite extends FunSuite with ShouldMatchers
+{
 
 	import CommonEntities._
 
-	class Visitor extends EntityRelationshipVisitor[Any](visitLazyLoaded = true, visitUnlinked = true) {
-		override def manyToMany[T, F](ci: ColumnInfoTraversableManyToMany[T, _, _, F], traversable: Traversable[F], collected: Traversable[Any]) =
+	class Visitor extends EntityRelationshipVisitor[Any](visitLazyLoaded = true, visitUnlinked = true)
+	{
+		override def manyToMany[T, F](ci: ColumnInfoTraversableManyToMany[T, _, F], traversable: Traversable[F], collected: Traversable[Any]) =
 			collected
-		override def oneToMany[T, F](ci: ColumnInfoTraversableOneToMany[_, _, T, _, _, F], traversable: Traversable[F], collected: Traversable[Any]) =
+
+		override def oneToMany[T, F](ci: ColumnInfoTraversableOneToMany[_, T, _, F], traversable: Traversable[F], collected: Traversable[Any]) =
 			collected
-		override def manyToOne[T, F](ci: ColumnInfoManyToOne[T, _, _, F], foreign: F) =
-			foreign
-		override def oneToOne[T, F](ci: ColumnInfoOneToOne[T, _, _, _], foreign: F) =
-			foreign
-		override def oneToOneReverse[T, F](ci: ColumnInfoOneToOneReverse[T, _, _, _], foreign: F) =
+
+		override def manyToOne[T, F](ci: ColumnInfoManyToOne[T, _, F], foreign: F) =
 			foreign
 
-		override def simple(ci: ColumnInfo[Any, _], v: Any): Any = v
+		override def oneToOne[T, F](ci: ColumnInfoOneToOne[T, _, _], foreign: F) =
+			foreign
 
-		override def createR(collected: List[(ColumnInfoBase[Any, _], Any)], entity: Entity[_, _, _], o: Any) = {
+		override def oneToOneReverse[T, F](ci: ColumnInfoOneToOneReverse[T, _, _], foreign: F) =
+			foreign
+
+		override def simple[T](ci: ColumnInfo[T, _], v: Any): Any = v
+
+		override def createR(collected: List[(ColumnInfoBase[Any, _], Any)], entity: Entity[_,_, _], o: Any) = {
 			val m = collected.map {
 				case (ci, v) =>
 					(ci.column.alias, v)
 			}.toMap
-			val vm = ValuesMap.fromMap(m)
+			val vm = ValuesMap.fromMap(System.identityHashCode(o), m)
 			entity.constructor(vm)
 		}
 	}

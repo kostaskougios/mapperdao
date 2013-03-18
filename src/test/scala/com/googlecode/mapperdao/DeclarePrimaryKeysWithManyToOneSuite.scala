@@ -4,13 +4,12 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
-import org.scala_tools.time.Imports._
 import com.googlecode.mapperdao.jdbc.Setup
 
 /**
  * @author kostantinos.kougios
  *
- * 15 Aug 2012
+ *         15 Aug 2012
  */
 @RunWith(classOf[JUnitRunner])
 class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with ShouldMatchers {
@@ -112,20 +111,20 @@ class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with ShouldMatchers 
 		val lpe = LinkedPeopleEntity
 		(
 			select
-			from lpe
-			where lpe.from === p1
-		).toSet(queryDao) should be === Set(lp1, lp3)
+				from lpe
+				where lpe.from === p1
+			).toSet(queryDao) should be === Set(lp1, lp3)
 		(
 			select
-			from lpe
-			where lpe.to === p3
-		).toSet(queryDao) should be === Set(lp2, lp3)
+				from lpe
+				where lpe.to === p3
+			).toSet(queryDao) should be === Set(lp2, lp3)
 
 		(
 			select
-			from lpe
-			where lpe.from === p1 and lpe.to === p3
-		).toSet(queryDao) should be === Set(lp3)
+				from lpe
+				where lpe.from === p1 and lpe.to === p3
+			).toSet(queryDao) should be === Set(lp3)
 
 	}
 
@@ -134,9 +133,11 @@ class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with ShouldMatchers 
 		Setup.queries(this, jdbc).update("ddl")
 	}
 
-	case class Person(email: String, name: String,
-			linked: Set[LinkedPeople] = Set(),
-			linkedToMe: Set[LinkedPeople] = Set()) {
+	case class Person(
+		email: String, name: String,
+		linked: Set[LinkedPeople] = Set(),
+		linkedToMe: Set[LinkedPeople] = Set()
+		) {
 		// for this test, we match only against email and name
 		override def equals(o: Any) = o match {
 			case Person(e, n, _, _) =>
@@ -146,24 +147,26 @@ class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with ShouldMatchers 
 
 		override def hashCode = name.hashCode
 	}
+
 	case class LinkedPeople(from: Person, to: Person, note: String)
 
-	object PersonEntity extends Entity[String, NaturalStringId, Person] {
+	object PersonEntity extends Entity[String,NaturalStringId, Person] {
 
 		val email = key("email") to (_.email)
 		val name = column("name") to (_.name)
 
-		val LinkedPeopleEntity = new LinkedPeopleEntityDecl(this) // avoid the cyclic stack overflow
+		val LinkedPeopleEntity = new LinkedPeopleEntityDecl(this)
+		// avoid the cyclic stack overflow
 		val linked = onetomany(LinkedPeopleEntity) foreignkey ("from_id") to (_.linked)
 		val linkedToMe = onetomany(LinkedPeopleEntity) foreignkey ("to_id") to (_.linkedToMe)
 
 		def constructor(implicit m: ValuesMap) = {
-			new Person(email, name, linked, linkedToMe) with NaturalStringId
+			new Person(email, name, linked, linkedToMe) with Stored
 		}
 	}
 
 	class LinkedPeopleEntityDecl(pe: PersonEntity.type)
-			extends Entity[(Person with NaturalStringId, Person with NaturalStringId), With2Ids[Person with NaturalStringId, Person with NaturalStringId], LinkedPeople] {
+		extends Entity[(Person with NaturalStringId, Person with NaturalStringId),With2Ids[Person with NaturalStringId, Person with NaturalStringId], LinkedPeople] {
 		val from = manytoone(pe) foreignkey ("from_id") to (_.from)
 		val to = manytoone(pe) foreignkey ("to_id") to (_.to)
 		val note = column("note") to (_.note)
@@ -171,7 +174,8 @@ class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with ShouldMatchers 
 		declarePrimaryKey(from)
 		declarePrimaryKey(to)
 
-		def constructor(implicit m: ValuesMap) = new LinkedPeople(from, to, note) with With2Ids[Person with NaturalStringId, Person with NaturalStringId]
+		def constructor(implicit m: ValuesMap) = new LinkedPeople(from, to, note) with Stored
 	}
+
 }
 

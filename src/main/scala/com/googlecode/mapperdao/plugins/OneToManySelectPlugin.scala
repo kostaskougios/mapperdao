@@ -1,42 +1,43 @@
 package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao.drivers.Driver
-import com.googlecode.mapperdao.events.Events
-import com.googlecode.mapperdao.utils.MapOfList
-import com.googlecode.mapperdao.utils.TraversableSeparation
 import com.googlecode.mapperdao._
 
 /**
  * @author kostantinos.kougios
  *
- * 31 Aug 2011
+ *         31 Aug 2011
  */
-class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect with SelectMock {
+class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect {
 
-	override def idContribution[ID, PC <: DeclaredIds[ID], T](
-		tpe: Type[ID, PC, T],
+	override def idContribution[ID, T](
+		tpe: Type[ID, T],
 		om: DatabaseValues,
-		entities: EntityMap) = {
-		val peek = entities.peek[ID, PC, T, Traversable[Any], Any, DeclaredIds[Any], Any]
+		entities: EntityMap
+		) = {
+		val peek = entities.peek[ID, T, Traversable[Any], Any, Any]
 		peek.ci match {
-			case ci: ColumnInfoTraversableOneToMany[_, _, T, Any, DeclaredIds[Any], Any] =>
+			case ci: ColumnInfoTraversableOneToMany[_, T, Any, Any] =>
 				val parentTable = peek.tpe.table
 				val parentValues = peek.databaseValues
-				val ids = ci.column.columns zip parentTable.primaryKeys.map { column => parentValues(column) }
+				val ids = ci.column.columns zip parentTable.primaryKeys.map {
+					column => parentValues(column)
+				}
 				ids
 			case _ => Nil
 		}
 	}
 
-	override def before[ID, PC <: DeclaredIds[ID], T](
-		entity: Entity[ID, PC, T],
+	override def before[ID, T](
+		entity: Entity[ID, Persisted, T],
 		selectConfig: SelectConfig,
-		om: DatabaseValues, entities: EntityMap) =
-		{
-			val tpe = entity.tpe
-			val table = tpe.table
-			// one to many
-			table.oneToManyColumnInfos.map { ci =>
+		om: DatabaseValues, entities: EntityMap
+		) = {
+		val tpe = entity.tpe
+		val table = tpe.table
+		// one to many
+		table.oneToManyColumnInfos.map {
+			ci =>
 				val otmL = if (selectConfig.skip(ci)) {
 					() => Nil
 				} else
@@ -44,24 +45,19 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 						case ee: ExternalEntity[Any, Any] =>
 							() => {
 								val table = tpe.table
-								val ids = table.primaryKeys.map { pk =>
-									om(pk)
+								val ids = table.primaryKeys.map {
+									pk =>
+										om(pk)
 								}
-								ee.oneToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, _, _, _, Any]])(SelectExternalOneToMany(selectConfig, ids))
+								ee.oneToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, _, Any]])(SelectExternalOneToMany(selectConfig, ids))
 							}
-						case _: Entity[Any, DeclaredIds[Any], Any] =>
+						case _: Entity[Any, Persisted, Any] =>
 							// try to capture as few variables as possible
 							// for optimal memory usage for lazy loaded entities
 							val down = entities.down(selectConfig, tpe, ci, om)
 							new OneToManyEntityLazyLoader(mapperDao, selectConfig, entity, down, om, ci)
 					}
 				SelectMod(ci.column.foreign.alias, otmL, Nil)
-			}
 		}
-
-	override def updateMock[ID, PC <: DeclaredIds[ID], T](
-		entity: Entity[ID, PC, T],
-		mods: scala.collection.mutable.Map[String, Any]) {
-		mods ++= entity.tpe.table.oneToManyColumns.map(c => (c.alias -> List()))
 	}
 }

@@ -11,17 +11,18 @@ import com.googlecode.mapperdao.utils.Helpers
  * @author alex.cruise
  * @author kostantinos.kougios
  *
- * 28 Feb 2012
+ *         28 Feb 2012
  */
 @RunWith(classOf[JUnitRunner])
-class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers {
+class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers
+{
 
 	// run this only against H2 database
 	if (Setup.database == "h2") {
 		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity, PersonEntity))
 
 		test("updating items (immutable)") {
-			createTables
+			createTables()
 
 			val jp1 = JobPosition(3, "C++ Developer", 10, 3)
 			val jp2 = JobPosition(5, "Scala Developer", 10, 3)
@@ -32,13 +33,12 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers {
 			val inserted = mapperDao.insert(PersonEntity, person)
 
 			var updated: Person = inserted
-			def doUpdate(from: Person, to: Person) =
-				{
-					updated = mapperDao.update(PersonEntity, Helpers.asSurrogateIntId(from), to)
-					updated should be === to
-					mapperDao.select(PersonEntity, 3).get should be === updated
-					mapperDao.select(PersonEntity, 3).get should be === to
-				}
+			def doUpdate(from: Person, to: Person) {
+				updated = mapperDao.update(PersonEntity, Helpers.asSurrogateIntId(from), to)
+				updated should be === to
+				mapperDao.select(PersonEntity, 3).get should be === updated
+				mapperDao.select(PersonEntity, 3).get should be === to
+			}
 			doUpdate(updated, Person(3, "Changed", "K", 18, updated.positions.filterNot(_ == jp1)))
 			doUpdate(updated, Person(3, "Changed Again", "Surname changed too", 18, jp5 :: updated.positions.filterNot(jp => jp == jp1 || jp == jp3)))
 
@@ -47,7 +47,7 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers {
 		}
 
 		test("simple query") {
-			createTables
+			createTables()
 
 			val person1 = Person(3, "Kostas", "K", 16, List(JobPosition(3, "C++ Developer", 10, 3), JobPosition(5, "Scala Developer", 10, 3)))
 			mapperDao.insert(PersonEntity, person1)
@@ -59,7 +59,7 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers {
 		}
 
 		test("simple query on personId") {
-			createTables
+			createTables()
 
 			val person1 = Person(3, "Kostas", "K", 16, List(JobPosition(3, "C++ Developer", 10, 3), JobPosition(5, "Scala Developer", 10, 3)))
 			mapperDao.insert(PersonEntity, person1)
@@ -68,11 +68,11 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers {
 			import Query._
 			val pe = PersonEntity
 			val jp = JobPositionEntity
-			queryDao.query(select from pe join (pe, pe.jobPositions, jp) where jp.personId === 3).toSet should be === Set(person1)
+			queryDao.query(select from pe join(pe, pe.jobPositions, jp) where jp.personId === 3).toSet should be === Set(person1)
 		}
 
 		test("updating items (mutable)") {
-			createTables
+			createTables()
 
 			val jp1 = JobPosition(3, "C++ Developer", 10, 3)
 			val jp2 = JobPosition(5, "Scala Developer", 10, 3)
@@ -93,7 +93,7 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers {
 		}
 
 		test("removing items") {
-			createTables
+			createTables()
 
 			val jp1 = JobPosition(3, "C++ Developer", 10, 3)
 			val jp2 = JobPosition(5, "Scala Developer", 10, 3)
@@ -113,7 +113,7 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers {
 		}
 
 		test("adding items") {
-			createTables
+			createTables()
 
 			val person = Person(3, "Kostas", "K", 16, List(JobPosition(5, "Scala Developer", 10, 3), JobPosition(7, "Java Developer", 10, 3)))
 			mapperDao.insert(PersonEntity, person)
@@ -134,10 +134,11 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers {
 		}
 
 		test("CRUD (multi purpose test)") {
-			createTables
+			createTables()
 
 			val person = Person(3, "Kostas", "K", 16, List(JobPosition(5, "Scala Developer", 10, 3), JobPosition(7, "Java Developer", 10, 3)))
-			mapperDao.insert(PersonEntity, person)
+			val noise = Person(4, "Kostas", "K", 16, List(JobPosition(15, "Scala Developer", 10, 4), JobPosition(17, "Java Developer", 10, 4)))
+			mapperDao.insertBatch(PersonEntity, List(person, noise))
 
 			val loaded = mapperDao.select(PersonEntity, 3).get
 			loaded should be === person
@@ -174,9 +175,12 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers {
 			removedReloaded.positions = List()
 			mapperDao.update(PersonEntity, removedReloaded) should be === removedReloaded
 			mapperDao.select(PersonEntity, 3).get should be === removedReloaded
+
+			// make sure noise wasn't affected
+			mapperDao.select(PersonEntity, 4).get should be(noise)
 		}
 
-		def createTables {
+		def createTables() {
 			Setup.dropAllTables(jdbc)
 			Setup.queries(this, jdbc).update("ddl")
 		}
@@ -187,25 +191,29 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers {
 	 * the domain classes and mappings
 	 * ============================================================================================================
 	 */
-	case class JobPosition(val id: Int, var name: String, var rank: Int, val personId: Int)
-	case class Person(val id: Int, var name: String, val surname: String, var age: Int, var positions: List[JobPosition])
+	case class JobPosition(id: Int, var name: String, var rank: Int, personId: Int)
 
-	object JobPositionEntity extends Entity[Int, SurrogateIntId, JobPosition] {
+	case class Person(id: Int, var name: String, surname: String, var age: Int, var positions: List[JobPosition])
+
+	object JobPositionEntity extends Entity[Int, SurrogateIntId, JobPosition]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val rank = column("rank") to (_.rank)
 		val personId = column("person_id") to (_.personId)
 
-		def constructor(implicit m) = new JobPosition(id, name, rank, personId) with SurrogateIntId
+		def constructor(implicit m) = new JobPosition(id, name, rank, personId) with Stored
 	}
 
-	object PersonEntity extends Entity[Int, SurrogateIntId, Person] {
+	object PersonEntity extends Entity[Int, SurrogateIntId, Person]
+	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val surname = column("surname") to (_.surname)
 		val age = column("age") to (_.age)
 		val jobPositions = onetomany(JobPositionEntity) to (_.positions)
 
-		def constructor(implicit m) = new Person(id, name, surname, age, m(jobPositions).toList.sortWith(_.id < _.id)) with SurrogateIntId
+		def constructor(implicit m) = new Person(id, name, surname, age, m(jobPositions).toList.sortWith(_.id < _.id)) with Stored
 	}
+
 }
