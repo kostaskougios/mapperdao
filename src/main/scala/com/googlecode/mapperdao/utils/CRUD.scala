@@ -29,6 +29,8 @@ trait CRUD[ID, PC <: Persisted, T]
 	 */
 	def create(t: T): T with PC = mapperDao.insert(updateConfig, entity, t)
 
+	def createBatch(l: List[T]): List[T with PC] = mapperDao.insertBatch(updateConfig, entity, l)
+
 	/**
 	 * update an entity. The entity must have been retrieved from the database and then
 	 * changed prior to calling this method.
