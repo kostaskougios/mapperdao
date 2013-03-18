@@ -75,7 +75,7 @@
         <dependency>
             <groupId>com.googlecode.classgenerator</groupId>
             <artifactId>classgenerator</artifactId>
-            <version>0.6.7-${scala.version}</version>
+            <version>0.6.7-${scala.lib.version}</version>
         </dependency>
         <dependency>
             <groupId>postgresql</groupId>
@@ -402,6 +402,7 @@
             <id>scala2.9</id>
             <properties>
                 <scala.version>2.9.2</scala.version>
+                <scala.lib.version>${scala.version}</scala.lib.version>
             </properties>
             <activation>
                 <property>
@@ -420,7 +421,8 @@
         <profile>
             <id>scala2.10</id>
             <properties>
-                <scala.version>2.10.0</scala.version>
+                <scala.version>2.10.1</scala.version>
+                <scala.lib.version>2.10.0</scala.lib.version>
             </properties>
             <activation>
                 <property>
