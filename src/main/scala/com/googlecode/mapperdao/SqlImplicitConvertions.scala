@@ -7,12 +7,14 @@ import org.joda.time.DateTime
  *
  *         17 Oct 2012
  */
-trait SqlImplicitConvertions {
+trait SqlImplicitConvertions
+{
 
 	/**
 	 * manages simple type expressions
 	 */
-	protected class Convertor[T, V](t: ColumnInfo[T, V]) {
+	protected class Convertor[T, V](t: ColumnInfo[T, V])
+	{
 		def >(v: V) = new Operation(t.column, GT, v)
 
 		def >(v: ColumnInfo[_, V]) = new Operation(t.column, GT, v.column)
@@ -78,12 +80,14 @@ trait SqlImplicitConvertions {
 	implicit def columnInfoToOperableJBoolean[T](ci: ColumnInfo[T, java.lang.Boolean]) = new Convertor(ci)
 }
 
-trait SqlManyToOneImplicitConvertions {
+trait SqlManyToOneImplicitConvertions
+{
 
 	/**
 	 * manages many-to-one expressions
 	 */
-	protected class ConvertorManyToOne[T, FID, F](ci: ColumnInfoManyToOne[T, FID, F]) {
+	protected class ConvertorManyToOne[T, FID, F](ci: ColumnInfoManyToOne[T, FID, F])
+	{
 
 		def ===(v: F) = new ManyToOneOperation(ci.column, EQ, v) with EqualityOperation
 
@@ -100,12 +104,14 @@ trait SqlManyToOneImplicitConvertions {
 		new ConvertorManyToOne(ci)
 }
 
-trait SqlOneToOneImplicitConvertions {
+trait SqlOneToOneImplicitConvertions
+{
 
 	/**
 	 * manages one-to-one expressions
 	 */
-	protected class ConvertorOneToOne[T, FID, F](ci: ColumnInfoOneToOne[T, FID, F]) {
+	protected class ConvertorOneToOne[T, FID, F](ci: ColumnInfoOneToOne[T, FID, F])
+	{
 		def ===(v: F) = new OneToOneOperation(ci.column, EQ, v) with EqualityOperation
 
 		def <>(v: F) = new OneToOneOperation(ci.column, NE, v)
@@ -114,14 +120,16 @@ trait SqlOneToOneImplicitConvertions {
 	implicit def columnInfoOneToOneOperation[T, FID, F](ci: ColumnInfoOneToOne[T, FID, F]) = new ConvertorOneToOne[T, FID, F](ci)
 }
 
-trait SqlRelatedImplicitConvertions {
+trait SqlRelatedImplicitConvertions
+{
 
 	/**
 	 * manages one-to-many expressions
 	 */
 	protected class ConvertorOneToMany[ID, T, FID, F](
 		ci: ColumnInfoTraversableOneToMany[ID, T, FID, F]
-	) {
+		)
+	{
 		def ===(v: F) = new OneToManyOperation(ci.column, EQ, v)
 
 		def <>(v: F) = new OneToManyOperation(ci.column, NE, v)
@@ -129,11 +137,12 @@ trait SqlRelatedImplicitConvertions {
 
 	implicit def columnInfoOneToManyOperation[ID, T, FID, F](
 		ci: ColumnInfoTraversableOneToMany[ID, T, FID, F]
-	) = new ConvertorOneToMany(ci)
+		) = new ConvertorOneToMany(ci)
 
 	protected class ConvertorOneToManyDeclaredPrimaryKey[FID, F, TID, T](
 		ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[FID, F, TID, T]
-	) {
+		)
+	{
 		def ===(v: F) = new OneToManyDeclaredPrimaryKeyOperation(ci.declaredColumnInfo.column, EQ, v, ci.declaredColumnInfo.entityOfT)
 
 		def <>(v: F) = new OneToManyDeclaredPrimaryKeyOperation(ci.declaredColumnInfo.column, NE, v, ci.declaredColumnInfo.entityOfT)
@@ -141,13 +150,14 @@ trait SqlRelatedImplicitConvertions {
 
 	implicit def columnInfoOneToManyForDeclaredPrimaryKeyOperation[FID, F, TID, T](
 		ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[FID, F, TID, T]
-	) =
+		) =
 		new ConvertorOneToManyDeclaredPrimaryKey[FID, F, TID, T](ci)
 
 	/**
 	 * manages many-to-many expressions
 	 */
-	protected class ConvertorManyToMany[T, FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F]) {
+	protected class ConvertorManyToMany[T, FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F])
+	{
 		def ===(v: F) = new ManyToManyOperation(ci.column, EQ, v)
 
 		def <>(v: F) = new ManyToManyOperation(ci.column, NE, v)
@@ -158,7 +168,8 @@ trait SqlRelatedImplicitConvertions {
 	/**
 	 * manages one-to-one reverse expressions
 	 */
-	protected class ConvertorOneToOneReverse[T, FID, F](ci: ColumnInfoOneToOneReverse[T, FID, F]) {
+	protected class ConvertorOneToOneReverse[T, FID, F](ci: ColumnInfoOneToOneReverse[T, FID, F])
+	{
 		def ===(v: F) = new OneToOneReverseOperation(ci.column, EQ, v)
 
 		def <>(v: F) = new OneToOneReverseOperation(ci.column, NE, v)

@@ -13,6 +13,7 @@ case class InsertOneToOneReverseExternalCmd[ID, T, FID, FT](
 	oneToMany: ColumnInfoOneToOneReverse[ID, FID, FT],
 	entityVM: ValuesMap,
 	ft: FT
-	) extends PersistCmd {
+	) extends PersistCmd
+{
 	def priority = Priority.Low
 }

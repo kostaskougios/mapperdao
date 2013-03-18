@@ -10,17 +10,20 @@ import com.googlecode.mapperdao._
 class ManyToManyEntityLazyLoader[ID, T, FID, F](
 	mapperDao: MapperDaoImpl,
 	selectConfig: SelectConfig,
-	entity: Entity[ID,_, T],
+	entity: Entity[ID, _, T],
 	entityMap: EntityMap,
 	om: DatabaseValues,
 	ci: ColumnInfoTraversableManyToMany[T, FID, F]
-)
-	extends LazyLoader {
+	)
+	extends LazyLoader
+{
 	def apply = {
 		val c = ci.column
 		val fe = c.foreign.entity
 		val ftpe = fe.tpe
-		val ids = entity.tpe.table.primaryKeys.map { pk => om(pk) }
+		val ids = entity.tpe.table.primaryKeys.map {
+			pk => om(pk)
+		}
 		val keys = c.linkTable.left zip ids
 		val customLoader = selectConfig.loaderFor(ci)
 

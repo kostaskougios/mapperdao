@@ -17,8 +17,9 @@ class ManyToOneEntityLazyLoader[T, FID, F](
 	cis: ColumnInfoManyToOne[T, FID, F],
 	down: EntityMap,
 	om: DatabaseValues
-)
-	extends LazyLoader {
+	)
+	extends LazyLoader
+{
 	def apply = {
 		val c = cis.column
 		val fe = c.foreign.entity

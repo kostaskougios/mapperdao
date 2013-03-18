@@ -12,7 +12,8 @@ import com.googlecode.mapperdao.jdbc.Setup
  *            13 Sep 2012
  */
 @RunWith(classOf[JUnitRunner])
-class BlobSuite extends FunSuite with ShouldMatchers {
+class BlobSuite extends FunSuite with ShouldMatchers
+{
 
 	import CommonEntities._
 

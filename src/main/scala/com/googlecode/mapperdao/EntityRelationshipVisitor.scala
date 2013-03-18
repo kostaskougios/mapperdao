@@ -11,7 +11,8 @@ abstract class EntityRelationshipVisitor[R](
 	visitLazyLoaded: Boolean = false,
 	visitUnlinked: Boolean = false,
 	maxDepth: Int = 10
-) {
+	)
+{
 
 	import EntityRelationshipVisitor._
 
@@ -20,9 +21,9 @@ abstract class EntityRelationshipVisitor[R](
 	private def isLoaded(vmo: Option[ValuesMap], ci: ColumnInfoRelationshipBase[_, _, _, _]) =
 		vmo.map(visitLazyLoaded || _.isLoaded(ci)).getOrElse(visitUnlinked)
 
-	def visit[ID, T](entity: Entity[ID,_, T], o: T): R = visit(entity, o, 1)
+	def visit[ID, T](entity: Entity[ID, _, T], o: T): R = visit(entity, o, 1)
 
-	def visit[ID, T](entity: Entity[ID,_, T], o: T, currDepth: Int): R = {
+	def visit[ID, T](entity: Entity[ID, _, T], o: T, currDepth: Int): R = {
 		val r = m.get(o)
 		val result = if (r == null && currDepth < maxDepth) {
 			val vmo = o match {
@@ -34,12 +35,16 @@ abstract class EntityRelationshipVisitor[R](
 				case ci: ColumnInfoTraversableManyToMany[T, _, _] if (isLoaded(vmo, ci)) =>
 					val fo = ci.columnToValue(o)
 					// convert to list to avoid problems with java collections
-					val l = fo.toList.map { t => visit(ci.column.foreign.entity, t, currDepth + 1) }
+					val l = fo.toList.map {
+						t => visit(ci.column.foreign.entity, t, currDepth + 1)
+					}
 					(ci, manyToMany(ci, fo, l))
 				case ci@ColumnInfoTraversableOneToMany(column, columnToValue, _, _) if (isLoaded(vmo, ci)) =>
 					val fo = columnToValue(o)
 					// convert to list to avoid problems with java collections
-					val l = fo.toList.map { t => visit(column.foreign.entity, t, currDepth + 1) }
+					val l = fo.toList.map {
+						t => visit(column.foreign.entity, t, currDepth + 1)
+					}
 					(ci, oneToMany(ci, fo, l))
 				case ci@ColumnInfoManyToOne(column, columnToValue, _) if (isLoaded(vmo, ci)) =>
 					val fo = columnToValue(o)
@@ -76,11 +81,12 @@ abstract class EntityRelationshipVisitor[R](
 
 	def simple[T](ci: ColumnInfo[T, _], v: Any): Any = {}
 
-	def createR(collected: List[(ColumnInfoBase[Any, _], Any)], entity: Entity[_,_, _], o: Any): R = {
+	def createR(collected: List[(ColumnInfoBase[Any, _], Any)], entity: Entity[_, _, _], o: Any): R = {
 		null.asInstanceOf[R]
 	}
 }
 
-object EntityRelationshipVisitor {
+object EntityRelationshipVisitor
+{
 	private val nullReplacement = this
 }

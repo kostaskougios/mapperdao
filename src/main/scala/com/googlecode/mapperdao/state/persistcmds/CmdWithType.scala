@@ -7,6 +7,7 @@ import com.googlecode.mapperdao._
  *
  *         18 Dec 2012
  */
-trait CmdWithType[ID, T] extends PersistCmd {
+trait CmdWithType[ID, T] extends PersistCmd
+{
 	val tpe: Type[ID, T]
 }

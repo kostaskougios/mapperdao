@@ -7,7 +7,8 @@ package com.googlecode.mapperdao
  *
  * @author kostantinos.kougios
  */
-trait Type[ID, T] {
+trait Type[ID, T]
+{
 	val clz: Class[T]
 	val constructor: (Option[_], ValuesMap) => T with Persisted
 	val table: Table[ID, T]

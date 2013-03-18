@@ -23,7 +23,8 @@ import org.joda.time.chrono.ISOChronology
  *         29 Aug 2011
  */
 object
-Setup {
+Setup
+{
 	/**
 	 * sets up a mapperDao and queryDao for the dataSource and entities using postgresql driver
 	 *
@@ -31,9 +32,9 @@ Setup {
 	 */
 	def postGreSql(
 		dataSource: DataSource,
-		entities: List[Entity[_,_, _]],
+		entities: List[Entity[_, _, _]],
 		cache: Option[Cache] = None
-	): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.PostgreSql, dataSource, entities, cache)
 
 	/**
@@ -43,9 +44,9 @@ Setup {
 	 */
 	def mysql(
 		dataSource: DataSource,
-		entities: List[Entity[_,_, _]],
+		entities: List[Entity[_, _, _]],
 		cache: Option[Cache] = None
-	): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.Mysql, dataSource, entities, cache)
 
 	/**
@@ -55,9 +56,9 @@ Setup {
 	 */
 	def oracle(
 		dataSource: DataSource,
-		entities: List[Entity[_,_, _]],
+		entities: List[Entity[_, _, _]],
 		cache: Option[Cache] = None
-	): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.Oracle, dataSource, entities, cache)
 
 	/**
@@ -67,9 +68,9 @@ Setup {
 	 */
 	def derby(
 		dataSource: DataSource,
-		entities: List[Entity[_,_, _]],
+		entities: List[Entity[_, _, _]],
 		cache: Option[Cache] = None
-	): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.Derby, dataSource, entities, cache)
 
 	/**
@@ -79,9 +80,9 @@ Setup {
 	 */
 	def sqlServer(
 		dataSource: DataSource,
-		entities: List[Entity[_,_, _]],
+		entities: List[Entity[_, _, _]],
 		cache: Option[Cache] = None
-	): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.SqlServer, dataSource, entities, cache)
 
 	/**
@@ -91,9 +92,9 @@ Setup {
 	 */
 	def h2(
 		dataSource: DataSource,
-		entities: List[Entity[_,_, _]],
+		entities: List[Entity[_, _, _]],
 		cache: Option[Cache] = None
-	): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.H2, dataSource, entities, cache)
 
 	/**
@@ -103,9 +104,9 @@ Setup {
 	def apply(
 		database: Database.DriverConfiguration,
 		dataSource: DataSource,
-		entities: List[Entity[_,_, _]],
+		entities: List[Entity[_, _, _]],
 		cache: Option[Cache] = None
-	): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
+		): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		create(database, dataSource, TypeRegistry(entities), cache, ISOChronology.getInstance)
 
 	def create(
@@ -114,7 +115,7 @@ Setup {
 		typeRegistry: TypeRegistry,
 		cache: Option[Cache] = None,
 		chronology: Chronology = ISOChronology.getInstance
-	): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) = {
+		): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) = {
 		val typeManager = new DefaultTypeManager(chronology)
 		val jdbc = Jdbc(dataSource, chronology)
 		val driver = database.driver(jdbc, typeRegistry, typeManager, cache)

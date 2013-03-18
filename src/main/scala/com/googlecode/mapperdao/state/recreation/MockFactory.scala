@@ -8,7 +8,8 @@ import com.googlecode.mapperdao.plugins._
  *
  *         11 Dec 2012
  */
-class MockFactory(typeManager: TypeManager) {
+class MockFactory(typeManager: TypeManager)
+{
 	private val mockPlugins: List[SelectMock] = List(
 		new OneToManyMockPlugin,
 		new ManyToManyMockPlugin,

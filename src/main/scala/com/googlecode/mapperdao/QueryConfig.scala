@@ -34,7 +34,8 @@ case class QueryConfig(
 	// within a transaction.
 	multi: MultiThreadedConfig = MultiThreadedConfig.Single,
 	hints: SelectHints = SelectHints.None
-) {
+	)
+{
 
 	// check parameter validity
 	if (offset.isDefined && offset.get < 0) throw new IllegalArgumentException("offset is " + offset)
@@ -43,7 +44,8 @@ case class QueryConfig(
 	def hasRange = offset.isDefined || limit.isDefined
 }
 
-object QueryConfig {
+object QueryConfig
+{
 
 	val default = QueryConfig()
 
@@ -55,7 +57,7 @@ object QueryConfig {
 		offset: Long,
 		limit: Long,
 		cacheOptions: CacheOption = CacheOptions.NoCache
-	): QueryConfig =
+		): QueryConfig =
 		QueryConfig(offset = Some(offset), limit = Some(limit), cacheOptions = cacheOptions)
 
 	/**
@@ -69,7 +71,7 @@ object QueryConfig {
 		cacheOptions: CacheOption = CacheOptions.NoCache,
 		skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
 		lazyLoad: LazyLoad = LazyLoad.none
-	): QueryConfig = {
+		): QueryConfig = {
 		if (pageNumber < 1) throw new IllegalArgumentException("pageNumber must be >=1")
 		if (rowsPerPage < 1) throw new IllegalArgumentException("rowsPerPage must be >=1")
 		QueryConfig(

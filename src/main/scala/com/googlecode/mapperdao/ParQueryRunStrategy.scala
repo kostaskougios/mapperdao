@@ -1,6 +1,5 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.jdbc.JdbcMap
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -10,14 +9,15 @@ import java.util.concurrent.ConcurrentHashMap
  *
  *         6 May 2012
  */
-private[mapperdao] class ParQueryRunStrategy extends QueryRunStrategy {
+private[mapperdao] class ParQueryRunStrategy extends QueryRunStrategy
+{
 
 	override def run[ID, T](
 		mapperDao: MapperDaoImpl,
-		entity: Entity[ID,Persisted, T],
+		entity: Entity[ID, Persisted, T],
 		queryConfig: QueryConfig,
 		lm: List[DatabaseValues]
-	) = {
+		) = {
 		// a global cache for fully loaded entities
 		val globalL1 = new ConcurrentHashMap[List[Any], Option[_]]
 		val selectConfig = SelectConfig.from(queryConfig)

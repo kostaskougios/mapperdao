@@ -8,7 +8,8 @@ import org.springframework.transaction.TransactionStatus
 
 import javax.sql.DataSource
 
-trait Transaction {
+trait Transaction
+{
 	def apply[V](f: () => V): V
 
 	def apply[V](f: TransactionStatus => V): V
@@ -17,7 +18,8 @@ trait Transaction {
 /**
  * please look at https://code.google.com/p/mapperdao/wiki/Transactions for more info and examples
  */
-object Transaction {
+object Transaction
+{
 
 	/**
 	 * see #org.springframework.transaction.TransactionDefinition
@@ -27,7 +29,8 @@ object Transaction {
 	 *
 	 * Note: Documentation is copied from springframework.
 	 */
-	object Propagation {
+	object Propagation
+	{
 
 		sealed protected[Transaction] class Level(val level: Int)
 
@@ -127,7 +130,8 @@ object Transaction {
 	 *
 	 * please look at https://code.google.com/p/mapperdao/wiki/Transactions for more info and examples
 	 */
-	object Isolation {
+	object Isolation
+	{
 
 		sealed protected[Transaction] class Level(val level: Int)
 

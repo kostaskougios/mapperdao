@@ -20,9 +20,10 @@ case class UpdateConfig(
 	 * max depth of the update: how deep to go into the entity tree during updates
 	 */
 	depth: Int = 1000
-)
+	)
 
-object UpdateConfig {
+object UpdateConfig
+{
 	// use this to avoid creating instances of the default update config
 	val default = UpdateConfig()
 }

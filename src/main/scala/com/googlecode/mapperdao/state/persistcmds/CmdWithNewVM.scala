@@ -6,6 +6,7 @@ import com.googlecode.mapperdao.ValuesMap
  * @author: kostas.kougios
  *          Date: 26/12/12
  */
-trait CmdWithNewVM {
+trait CmdWithNewVM
+{
 	val newVM: ValuesMap
 }

@@ -74,7 +74,7 @@ class OneToOneQuerySuite extends FunSuite with ShouldMatchers
 					id int not null,
 					primary key (id)
 				)
-					 """)
+		             """)
 		jdbc.update( """
 				create table Inventory (
 					product_id int not null,
@@ -83,7 +83,7 @@ class OneToOneQuerySuite extends FunSuite with ShouldMatchers
 					primary key (product_id),
 					foreign key (product_id) references Product(id) on delete cascade
 				)
-					 """)
+		             """)
 	}
 
 	val p = ProductEntity

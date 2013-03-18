@@ -8,7 +8,8 @@ package com.googlecode.mapperdao
  *
  *         6 May 2012
  */
-private[mapperdao] class DefaultQueryRunStrategy extends QueryRunStrategy {
+private[mapperdao] class DefaultQueryRunStrategy extends QueryRunStrategy
+{
 
 	override def run[ID, T](
 		mapperDao: MapperDaoImpl,

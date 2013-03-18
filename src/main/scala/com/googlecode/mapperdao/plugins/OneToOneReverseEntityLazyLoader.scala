@@ -10,17 +10,20 @@ import com.googlecode.mapperdao._
 class OneToOneReverseEntityLazyLoader[ID, T, FID, F](
 	selectConfig: SelectConfig,
 	mapperDao: MapperDaoImpl,
-	entity: Entity[ID,_, T],
+	entity: Entity[ID, _, T],
 	om: DatabaseValues,
 	down: EntityMap,
 	ci: ColumnInfoOneToOneReverse[T, FID, F]
-) extends (() => Any) {
+	) extends (() => Any)
+{
 	def apply = {
 		val tpe = entity.tpe
 		val c = ci.column
 		val fe = c.foreign.entity
 		val ftpe = fe.tpe
-		val ids = tpe.table.primaryKeys.map { pk => om(pk) }
+		val ids = tpe.table.primaryKeys.map {
+			pk => om(pk)
+		}
 		val keys = c.foreignColumns.zip(ids)
 		val fom = mapperDao.driver.doSelect(selectConfig, ftpe, keys)
 		val otmL = mapperDao.toEntities(fom, fe, selectConfig, down)

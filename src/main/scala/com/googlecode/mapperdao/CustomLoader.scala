@@ -12,4 +12,4 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
 case class CustomLoader[T, FID, FT](
 	ci: ColumnInfoTraversableManyToMany[T, FID, FT],
 	loader: (SelectConfig, List[JdbcMap]) => List[FT with DeclaredIds[FID]]
-)
+	)

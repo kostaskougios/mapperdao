@@ -64,7 +64,7 @@ class ManyToManyQueryWithAliasesSuite extends FunSuite with ShouldMatchers
 						name varchar(100) not null,
 						primary key(id)
 					)
-					 """)
+		             """)
 		jdbc.update( """
 					create table Attribute (
 						id int not null,
@@ -72,14 +72,14 @@ class ManyToManyQueryWithAliasesSuite extends FunSuite with ShouldMatchers
 						value varchar(100) not null,
 						primary key(id)
 					)
-					 """)
+		             """)
 		jdbc.update( """
 					create table Product_Attribute (
 						product_id int not null,
 						attribute_id int not null,
 						primary key(product_id,attribute_id)
 					)
-					 """)
+		             """)
 	}
 }
 

@@ -13,7 +13,8 @@ import com.googlecode.mapperdao.jdbc.Setup
  *         10 Aug 2012
  */
 @RunWith(classOf[JUnitRunner])
-class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
+class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers
+{
 
 	if (Setup.database == "postgresql" || Setup.database == "h2") {
 		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(
@@ -322,7 +323,8 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 
 	case class InterPartyRelationship(from: Person, to: Person, fromDate: Option[DateTime], toDate: Option[DateTime])
 
-	object RoleTypeEntity extends Entity[String,NaturalStringId, RoleType] {
+	object RoleTypeEntity extends Entity[String, NaturalStringId, RoleType]
+	{
 		val name = key("name") to (_.name)
 		val description = column("description") option (_.description)
 
@@ -330,7 +332,8 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 			new RoleType(name, description) with Stored
 	}
 
-	object PersonEntity extends Entity[String,NaturalStringId, Person] {
+	object PersonEntity extends Entity[String, NaturalStringId, Person]
+	{
 		val id = key("id") to (_.id)
 		val firstName = column("firstname") to (_.firstName)
 		val lastName = column("lastname") to (_.lastName)
@@ -344,7 +347,8 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 	type PNSI = Person with NaturalStringId
 	type SPRKey = With2Ids[RNSI, PNSI]
 
-	object SinglePartyRoleEntity extends Entity[(RNSI, PNSI),SPRKey, SinglePartyRole] {
+	object SinglePartyRoleEntity extends Entity[(RNSI, PNSI), SPRKey, SinglePartyRole]
+	{
 		val roleType = manytoone(RoleTypeEntity) to (_.roleType)
 		val fromDate = column("fromDate") option (_.fromDate)
 		val toDate = column("toDate") option (_.toDate)
@@ -355,7 +359,8 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers {
 		def constructor(implicit m: ValuesMap) = new SinglePartyRole(roleType, fromDate, toDate) with Stored
 	}
 
-	class InterPartyRelationshipEntityBase extends Entity[(PNSI, PNSI),With2Ids[PNSI, PNSI], InterPartyRelationship] {
+	class InterPartyRelationshipEntityBase extends Entity[(PNSI, PNSI), With2Ids[PNSI, PNSI], InterPartyRelationship]
+	{
 		val from = manytoone(PersonEntity) foreignkey ("from_id") to (_.from)
 		val to = manytoone(PersonEntity) foreignkey ("to_id") to (_.to)
 		val fromDate = column("fromDate") option (_.fromDate)

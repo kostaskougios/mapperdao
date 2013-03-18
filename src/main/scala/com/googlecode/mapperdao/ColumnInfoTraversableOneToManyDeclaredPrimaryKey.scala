@@ -14,7 +14,8 @@ class ColumnInfoTraversableOneToManyDeclaredPrimaryKey[FID, F, TID, T](
 	// due to recursing declarations of the ci's, we
 	// pass this by-name
 	ci: => ColumnInfoTraversableOneToMany[FID, F, TID, T]
-) {
+	)
+{
 	def declaredColumnInfo = ci
 }
 

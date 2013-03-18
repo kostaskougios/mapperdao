@@ -12,7 +12,8 @@ import org.scalatest.matchers.ShouldMatchers
  *         31 Oct 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToManySimpleTypesSuite extends FunSuite with ShouldMatchers {
+class OneToManySimpleTypesSuite extends FunSuite with ShouldMatchers
+{
 
 	import OneToManySimpleTypesSpecString._
 	import OneToManySimpleTypesSpecInt._
@@ -86,13 +87,15 @@ class OneToManySimpleTypesSuite extends FunSuite with ShouldMatchers {
 	}
 }
 
-object OneToManySimpleTypesSpecString {
+object OneToManySimpleTypesSpecString
+{
 
 	case class Product(name: String, tags: Set[String])
 
 	val TagsEntity = StringEntity.oneToMany("ProductTags", "product_id", "tag")
 
-	object ProductEntity extends Entity[Int,SurrogateIntId, Product] {
+	object ProductEntity extends Entity[Int, SurrogateIntId, Product]
+	{
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("ProductSeq")
 			case _ => None
@@ -100,7 +103,8 @@ object OneToManySimpleTypesSpecString {
 		val name = column("name") to (_.name)
 		val tags = onetomany(TagsEntity) tostring (_.tags)
 
-		def constructor(implicit m: ValuesMap) = new Product(name, tags) with Stored {
+		def constructor(implicit m: ValuesMap) = new Product(name, tags) with Stored
+		{
 			val id: Int = ProductEntity.id
 		}
 	}
@@ -119,13 +123,15 @@ object OneToManySimpleTypesSpecString {
 		)
 }
 
-object OneToManySimpleTypesSpecInt {
+object OneToManySimpleTypesSpecInt
+{
 
 	case class ProductI(name: String, tags: Set[Int])
 
 	val TagsEntityI = IntEntity.oneToMany("ProductTagsI", "producti_id", "intTag")
 
-	object ProductEntityI extends Entity[Int,SurrogateIntId, ProductI] {
+	object ProductEntityI extends Entity[Int, SurrogateIntId, ProductI]
+	{
 		val id = key("id") sequence (Setup.database match {
 			case "oracle" => Some("ProductSeq")
 			case _ => None
@@ -133,7 +139,8 @@ object OneToManySimpleTypesSpecInt {
 		val name = column("name") to (_.name)
 		val tags = onetomany(TagsEntityI) toint (_.tags)
 
-		def constructor(implicit m) = new ProductI(name, tags) with Stored {
+		def constructor(implicit m) = new ProductI(name, tags) with Stored
+		{
 			val id: Int = ProductEntityI.id
 		}
 	}

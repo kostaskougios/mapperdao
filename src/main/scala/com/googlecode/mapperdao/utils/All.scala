@@ -11,10 +11,11 @@ import com.googlecode.mapperdao._
  *
  * @author kostantinos.kougios
  */
-trait All[ID,PC<:Persisted, T] {
+trait All[ID, PC <: Persisted, T]
+{
 	// the following must be overriden by classes extending this trait
 	protected val queryDao: QueryDao
-	protected val entity: Entity[ID,PC, T]
+	protected val entity: Entity[ID, PC, T]
 
 	// override these as necessary
 	protected val queryConfig = QueryConfig.default

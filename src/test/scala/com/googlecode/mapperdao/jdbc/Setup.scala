@@ -184,7 +184,7 @@ object Setup
 					begin
 						select myseq.nextval into :new.id from dual;
 					end;
-					 """.format(table))
+		             """.format(table))
 
 	}
 

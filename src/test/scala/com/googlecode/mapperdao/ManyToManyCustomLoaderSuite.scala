@@ -13,7 +13,8 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
  *         30 May 2012
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToManyCustomLoaderSuite extends FunSuite with ShouldMatchers {
+class ManyToManyCustomLoaderSuite extends FunSuite with ShouldMatchers
+{
 
 	import CommonEntities._
 
@@ -27,7 +28,8 @@ class ManyToManyCustomLoaderSuite extends FunSuite with ShouldMatchers {
 					selectConfig.data match {
 						case Some('replaced) =>
 							List(
-								new Attribute("x", "y") with SurrogateIntId {
+								new Attribute("x", "y") with SurrogateIntId
+								{
 									val id = 5
 								}
 							)

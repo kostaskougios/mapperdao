@@ -12,7 +12,8 @@ import com.googlecode.mapperdao.ManyToMany
  *
  *         31 Aug 2011
  */
-class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect {
+class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect
+{
 
 	override def idContribution[ID, T](
 		tpe: Type[ID, T],
@@ -38,7 +39,8 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 					// fewer variables as possible
 					ci.column.foreign.entity match {
 						case ee: ExternalEntity[Any, Any] =>
-							new LazyLoader {
+							new LazyLoader
+							{
 								def apply = {
 									val c = ci.column
 									val fe = c.foreign.entity

@@ -7,7 +7,8 @@ import java.util.concurrent.ConcurrentHashMap
  *
  *         6 May 2012
  */
-private[mapperdao] class MultiThreadedQueryEntityMapImpl(m: ConcurrentHashMap[List[Any], Option[_]]) extends EntityMap {
+private[mapperdao] class MultiThreadedQueryEntityMapImpl(m: ConcurrentHashMap[List[Any], Option[_]]) extends EntityMap
+{
 	override def get[T](clz: Class[_], ids: List[Any])(f: => Option[T]): Option[T] = {
 		// try to get the value from m just in case it was already loaded
 		// by a different thread. If not found, get it as usual and cache

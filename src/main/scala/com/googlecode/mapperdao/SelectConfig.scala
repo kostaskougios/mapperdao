@@ -24,12 +24,14 @@ case class SelectConfig(
 	lazyLoad: LazyLoad = LazyLoad.none,
 	hints: SelectHints = SelectHints.None,
 	manyToManyCustomLoaders: List[CustomLoader[_, _, _]] = Nil
-) {
+	)
+{
 
 	def loaderFor(ci: ColumnInfoRelationshipBase[_, _, _, _]) = manyToManyCustomLoaders.find(_.ci == ci)
 }
 
-object SelectConfig {
+object SelectConfig
+{
 	def from(queryConfig: QueryConfig) =
 		SelectConfig(
 			skip = queryConfig.skip,

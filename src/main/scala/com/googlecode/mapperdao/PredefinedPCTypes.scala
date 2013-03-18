@@ -22,19 +22,23 @@ trait NaturalIntAndNaturalStringIds extends DeclaredIds[(Int, String)]
 
 trait NaturalStringAndStringIds extends DeclaredIds[(String, String)]
 
-trait SurrogateIntAndNaturalStringId extends DeclaredIds[(Int, String)] {
+trait SurrogateIntAndNaturalStringId extends DeclaredIds[(Int, String)]
+{
 	def id: Int
 }
 
-trait SurrogateIntAndNaturalLongId extends DeclaredIds[(Int, Long)] {
+trait SurrogateIntAndNaturalLongId extends DeclaredIds[(Int, Long)]
+{
 	def id: Int
 }
 
-trait SurrogateLongAndNaturalStringId extends DeclaredIds[(Long, String)] {
+trait SurrogateLongAndNaturalStringId extends DeclaredIds[(Long, String)]
+{
 	def id: Long
 }
 
-trait SurrogateLongAndNaturalLongId extends DeclaredIds[(Long, Long)] {
+trait SurrogateLongAndNaturalLongId extends DeclaredIds[(Long, Long)]
+{
 	def id: Long
 }
 
@@ -54,7 +58,8 @@ trait With3Ids[ID1, ID2, ID3] extends DeclaredIds[(ID1, ID2, ID3)]
  *
  *         3 Aug 2011
  */
-trait SurrogateIntId extends DeclaredIds[Int] {
+trait SurrogateIntId extends DeclaredIds[Int]
+{
 	def id: Int
 }
 
@@ -70,6 +75,7 @@ trait SurrogateIntId extends DeclaredIds[Int] {
  *
  *         5 Aug 2011
  */
-trait SurrogateLongId extends DeclaredIds[Long] {
+trait SurrogateLongId extends DeclaredIds[Long]
+{
 	def id: Long
 }

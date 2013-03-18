@@ -12,7 +12,8 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
  *
  *         30 Jul 2011
  */
-trait TypeManager {
+trait TypeManager
+{
 
 	def normalize(v: Any): Any
 

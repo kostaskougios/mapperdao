@@ -8,7 +8,8 @@ import com.googlecode.mapperdao._
  *
  *         31 Aug 2011
  */
-class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect {
+class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect
+{
 
 	override def idContribution[ID, T](
 		tpe: Type[ID, T],

@@ -18,7 +18,8 @@ import javassist._
  *
  *         18 Apr 2012
  */
-private[mapperdao] class LazyLoadManager {
+private[mapperdao] class LazyLoadManager
+{
 
 	import LazyLoadManager._
 
@@ -26,7 +27,7 @@ private[mapperdao] class LazyLoadManager {
 
 	private val classCache = new scala.collection.mutable.HashMap[CacheKey, (Class[_], Map[String, ColumnInfoRelationshipBase[_, Any, Any, Any]])]
 
-	def proxyFor[ID, T](constructed: T with Persisted, entity: Entity[ID,_, T], lazyLoad: LazyLoad, vm: ValuesMap): T with Persisted = {
+	def proxyFor[ID, T](constructed: T with Persisted, entity: Entity[ID, _, T], lazyLoad: LazyLoad, vm: ValuesMap): T with Persisted = {
 		if (constructed == null) throw new NullPointerException("constructed can't be null")
 
 		val clz = entity.clz
@@ -121,7 +122,7 @@ private[mapperdao] class LazyLoadManager {
 
 	private def hasLongId(clz: Class[_]) = classOf[SurrogateLongId].isAssignableFrom(clz)
 
-	def isLazyLoaded(lazyLoad: LazyLoad, entity: Entity[_,_, _]) =
+	def isLazyLoaded(lazyLoad: LazyLoad, entity: Entity[_, _, _]) =
 		(lazyLoad.all ||
 			lazyLoad.isAnyColumnLazyLoaded(
 				entity.tpe.table.allRelationshipColumnInfosSet.asInstanceOf[Set[ColumnInfoRelationshipBase[_, _, _, _]]]
@@ -129,7 +130,8 @@ private[mapperdao] class LazyLoadManager {
 			) && !entity.tpe.table.allRelationshipColumnInfos.isEmpty
 }
 
-object LazyLoadManager {
+object LazyLoadManager
+{
 	private val classManager = new ClassManager(pool = {
 		val cp = new ClassPool(null)
 		cp.appendClassPath(new LoaderClassPath(getClass.getClassLoader))

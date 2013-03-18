@@ -9,9 +9,10 @@ package com.googlecode.mapperdao
 case class DeleteConfig(
 	propagate: Boolean = false,
 	skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set()
-)
+	)
 
-object DeleteConfig {
+object DeleteConfig
+{
 	// the default delete config which doesn't propagate the deletes
 	val default = DeleteConfig()
 }

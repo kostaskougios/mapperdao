@@ -9,6 +9,7 @@ import com.googlecode.mapperdao.state.prioritise.Priority
  *
  *         21 Nov 2012
  */
-trait PersistCmd {
+trait PersistCmd
+{
 	def priority: Priority
 }

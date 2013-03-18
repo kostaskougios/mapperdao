@@ -6,7 +6,8 @@ package com.googlecode.mapperdao.state.prioritise
  */
 trait Priority
 
-object Priority {
+object Priority
+{
 
 	object High extends Priority
 

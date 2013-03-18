@@ -14,7 +14,8 @@ case class InsertOneToManyExternalCmd[ID, T, FID, FT](
 	oneToMany: ColumnInfoTraversableOneToMany[ID, T, FID, FT],
 	entityVM: ValuesMap,
 	added: Traversable[FT]
-	) extends PersistCmd {
+	) extends PersistCmd
+{
 	def priority = Priority.Low
 }
 

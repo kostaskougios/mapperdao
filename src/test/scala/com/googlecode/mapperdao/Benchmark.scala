@@ -9,7 +9,8 @@ import com.googlecode.mapperdao.jdbc.Setup
  *
  *         9 Oct 2012
  */
-object Benchmark extends App {
+object Benchmark extends App
+{
 
 	import CommonEntities._
 

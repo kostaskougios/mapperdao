@@ -13,7 +13,8 @@ import com.googlecode.mapperdao.utils.Helpers
  *         23 Aug 2012
  */
 @RunWith(classOf[JUnitRunner])
-class UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite extends FunSuite with ShouldMatchers {
+class UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite extends FunSuite with ShouldMatchers
+{
 
 	import UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite._
 
@@ -69,13 +70,15 @@ class UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite extends FunSuite with 
 	}
 }
 
-object UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite {
+object UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite
+{
 
 	case class Tag(tag: String, product: Product)
 
 	case class Product(refCode: String, name: String)
 
-	object TagEntity extends Entity[(String, Product with NaturalStringId),With2Ids[String, Product with NaturalStringId], Tag] {
+	object TagEntity extends Entity[(String, Product with NaturalStringId), With2Ids[String, Product with NaturalStringId], Tag]
+	{
 		val tag = key("tag") to (_.tag)
 		val product = manytoone(SimpleProductEntity) to (_.product)
 
@@ -84,11 +87,13 @@ object UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite {
 		def constructor(implicit m: ValuesMap) = new Tag(tag, product) with Stored
 	}
 
-	trait ProductEntity[T <: Product] extends Entity[String, NaturalStringId,T] {
+	trait ProductEntity[T <: Product] extends Entity[String, NaturalStringId, T]
+	{
 		val name = column("name") to (_.name)
 	}
 
-	object SimpleProductEntity extends ProductEntity[Product] {
+	object SimpleProductEntity extends ProductEntity[Product]
+	{
 
 		val refCode = key("refCode") to (_.refCode)
 		val tags = onetomany(TagEntity) forQueryOnly() to (ce => Nil)

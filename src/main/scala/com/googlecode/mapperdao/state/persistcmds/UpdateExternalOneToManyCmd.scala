@@ -16,6 +16,7 @@ case class UpdateExternalOneToManyCmd[ID, T, FID, FT](
 	added: Traversable[FT],
 	intersection: Traversable[(FT, FT)],
 	removed: Traversable[FT]
-	) extends PersistCmd {
+	) extends PersistCmd
+{
 	def priority = Priority.Low
 }

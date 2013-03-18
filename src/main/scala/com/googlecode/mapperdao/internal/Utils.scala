@@ -6,7 +6,8 @@ import java.util
  * @author: kostas.kougios
  *          Date: 05/03/13
  */
-private[mapperdao] object Utils {
+private[mapperdao] object Utils
+{
 
 	/**
 	 * converts a traversable to a hashSet

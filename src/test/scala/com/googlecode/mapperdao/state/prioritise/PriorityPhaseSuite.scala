@@ -12,7 +12,8 @@ import com.googlecode.mapperdao.{UpdateConfig, CommonEntities}
  *         15 Dec 2012
  */
 @RunWith(classOf[JUnitRunner])
-class PriorityPhaseSuite extends FunSuite with ShouldMatchers {
+class PriorityPhaseSuite extends FunSuite with ShouldMatchers
+{
 
 	import CommonEntities._
 

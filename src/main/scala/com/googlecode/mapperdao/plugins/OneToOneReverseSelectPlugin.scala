@@ -8,13 +8,14 @@ import com.googlecode.mapperdao._
  *
  *         31 Aug 2011
  */
-class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect {
+class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeSelect
+{
 
 	override def idContribution[ID, T](
 		tpe: Type[ID, T],
 		om: DatabaseValues,
 		entities: EntityMap
-	) = {
+		) = {
 		val SelectInfo(parentTpe, parentCI, parentJdbcMap) = entities.peek
 		if (parentTpe != null) {
 			parentCI match {
@@ -27,11 +28,11 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 	}
 
 	override def before[ID, T](
-		entity: Entity[ID,Persisted, T],
+		entity: Entity[ID, Persisted, T],
 		selectConfig: SelectConfig,
 		om: DatabaseValues,
 		entities: EntityMap
-	) = {
+		) = {
 		val tpe = entity.tpe
 		val table = tpe.table
 		// one to one reverse
@@ -40,7 +41,9 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 				val v = ci.column.foreign.entity match {
 					case ee: ExternalEntity[Any, Any] =>
 						() => {
-							val foreignIds = tpe.table.primaryKeys.map { pk => om(pk) }
+							val foreignIds = tpe.table.primaryKeys.map {
+								pk => om(pk)
+							}
 							ee.oneToOneOnSelectMap(ci.asInstanceOf[ColumnInfoOneToOneReverse[_, _, Any]])(SelectExternalOneToOneReverse(selectConfig, foreignIds))
 						}
 					case _ =>

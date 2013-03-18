@@ -111,7 +111,7 @@ class OneToManyQuerySuite extends FunSuite with ShouldMatchers
 				name varchar(100) not null,
 				primary key (id)
 			)
-					 """)
+		             """)
 
 		jdbc.update( """
 			create table House (
@@ -121,7 +121,7 @@ class OneToManyQuerySuite extends FunSuite with ShouldMatchers
 				primary key (id),
 				constraint FK_House_Person foreign key (person_id) references Person(id) on delete cascade
 			)
-					 """)
+		             """)
 	}
 
 	case class Person(id: Int, var name: String, owns: Set[House])

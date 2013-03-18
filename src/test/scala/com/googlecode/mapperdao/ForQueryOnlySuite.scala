@@ -12,7 +12,8 @@ import com.googlecode.mapperdao.jdbc.Setup
  *         22 Aug 2012
  */
 @RunWith(classOf[JUnitRunner])
-class ForQueryOnlySuite extends FunSuite with ShouldMatchers {
+class ForQueryOnlySuite extends FunSuite with ShouldMatchers
+{
 
 	if (Setup.database == "h2") {
 		import CommonEntities._

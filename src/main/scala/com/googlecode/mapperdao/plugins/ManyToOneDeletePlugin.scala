@@ -2,7 +2,8 @@ package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao._
 
-class ManyToOneDeletePlugin extends BeforeDelete {
+class ManyToOneDeletePlugin extends BeforeDelete
+{
 	override def idColumnValueContribution[ID, T](
 		tpe: Type[ID, T],
 		deleteConfig: DeleteConfig,

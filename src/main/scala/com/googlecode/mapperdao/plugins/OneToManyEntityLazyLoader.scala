@@ -15,19 +15,22 @@ import com.googlecode.mapperdao.DatabaseValues
 class OneToManyEntityLazyLoader[ID, T, FID, F](
 	mapperDao: MapperDaoImpl,
 	selectConfig: SelectConfig,
-	entity: Entity[ID,_, T],
+	entity: Entity[ID, _, T],
 	down: EntityMap,
 	om: DatabaseValues,
 	ci: ColumnInfoTraversableOneToMany[ID, T, FID, F]
-)
-	extends LazyLoader {
+	)
+	extends LazyLoader
+{
 
 	private val m = om.map
 
 	def apply = {
 		val c = ci.column
 		val fe = c.foreign.entity
-		val ids = entity.tpe.table.primaryKeys.map { pk => m(pk.name) }
+		val ids = entity.tpe.table.primaryKeys.map {
+			pk => m(pk.name)
+		}
 		val where = c.foreignColumns.zip(ids)
 		val ftpe = fe.tpe
 		val fom = mapperDao.driver.doSelect(selectConfig, ftpe, where)

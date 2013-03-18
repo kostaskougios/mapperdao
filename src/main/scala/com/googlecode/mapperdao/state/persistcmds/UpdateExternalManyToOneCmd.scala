@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao.state.persistcmds
 
-import com.googlecode.mapperdao.{Persisted, ColumnInfoManyToOne, ValuesMap, ExternalEntity}
+import com.googlecode.mapperdao.{ColumnInfoManyToOne, ValuesMap, ExternalEntity}
 import com.googlecode.mapperdao.state.prioritise.Priority
 
 /**
@@ -14,6 +14,7 @@ case class UpdateExternalManyToOneCmd[FID, FT](
 	ci: ColumnInfoManyToOne[_, FID, FT],
 	newVM: ValuesMap,
 	fo: FT
-	) extends PersistCmd {
+	) extends PersistCmd
+{
 	def priority = Priority.Low
 }
