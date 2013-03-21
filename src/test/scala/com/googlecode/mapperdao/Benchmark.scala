@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.jdbc.Setup
+import jdbc.{Transaction, Setup}
 
 /**
  * benchmark : an attempt to isolate and benchmark mapperdao
@@ -57,15 +57,19 @@ object Benchmark extends App
 	 *
 	 * date			loops			dt
 	 * ------------------------------------
-	 * 2012/02/05	1000			5116
-	 * 2012/02/05	10000			32800
+	 * 2013/03/20	10000			16261	laptop, in a transaction
+	 * 2013/02/05	1000			5116
+	 * 2013/02/05	10000			32800
 	 * before		1000			11500
 	 * before		10000			81300
 	 *
 	 */
 	def benchmarkInsert(loops: Int) {
 		val l = (for (i <- 1 to loops) yield p).toList
-		mapperDao.insertBatch(UpdateConfig.default, ProductEntity, l)
+		Transaction.default(txManager) {
+			() =>
+				mapperDao.insertBatch(UpdateConfig.default, ProductEntity, l)
+		}
 	}
 
 	def benchmarkSelect(id: Int, loops: Int) {
