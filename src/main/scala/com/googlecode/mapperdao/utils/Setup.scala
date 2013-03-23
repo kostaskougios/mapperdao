@@ -22,8 +22,7 @@ import org.joda.time.chrono.ISOChronology
  *
  *         29 Aug 2011
  */
-object
-Setup
+object Setup
 {
 	/**
 	 * sets up a mapperDao and queryDao for the dataSource and entities using postgresql driver
