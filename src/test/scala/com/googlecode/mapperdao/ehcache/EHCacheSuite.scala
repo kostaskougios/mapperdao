@@ -1,10 +1,5 @@
 package com.googlecode.mapperdao.ehcache
 
-import scala.actors.Actor.actor
-import scala.actors.Actor.exit
-import scala.actors.Actor.loop
-import scala.actors.Actor.react
-import scala.actors.Actor.sender
 import org.junit.runner.RunWith
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
@@ -80,42 +75,6 @@ class EHCacheSuite extends FunSuite with ShouldMatchers with BeforeAndAfter
 				50
 			} should be(50)
 			calculated should be(2)
-		}
-
-		test("multithreaded accessing same key") {
-			val cache = new CacheUsingEHCache(ehCache) with Locking
-
-			def createActor = actor {
-				var i = 0
-				var errors = 0
-				loop {
-					react {
-						case iteration: Int =>
-							//println(iteration + ":" + Thread.currentThread.getName)
-							val key = List("key1", iteration)
-							if (cache(key, CacheOptions.OneDay) {
-								// check if locking works, so no key is calculated twice
-								if (ehCache.get(key) != null) {
-									errors += 1
-									//println("Locking ERROR!")
-								}
-								iteration
-							} != iteration) errors += 1 // check if we get the correct result
-							i += 1
-							if (i % 10 == 0) ehCache.remove(key)
-						case 'exit =>
-							sender ! errors
-							exit()
-					}
-				}
-			}.start()
-
-			val actors = for (i <- 1 to 100) yield createActor
-			for (i <- 1 to 10000) {
-				for (actor <- actors) actor ! i % 10
-			}
-			for (actor <- actors)
-				(actor !? 'exit) should be(0)
 		}
 
 		before {
