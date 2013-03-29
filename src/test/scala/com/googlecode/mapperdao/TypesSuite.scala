@@ -62,6 +62,17 @@ class TypesSuite extends FunSuite with ShouldMatchers
 		mapperDao.select(DatesEntity, 5).get should be === updated
 	}
 
+	test("localTime, query") {
+		createTables("dates")
+		val time = DateTime.now.withMillisOfSecond(0).toLocalTime
+		val nextHour = time.plusHours(1)
+		val List(_, i2) = mapperDao.insertBatch(DatesEntity, List(Dates(5, time = time), Dates(6, time = nextHour)))
+
+		import Query._
+		val de = DatesEntity
+		(select from de where de.time > time).toSet(queryDao) should be(Set(i2))
+	}
+
 	test("localDate, not null") {
 		createTables("dates")
 		val today = LocalDate.now
