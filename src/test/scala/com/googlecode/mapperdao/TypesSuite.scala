@@ -88,6 +88,17 @@ class TypesSuite extends FunSuite with ShouldMatchers
 		mapperDao.select(DatesEntity, 5).get should be === updated
 	}
 
+	test("localDate, query") {
+		createTables("dates")
+		val today = LocalDate.now
+		val tomorrow = LocalDate.now.plusDays(1)
+		val List(_, i2) = mapperDao.insertBatch(DatesEntity, List(Dates(5, today), Dates(6, tomorrow)))
+
+		import Query._
+		val de = DatesEntity
+		(select from de where de.localDate > today).toSet(queryDao) should be(Set(i2))
+	}
+
 	test("localDate, null") {
 		createTables("dates")
 		val inserted = mapperDao.insert(DatesEntity, Dates(5, null))
@@ -113,7 +124,6 @@ class TypesSuite extends FunSuite with ShouldMatchers
 
 	test("localDate, none") {
 		createTables("dates")
-		val today = LocalDate.now
 		val inserted = mapperDao.insert(ODatesEntity, ODates(5, None))
 		inserted should be === ODates(5, None)
 		val selected = mapperDao.select(ODatesEntity, 5).get
