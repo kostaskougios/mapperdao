@@ -151,7 +151,7 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		classOf[Array[Byte]] -> ((driver: Driver, v: Any) => toByteArray(v)),
 		classOf[Period] -> (
 			(driver: Driver, v: Any) =>
-				null
+				driver.convertToScalaKnownValue(classOf[Period], v)
 			)
 	)
 

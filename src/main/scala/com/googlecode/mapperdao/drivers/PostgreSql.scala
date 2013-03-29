@@ -55,5 +55,12 @@ class PostgreSql(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager
 		}
 	} else value
 
+	override def convertToScalaKnownValue(tpe: Class[_], value: Any) = value match {
+		case null => null
+		case i: PGInterval =>
+			new Period(i.getYears, i.getMonths, 0, i.getDays, i.getHours, i.getMinutes, i.getSeconds.toInt, 0)
+		case _ => throw new IllegalStateException(tpe + " not supported by this driver")
+	}
+
 	override def toString = "PostgreSql"
 }

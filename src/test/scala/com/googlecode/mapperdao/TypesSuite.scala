@@ -20,7 +20,7 @@ class TypesSuite extends FunSuite with ShouldMatchers
 	if (Setup.database == "postgresql") {
 		test("interval") {
 			createTables("interval")
-			val time = Period.days(5)
+			val time = Period.days(5).plusHours(2).plusMinutes(8).plusMonths(7).plusYears(6).plusSeconds(12)
 			val inserted = mapperDao.insert(IntervalEntity, Interval(5, time))
 			inserted should be === Interval(5, time)
 			val selected = mapperDao.select(IntervalEntity, 5).get

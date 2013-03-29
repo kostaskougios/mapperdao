@@ -342,6 +342,11 @@ abstract class Driver
 	def convertToDBKnownValue(tpe: Class[_], value: Any) = value
 
 	/**
+	 * convert a scala-known value from the driver-specific type to the scala type
+	 */
+	def convertToScalaKnownValue(tpe: Class[_], value: Any): Any = throw new IllegalStateException(tpe + " not supported by this driver")
+
+	/**
 	 * =====================================================================================
 	 * standard methods
 	 * =====================================================================================
