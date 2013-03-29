@@ -15,7 +15,18 @@ import org.scala_tools.time.Imports._
 @RunWith(classOf[JUnitRunner])
 class TypesSuite extends FunSuite with ShouldMatchers
 {
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(BDEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(BDEntity, IntervalEntity))
+
+	if (Setup.database == "postgresql") {
+		test("interval") {
+			createTables("interval")
+			val time = Period.days(5)
+			val inserted = mapperDao.insert(IntervalEntity, Interval(5, time))
+			inserted should be === Interval(5, time)
+			val selected = mapperDao.select(IntervalEntity, 5).get
+			selected should be === inserted
+		}
+	}
 
 	test("localTime, not null") {
 		createTables("dates")
@@ -265,6 +276,16 @@ class TypesSuite extends FunSuite with ShouldMatchers
 	def createTables(ddl: String) = {
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update(ddl)
+	}
+
+	case class Interval(id: Int, v: Period)
+
+	object IntervalEntity extends Entity[Int, NaturalIntId, Interval]
+	{
+		val id = key("id") to (_.id)
+		val v = column("v") to (_.v)
+
+		def constructor(implicit m) = new Interval(id, v) with Stored
 	}
 
 	case class Dates(id: Int, localDate: LocalDate = null, time: LocalTime = null)

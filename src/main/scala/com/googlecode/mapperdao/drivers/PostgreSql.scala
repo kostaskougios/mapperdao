@@ -4,6 +4,8 @@ import com.googlecode.mapperdao.jdbc.Jdbc
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 import com.googlecode.mapperdao.jdbc.Batch
+import org.joda.time.Period
+import org.postgresql.util.PGInterval
 
 /**
  * @author kostantinos.kougios
@@ -35,6 +37,23 @@ class PostgreSql(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager
 		queryConfig.limit.foreach(l => q.appendSql("limit " + l))
 		q
 	}
+
+	override def isDBKnownValue(tpe: Class[_]) = tpe == classOf[Period]
+
+	override def convertToDBKnownValue(tpe: Class[_], value: Any) = if (tpe == classOf[Period]) {
+		// support for interval columns
+		value match {
+			case null => null
+			case period: Period =>
+				val years = period.getYears
+				val months = period.getMonths
+				val days = period.getDays
+				val hours = period.getHours
+				val minutes = period.getMinutes
+				val seconds = period.getSeconds
+				new PGInterval(years, months, days, hours, minutes, seconds.toDouble)
+		}
+	} else value
 
 	override def toString = "PostgreSql"
 }

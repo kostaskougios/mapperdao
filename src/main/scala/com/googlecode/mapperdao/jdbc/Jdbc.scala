@@ -17,13 +17,12 @@ import java.sql.Statement
 import org.springframework.jdbc.core.StatementCreatorUtils
 import org.springframework.jdbc.core.SqlTypeValue
 import org.springframework.jdbc.core.JdbcTemplate
-import org.joda.time.DateTime
-import org.joda.time.Chronology
+import org.joda.time._
 import java.sql.Types
 import org.springframework.jdbc.core.SqlParameterValue
-import org.joda.time.LocalDate
-import org.joda.time.LocalTime
 import org.springframework.jdbc.core.support.SqlLobValue
+import com.googlecode.mapperdao.drivers.Driver
+import scala.Some
 import com.googlecode.mapperdao.Blob
 
 /**
@@ -270,7 +269,7 @@ object Jdbc
 
 	def apply(dataSource: DataSource, chronology: Chronology) = new Jdbc(dataSource, chronology)
 
-	private def sqlParam(clz: Class[_]): Int =
+	private def sqlParam(driver: Driver, clz: Class[_]): Int =
 		if (clz == classOf[String]) Types.VARCHAR
 		else if (clz == classOf[Int] || clz == classOf[java.lang.Integer]) Types.INTEGER
 		else if (clz == classOf[Long] || clz == classOf[java.lang.Long]) Types.BIGINT
@@ -288,16 +287,16 @@ object Jdbc
 		else if (clz == classOf[Array[Byte]] || clz == classOf[Blob]) Types.BLOB
 		else Types.OTHER
 
-	def isPrimitiveJdbcType(tpe: Class[_]) = sqlParam(tpe) != Types.OTHER
+	def isPrimitiveJdbcType(driver: Driver, tpe: Class[_]) = sqlParam(driver, tpe) != Types.OTHER
 
-	def toSqlParameter(l: List[(Class[_], Any)]): List[SqlParameterValue] = l.map {
+	def toSqlParameter(driver: Driver, l: List[(Class[_], Any)]): List[SqlParameterValue] = l.map {
 		case (clz, v) =>
-			toSqlParameter(clz, v)
+			toSqlParameter(driver, clz, v)
 	}
 
-	def toSqlParameter(tpe: Class[_], value: Any): SqlParameterValue = {
-		val t = sqlParam(tpe)
-		if (t == Types.OTHER) throw new IllegalArgumentException("unknown type " + tpe)
+	def toSqlParameter(driver: Driver, tpe: Class[_], value: Any): SqlParameterValue = {
+		val t = sqlParam(driver, tpe)
+		if (t == Types.OTHER && !driver.isDBKnownValue(tpe)) throw new IllegalArgumentException("unknown type " + tpe)
 		val v = if (t == Types.BLOB) {
 			if (tpe == classOf[Array[Byte]])
 				new SqlLobValue(value.asInstanceOf[Array[Byte]])
@@ -305,7 +304,7 @@ object Jdbc
 					override def toString = "<blob>"
 				}
 			else value.asInstanceOf[Blob].toSqlLobValue
-		} else value
+		} else driver.convertToDBKnownValue(tpe, value)
 		new SqlParameterValue(t, v)
 		{
 			override def toString = "SqlParameterValue(" + value.toString + ")"

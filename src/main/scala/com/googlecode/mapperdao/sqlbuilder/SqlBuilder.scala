@@ -86,7 +86,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 
 		override def toValues = if (isNull) Nil
 		else List(
-			Jdbc.toSqlParameter(column.tpe, value)
+			Jdbc.toSqlParameter(driver, column.tpe, value)
 		)
 	}
 
@@ -133,15 +133,15 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		private val rightValues = if (op.isDefined)
 			right match {
 				case null => throw new NullPointerException("null values not allowed as function parameters")
-				case v if (Jdbc.isPrimitiveJdbcType(v.getClass)) => List(Jdbc.toSqlParameter(right.getClass, right))
+				case v if (Jdbc.isPrimitiveJdbcType(driver, v.getClass)) => List(Jdbc.toSqlParameter(driver, right.getClass, right))
 				case _ => Nil
 			}
 		else Nil
 
 		private def functionToValues[T](v: SqlFunctionValue[T]): List[SqlParameterValue] =
 			v.values.collect {
-				case value if (Jdbc.isPrimitiveJdbcType(value.getClass)) =>
-					List(Jdbc.toSqlParameter(value.getClass, value))
+				case value if (Jdbc.isPrimitiveJdbcType(driver, value.getClass)) =>
+					List(Jdbc.toSqlParameter(driver, value.getClass, value))
 				case iv: SqlFunctionValue[_] =>
 					functionToValues(iv)
 			}.flatten
@@ -153,7 +153,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		private def functionToSql[T](v: SqlFunctionValue[T]): String = {
 			val sb = new StringBuilder(functionCall(v)) append '('
 			sb append v.values.map {
-				case value if (Jdbc.isPrimitiveJdbcType(value.getClass)) =>
+				case value if (Jdbc.isPrimitiveJdbcType(driver, value.getClass)) =>
 					"?"
 				case ci: ColumnInfo[_, _] => aliases(ci.column) + "." + ci.column.name
 				case ci: ColumnInfoManyToOne[_, _, _] =>
@@ -178,7 +178,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			if (op.isDefined) {
 				sb append op.get
 				sb append (right match {
-					case v if (Jdbc.isPrimitiveJdbcType(right.getClass)) => "?"
+					case v if (Jdbc.isPrimitiveJdbcType(driver, right.getClass)) => "?"
 					case ci: ColumnInfo[_, _] => aliases(ci.column) + "." + ci.column.name
 					case ci: ColumnInfoManyToOne[_, _, _] =>
 						if (ci.column.columns.size > 1) throw new IllegalArgumentException("can't use a multi-column-primary-key many-to-one in the right part of a function comparison : " + ci.column.columns)
@@ -204,7 +204,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 	{
 		override def toSql = escapeNamesStrategy.escapeColumnNames(column.name) + " " + (if (alias != null) alias else "") + " between ? and ?"
 
-		override def toValues = Jdbc.toSqlParameter(column.tpe, left) :: Jdbc.toSqlParameter(column.tpe, right) :: Nil
+		override def toValues = Jdbc.toSqlParameter(driver, column.tpe, left) :: Jdbc.toSqlParameter(driver, column.tpe, right) :: Nil
 	}
 
 	trait FromClause
@@ -437,7 +437,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		override def toString = "DeleteBuilder(%s)".format(toSql)
 	}
 
-	case class InsertBuilder
+	class InsertBuilder
 	{
 		private var table: Table = null
 		private var cvs: List[(SimpleColumn, Any)] = Nil
@@ -483,15 +483,17 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			+ ")"
 			)
 
-		def toValues: List[SqlParameterValue] = Jdbc.toSqlParameter(cvs.map {
-			case (c, v) =>
-				(c.tpe, v)
-		})
+		def toValues: List[SqlParameterValue] = Jdbc.toSqlParameter(
+			driver,
+			cvs.map {
+				case (c, v) =>
+					(c.tpe, v)
+			})
 
 		def result = Result(toSql, toValues)
 	}
 
-	case class UpdateBuilder
+	class UpdateBuilder
 	{
 		private var table: Table = null
 		private var columnAndValues = List[(SimpleColumn, Any)]()
@@ -543,6 +545,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 
 		def toValues = {
 			val params = Jdbc.toSqlParameter(
+				driver,
 				columnAndValues.map {
 					case (c, v) =>
 						(c.tpe, v)

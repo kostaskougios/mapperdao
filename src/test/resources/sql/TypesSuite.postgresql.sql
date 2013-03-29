@@ -30,3 +30,10 @@ create table Dates (
 	time time,
 	primary key (id)
 )
+
+[interval]
+create table Interval (
+	id int not null,
+	v interval,
+	primary key (id)
+)

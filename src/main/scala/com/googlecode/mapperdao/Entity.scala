@@ -4,9 +4,7 @@ import internal.{LazyActions, Utils}
 import java.util.Calendar
 import java.util.Date
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
-import org.joda.time.DateTime
-import org.joda.time.LocalDate
-import org.joda.time.LocalTime
+import org.joda.time.{Period, DateTime, LocalDate, LocalTime}
 
 /**
  * the main class that must be inherited to create entities.
@@ -169,6 +167,8 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	protected implicit def columnToLongLongId(ci: ColumnInfo[T with SurrogateLongId, Long])(implicit m: ValuesMap): Long = m(ci)
 
 	protected implicit def columnToDateTime(ci: ColumnInfo[_ <: T, DateTime])(implicit m: ValuesMap): DateTime = m(ci)
+
+	protected implicit def columnToPeriod(ci: ColumnInfo[_ <: T, Period])(implicit m: ValuesMap): Period = m(ci)
 
 	protected implicit def columnToLocalDate(ci: ColumnInfo[_ <: T, LocalDate])(implicit m: ValuesMap): LocalDate = m(ci)
 

@@ -327,6 +327,22 @@ abstract class Driver
 
 	/**
 	 * =====================================================================================
+	 * db-specific data type related methods
+	 * =====================================================================================
+	 */
+
+	/**
+	 * return true only if tpe is known to the specific driver
+	 */
+	def isDBKnownValue(tpe: Class[_]) = false
+
+	/**
+	 * convert a db-known value from scala to the driver-specific type
+	 */
+	def convertToDBKnownValue(tpe: Class[_], value: Any) = value
+
+	/**
+	 * =====================================================================================
 	 * standard methods
 	 * =====================================================================================
 	 */

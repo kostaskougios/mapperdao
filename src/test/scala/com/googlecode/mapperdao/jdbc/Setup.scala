@@ -52,7 +52,7 @@ object Setup
 	def setupMapperDao(typeRegistry: TypeRegistry, cache: Option[Cache] = None) = {
 		val properties = loadJdbcProperties
 		val dataSource = BasicDataSourceFactory.createDataSource(properties)
-		val (j, m, q, t) = S.create(Database.byName(database), dataSource, typeRegistry, cache, ISOChronology.getInstance)
+		val (j, m, q, _) = S.create(Database.byName(database), dataSource, typeRegistry, cache, ISOChronology.getInstance)
 		(j, m, q)
 	}
 
