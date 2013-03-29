@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.JdbcMap
+import drivers.Driver
 
 /**
  * manages types
@@ -22,5 +23,5 @@ trait TypeManager
 	 */
 	def toActualType(tpe: Class[_], o: Any): Any
 
-	def correctTypes[ID, T](table: Table[ID, T], j: JdbcMap): DatabaseValues
+	def correctTypes[ID, T](driver: Driver, table: Table[ID, T], j: JdbcMap): DatabaseValues
 }

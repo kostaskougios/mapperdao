@@ -158,7 +158,7 @@ abstract class Driver
 		// of this object from the database
 		jdbc.queryForList(result.sql, result.values).map {
 			j =>
-				typeManager.correctTypes(tpe.table, j)
+				typeManager.correctTypes(this, tpe.table, j)
 		}
 	}
 
@@ -183,7 +183,7 @@ abstract class Driver
 
 	def doSelectManyToMany[ID, T, FID, F](selectConfig: SelectConfig, tpe: Type[ID, T], ftpe: Type[FID, F], manyToMany: ManyToMany[FID, F], leftKeyValues: List[(SimpleColumn, Any)]): List[DatabaseValues] = {
 		val r = selectManyToManySql(selectConfig, tpe, ftpe, manyToMany, leftKeyValues).result
-		jdbc.queryForList(r.sql, r.values).map(j => typeManager.correctTypes(ftpe.table, j))
+		jdbc.queryForList(r.sql, r.values).map(j => typeManager.correctTypes(this, ftpe.table, j))
 	}
 
 	protected def selectManyToManySql[ID, T, FID, F](selectConfig: SelectConfig, tpe: Type[ID, T], ftpe: Type[FID, F], manyToMany: ManyToMany[FID, F], leftKeyValues: List[(SimpleColumn, Any)]) = {
@@ -312,7 +312,7 @@ abstract class Driver
 	 */
 	def queryForList[ID, T](queryConfig: QueryConfig, tpe: Type[ID, T], sql: String, args: List[Any]): List[DatabaseValues] =
 		jdbc.queryForList(sql, args).map {
-			j => typeManager.correctTypes(tpe.table, j)
+			j => typeManager.correctTypes(this, tpe.table, j)
 		}
 
 	def queryForLong(queryConfig: QueryConfig, sql: String, args: List[Any]): Long = jdbc.queryForLong(sql, args)

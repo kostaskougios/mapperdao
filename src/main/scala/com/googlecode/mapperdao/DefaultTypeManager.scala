@@ -1,14 +1,12 @@
 package com.googlecode.mapperdao
 
+import drivers.Driver
 import java.util.Calendar
-import org.joda.time.DateTime
+import org.joda.time._
 import com.googlecode.mapperdao.jdbc.JdbcMap
 import java.util.Date
 import scala.collection.immutable.ListMap
-import org.joda.time.Chronology
 import org.joda.time.chrono.ISOChronology
-import org.joda.time.LocalDate
-import org.joda.time.LocalTime
 
 /**
  * @author kostantinos.kougios
@@ -129,50 +127,54 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		case _ => t.toLocalTime
 	}
 
-	private val corrections = Map[Class[_], Any => Any](
-		classOf[Int] -> ((v: Any) => toInt(v)),
-		classOf[java.lang.Integer] -> ((v: Any) => toInt(v)),
-		classOf[Long] -> ((v: Any) => toLong(v)),
-		classOf[BigDecimal] -> ((v: Any) => toBigDecimal(v)),
-		classOf[java.lang.Long] -> ((v: Any) => toLong(v)),
-		classOf[Boolean] -> ((v: Any) => toBoolean(v)),
-		classOf[java.lang.Boolean] -> ((v: Any) => toBoolean(v)),
-		classOf[Short] -> ((v: Any) => toShort(v)),
-		classOf[java.lang.Short] -> ((v: Any) => toShort(v)),
-		classOf[Double] -> ((v: Any) => toDouble(v)),
-		classOf[java.lang.Double] -> ((v: Any) => toDouble(v)),
-		classOf[Float] -> ((v: Any) => toFloat(v)),
-		classOf[java.lang.Float] -> ((v: Any) => toFloat(v)),
-		classOf[DateTime] -> ((v: Any) => toDate(v.asInstanceOf[DateTime])),
-		classOf[LocalDate] -> ((v: Any) => toLocalDate(v.asInstanceOf[DateTime])),
-		classOf[LocalTime] -> ((v: Any) => toLocalTime(v.asInstanceOf[DateTime])),
-		classOf[Date] -> ((v: Any) => toDate(v.asInstanceOf[DateTime])),
-		classOf[Calendar] -> ((v: Any) => toDate(v.asInstanceOf[DateTime])),
-		classOf[String] -> ((v: Any) => v),
-		classOf[Byte] -> ((v: Any) => toByte(v)),
-		classOf[Array[Byte]] -> ((v: Any) => toByteArray(v))
+	private val corrections = Map[Class[_], (Driver, Any) => Any](
+		classOf[Int] -> ((driver: Driver, v: Any) => toInt(v)),
+		classOf[java.lang.Integer] -> ((driver: Driver, v: Any) => toInt(v)),
+		classOf[Long] -> ((driver: Driver, v: Any) => toLong(v)),
+		classOf[BigDecimal] -> ((driver: Driver, v: Any) => toBigDecimal(v)),
+		classOf[java.lang.Long] -> ((driver: Driver, v: Any) => toLong(v)),
+		classOf[Boolean] -> ((driver: Driver, v: Any) => toBoolean(v)),
+		classOf[java.lang.Boolean] -> ((driver: Driver, v: Any) => toBoolean(v)),
+		classOf[Short] -> ((driver: Driver, v: Any) => toShort(v)),
+		classOf[java.lang.Short] -> ((driver: Driver, v: Any) => toShort(v)),
+		classOf[Double] -> ((driver: Driver, v: Any) => toDouble(v)),
+		classOf[java.lang.Double] -> ((driver: Driver, v: Any) => toDouble(v)),
+		classOf[Float] -> ((driver: Driver, v: Any) => toFloat(v)),
+		classOf[java.lang.Float] -> ((driver: Driver, v: Any) => toFloat(v)),
+		classOf[DateTime] -> ((driver: Driver, v: Any) => toDate(v.asInstanceOf[DateTime])),
+		classOf[LocalDate] -> ((driver: Driver, v: Any) => toLocalDate(v.asInstanceOf[DateTime])),
+		classOf[LocalTime] -> ((driver: Driver, v: Any) => toLocalTime(v.asInstanceOf[DateTime])),
+		classOf[Date] -> ((driver: Driver, v: Any) => toDate(v.asInstanceOf[DateTime])),
+		classOf[Calendar] -> ((driver: Driver, v: Any) => toDate(v.asInstanceOf[DateTime])),
+		classOf[String] -> ((driver: Driver, v: Any) => v),
+		classOf[Byte] -> ((driver: Driver, v: Any) => toByte(v)),
+		classOf[Array[Byte]] -> ((driver: Driver, v: Any) => toByteArray(v)),
+		classOf[Period] -> (
+			(driver: Driver, v: Any) =>
+				null
+			)
 	)
 
-	override def correctTypes[ID, T](table: Table[ID, T], j: JdbcMap) = {
+	override def correctTypes[ID, T](driver: Driver, table: Table[ID, T], j: JdbcMap) = {
 		val ecil = table.extraColumnInfosPersisted.map {
 			case ci: ColumnInfo[T, _] =>
 				val column = ci.column
 				val v = j(column.name)
-				(column.nameLowerCase, corrections(ci.dataType)(v))
+				(column.nameLowerCase, corrections(ci.dataType)(driver, v))
 		}
 		val sts = table.simpleTypeColumnInfos.map {
 			ci =>
 				val column = ci.column
 				val v = j(column.name)
-				(column.nameLowerCase, corrections(ci.dataType)(v))
+				(column.nameLowerCase, corrections(ci.dataType)(driver, v))
 		}
 
 		// related data (if any)
 		val related = table.allRelationshipColumnInfos.collect {
 			case ci: ColumnInfoManyToOne[T, _, _] =>
-				columnToCorrectedValue(ci.column, ci.column.foreign, j)
+				columnToCorrectedValue(driver, ci.column, ci.column.foreign, j)
 			case ci: ColumnInfoOneToOne[T, _, _] =>
-				columnToCorrectedValue(ci.column, ci.column.foreign, j)
+				columnToCorrectedValue(driver, ci.column, ci.column.foreign, j)
 		}.flatten
 
 		val unused = table.unusedPKs.map {
@@ -181,7 +183,7 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 
 				(
 					pk.name,
-					corrections(pk.tpe)(v)
+					corrections(pk.tpe)(driver, v)
 					)
 		}
 		val dm = sts ::: ecil ::: related ::: unused
@@ -189,6 +191,7 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 	}
 
 	private def columnToCorrectedValue[FID, F](
+		driver: Driver,
 		column: ColumnRelationshipBase[FID, F],
 		foreign: TypeRef[FID, F], j: JdbcMap
 		) = {
@@ -202,7 +205,7 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 			).map {
 			case (name, t) =>
 				val v = j(name)
-				(name, corrections(t)(v))
+				(name, corrections(t)(driver, v))
 		}
 		forT
 	}
