@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao
 
-import org.joda.time.DateTime
+import org.joda.time.{Period, DateTime}
 
 /**
  * @author kostantinos.kougios
@@ -61,6 +61,8 @@ trait SqlImplicitConvertions
 	implicit def columnInfoToOperableBoolean[T](ci: ColumnInfo[T, Boolean]) = new Convertor(ci)
 
 	implicit def columnInfoToOperableDateTime[T](ci: ColumnInfo[T, DateTime]) = new Convertor(ci)
+
+	implicit def columnInfoToOperablePeriod[T](ci: ColumnInfo[T, Period]) = new Convertor(ci)
 
 	implicit def columnInfoToOperableBigInt[T](ci: ColumnInfo[T, BigInt]) = new Convertor(ci)
 
