@@ -178,51 +178,29 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 
 	protected implicit def columnToOptionDateTime(ci: ColumnInfo[_ <: T, DateTime])(implicit m: ValuesMap): Option[DateTime] = Option(m(ci))
 
-	protected implicit def columnToOptionLocalDate(ci: ColumnInfo[_ <: T, LocalDate])(implicit m: ValuesMap): Option[LocalDate] = m(ci) match {
-		case null => None
-		case v => Some(v)
-	}
+	protected implicit def columnToOptionLocalDate(ci: ColumnInfo[_ <: T, LocalDate])(implicit m: ValuesMap): Option[LocalDate] = Option(m(ci))
 
-	protected implicit def columnToOptionLocalTime(ci: ColumnInfo[_ <: T, LocalTime])(implicit m: ValuesMap): Option[LocalTime] = m(ci) match {
-		case null => None
-		case v => Some(v)
-	}
+	protected implicit def columnToOptionLocalTime(ci: ColumnInfo[_ <: T, LocalTime])(implicit m: ValuesMap): Option[LocalTime] = Option(m(ci))
 
-	protected implicit def columnToDate(ci: ColumnInfo[_ <: T, Date])(implicit m: ValuesMap): Date =
-		m.date(ci)
+	protected implicit def columnToDate(ci: ColumnInfo[_ <: T, Date])(implicit m: ValuesMap): Date = m.date(ci)
 
-	protected implicit def columnToOptionDate(ci: ColumnInfo[_ <: T, Date])(implicit m: ValuesMap): Option[Date] = m.date(ci) match {
-		case null => None
-		case v => Some(v)
-	}
+	protected implicit def columnToOptionDate(ci: ColumnInfo[_ <: T, Date])(implicit m: ValuesMap): Option[Date] = Option(m.date(ci))
 
 	protected implicit def columnToCalendar(ci: ColumnInfo[_ <: T, Calendar])(implicit m: ValuesMap): Calendar = m.calendar(ci)
 
-	protected implicit def columnToOptionCalendar(ci: ColumnInfo[_ <: T, Calendar])(implicit m: ValuesMap): Option[Calendar] = m.calendar(ci) match {
-		case null => None
-		case v => Some(v)
-	}
+	protected implicit def columnToOptionCalendar(ci: ColumnInfo[_ <: T, Calendar])(implicit m: ValuesMap): Option[Calendar] = Option(m.calendar(ci))
 
 	protected implicit def columnToString(ci: ColumnInfo[_ <: T, String])(implicit m: ValuesMap): String = m(ci)
 
-	protected implicit def columnToOptionString(ci: ColumnInfo[_ <: T, String])(implicit m: ValuesMap): Option[String] = m(ci) match {
-		case null => None
-		case v => Some(v)
-	}
+	protected implicit def columnToOptionString(ci: ColumnInfo[_ <: T, String])(implicit m: ValuesMap): Option[String] = Option(m(ci))
 
 	protected implicit def columnToBigDecimal(ci: ColumnInfo[_ <: T, BigDecimal])(implicit m: ValuesMap): BigDecimal = m.bigDecimal(ci)
 
-	protected implicit def columnToOptionBigDecimal(ci: ColumnInfo[_ <: T, BigDecimal])(implicit m: ValuesMap): Option[BigDecimal] = m(ci) match {
-		case null => None
-		case v => Some(v)
-	}
+	protected implicit def columnToOptionBigDecimal(ci: ColumnInfo[_ <: T, BigDecimal])(implicit m: ValuesMap): Option[BigDecimal] = Option(m(ci))
 
 	protected implicit def columnToBigInteger(ci: ColumnInfo[_ <: T, BigInt])(implicit m: ValuesMap): BigInt = m.bigInt(ci)
 
-	protected implicit def columnToOptionBigInteger(ci: ColumnInfo[_ <: T, BigInt])(implicit m: ValuesMap): Option[BigInt] = m(ci) match {
-		case null => None
-		case v => Some(v)
-	}
+	protected implicit def columnToOptionBigInteger(ci: ColumnInfo[_ <: T, BigInt])(implicit m: ValuesMap): Option[BigInt] = Option(m(ci))
 
 	protected implicit def columnToFloat(ci: ColumnInfo[_ <: T, Float])(implicit m: ValuesMap): Float = m(ci)
 
@@ -246,10 +224,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	// many to one
 	protected implicit def columnManyToOneToValue[FID, F](ci: ColumnInfoManyToOne[T, FID, F])(implicit m: ValuesMap): F = m(ci)
 
-	protected implicit def columnManyToOneToOptionValue[T, FID, F](ci: ColumnInfoManyToOne[T, FID, F])(implicit m: ValuesMap): Option[F] = m(ci) match {
-		case null => None
-		case v => Some(v)
-	}
+	protected implicit def columnManyToOneToOptionValue[T, FID, F](ci: ColumnInfoManyToOne[T, FID, F])(implicit m: ValuesMap): Option[F] = Option(m(ci))
 
 	// one to many : Scala
 	protected implicit def columnTraversableOneToManyList[FID, F](ci: ColumnInfoTraversableOneToMany[ID, T, FID, F])(implicit m: ValuesMap): List[F] = m(ci).toList
@@ -325,17 +300,11 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	// one to one
 	protected implicit def columnOneToOne[FID, F](ci: ColumnInfoOneToOne[T, FID, F])(implicit m: ValuesMap): F = m(ci)
 
-	protected implicit def columnOneToOneOption[FID, F](ci: ColumnInfoOneToOne[T, FID, F])(implicit m: ValuesMap): Option[F] = m(ci) match {
-		case null => None
-		case v => Some(v)
-	}
+	protected implicit def columnOneToOneOption[FID, F](ci: ColumnInfoOneToOne[T, FID, F])(implicit m: ValuesMap): Option[F] = Option(m(ci))
 
 	protected implicit def columnOneToOneReverse[FID, F](ci: ColumnInfoOneToOneReverse[T, FID, F])(implicit m: ValuesMap): F = m(ci)
 
-	protected implicit def columnOneToOneReverseOption[FID, F](ci: ColumnInfoOneToOneReverse[T, FID, F])(implicit m: ValuesMap): Option[F] = m(ci) match {
-		case null => None
-		case v => Some(v)
-	}
+	protected implicit def columnOneToOneReverseOption[FID, F](ci: ColumnInfoOneToOneReverse[T, FID, F])(implicit m: ValuesMap): Option[F] = Option(m(ci))
 
 	protected implicit def columnToByteArray(ci: ColumnInfo[T, Array[Byte]])(implicit m: ValuesMap): Array[Byte] = m(ci)
 
