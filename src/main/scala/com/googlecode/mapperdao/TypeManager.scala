@@ -2,7 +2,6 @@ package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.JdbcMap
 import drivers.Driver
-import state.persistcmds.PersistCmd
 
 /**
  * manages types
@@ -25,5 +24,5 @@ trait TypeManager
 
 	def correctTypes[ID, T](driver: Driver, tpe: Type[ID, T], j: JdbcMap): DatabaseValues
 
-	def transformValuesBeforeStoring(cmd: PersistCmd, values: List[(SimpleColumn, Any)]): List[(SimpleColumn, Any)]
+	def transformValuesBeforeStoring(values: List[(SimpleColumn, Any)]): List[(SimpleColumn, Any)]
 }

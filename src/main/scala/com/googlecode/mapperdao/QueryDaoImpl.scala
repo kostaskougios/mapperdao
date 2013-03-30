@@ -14,6 +14,7 @@ import com.googlecode.mapperdao.drivers.Driver
  */
 final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends QueryDao
 {
+	private val typeManager = driver.typeManager
 
 	import QueryDao._
 
@@ -173,7 +174,8 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 					case rc: SimpleColumn =>
 						driver.sqlBuilder.NonValueClause(aliases(o.left), o.left.name, o.operand.sql, aliases(rc), rc.name)
 					case _ =>
-						driver.sqlBuilder.Clause(aliases(o.left), o.left, o.operand.sql, o.right)
+						val List((left, right)) = typeManager.transformValuesBeforeStoring(List((o.left, o.right)))
+						driver.sqlBuilder.Clause(aliases(o.left), left, o.operand.sql, right)
 				}
 			case AndOp(left, right) =>
 				driver.sqlBuilder.And(inner(left), inner(right))

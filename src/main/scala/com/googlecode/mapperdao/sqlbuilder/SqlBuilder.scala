@@ -65,7 +65,8 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 	}
 
 	case class Clause(
-		alias: String, column: SimpleColumn,
+		alias: String,
+		column: SimpleColumn,
 		op: String,
 		value: Any
 		) extends Expression

@@ -23,20 +23,20 @@ class CustomTypesSuite extends FunSuite with ShouldMatchers
 		val typeRegistry = TypeRegistry(DatesEntity)
 		val myDatabaseToScalaTypes = new UserDefinedDatabaseToScalaTypes
 		{
-			def scalaToDatabase(tpe: Type[_, _], data: (SimpleColumn, Any)) = data match {
+			def scalaToDatabase(data: (SimpleColumn, Any)) = data match {
 				case (column: Column, d: DateTime) =>
 					(column.copy(tpe = classOf[Long]), d.getMillis)
 				case v =>
 					v
 			}
 
-			def databaseToScala(tpe: Type[_, _], column: SimpleColumn, v: Any) = if (tpe.clz == classOf[Dates]) {
-				v match {
-					case l: Long =>
+			def databaseToScala(data: (SimpleColumn, Any)) =
+				data match {
+					// make sure we do the conversion only for the correct entity
+					case (column, l: Long) =>
 						new DateTime(l)
-					case _ => v
+					case (column, value) => value
 				}
-			} else v
 		}
 		val (jdbc, mapperDao, queryDao, _) = Setup.create(Database.byName(database), dataSource, typeRegistry, customDatabaseToScalaTypes = myDatabaseToScalaTypes)
 
@@ -60,6 +60,18 @@ class CustomTypesSuite extends FunSuite with ShouldMatchers
 			val u1 = mapperDao.update(DatesEntity, i1, i1.copy(time = tomorrow))
 			val s1 = mapperDao.select(DatesEntity, u1.id).get
 			s1 should be(u1)
+		}
+
+		test("date as long, query") {
+			createTables("longdate")
+
+			val now = DateTime.now.withMillisOfSecond(0)
+			val tomorrow = now.plusDays(1)
+			val List(_, i2) = mapperDao.insertBatch(DatesEntity, List(Dates(1, now), Dates(2, tomorrow)))
+
+			import Query._
+			val de = DatesEntity
+			(select from de where de.time > now).toSet(queryDao) should be(Set(i2))
 		}
 
 		def createTables(ddl: String) = {

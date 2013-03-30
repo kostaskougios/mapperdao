@@ -237,7 +237,7 @@ class CmdToDatabase(
 					case (c, v) =>
 						(c, rcMap.getOrElse(c, v))
 				}.distinct.filterNot(t => columns.contains(t))
-				val converted = typeManager.transformValuesBeforeStoring(cmd, columns ::: related)
+				val converted = typeManager.transformValuesBeforeStoring(columns ::: related)
 				driver.insertSql(tpe, converted).result :: Nil
 
 			case uc@UpdateCmd(tpe, oldVM, newVM, columns, _) =>
@@ -251,8 +251,8 @@ class CmdToDatabase(
 					val pks = oldVM.toListOfPrimaryKeyAndValueTuple(tpe)
 					val relKeys = prioritized.relatedKeys(newVM)
 					val keys = pks ::: relKeys
-					val setConverted = typeManager.transformValuesBeforeStoring(cmd, set)
-					val keysConverted = typeManager.transformValuesBeforeStoring(cmd, keys)
+					val setConverted = typeManager.transformValuesBeforeStoring(set)
+					val keysConverted = typeManager.transformValuesBeforeStoring(keys)
 					driver.updateSql(tpe, setConverted, keysConverted).result :: Nil
 				}
 

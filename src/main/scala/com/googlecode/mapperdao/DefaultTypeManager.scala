@@ -8,7 +8,6 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
 import java.util.Date
 import scala.collection.immutable.ListMap
 import org.joda.time.chrono.ISOChronology
-import state.persistcmds.PersistCmd
 
 /**
  * @author kostantinos.kougios
@@ -165,13 +164,13 @@ class DefaultTypeManager(
 		val ecil = table.extraColumnInfosPersisted.map {
 			case ci: ColumnInfo[T, _] =>
 				val column = ci.column
-				val v = customDatabaseToScalaTypes.transformValuesAfterSelecting(tpe, column, j(column.name))
+				val v = customDatabaseToScalaTypes.transformValuesAfterSelecting(column, j(column.name))
 				(column.nameLowerCase, corrections(ci.dataType)(driver, v))
 		}
 		val sts = table.simpleTypeColumnInfos.map {
 			ci =>
 				val column = ci.column
-				val v = customDatabaseToScalaTypes.transformValuesAfterSelecting(tpe, column, j(column.name))
+				val v = customDatabaseToScalaTypes.transformValuesAfterSelecting(column, j(column.name))
 				(column.nameLowerCase, corrections(ci.dataType)(driver, v))
 		}
 
@@ -216,5 +215,5 @@ class DefaultTypeManager(
 		forT
 	}
 
-	def transformValuesBeforeStoring(cmd: PersistCmd, sqlValues: List[(SimpleColumn, Any)]) = customDatabaseToScalaTypes.transformValuesBeforeStoring(cmd, sqlValues)
+	def transformValuesBeforeStoring(sqlValues: List[(SimpleColumn, Any)]) = customDatabaseToScalaTypes.transformValuesBeforeStoring(sqlValues)
 }
