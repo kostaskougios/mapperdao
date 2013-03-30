@@ -19,5 +19,10 @@ abstract class UserDefinedDatabaseToScalaTypes extends CustomDatabaseToScalaType
 		case _ => sqlValue
 	}
 
+
+	def transformValuesAfterSelecting(tpe: Type[_, _], v: Any) = databaseToScala(tpe, v)
+
 	def scalaToDatabase(tpe: Type[_, _], sqlType: Int, oldV: Any): (Int, Any)
+
+	def databaseToScala(tpe: Type[_, _], v: Any): Any
 }

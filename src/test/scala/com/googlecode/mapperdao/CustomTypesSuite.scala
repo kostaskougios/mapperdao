@@ -30,6 +30,14 @@ class CustomTypesSuite extends FunSuite with ShouldMatchers
 				case _ =>
 					(sqlType, oldV)
 			}
+
+			def databaseToScala(tpe: Type[_, _], v: Any) = {
+				v match {
+					case l: Long =>
+						new DateTime(l)
+					case _ => v
+				}
+			}
 		}
 		val (jdbc, mapperDao, queryDao, _) = Setup.create(Database.byName(database), dataSource, typeRegistry, customDatabaseToScalaTypes = myDatabaseToScalaTypes)
 
@@ -37,7 +45,11 @@ class CustomTypesSuite extends FunSuite with ShouldMatchers
 			createTables("longdate")
 
 			val now = DateTime.now.withMillisOfSecond(0)
-			mapperDao.insert(DatesEntity, Dates(1, now))
+			val i1 = mapperDao.insert(DatesEntity, Dates(1, now))
+			i1 should be(Dates(1, now))
+
+			val s1 = mapperDao.select(DatesEntity, i1.id).get
+			s1 should be(i1)
 		}
 
 		def createTables(ddl: String) = {

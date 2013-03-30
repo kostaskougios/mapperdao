@@ -24,7 +24,7 @@ trait TypeManager
 	 */
 	def toActualType(tpe: Class[_], o: Any): Any
 
-	def correctTypes[ID, T](driver: Driver, table: Table[ID, T], j: JdbcMap): DatabaseValues
+	def correctTypes[ID, T](driver: Driver, tpe: Type[ID, T], j: JdbcMap): DatabaseValues
 
 	def transformValuesBeforeStoring(cmd: PersistCmd, sqlValue: SqlParameterValue): SqlParameterValue
 }

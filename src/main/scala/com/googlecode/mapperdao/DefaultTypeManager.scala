@@ -161,17 +161,18 @@ class DefaultTypeManager(
 			)
 	)
 
-	override def correctTypes[ID, T](driver: Driver, table: Table[ID, T], j: JdbcMap) = {
+	override def correctTypes[ID, T](driver: Driver, tpe: Type[ID, T], j: JdbcMap) = {
+		val table = tpe.table
 		val ecil = table.extraColumnInfosPersisted.map {
 			case ci: ColumnInfo[T, _] =>
 				val column = ci.column
-				val v = j(column.name)
+				val v = customDatabaseToScalaTypes.transformValuesAfterSelecting(tpe, j(column.name))
 				(column.nameLowerCase, corrections(ci.dataType)(driver, v))
 		}
 		val sts = table.simpleTypeColumnInfos.map {
 			ci =>
 				val column = ci.column
-				val v = j(column.name)
+				val v = customDatabaseToScalaTypes.transformValuesAfterSelecting(tpe, j(column.name))
 				(column.nameLowerCase, corrections(ci.dataType)(driver, v))
 		}
 
