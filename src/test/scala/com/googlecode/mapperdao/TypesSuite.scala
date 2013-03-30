@@ -43,6 +43,32 @@ class TypesSuite extends FunSuite with ShouldMatchers
 			import Query._
 			val ie = IntervalEntity
 			(select from ie where ie.v > Period.hours(5)).toSet(queryDao) should be(Set(i2, i3))
+		}
+
+		test("interval option") {
+			createTables("interval")
+			val time = Period.days(5).plusHours(2).plusMinutes(8).plusMonths(7).plusYears(6).plusSeconds(12)
+			val inserted = mapperDao.insert(OIntervalEntity, OInterval(5, Some(time)))
+			inserted should be === OInterval(5, Some(time))
+			val selected = mapperDao.select(OIntervalEntity, 5).get
+			selected should be === inserted
+		}
+
+		test("interval option, none") {
+			createTables("interval")
+			val inserted = mapperDao.insert(OIntervalEntity, OInterval(5, None))
+			inserted should be === OInterval(5, None)
+			val selected = mapperDao.select(OIntervalEntity, 5).get
+			selected should be === inserted
+		}
+
+		test("interval option query") {
+			createTables("interval")
+			val List(_, i2, i3) = mapperDao.insertBatch(OIntervalEntity, List(OInterval(1, Some(Period.hours(5))), OInterval(2, Some(Period.hours(7))), OInterval(3, Some(Period.hours(8)))))
+
+			import Query._
+			val ie = OIntervalEntity
+			(select from ie where ie.v > Period.hours(5)).toSet(queryDao) should be(Set(i2, i3))
 
 		}
 	}
@@ -325,7 +351,17 @@ class TypesSuite extends FunSuite with ShouldMatchers
 		val id = key("id") to (_.id)
 		val v = column("v") to (_.v)
 
-		def constructor(implicit m) = new Interval(id, v) with Stored
+		def constructor(implicit m: ValuesMap) = new Interval(id, v) with Stored
+	}
+
+	case class OInterval(id: Int, v: Option[Period])
+
+	object OIntervalEntity extends Entity[Int, NaturalIntId, OInterval]("Interval")
+	{
+		val id = key("id") to (_.id)
+		val v = column("v") option (_.v)
+
+		def constructor(implicit m: ValuesMap) = new OInterval(id, v) with Stored
 	}
 
 	case class Dates(id: Int, localDate: LocalDate = null, time: LocalTime = null)
@@ -336,7 +372,7 @@ class TypesSuite extends FunSuite with ShouldMatchers
 		val localDate = column("localDate") to (_.localDate)
 		val time = column("time") to (_.time)
 
-		def constructor(implicit m) = new Dates(id, localDate, time) with Stored
+		def constructor(implicit m: ValuesMap) = new Dates(id, localDate, time) with Stored
 	}
 
 	case class ODates(id: Int, localDate: Option[LocalDate])
@@ -346,7 +382,7 @@ class TypesSuite extends FunSuite with ShouldMatchers
 		val id = key("id") to (_.id)
 		val localDate = column("localDate") option (_.localDate)
 
-		def constructor(implicit m) = new ODates(id, localDate) with Stored
+		def constructor(implicit m: ValuesMap) = new ODates(id, localDate) with Stored
 	}
 
 	case class BD(

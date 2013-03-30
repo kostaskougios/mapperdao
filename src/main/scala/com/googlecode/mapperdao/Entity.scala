@@ -174,10 +174,9 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 
 	protected implicit def columnToLocalTime(ci: ColumnInfo[_ <: T, LocalTime])(implicit m: ValuesMap): LocalTime = m(ci)
 
-	protected implicit def columnToOptionDateTime(ci: ColumnInfo[_ <: T, DateTime])(implicit m: ValuesMap): Option[DateTime] = m(ci) match {
-		case null => None
-		case v => Some(v)
-	}
+	protected implicit def columnToOptionPeriod(ci: ColumnInfo[_ <: T, Period])(implicit m: ValuesMap): Option[Period] = Option(m(ci))
+
+	protected implicit def columnToOptionDateTime(ci: ColumnInfo[_ <: T, DateTime])(implicit m: ValuesMap): Option[DateTime] = Option(m(ci))
 
 	protected implicit def columnToOptionLocalDate(ci: ColumnInfo[_ <: T, LocalDate])(implicit m: ValuesMap): Option[LocalDate] = m(ci) match {
 		case null => None
