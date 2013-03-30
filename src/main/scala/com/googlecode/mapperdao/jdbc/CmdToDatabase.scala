@@ -102,10 +102,7 @@ class CmdToDatabase(
 				val cmd = nodes.head.cmd
 				val args = nodes.map {
 					case Node(s, cmd) =>
-						s.values.map {
-							sv =>
-								typeManager.transformValuesBeforeStoring(cmd, sv)
-						}.toArray
+						typeManager.transformValuesBeforeStoring(cmd, s.values).toArray
 				}.toArray
 
 				cmd match {

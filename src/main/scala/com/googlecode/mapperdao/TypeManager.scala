@@ -26,5 +26,5 @@ trait TypeManager
 
 	def correctTypes[ID, T](driver: Driver, tpe: Type[ID, T], j: JdbcMap): DatabaseValues
 
-	def transformValuesBeforeStoring(cmd: PersistCmd, sqlValue: SqlParameterValue): SqlParameterValue
+	def transformValuesBeforeStoring(cmd: PersistCmd, sqlValues: List[SqlParameterValue]): List[SqlParameterValue]
 }

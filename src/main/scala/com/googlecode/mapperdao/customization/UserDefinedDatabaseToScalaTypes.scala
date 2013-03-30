@@ -12,17 +12,20 @@ import com.googlecode.mapperdao.{SimpleColumn, Type}
  */
 abstract class UserDefinedDatabaseToScalaTypes extends CustomDatabaseToScalaTypes
 {
-	def transformValuesBeforeStoring(cmd: PersistCmd, sqlValue: SqlParameterValue) = cmd match {
+	def transformValuesBeforeStoring(cmd: PersistCmd, sqlValues: List[SqlParameterValue]) = cmd match {
 		case InsertCmd(tpe, _, columns, _) =>
-			val (sqlType, newV) = scalaToDatabase(tpe, sqlValue.getSqlType, sqlValue.getValue)
-			new SqlParameterValue(sqlType, newV)
-		case _ => sqlValue
+			(columns zip sqlValues).map {
+				case ((column, v), sqlValue) =>
+					val (sqlType, newV) = scalaToDatabase(tpe, column, sqlValue.getSqlType, v)
+					new SqlParameterValue(sqlType, newV)
+			}
+		case _ => sqlValues
 	}
 
 
 	def transformValuesAfterSelecting(tpe: Type[_, _], column: SimpleColumn, v: Any) = databaseToScala(tpe, column, v)
 
-	def scalaToDatabase(tpe: Type[_, _], sqlType: Int, oldV: Any): (Int, Any)
+	def scalaToDatabase(tpe: Type[_, _], column: SimpleColumn, sqlType: Int, oldV: Any): (Int, Any)
 
 	def databaseToScala(tpe: Type[_, _], column: SimpleColumn, v: Any): Any
 }

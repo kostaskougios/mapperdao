@@ -10,7 +10,7 @@ import com.googlecode.mapperdao.{SimpleColumn, Type}
  */
 object DefaultDatabaseToScalaTypes extends CustomDatabaseToScalaTypes
 {
-	def transformValuesBeforeStoring(cmd: PersistCmd, sqlValue: SqlParameterValue) = sqlValue
+	def transformValuesBeforeStoring(cmd: PersistCmd, sqlValues: List[SqlParameterValue]) = sqlValues
 
 	def transformValuesAfterSelecting(tpe: Type[_, _], column: SimpleColumn, v: Any) = v
 }

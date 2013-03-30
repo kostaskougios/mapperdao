@@ -217,5 +217,5 @@ class DefaultTypeManager(
 		forT
 	}
 
-	def transformValuesBeforeStoring(cmd: PersistCmd, sqlValue: SqlParameterValue) = customDatabaseToScalaTypes.transformValuesBeforeStoring(cmd, sqlValue)
+	def transformValuesBeforeStoring(cmd: PersistCmd, sqlValues: List[SqlParameterValue]) = customDatabaseToScalaTypes.transformValuesBeforeStoring(cmd, sqlValues)
 }
