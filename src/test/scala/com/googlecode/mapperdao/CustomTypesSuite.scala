@@ -31,13 +31,13 @@ class CustomTypesSuite extends FunSuite with ShouldMatchers
 					(sqlType, oldV)
 			}
 
-			def databaseToScala(tpe: Type[_, _], v: Any) = {
+			def databaseToScala(tpe: Type[_, _], column: SimpleColumn, v: Any) = if (tpe.clz == classOf[Dates]) {
 				v match {
 					case l: Long =>
 						new DateTime(l)
 					case _ => v
 				}
-			}
+			} else v
 		}
 		val (jdbc, mapperDao, queryDao, _) = Setup.create(Database.byName(database), dataSource, typeRegistry, customDatabaseToScalaTypes = myDatabaseToScalaTypes)
 

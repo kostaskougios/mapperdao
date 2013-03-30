@@ -2,7 +2,7 @@ package com.googlecode.mapperdao.customization
 
 import com.googlecode.mapperdao.state.persistcmds.{InsertCmd, PersistCmd}
 import org.springframework.jdbc.core.SqlParameterValue
-import com.googlecode.mapperdao.Type
+import com.googlecode.mapperdao.{SimpleColumn, Type}
 
 /**
  * allows custom mapping from scala -> database and from database->scala types
@@ -20,9 +20,9 @@ abstract class UserDefinedDatabaseToScalaTypes extends CustomDatabaseToScalaType
 	}
 
 
-	def transformValuesAfterSelecting(tpe: Type[_, _], v: Any) = databaseToScala(tpe, v)
+	def transformValuesAfterSelecting(tpe: Type[_, _], column: SimpleColumn, v: Any) = databaseToScala(tpe, column, v)
 
 	def scalaToDatabase(tpe: Type[_, _], sqlType: Int, oldV: Any): (Int, Any)
 
-	def databaseToScala(tpe: Type[_, _], v: Any): Any
+	def databaseToScala(tpe: Type[_, _], column: SimpleColumn, v: Any): Any
 }
