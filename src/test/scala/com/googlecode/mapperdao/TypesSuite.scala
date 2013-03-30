@@ -27,6 +27,15 @@ class TypesSuite extends FunSuite with ShouldMatchers
 			selected should be === inserted
 		}
 
+		test("duration accurancy") {
+			createTables("interval")
+			val time = Duration.standardDays(1).plus(987)
+			val inserted = mapperDao.insert(IntervalDurationEntity, IntervalDuration(5, time))
+			inserted should be === IntervalDuration(5, time)
+			val selected = mapperDao.select(IntervalDurationEntity, 5).get
+			selected should be === inserted
+		}
+
 		test("duration null") {
 			createTables("interval")
 			val inserted = mapperDao.insert(IntervalDurationEntity, IntervalDuration(5, null))
@@ -76,11 +85,20 @@ class TypesSuite extends FunSuite with ShouldMatchers
 
 		test("interval") {
 			createTables("interval")
-			val time = Period.days(5).plusHours(2).plusMinutes(8).plusMonths(7).plusYears(6).plusSeconds(12)
+			val time = Period.days(5).plusHours(2).plusMinutes(8).plusMonths(7).plusYears(6).plusSeconds(12).plusMillis(10)
 			val inserted = mapperDao.insert(IntervalEntity, Interval(5, time))
 			inserted should be === Interval(5, time)
 			val selected = mapperDao.select(IntervalEntity, 5).get
-			selected should be === inserted
+			selected should be(inserted)
+		}
+
+		test("interval accurancy") {
+			createTables("interval")
+			val time = Period.days(5).plusHours(2).plusMinutes(8).plusMonths(7).plusYears(6).plusSeconds(12).plusMillis(987)
+			val inserted = mapperDao.insert(IntervalEntity, Interval(5, time))
+			inserted should be === Interval(5, time)
+			val selected = mapperDao.select(IntervalEntity, 5).get
+			selected should be(inserted)
 		}
 
 		test("interval null") {

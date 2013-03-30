@@ -48,7 +48,8 @@ class PostgreSql(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager
 			val hours = period.getHours
 			val minutes = period.getMinutes
 			val seconds = period.getSeconds
-			new PGInterval(years, months, days, hours, minutes, seconds.toDouble)
+			val millis = period.getMillis.toDouble
+			new PGInterval(years, months, days, hours, minutes, seconds.toDouble + (millis / 1000))
 		}
 		// support for interval columns
 		value match {
@@ -61,7 +62,10 @@ class PostgreSql(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager
 	override def convertToScalaKnownValue(tpe: Class[_], value: Any) = value match {
 		case null => null
 		case i: PGInterval =>
-			val p = new Period(i.getYears, i.getMonths, 0, i.getDays, i.getHours, i.getMinutes, i.getSeconds.toInt, 0)
+			val secs = i.getSeconds.toInt
+			val bd = BigDecimal(i.getSeconds)
+			val millis = ((bd - secs) * 1000).toInt
+			val p = new Period(i.getYears, i.getMonths, 0, i.getDays, i.getHours, i.getMinutes, secs, millis)
 			if (tpe == classOf[Period]) p
 			else if (tpe == classOf[Duration]) p.toStandardDuration
 			else throw new IllegalStateException("Unknown PGInterval type " + tpe)
