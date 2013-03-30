@@ -27,6 +27,25 @@ class TypesSuite extends FunSuite with ShouldMatchers
 			selected should be === inserted
 		}
 
+		test("duration null") {
+			createTables("interval")
+			val inserted = mapperDao.insert(IntervalDurationEntity, IntervalDuration(5, null))
+			inserted should be === IntervalDuration(5, null)
+			val selected = mapperDao.select(IntervalDurationEntity, 5).get
+			selected should be === inserted
+		}
+
+		test("duration query") {
+			createTables("interval")
+			val t1 = Duration.standardDays(5)
+			val t2 = Duration.standardDays(6)
+			val List(_, i2) = mapperDao.insertBatch(IntervalDurationEntity, List(IntervalDuration(5, t1), IntervalDuration(6, t2)))
+
+			import Query._
+			val ide = IntervalDurationEntity
+			(select from ide where ide.v > t1).toSet(queryDao) should be(Set(i2))
+		}
+
 		test("interval") {
 			createTables("interval")
 			val time = Period.days(5).plusHours(2).plusMinutes(8).plusMonths(7).plusYears(6).plusSeconds(12)
