@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao
 
-case class Column(name: String, tpe: Class[_]) extends SimpleColumn
+case class Column(entity: Entity[_, _ <: Persisted, _], name: String, tpe: Class[_]) extends SimpleColumn
 {
 	def alias = name
 

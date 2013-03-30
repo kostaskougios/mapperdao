@@ -33,7 +33,7 @@ class H2(override val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManage
 		m.get("SCOPE_IDENTITY()")
 
 	override protected def sequenceSelectNextSql(sequenceColumn: ColumnBase): String = sequenceColumn match {
-		case PK(columnName, true, sequence, _) => "NEXTVAL('%s')".format(sequence.get)
+		case PK(_, columnName, true, sequence, _) => "NEXTVAL('%s')".format(sequence.get)
 	}
 
 	override def endOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]) = {

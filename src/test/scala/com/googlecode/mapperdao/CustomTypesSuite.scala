@@ -24,7 +24,7 @@ class CustomTypesSuite extends FunSuite with ShouldMatchers
 		val myDatabaseToScalaTypes = new UserDefinedDatabaseToScalaTypes
 		{
 			def scalaToDatabase(data: (SimpleColumn, Any)) = data match {
-				case (column: Column, d: DateTime) =>
+				case (column: Column, d: DateTime) if (column.entity == DatesEntity) =>
 					(column.copy(tpe = classOf[Long]), d.getMillis)
 				case v =>
 					v
@@ -33,7 +33,7 @@ class CustomTypesSuite extends FunSuite with ShouldMatchers
 			def databaseToScala(data: (SimpleColumn, Any)) =
 				data match {
 					// make sure we do the conversion only for the correct entity
-					case (column, l: Long) =>
+					case (column, l: Long) if (column.entity == DatesEntity) =>
 						new DateTime(l)
 					case (column, value) => value
 				}

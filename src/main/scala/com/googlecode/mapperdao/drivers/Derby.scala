@@ -33,7 +33,7 @@ class Derby(override val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeMan
 		m.get("1")
 
 	override protected def sequenceSelectNextSql(sequenceColumn: ColumnBase): String = sequenceColumn match {
-		case PK(columnName, true, sequence, _) => "NEXT VALUE FOR %s".format(sequence.get)
+		case PK(_, columnName, true, sequence, _) => "NEXT VALUE FOR %s".format(sequence.get)
 	}
 
 	override def endOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]) = {

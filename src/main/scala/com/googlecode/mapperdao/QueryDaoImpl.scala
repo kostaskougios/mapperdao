@@ -196,7 +196,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 								}
 								driver.sqlBuilder.NonValueClause(aliases(c), c.name, "is", null, r)
 						}
-					case ManyToOne(columns, foreign) =>
+					case ManyToOne(_, columns, foreign) =>
 						left.columns zip columns map {
 							case (l, r) =>
 								new driver.sqlBuilder.ColumnAndColumnClause(

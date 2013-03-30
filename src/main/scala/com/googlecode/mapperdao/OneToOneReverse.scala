@@ -1,7 +1,10 @@
 package com.googlecode.mapperdao
 
-case class OneToOneReverse[FID, F](foreign: TypeRef[FID, F], foreignColumns: List[Column])
-	extends ColumnRelationshipBase[FID, F]
+case class OneToOneReverse[FID, F](
+	entity: Entity[_, _ <: Persisted, _],
+	foreign: TypeRef[FID, F],
+	foreignColumns: List[Column]
+	) extends ColumnRelationshipBase[FID, F]
 {
 	def name = throw new IllegalStateException("OneToOneReverse doesn't have a columnName")
 

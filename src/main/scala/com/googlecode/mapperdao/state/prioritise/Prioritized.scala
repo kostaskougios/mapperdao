@@ -29,7 +29,7 @@ case class Prioritized(
 	def relatedColumns(vm: ValuesMap, applyOnOldValue: Boolean) = relatedFor(vm).map {
 		case EntityRelatedCmd(_, column, newVM, _, foreignTpe, foreignVM, oldForeignVMO, _) =>
 			column match {
-				case ManyToOne(columns, foreign) =>
+				case ManyToOne(_, columns, foreign) =>
 					columns zip (
 						if (applyOnOldValue) {
 							val fvm = oldForeignVMO.getOrElse(foreignVM)
@@ -46,14 +46,14 @@ case class Prioritized(
 							}
 						}
 						)
-				case OneToMany(foreign, foreignColumns) =>
+				case OneToMany(_, foreign, foreignColumns) =>
 					if (applyOnOldValue) {
 						val fvm = oldForeignVMO.getOrElse(foreignVM)
 						foreignColumns zip fvm.toListOfPrimaryKeys(foreignTpe)
 					} else {
 						foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
 					}
-				case OneToOne(foreign, selfColumns) =>
+				case OneToOne(_, foreign, selfColumns) =>
 					selfColumns zip (
 						if (applyOnOldValue) {
 							val fvm = oldForeignVMO.getOrElse(foreignVM)
@@ -70,7 +70,7 @@ case class Prioritized(
 							}
 						}
 						)
-				case OneToOneReverse(foreign, foreignColumns) =>
+				case OneToOneReverse(_, foreign, foreignColumns) =>
 					foreignColumns zip (
 						if (applyOnOldValue) {
 							val fvm = oldForeignVMO.getOrElse(foreignVM)
@@ -91,7 +91,7 @@ case class Prioritized(
 			}
 		case ExternalEntityRelatedCmd(_, column, _, _, foreignTpe, foreignKeys, oldForeignKeys) =>
 			column match {
-				case ManyToOne(columns, foreign) =>
+				case ManyToOne(_, columns, foreign) =>
 					if (applyOnOldValue)
 						if (oldForeignKeys.isDefined)
 							columns zip oldForeignKeys.get
@@ -106,16 +106,16 @@ case class Prioritized(
 		rel.collect {
 			case EntityRelatedCmd(_, column, newVM, _, foreignTpe, foreignVM, oldForeignVMO, true) =>
 				column match {
-					case OneToMany(foreign, foreignColumns) =>
+					case OneToMany(_, foreign, foreignColumns) =>
 						val fks = foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
 						fks
-					case OneToOneReverse(foreign, foreignColumns) =>
+					case OneToOneReverse(_, foreign, foreignColumns) =>
 						val fks = if (foreignVM == null)
 							foreignColumns zip Prioritized.nullList
 						else
 							foreignColumns zip foreignVM.toListOfPrimaryKeys(foreignTpe)
 						fks
-					case OneToOne(foreign, selfColumns) =>
+					case OneToOne(_, foreign, selfColumns) =>
 						val fVM = oldForeignVMO.getOrElse(foreignVM)
 						val fks = if (fVM == null)
 							selfColumns zip Prioritized.nullList

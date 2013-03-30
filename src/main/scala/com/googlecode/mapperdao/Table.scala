@@ -43,7 +43,7 @@ case class Table[ID, T](
 		case ci@ColumnInfo(_: PK, _, _) => ci
 	}
 
-	val primaryKeysAsColumns = primaryKeys.map(k => Column(k.name, k.tpe)).toSet
+	val primaryKeysAsColumns = primaryKeys.map(k => Column(k.entity, k.name, k.tpe)).toSet
 
 	val primaryKeysAsCommaSeparatedList = primaryKeys.map(_.name).mkString(",")
 
@@ -91,7 +91,7 @@ case class Table[ID, T](
 		case mto: ManyToOne[Any, Any] => mto
 	}
 	val manyToOneColumnsFlattened: List[Column] = columns.collect {
-		case ManyToOne(columns: List[Column], _) => columns
+		case ManyToOne(_, columns: List[Column], _) => columns
 	}.flatten
 
 	val manyToManyColumns: List[ManyToMany[Any, Any]] = columns.collect {

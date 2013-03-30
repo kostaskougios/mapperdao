@@ -32,7 +32,7 @@ class Oracle(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: Ty
 		) = m.get(column.name.toUpperCase)
 
 	override protected def sequenceSelectNextSql(sequenceColumn: ColumnBase): String = sequenceColumn match {
-		case PK(columnName, true, sequence, _) => "%s.nextval".format(sequence.get)
+		case PK(_, columnName, true, sequence, _) => "%s.nextval".format(sequence.get)
 	}
 
 	override def beforeStartOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]) =
@@ -50,8 +50,8 @@ class Oracle(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: Ty
 			//			sql append "select " append commaSeparatedListOfSimpleTypeColumns(",", columns) append ",rownum as rn$ from ("
 		} else q
 
-	private val rn = Column("rn$", classOf[Long])
-	private val rownum = Column("rownum", classOf[Long])
+	private val rn = Column(null, "rn$", classOf[Long])
+	private val rownum = Column(null, "rownum", classOf[Long])
 
 	override def endOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]) =
 		if (queryConfig.offset.isDefined || queryConfig.limit.isDefined) {

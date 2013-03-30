@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao
 
 case class ManyToMany[FID, F](
+	entity: Entity[_, _ <: Persisted, _],
 	linkTable: LinkTable,
 	foreign: TypeRef[FID, F]
 	)

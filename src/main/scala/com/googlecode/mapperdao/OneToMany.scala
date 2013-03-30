@@ -1,7 +1,10 @@
 package com.googlecode.mapperdao
 
-case class OneToMany[FID, F](foreign: TypeRef[FID, F], foreignColumns: List[Column])
-	extends ColumnRelationshipBase[FID, F]
+case class OneToMany[FID, F](
+	entity: Entity[_, _ <: Persisted, _],
+	foreign: TypeRef[FID, F],
+	foreignColumns: List[Column]
+	) extends ColumnRelationshipBase[FID, F]
 {
 	def alias = foreign.alias
 

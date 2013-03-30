@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao
 
 case class ManyToOne[FID, F](
+	entity: Entity[_, _ <: Persisted, _],
 	columns: List[Column],
 	foreign: TypeRef[FID, F]
 	)

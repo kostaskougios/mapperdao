@@ -69,7 +69,7 @@ class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager:
 			nq
 		} else q
 
-	private val row = Column("Row", classOf[Long])
+	private val row = Column(null, "Row", classOf[Long])
 
 	override def endOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]) =
 		if (queryConfig.hasRange) {
