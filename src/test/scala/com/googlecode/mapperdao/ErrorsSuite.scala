@@ -23,7 +23,20 @@ class ErrorsSuite extends FunSuite with ShouldMatchers
 			fail()
 		} catch {
 			case e: PersistException =>
-				e.causes.map(_.getClass) should be(List(classOf[org.springframework.jdbc.BadSqlGrammarException], classOf[java.sql.BatchUpdateException], classOf[org.postgresql.util.PSQLException]))
+				Setup.database match {
+					case "postgresql" =>
+						e.causes.map(_.getClass) should be(List(classOf[org.springframework.jdbc.BadSqlGrammarException], classOf[java.sql.BatchUpdateException], classOf[org.postgresql.util.PSQLException]))
+					case "h2" =>
+						e.causes.map(_.getClass) should be(List(classOf[org.springframework.jdbc.BadSqlGrammarException]))
+					case "mysql" =>
+						e.causes.map(_.getClass) should be(List(classOf[org.springframework.jdbc.BadSqlGrammarException]))
+					case "sqlserver" =>
+						e.causes.map(_.getClass) should be(List(classOf[org.springframework.jdbc.BadSqlGrammarException]))
+					case "oracle" =>
+						e.causes.map(_.getClass) should be(List(classOf[org.springframework.jdbc.BadSqlGrammarException]))
+					case "derby" =>
+						e.causes.map(_.getClass) should be(List(classOf[org.springframework.jdbc.BadSqlGrammarException]))
+				}
 		}
 	}
 
