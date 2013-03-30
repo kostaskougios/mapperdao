@@ -9,7 +9,6 @@ import java.util.Date
 import scala.collection.immutable.ListMap
 import org.joda.time.chrono.ISOChronology
 import state.persistcmds.PersistCmd
-import org.springframework.jdbc.core.SqlParameterValue
 
 /**
  * @author kostantinos.kougios
@@ -217,5 +216,5 @@ class DefaultTypeManager(
 		forT
 	}
 
-	def transformValuesBeforeStoring(cmd: PersistCmd, sqlValues: List[SqlParameterValue]) = customDatabaseToScalaTypes.transformValuesBeforeStoring(cmd, sqlValues)
+	def transformValuesBeforeStoring(cmd: PersistCmd, sqlValues: List[(SimpleColumn, Any)]) = customDatabaseToScalaTypes.transformValuesBeforeStoring(cmd, sqlValues)
 }

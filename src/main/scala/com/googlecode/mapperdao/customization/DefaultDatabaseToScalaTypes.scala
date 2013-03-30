@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao.customization
 
 import com.googlecode.mapperdao.state.persistcmds.PersistCmd
-import org.springframework.jdbc.core.SqlParameterValue
 import com.googlecode.mapperdao.{SimpleColumn, Type}
 
 /**
@@ -10,7 +9,7 @@ import com.googlecode.mapperdao.{SimpleColumn, Type}
  */
 object DefaultDatabaseToScalaTypes extends CustomDatabaseToScalaTypes
 {
-	def transformValuesBeforeStoring(cmd: PersistCmd, sqlValues: List[SqlParameterValue]) = sqlValues
+	def transformValuesBeforeStoring(cmd: PersistCmd, sqlValues: List[(SimpleColumn, Any)]) = sqlValues
 
 	def transformValuesAfterSelecting(tpe: Type[_, _], column: SimpleColumn, v: Any) = v
 }

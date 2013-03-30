@@ -102,7 +102,7 @@ class CmdToDatabase(
 				val cmd = nodes.head.cmd
 				val args = nodes.map {
 					case Node(s, cmd) =>
-						typeManager.transformValuesBeforeStoring(cmd, s.values).toArray
+						s.values.toArray
 				}.toArray
 
 				cmd match {
@@ -237,7 +237,8 @@ class CmdToDatabase(
 					case (c, v) =>
 						(c, rcMap.getOrElse(c, v))
 				}.distinct.filterNot(t => columns.contains(t))
-				driver.insertSql(tpe, columns ::: related).result :: Nil
+				val converted = typeManager.transformValuesBeforeStoring(cmd, columns ::: related)
+				driver.insertSql(tpe, converted).result :: Nil
 
 			case uc@UpdateCmd(tpe, oldVM, newVM, columns, _) =>
 				persistedIdentities += uc.identity
@@ -250,7 +251,9 @@ class CmdToDatabase(
 					val pks = oldVM.toListOfPrimaryKeyAndValueTuple(tpe)
 					val relKeys = prioritized.relatedKeys(newVM)
 					val keys = pks ::: relKeys
-					driver.updateSql(tpe, set, keys).result :: Nil
+					val setConverted = typeManager.transformValuesBeforeStoring(cmd, set)
+					val keysConverted = typeManager.transformValuesBeforeStoring(cmd, keys)
+					driver.updateSql(tpe, setConverted, keysConverted).result :: Nil
 				}
 
 			case InsertManyToManyCmd(tpe, foreignTpe, manyToMany, entityVM, foreignEntityVM) =>

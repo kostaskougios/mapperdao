@@ -8,7 +8,6 @@ import org.scalatest.junit.JUnitRunner
 import org.scala_tools.time.Imports._
 import org.apache.commons.dbcp.BasicDataSourceFactory
 import utils.{Database, Setup}
-import java.sql.Types
 
 /**
  * @author kkougios
@@ -24,11 +23,11 @@ class CustomTypesSuite extends FunSuite with ShouldMatchers
 		val typeRegistry = TypeRegistry(DatesEntity)
 		val myDatabaseToScalaTypes = new UserDefinedDatabaseToScalaTypes
 		{
-			def scalaToDatabase(tpe: Type[_, _], column: SimpleColumn, sqlType: Int, oldV: Any) = oldV match {
-				case d: DateTime =>
-					(Types.BIGINT, d.getMillis)
-				case _ =>
-					(sqlType, oldV)
+			def scalaToDatabase(tpe: Type[_, _], data: (SimpleColumn, Any)) = data match {
+				case (column: Column, d: DateTime) =>
+					(column.copy(tpe = classOf[Long]), d.getMillis)
+				case v =>
+					v
 			}
 
 			def databaseToScala(tpe: Type[_, _], column: SimpleColumn, v: Any) = if (tpe.clz == classOf[Dates]) {
