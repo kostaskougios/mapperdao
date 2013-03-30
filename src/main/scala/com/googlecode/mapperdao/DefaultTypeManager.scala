@@ -1,5 +1,6 @@
 package com.googlecode.mapperdao
 
+import customization.{DefaultDatabaseToScalaTypes, CustomDatabaseToScalaTypes}
 import drivers.Driver
 import java.util.Calendar
 import org.joda.time._
@@ -7,13 +8,18 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
 import java.util.Date
 import scala.collection.immutable.ListMap
 import org.joda.time.chrono.ISOChronology
+import state.persistcmds.PersistCmd
+import org.springframework.jdbc.core.SqlParameterValue
 
 /**
  * @author kostantinos.kougios
  *
  *         1 Aug 2011
  */
-class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) extends TypeManager
+class DefaultTypeManager(
+	chronology: Chronology = ISOChronology.getInstance,
+	customDatabaseToScalaTypes: CustomDatabaseToScalaTypes = DefaultDatabaseToScalaTypes
+	) extends TypeManager
 {
 
 	override def normalize(v: Any) = v match {
@@ -209,4 +215,6 @@ class DefaultTypeManager(chronology: Chronology = ISOChronology.getInstance) ext
 		}
 		forT
 	}
+
+	def transformValuesBeforeStoring(cmd: PersistCmd, sqlValue: SqlParameterValue) = customDatabaseToScalaTypes.transformValuesBeforeStoring(cmd, sqlValue)
 }

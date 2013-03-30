@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao.utils
 
 import com.googlecode.mapperdao._
+import customization.{DefaultDatabaseToScalaTypes, CustomDatabaseToScalaTypes}
 import javax.sql.DataSource
 import com.googlecode.mapperdao.jdbc.Transaction
 import org.springframework.transaction.PlatformTransactionManager
@@ -113,9 +114,10 @@ object Setup
 		dataSource: DataSource,
 		typeRegistry: TypeRegistry,
 		cache: Option[Cache] = None,
-		chronology: Chronology = ISOChronology.getInstance
+		chronology: Chronology = ISOChronology.getInstance,
+		customDatabaseToScalaTypes: CustomDatabaseToScalaTypes = DefaultDatabaseToScalaTypes
 		): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) = {
-		val typeManager = new DefaultTypeManager(chronology)
+		val typeManager = new DefaultTypeManager(chronology, customDatabaseToScalaTypes)
 		val jdbc = Jdbc(dataSource, chronology)
 		val driver = database.driver(jdbc, typeRegistry, typeManager, cache)
 		val mapperDao = new MapperDaoImpl(driver, typeManager)

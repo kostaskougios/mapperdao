@@ -101,8 +101,11 @@ class CmdToDatabase(
 			case (sql, nodes) =>
 				val cmd = nodes.head.cmd
 				val args = nodes.map {
-					case Node(s, _) =>
-						s.values.toArray
+					case Node(s, cmd) =>
+						s.values.map {
+							sv =>
+								typeManager.transformValuesBeforeStoring(cmd, sv)
+						}.toArray
 				}.toArray
 
 				cmd match {

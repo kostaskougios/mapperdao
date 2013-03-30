@@ -2,6 +2,8 @@ package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.JdbcMap
 import drivers.Driver
+import state.persistcmds.PersistCmd
+import org.springframework.jdbc.core.SqlParameterValue
 
 /**
  * manages types
@@ -15,7 +17,6 @@ import drivers.Driver
  */
 trait TypeManager
 {
-
 	def normalize(v: Any): Any
 
 	/**
@@ -24,4 +25,6 @@ trait TypeManager
 	def toActualType(tpe: Class[_], o: Any): Any
 
 	def correctTypes[ID, T](driver: Driver, table: Table[ID, T], j: JdbcMap): DatabaseValues
+
+	def transformValuesBeforeStoring(cmd: PersistCmd, sqlValue: SqlParameterValue): SqlParameterValue
 }
