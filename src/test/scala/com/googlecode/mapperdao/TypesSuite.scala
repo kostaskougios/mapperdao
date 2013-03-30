@@ -18,6 +18,15 @@ class TypesSuite extends FunSuite with ShouldMatchers
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(BDEntity, IntervalEntity))
 
 	if (Setup.database == "postgresql") {
+		test("duration") {
+			createTables("interval")
+			val time = Duration.standardDays(5).plus(Duration.standardHours(6))
+			val inserted = mapperDao.insert(IntervalDurationEntity, IntervalDuration(5, time))
+			inserted should be === IntervalDuration(5, time)
+			val selected = mapperDao.select(IntervalDurationEntity, 5).get
+			selected should be === inserted
+		}
+
 		test("interval") {
 			createTables("interval")
 			val time = Period.days(5).plusHours(2).plusMinutes(8).plusMonths(7).plusYears(6).plusSeconds(12)
@@ -342,6 +351,16 @@ class TypesSuite extends FunSuite with ShouldMatchers
 	def createTables(ddl: String) = {
 		Setup.dropAllTables(jdbc)
 		Setup.queries(this, jdbc).update(ddl)
+	}
+
+	case class IntervalDuration(id: Int, v: Duration)
+
+	object IntervalDurationEntity extends Entity[Int, NaturalIntId, IntervalDuration]("Interval")
+	{
+		val id = key("id") to (_.id)
+		val v = column("v") to (_.v)
+
+		def constructor(implicit m: ValuesMap) = new IntervalDuration(id, v) with Stored
 	}
 
 	case class Interval(id: Int, v: Period)

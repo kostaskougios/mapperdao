@@ -4,7 +4,7 @@ import com.googlecode.mapperdao.jdbc.Jdbc
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 import com.googlecode.mapperdao.jdbc.Batch
-import org.joda.time.Period
+import org.joda.time.{Duration, Period}
 import org.postgresql.util.PGInterval
 
 /**
@@ -38,27 +38,33 @@ class PostgreSql(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager
 		q
 	}
 
-	override def isDBKnownValue(tpe: Class[_]) = tpe == classOf[Period]
+	override def isDBKnownValue(tpe: Class[_]) = tpe == classOf[Period] || tpe == classOf[Duration]
 
 	override def convertToDBKnownValue(tpe: Class[_], value: Any) = if (tpe == classOf[Period]) {
+		def toPG(period: Period) = {
+			val years = period.getYears
+			val months = period.getMonths
+			val days = period.getDays
+			val hours = period.getHours
+			val minutes = period.getMinutes
+			val seconds = period.getSeconds
+			new PGInterval(years, months, days, hours, minutes, seconds.toDouble)
+		}
 		// support for interval columns
 		value match {
 			case null => null
-			case period: Period =>
-				val years = period.getYears
-				val months = period.getMonths
-				val days = period.getDays
-				val hours = period.getHours
-				val minutes = period.getMinutes
-				val seconds = period.getSeconds
-				new PGInterval(years, months, days, hours, minutes, seconds.toDouble)
+			case p: Period => toPG(p)
+			case d: Duration => toPG(d.toPeriod)
 		}
 	} else value
 
 	override def convertToScalaKnownValue(tpe: Class[_], value: Any) = value match {
 		case null => null
 		case i: PGInterval =>
-			new Period(i.getYears, i.getMonths, 0, i.getDays, i.getHours, i.getMinutes, i.getSeconds.toInt, 0)
+			val p = new Period(i.getYears, i.getMonths, 0, i.getDays, i.getHours, i.getMinutes, i.getSeconds.toInt, 0)
+			if (tpe == classOf[Period]) p
+			else if (tpe == classOf[Duration]) p.toStandardDuration
+			else throw new IllegalStateException("Unknown PGInterval type " + tpe)
 		case _ => throw new IllegalStateException(tpe + " not supported by this driver")
 	}
 

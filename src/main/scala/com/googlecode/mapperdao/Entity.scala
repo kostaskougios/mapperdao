@@ -4,7 +4,8 @@ import internal.{LazyActions, Utils}
 import java.util.Calendar
 import java.util.Date
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
-import org.joda.time.{Period, DateTime, LocalDate, LocalTime}
+import org.joda.time._
+import scala.Some
 
 /**
  * the main class that must be inherited to create entities.
@@ -170,11 +171,15 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 
 	protected implicit def columnToPeriod(ci: ColumnInfo[_ <: T, Period])(implicit m: ValuesMap): Period = m(ci)
 
+	protected implicit def columnToDuration(ci: ColumnInfo[_ <: T, Duration])(implicit m: ValuesMap): Duration = m(ci)
+
 	protected implicit def columnToLocalDate(ci: ColumnInfo[_ <: T, LocalDate])(implicit m: ValuesMap): LocalDate = m(ci)
 
 	protected implicit def columnToLocalTime(ci: ColumnInfo[_ <: T, LocalTime])(implicit m: ValuesMap): LocalTime = m(ci)
 
 	protected implicit def columnToOptionPeriod(ci: ColumnInfo[_ <: T, Period])(implicit m: ValuesMap): Option[Period] = Option(m(ci))
+
+	protected implicit def columnToOptionDuration(ci: ColumnInfo[_ <: T, Duration])(implicit m: ValuesMap): Option[Duration] = Option(m(ci))
 
 	protected implicit def columnToOptionDateTime(ci: ColumnInfo[_ <: T, DateTime])(implicit m: ValuesMap): Option[DateTime] = Option(m(ci))
 

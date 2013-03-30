@@ -156,6 +156,10 @@ class DefaultTypeManager(
 		classOf[Period] -> (
 			(driver: Driver, v: Any) =>
 				driver.convertToScalaKnownValue(classOf[Period], v)
+			),
+		classOf[Duration] -> (
+			(driver: Driver, v: Any) =>
+				driver.convertToScalaKnownValue(classOf[Duration], v)
 			)
 	)
 
