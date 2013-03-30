@@ -6,6 +6,7 @@ import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 import com.googlecode.mapperdao.jdbc.Batch
 import org.joda.time.{Duration, Period}
 import org.postgresql.util.PGInterval
+import java.sql.BatchUpdateException
 
 /**
  * @author kostantinos.kougios
@@ -70,6 +71,16 @@ class PostgreSql(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager
 			else if (tpe == classOf[Duration]) p.toStandardDuration
 			else throw new IllegalStateException("Unknown PGInterval type " + tpe)
 		case _ => throw new IllegalStateException(tpe + " not supported by this driver")
+	}
+
+	override def expandError(e: Throwable): List[Throwable] = {
+		val causes = e.getCause match {
+			case null => Nil
+			case bue: BatchUpdateException if (bue.getNextException != null) =>
+				bue :: bue.getNextException :: Nil
+			case e: Throwable => e :: Nil
+		}
+		e :: causes
 	}
 
 	override def toString = "PostgreSql"

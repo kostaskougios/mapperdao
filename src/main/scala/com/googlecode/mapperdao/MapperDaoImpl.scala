@@ -345,7 +345,7 @@ protected final class MapperDaoImpl(
 			// return the object
 			o
 		} catch {
-			case e: Throwable => throw new PersistException("An error occured during delete of entity %s with value %s".format(entity, o), e)
+			case e: Throwable => throw new PersistException("An error occured during delete of entity %s with value %s".format(entity, o), e :: Nil)
 		}
 	}
 
