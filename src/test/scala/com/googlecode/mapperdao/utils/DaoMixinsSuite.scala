@@ -4,11 +4,11 @@ import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.jdbc.{Setup => TestSetup}
 import com.googlecode.mapperdao.jdbc.Transaction
 import com.googlecode.mapperdao.jdbc.Transaction._
+import exceptions.PersistException
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
-import org.springframework.dao.DataIntegrityViolationException
 
 /**
  * @author kostantinos.kougios
@@ -76,7 +76,7 @@ class DaoMixinsSuite extends FunSuite with ShouldMatchers
 		createTables
 		evaluating {
 			ProductDaoTransactional.create(Product(1, "product1", Set(Attribute(10, null, "value10"))))
-		} should produce[DataIntegrityViolationException]
+		} should produce[PersistException]
 		ProductDaoTransactional.all.toSet should be === Set()
 	}
 
@@ -87,7 +87,7 @@ class DaoMixinsSuite extends FunSuite with ShouldMatchers
 
 		evaluating {
 			ProductDaoTransactional.update(p1, Product(1, "product1X", p1.attributes + Attribute(50, null, "value50X")))
-		} should produce[DataIntegrityViolationException]
+		} should produce[PersistException]
 
 		ProductDaoTransactional.all.toSet should be === Set(p1, p2)
 	}
