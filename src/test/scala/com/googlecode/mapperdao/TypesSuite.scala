@@ -164,7 +164,7 @@ class TypesSuite extends FunSuite with ShouldMatchers
 
 	test("localTime, query") {
 		createTables("dates")
-		val time = DateTime.now.withMillisOfSecond(0).toLocalTime
+		val time = DateTime.now.withMillisOfSecond(0).toLocalTime.withHour(5)
 		val nextHour = time.plusHours(1)
 		val List(_, i2) = mapperDao.insertBatch(DatesEntity, List(Dates(5, time = time), Dates(6, time = nextHour)))
 
