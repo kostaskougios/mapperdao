@@ -27,6 +27,16 @@ class SchemaSuite extends FunSuite with ShouldMatchers
 		mapperDao.select(ProductEntity, u1.id) should be(None)
 	}
 
+	test("schema query") {
+		createTables()
+
+		val i1 = mapperDao.insert(ProductEntity, Product("test1", Set(Attribute("a1", "v1"), Attribute("a2", "v2"))))
+
+		import Query._
+
+		(select from ProductEntity join(ProductEntity, ProductEntity.attributes, AttributeEntity) where AttributeEntity.name === "a1").toSet(queryDao) should be(Set(i1))
+	}
+
 	def createTables() {
 		jdbc.update("drop schema test cascade")
 		Setup.dropAllTables(jdbc)
