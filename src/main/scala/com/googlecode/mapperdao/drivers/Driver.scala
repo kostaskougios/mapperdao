@@ -51,7 +51,7 @@ abstract class Driver
 		args: List[(SimpleColumn, Any)]
 		) = {
 		val s = new sqlBuilder.InsertBuilder
-		s.into(tpe.table.name)
+		s.into(tpe.table.schemaName, tpe.table.name)
 
 		val sequenceColumns = tpe.table.simpleTypeSequenceColumns
 		if (!args.isEmpty || !sequenceColumns.isEmpty) {
@@ -72,7 +72,7 @@ abstract class Driver
 		val values = left ::: right
 		val s = new sqlBuilder.InsertBuilder
 		val linkTable = manyToMany.linkTable
-		s.into(linkTable.name)
+		s.into(linkTable.schemaName, linkTable.name)
 		val cav = (linkTable.left ::: linkTable.right) zip values
 		s.columnAndValues(cav)
 		s
@@ -92,7 +92,7 @@ abstract class Driver
 		pkArgs: List[(SimpleColumn, Any)]
 		) = {
 		val s = new sqlBuilder.UpdateBuilder
-		s.table(tpe.table.name)
+		s.table(tpe.table.schemaName, tpe.table.name)
 		s.set(args)
 		s.where(pkArgs, "=")
 		s
@@ -108,7 +108,7 @@ abstract class Driver
 
 	protected def updateOneToManyRefSql[ID, T](tpe: Type[ID, T], foreignKeys: List[(SimpleColumn, Any)], pkArgs: List[(SimpleColumn, Any)]) = {
 		val s = new sqlBuilder.UpdateBuilder
-		s.table(tpe.table.name)
+		s.table(tpe.table.schemaName, tpe.table.name)
 		s.set(foreignKeys)
 		s.where(pkArgs, "=")
 		s
@@ -124,7 +124,7 @@ abstract class Driver
 		) = {
 		val linkTable = manyToMany.linkTable
 		val s = new sqlBuilder.DeleteBuilder
-		s.from(linkTable.name)
+		s.from(linkTable.schemaName, linkTable.name)
 		val cav = leftKeys ::: rightKeys
 		s.where(cav, "=")
 		s
@@ -137,7 +137,7 @@ abstract class Driver
 
 	protected def deleteAllManyToManyRef[ID, T](tpe: Type[ID, T], manyToMany: ManyToMany[_, _], fkKeyValues: List[Any]) = {
 		val s = new sqlBuilder.DeleteBuilder
-		s.from(manyToMany.linkTable.name)
+		s.from(manyToMany.linkTable.schemaName, manyToMany.linkTable.name)
 		s.where(manyToMany.linkTable.left zip fkKeyValues, "=")
 		s
 	}
@@ -167,7 +167,7 @@ abstract class Driver
 		sql.columns(null,
 			tpe.table.distinctSelectColumnsForSelect
 		)
-		sql.from(tpe.table.name, null, applyHints(selectConfig.hints))
+		sql.from(tpe.table.schemaName, tpe.table.name, null, applyHints(selectConfig.hints))
 		sql.where(null, where, "=")
 		sql
 	}
@@ -193,7 +193,7 @@ abstract class Driver
 		val sql = new sqlBuilder.SqlSelectBuilder
 		val fColumns = ftpe.table.selectColumns
 		sql.columns("f", fColumns)
-		sql.from(ftpe.table.name, "f", applyHints(selectConfig.hints))
+		sql.from(ftpe.table.schemaName, ftpe.table.name, "f", applyHints(selectConfig.hints))
 		val j = sql.innerJoin(linkTable.name, "l", applyHints(selectConfig.hints))
 		ftable.primaryKeys.zip(linkTable.right).foreach {
 			case (left, right) =>
@@ -212,7 +212,7 @@ abstract class Driver
 		val linkTable = manyToMany.linkTable
 		val sql = new sqlBuilder.SqlSelectBuilder
 		sql.columns(null, linkTable.right)
-		sql.from(linkTable.name, null, applyHints(selectConfig.hints))
+		sql.from(linkTable.schemaName, linkTable.name, null, applyHints(selectConfig.hints))
 		sql.where(null, leftKeyValues, "=")
 		sql
 
@@ -238,7 +238,7 @@ abstract class Driver
 
 		val sql = new sqlBuilder.SqlSelectBuilder
 		sql.columns(null, linkTable.right)
-		sql.from(linkTable.name)
+		sql.from(linkTable.schemaName, linkTable.name)
 		sql.where(null, leftKeyValues, "=")
 		sql
 	}
@@ -255,7 +255,7 @@ abstract class Driver
 
 	def deleteSql[ID, T](tpe: Type[ID, T], whereColumnValues: List[(SimpleColumn, Any)]) = {
 		val s = new sqlBuilder.DeleteBuilder
-		s.from(sqlBuilder.Table(tpe.table.name))
+		s.from(sqlBuilder.Table(tpe.table.schemaName, tpe.table.name))
 		s.where(whereColumnValues, "=")
 		s
 	}
@@ -267,7 +267,7 @@ abstract class Driver
 
 	def deleteOneToOneReverseSql[ID, T, FID, FT](tpe: Type[ID, T], ftpe: Type[FID, FT], columnAndValues: List[(SimpleColumn, Any)]) = {
 		val s = new sqlBuilder.DeleteBuilder
-		s.from(sqlBuilder.Table(ftpe.table.name))
+		s.from(sqlBuilder.Table(ftpe.table.schemaName, ftpe.table.name))
 		s.where(columnAndValues, "=")
 		s
 	}
@@ -292,7 +292,7 @@ abstract class Driver
 
 		q.columns(alias, columns)
 		val hints = queryConfig.hints.afterTableName.map(_.hint).mkString
-		q.from(tpe.table.name, alias, hints)
+		q.from(tpe.table.schemaName, tpe.table.name, alias, hints)
 	}
 
 	def queryAfterSelect[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]) {}

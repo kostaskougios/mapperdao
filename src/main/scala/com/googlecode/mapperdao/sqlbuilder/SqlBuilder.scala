@@ -215,9 +215,10 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		def toValues: List[SqlParameterValue]
 	}
 
-	case class Table(table: String, alias: String = null, hints: String = null) extends FromClause
+	case class Table(schema: Option[String], table: String, alias: String = null, hints: String = null) extends FromClause
 	{
 		def toSql = {
+			val sb = new StringBuilder
 			var s = escapeNamesStrategy.escapeTableNames(table)
 			if (alias != null) s += " " + alias
 			if (hints != null) s += " " + hints
@@ -306,7 +307,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			this
 		}
 
-		def from(table: String): this.type = from(table, null, null)
+		def from(schema: Option[String], table: String): this.type = from(schema, table, null, null)
 
 		def from(fromClause: SqlSelectBuilder, alias: String): this.type = {
 			from(fromClause)
@@ -314,9 +315,9 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			this
 		}
 
-		def from(table: String, alias: String, hints: String): this.type = {
+		def from(schema: Option[String], table: String, alias: String, hints: String): this.type = {
 			if (fromClause != null) throw new IllegalStateException("from already called for %s".format(from))
-			fromClause = Table(table, alias, hints)
+			fromClause = Table(schema, table, alias, hints)
 			this
 		}
 
@@ -414,7 +415,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		private var fromClause: FromClause = null
 		private var whereBuilder: WhereBuilder = null
 
-		def from(table: String): this.type = from(Table(table))
+		def from(schema: Option[String], table: String): this.type = from(Table(schema, table))
 
 		def from(fromClause: FromClause): this.type = {
 			this.fromClause = fromClause
@@ -449,8 +450,8 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			this
 		}
 
-		def into(table: String): this.type = {
-			into(Table(table))
+		def into(schema: Option[String], table: String): this.type = {
+			into(Table(schema, table))
 			this
 		}
 
@@ -501,7 +502,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		private var where: WhereBuilder = null
 		private var expression: Expression = EmptyExpression
 
-		def table(name: String): this.type = table(Table(name))
+		def table(schema: Option[String], name: String): this.type = table(Table(schema, name))
 
 		def table(table: Table): this.type = {
 			this.table = table

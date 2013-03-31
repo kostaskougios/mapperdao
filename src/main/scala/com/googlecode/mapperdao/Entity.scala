@@ -50,6 +50,15 @@ import scala.Some
  */
 abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class[T])
 {
+	/**
+	 * example:
+	 *
+	 * override val databaseSchema = Schema("myschema")
+	 */
+	val databaseSchema: Option[Schema] = None
+
+	if (clz == null) throw new NullPointerException("clz can't be null")
+	if (table == null) throw new NullPointerException("table can't be null")
 
 	/**
 	 * declares the extra trait that will be mixed into every persisted instance
@@ -399,6 +408,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	{
 		val clz = Entity.this.clz
 		private var linkTable = if (reverse) referenced.table + "_" + table else table + "_" + referenced.table
+		private var schemaO: Option[Schema] = referenced.databaseSchema
 
 		/**
 		 * create the columns based on default naming conventions
@@ -426,6 +436,11 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 			this
 		}
 
+		def schema(s: Schema) = {
+			schemaO = Option(s)
+			this
+		}
+
 		def to(columnToValue: T => Traversable[FT]): ColumnInfoTraversableManyToMany[T, FID, FT] = {
 			if (keysDuringDeclaration.size != leftColumns.size) throw new IllegalStateException("join is invalid, left part keys %s and right part %s".format(keysDuringDeclaration, leftColumns))
 			if (referenced.keysDuringDeclaration.size != rightColumns.size) throw new IllegalStateException("join is invalid, left part keys %s and right part %s".format(referenced.keysDuringDeclaration, rightColumns))
@@ -436,13 +451,16 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 			val ci = ColumnInfoTraversableManyToMany[T, FID, FT](
 				ManyToMany(
 					Entity.this,
-					LinkTable(linkTable, left.map {
-						case (k, c) =>
-							Column(Entity.this, c, k.tpe)
-					}, right.map {
-						case (k, c) =>
-							Column(Entity.this, c, k.tpe)
-					}),
+					LinkTable(
+						schemaO,
+						linkTable,
+						left.map {
+							case (k, c) =>
+								Column(Entity.this, c, k.tpe)
+						}, right.map {
+							case (k, c) =>
+								Column(Entity.this, c, k.tpe)
+						}),
 					TypeRef(createAlias(referenced.clz), referenced)
 				),
 				columnToValue,
@@ -730,11 +748,4 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 * @return      entity with Stored
 	 */
 	def toPersistedType(t: T): T with Stored = t.asInstanceOf[T with Stored]
-
-	/**
-	 * example:
-	 *
-	 * override def databaseSchema = Schema("myschema")
-	 */
-	val databaseSchema: Option[Schema] = None
 }

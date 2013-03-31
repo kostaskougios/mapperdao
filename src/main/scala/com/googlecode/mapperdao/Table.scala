@@ -21,6 +21,7 @@ class Table[ID, T](
 	)
 {
 
+	val schemaName = schema.map(_.name)
 	val columns: List[ColumnBase] = extraColumnInfosPersisted.map(_.column) ::: columnInfosPlain.map(_.column)
 	// the primary keys for this table
 	val primaryKeys: List[PK] = columns.collect {
@@ -195,4 +196,8 @@ class Table[ID, T](
 	override def toString = "Table(" + name + ")"
 }
 
-case class LinkTable(name: String, left: List[Column], right: List[Column])
+case class LinkTable(schema: Option[Schema], name: String, left: List[Column], right: List[Column])
+{
+	if (schema == null) throw new NullPointerException("databaseSchema should be declared first thing in an entity, for " + name)
+	val schemaName = schema.map(_.name)
+}
