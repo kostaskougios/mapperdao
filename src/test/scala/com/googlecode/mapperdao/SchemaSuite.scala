@@ -14,33 +14,35 @@ class SchemaSuite extends FunSuite with ShouldMatchers
 {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
-	test("schema CRUD") {
-		createTables()
+	if (Setup.database == "postgresql") {
+		test("schema CRUD") {
+			createTables()
 
-		val i1 = mapperDao.insert(ProductEntity, Product("test1", Set(Attribute("a1", "v1"), Attribute("a2", "v2"))))
-		mapperDao.select(ProductEntity, i1.id).get should be(i1)
+			val i1 = mapperDao.insert(ProductEntity, Product("test1", Set(Attribute("a1", "v1"), Attribute("a2", "v2"))))
+			mapperDao.select(ProductEntity, i1.id).get should be(i1)
 
-		val u1 = mapperDao.update(ProductEntity, i1, i1.copy(name = "x", attributes = i1.attributes + Attribute("a3", "v3")))
-		mapperDao.select(ProductEntity, i1.id).get should be(u1)
+			val u1 = mapperDao.update(ProductEntity, i1, i1.copy(name = "x", attributes = i1.attributes + Attribute("a3", "v3")))
+			mapperDao.select(ProductEntity, i1.id).get should be(u1)
 
-		mapperDao.delete(ProductEntity, u1)
-		mapperDao.select(ProductEntity, u1.id) should be(None)
-	}
+			mapperDao.delete(ProductEntity, u1)
+			mapperDao.select(ProductEntity, u1.id) should be(None)
+		}
 
-	test("schema query") {
-		createTables()
+		test("schema query") {
+			createTables()
 
-		val i1 = mapperDao.insert(ProductEntity, Product("test1", Set(Attribute("a1", "v1"), Attribute("a2", "v2"))))
+			val i1 = mapperDao.insert(ProductEntity, Product("test1", Set(Attribute("a1", "v1"), Attribute("a2", "v2"))))
 
-		import Query._
+			import Query._
 
-		(select from ProductEntity join(ProductEntity, ProductEntity.attributes, AttributeEntity) where AttributeEntity.name === "a1").toSet(queryDao) should be(Set(i1))
-	}
+			(select from ProductEntity join(ProductEntity, ProductEntity.attributes, AttributeEntity) where AttributeEntity.name === "a1").toSet(queryDao) should be(Set(i1))
+		}
 
-	def createTables() {
-		jdbc.update("drop schema test cascade")
-		Setup.dropAllTables(jdbc)
-		Setup.queries(this, jdbc).update("ddl")
+		def createTables() {
+			jdbc.update("drop schema test cascade")
+			Setup.dropAllTables(jdbc)
+			Setup.queries(this, jdbc).update("ddl")
+		}
 	}
 
 	case class Product(name: String, attributes: Set[Attribute])
