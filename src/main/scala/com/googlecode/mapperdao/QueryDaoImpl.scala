@@ -158,7 +158,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val qAlias = aliases(jEntity)
 
 		val e = queryExpressions(aliases, join.on.ons.get.clauses)
-		val j = new driver.sqlBuilder.InnerJoinBuilder(jTable.name, qAlias, null)
+		val j = new driver.sqlBuilder.InnerJoinBuilder(jTable.schemaName, jTable.name, qAlias, null)
 		j(e)
 		j
 	}
@@ -318,7 +318,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val fAlias = aliases(foreignEntity)
 		val jAlias = aliases(joinEntity)
 
-		val j = new driver.sqlBuilder.InnerJoinBuilder(foreignTable.name, fAlias, null)
+		val j = new driver.sqlBuilder.InnerJoinBuilder(foreignTable.schemaName, foreignTable.name, fAlias, null)
 		(table.primaryKeys zip oneToOneReverse.foreignColumns).foreach {
 			case (left, right) =>
 				j.and(jAlias, left.name, "=", fAlias, right.name)
@@ -338,7 +338,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val fAlias = aliases(foreignEntity)
 		val jAlias = aliases(joinEntity)
 
-		val j = new driver.sqlBuilder.InnerJoinBuilder(foreignTable.name, fAlias, null)
+		val j = new driver.sqlBuilder.InnerJoinBuilder(foreignTable.schemaName, foreignTable.name, fAlias, null)
 		(oneToOne.selfColumns zip foreignTable.primaryKeys) foreach {
 			case (left, right) =>
 				j.and(jAlias, left.name, "=", fAlias, right.name)
@@ -357,7 +357,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val fAlias = aliases(foreignEntity)
 		val jAlias = aliases(joinEntity)
 
-		val j = new driver.sqlBuilder.InnerJoinBuilder(foreignTable.name, fAlias, null)
+		val j = new driver.sqlBuilder.InnerJoinBuilder(foreignTable.schemaName, foreignTable.name, fAlias, null)
 		(manyToOne.columns zip foreignTable.primaryKeys).foreach {
 			case (left, right) =>
 				j.and(jAlias, left.name, "=", fAlias, right.name)
@@ -378,7 +378,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val fAlias = aliases(foreignEntity)
 		val jAlias = aliases(joinEntity)
 
-		val j = new driver.sqlBuilder.InnerJoinBuilder(foreignTpe.table.name, fAlias, null)
+		val j = new driver.sqlBuilder.InnerJoinBuilder(foreignTpe.table.schemaName, foreignTpe.table.name, fAlias, null)
 		(joinTpe.table.primaryKeys zip oneToMany.foreignColumns).foreach {
 			case (left, right) =>
 				j.and(jAlias, left.name, "=", fAlias, right.name)
@@ -403,13 +403,13 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val linkTable = manyToMany.linkTable
 		val linkTableAlias = aliases(linkTable)
 
-		val j1 = new driver.sqlBuilder.InnerJoinBuilder(linkTable.name, linkTableAlias, null)
+		val j1 = new driver.sqlBuilder.InnerJoinBuilder(linkTable.schemaName, linkTable.name, linkTableAlias, null)
 		(joinTpe.table.primaryKeys zip linkTable.left).foreach {
 			case (left, right) =>
 				j1.and(linkTableAlias, right.name, "=", jAlias, left.name)
 		}
 
-		val j2 = new driver.sqlBuilder.InnerJoinBuilder(foreignTable.name, fAlias, null)
+		val j2 = new driver.sqlBuilder.InnerJoinBuilder(foreignTable.schemaName, foreignTable.name, fAlias, null)
 		(foreignTable.primaryKeys zip linkTable.right).foreach {
 			case (left, right) =>
 				j2.and(fAlias, left.name, "=", linkTableAlias, right.name)

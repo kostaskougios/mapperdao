@@ -217,18 +217,23 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 
 	case class Table(schema: Option[String], table: String, alias: String = null, hints: String = null) extends FromClause
 	{
+		def tableName = if (schema.isDefined) schema.get + "." + escapeNamesStrategy.escapeTableNames(table) else escapeNamesStrategy.escapeTableNames(table)
+
 		def toSql = {
 			val sb = new StringBuilder
-			var s = escapeNamesStrategy.escapeTableNames(table)
-			if (alias != null) s += " " + alias
-			if (hints != null) s += " " + hints
-			s
+
+			if (schema.isDefined) sb append schema.get append "."
+
+			sb append escapeNamesStrategy.escapeTableNames(table)
+			if (alias != null) sb append " " append alias
+			if (hints != null) sb append " " append hints
+			sb.toString
 		}
 
 		def toValues = Nil
 	}
 
-	class InnerJoinBuilder(table: String, alias: String, hints: String)
+	class InnerJoinBuilder(schema: Option[String], table: String, alias: String, hints: String)
 	{
 		private var e: Expression = null
 
@@ -253,7 +258,9 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		}
 
 		def toSql = {
-			val sb = new StringBuilder("inner join ") append table append " "
+			val sb = new StringBuilder("inner join ")
+			if (schema.isDefined) sb append schema.get append "."
+			sb append table append " "
 			if (alias != null) sb append alias append " "
 			if (hints != null) sb append hints append " "
 			sb append "on " append e.toSql
@@ -350,8 +357,8 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			this
 		}
 
-		def innerJoin(table: String, alias: String, hints: String) = {
-			val ijb = new InnerJoinBuilder(table, alias, hints)
+		def innerJoin(schema: Option[String], table: String, alias: String, hints: String) = {
+			val ijb = new InnerJoinBuilder(schema, table, alias, hints)
 			innerJoins = ijb :: innerJoins
 			ijb
 		}
@@ -467,7 +474,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 
 		//insert into %s(%s) values(%s)
 		def toSql = ("insert into " +
-			escapeNamesStrategy.escapeTableNames(table.table)
+			table.tableName
 			+ "("
 			+ (
 			css.map {
@@ -534,7 +541,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 
 		def toSql = (
 			"update "
-				+ table.toSql
+				+ table.tableName
 				+ "\nset "
 				+ columnAndValues.map {
 				case (c, v) =>

@@ -194,7 +194,7 @@ abstract class Driver
 		val fColumns = ftpe.table.selectColumns
 		sql.columns("f", fColumns)
 		sql.from(ftpe.table.schemaName, ftpe.table.name, "f", applyHints(selectConfig.hints))
-		val j = sql.innerJoin(linkTable.name, "l", applyHints(selectConfig.hints))
+		val j = sql.innerJoin(linkTable.schemaName, linkTable.name, "l", applyHints(selectConfig.hints))
 		ftable.primaryKeys.zip(linkTable.right).foreach {
 			case (left, right) =>
 				j.and("f", left.name, "=", "l", right.name)
