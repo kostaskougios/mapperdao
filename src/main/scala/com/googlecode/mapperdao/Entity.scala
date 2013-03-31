@@ -86,7 +86,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 			o.mapperDaoValuesMap = m
 			o
 		}
-		EntityType[ID, T](clz, con, Table[ID, T](table, columns.reverse, persistedColumns, unusedPKs.executeAll.reverse))
+		EntityType[ID, T](clz, con, new Table[ID, T](databaseSchema, table, columns.reverse, persistedColumns, unusedPKs.executeAll.reverse))
 	}
 
 	override def hashCode = table.hashCode
@@ -723,5 +723,18 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 
 	// ===================== /Java section ================================
 
+	/**
+	 * utility method to cast an entity to it's persisted type
+	 *
+	 * @param t     the entity
+	 * @return      entity with Stored
+	 */
 	def toPersistedType(t: T): T with Stored = t.asInstanceOf[T with Stored]
+
+	/**
+	 * example:
+	 *
+	 * override def databaseSchema = Schema("myschema")
+	 */
+	val databaseSchema: Option[Schema] = None
 }

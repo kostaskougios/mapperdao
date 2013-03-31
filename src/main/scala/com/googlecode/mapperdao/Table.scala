@@ -12,11 +12,12 @@ import com.googlecode.mapperdao.exceptions.ExpectedPersistedEntityException
  *         12 Jul 2011
  */
 
-case class Table[ID, T](
-	name: String,
-	columnInfosPlain: List[ColumnInfoBase[T, _]],
-	extraColumnInfosPersisted: List[ColumnInfoBase[T with DeclaredIds[ID], _]],
-	unusedPKColumnInfos: List[ColumnInfoBase[Any, Any]]
+class Table[ID, T](
+	val schema: Option[Schema],
+	val name: String,
+	val columnInfosPlain: List[ColumnInfoBase[T, _]],
+	val extraColumnInfosPersisted: List[ColumnInfoBase[T with DeclaredIds[ID], _]],
+	val unusedPKColumnInfos: List[ColumnInfoBase[Any, Any]]
 	)
 {
 

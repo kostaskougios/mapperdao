@@ -31,6 +31,8 @@ class SchemaSuite extends FunSuite with ShouldMatchers
 
 	case class Attribute(name: String, value: String)
 
+	val testSchema = Schema("test")
+
 	object ProductEntity extends Entity[Int, SurrogateIntId, Product]
 	{
 		val id = key("id") sequence (Setup.database match {
@@ -44,6 +46,8 @@ class SchemaSuite extends FunSuite with ShouldMatchers
 		{
 			val id: Int = ProductEntity.id
 		}
+
+		override val databaseSchema = Some(testSchema)
 	}
 
 	object AttributeEntity extends Entity[Int, SurrogateIntId, Attribute]
@@ -59,6 +63,8 @@ class SchemaSuite extends FunSuite with ShouldMatchers
 		{
 			val id: Int = AttributeEntity.id
 		}
+
+		override val databaseSchema = Some(testSchema)
 	}
 
 }
