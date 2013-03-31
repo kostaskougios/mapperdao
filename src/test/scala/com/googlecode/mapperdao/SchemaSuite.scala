@@ -14,11 +14,17 @@ class SchemaSuite extends FunSuite with ShouldMatchers
 {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
-	test("schema") {
+	test("schema CRUD") {
 		createTables()
 
 		val i1 = mapperDao.insert(ProductEntity, Product("test1", Set(Attribute("a1", "v1"), Attribute("a2", "v2"))))
 		mapperDao.select(ProductEntity, i1.id).get should be(i1)
+
+		val u1 = mapperDao.update(ProductEntity, i1, i1.copy(name = "x", attributes = i1.attributes + Attribute("a3", "v3")))
+		mapperDao.select(ProductEntity, i1.id).get should be(u1)
+
+		mapperDao.delete(ProductEntity, u1)
+		mapperDao.select(ProductEntity, u1.id) should be(None)
 	}
 
 	def createTables() {
