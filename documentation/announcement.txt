@@ -11,7 +11,7 @@ MapperDao is an ORM library for scala and java with drivers for the following da
     sql server
     h2 
 
-Tutorial: http://mapperdao-examples.googlecode.com/files/tutorial1.4.pdf
+Tutorial: http://mapperdao-examples.googlecode.com/files/tutorial-1.0.0-rc15.pdf
 
 MapperDao supports all common relationships (one-to-many, many-to-one, many-to-many, one-to-one), key-less or composite keyed entities and a type-safe DSL for querying the data which resembles sql. Summary of features can be found at at https://code.google.com/p/mapperdao/wiki/Summary
 
