@@ -8,6 +8,7 @@ import com.googlecode.mapperdao.state.persistcmds.PersistCmd
 import com.googlecode.mapperdao.state.persistcmds.InsertCmd
 import exceptions.PersistException
 import state.prioritise.Prioritized
+import com.googlecode.mapperdao.schema.{SimpleColumn, ColumnInfo}
 
 /**
  * converts commands to database operations, executes

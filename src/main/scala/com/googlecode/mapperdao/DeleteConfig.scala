@@ -1,5 +1,7 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
+
 /**
  * @param propagate		Will the delete be propagated to related entities?
  * @param skip			if propagate=true, skip relationships will be skipped. If propagate=false, this is not used

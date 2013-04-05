@@ -4,8 +4,7 @@ import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.SelectExternalManyToMany
 import com.googlecode.mapperdao.EntityMap
-import com.googlecode.mapperdao.ColumnInfoTraversableManyToMany
-import com.googlecode.mapperdao.ManyToMany
+import com.googlecode.mapperdao.schema.{ManyToMany, ColumnInfoTraversableManyToMany}
 
 /**
  * @author kostantinos.kougios

@@ -1,4 +1,6 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.schema
+
+import com.googlecode.mapperdao.{Persisted, Entity, GetterMethod}
 
 case class ColumnInfoTraversableOneToMany[ID, T, FID, F](
 	column: OneToMany[FID, F],

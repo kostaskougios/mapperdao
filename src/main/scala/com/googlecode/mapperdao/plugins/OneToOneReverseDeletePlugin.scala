@@ -2,6 +2,7 @@ package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.schema.{SimpleColumn, OneToOneReverse, ColumnInfoOneToOneReverse, ColumnBase}
 
 class OneToOneReverseDeletePlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl) extends BeforeDelete
 {

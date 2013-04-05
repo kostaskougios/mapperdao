@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao.customization
 
-import com.googlecode.mapperdao.SimpleColumn
+import com.googlecode.mapperdao.schema.SimpleColumn
 
 /**
  * allows custom mapping from scala -> database and from database->scala types

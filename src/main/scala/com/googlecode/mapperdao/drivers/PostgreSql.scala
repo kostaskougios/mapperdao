@@ -7,6 +7,7 @@ import com.googlecode.mapperdao.jdbc.Batch
 import org.joda.time.{Duration, Period}
 import org.postgresql.util.PGInterval
 import java.sql.BatchUpdateException
+import com.googlecode.mapperdao.schema.ColumnBase
 
 /**
  * @author kostantinos.kougios

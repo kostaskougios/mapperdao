@@ -1,4 +1,6 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.schema
+
+import com.googlecode.mapperdao.{TypeRef, LinkTable, Persisted, Entity}
 
 case class ManyToMany[FID, F](
 	entity: Entity[_, _ <: Persisted, _],

@@ -1,5 +1,7 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.schema.{ColumnInfoOneToOne, ColumnInfoManyToOne, ColumnInfo}
+
 /**
  * @author kostantinos.kougios
  *

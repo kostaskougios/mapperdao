@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
 
 /**
  * @author kostantinos.kougios

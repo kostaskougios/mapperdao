@@ -1,7 +1,14 @@
 package com.googlecode.mapperdao.state.recreation
 
 import com.googlecode.mapperdao._
-import state.persisted.{ExternalEntityPersistedNode, EntityPersistedNode, PersistedNode}
+import state.persisted.PersistedNode
+import com.googlecode.mapperdao.schema._
+import com.googlecode.mapperdao.state.persisted.ExternalEntityPersistedNode
+import com.googlecode.mapperdao.state.persisted.EntityPersistedNode
+import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
+import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
+import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
+import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
 
 /**
  * during recreation phase, persisted objects are re-created with Stored type mixed in the

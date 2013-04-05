@@ -8,6 +8,9 @@ import java.util.Locale
 import org.joda.time.DateTime
 
 import scala.collection.JavaConverters._
+import com.googlecode.mapperdao.schema._
+import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
+import com.googlecode.mapperdao.schema.ColumnInfo
 
 /**
  * provides values that originate from the database. Those values are used by

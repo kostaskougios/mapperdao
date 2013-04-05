@@ -10,6 +10,13 @@ import com.googlecode.mapperdao.state.recreation.MockFactory
 import com.googlecode.mapperdao.state.recreation.RecreationPhase
 import com.googlecode.mapperdao.state.prioritise.PriorityPhase
 import state.enhancevm.EnhanceVMPhase
+import com.googlecode.mapperdao.schema._
+import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
+import scala.Some
+import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
+import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
+import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
+import com.googlecode.mapperdao.plugins.SelectMod
 
 /**
  * @author kostantinos.kougios

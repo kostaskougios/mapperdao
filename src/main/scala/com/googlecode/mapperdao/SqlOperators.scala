@@ -1,5 +1,11 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.schema._
+import com.googlecode.mapperdao.schema.ManyToOne
+import com.googlecode.mapperdao.schema.OneToOne
+import com.googlecode.mapperdao.schema.OneToOneReverse
+import com.googlecode.mapperdao.schema.OneToMany
+
 sealed abstract class Operand
 {
 	def sql: String

@@ -3,6 +3,7 @@ package com.googlecode.mapperdao
 import com.googlecode.classgenerator.runtime.Args
 import LazyLoadManager._
 import com.googlecode.classgenerator._
+import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
 
 /**
  * implements lazy loaded methods

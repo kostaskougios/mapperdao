@@ -1,4 +1,5 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.schema
+
 
 case class ColumnInfo[T, V](
 	column: SimpleColumn,

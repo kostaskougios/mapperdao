@@ -1,15 +1,12 @@
 package com.googlecode.mapperdao.sqlbuilder
 
 import com.googlecode.mapperdao.drivers.EscapeNamesStrategy
-import com.googlecode.mapperdao.SimpleColumn
 import org.springframework.jdbc.core.SqlParameterValue
 import com.googlecode.mapperdao.jdbc.Jdbc
 import com.googlecode.mapperdao.SqlFunctionValue
-import com.googlecode.mapperdao.ColumnInfo
 import com.googlecode.mapperdao.QueryDao
-import com.googlecode.mapperdao.ColumnInfoManyToOne
-import com.googlecode.mapperdao.ColumnInfoOneToOne
 import com.googlecode.mapperdao.drivers.Driver
+import com.googlecode.mapperdao.schema.{SimpleColumn, ColumnInfoOneToOne, ColumnInfoManyToOne, ColumnInfo}
 
 /**
  * builds queries, inserts, updates and deletes. This is a thread-safe factory, 1 instance can be reused

@@ -1,4 +1,4 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.schema
 
 case class ColumnInfoOneToOne[T, FID, F](
 	column: OneToOne[FID, F],

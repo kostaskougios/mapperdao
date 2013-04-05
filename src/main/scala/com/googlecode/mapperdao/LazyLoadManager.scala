@@ -10,6 +10,7 @@ import com.googlecode.classgenerator.ClassManager
 import com.googlecode.classgenerator.MethodImplementation
 import com.googlecode.classgenerator.ReflectionManager
 import javassist._
+import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
 
 /**
  * manages lazy loading of classes

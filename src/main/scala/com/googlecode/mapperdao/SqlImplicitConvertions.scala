@@ -1,6 +1,10 @@
 package com.googlecode.mapperdao
 
 import org.joda.time._
+import com.googlecode.mapperdao.schema._
+import com.googlecode.mapperdao.schema.ColumnInfo
+import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
+import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
 
 /**
  * @author kostantinos.kougios

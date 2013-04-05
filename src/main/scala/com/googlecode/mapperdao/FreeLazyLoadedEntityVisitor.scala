@@ -1,5 +1,11 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.schema._
+import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
+import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
+import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
+import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
+
 /**
  * visits an entity and frees the memory allocated to allow mapperdao to lazy load
  * related data. After running this, all lazy loaded relationships won't be able to

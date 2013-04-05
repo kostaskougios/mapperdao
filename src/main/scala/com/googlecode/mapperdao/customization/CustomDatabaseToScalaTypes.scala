@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao.customization
 
-import com.googlecode.mapperdao.SimpleColumn
+import com.googlecode.mapperdao.schema.SimpleColumn
 
 /**
  * @author: kostas.kougios

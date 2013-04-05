@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.drivers.SelectHints
+import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
 
 /**
  * mapperDao.select configuration.

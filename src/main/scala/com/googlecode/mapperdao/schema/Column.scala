@@ -1,4 +1,6 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.schema
+
+import com.googlecode.mapperdao.{Persisted, Entity}
 
 case class Column(entity: Entity[_, _ <: Persisted, _], name: String, tpe: Class[_]) extends SimpleColumn
 {

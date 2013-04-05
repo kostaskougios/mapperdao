@@ -2,6 +2,12 @@ package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.exceptions.QueryException
 import com.googlecode.mapperdao.drivers.Driver
+import com.googlecode.mapperdao.schema._
+import scala.Some
+import com.googlecode.mapperdao.schema.OneToOneReverse
+import com.googlecode.mapperdao.schema.OneToMany
+import com.googlecode.mapperdao.schema.ManyToOne
+import com.googlecode.mapperdao.schema.OneToOne
 
 /**
  * the QueryDao implementation

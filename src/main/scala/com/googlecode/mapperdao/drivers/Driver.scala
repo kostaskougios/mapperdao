@@ -6,6 +6,7 @@ import com.googlecode.mapperdao.jdbc.Jdbc
 import com.googlecode.mapperdao.jdbc.UpdateResult
 import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 import com.googlecode.mapperdao.jdbc.Batch
+import com.googlecode.mapperdao.schema.{SimpleColumn, ManyToMany, OneToOneReverse, ColumnBase}
 
 /**
  * all database drivers must implement this trait

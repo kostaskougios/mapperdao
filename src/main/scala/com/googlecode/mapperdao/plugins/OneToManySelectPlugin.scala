@@ -2,6 +2,7 @@ package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
 
 /**
  * @author kostantinos.kougios

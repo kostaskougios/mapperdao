@@ -8,6 +8,10 @@ import com.googlecode.mapperdao.jdbc.JdbcMap
 import java.util.Date
 import scala.collection.immutable.ListMap
 import org.joda.time.chrono.ISOChronology
+import com.googlecode.mapperdao.schema._
+import com.googlecode.mapperdao.schema.ColumnInfo
+import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
+import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
 
 /**
  * @author kostantinos.kougios

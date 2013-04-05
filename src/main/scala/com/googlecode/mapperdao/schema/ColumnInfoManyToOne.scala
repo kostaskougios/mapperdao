@@ -1,4 +1,6 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.schema
+
+import com.googlecode.mapperdao.GetterMethod
 
 case class ColumnInfoManyToOne[T, FID, F](
 	column: ManyToOne[FID, F],

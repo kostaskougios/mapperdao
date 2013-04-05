@@ -1,5 +1,7 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.schema.{ColumnInfoRelationshipBase, ColumnInfoBase}
+
 /**
  * LazyLoad configuration. Please look at the companion object
  *

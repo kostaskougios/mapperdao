@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.JdbcMap
+import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
 
 /**
  * a data loader config for many to many relationships.

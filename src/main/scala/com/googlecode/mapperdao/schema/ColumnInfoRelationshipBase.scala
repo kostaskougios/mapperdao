@@ -1,4 +1,6 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.schema
+
+import com.googlecode.mapperdao.GetterMethod
 
 abstract class ColumnInfoRelationshipBase[T, V, FID, F] extends ColumnInfoBase[T, V]
 {

@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.internal
 
-import com.googlecode.mapperdao.ColumnBase
 import com.googlecode.mapperdao.ValuesMap
+import com.googlecode.mapperdao.schema.ColumnBase
 
 /**
  * mapperdao has it's own way of considering equality of objects.

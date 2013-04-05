@@ -1,5 +1,7 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.schema.{ColumnInfoRelationshipBase, ColumnInfo}
+
 
 /**
  * query builder and DSL

@@ -2,6 +2,12 @@ package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
 import internal.TraversableSeparation
+import com.googlecode.mapperdao.schema._
+import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
+import scala.Some
+import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
+import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
+import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
 
 /**
  * entities are converted to PersistOps

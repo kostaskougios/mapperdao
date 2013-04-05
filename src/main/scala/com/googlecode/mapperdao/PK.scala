@@ -1,5 +1,7 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.schema.SimpleColumn
+
 case class PK(
 	entity: Entity[_, _ <: Persisted, _],
 	name: String,

@@ -2,6 +2,7 @@ package com.googlecode.mapperdao
 
 import scala.collection.immutable.Stack
 import collection.mutable
+import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
 
 protected class UpdateEntityMap
 {

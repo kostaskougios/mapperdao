@@ -8,6 +8,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scala_tools.time.Imports._
 import org.apache.commons.dbcp.BasicDataSourceFactory
 import utils.{Database, Setup}
+import com.googlecode.mapperdao.schema.{SimpleColumn, Column}
 
 /**
  * @author kkougios

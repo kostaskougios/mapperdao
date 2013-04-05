@@ -1,7 +1,8 @@
 package com.googlecode.mapperdao.state.persistcmds
 
-import com.googlecode.mapperdao.{Type, ColumnInfoOneToOneReverse, ValuesMap, ExternalEntity}
+import com.googlecode.mapperdao.{Type, ValuesMap, ExternalEntity}
 import com.googlecode.mapperdao.state.prioritise.Priority
+import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
 
 /**
  * @author: kostas.kougios

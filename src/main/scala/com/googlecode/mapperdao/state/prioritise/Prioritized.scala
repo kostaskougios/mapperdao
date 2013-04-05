@@ -2,10 +2,9 @@ package com.googlecode.mapperdao.state.prioritise
 
 import com.googlecode.mapperdao._
 import state.persistcmds._
-import com.googlecode.mapperdao.ManyToOne
 import state.persistcmds.EntityRelatedCmd
 import state.persistcmds.ExternalEntityRelatedCmd
-import com.googlecode.mapperdao.OneToMany
+import com.googlecode.mapperdao.schema.{OneToOneReverse, OneToOne, ManyToOne, OneToMany}
 
 /**
  * prioritized cmds

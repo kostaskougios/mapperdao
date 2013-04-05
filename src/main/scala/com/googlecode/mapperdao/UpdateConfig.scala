@@ -1,5 +1,7 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
+
 case class UpdateConfig(
 	/**
 	 * skip updating related configs, i.e. Set(ProductEntity.attributes)

@@ -1,4 +1,6 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.schema
+
+import com.googlecode.mapperdao.{TypeRef, Persisted, Entity}
 
 case class OneToOne[FID, F](
 	entity: Entity[_, _ <: Persisted, _],

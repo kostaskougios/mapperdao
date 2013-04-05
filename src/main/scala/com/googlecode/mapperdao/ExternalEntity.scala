@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao
 
 import internal.{LazyActions, MapWithDefault}
+import com.googlecode.mapperdao.schema.{ColumnInfoTraversableOneToMany, ColumnInfoTraversableManyToMany, ColumnInfoOneToOneReverse, ColumnInfoManyToOne}
 
 /**
  * external entities allow loading entities via a custom dao or i.e. hibernate,

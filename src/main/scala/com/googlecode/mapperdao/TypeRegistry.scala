@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao
 
 import java.util.IdentityHashMap
+import com.googlecode.mapperdao.schema.ColumnBase
 
 /**
  * a registry of entities

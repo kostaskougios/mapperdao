@@ -5,7 +5,10 @@ import java.util.Calendar
 import java.util.Date
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import org.joda.time._
-import scala.Some
+import com.googlecode.mapperdao.schema._
+import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
+import com.googlecode.mapperdao.schema.Column
+import com.googlecode.mapperdao.schema.ColumnInfo
 
 /**
  * the main class that must be inherited to create entities.

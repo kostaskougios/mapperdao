@@ -2,12 +2,13 @@ package com.googlecode.mapperdao.state.prioritise
 
 import com.googlecode.mapperdao._
 import state.persistcmds._
-import com.googlecode.mapperdao.ColumnInfoOneToOneReverse
-import com.googlecode.mapperdao.ColumnInfoTraversableOneToMany
-import state.persistcmds.DependsCmd
-import com.googlecode.mapperdao.ColumnInfoOneToOne
-import com.googlecode.mapperdao.ColumnInfoTraversableManyToMany
-import com.googlecode.mapperdao.ColumnInfoManyToOne
+import com.googlecode.mapperdao.schema._
+import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
+import com.googlecode.mapperdao.state.persistcmds.DeleteCmd
+import com.googlecode.mapperdao.state.persistcmds.DependsCmd
+import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
+import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
+import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
 
 /**
  * @author kostantinos.kougios

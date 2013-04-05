@@ -1,6 +1,9 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.exceptions.ExpectedPersistedEntityException
+import com.googlecode.mapperdao.schema._
+import com.googlecode.mapperdao.schema.ColumnInfo
+import com.googlecode.mapperdao.schema.Column
 
 /**
  * mapping tables to entities

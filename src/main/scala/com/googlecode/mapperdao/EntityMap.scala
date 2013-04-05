@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao
 
 import scala.collection.mutable.{HashMap => TMap}
+import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
 
 /**
  * contains entities sorted via 2 keys: class and ids
