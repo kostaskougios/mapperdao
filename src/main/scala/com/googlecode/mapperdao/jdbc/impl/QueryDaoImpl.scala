@@ -1,4 +1,4 @@
-package com.googlecode.mapperdao.jdbc
+package com.googlecode.mapperdao.jdbc.impl
 
 import com.googlecode.mapperdao.exceptions.QueryException
 import com.googlecode.mapperdao.drivers.Driver

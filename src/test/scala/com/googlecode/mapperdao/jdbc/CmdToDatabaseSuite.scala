@@ -9,6 +9,7 @@ import drivers.Driver
 import org.scalatest.mock.EasyMockSugar
 import state.persistcmds.CmdPhase
 import state.prioritise.PriorityPhase
+import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
 
 /**
  * @author: kostas.kougios

@@ -2,6 +2,7 @@ package com.googlecode.mapperdao.jdbc
 
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.internal.EntityMap
+import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
 
 
 /**

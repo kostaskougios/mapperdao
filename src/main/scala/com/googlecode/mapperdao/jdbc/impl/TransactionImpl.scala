@@ -1,10 +1,11 @@
-package com.googlecode.mapperdao.jdbc
+package com.googlecode.mapperdao.jdbc.impl
 
 import org.springframework.transaction.support.TransactionTemplate
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.support.TransactionCallback
+import com.googlecode.mapperdao.jdbc.Transaction
 
 /**
  * manages transactions
@@ -19,15 +20,19 @@ import org.springframework.transaction.support.TransactionCallback
  *
  * @author kostantinos.kougios
  *
- * 29 Aug 2011
+ *         29 Aug 2011
  */
-final class TransactionImpl private[mapperdao] (transactionManager: PlatformTransactionManager, transactionDef: TransactionDefinition) extends Transaction {
+final class TransactionImpl private[mapperdao](transactionManager: PlatformTransactionManager, transactionDef: TransactionDefinition) extends Transaction
+{
 	private val tt = new TransactionTemplate(transactionManager, transactionDef)
 
-	def apply[V](f: () => V): V = tt.execute(new TransactionCallback[V] {
+	def apply[V](f: () => V): V = tt.execute(new TransactionCallback[V]
+	{
 		override def doInTransaction(status: TransactionStatus): V = f()
 	})
-	def apply[V](f: TransactionStatus => V): V = tt.execute(new TransactionCallback[V] {
+
+	def apply[V](f: TransactionStatus => V): V = tt.execute(new TransactionCallback[V]
+	{
 		override def doInTransaction(status: TransactionStatus): V = f(status)
 	})
 

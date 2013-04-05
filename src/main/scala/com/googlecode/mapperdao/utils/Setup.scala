@@ -3,11 +3,12 @@ package com.googlecode.mapperdao.utils
 import com.googlecode.mapperdao._
 import customization.{DefaultDatabaseToScalaTypes, CustomDatabaseToScalaTypes}
 import javax.sql.DataSource
-import com.googlecode.mapperdao.jdbc.{MapperDaoImpl, Transaction, Jdbc}
+import com.googlecode.mapperdao.jdbc.{Transaction, Jdbc}
 import org.springframework.transaction.PlatformTransactionManager
 import com.googlecode.mapperdao.drivers.Cache
 import org.joda.time.Chronology
 import org.joda.time.chrono.ISOChronology
+import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
 
 /**
  * a factory for simple configuration of mapperdao

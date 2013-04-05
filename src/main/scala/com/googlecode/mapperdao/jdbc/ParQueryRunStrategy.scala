@@ -3,6 +3,7 @@ package com.googlecode.mapperdao.jdbc
 import java.util.concurrent.ConcurrentHashMap
 import com.googlecode.mapperdao.internal.MultiThreadedQueryEntityMapImpl
 import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
 
 /**
  * runs queries using multiple threads via parallel scala collections

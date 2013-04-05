@@ -1,4 +1,4 @@
-package com.googlecode.mapperdao.jdbc
+package com.googlecode.mapperdao.jdbc.impl
 
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.exceptions._
@@ -19,6 +19,7 @@ import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
 import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
 import com.googlecode.mapperdao.plugins.SelectMod
+import com.googlecode.mapperdao.jdbc.CmdToDatabase
 
 /**
  * @author kostantinos.kougios

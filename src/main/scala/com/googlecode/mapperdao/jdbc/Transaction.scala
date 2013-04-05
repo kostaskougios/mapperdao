@@ -7,6 +7,7 @@ import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.TransactionStatus
 
 import javax.sql.DataSource
+import com.googlecode.mapperdao.jdbc.impl.TransactionImpl
 
 trait Transaction
 {
