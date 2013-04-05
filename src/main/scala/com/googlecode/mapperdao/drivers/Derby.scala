@@ -4,7 +4,7 @@ import com.googlecode.mapperdao.jdbc.Jdbc
 import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.jdbc.Batch
-import com.googlecode.mapperdao.schema.{SimpleColumn, ColumnBase}
+import com.googlecode.mapperdao.schema.{PK, SimpleColumn, ColumnBase}
 
 /**
  * @author kostantinos.kougios

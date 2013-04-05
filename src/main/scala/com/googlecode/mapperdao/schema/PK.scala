@@ -1,6 +1,6 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.schema
 
-import com.googlecode.mapperdao.schema.SimpleColumn
+import com.googlecode.mapperdao.{Persisted, Entity}
 
 case class PK(
 	entity: Entity[_, _ <: Persisted, _],

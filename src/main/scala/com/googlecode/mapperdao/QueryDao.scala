@@ -3,7 +3,7 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.jdbc.UpdateResult
 import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
-import com.googlecode.mapperdao.schema.{ManyToOne, ColumnInfoManyToOne, ColumnBase}
+import com.googlecode.mapperdao.schema.{LinkTable, ManyToOne, ColumnInfoManyToOne, ColumnBase}
 
 /**
  * querydao takes care of querying the database and fetching entities using

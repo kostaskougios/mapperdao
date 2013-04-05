@@ -1,5 +1,7 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.schema.Table
+
 /**
  * a Type holds type information for an entity
  *

@@ -1,5 +1,7 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.schema.Table
+
 /**
  * @author: kostas.kougios
  *          Date: 03/01/13

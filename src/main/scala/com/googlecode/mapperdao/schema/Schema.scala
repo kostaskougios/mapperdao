@@ -1,4 +1,4 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.schema
 
 /**
  * a database schema
