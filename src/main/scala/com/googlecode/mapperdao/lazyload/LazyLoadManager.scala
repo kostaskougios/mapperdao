@@ -1,4 +1,4 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.lazyload
 
 import java.lang.reflect.Method
 
@@ -11,6 +11,7 @@ import com.googlecode.classgenerator.MethodImplementation
 import com.googlecode.classgenerator.ReflectionManager
 import javassist._
 import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
+import com.googlecode.mapperdao._
 
 /**
  * manages lazy loading of classes

@@ -8,6 +8,7 @@ import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.mapperdao.CommonEntities.createProductAttribute
 import scala.collection.JavaConverters._
+import scala.Some
 
 /**
  * @author kkougios

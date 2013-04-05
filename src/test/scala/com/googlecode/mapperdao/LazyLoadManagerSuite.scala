@@ -6,6 +6,7 @@ import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
 import org.joda.time.chrono.ISOChronology
 import utils.Helpers
+import com.googlecode.mapperdao.lazyload.LazyLoadManager
 
 /**
  * @author kostantinos.kougios

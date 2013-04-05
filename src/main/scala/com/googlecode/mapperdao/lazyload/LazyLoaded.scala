@@ -1,4 +1,4 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.lazyload
 
 /**
  * this is mixed in all lazy loaded entities by LazyLoadManager

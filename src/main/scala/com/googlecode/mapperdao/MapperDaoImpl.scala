@@ -18,6 +18,7 @@ import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
 import com.googlecode.mapperdao.plugins.SelectMod
 import com.googlecode.mapperdao.internal.UpdateEntityMap
+import com.googlecode.mapperdao.lazyload.LazyLoadManager
 
 /**
  * @author kostantinos.kougios

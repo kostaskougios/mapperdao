@@ -1,9 +1,10 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.lazyload
 
 import com.googlecode.classgenerator.runtime.Args
 import LazyLoadManager._
 import com.googlecode.classgenerator._
 import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
+import com.googlecode.mapperdao.Persisted
 
 /**
  * implements lazy loaded methods

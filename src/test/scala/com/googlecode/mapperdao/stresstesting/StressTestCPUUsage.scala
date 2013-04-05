@@ -1,10 +1,7 @@
 package com.googlecode.mapperdao.stresstesting
 
-import com.googlecode.mapperdao.TypeRegistry
-import com.googlecode.mapperdao.CommonEntities
+import com.googlecode.mapperdao.{LazyLoad, TypeRegistry, CommonEntities, SelectConfig}
 import com.googlecode.mapperdao.jdbc.Setup
-import com.googlecode.mapperdao.SelectConfig
-import com.googlecode.mapperdao.LazyLoad
 import com.googlecode.mapperdao.ehcache.CacheUsingEHCache
 import com.googlecode.mapperdao.ehcache.Locking
 import net.sf.ehcache.CacheManager
