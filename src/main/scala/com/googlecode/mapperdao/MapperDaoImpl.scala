@@ -3,7 +3,7 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.exceptions._
 import com.googlecode.mapperdao.plugins._
-import com.googlecode.mapperdao.utils.Helpers
+import com.googlecode.mapperdao.utils.{UnlinkEntityRelationshipVisitor, Helpers}
 import com.googlecode.mapperdao.jdbc.CmdToDatabase
 import com.googlecode.mapperdao.state.persistcmds.CmdPhase
 import com.googlecode.mapperdao.state.recreation.MockFactory

@@ -1,4 +1,4 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.utils
 
 import java.util.IdentityHashMap
 import com.googlecode.mapperdao.schema._
@@ -6,6 +6,7 @@ import com.googlecode.mapperdao.schema.ColumnInfo
 import scala.Some
 import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
+import com.googlecode.mapperdao.{Persisted, Entity, ValuesMap}
 
 /**
  * @author kostantinos.kougios

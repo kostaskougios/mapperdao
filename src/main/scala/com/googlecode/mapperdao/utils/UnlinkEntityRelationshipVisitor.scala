@@ -1,10 +1,11 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.utils
 
 import com.googlecode.mapperdao.schema._
 import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
 import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
+import com.googlecode.mapperdao.Persisted
 
 /**
  * visits an entity and unlinks it from its linked-to-database state.
