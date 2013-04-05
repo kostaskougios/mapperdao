@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao.utils
 
 import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.lazyload.FreeLazyLoadedEntityVisitor
 
 /**
  * useful methods for real life applications that use

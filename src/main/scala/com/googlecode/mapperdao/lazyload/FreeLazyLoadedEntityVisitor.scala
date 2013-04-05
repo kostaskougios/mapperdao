@@ -1,4 +1,4 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.lazyload
 
 import com.googlecode.mapperdao.schema._
 import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
@@ -6,7 +6,6 @@ import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
 import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
 import com.googlecode.mapperdao.utils.EntityRelationshipVisitor
-import com.googlecode.mapperdao.lazyload.LazyLoaded
 
 /**
  * visits an entity and frees the memory allocated to allow mapperdao to lazy load

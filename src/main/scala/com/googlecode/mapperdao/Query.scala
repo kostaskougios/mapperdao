@@ -1,7 +1,9 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.schema.{ColumnInfoRelationshipBase, ColumnInfo}
-import com.googlecode.mapperdao.queries.{SqlRelatedImplicitConvertions, SqlOneToOneImplicitConvertions, SqlManyToOneImplicitConvertions, SqlImplicitConvertions}
+import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
+import com.googlecode.mapperdao.queries._
+import com.googlecode.mapperdao.schema.ColumnInfo
+import scala.Some
 
 
 /**

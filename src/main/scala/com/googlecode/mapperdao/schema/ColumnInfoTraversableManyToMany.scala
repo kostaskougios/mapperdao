@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao.schema
 
-import com.googlecode.mapperdao.GetterMethod
+import com.googlecode.mapperdao.internal.GetterMethod
 
 case class ColumnInfoTraversableManyToMany[T, FID, F](
 	column: ManyToMany[FID, F],

@@ -1,7 +1,8 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.jdbc
 
 import java.util.concurrent.ConcurrentHashMap
-import com.googlecode.mapperdao.jdbc.MapperDaoImpl
+import com.googlecode.mapperdao.internal.MultiThreadedQueryEntityMapImpl
+import com.googlecode.mapperdao._
 
 /**
  * runs queries using multiple threads via parallel scala collections

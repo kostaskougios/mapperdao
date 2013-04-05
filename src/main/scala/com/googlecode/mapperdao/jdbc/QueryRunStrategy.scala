@@ -1,6 +1,6 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.jdbc
 
-import com.googlecode.mapperdao.jdbc.MapperDaoImpl
+import com.googlecode.mapperdao.{DatabaseValues, QueryConfig, Persisted, Entity}
 
 /**
  * queries can run using different strategies, i.e. a multi-threaded strategy.

@@ -3,6 +3,7 @@ package com.googlecode.mapperdao.plugins
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.jdbc.MapperDaoImpl
+import com.googlecode.mapperdao.internal.EntityMap
 
 /**
  * @author kostantinos.kougios

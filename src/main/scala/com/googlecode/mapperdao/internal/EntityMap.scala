@@ -1,7 +1,8 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.internal
 
 import scala.collection.mutable.{HashMap => TMap}
 import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
+import com.googlecode.mapperdao.{DatabaseValues, Type, SelectConfig}
 
 /**
  * contains entities sorted via 2 keys: class and ids
@@ -62,7 +63,7 @@ private[mapperdao] case class EntityMap(
 	override def toString = "EntityMapImpl(%s)".format(m.toString())
 }
 
-protected case class SelectInfo[ID, T, V, FID, F](
+private[mapperdao] case class SelectInfo[ID, T, V, FID, F](
 	tpe: Type[ID, T],
 	ci: ColumnInfoRelationshipBase[T, V, FID, F],
 	databaseValues: DatabaseValues

@@ -1,6 +1,7 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.internal
 
 import java.util.concurrent.ConcurrentHashMap
+import com.googlecode.mapperdao.Persisted
 
 /**
  * @author kostantinos.kougios

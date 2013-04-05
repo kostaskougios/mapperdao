@@ -2,7 +2,7 @@ package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.schema.{SimpleColumn, ColumnBase}
-import com.googlecode.mapperdao.internal.UpdateEntityMap
+import com.googlecode.mapperdao.internal.{EntityMap, UpdateEntityMap}
 
 /**
  * plugins executed before the main entity is created, during select operations

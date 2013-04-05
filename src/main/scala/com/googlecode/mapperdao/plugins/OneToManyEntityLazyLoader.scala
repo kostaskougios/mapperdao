@@ -2,10 +2,10 @@ package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao.SelectConfig
 import com.googlecode.mapperdao.Entity
-import com.googlecode.mapperdao.EntityMap
 import com.googlecode.mapperdao.DatabaseValues
 import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
 import com.googlecode.mapperdao.jdbc.MapperDaoImpl
+import com.googlecode.mapperdao.internal.EntityMap
 
 /**
  * @author kostantinos.kougios

@@ -4,6 +4,7 @@ import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
 import com.googlecode.mapperdao.jdbc.MapperDaoImpl
+import com.googlecode.mapperdao.internal.{SelectInfo, EntityMap}
 
 /**
  * @author kostantinos.kougios

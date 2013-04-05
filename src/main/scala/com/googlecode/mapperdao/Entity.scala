@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao
 
-import internal.{LazyActions, Utils}
+import com.googlecode.mapperdao.internal.{GetterDefinition, LazyActions, Utils}
 import java.util.Calendar
 import java.util.Date
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter

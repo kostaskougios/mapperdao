@@ -1,4 +1,4 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.internal
 
 import java.lang.reflect.Method
 
@@ -9,4 +9,4 @@ import java.lang.reflect.Method
  *
  *         23 May 2012
  */
-protected case class GetterMethod(getterMethod: Method, fieldName: String, converter: Option[Any => Any])
+case class GetterMethod(getterMethod: Method, fieldName: String, converter: Option[Any => Any])
