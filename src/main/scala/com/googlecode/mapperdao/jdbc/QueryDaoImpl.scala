@@ -1,14 +1,27 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.jdbc
 
 import com.googlecode.mapperdao.exceptions.QueryException
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.schema._
+import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.OneToOneReverseOperation
 import scala.Some
+import com.googlecode.mapperdao.OrOp
 import com.googlecode.mapperdao.schema.OneToOneReverse
+import com.googlecode.mapperdao.OneToManyDeclaredPrimaryKeyOperation
+import com.googlecode.mapperdao.OneToOneOperation
 import com.googlecode.mapperdao.schema.OneToMany
 import com.googlecode.mapperdao.schema.ManyToOne
+import com.googlecode.mapperdao.CommaOp
 import com.googlecode.mapperdao.schema.OneToOne
-import com.googlecode.mapperdao.sqlfunction.{SqlFunctionBoolOp, SqlFunctionOp}
+import com.googlecode.mapperdao.ManyToManyOperation
+import com.googlecode.mapperdao.OneToManyOperation
+import com.googlecode.mapperdao.schema.ManyToMany
+import com.googlecode.mapperdao.sqlfunction.SqlFunctionOp
+import com.googlecode.mapperdao.Operation
+import com.googlecode.mapperdao.AndOp
+import com.googlecode.mapperdao.ManyToOneOperation
+import com.googlecode.mapperdao.sqlfunction.SqlFunctionBoolOp
 
 /**
  * the QueryDao implementation

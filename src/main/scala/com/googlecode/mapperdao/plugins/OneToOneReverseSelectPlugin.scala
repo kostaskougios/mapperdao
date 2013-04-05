@@ -3,6 +3,7 @@ package com.googlecode.mapperdao.plugins
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
+import com.googlecode.mapperdao.jdbc.MapperDaoImpl
 
 /**
  * @author kostantinos.kougios

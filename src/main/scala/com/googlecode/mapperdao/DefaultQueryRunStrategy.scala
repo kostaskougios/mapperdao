@@ -1,5 +1,7 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.jdbc.MapperDaoImpl
+
 
 /**
  * default, single-threaded, transaction safe query run strategy

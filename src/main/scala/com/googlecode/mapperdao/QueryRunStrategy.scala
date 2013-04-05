@@ -1,5 +1,7 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.jdbc.MapperDaoImpl
+
 /**
  * queries can run using different strategies, i.e. a multi-threaded strategy.
  *

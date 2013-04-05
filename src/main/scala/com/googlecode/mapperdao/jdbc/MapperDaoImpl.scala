@@ -1,24 +1,25 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.jdbc
 
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.exceptions._
 import com.googlecode.mapperdao.plugins._
 import com.googlecode.mapperdao.utils.{UnlinkEntityRelationshipVisitor, Helpers}
-import com.googlecode.mapperdao.jdbc.CmdToDatabase
 import com.googlecode.mapperdao.state.persistcmds.CmdPhase
 import com.googlecode.mapperdao.state.recreation.MockFactory
 import com.googlecode.mapperdao.state.recreation.RecreationPhase
 import com.googlecode.mapperdao.state.prioritise.PriorityPhase
-import state.enhancevm.EnhanceVMPhase
-import com.googlecode.mapperdao.schema._
+import com.googlecode.mapperdao.internal.UpdateEntityMap
+import com.googlecode.mapperdao.lazyload.LazyLoadManager
+import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.state.enhancevm.EnhanceVMPhase
 import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
 import scala.Some
 import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
+import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
+import com.googlecode.mapperdao.EntityMap
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
 import com.googlecode.mapperdao.plugins.SelectMod
-import com.googlecode.mapperdao.internal.UpdateEntityMap
-import com.googlecode.mapperdao.lazyload.LazyLoadManager
 
 /**
  * @author kostantinos.kougios

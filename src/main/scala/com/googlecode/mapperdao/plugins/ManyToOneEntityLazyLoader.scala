@@ -2,9 +2,9 @@ package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao.DatabaseValues
 import com.googlecode.mapperdao.EntityMap
-import com.googlecode.mapperdao.MapperDaoImpl
 import com.googlecode.mapperdao.SelectConfig
 import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
+import com.googlecode.mapperdao.jdbc.MapperDaoImpl
 
 /**
  * @author kostantinos.kougios
