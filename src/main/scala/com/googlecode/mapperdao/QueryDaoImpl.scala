@@ -8,6 +8,7 @@ import com.googlecode.mapperdao.schema.OneToOneReverse
 import com.googlecode.mapperdao.schema.OneToMany
 import com.googlecode.mapperdao.schema.ManyToOne
 import com.googlecode.mapperdao.schema.OneToOne
+import com.googlecode.mapperdao.sqlfunction.{SqlFunctionBoolOp, SqlFunctionOp}
 
 /**
  * the QueryDao implementation
@@ -338,7 +339,6 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		foreignEntity: Entity[FID, _, FT],
 		oneToOne: OneToOne[_, _]
 		) = {
-		val tpe = joinEntity.tpe
 		val foreignTpe = foreignEntity.tpe
 		val foreignTable = foreignTpe.table
 		val fAlias = aliases(foreignEntity)

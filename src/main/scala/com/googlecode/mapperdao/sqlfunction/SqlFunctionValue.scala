@@ -1,6 +1,9 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.sqlfunction
 
-import com.googlecode.mapperdao.schema.{ColumnInfoOneToOne, ColumnInfoManyToOne, ColumnInfo}
+import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.schema.ColumnInfo
+import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
+import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
 
 /**
  * @author kostantinos.kougios

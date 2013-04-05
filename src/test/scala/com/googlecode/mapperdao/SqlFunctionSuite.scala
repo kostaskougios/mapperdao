@@ -5,6 +5,7 @@ import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.jdbc.Setup
+import com.googlecode.mapperdao.sqlfunction.SqlFunction
 
 /**
  * @author kostantinos.kougios
