@@ -3,6 +3,7 @@ package com.googlecode.mapperdao.plugins
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.schema.{SimpleColumn, ColumnInfoTraversableManyToMany, ColumnBase}
+import com.googlecode.mapperdao.internal.UpdateEntityMap
 
 class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDaoImpl) extends BeforeDelete
 {

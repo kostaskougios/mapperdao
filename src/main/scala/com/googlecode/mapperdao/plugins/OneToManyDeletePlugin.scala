@@ -2,6 +2,7 @@ package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.schema.{SimpleColumn, ColumnInfoTraversableOneToMany, ColumnBase}
+import com.googlecode.mapperdao.internal.{UpdateInfo, UpdateEntityMap}
 
 class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl) extends BeforeDelete
 {

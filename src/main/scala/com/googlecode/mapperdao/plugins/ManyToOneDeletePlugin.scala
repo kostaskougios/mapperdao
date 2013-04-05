@@ -2,6 +2,7 @@ package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.schema.{ColumnInfoManyToOne, ColumnBase}
+import com.googlecode.mapperdao.internal.UpdateEntityMap
 
 class ManyToOneDeletePlugin extends BeforeDelete
 {

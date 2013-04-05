@@ -1,10 +1,11 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.internal
 
 import scala.collection.immutable.Stack
 import collection.mutable
 import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
+import com.googlecode.mapperdao.{Entity, Persisted}
 
-protected class UpdateEntityMap
+protected[mapperdao] class UpdateEntityMap
 {
 	private val m = new mutable.HashMap[Int, Any]
 	private var stack = Stack[UpdateInfo[_, _, _, _, _]]()
@@ -47,7 +48,7 @@ protected class UpdateEntityMap
 	}
 }
 
-protected case class UpdateInfo[PID, PT, V, FID, F](
+protected[mapperdao] case class UpdateInfo[PID, PT, V, FID, F](
 	o: PT,
 	ci: ColumnInfoRelationshipBase[PT, V, FID, F],
 	parentEntity: Entity[PID, Persisted, PT]
