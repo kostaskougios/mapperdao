@@ -10,7 +10,7 @@ import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
  *
  *         6 Sep 2012
  */
-protected case class SqlFunctionValue[R](name: String, values: List[Any])
+case class SqlFunctionValue[R](name: String, values: List[Any])
 {
 	def ===(v: SqlFunctionArg[R]) = new SqlFunctionOp(this, EQ, v.v)
 

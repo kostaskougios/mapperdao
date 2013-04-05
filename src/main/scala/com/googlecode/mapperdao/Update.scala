@@ -1,5 +1,7 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.queries.{SqlOneToOneImplicitConvertions, SqlManyToOneImplicitConvertions, SqlImplicitConvertions}
+
 
 /**
  * @author kostantinos.kougios

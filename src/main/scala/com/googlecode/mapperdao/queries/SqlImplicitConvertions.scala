@@ -1,10 +1,21 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.queries
 
 import org.joda.time._
 import com.googlecode.mapperdao.schema._
+import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.schema.ColumnInfo
+import com.googlecode.mapperdao.OneToOneReverseOperation
+import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
+import com.googlecode.mapperdao.ManyToManyOperation
+import com.googlecode.mapperdao.OneToManyOperation
 import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
+import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
+import com.googlecode.mapperdao.Operation
+import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
+import com.googlecode.mapperdao.ManyToOneOperation
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
+import com.googlecode.mapperdao.OneToManyDeclaredPrimaryKeyOperation
+import com.googlecode.mapperdao.OneToOneOperation
 
 /**
  * @author kostantinos.kougios

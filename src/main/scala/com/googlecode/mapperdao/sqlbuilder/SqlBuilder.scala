@@ -6,6 +6,7 @@ import com.googlecode.mapperdao.jdbc.Jdbc
 import com.googlecode.mapperdao.QueryDao
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.schema.{SimpleColumn, ColumnInfoOneToOne, ColumnInfoManyToOne, ColumnInfo}
+import com.googlecode.mapperdao.sqlfunction.SqlFunctionValue
 
 /**
  * builds queries, inserts, updates and deletes. This is a thread-safe factory, 1 instance can be reused
