@@ -2,7 +2,7 @@ package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
 import state.prioritise.Priority
-import com.googlecode.mapperdao.schema.ManyToMany
+import com.googlecode.mapperdao.schema.{Type, ManyToMany}
 
 /**
  * @author kostas.kougios

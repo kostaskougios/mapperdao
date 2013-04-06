@@ -1,5 +1,7 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.schema.Type
+
 
 /**
  * The MapperDao is the central trait that allows CRUD operations on entities.

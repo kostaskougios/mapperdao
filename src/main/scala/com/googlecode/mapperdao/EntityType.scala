@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.schema.Table
+import com.googlecode.mapperdao.schema.{Type, Table}
 
 /**
  * @author: kostas.kougios

@@ -2,7 +2,7 @@ package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
 import state.prioritise.Priority
-import com.googlecode.mapperdao.schema.SimpleColumn
+import com.googlecode.mapperdao.schema.{Type, SimpleColumn}
 
 /**
  * signals an update for an entity

@@ -2,6 +2,7 @@ package com.googlecode.mapperdao.state.recreation
 
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.plugins._
+import com.googlecode.mapperdao.schema.Type
 
 /**
  * @author kostantinos.kougios

@@ -1,6 +1,6 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.schema
 
-import com.googlecode.mapperdao.schema.Table
+import com.googlecode.mapperdao.{Persisted, ValuesMap}
 
 /**
  * a Type holds type information for an entity

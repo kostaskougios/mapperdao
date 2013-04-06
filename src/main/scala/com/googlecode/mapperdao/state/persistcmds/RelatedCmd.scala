@@ -2,7 +2,7 @@ package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
 import state.prioritise.Priority
-import com.googlecode.mapperdao.schema.ColumnBase
+import com.googlecode.mapperdao.schema.{Type, ColumnBase}
 
 /**
  * a command that signals that an entity is related to an other entity

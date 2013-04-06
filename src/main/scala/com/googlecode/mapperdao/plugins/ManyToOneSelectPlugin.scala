@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
+import com.googlecode.mapperdao.schema.{Type, ColumnInfoManyToOne}
 import com.googlecode.mapperdao.internal.EntityMap
 import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
 

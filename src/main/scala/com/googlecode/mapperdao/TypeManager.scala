@@ -2,7 +2,7 @@ package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.JdbcMap
 import drivers.Driver
-import com.googlecode.mapperdao.schema.SimpleColumn
+import com.googlecode.mapperdao.schema.{Type, SimpleColumn}
 
 /**
  * manages types

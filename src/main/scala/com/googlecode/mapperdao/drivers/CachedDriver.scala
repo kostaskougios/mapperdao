@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.drivers
 
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.schema.{SimpleColumn, ManyToMany}
+import com.googlecode.mapperdao.schema.{Type, SimpleColumn, ManyToMany}
 
 /**
  * mixin trait for a Driver that adds caching to Driver's operations.

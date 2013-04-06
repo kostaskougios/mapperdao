@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao.state.persistcmds
 
-import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.schema.Type
 
 /**
  * @author kostantinos.kougios

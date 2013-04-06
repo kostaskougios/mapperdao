@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.schema.{SimpleColumn, ColumnInfoTraversableOneToMany, ColumnBase}
+import com.googlecode.mapperdao.schema.{Type, SimpleColumn, ColumnInfoTraversableOneToMany, ColumnBase}
 import com.googlecode.mapperdao.internal.{UpdateInfo, UpdateEntityMap}
 import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
 

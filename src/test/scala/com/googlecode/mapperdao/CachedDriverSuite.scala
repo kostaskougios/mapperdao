@@ -10,7 +10,7 @@ import com.googlecode.mapperdao.drivers.CachedDriver
 import jdbc.{Batch, JdbcMap}
 import com.googlecode.mapperdao.drivers.EscapeNamesStrategy
 import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
-import com.googlecode.mapperdao.schema.{SimpleColumn, ManyToMany}
+import com.googlecode.mapperdao.schema.{Type, SimpleColumn, ManyToMany}
 
 /**
  * @author kostantinos.kougios

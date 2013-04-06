@@ -2,7 +2,7 @@ package com.googlecode.mapperdao.state.persistcmds
 
 import com.googlecode.mapperdao._
 import state.prioritise.Priority
-import com.googlecode.mapperdao.schema.ManyToMany
+import com.googlecode.mapperdao.schema.{Type, ManyToMany}
 
 /**
  * signals that there must be a link insert between 2 entities

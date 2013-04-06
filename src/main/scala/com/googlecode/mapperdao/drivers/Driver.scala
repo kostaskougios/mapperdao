@@ -3,10 +3,12 @@ package com.googlecode.mapperdao.drivers
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.jdbc.JdbcMap
 import com.googlecode.mapperdao.jdbc.Jdbc
-import com.googlecode.mapperdao.jdbc.UpdateResult
 import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 import com.googlecode.mapperdao.jdbc.Batch
-import com.googlecode.mapperdao.schema.{SimpleColumn, ManyToMany, OneToOneReverse, ColumnBase}
+import com.googlecode.mapperdao.schema._
+import com.googlecode.mapperdao.jdbc.UpdateResult
+import com.googlecode.mapperdao.schema.ManyToMany
+import com.googlecode.mapperdao.schema.OneToOneReverse
 
 /**
  * all database drivers must implement this trait

@@ -1,7 +1,5 @@
 package com.googlecode.mapperdao.schema
 
-import com.googlecode.mapperdao.TypeRef
-
 abstract class ColumnRelationshipBase[FID, F] extends ColumnBase
 {
 	def columns: List[Column]

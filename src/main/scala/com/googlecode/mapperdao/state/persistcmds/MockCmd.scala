@@ -1,7 +1,8 @@
 package com.googlecode.mapperdao.state.persistcmds
 
-import com.googlecode.mapperdao.{ValuesMap, Type}
+import com.googlecode.mapperdao.ValuesMap
 import com.googlecode.mapperdao.state.prioritise.Priority
+import com.googlecode.mapperdao.schema.Type
 
 /**
  * @author: kostas.kougios

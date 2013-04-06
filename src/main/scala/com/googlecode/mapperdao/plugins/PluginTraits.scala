@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.schema.{SimpleColumn, ColumnBase}
+import com.googlecode.mapperdao.schema.{Type, SimpleColumn, ColumnBase}
 import com.googlecode.mapperdao.internal.{EntityMap, UpdateEntityMap}
 
 /**

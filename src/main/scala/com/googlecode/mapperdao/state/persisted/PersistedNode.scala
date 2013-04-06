@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao.state.persisted
 
-import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.schema.Type
 
 /**
  * after persisting to the storage, all commands are converted to persisted allNodes
