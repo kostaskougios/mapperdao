@@ -18,7 +18,7 @@ class UseCaseGraphOfEntitiesSuite extends FunSuite with ShouldMatchers
 	import UseCaseGraphOfEntitiesSuite._
 
 	if (Setup.database == "postgresql") {
-		val (jdbc, mapperDao, _) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+		val (jdbc, mapperDao, _) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity, LogEntity))
 
 		test("insert") {
 			createTables()
