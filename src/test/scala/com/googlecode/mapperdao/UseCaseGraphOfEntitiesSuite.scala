@@ -18,7 +18,7 @@ class UseCaseGraphOfEntitiesSuite extends FunSuite with ShouldMatchers
 	import UseCaseGraphOfEntitiesSuite._
 
 	if (Setup.database == "postgresql") {
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+		val (jdbc, mapperDao, _) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
 		test("insert") {
 			createTables()
@@ -26,7 +26,8 @@ class UseCaseGraphOfEntitiesSuite extends FunSuite with ShouldMatchers
 				"p1", Set(
 					Attribute("a1", "v1",
 						Set(
-							Log("attr1 first insert"))
+							Log("attr1 first insert")
+						)
 					)),
 				Set(
 					Log("prod1 first insert")
@@ -36,6 +37,48 @@ class UseCaseGraphOfEntitiesSuite extends FunSuite with ShouldMatchers
 			i1 should be(p1)
 
 			mapperDao.select(ProductEntity, i1.id).get should be(i1)
+		}
+
+		test("insert batch") {
+			createTables()
+			val p1 = Product(
+				"p1", Set(
+					Attribute("a1", "v1",
+						Set(
+							Log("attr1 first insert")
+						)
+					)),
+				Set(
+					Log("prod1 first insert")
+				)
+			)
+
+			val p2 = Product(
+				"p2", Set(
+					Attribute("a2", "v2",
+						Set(
+							Log("attr2 first insert"),
+							Log("attr2 is now ready")
+						)
+					),
+					Attribute("a3", "v3",
+						Set(
+							Log("attr3 first insert"),
+							Log("attr3 is now ready")
+						)
+					)
+				),
+				Set(
+					Log("prod1 first insert")
+				)
+			)
+
+			val List(i1, i2) = mapperDao.insertBatch(ProductEntity, List(p1, p2))
+			i1 should be(p1)
+			i2 should be(p2)
+
+			mapperDao.select(ProductEntity, i1.id).get should be(i1)
+			mapperDao.select(ProductEntity, i2.id).get should be(i2)
 		}
 
 		def createTables() {
