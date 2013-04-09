@@ -22,7 +22,7 @@ class UseCaseGraphOfEntitiesSuite extends FunSuite with ShouldMatchers
 
 		test("insert") {
 			createTables()
-			mapperDao.insert(ProductEntity, Product(
+			val p1 = Product(
 				"p1", Set(
 					Attribute("a1", "v1",
 						Set(
@@ -32,7 +32,10 @@ class UseCaseGraphOfEntitiesSuite extends FunSuite with ShouldMatchers
 					Log("prod1 first insert")
 				)
 			)
-			)
+			val i1 = mapperDao.insert(ProductEntity, p1)
+			i1 should be(p1)
+
+			mapperDao.select(ProductEntity, i1.id).get should be(i1)
 		}
 
 		def createTables() {
