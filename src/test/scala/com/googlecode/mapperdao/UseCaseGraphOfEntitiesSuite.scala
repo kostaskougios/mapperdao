@@ -63,7 +63,7 @@ class UseCaseGraphOfEntitiesSuite extends FunSuite with ShouldMatchers
 
 		test("insert, shared pre-inserted log") {
 			createTables()
-			val l1 = Log("common log entry")
+			val l1 = mapperDao.insert(LogEntity, Log("common log entry"))
 			val p1 = Product("p1", Set(
 				Attribute("a1", "v1", Set(l1)),
 				Attribute("a2", "v2", Set(l1))
@@ -76,8 +76,8 @@ class UseCaseGraphOfEntitiesSuite extends FunSuite with ShouldMatchers
 
 		test("insert, shared 2 pre-inserted log") {
 			createTables()
-			val l1 = Log("Log 1")
-			val l2 = Log("Log 2")
+			val l1 = mapperDao.insert(LogEntity, Log("Log 1"))
+			val l2 = mapperDao.insert(LogEntity, Log("Log 2"))
 
 			val p1 = Product("p1", Set(
 				Attribute("a1", "v1", Set(l1)),
