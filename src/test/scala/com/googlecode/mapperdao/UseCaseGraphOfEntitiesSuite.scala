@@ -39,6 +39,28 @@ class UseCaseGraphOfEntitiesSuite extends FunSuite with ShouldMatchers
 			mapperDao.select(ProductEntity, i1.id).get should be(i1)
 		}
 
+		test("update") {
+			createTables()
+			val p1 = Product(
+				"p1", Set(
+					Attribute("a1", "v1",
+						Set(
+							Log("attr1 first insert")
+						)
+					)),
+				Set(
+					Log("prod1 first insert")
+				)
+			)
+			val i1 = mapperDao.insert(ProductEntity, p1)
+			val up1 = p1.copy(logs = p1.logs + Log("prod1 updated"))
+			val u1 = mapperDao.update(ProductEntity, i1, up1)
+			u1 should be(up1)
+
+			mapperDao.select(ProductEntity, i1.id).get should be(u1)
+		}
+
+
 		test("insert, shared pre-inserted log") {
 			createTables()
 			val l1 = Log("common log entry")
