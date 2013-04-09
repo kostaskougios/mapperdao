@@ -102,7 +102,7 @@ class UseCaseGraphOfEntitiesSuite extends FunSuite with ShouldMatchers
 			), Set(l1))
 			val List(i1, i2) = mapperDao.insertBatch(ProductEntity, List(p1, p2))
 
-			val up1 = i1.copy(name = "p1updated", logs = i1.logs + Log("updated just now"))
+			val up1 = i1.copy(name = "p1updated", logs = i1.logs + Log("updated just now"), attributes = i1.attributes - i1.attributes.head)
 			val u1 = mapperDao.update(ProductEntity, i1, up1)
 			u1 should be(up1)
 
