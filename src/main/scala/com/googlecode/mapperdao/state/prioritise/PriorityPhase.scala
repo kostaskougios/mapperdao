@@ -28,6 +28,7 @@ class PriorityPhase(updateConfig: UpdateConfig)
 		val groupedByPriority = cmds.groupBy(_.priority)
 		val high = groupedByPriority.getOrElse(Priority.High, Nil)
 		val low = groupedByPriority.getOrElse(Priority.Low, Nil)
+		val lowest = groupedByPriority.getOrElse(Priority.Lowest, Nil)
 		val related = groupedByPriority.getOrElse(Priority.Related, Nil).collect {
 			case r: RelatedCmd => r
 		}
@@ -58,7 +59,7 @@ class PriorityPhase(updateConfig: UpdateConfig)
 				deleteGroupped(e)
 		}
 
-		Prioritized(d ::: h, low, related, dependent)
+		Prioritized(d ::: h, low, lowest, related, dependent)
 	}
 
 	def prioritiseType(tpe: Type[_, _]): List[Type[_, _]] =

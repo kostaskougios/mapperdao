@@ -15,7 +15,7 @@ import org.scalatest.matchers.ShouldMatchers
 class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite with ShouldMatchers
 {
 
-	import IntermediateImmutableEntityWithStringFKsSpec._
+	import IntermediateImmutableEntityWithStringFKsSuite._
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(EmployeeEntity, WorkedAtEntity, CompanyEntity))
 
@@ -179,7 +179,7 @@ class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite with Should
 	}
 }
 
-object IntermediateImmutableEntityWithStringFKsSpec
+object IntermediateImmutableEntityWithStringFKsSuite
 {
 
 	abstract case class Employee(no: String)

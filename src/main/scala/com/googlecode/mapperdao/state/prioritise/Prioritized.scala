@@ -15,6 +15,7 @@ import com.googlecode.mapperdao.schema.{OneToOneReverse, OneToOne, ManyToOne, On
 case class Prioritized(
 	high: List[List[PersistCmd]],
 	low: List[PersistCmd],
+	lowest: List[PersistCmd],
 	related: List[RelatedCmd],
 	dependent: List[DependsCmd]
 	)

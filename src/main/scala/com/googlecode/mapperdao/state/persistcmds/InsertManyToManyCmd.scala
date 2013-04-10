@@ -18,5 +18,5 @@ case class InsertManyToManyCmd[ID, T, FID, FT](
 	foreignEntityVM: ValuesMap
 	) extends PersistCmd
 {
-	def priority = Priority.Low
+	def priority = Priority.Lowest
 }

@@ -80,6 +80,7 @@ class CmdToDatabase(
 		}
 
 		persist(cmdList, 0)
+		persist(List(prioritized.lowest), 0)
 
 		cmdList.map {
 			cmds =>

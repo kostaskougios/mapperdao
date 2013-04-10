@@ -13,6 +13,8 @@ object Priority
 
 	object Low extends Priority
 
+	object Lowest extends Priority
+
 	object Related extends Priority
 
 	object Dependant extends Priority
