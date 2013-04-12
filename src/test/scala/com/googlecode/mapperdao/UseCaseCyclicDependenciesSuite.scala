@@ -108,7 +108,6 @@ class UseCaseCyclicDependenciesSuite extends FunSuite with ShouldMatchers
 			val loaded = commuteDao.retrieve(commute.id).get
 			loaded should be(commute)
 
-			mapperDao.link()
 			val up1 = loaded.copy(
 				people = loaded.people.copy(drivers = loaded.people.drivers + BusDriver("driver2"))
 			)
