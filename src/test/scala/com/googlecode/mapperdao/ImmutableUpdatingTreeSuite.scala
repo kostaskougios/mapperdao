@@ -6,7 +6,6 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.mapperdao.CommonEntities._
-import com.googlecode.mapperdao.utils.Helpers
 
 /**
  * updating a tree of immutable entities is tough. this suite deals with this issue
@@ -32,10 +31,11 @@ class ImmutableUpdatingTreeSuite extends FunSuite with ShouldMatchers
 
 		val a2i = i1.attributes.find(_.name == "a2").get
 
-		val a2Updated = new Attribute("a2 updated", "v2 updated") with SurrogateIntId
-		{
-			val id = Helpers.intIdOf(a2i)
-		}
+		val a2Updated = new Attribute("a2 updated", "v2 updated")
+		//			with SurrogateIntId
+		//		{
+		//			val id = Helpers.intIdOf(a2i)
+		//		}
 
 		val p1UpdatedAttributes = i1.attributes - a2 + a2Updated
 		val up1 = i1.copy(name = "p1 updated", attributes = p1UpdatedAttributes)

@@ -36,7 +36,7 @@ object CommonEntities
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) getter ("attributes") to (_.attributes)
 
-		def constructor(implicit m) = new Product(name, attributes) with Stored
+		def constructor(implicit m: ValuesMap) = new Product(name, attributes) with Stored
 		{
 			val id: Int = ProductEntity.id
 		}
@@ -52,7 +52,7 @@ object CommonEntities
 		val value = column("value") to (_.value)
 		val product = manytomanyreverse(ProductEntity) forQueryOnly() to (p => Nil)
 
-		def constructor(implicit m) = new Attribute(name, value) with Stored
+		def constructor(implicit m: ValuesMap) = new Attribute(name, value) with Stored
 		{
 			val id: Int = AttributeEntity.id
 		}
