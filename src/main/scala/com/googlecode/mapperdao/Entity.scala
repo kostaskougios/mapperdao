@@ -400,9 +400,9 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 * or, to override the default naming convention
 	 * val attributes=manytomany(AttributeEntity) join("Product_To_Attributes","p_id","a_id") to (_.attributes)
 	 */
-	def manytomany[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new ManyToManyBuilder(referenced, false)
+	def manytomany[FID, FT](referenced: EntityBase[FID, FT]) = new ManyToManyBuilder(referenced, false)
 
-	def manytomanyreverse[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new ManyToManyBuilder(referenced, true)
+	def manytomanyreverse[FID, FT](referenced: EntityBase[FID, FT]) = new ManyToManyBuilder(referenced, true)
 
 	protected class ManyToManyBuilder[FID, FT](referenced: EntityBase[FID, FT], reverse: Boolean)
 		extends GetterDefinition with OnlyForQueryDefinition
@@ -507,7 +507,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 * or
 	 * val inventory=onetoone(InventoryEntity) option (_.inventory)
 	 */
-	def onetoone[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new OneToOneBuilder(referenced)
+	def onetoone[FID, FT](referenced: EntityBase[FID, FT]) = new OneToOneBuilder(referenced)
 
 	protected class OneToOneBuilder[FID, FT](referenced: EntityBase[FID, FT])
 		extends OnlyForQueryDefinition
@@ -546,7 +546,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 * one-to-one reverse, i.e.
 	 * val product=onetoonereverse(ProductEntity) to (_.product)
 	 */
-	def onetoonereverse[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new OneToOneReverseBuilder(referenced)
+	def onetoonereverse[FID, FT](referenced: EntityBase[FID, FT]) = new OneToOneReverseBuilder(referenced)
 
 	protected class OneToOneReverseBuilder[FID, FT](referenced: EntityBase[FID, FT])
 		extends GetterDefinition
@@ -585,7 +585,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 *
 	 * val houses=onetomany(HouseEntity) to (_.houses)
 	 */
-	def onetomany[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new OneToManyBuilder(referenced)
+	def onetomany[FID, FT](referenced: EntityBase[FID, FT]) = new OneToManyBuilder(referenced)
 
 	protected class OneToManyBuilder[FID, FT](referenced: EntityBase[FID, FT])
 		extends GetterDefinition
@@ -658,7 +658,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 *
 	 * val person=manytoone(PersonEntity) to (_.person)
 	 */
-	def manytoone[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new ManyToOneBuilder(referenced)
+	def manytoone[FID, FT](referenced: EntityBase[FID, FT]) = new ManyToOneBuilder(referenced)
 
 	protected class ManyToOneBuilder[FID, FT](referenced: EntityBase[FID, FT])
 		extends GetterDefinition
