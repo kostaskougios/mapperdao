@@ -51,7 +51,7 @@ import com.googlecode.mapperdao.schema.ColumnInfo
  *
  *         13 Aug 2011
  */
-abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class[T])
+abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class[T]) extends EntityBase[ID, T]
 {
 	/**
 	 * example:
@@ -80,9 +80,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 */
 	def constructor(implicit m: ValuesMap): T with Stored
 
-	def constructor(implicit data: Option[_], m: ValuesMap): T with PC = constructor(m)
-
-	protected val tableLower = table.toLowerCase
+	def constructor(implicit data: Option[_], m: ValuesMap): T with Stored = constructor(m)
 
 	private[mapperdao] def init() {}
 
@@ -90,7 +88,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	private var columns = List[ColumnInfoBase[T, _]]()
 	private[mapperdao] var onlyForQueryColumns = List[ColumnInfoBase[T, _]]()
 	private val unusedPKs = new LazyActions[ColumnInfoBase[Any, Any]]
-	protected[mapperdao] lazy val tpe = {
+	private[mapperdao] lazy val tpe = {
 		val con: (Option[_], ValuesMap) => T with Persisted = (d, m) => {
 			// construct the object
 			val o = constructor(d, m)

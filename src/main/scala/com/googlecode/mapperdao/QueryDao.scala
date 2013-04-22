@@ -196,7 +196,7 @@ object QueryDao
 			v
 		}
 
-		def apply[ID, T](entity: Entity[ID, _, T]): String = {
+		def apply[ID, T](entity: EntityBase[ID, T]): String = {
 			val v = aliases.get(entity)
 			val r = if (v != null) v
 			else {

@@ -1,8 +1,6 @@
 package com.googlecode.mapperdao.plugins
 
-import com.googlecode.mapperdao.SelectConfig
-import com.googlecode.mapperdao.Entity
-import com.googlecode.mapperdao.DatabaseValues
+import com.googlecode.mapperdao.{EntityBase, SelectConfig, DatabaseValues}
 import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
 import com.googlecode.mapperdao.internal.EntityMap
 import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
@@ -15,7 +13,7 @@ import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
 class OneToManyEntityLazyLoader[ID, T, FID, F](
 	mapperDao: MapperDaoImpl,
 	selectConfig: SelectConfig,
-	entity: Entity[ID, _, T],
+	entity: EntityBase[ID, T],
 	down: EntityMap,
 	om: DatabaseValues,
 	ci: ColumnInfoTraversableOneToMany[ID, T, FID, F]

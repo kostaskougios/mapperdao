@@ -13,7 +13,7 @@ import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
 class OneToOneReverseEntityLazyLoader[ID, T, FID, F](
 	selectConfig: SelectConfig,
 	mapperDao: MapperDaoImpl,
-	entity: Entity[ID, _, T],
+	entity: EntityBase[ID, T],
 	om: DatabaseValues,
 	down: EntityMap,
 	ci: ColumnInfoOneToOneReverse[T, FID, F]

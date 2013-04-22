@@ -22,7 +22,7 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 		) = Nil
 
 	override def before[ID, T](
-		entity: Entity[ID, Persisted, T],
+		entity: EntityBase[ID, T],
 		selectConfig: SelectConfig,
 		om: DatabaseValues,
 		entities: EntityMap
