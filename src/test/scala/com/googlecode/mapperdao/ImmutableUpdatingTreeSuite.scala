@@ -30,21 +30,16 @@ class ImmutableUpdatingTreeSuite extends FunSuite with ShouldMatchers
 		val List(i1, i2) = mapperDao.insertBatch(ProductEntity, List(p1, p2))
 
 		val a2i = i1.attributes.find(_.name == "a2").get
+		val a2Updated = replace(a2i, Attribute("a2 updated", "v2 updated"))
 
-		val a2Updated = new Attribute("a2 updated", "v2 updated")
-		//			with SurrogateIntId
-		//		{
-		//			val id = Helpers.intIdOf(a2i)
-		//		}
-
-		val p1UpdatedAttributes = i1.attributes - a2 + a2Updated
-		val up1 = i1.copy(name = "p1 updated", attributes = p1UpdatedAttributes)
+		val uAttrs = i1.attributes - a2 + a2Updated
+		val up1 = i1.copy(name = "p1 updated", attributes = uAttrs)
 		val u1 = mapperDao.update(ProductEntity, i1, up1)
 		u1 should be(up1)
 
 		mapperDao.select(ProductEntity, u1.id).get should be(u1)
+		// a2 must have been updated
 		mapperDao.select(ProductEntity, i2.id).get should be(i2.copy(attributes = Set(a2Updated, a3)))
 
 	}
-
 }

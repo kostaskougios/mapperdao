@@ -17,4 +17,15 @@ trait Persisted
 	// after an orm operation, an object must be discarded. This guards the rule.
 	@transient
 	private[mapperdao] var mapperDaoDiscarded = false
+
+	@transient
+	private var mapperDaoReplacedBy: Option[Any] = None
+
+	private[mapperdao] def mapperDaoReplaced_=(v: Any) {
+		if (v == null) throw new NullPointerException("can't replace entity with null")
+		if (mapperDaoReplacedBy.isDefined) throw new IllegalStateException("entity was already replaced by " + mapperDaoReplacedBy)
+		mapperDaoReplacedBy = Some(v)
+	}
+
+	private[mapperdao] def mapperDaoReplaced = mapperDaoReplacedBy
 }
