@@ -47,7 +47,7 @@ class UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite extends FunSuite with 
 			createTables()
 			val l1 = mapperDao.insert(TagEntity, Tag("laptop", Product("lapt100", "SuperFast 1000")))
 			val l2 = mapperDao.insert(TagEntity, Tag("laptop", Product("lapt101", "SlowAsHell 2000")))
-			val nt1 = mapperDao.insert(TagEntity, Tag("nettop", Product("nettp1", "Nettop 1200")))
+			mapperDao.insert(TagEntity, Tag("nettop", Product("nettp1", "Nettop 1200")))
 
 			import Query._
 			(
