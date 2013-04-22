@@ -87,7 +87,7 @@ class TraversableSeparationSuite extends FunSuite with ShouldMatchers
 		def constructor(implicit m) = new X(id) with Stored
 	}
 
-	val stringEntity = StringEntity.oneToMany("", "", "")
+	val stringEntity = StringEntity.oneToMany("", "")
 
 	def swith(s: String) = new StringValue(s) with NoId
 }
