@@ -40,13 +40,13 @@ class EntityRelationshipVisitorSuite extends FunSuite with ShouldMatchers
 
 		override def simple[T](ci: ColumnInfo[T, _], v: Any): Any = v
 
-		override def createR(collected: List[(ColumnInfoBase[Any, _], Any)], entity: Entity[_, _, _], o: Any) = {
+		override def createR(collected: List[(ColumnInfoBase[Any, _], Any)], entity: EntityBase[_, _], o: Any) = {
 			val m = collected.map {
 				case (ci, v) =>
 					(ci.column.alias, v)
 			}.toMap
 			val vm = ValuesMap.fromMap(System.identityHashCode(o), m)
-			entity.constructor(vm)
+			entity.asInstanceOf[Entity[_, _, _]].constructor(vm)
 		}
 	}
 

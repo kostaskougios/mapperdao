@@ -1,9 +1,9 @@
 package com.googlecode.mapperdao.schema
 
-import com.googlecode.mapperdao.{Persisted, Entity}
+import com.googlecode.mapperdao.EntityBase
 
 case class OneToMany[FID, F](
-	entity: Entity[_, _ <: Persisted, _],
+	entity: EntityBase[_, _],
 	foreign: TypeRef[FID, F],
 	foreignColumns: List[Column]
 	) extends ColumnRelationshipBase[FID, F]

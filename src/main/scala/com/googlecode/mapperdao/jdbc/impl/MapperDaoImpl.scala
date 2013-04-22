@@ -167,7 +167,7 @@ protected final class MapperDaoImpl(
 	}
 
 	private[mapperdao] def selectInner[ID, T](
-		entity: Entity[ID, Persisted, T],
+		entity: EntityBase[ID, T],
 		selectConfig: SelectConfig,
 		ids: List[Any],
 		entities: EntityMap
@@ -223,7 +223,7 @@ protected final class MapperDaoImpl(
 
 	private[mapperdao] def toEntities[ID, T](
 		lm: List[DatabaseValues],
-		entity: Entity[ID, Persisted, T],
+		entity: EntityBase[ID, T],
 		selectConfig: SelectConfig,
 		entities: EntityMap
 		): List[T with Persisted] = {
@@ -270,7 +270,7 @@ protected final class MapperDaoImpl(
 	}
 
 	private def lazyLoadEntity[ID, T](
-		entity: Entity[ID, _, T],
+		entity: EntityBase[ID, T],
 		selectConfig: SelectConfig,
 		vm: ValuesMap
 		) = {

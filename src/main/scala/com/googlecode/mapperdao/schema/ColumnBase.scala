@@ -1,12 +1,12 @@
 package com.googlecode.mapperdao.schema
 
-import com.googlecode.mapperdao.Entity
+import com.googlecode.mapperdao.EntityBase
 
 abstract class ColumnBase
 {
 	def alias: String
 
-	def entity: Entity[_, _, _]
+	def entity: EntityBase[_, _]
 
 	val aliasLowerCase = alias.toLowerCase
 }

@@ -368,8 +368,8 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	// creates the join for many-to-one
 	private def manyToOneJoin[JID, JT, FID, FT](
 		aliases: QueryDao.Aliases,
-		joinEntity: Entity[JID, _, JT],
-		foreignEntity: Entity[FID, _, FT],
+		joinEntity: EntityBase[JID, JT],
+		foreignEntity: EntityBase[FID, FT],
 		manyToOne: ManyToOne[_, _]
 		) = {
 		val foreignTable = foreignEntity.tpe.table
@@ -387,8 +387,8 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	// creates the join for one-to-many
 	private def oneToManyJoin[JID, JT, FID, FT](
 		aliases: QueryDao.Aliases,
-		joinEntity: Entity[JID, _, JT],
-		foreignEntity: Entity[FID, _, FT],
+		joinEntity: EntityBase[JID, JT],
+		foreignEntity: EntityBase[FID, FT],
 		oneToMany: OneToMany[_, _]
 		) = {
 		val joinTpe = joinEntity.tpe
@@ -408,8 +408,8 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	// creates the join for one-to-many
 	private def manyToManyJoin[JID, JT, FID, FT](
 		aliases: QueryDao.Aliases,
-		joinEntity: Entity[JID, _, JT],
-		foreignEntity: Entity[FID, _, FT],
+		joinEntity: EntityBase[JID, JT],
+		foreignEntity: EntityBase[FID, FT],
 		manyToMany: ManyToMany[_, _]
 		): List[driver.sqlBuilder.InnerJoinBuilder] = {
 		val joinTpe = joinEntity.tpe

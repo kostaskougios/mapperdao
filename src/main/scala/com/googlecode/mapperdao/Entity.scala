@@ -51,7 +51,7 @@ import com.googlecode.mapperdao.schema.ColumnInfo
  *
  *         13 Aug 2011
  */
-abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class[T])
+abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class[T]) extends EntityBase[ID, T]
 {
 	/**
 	 * example:
@@ -80,9 +80,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 */
 	def constructor(implicit m: ValuesMap): T with Stored
 
-	def constructor(implicit data: Option[_], m: ValuesMap): T with PC = constructor(m)
-
-	protected val tableLower = table.toLowerCase
+	def constructor(implicit data: Option[_], m: ValuesMap): T with Stored = constructor(m)
 
 	private[mapperdao] def init() {}
 
@@ -90,7 +88,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	private var columns = List[ColumnInfoBase[T, _]]()
 	private[mapperdao] var onlyForQueryColumns = List[ColumnInfoBase[T, _]]()
 	private val unusedPKs = new LazyActions[ColumnInfoBase[Any, Any]]
-	protected[mapperdao] lazy val tpe = {
+	private[mapperdao] lazy val tpe = {
 		val con: (Option[_], ValuesMap) => T with Persisted = (d, m) => {
 			// construct the object
 			val o = constructor(d, m)
@@ -110,7 +108,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 
 	override def toString = "%s(%s,%s)".format(getClass.getSimpleName, table, clz.getName)
 
-	private def keysDuringDeclaration = persistedColumns.collect {
+	private[mapperdao] override def keysDuringDeclaration = persistedColumns.collect {
 		case ColumnInfo(pk: PK, _, _) => pk
 	} ::: columns.collect {
 		case ColumnInfo(pk: PK, _, _) => pk
@@ -406,7 +404,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 
 	def manytomanyreverse[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new ManyToManyBuilder(referenced, true)
 
-	protected class ManyToManyBuilder[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT], reverse: Boolean)
+	protected class ManyToManyBuilder[FID, FT](referenced: EntityBase[FID, FT], reverse: Boolean)
 		extends GetterDefinition with OnlyForQueryDefinition
 	{
 		val clz = Entity.this.clz
@@ -511,7 +509,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 */
 	def onetoone[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new OneToOneBuilder(referenced)
 
-	protected class OneToOneBuilder[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT])
+	protected class OneToOneBuilder[FID, FT](referenced: EntityBase[FID, FT])
 		extends OnlyForQueryDefinition
 	{
 		private var cols = referenced.keysDuringDeclaration.map {
@@ -550,7 +548,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 */
 	def onetoonereverse[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new OneToOneReverseBuilder(referenced)
 
-	protected class OneToOneReverseBuilder[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT])
+	protected class OneToOneReverseBuilder[FID, FT](referenced: EntityBase[FID, FT])
 		extends GetterDefinition
 		with OnlyForQueryDefinition
 	{
@@ -589,7 +587,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 */
 	def onetomany[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new OneToManyBuilder(referenced)
 
-	protected class OneToManyBuilder[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT])
+	protected class OneToManyBuilder[FID, FT](referenced: EntityBase[FID, FT])
 		extends GetterDefinition
 		with OnlyForQueryDefinition
 	{
@@ -608,7 +606,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 		}
 
 		def to(columnToValue: T => Traversable[FT]): ColumnInfoTraversableOneToMany[ID, T, FID, FT] = {
-			if (keysDuringDeclaration.size != fkcols.size) throw new IllegalArgumentException("foreign keys declaration not correct, foreign keys %s , declared %s".format(referenced.keysDuringDeclaration, fkcols))
+			if (keysDuringDeclaration.size != fkcols.size) throw new IllegalArgumentException("foreign keys declaration not correct, foreign entity %s , declared %s".format(referenced, fkcols))
 			val fkeys = keysDuringDeclaration zip fkcols
 			val ci = ColumnInfoTraversableOneToMany[ID, T, FID, FT](
 				OneToMany(
@@ -662,7 +660,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 */
 	def manytoone[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT]) = new ManyToOneBuilder(referenced)
 
-	protected class ManyToOneBuilder[FID, FPC <: Persisted, FT](referenced: Entity[FID, FPC, FT])
+	protected class ManyToOneBuilder[FID, FT](referenced: EntityBase[FID, FT])
 		extends GetterDefinition
 		with OnlyForQueryDefinition
 	{

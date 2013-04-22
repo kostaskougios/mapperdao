@@ -15,8 +15,8 @@ import org.scalatest.matchers.ShouldMatchers
 class OneToManySimpleTypesSuite extends FunSuite with ShouldMatchers
 {
 
-	import OneToManySimpleTypesSpecString._
-	import OneToManySimpleTypesSpecInt._
+	import OneToManySimpleTypesSuiteString._
+	import OneToManySimpleTypesSuiteInt._
 
 	val typeRegistry = TypeRegistry(ProductEntity, ProductEntityI)
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(typeRegistry)
@@ -87,12 +87,12 @@ class OneToManySimpleTypesSuite extends FunSuite with ShouldMatchers
 	}
 }
 
-object OneToManySimpleTypesSpecString
+object OneToManySimpleTypesSuiteString
 {
 
 	case class Product(name: String, tags: Set[String])
 
-	val TagsEntity = StringEntity.oneToMany("ProductTags", "product_id", "tag")
+	val TagsEntity = StringEntity.oneToMany("ProductTags", "tag")
 
 	object ProductEntity extends Entity[Int, SurrogateIntId, Product]
 	{
@@ -123,12 +123,12 @@ object OneToManySimpleTypesSpecString
 		)
 }
 
-object OneToManySimpleTypesSpecInt
+object OneToManySimpleTypesSuiteInt
 {
 
 	case class ProductI(name: String, tags: Set[Int])
 
-	val TagsEntityI = IntEntity.oneToMany("ProductTagsI", "producti_id", "intTag")
+	val TagsEntityI = IntEntity.oneToMany("ProductTagsI", "intTag")
 
 	object ProductEntityI extends Entity[Int, SurrogateIntId, ProductI]
 	{

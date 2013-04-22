@@ -16,8 +16,6 @@ import com.googlecode.mapperdao.utils.Helpers
 class UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite extends FunSuite with ShouldMatchers
 {
 
-	import UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite._
-
 	if (Setup.database == "h2") {
 		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(TagEntity, SimpleProductEntity))
 
@@ -47,7 +45,7 @@ class UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite extends FunSuite with 
 			createTables()
 			val l1 = mapperDao.insert(TagEntity, Tag("laptop", Product("lapt100", "SuperFast 1000")))
 			val l2 = mapperDao.insert(TagEntity, Tag("laptop", Product("lapt101", "SlowAsHell 2000")))
-			val nt1 = mapperDao.insert(TagEntity, Tag("nettop", Product("nettp1", "Nettop 1200")))
+			mapperDao.insert(TagEntity, Tag("nettop", Product("nettp1", "Nettop 1200")))
 
 			import Query._
 			(
@@ -68,10 +66,6 @@ class UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite extends FunSuite with 
 			Setup.queries(this, jdbc).update("ddl")
 		}
 	}
-}
-
-object UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite
-{
 
 	case class Tag(tag: String, product: Product)
 

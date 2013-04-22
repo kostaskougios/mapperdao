@@ -1,8 +1,8 @@
 package com.googlecode.mapperdao.schema
 
-import com.googlecode.mapperdao.{Persisted, Entity}
+import com.googlecode.mapperdao.EntityBase
 
 case class TypeRef[FID, F](
 	alias: String,
-	entity: Entity[FID, Persisted, F]
+	entity: EntityBase[FID, F]
 	)

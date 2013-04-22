@@ -12,7 +12,7 @@ import com.googlecode.mapperdao._
  */
 protected[mapperdao] object TraversableSeparation
 {
-	def separate[ID, T](entity: Entity[ID, Persisted, T], oldT: Traversable[T], newT: Traversable[T]) = {
+	def separate[ID, T](entity: EntityBase[ID, T], oldT: Traversable[T], newT: Traversable[T]) = {
 		if (oldT.isEmpty)
 			(newT, Nil, Nil)
 		else if (newT.isEmpty)

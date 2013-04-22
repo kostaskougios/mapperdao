@@ -13,7 +13,7 @@ import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
 class ManyToManyEntityLazyLoader[ID, T, FID, F](
 	mapperDao: MapperDaoImpl,
 	selectConfig: SelectConfig,
-	entity: Entity[ID, _, T],
+	entity: EntityBase[ID, T],
 	entityMap: EntityMap,
 	om: DatabaseValues,
 	ci: ColumnInfoTraversableManyToMany[T, FID, F]
