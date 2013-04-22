@@ -407,6 +407,8 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	protected class ManyToManyBuilder[FID, FT](referenced: EntityBase[FID, FT], reverse: Boolean)
 		extends GetterDefinition with OnlyForQueryDefinition
 	{
+		if (referenced == null) throw new NullPointerException("referenced entity can't be null")
+
 		val clz = Entity.this.clz
 		private var linkTable = if (reverse) referenced.table + "_" + table else table + "_" + referenced.table
 		private var schemaO: Option[Schema] = referenced.databaseSchema
@@ -512,6 +514,8 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	protected class OneToOneBuilder[FID, FT](referenced: EntityBase[FID, FT])
 		extends OnlyForQueryDefinition
 	{
+		if (referenced == null) throw new NullPointerException("referenced entity can't be null")
+
 		private var cols = referenced.keysDuringDeclaration.map {
 			k =>
 				referenced.tableLower + "_" + k.name
@@ -552,6 +556,8 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 		extends GetterDefinition
 		with OnlyForQueryDefinition
 	{
+		if (referenced == null) throw new NullPointerException("referenced entity can't be null")
+
 		val clz = Entity.this.clz
 		private var fkcols = keysDuringDeclaration.map {
 			k =>
@@ -591,6 +597,8 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 		extends GetterDefinition
 		with OnlyForQueryDefinition
 	{
+		if (referenced == null) throw new NullPointerException("referenced entity can't be null")
+
 		val clz = Entity.this.clz
 		private var fkcols = keysDuringDeclaration.map(tableLower + "_" + _.name)
 		if (fkcols.isEmpty) throw new IllegalStateException("couldn't find any declared keys for %s, are keys declared before this onetomany?".format(clz))
@@ -664,6 +672,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 		extends GetterDefinition
 		with OnlyForQueryDefinition
 	{
+		if (referenced == null) throw new NullPointerException("referenced entity can't be null")
 
 		val clz = Entity.this.clz
 		private var fkcols = referenced.keysDuringDeclaration map {
