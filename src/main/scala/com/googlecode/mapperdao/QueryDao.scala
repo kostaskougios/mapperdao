@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.drivers.Driver
-import com.googlecode.mapperdao.jdbc.UpdateResult
+import com.googlecode.mapperdao.jdbc.{DatabaseValues, UpdateResult}
 import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
 import com.googlecode.mapperdao.schema.{LinkTable, ManyToOne, ColumnInfoManyToOne, ColumnBase}
 import com.googlecode.mapperdao.jdbc.impl.{MapperDaoImpl, QueryDaoImpl}
@@ -171,6 +171,20 @@ trait QueryDao
 	 * @param	args				a list of arguments
 	 */
 	def lowLevelQuery[ID, PC <: Persisted, T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], sql: String, args: List[Any]): List[T with PC]
+
+	/**
+	 * low level conversion from database values to entities. Client code must provide a List[DatabaseValues]
+	 *
+	 * Please note: Don't use this, better use the Query DSL. Use this method only
+	 * if the query dsl doesn't provide the flexibility that is needed.
+	 *
+	 * @param	queryConfig			the QueryConfig to use for this query
+	 * @param	entity				the entity that the query is for, i.e. ProductEntity
+	 * @param	values				a list of values, 1 item per row. Client code must fetch this from
+	 *                                 the database. Only the Entity's table has to be provided with each
+	 *                                 DatabaseValues.
+	 */
+	def lowLevelValuesToEntities[ID, PC <: Persisted, T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], values: List[DatabaseValues]): List[T with PC]
 
 	def delete[ID, PC <: Persisted, T](d: Delete.DeleteDDL[ID, PC, T]): UpdateResult
 
