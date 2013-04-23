@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao.internal
 
 import com.googlecode.mapperdao._
+import java.util
 
 /**
  * compares 2 traversables via object reference equality and returns
@@ -12,12 +13,30 @@ import com.googlecode.mapperdao._
  */
 protected[mapperdao] object TraversableSeparation
 {
-	def separate[ID, T](entity: EntityBase[ID, T], oldT: Traversable[T], newT: Traversable[T]) = {
-		if (oldT.isEmpty)
-			(newT, Nil, Nil)
-		else if (newT.isEmpty)
-			(Nil, Nil, oldT)
+	def separate[ID, T](entity: EntityBase[ID, T], oldTraversable: Traversable[T], newTraversable: Traversable[T]) = {
+		if (oldTraversable.isEmpty)
+			(newTraversable, Nil, Nil)
+		else if (newTraversable.isEmpty)
+			(Nil, Nil, oldTraversable)
 		else {
+			val (oldWithReplacement, oldT) = oldTraversable.partition {
+				case p: Persisted if p.mapperDaoReplaced.isDefined => true
+				case _ => false
+			}
+			val replacements = oldWithReplacement.asInstanceOf[Traversable[Persisted]].map(_.mapperDaoReplaced.get)
+
+			val rm = new util.IdentityHashMap[Any, Any]
+			replacements.foreach {
+				r =>
+					rm.put(r, r)
+			}
+			val newT = newTraversable.filterNot {
+				t =>
+					rm.containsKey(t)
+			}
+
+			val replaced = oldWithReplacement.toList.zip(replacements.toList)
+
 			val (oldM, newM) = oldT.head match {
 				case _: SimpleTypeValue[T, _] =>
 					val eq = new EntityComparisonMap.ByObjectEquals[T]
@@ -31,7 +50,7 @@ protected[mapperdao] object TraversableSeparation
 			newM.addAll(newT)
 
 			val added = newT.filterNot(oldM.contains(_))
-			val intersect = oldT.filter(newM.contains(_)).map(ot => (ot, newM(ot)))
+			val intersect = oldT.filter(newM.contains(_)).map(ot => (ot, newM(ot))) ++ replaced
 			val removed = oldT.filterNot(newM.contains(_)).map(ot => ot.asInstanceOf[T with DeclaredIds[ID]])
 
 			(added, intersect, removed)

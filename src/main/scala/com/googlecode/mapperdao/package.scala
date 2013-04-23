@@ -10,6 +10,7 @@ package object mapperdao
 {
 	def replace[T](oldO: T, newO: T): T = oldO match {
 		case p: Persisted =>
+			if (p.mapperDaoReplaced.isDefined) throw new IllegalStateException("already replaced")
 			p.mapperDaoReplaced = newO
 			newO
 		case _ =>
