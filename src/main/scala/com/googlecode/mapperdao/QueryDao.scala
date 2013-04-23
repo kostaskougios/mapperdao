@@ -173,7 +173,9 @@ trait QueryDao
 	def lowLevelQuery[ID, PC <: Persisted, T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], sql: String, args: List[Any]): List[T with PC]
 
 	/**
-	 * low level conversion from database values to entities. Client code must provide a List[DatabaseValues]
+	 * low level conversion from database values to entities. Client code must provide a List[DatabaseValues]. Each
+	 * DatabaseValues must contain the map of columnname/value with value been in the correct type, otherwise
+	 * class cast exceptions will be thrown.
 	 *
 	 * Please note: Don't use this, better use the Query DSL. Use this method only
 	 * if the query dsl doesn't provide the flexibility that is needed.
