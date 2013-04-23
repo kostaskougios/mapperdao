@@ -4,7 +4,7 @@ import customization.{DefaultDatabaseToScalaTypes, CustomDatabaseToScalaTypes}
 import drivers.Driver
 import java.util.Calendar
 import org.joda.time._
-import com.googlecode.mapperdao.jdbc.JdbcMap
+import com.googlecode.mapperdao.jdbc.{DatabaseValues, JdbcMap}
 import java.util.Date
 import scala.collection.immutable.ListMap
 import org.joda.time.chrono.ISOChronology

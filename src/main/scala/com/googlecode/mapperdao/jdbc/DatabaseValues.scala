@@ -1,6 +1,5 @@
-package com.googlecode.mapperdao
+package com.googlecode.mapperdao.jdbc
 
-import scala.collection.immutable.ListMap
 import com.googlecode.mapperdao.schema.SimpleColumn
 
 /**
@@ -8,7 +7,7 @@ import com.googlecode.mapperdao.schema.SimpleColumn
  *
  *         18 May 2012
  */
-private[mapperdao] class DatabaseValues(val map: ListMap[String, Any])
+class DatabaseValues(val map: Map[String, Any])
 {
 	def apply(column: SimpleColumn): Any = map(column.nameLowerCase)
 

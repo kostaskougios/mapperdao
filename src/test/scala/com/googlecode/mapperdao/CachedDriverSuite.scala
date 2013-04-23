@@ -7,7 +7,7 @@ import org.scalatest.junit.JUnitRunner
 import drivers.Driver
 import com.googlecode.mapperdao.drivers.Cache
 import com.googlecode.mapperdao.drivers.CachedDriver
-import jdbc.{Batch, JdbcMap}
+import com.googlecode.mapperdao.jdbc.{DatabaseValues, Batch, JdbcMap}
 import com.googlecode.mapperdao.drivers.EscapeNamesStrategy
 import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 import com.googlecode.mapperdao.schema.{Type, SimpleColumn, ManyToMany}

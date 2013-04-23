@@ -13,7 +13,7 @@ import com.googlecode.mapperdao.lazyload.LazyLoadManager
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.state.enhancevm.EnhanceVMPhase
 import com.googlecode.mapperdao.schema._
-import com.googlecode.mapperdao.jdbc.CmdToDatabase
+import com.googlecode.mapperdao.jdbc.{DatabaseValues, CmdToDatabase}
 import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
 import scala.Some
 import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
