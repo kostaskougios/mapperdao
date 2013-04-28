@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao
 
-import internal.{Equality, SynchronizedMemoryEfficientMap, MemoryEfficientMap}
+import internal.{Equality, MemoryEfficientMap}
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -24,7 +24,6 @@ import com.googlecode.mapperdao.schema.ColumnInfo
  */
 class ValuesMap private[mapperdao](private[mapperdao] var identity: Int, mOrig: scala.collection.Map[String, Any])
 	extends MemoryEfficientMap[String, Any]
-	with SynchronizedMemoryEfficientMap[String, Any]
 {
 	if (identity <= 0) throw new IllegalStateException("invalid id of " + identity)
 

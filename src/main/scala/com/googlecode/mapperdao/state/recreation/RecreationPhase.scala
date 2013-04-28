@@ -74,6 +74,7 @@ class RecreationPhase(
 								case ColumnInfoTraversableOneToMany(column, _, _, _) =>
 									val otm = newVM.oneToMany(column)
 									val relatedNodes = toNodes(otm)
+
 									(
 										column.alias,
 										recreate(updateConfig, relatedNodes)

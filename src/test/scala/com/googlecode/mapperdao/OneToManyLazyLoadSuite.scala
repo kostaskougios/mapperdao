@@ -83,8 +83,8 @@ class OneToManyLazyLoadSuite extends FunSuite with ShouldMatchers
 			createTables
 			val p1 = Person("Kostas", Set(House("Rhodes"), House("Athens")))
 			val p2 = Person("Nikos", Set(House("Thessaloniki"), House("Athens")))
-			val i1 = mapperDao.insert(PersonEntity, p1)
-			val i2 = mapperDao.insert(PersonEntity, p2)
+			mapperDao.insert(PersonEntity, p1)
+			mapperDao.insert(PersonEntity, p2)
 			import Query._
 			val l = queryDao.query(QueryConfig(lazyLoad = LazyLoad.all), select from PersonEntity)
 			val s1 = l.head
@@ -138,6 +138,34 @@ class OneToManyLazyLoadSuite extends FunSuite with ShouldMatchers
 			selected.owns should be(Set())
 			verifyNotLoaded(selected)
 		}
+
+		//		test("multi-threaded crud") {
+		//			createTables
+		//
+		//			ExecutorServiceManager.lifecycle(32, (1 to 1000).toList) {
+		//				threadNo1 =>
+		//					for (i <- 1 to 100) {
+		//						val person = Person("Kostas" + i, Set(House("Rhodes" + i), House("Athens" + i)), List(Car("car1" + i), Car("car2" + i)))
+		//						val inserted = mapperDao.insert(PersonEntity, person)
+		//						val selected = mapperDao.select(PersonEntity, inserted.id).get
+		//						val up = inserted.copy(owns = inserted.owns + House("new" + i))
+		//						val updated = mapperDao.update(PersonEntity, selected, up)
+		//						updated should be(up)
+		//
+		//						val s = mapperDao.select(PersonEntity, inserted.id).get
+		//						s.owns should be(updated.owns)
+		//						s.cars should be(updated.cars)
+		//						s should be(updated)
+		//
+		//						//						ExecutorServiceManager.lifecycle(8, (1 to 5).toList) {
+		//						//							threadNo2 =>
+		//						//								val sInner = mapperDao.select(PersonEntity, inserted.id).get
+		//						//								val uInner = sInner.copy(owns = sInner.owns - House("new" + i) + House("newnew" + i), cars = Car("newCar" + i) :: sInner.cars )
+		//						//								mapperDao.update(PersonEntity, sInner, uInner)
+		//						//						}
+		//					}
+		//			}
+		//		}
 	}
 
 	def createTables = {
