@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.jdbc.JdbcMap
+import com.googlecode.mapperdao.jdbc.{DatabaseValues, JdbcMap}
 import drivers.Driver
 import com.googlecode.mapperdao.schema.{Type, SimpleColumn}
 

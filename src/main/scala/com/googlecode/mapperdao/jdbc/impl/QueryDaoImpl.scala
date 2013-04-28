@@ -22,6 +22,7 @@ import com.googlecode.mapperdao.Operation
 import com.googlecode.mapperdao.AndOp
 import com.googlecode.mapperdao.ManyToOneOperation
 import com.googlecode.mapperdao.sqlfunction.SqlFunctionBoolOp
+import com.googlecode.mapperdao.jdbc.DatabaseValues
 
 /**
  * the QueryDao implementation
@@ -41,17 +42,17 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): List[T with PC] = {
 		if (qe == null) throw new NullPointerException("qe can't be null")
 		val r = sqlAndArgs(queryConfig, qe).result
-		queryInner(queryConfig, qe.entity, r.sql, r.values).asInstanceOf[List[T with PC]]
+		queryInner(queryConfig, qe.entity, r.sql, r.values)
 	}
 
 	def lowLevelQuery[ID, PC <: Persisted, T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], sql: String, args: List[Any]): List[T with PC] =
-		queryInner(queryConfig, entity, sql, args).asInstanceOf[List[T with PC]]
+		queryInner(queryConfig, entity, sql, args)
 
 	private def queryInner[ID, PC <: Persisted, T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], sql: String, args: List[Any]) = {
 		try {
 			val lm = driver.queryForList(queryConfig, entity.tpe, sql, args)
 
-			queryConfig.multi.runStrategy.run(mapperDao, entity, queryConfig, lm)
+			lowLevelValuesToEntities(queryConfig, entity, lm)
 		} catch {
 			case e: Throwable =>
 				val extra = "\n------\nThe query:%s\nThe arguments:%s\n------\n".format(sql, args)
@@ -60,11 +61,14 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		}
 	}
 
+	def lowLevelValuesToEntities[ID, PC <: Persisted, T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], values: List[DatabaseValues]): List[T with PC] =
+		queryConfig.multi.runStrategy.run(mapperDao, entity, queryConfig, values).asInstanceOf[List[T with PC]]
+
+
 	def count[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): Long = {
 		if (qe == null) throw new NullPointerException("qe can't be null")
 		val aliases = new Aliases(typeRegistry)
 		val e = qe.entity
-		val tpe = e.tpe
 		val q = new driver.sqlBuilder.SqlSelectBuilder
 		countSql(q, aliases, e)
 		joins(q, defaultQueryConfig, qe, aliases)

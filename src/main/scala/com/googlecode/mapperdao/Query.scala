@@ -81,9 +81,9 @@ with SqlOneToOneImplicitConvertions
 	 */
 	class Builder[ID, PC <: Persisted, T](protected[mapperdao] val entity: Entity[ID, PC, T]) extends OrderBy[Builder[ID, PC, T]]
 	{
-		protected[mapperdao] var wheres: Option[Where[ID, PC, T]] = None
-		protected[mapperdao] var joins = List[Any]()
-		protected[mapperdao] var order = List[(ColumnInfo[_, _], AscDesc)]()
+		private[mapperdao] var wheres: Option[Where[ID, PC, T]] = None
+		private[mapperdao] var joins = List[Any]()
+		private[mapperdao] var order = List[(ColumnInfo[_, _], AscDesc)]()
 
 		override protected def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)]) {
 			order :::= l

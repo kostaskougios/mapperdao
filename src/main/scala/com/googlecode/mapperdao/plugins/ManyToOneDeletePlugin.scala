@@ -14,7 +14,7 @@ class ManyToOneDeletePlugin extends BeforeDelete
 		) = Nil
 
 	override def before[ID, T](
-		entity: Entity[ID, Persisted, T],
+		entity: EntityBase[ID, T],
 		deleteConfig: DeleteConfig,
 		o: T with Persisted,
 		keyValues: List[(ColumnBase, Any)],

@@ -1,9 +1,10 @@
 package com.googlecode.mapperdao.plugins
 
-import com.googlecode.mapperdao.{EntityBase, SelectConfig, DatabaseValues}
+import com.googlecode.mapperdao.{EntityBase, SelectConfig}
 import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
 import com.googlecode.mapperdao.internal.EntityMap
 import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
+import com.googlecode.mapperdao.jdbc.DatabaseValues
 
 /**
  * @author kostantinos.kougios

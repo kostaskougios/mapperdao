@@ -3,6 +3,10 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.schema.Schema
 
 /**
+ *
+ * For cyclic dependent entities it is impossible to construct the Entity objects due to the cyclic dependencies. In that case,
+ * an EntityRef can be used as a placeholder for an entity.
+ *
  * @author: kostas.kougios
  *          Date: 22/04/13
  */

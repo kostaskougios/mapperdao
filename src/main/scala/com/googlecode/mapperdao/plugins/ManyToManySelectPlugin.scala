@@ -6,6 +6,7 @@ import com.googlecode.mapperdao.SelectExternalManyToMany
 import com.googlecode.mapperdao.schema.{Type, ManyToMany, ColumnInfoTraversableManyToMany}
 import com.googlecode.mapperdao.internal.EntityMap
 import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
+import com.googlecode.mapperdao.jdbc.DatabaseValues
 
 /**
  * @author kostantinos.kougios

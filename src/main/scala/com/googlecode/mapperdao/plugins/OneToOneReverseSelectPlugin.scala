@@ -5,6 +5,7 @@ import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.schema.{Type, ColumnInfoOneToOneReverse}
 import com.googlecode.mapperdao.internal.{SelectInfo, EntityMap}
 import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
+import com.googlecode.mapperdao.jdbc.DatabaseValues
 
 /**
  * @author kostantinos.kougios

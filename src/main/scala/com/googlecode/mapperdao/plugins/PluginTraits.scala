@@ -3,6 +3,7 @@ package com.googlecode.mapperdao.plugins
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.schema.{Type, SimpleColumn, ColumnBase}
 import com.googlecode.mapperdao.internal.{EntityMap, UpdateEntityMap}
+import com.googlecode.mapperdao.jdbc.DatabaseValues
 
 /**
  * plugins executed before the main entity is created, during select operations
@@ -48,7 +49,7 @@ trait BeforeDelete
 		): List[(SimpleColumn, Any)]
 
 	def before[ID, T](
-		entity: Entity[ID, Persisted, T],
+		entity: EntityBase[ID, T],
 		deleteConfig: DeleteConfig,
 		o: T with Persisted,
 		keyValues: List[(ColumnBase, Any)],

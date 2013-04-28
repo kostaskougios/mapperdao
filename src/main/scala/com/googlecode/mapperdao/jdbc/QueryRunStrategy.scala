@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao.jdbc
 
-import com.googlecode.mapperdao.{DatabaseValues, QueryConfig, Persisted, Entity}
+import com.googlecode.mapperdao.{EntityBase, QueryConfig, Persisted}
 import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
 
 /**
@@ -12,5 +12,5 @@ import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
  */
 trait QueryRunStrategy
 {
-	def run[ID, T](mapperDao: MapperDaoImpl, entity: Entity[ID, Persisted, T], queryConfig: QueryConfig, lm: List[DatabaseValues]): List[T with Persisted]
+	def run[ID, T](mapperDao: MapperDaoImpl, entity: EntityBase[ID, T], queryConfig: QueryConfig, lm: List[DatabaseValues]): List[T with Persisted]
 }

@@ -14,7 +14,7 @@ private[mapperdao] trait MemoryEfficientMap[K, V]
 	private var keys: Array[Any] = _
 	private var values: Array[Any] = _
 
-	private[mapperdao] def toMap: Map[K, V] = {
+	private[mapperdao] def toMap: Map[K, V] = synchronized {
 		val t = (keys.zip(values)).toList.asInstanceOf[Traversable[(K, V)]]
 		Map.empty ++ t
 	}
@@ -38,21 +38,23 @@ private[mapperdao] trait MemoryEfficientMap[K, V]
 		idx
 	}
 
-	private[mapperdao] def containsMEM(k: K) = findKeyIndexSafe(k) > -1
+	private[mapperdao] def containsMEM(k: K) = synchronized {
+		findKeyIndexSafe(k) > -1
+	}
 
-	private[mapperdao] def getMEM(k: K): V = {
+	private[mapperdao] def getMEM(k: K): V = synchronized {
 		val idx = findKeyIndexSafe(k)
 		values(idx).asInstanceOf[V]
 	}
 
-	private[mapperdao] def getMEMOption(k: K): Option[V] = {
+	private[mapperdao] def getMEMOption(k: K): Option[V] = synchronized {
 		val idx = findKeyIndex(k)
 		if (idx == -1) None
 		else
 			Some(values(idx).asInstanceOf[V])
 	}
 
-	private[mapperdao] def getMEMOrElse(k: K, orV: V) = {
+	private[mapperdao] def getMEMOrElse(k: K, orV: V) = synchronized {
 		val idx = findKeyIndex(k)
 		if (idx == -1)
 			orV
@@ -61,13 +63,15 @@ private[mapperdao] trait MemoryEfficientMap[K, V]
 	}
 
 	private[mapperdao] def putMEM(k: K, v: V) {
-		val idx = findKeyIndex(k)
-		if (idx == -1) {
-			keys ++= List(k)
-			values ++= List(v)
+		synchronized {
+			val idx = findKeyIndex(k)
+			if (idx == -1) {
+				keys ++= List(k)
+				values ++= List(v)
 
-		} else
-			values(idx) = v
+			} else
+				values(idx) = v
+		}
 	}
 
 	private[mapperdao] def memToString = {
@@ -78,18 +82,5 @@ private[mapperdao] trait MemoryEfficientMap[K, V]
 		}
 
 		b append (")") toString()
-	}
-}
-
-abstract trait SynchronizedMemoryEfficientMap[K, V] extends MemoryEfficientMap[K, V]
-{
-	override def getMEM(k: K): V = synchronized {
-		super.getMEM(k)
-	}
-
-	override def putMEM(k: K, v: V) {
-		synchronized {
-			super.putMEM(k, v)
-		}
 	}
 }

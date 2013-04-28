@@ -20,7 +20,7 @@ class OneToOneReverseDeletePlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 		): List[(SimpleColumn, Any)] = Nil
 
 	override def before[ID, T](
-		entity: Entity[ID, Persisted, T],
+		entity: EntityBase[ID, T],
 		deleteConfig: DeleteConfig,
 		o: T with Persisted,
 		keyValues: List[(ColumnBase, Any)],
