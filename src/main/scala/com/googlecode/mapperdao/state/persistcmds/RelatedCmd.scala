@@ -21,7 +21,7 @@ trait RelatedCmd extends PersistCmd
 }
 
 case class EntityRelatedCmd(
-	identity: Int,
+	fo: Any,
 	column: ColumnBase,
 	newVM: ValuesMap,
 	oldVMO: Option[ValuesMap],
@@ -29,10 +29,10 @@ case class EntityRelatedCmd(
 	foreignVM: ValuesMap,
 	oldForeignVMO: Option[ValuesMap],
 	isKey: Boolean
-	) extends RelatedCmd with CmdForEntity
+	) extends RelatedCmd
 
 case class ExternalEntityRelatedCmd(
-	identity: Int,
+	fo: Any,
 	column: ColumnBase,
 	newVM: ValuesMap,
 	oldVMO: Option[ValuesMap],

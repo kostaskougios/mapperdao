@@ -15,6 +15,4 @@ case class MockCmd[ID, T](
 	) extends PersistCmd
 {
 	def priority = Priority.Low
-
-	def identity = newVM.identity
 }

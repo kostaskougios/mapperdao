@@ -22,11 +22,9 @@ import com.googlecode.mapperdao.schema.ColumnInfo
  *
  *         16 Jul 2011
  */
-class ValuesMap private[mapperdao](private[mapperdao] var identity: Int, mOrig: scala.collection.Map[String, Any])
+class ValuesMap private[mapperdao](mOrig: scala.collection.Map[String, Any])
 	extends MemoryEfficientMap[String, Any]
 {
-	if (identity <= 0) throw new IllegalStateException("invalid id of " + identity)
-
 	// is the object a mock object?
 	private[mapperdao] var mock = false
 

@@ -13,7 +13,7 @@ import com.googlecode.mapperdao.schema.Type
 case class DeleteCmd[ID, T](
 	tpe: Type[ID, T],
 	newVM: ValuesMap
-	) extends CmdWithType[ID, T] with CmdForEntity
+	) extends CmdWithType[ID, T]
 {
 
 	def priority = Priority.High
