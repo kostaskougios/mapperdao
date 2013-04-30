@@ -3,19 +3,19 @@ package com.googlecode.mapperdao.internal
 import scala.collection.immutable.Stack
 import collection.mutable
 import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
-import com.googlecode.mapperdao.{Entity, Persisted}
+import com.googlecode.mapperdao.{ValuesMap, Entity, Persisted}
 
 protected[mapperdao] class UpdateEntityMap
 {
-	private val m = new mutable.HashMap[Int, Any]
+	private val m = new mutable.HashMap[ValuesMap, Any]
 	private var stack = Stack[UpdateInfo[_, _, _, _, _]]()
 
-	def put[T](identity: Int, mock: Persisted with T) {
-		m.put(identity, mock)
+	def put[T](vm: ValuesMap, mock: Persisted with T) {
+		m.put(vm, mock)
 	}
 
-	def get[T](identity: Int): Option[Persisted with T] = {
-		val g = m.get(identity).asInstanceOf[Option[Persisted with T]]
+	def get[T](vm: ValuesMap): Option[Persisted with T] = {
+		val g = m.get(vm).asInstanceOf[Option[Persisted with T]]
 		g
 	}
 

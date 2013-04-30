@@ -257,13 +257,12 @@ protected final class MapperDaoImpl(
 							(k, v)
 					}.toMap
 
-					val vm = ValuesMap.fromMap(1, allMods)
+					val vm = ValuesMap.fromMap(allMods)
 					// if the entity should be lazy loaded and it has relationships, then
 					// we need to lazy load it
 					val entityV = if (lazyLoadManager.isLazyLoaded(selectConfig.lazyLoad, entity)) {
 						lazyLoadEntity(entity, selectConfig, vm)
 					} else tpe.constructor(selectConfig.data, vm)
-					vm.identity = System.identityHashCode(entityV)
 					Some(entityV)
 				}.get
 		}
@@ -297,7 +296,7 @@ protected final class MapperDaoImpl(
 			ci =>
 				(ci.column.alias, vm.valueOf(ci))
 		}).toMap
-		val lazyLoadedVM = ValuesMap.fromMap(vm.identity, lazyLoadedMods)
+		val lazyLoadedVM = ValuesMap.fromMap(lazyLoadedMods)
 		val constructed = tpe.constructor(selectConfig.data, lazyLoadedVM)
 		val proxy = lazyLoadManager.proxyFor(constructed, entity, lazyLoad, vm)
 		proxy

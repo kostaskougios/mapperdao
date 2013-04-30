@@ -184,7 +184,7 @@ class ValuesMap private[mapperdao](mOrig: scala.collection.Map[String, Any])
 		case i: java.lang.Iterable[T] => i.asScala.toSeq
 	}
 
-	override def toString = "ValuesMap(identity:" + identity + ", " + memToString + ")"
+	override def toString = "ValuesMap(" + memToString + ")"
 
 	protected[mapperdao] def toListOfColumnAndValueTuple[C <: ColumnBase](columns: List[C]) = columns.map(c => (c, getMEM(c.aliasLowerCase)))
 
@@ -310,11 +310,10 @@ object ValuesMap
 		clone: Boolean
 		): ValuesMap = {
 		val nm = entityToMap(typeManager, tpe, o, clone)
-		new ValuesMap(System.identityHashCode(o), nm)
+		new ValuesMap(nm)
 	}
 
-	protected[mapperdao] def fromMap(identity: Int, m: scala.collection.Map[String, Any]): ValuesMap =
-		new ValuesMap(identity, m)
+	protected[mapperdao] def fromMap(m: scala.collection.Map[String, Any]): ValuesMap = new ValuesMap(m)
 
 	private def deepClone[T](o: T): T = o match {
 		case t: scala.collection.mutable.Traversable[_] => t.map(e => e).asInstanceOf[T] // copy mutable traversables

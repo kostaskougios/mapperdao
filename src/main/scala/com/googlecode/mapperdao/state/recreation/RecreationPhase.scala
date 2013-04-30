@@ -28,12 +28,12 @@ class RecreationPhase(
 	)
 {
 
-	private val byIdentity: Map[Int, PersistedNode[_, _]] = nodes.map {
+	private val byIdentity: Map[ValuesMap, PersistedNode[_, _]] = nodes.map {
 		node =>
-			val id = node.identity
-			if (id <= 0)
-				throw new IllegalStateException("identity==" + id + " for " + node)
-			(id, node)
+			val vm = node.vm
+			if (vm == null)
+				throw new IllegalStateException("vm==" + vm + " for " + node)
+			(vm, node)
 	}.toMap
 
 	def execute = recreate(updateConfig, nodes.filter(_.mainEntity)).toList
@@ -100,9 +100,8 @@ class RecreationPhase(
 							val finalMods = modified ++ related
 							val finalVM = ValuesMap.fromMap(node.identity, finalMods)
 							val newE = tpe.constructor(updateConfig.data, finalVM)
-							finalVM.identity = System.identityHashCode(newE)
 							// re-put the actual
-							entityMap.put(node.identity, newE)
+							entityMap.put(finalVM, newE)
 							newE
 
 						case ExternalEntityPersistedNode(entity, o) =>

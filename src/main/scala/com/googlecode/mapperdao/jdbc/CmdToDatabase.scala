@@ -30,17 +30,17 @@ class CmdToDatabase(
 
 	// keep track of which entities were already persisted in order to
 	// know if a depended entity can be persisted
-	private val persistedIdentities = scala.collection.mutable.HashSet[Int]()
+	private val persistedIdentities = scala.collection.mutable.HashSet.empty[ValuesMap]
 
-	val dependentMap = prioritized.dependent.groupBy(_.identity).map {
-		case (identity, l) =>
-			(identity, l.map {
-				_.dependsOnIdentity
+	val dependentMap = prioritized.dependent.groupBy(_.vm).map {
+		case (vm, l) =>
+			(vm, l.map {
+				_.dependsOnVm
 			}.toSet)
 	}
 
 	// true if all needed related entities are already persisted.
-	private def allDependenciesAlreadyPersisted(identity: Int) = dependentMap.get(identity) match {
+	private def allDependenciesAlreadyPersisted(vm: ValuesMap) = dependentMap.get(vm) match {
 		case None => true
 		case Some(set) => set.forall(persistedIdentities(_))
 	}
@@ -92,7 +92,7 @@ class CmdToDatabase(
 
 	private def findToProcess(cmds: List[PersistCmd]) = cmds.partition {
 		case c: CmdWithNewVM =>
-			allDependenciesAlreadyPersisted(c.newVM.identity)
+			allDependenciesAlreadyPersisted(c.newVM)
 		case _ => true
 	}
 
@@ -234,7 +234,7 @@ class CmdToDatabase(
 	protected[jdbc] def toSql(cmd: PersistCmd): List[driver.sqlBuilder.Result] =
 		cmd match {
 			case ic@InsertCmd(tpe, newVM, columns, _) =>
-				persistedIdentities += ic.identity
+				persistedIdentities += ic.newVM
 
 				// now we need to remove duplicates and also make sure that in case of
 				// the same column having 2 values, we take the not-null one (if present)
@@ -249,7 +249,7 @@ class CmdToDatabase(
 				driver.insertSql(tpe, converted).result :: Nil
 
 			case uc@UpdateCmd(tpe, oldVM, newVM, columns, _) =>
-				persistedIdentities += uc.identity
+				persistedIdentities += uc.newVM
 				val oldRelated = prioritized.relatedColumns(oldVM, true)
 				val newRelated = prioritized.relatedColumns(newVM, false)
 				val set = columns ::: newRelated.filterNot(n => oldRelated.contains(n) || columns.contains(n)).distinct
@@ -275,7 +275,7 @@ class CmdToDatabase(
 				driver.deleteManyToManySql(manyToMany, left, right).result :: Nil
 
 			case dc@DeleteCmd(tpe, vm) =>
-				persistedIdentities += dc.identity
+				persistedIdentities += vm
 				val relatedKeys = prioritized.relatedKeys(vm)
 				val args = vm.toListOfPrimaryKeyAndValueTuple(tpe) ::: relatedKeys
 				driver.deleteSql(tpe, args).result :: Nil
@@ -314,8 +314,8 @@ class CmdToDatabase(
 						driver.insertManyToManySql(manyToMany.column, left, right).result
 				}.toList
 				(rSqls ::: aSqls).toList
-			case mc@MockCmd(_, _, _) =>
-				persistedIdentities += mc.identity
+			case MockCmd(_, _, newVM) =>
+				persistedIdentities += newVM
 				Nil
 			case InsertOneToManyExternalCmd(foreignEntity, oneToMany, entityVM, added) =>
 				Nil
