@@ -33,10 +33,10 @@ class RecreationPhase(
 		val m = new util.IdentityHashMap[Any, PersistedNode[_, _]]
 		nodes.foreach {
 			node =>
-				val vm = node.vm
-				if (vm == null)
-					throw new IllegalStateException("vm==" + vm + " for " + node)
-				m.put(vm.o, node)
+				val o = node.o
+				if (o == null)
+					throw new IllegalStateException("unexpected error, o is null")
+				m.put(o, node)
 		}
 		m
 	}
@@ -46,7 +46,7 @@ class RecreationPhase(
 	private def recreate(updateConfig: UpdateConfig, nodes: Traversable[PersistedNode[_, _]]): Traversable[Any] =
 		nodes.map {
 			node =>
-				entityMap.get[Any](node.identity).getOrElse {
+				entityMap.get[Any](node.o).getOrElse {
 
 					node match {
 						case EntityPersistedNode(tpe, oldVM, newVM, _) =>
@@ -56,7 +56,7 @@ class RecreationPhase(
 
 							// create a mock
 							val mockO = mockFactory.createMock(updateConfig.data, tpe, modified)
-							entityMap.put(node.identity, mockO)
+							entityMap.put(node.o, mockO)
 
 							val related = if (newVM.mock)
 								Nil
@@ -103,8 +103,9 @@ class RecreationPhase(
 							}
 
 							val finalMods = modified ++ related
-							val finalVM = ValuesMap.fromMap(node.identity, finalMods)
+							val finalVM = ValuesMap.fromMap(null, finalMods)
 							val newE = tpe.constructor(updateConfig.data, finalVM)
+							finalVM.o = newE
 							// re-put the actual
 							entityMap.put(finalVM, newE)
 							newE
