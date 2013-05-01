@@ -10,6 +10,7 @@ import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
 import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
 import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
 import com.googlecode.mapperdao.internal.UpdateEntityMap
+import java.util
 
 /**
  * during recreation phase, persisted objects are re-created with Stored type mixed in the
@@ -28,13 +29,17 @@ class RecreationPhase(
 	)
 {
 
-	private val byIdentity: Map[ValuesMap, PersistedNode[_, _]] = nodes.map {
-		node =>
-			val vm = node.vm
-			if (vm == null)
-				throw new IllegalStateException("vm==" + vm + " for " + node)
-			(vm, node)
-	}.toMap
+	private val byIdentity: util.IdentityHashMap[Any, PersistedNode[_, _]] = {
+		val m = new util.IdentityHashMap[Any, PersistedNode[_, _]]
+		nodes.foreach {
+			node =>
+				val vm = node.vm
+				if (vm == null)
+					throw new IllegalStateException("vm==" + vm + " for " + node)
+				m.put(vm.o, node)
+		}
+		m
+	}
 
 	def execute = recreate(updateConfig, nodes.filter(_.mainEntity)).toList
 
@@ -110,7 +115,11 @@ class RecreationPhase(
 				}
 		}
 
-	private def toNode(a: Any) = byIdentity(System.identityHashCode(a))
+	private def toNode(a: Any) = {
+		val v = byIdentity.get(a)
+		if (v == null) throw new IllegalStateException("internal error, null not expected for " + a)
+		v
+	}
 
 	private def toNodes(l: Traversable[Any]) = l.map(toNode(_))
 }

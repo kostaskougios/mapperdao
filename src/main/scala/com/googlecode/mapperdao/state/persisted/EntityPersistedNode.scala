@@ -14,7 +14,7 @@ case class EntityPersistedNode[ID, T](
 	mainEntity: Boolean
 	) extends PersistedNode[ID, T]
 {
-	val identity = newVM.identity
+	val vm = newVM
 
 	override def toString = "EntityPersistedNode(" + tpe + ")"
 }

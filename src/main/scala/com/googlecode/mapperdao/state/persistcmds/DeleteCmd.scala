@@ -17,6 +17,4 @@ case class DeleteCmd[ID, T](
 {
 
 	def priority = Priority.High
-
-	def identity = newVM.identity
 }

@@ -22,7 +22,7 @@ import com.googlecode.mapperdao.schema.ColumnInfo
  *
  *         16 Jul 2011
  */
-class ValuesMap private[mapperdao](mOrig: scala.collection.Map[String, Any])
+class ValuesMap private[mapperdao](private[mapperdao] var o: Any, mOrig: scala.collection.Map[String, Any])
 	extends MemoryEfficientMap[String, Any]
 {
 	// is the object a mock object?
@@ -310,10 +310,10 @@ object ValuesMap
 		clone: Boolean
 		): ValuesMap = {
 		val nm = entityToMap(typeManager, tpe, o, clone)
-		new ValuesMap(nm)
+		new ValuesMap(o, nm)
 	}
 
-	protected[mapperdao] def fromMap(m: scala.collection.Map[String, Any]): ValuesMap = new ValuesMap(m)
+	protected[mapperdao] def fromMap(o: Any, m: scala.collection.Map[String, Any]): ValuesMap = new ValuesMap(o, m)
 
 	private def deepClone[T](o: T): T = o match {
 		case t: scala.collection.mutable.Traversable[_] => t.map(e => e).asInstanceOf[T] // copy mutable traversables
