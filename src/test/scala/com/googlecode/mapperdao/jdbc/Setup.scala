@@ -34,6 +34,8 @@ object Setup
 		d
 	}
 
+	def isStress = System.getProperty("stress") != null
+
 	def isOracle = database == "oracle"
 
 	def now = DateTime.now.withMillisOfSecond(0)
@@ -184,7 +186,7 @@ object Setup
 					begin
 						select myseq.nextval into :new.id from dual;
 					end;
-		             """.format(table))
+					 """.format(table))
 
 	}
 

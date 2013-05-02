@@ -270,7 +270,8 @@
                         </goals>
                         <configuration>
                             <skip>false</skip>
-                            <argLine>-Ddatabase=h2 -Dlogback.configurationFile=logback-mvn-test.xml</argLine>
+                            <argLine>-Ddatabase=h2 -Dstress=true -Dlogback.configurationFile=logback-mvn-test.xml
+                            </argLine>
                             <includes>
                                 <include>**/*Spec.class</include>
                                 <include>**/*Suite.class</include>
@@ -285,7 +286,9 @@
                         </goals>
                         <configuration>
                             <skip>false</skip>
-                            <argLine>-Ddatabase=postgresql -Dlogback.configurationFile=logback-mvn-test.xml</argLine>
+                            <argLine>-Ddatabase=postgresql -Dstress=true
+                                -Dlogback.configurationFile=logback-mvn-test.xml
+                            </argLine>
                             <includes>
                                 <include>**/*Spec.class</include>
                                 <include>**/*Suite.class</include>

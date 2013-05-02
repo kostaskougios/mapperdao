@@ -15,8 +15,8 @@ protected[mapperdao] class UpdateEntityMap
 	}
 
 	def get[T](o: Any): Option[Persisted with T] = {
-		val g = m.get(o).asInstanceOf[Option[Persisted with T]]
-		g
+		val g = m.get(o)
+		if (g == null) None else Some(g.asInstanceOf[Persisted with T])
 	}
 
 	def down[PID, PT, V, FID, F](

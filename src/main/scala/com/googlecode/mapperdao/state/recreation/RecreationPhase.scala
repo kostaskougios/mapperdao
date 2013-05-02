@@ -107,7 +107,7 @@ class RecreationPhase(
 							val newE = tpe.constructor(updateConfig.data, finalVM)
 							finalVM.o = newE
 							// re-put the actual
-							entityMap.put(finalVM, newE)
+							entityMap.put(node.o, newE)
 							newE
 
 						case ExternalEntityPersistedNode(entity, o) =>
