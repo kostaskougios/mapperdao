@@ -9,6 +9,7 @@ import com.googlecode.mapperdao.state.persistcmds.InsertCmd
 import exceptions.PersistException
 import state.prioritise.Prioritized
 import com.googlecode.mapperdao.schema.{SimpleColumn, ColumnInfo}
+import com.googlecode.mapperdao.internal.{MutableIdentityHashMap, MutableIdentityHashSet}
 
 /**
  * converts commands to database operations, executes
@@ -30,17 +31,25 @@ class CmdToDatabase(
 
 	// keep track of which entities were already persisted in order to
 	// know if a depended entity can be persisted
-	private val persistedIdentities = scala.collection.mutable.HashSet.empty[ValuesMap]
+	private val persistedIdentities = new MutableIdentityHashSet[ValuesMap]
 
-	val dependentMap = prioritized.dependent.groupBy(_.vm).map {
-		case (vm, l) =>
-			(vm, l.map {
-				_.dependsOnVm
-			}.toSet)
+	val dependentMap = {
+		val m = new MutableIdentityHashMap[Any, Set[ValuesMap]]
+
+		prioritized.dependent.foreach {
+			case DependsCmd(vm, dependsOnVm) =>
+				val set = (m.get(vm.o) match {
+					case None => Set.empty[ValuesMap]
+					case Some(s) => s
+				}) + dependsOnVm
+				m(vm.o) = set
+		}
+
+		m
 	}
 
 	// true if all needed related entities are already persisted.
-	private def allDependenciesAlreadyPersisted(vm: ValuesMap) = dependentMap.get(vm) match {
+	private def allDependenciesAlreadyPersisted(vm: ValuesMap) = dependentMap.get(vm.o) match {
 		case None => true
 		case Some(set) => set.forall(persistedIdentities(_))
 	}
@@ -68,7 +77,9 @@ class CmdToDatabase(
 		 * correct order.
 		 */
 		def persist(cmdList: List[List[PersistCmd]], depth: Int) {
-			if (depth > 100) throw new IllegalStateException("after 100 iterations, there are still unpersisted entities. Maybe a mapperdao bug. Entities remaining : " + cmdList)
+			if (depth > 100) {
+				throw new IllegalStateException("after 100 iterations, there are still unpersisted entities. Maybe a mapperdao bug. Entities remaining : " + cmdList)
+			}
 			val remaining = cmdList.map {
 				cmds =>
 					val (toProcess, remaining) = findToProcess(cmds)
