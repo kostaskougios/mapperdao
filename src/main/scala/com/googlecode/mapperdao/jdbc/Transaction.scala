@@ -134,7 +134,7 @@ object Transaction
 	object Isolation
 	{
 
-		sealed protected[Transaction] class Level(val level: Int)
+		sealed class Level(val level: Int)
 
 		/**
 		 * Use the default isolation level of the underlying datastore.
