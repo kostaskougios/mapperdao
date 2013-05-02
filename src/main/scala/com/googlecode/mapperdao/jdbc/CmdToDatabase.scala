@@ -31,7 +31,7 @@ class CmdToDatabase(
 
 	// keep track of which entities were already persisted in order to
 	// know if a depended entity can be persisted
-	private val persistedIdentities = new MutableIdentityHashSet[ValuesMap]
+	private val persistedIdentities = new MutableIdentityHashSet[Any]
 
 	val dependentMap = {
 		val m = new MutableIdentityHashMap[Any, Set[ValuesMap]]
@@ -51,7 +51,8 @@ class CmdToDatabase(
 	// true if all needed related entities are already persisted.
 	private def allDependenciesAlreadyPersisted(vm: ValuesMap) = dependentMap.get(vm.o) match {
 		case None => true
-		case Some(set) => set.forall(persistedIdentities(_))
+		case Some(set) =>
+			set.forall(vm => persistedIdentities(vm.o))
 	}
 
 	private case class Node(
@@ -245,7 +246,7 @@ class CmdToDatabase(
 	protected[jdbc] def toSql(cmd: PersistCmd): List[driver.sqlBuilder.Result] =
 		cmd match {
 			case ic@InsertCmd(tpe, newVM, columns, _) =>
-				persistedIdentities += ic.newVM
+				persistedIdentities += ic.newVM.o
 
 				// now we need to remove duplicates and also make sure that in case of
 				// the same column having 2 values, we take the not-null one (if present)
@@ -260,7 +261,7 @@ class CmdToDatabase(
 				driver.insertSql(tpe, converted).result :: Nil
 
 			case uc@UpdateCmd(tpe, oldVM, newVM, columns, _) =>
-				persistedIdentities += uc.newVM
+				persistedIdentities += uc.newVM.o
 				val oldRelated = prioritized.relatedColumns(oldVM, true)
 				val newRelated = prioritized.relatedColumns(newVM, false)
 				val set = columns ::: newRelated.filterNot(n => oldRelated.contains(n) || columns.contains(n)).distinct
@@ -286,7 +287,7 @@ class CmdToDatabase(
 				driver.deleteManyToManySql(manyToMany, left, right).result :: Nil
 
 			case dc@DeleteCmd(tpe, vm) =>
-				persistedIdentities += vm
+				persistedIdentities += vm.o
 				val relatedKeys = prioritized.relatedKeys(vm)
 				val args = vm.toListOfPrimaryKeyAndValueTuple(tpe) ::: relatedKeys
 				driver.deleteSql(tpe, args).result :: Nil
@@ -326,7 +327,7 @@ class CmdToDatabase(
 				}.toList
 				(rSqls ::: aSqls).toList
 			case MockCmd(_, _, newVM) =>
-				persistedIdentities += newVM
+				persistedIdentities += newVM.o
 				Nil
 			case InsertOneToManyExternalCmd(foreignEntity, oneToMany, entityVM, added) =>
 				Nil
