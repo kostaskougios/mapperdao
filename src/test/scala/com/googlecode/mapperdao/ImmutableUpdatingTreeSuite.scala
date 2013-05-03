@@ -85,4 +85,28 @@ class ImmutableUpdatingTreeSuite extends FunSuite with ShouldMatchers
 		mapperDao.select(PersonEntity, i1.id).get should be(u1)
 		mapperDao.select(PersonEntity, i2.id).get should be(i2.copy(company = c2))
 	}
+
+	test("one to many") {
+		createOwnerHouse(jdbc)
+
+		val h1 = House("Addr1")
+		val h2 = House("Addr2")
+		val h3 = House("Addr3")
+		val o1 = Owner("O1", Set(h1, h2))
+		val o2 = Owner("O2", Set(h3))
+
+		val List(i1, i2) = mapperDao.insertBatch(OwnerEntity, List(o1, o2))
+		val ownsUp = i1.owns.map {
+			house =>
+				if (house == h2)
+					replace(house, House("Addr2-replaced"))
+				else house
+		}
+		val up1 = i1.copy(owns = ownsUp)
+		val u1 = mapperDao.update(OwnerEntity, i1, up1)
+		u1 should be(up1)
+
+		mapperDao.select(OwnerEntity, i1.id).get should be(u1)
+		mapperDao.select(OwnerEntity, i2.id).get should be(i2)
+	}
 }
