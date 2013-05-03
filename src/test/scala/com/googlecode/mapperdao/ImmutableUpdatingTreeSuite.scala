@@ -16,7 +16,7 @@ import com.googlecode.mapperdao.CommonEntities._
 @RunWith(classOf[JUnitRunner])
 class ImmutableUpdatingTreeSuite extends FunSuite with ShouldMatchers
 {
-	val (jdbc, mapperDao, _) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
 	test("many to many , update level 2 entity without inserting a new one") {
 		createProductAttribute(jdbc)
@@ -108,5 +108,32 @@ class ImmutableUpdatingTreeSuite extends FunSuite with ShouldMatchers
 
 		mapperDao.select(OwnerEntity, i1.id).get should be(u1)
 		mapperDao.select(OwnerEntity, i2.id).get should be(i2)
+	}
+
+	test("one to one") {
+		createHusbandWife(jdbc)
+
+		val h1 = Husband("h1", 30, Wife("w1", 25))
+		val h2 = Husband("h2", 31, Wife("w2", 27))
+
+		val List(i1, _) = mapperDao.insertBatch(HusbandEntity, List(h1, h2))
+
+		val up1 = h1.copy(wife = replace(i1.wife, Wife("w1-updated", 26)))
+		val u1 = mapperDao.update(HusbandEntity, i1, up1)
+		u1 should be(up1)
+
+		jdbc.queryForInt("select count(*) from Wife") should be(2)
+
+		import Query._
+		val he = HusbandEntity
+		(select
+			from he
+			where he.name === "h1"
+			).toSet(queryDao) should be(Set(u1))
+
+		(select
+			from he
+			where he.name === "h2"
+			).toSet(queryDao) should be(Set(h2))
 	}
 }

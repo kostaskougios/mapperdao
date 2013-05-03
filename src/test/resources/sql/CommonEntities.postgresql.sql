@@ -46,7 +46,7 @@ create table House (
 	id serial primary key,
 	address varchar(20) not null,
 	owner_id int not null,
-	foreign key (owner_id) references Owner(id)  on delete cascade on update cascade
+	foreign key (owner_id) references Owner(id) on delete cascade on update cascade
 )
 [husband-wife]
 create table Wife(
