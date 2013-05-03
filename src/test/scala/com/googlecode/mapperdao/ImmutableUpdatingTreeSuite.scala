@@ -38,7 +38,7 @@ class ImmutableUpdatingTreeSuite extends FunSuite with ShouldMatchers
 		u1 should be(up1)
 
 		mapperDao.select(ProductEntity, u1.id).get should be(u1)
-		// a2 must have been updated
+		// p2 must have been updated too because a2 was updated
 		mapperDao.select(ProductEntity, i2.id).get should be(i2.copy(attributes = Set(a2Updated, a3)))
 	}
 

@@ -149,22 +149,15 @@ class OneToManyLazyLoadSuite extends FunSuite with ShouldMatchers
 						for (i <- 1 to 100) {
 							val person = Person("Kostas" + i, Set(House("Rhodes" + i), House("Athens" + i)), List(Car("car1" + i), Car("car2" + i)))
 							val inserted = mapperDao.insert(PersonEntity, person)
-							val selected = mapperDao.select(PersonEntity, inserted.id).get
+							val selected = mapperDao.select(selectConfig, PersonEntity, inserted.id).get
 							val up = inserted.copy(owns = inserted.owns + House("new" + i))
 							val updated = mapperDao.update(PersonEntity, selected, up)
 							updated should be(up)
 
-							val s = mapperDao.select(PersonEntity, inserted.id).get
+							val s = mapperDao.select(selectConfig, PersonEntity, inserted.id).get
 							s.owns should be(updated.owns)
 							s.cars should be(updated.cars)
 							s should be(updated)
-
-							//						ExecutorServiceManager.lifecycle(8, (1 to 5).toList) {
-							//							threadNo2 =>
-							//								val sInner = mapperDao.select(PersonEntity, inserted.id).get
-							//								val uInner = sInner.copy(owns = sInner.owns - House("new" + i) + House("newnew" + i), cars = Car("newCar" + i) :: sInner.cars )
-							//								mapperDao.update(PersonEntity, sInner, uInner)
-							//						}
 						}
 				}
 			}
