@@ -18,7 +18,7 @@ class ImmutableUpdatingTreeSuite extends FunSuite with ShouldMatchers
 {
 	val (jdbc, mapperDao, _) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
 
-	test("update level 2 entity without inserting a new one") {
+	test("many to many , update level 2 entity without inserting a new one") {
 		createProductAttribute(jdbc)
 
 		val a1 = Attribute("a1", "v1")
@@ -42,7 +42,7 @@ class ImmutableUpdatingTreeSuite extends FunSuite with ShouldMatchers
 		mapperDao.select(ProductEntity, i2.id).get should be(i2.copy(attributes = Set(a2Updated, a3)))
 	}
 
-	test("update map all to replacements") {
+	test("many to many , update map all to replacements") {
 		createProductAttribute(jdbc)
 
 		val a1 = Attribute("a1", "v1")
@@ -65,5 +65,24 @@ class ImmutableUpdatingTreeSuite extends FunSuite with ShouldMatchers
 		mapperDao.select(ProductEntity, u1.id).get should be(u1)
 		// a2 must have been updated
 		mapperDao.select(ProductEntity, i2.id).get should be(i2.copy(attributes = Set(Attribute("a2 updated", "v2 updated"), a3)))
+	}
+
+	test("many to one") {
+		createPersonCompany(jdbc)
+
+		val c1 = Company("C1")
+		val c2 = Company("C2")
+		val p1 = Person("P1", c1)
+		val p2 = Person("P2", c2)
+
+		val List(i1, i2) = mapperDao.insertBatch(PersonEntity, List(p1, p2))
+
+		// note that since we're replacing c1 with c2, c1 will actually be updated which means i2 will also be affected
+		val up1 = p1.copy(company = replace(i1.company, c2))
+		val u1 = mapperDao.update(PersonEntity, i1, up1)
+		u1 should be(up1)
+
+		mapperDao.select(PersonEntity, i1.id).get should be(u1)
+		mapperDao.select(PersonEntity, i2.id).get should be(i2.copy(company = c2))
 	}
 }
