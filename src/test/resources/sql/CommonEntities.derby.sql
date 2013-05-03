@@ -36,6 +36,21 @@ create table Person(
 	foreign key (company_id) references Company(id) on delete cascade
 )
 
+[owner-house]
+create table Owner (
+	id int not null GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+	name varchar(20) not null,
+	primary key (id)
+)
+;
+create table House (
+	id int not null GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+	address varchar(20) not null,
+	owner_id int not null,
+	primary key (id),
+	foreign key (owner_id) references Owner(id)  on delete cascade
+)
+
 [husband-wife]
 create table Wife(
 	id int not null GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),

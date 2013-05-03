@@ -36,6 +36,21 @@ create table Person(
 	foreign key (company_id) references Company(id) on delete cascade on update cascade
 ) engine InnoDB
 
+[owner-house]
+create table Owner (
+	id serial not null,
+	name varchar(20) not null,
+	primary key (id)
+) engine InnoDB
+;
+create table House (
+	id serial not null,
+	address varchar(20) not null,
+	owner_id bigint unsigned  not null,
+	primary key (id),
+	foreign key (owner_id) references Owner(id)  on delete cascade on update cascade
+) engine InnoDB
+
 [husband-wife]
 create table Wife(
 	id serial not null,
