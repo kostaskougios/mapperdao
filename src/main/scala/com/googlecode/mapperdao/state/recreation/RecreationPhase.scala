@@ -9,8 +9,7 @@ import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
 import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
 import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
-import com.googlecode.mapperdao.internal.UpdateEntityMap
-import java.util
+import com.googlecode.mapperdao.internal.{MutableIdentityHashMap, UpdateEntityMap}
 
 /**
  * during recreation phase, persisted objects are re-created with Stored type mixed in the
@@ -29,14 +28,14 @@ class RecreationPhase(
 	)
 {
 
-	private val byIdentity: util.IdentityHashMap[Any, PersistedNode[_, _]] = {
-		val m = new util.IdentityHashMap[Any, PersistedNode[_, _]]
+	private val byIdentity: MutableIdentityHashMap[Any, PersistedNode[_, _]] = {
+		val m = new MutableIdentityHashMap[Any, PersistedNode[_, _]]
 		nodes.foreach {
 			node =>
 				val o = node.o
 				if (o == null)
 					throw new IllegalStateException("unexpected error, o is null")
-				m.put(o, node)
+				m(o) = node
 		}
 		m
 	}
@@ -116,11 +115,7 @@ class RecreationPhase(
 				}
 		}
 
-	private def toNode(a: Any) = {
-		val v = byIdentity.get(a)
-		if (v == null) throw new IllegalStateException("internal error, null not expected for " + a)
-		v
-	}
+	private def toNode(a: Any) = byIdentity(a)
 
 	private def toNodes(l: Traversable[Any]) = l.map(toNode(_))
 }
