@@ -88,7 +88,7 @@ class UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite extends FunSuite with 
 
 	object SimpleProductEntity extends ProductEntity[Product]
 	{
-		val TagEntityRef = new EntityRef("Tag", classOf[Tag], TagEntity)
+		val TagEntityRef = EntityRef("Tag", classOf[Tag], TagEntity)
 
 		val refCode = key("refCode") to (_.refCode)
 		val tags = onetomany(TagEntityRef) forQueryOnly() to (ce => Nil)

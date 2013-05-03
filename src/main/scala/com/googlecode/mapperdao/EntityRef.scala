@@ -21,3 +21,8 @@ class EntityRef[ID, T](
 
 	private[mapperdao] def keysDuringDeclaration = Nil
 }
+
+object EntityRef
+{
+	def apply[ID, T](table: String, clz: Class[T], refOf: => EntityBase[ID, T], databaseSchema: Option[Schema] = None) = new EntityRef(table, clz, refOf, databaseSchema)
+}
