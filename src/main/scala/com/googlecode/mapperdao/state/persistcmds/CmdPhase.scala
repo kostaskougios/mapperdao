@@ -250,24 +250,32 @@ class CmdPhase(typeManager: TypeManager)
 					 */
 					case foreignEntity =>
 						val foreignTpe = foreignEntity.tpe
-						val oldFoVMO = oldVMOf(oldVMO.map(_.manyToOne(column)))
+						val oldOO = oldVMO.map(_.manyToOne(column))
+						val oldFoVMO = oldVMOf(oldOO)
 						if (fo == null) {
 							EntityRelatedCmd(fo, column, newVM, oldVMO, foreignTpe, null, oldFoVMO, false) :: Nil
 						} else {
-							// insert new
 							val foreignVM = vmFor(foreignTpe, fo)
-
-							(
-								DependsCmd(newVM, foreignVM)
-									:: EntityRelatedCmd(fo, column, newVM, oldVMO, foreignTpe, foreignVM, oldFoVMO, false)
-									:: (fo match {
-									case p: DeclaredIds[_] =>
-										doUpdate(foreignTpe.asInstanceOf[Type[Any, Any]], p.asInstanceOf[Any with DeclaredIds[Any]], updateConfig)
-									case _ =>
-										// we need to insert the foreign entity and link to entity
-										insert(foreignTpe, foreignVM, false, updateConfig)
-								})
-								)
+							oldOO match {
+								case Some(oldO: Persisted) if (oldO.mapperDaoReplaced.isDefined) =>
+									// replaced
+									val oVM = oldO.mapperDaoValuesMap
+									val nVM = vmFor(foreignTpe, fo)
+									update(foreignTpe.asInstanceOf[Type[Any, Any]], oVM, nVM, false, updateConfig)
+								case _ =>
+									// insert new
+									(
+										DependsCmd(newVM, foreignVM)
+											:: EntityRelatedCmd(fo, column, newVM, oldVMO, foreignTpe, foreignVM, oldFoVMO, false)
+											:: (fo match {
+											case p: DeclaredIds[_] =>
+												doUpdate(foreignTpe.asInstanceOf[Type[Any, Any]], p.asInstanceOf[Any with DeclaredIds[Any]], updateConfig)
+											case _ =>
+												// we need to insert the foreign entity and link to entity
+												insert(foreignTpe, foreignVM, false, updateConfig)
+										})
+										)
+							}
 						}
 				}
 

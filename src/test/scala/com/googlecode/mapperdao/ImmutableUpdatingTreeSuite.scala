@@ -73,7 +73,7 @@ class ImmutableUpdatingTreeSuite extends FunSuite with ShouldMatchers
 		val c1 = Company("C1")
 		val c2 = Company("C2")
 		val p1 = Person("P1", c1)
-		val p2 = Person("P2", c2)
+		val p2 = Person("P2", c1)
 
 		val List(i1, i2) = mapperDao.insertBatch(PersonEntity, List(p1, p2))
 
