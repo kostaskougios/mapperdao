@@ -9,7 +9,7 @@
     <groupId>com.googlecode.mapperdao</groupId>
     <artifactId>mapperdao</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.0.rc21-${scala.version}</version>
+    <version>1.0.0.rc22-${scala.version}-SNAPSHOT</version>
     <name>mapperdao</name>
     <description><![CDATA[
 	MapperDao is an ORM library for the scala language. https://code.google.com/p/mapperdao/ 
