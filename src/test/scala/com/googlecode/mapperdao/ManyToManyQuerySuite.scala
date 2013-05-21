@@ -36,8 +36,8 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers
 		val a2 = mapperDao.insert(AttributeEntity, Attribute(102, "colour", "black"))
 		val a3 = mapperDao.insert(AttributeEntity, Attribute(103, "colour", "white"))
 
-		val p0 = mapperDao.insert(ProductEntity, Product(1, "TV 1", Set(a0, a2)))
-		val p1 = mapperDao.insert(ProductEntity, Product(2, "TV 2", Set(a1, a2)))
+		mapperDao.insert(ProductEntity, Product(1, "TV 1", Set(a0, a2)))
+		mapperDao.insert(ProductEntity, Product(2, "TV 2", Set(a1, a2)))
 		val p2 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
 		val p3 = mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
@@ -52,10 +52,10 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers
 		val a2 = mapperDao.insert(AttributeEntity, Attribute(102, "colour", "black"))
 		val a3 = mapperDao.insert(AttributeEntity, Attribute(103, "colour", "white"))
 
-		val p0 = mapperDao.insert(ProductEntity, Product(1, "TV 1", Set(a0, a2)))
-		val p1 = mapperDao.insert(ProductEntity, Product(2, "TV 2", Set(a1, a2)))
-		val p2 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
-		val p3 = mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
+		mapperDao.insert(ProductEntity, Product(1, "TV 1", Set(a0, a2)))
+		mapperDao.insert(ProductEntity, Product(2, "TV 2", Set(a1, a2)))
+		mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
+		mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
 		(select from p join(p, p.attributes, attr) where attr.value === "46'")
 			.toList(QueryConfig(skip = Set(ProductEntity.attributes)))
@@ -73,14 +73,9 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers
 		val p3 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a, c)))
 		val p4 = mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(d)))
 
-		def q(attr: Attribute) = (
-			select from p
-				where p.attributes === attr
-			)
-		def qn(attr: Attribute) = (
-			select from p
-				where p.attributes <> attr
-			)
+		def q(attr: Attribute) = select from p where p.attributes === attr
+
+		def qn(attr: Attribute) = select from p where p.attributes <> attr
 
 		q(a).toList.toSet should be === Set(p1, p3)
 		q(d).toList.toSet should be === Set(p2, p4)

@@ -261,7 +261,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			if (alias != null) sb append alias append " "
 			if (hints != null) sb append hints append " "
 			sb append "on " append e.toSql
-			sb.toString()
+			sb.toString
 		}
 
 		def toValues = e.toValues
