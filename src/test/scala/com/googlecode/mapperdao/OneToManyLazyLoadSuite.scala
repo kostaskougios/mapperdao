@@ -144,7 +144,7 @@ class OneToManyLazyLoadSuite extends FunSuite with ShouldMatchers
 			test("multi-threaded crud") {
 				createTables
 
-				ExecutorServiceManager.lifecycle(32, (1 to 1000).toList) {
+				ExecutorServiceManager.lifecycle(32, (1 to 100).toList) {
 					threadNo1 =>
 						for (i <- 1 to 100) {
 							val person = Person("Kostas" + i, Set(House("Rhodes" + i), House("Athens" + i)), List(Car("car1" + i), Car("car2" + i)))
