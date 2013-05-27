@@ -5,7 +5,7 @@ import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.jdbc.Setup
-import com.googlecode.mapperdao.sqlfunction.SqlFunction
+import com.googlecode.mapperdao.sqlfunction.{StdSqlFunctions, SqlFunction}
 
 /**
  * @author kostantinos.kougios
@@ -34,6 +34,36 @@ class SqlFunctionSuite extends FunSuite with ShouldMatchers
 		val subFunction = SqlFunction.with2Args[Int, Int, Int]("sub")
 
 		Setup.queries(this, jdbc).update("functions")
+
+		test("std lower function with equals") {
+			createPersonCompany(jdbc)
+			mapperDao.insert(CompanyEntity, Company("Company A"))
+			val cb = mapperDao.insert(CompanyEntity, Company("Company B"))
+
+			import Query._
+			import StdSqlFunctions._
+			val r = (
+				select
+					from ce
+					where (lower(ce.name) === "company b")
+				).toSet(queryDao)
+			r should be === Set(cb)
+		}
+
+		test("std lower function with like") {
+			createPersonCompany(jdbc)
+			mapperDao.insert(CompanyEntity, Company("Company A"))
+			val cb = mapperDao.insert(CompanyEntity, Company("Company B"))
+
+			import Query._
+			import StdSqlFunctions._
+			val r = (
+				select
+					from ce
+					where (lower(ce.name) like "co%ny b")
+				).toSet(queryDao)
+			r should be === Set(cb)
+		}
 
 		test("query with nested function") {
 			createPersonCompany(jdbc)

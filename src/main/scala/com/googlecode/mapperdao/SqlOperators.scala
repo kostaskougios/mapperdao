@@ -45,7 +45,7 @@ case object NE extends Operand
 
 case object LIKE extends Operand
 {
-	def sql = "like"
+	def sql = " like "
 }
 
 class OpBase
