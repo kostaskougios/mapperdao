@@ -304,11 +304,6 @@ protected final class MapperDaoImpl(
 		proxy
 	}
 
-	/**
-	 * create a mock of the current entity, to avoid cyclic dependencies
-	 * doing infinite loops.
-	 */
-
 	override def delete[ID, PC <: Persisted, T](entity: Entity[ID, PC, T], id: ID) {
 		val ids = Helpers.idToList(id)
 		val tpe = entity.tpe
@@ -317,7 +312,7 @@ protected final class MapperDaoImpl(
 		if (pks.size != ids.size) throw new IllegalArgumentException("number of primary key values don't match number of primary keys : %s != %s".format(pks, ids))
 		val keyValues = pks zip ids
 		// do the actual delete database op
-		driver.doDelete(tpe, keyValues)
+		driver.doDelete(DeleteConfig.default, tpe, keyValues)
 	}
 
 	/**
@@ -353,7 +348,7 @@ protected final class MapperDaoImpl(
 			}
 
 			// do the actual delete database op
-			driver.doDelete(tpe, keyValues)
+			driver.doDelete(deleteConfig, tpe, keyValues)
 
 			// return the object
 			o

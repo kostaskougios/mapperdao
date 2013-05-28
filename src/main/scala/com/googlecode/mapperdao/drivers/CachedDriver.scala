@@ -79,11 +79,12 @@ trait CachedDriver extends Driver
 	}
 
 	override def updateSql[ID, T](
+		uc: UpdateConfig,
 		tpe: Type[ID, T],
 		args: List[(SimpleColumn, Any)],
 		pkArgs: List[(SimpleColumn, Any)]
 		) = {
-		val u = super.updateSql(tpe, args, pkArgs)
+		val u = super.updateSql(uc, tpe, args, pkArgs)
 
 		val table = tpe.table
 		// flush main cache for entity
@@ -100,22 +101,24 @@ trait CachedDriver extends Driver
 	}
 
 	override def deleteManyToManySql(
+		dc: DeleteConfig,
 		manyToMany: ManyToMany[_, _],
 		leftKeyValues: List[(SimpleColumn, Any)],
 		rightKeyValues: List[(SimpleColumn, Any)]
 		) = {
-		val u = super.deleteManyToManySql(manyToMany, leftKeyValues, rightKeyValues)
+		val u = super.deleteManyToManySql(dc, manyToMany, leftKeyValues, rightKeyValues)
 		cache.flush(manyToMany.linkTable.name :: leftKeyValues)
 		cache.flush(manyToMany.linkTable.name :: rightKeyValues)
 		u
 	}
 
 	override def insertManyToManySql(
+		uc: UpdateConfig,
 		manyToMany: ManyToMany[_, _],
 		left: List[Any],
 		right: List[Any]
 		) = {
-		val u = super.insertManyToManySql(manyToMany, left, right)
+		val u = super.insertManyToManySql(uc, manyToMany, left, right)
 
 		val lkey = manyToMany.linkTable.name :: (manyToMany.linkTable.left zip left)
 
@@ -125,8 +128,8 @@ trait CachedDriver extends Driver
 		u
 	}
 
-	override def doDelete[ID, T](tpe: Type[ID, T], whereColumnValues: List[(SimpleColumn, Any)]) {
-		super.doDelete(tpe, whereColumnValues)
+	override def doDelete[ID, T](dc: DeleteConfig, tpe: Type[ID, T], whereColumnValues: List[(SimpleColumn, Any)]) {
+		super.doDelete(dc, tpe, whereColumnValues)
 		val key = tpe.table.name :: whereColumnValues
 		cache.flush(key)
 	}

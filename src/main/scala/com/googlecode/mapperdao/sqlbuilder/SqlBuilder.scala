@@ -5,8 +5,12 @@ import org.springframework.jdbc.core.SqlParameterValue
 import com.googlecode.mapperdao.jdbc.Jdbc
 import com.googlecode.mapperdao.QueryDao
 import com.googlecode.mapperdao.drivers.Driver
-import com.googlecode.mapperdao.schema.{SimpleColumn, ColumnInfoOneToOne, ColumnInfoManyToOne, ColumnInfo}
+import com.googlecode.mapperdao.schema._
 import com.googlecode.mapperdao.sqlfunction.SqlFunctionValue
+import com.googlecode.mapperdao.schema.ColumnInfo
+import scala.Some
+import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
+import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
 
 /**
  * builds queries, inserts, updates and deletes. This is a thread-safe factory, 1 instance can be reused
@@ -212,16 +216,18 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		def toValues: List[SqlParameterValue]
 	}
 
-	case class Table(schema: Option[String], table: String, alias: String = null, hints: String = null) extends FromClause
+	case class Table(schema: Option[String], schemaModifications: SchemaModifications, table: String, alias: String = null, hints: String = null) extends FromClause
 	{
-		def tableName = if (schema.isDefined) schema.get + "." + escapeNamesStrategy.escapeTableNames(table) else escapeNamesStrategy.escapeTableNames(table)
+		private val n = escapeNamesStrategy.escapeTableNames(schemaModifications.tableNameTransformer(table))
+
+		def tableName = if (schema.isDefined) schema.get + "." + n else n
 
 		def toSql = {
 			val sb = new StringBuilder
 
 			if (schema.isDefined) sb append schema.get append "."
 
-			sb append escapeNamesStrategy.escapeTableNames(table)
+			sb append n
 			if (alias != null) sb append " " append alias
 			if (hints != null) sb append " " append hints
 			sb.toString
@@ -311,7 +317,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			this
 		}
 
-		def from(schema: Option[String], table: String): this.type = from(schema, table, null, null)
+		def from(schema: Option[String], schemaModifications: SchemaModifications, table: String): this.type = from(schema, schemaModifications, table, null, null)
 
 		def from(fromClause: SqlSelectBuilder, alias: String): this.type = {
 			from(fromClause)
@@ -319,9 +325,9 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			this
 		}
 
-		def from(schema: Option[String], table: String, alias: String, hints: String): this.type = {
+		def from(schema: Option[String], schemaModifications: SchemaModifications, table: String, alias: String, hints: String): this.type = {
 			if (fromClause != null) throw new IllegalStateException("from already called for %s".format(from))
-			fromClause = Table(schema, table, alias, hints)
+			fromClause = Table(schema, schemaModifications, table, alias, hints)
 			this
 		}
 
@@ -419,7 +425,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		private var fromClause: FromClause = null
 		private var whereBuilder: WhereBuilder = null
 
-		def from(schema: Option[String], table: String): this.type = from(Table(schema, table))
+		def from(schema: Option[String], schemaModifications: SchemaModifications, table: String): this.type = from(Table(schema, schemaModifications, table))
 
 		def from(fromClause: FromClause): this.type = {
 			this.fromClause = fromClause
@@ -454,8 +460,8 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			this
 		}
 
-		def into(schema: Option[String], table: String): this.type = {
-			into(Table(schema, table))
+		def into(schema: Option[String], schemaModifications: SchemaModifications, table: String): this.type = {
+			into(Table(schema, schemaModifications, table))
 			this
 		}
 
@@ -506,7 +512,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		private var where: WhereBuilder = null
 		private var expression: Expression = EmptyExpression
 
-		def table(schema: Option[String], name: String): this.type = table(Table(schema, name))
+		def table(schema: Option[String], schemaModifications: SchemaModifications, name: String): this.type = table(Table(schema, schemaModifications, name))
 
 		def table(table: Table): this.type = {
 			this.table = table

@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
+import com.googlecode.mapperdao.schema.{SchemaModifications, ColumnInfoRelationshipBase}
 
 case class UpdateConfig(
 	/**
@@ -21,7 +21,12 @@ case class UpdateConfig(
 	/**
 	 * max depth of the update: how deep to go into the entity tree during updates
 	 */
-	depth: Int = 1000
+	depth: Int = 1000,
+
+	/**
+	 * allows for on-the-fly modification of the schema that will be used for the update
+	 */
+	schemaModifications: SchemaModifications = SchemaModifications.NoOp
 	)
 
 object UpdateConfig

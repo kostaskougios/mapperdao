@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.drivers.SelectHints
-import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
+import com.googlecode.mapperdao.schema.{SchemaModifications, ColumnInfoRelationshipBase}
 
 /**
  *
@@ -34,7 +34,8 @@ case class QueryConfig(
 	// WARNING: multi-threaded runs of queries don't run
 	// within a transaction.
 	multi: MultiThreadedConfig = MultiThreadedConfig.Single,
-	hints: SelectHints = SelectHints.None
+	hints: SelectHints = SelectHints.None,
+	schemaModifications: SchemaModifications = SchemaModifications.NoOp
 	)
 {
 

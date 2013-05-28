@@ -258,7 +258,7 @@ class CmdToDatabase(
 						(c, rcMap.getOrElse(c, v))
 				}.distinct.filterNot(t => columns.contains(t))
 				val converted = typeManager.transformValuesBeforeStoring(columns ::: related)
-				driver.insertSql(tpe, converted).result :: Nil
+				driver.insertSql(updateConfig, tpe, converted).result :: Nil
 
 			case uc@UpdateCmd(tpe, oldVM, newVM, columns, _) =>
 				persistedIdentities += uc.newVM.o
@@ -273,24 +273,24 @@ class CmdToDatabase(
 					val keys = pks ::: relKeys
 					val setConverted = typeManager.transformValuesBeforeStoring(set)
 					val keysConverted = typeManager.transformValuesBeforeStoring(keys)
-					driver.updateSql(tpe, setConverted, keysConverted).result :: Nil
+					driver.updateSql(updateConfig, tpe, setConverted, keysConverted).result :: Nil
 				}
 
 			case InsertManyToManyCmd(tpe, foreignTpe, manyToMany, entityVM, foreignEntityVM) =>
 				val left = entityVM.toListOfPrimaryKeys(tpe)
 				val right = foreignEntityVM.toListOfPrimaryKeys(foreignTpe)
-				driver.insertManyToManySql(manyToMany, left, right).result :: Nil
+				driver.insertManyToManySql(updateConfig, manyToMany, left, right).result :: Nil
 
 			case DeleteManyToManyCmd(tpe, foreignTpe, manyToMany, entityVM, foreignEntityVM) =>
 				val left = manyToMany.linkTable.left zip entityVM.toListOfPrimaryKeys(tpe)
 				val right = manyToMany.linkTable.right zip foreignEntityVM.toListOfPrimaryKeys(foreignTpe)
-				driver.deleteManyToManySql(manyToMany, left, right).result :: Nil
+				driver.deleteManyToManySql(updateConfig.deleteConfig, manyToMany, left, right).result :: Nil
 
 			case dc@DeleteCmd(tpe, vm) =>
 				persistedIdentities += vm.o
 				val relatedKeys = prioritized.relatedKeys(vm)
 				val args = vm.toListOfPrimaryKeyAndValueTuple(tpe) ::: relatedKeys
-				driver.deleteSql(tpe, args).result :: Nil
+				driver.deleteSql(updateConfig.deleteConfig, tpe, args).result :: Nil
 
 			case UpdateExternalManyToOneCmd(foreignEE, ci, newVM, fo) =>
 				val ie = UpdateExternalManyToOne(updateConfig, fo)
@@ -308,7 +308,7 @@ class CmdToDatabase(
 					fo =>
 						val left = linkTable.left zip newVM.toListOfPrimaryKeys(tpe)
 						val right = linkTable.right zip fTable.toListOfPrimaryKeyValues(fo)
-						driver.deleteManyToManySql(manyToMany.column, left, right).result
+						driver.deleteManyToManySql(updateConfig.deleteConfig, manyToMany.column, left, right).result
 				}.toList
 
 				// updated
@@ -323,7 +323,7 @@ class CmdToDatabase(
 					fo =>
 						val left = newVM.toListOfPrimaryKeys(tpe)
 						val right = fTable.toListOfPrimaryKeyValues(fo)
-						driver.insertManyToManySql(manyToMany.column, left, right).result
+						driver.insertManyToManySql(updateConfig, manyToMany.column, left, right).result
 				}.toList
 				(rSqls ::: aSqls).toList
 			case MockCmd(_, _, newVM) =>

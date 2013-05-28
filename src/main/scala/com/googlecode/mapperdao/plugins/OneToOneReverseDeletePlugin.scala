@@ -39,7 +39,7 @@ class OneToOneReverseDeletePlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 							handler(DeleteExternalOneToOneReverse(deleteConfig, o, fo))
 						case fe: Entity[Any, _, Any] =>
 							val ftpe = fe.tpe
-							driver.doDeleteOneToOneReverse(tpe, ftpe, cis.column.asInstanceOf[OneToOneReverse[Any, Any]], keyValues.map(_._2))
+							driver.doDeleteOneToOneReverse(deleteConfig, tpe, ftpe, cis.column.asInstanceOf[OneToOneReverse[Any, Any]], keyValues.map(_._2))
 					}
 			}
 		}

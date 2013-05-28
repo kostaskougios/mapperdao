@@ -54,10 +54,11 @@ class CachedDriverSuite extends FunSuite with ShouldMatchers
 		override def queryForLong(queryConfig: QueryConfig, sql: String, args: List[Any]): Long = -1
 
 		override def updateSql[ID, T](
+			uc: UpdateConfig,
 			tpe: Type[ID, T],
 			args: List[(SimpleColumn, Any)],
 			pkArgs: List[(SimpleColumn, Any)]
-			) = super.updateSql(tpe, args, pkArgs)
+			) = super.updateSql(uc, tpe, args, pkArgs)
 	}
 
 	var cachedKey = List(List[Any]())
@@ -92,7 +93,7 @@ class CachedDriverSuite extends FunSuite with ShouldMatchers
 
 		val d = driver(cachedValue)
 		d.doSelect(SelectConfig(cacheOptions = CacheOptions.OneDay), ProductEntity.tpe, mockKeyValue)
-		d.updateSql(ProductEntity.tpe, Nil, mockKeyValue)
+		d.updateSql(UpdateConfig.default, ProductEntity.tpe, Nil, mockKeyValue)
 		cachedKey should be === flushedKey
 	}
 

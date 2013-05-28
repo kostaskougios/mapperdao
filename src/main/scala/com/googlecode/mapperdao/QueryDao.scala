@@ -188,9 +188,13 @@ trait QueryDao
 	 */
 	def lowLevelValuesToEntities[ID, PC <: Persisted, T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], values: List[DatabaseValues]): List[T with PC]
 
-	def delete[ID, PC <: Persisted, T](d: Delete.DeleteDDL[ID, PC, T]): UpdateResult
+	def delete[ID, PC <: Persisted, T](d: Delete.DeleteDDL[ID, PC, T]): UpdateResult = delete(DeleteConfig.default, d)
 
-	def update[ID, T](u: Update.Updatable[ID, T]): UpdateResult
+	def delete[ID, PC <: Persisted, T](deleteConfig: DeleteConfig, d: Delete.DeleteDDL[ID, PC, T]): UpdateResult
+
+	def update[ID, T](u: Update.Updatable[ID, T]): UpdateResult = update(UpdateConfig.default, u)
+
+	def update[ID, T](updateConfig: UpdateConfig, u: Update.Updatable[ID, T]): UpdateResult
 }
 
 object QueryDao

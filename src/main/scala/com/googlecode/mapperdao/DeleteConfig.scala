@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
+import com.googlecode.mapperdao.schema.{SchemaModifications, ColumnInfoRelationshipBase}
 
 /**
  * @param propagate		Will the delete be propagated to related entities?
@@ -10,7 +10,8 @@ import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
  */
 case class DeleteConfig(
 	propagate: Boolean = false,
-	skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set()
+	skip: Set[ColumnInfoRelationshipBase[_, _, _, _]] = Set(),
+	schemaModifications: SchemaModifications = SchemaModifications.NoOp
 	)
 
 object DeleteConfig

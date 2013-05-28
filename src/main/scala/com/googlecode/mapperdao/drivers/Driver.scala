@@ -48,11 +48,12 @@ abstract class Driver
 	 * default impl of the insert statement generation
 	 */
 	def insertSql[ID, T](
+		uc: UpdateConfig,
 		tpe: Type[ID, T],
 		args: List[(SimpleColumn, Any)]
 		) = {
 		val s = new sqlBuilder.InsertBuilder
-		s.into(tpe.table.schemaName, tpe.table.name)
+		s.into(tpe.table.schemaName, uc.schemaModifications, tpe.table.name)
 
 		val sequenceColumns = tpe.table.simpleTypeSequenceColumns
 		if (!args.isEmpty || !sequenceColumns.isEmpty) {
@@ -66,6 +67,7 @@ abstract class Driver
 	}
 
 	def insertManyToManySql(
+		uc: UpdateConfig,
 		manyToMany: ManyToMany[_, _],
 		left: List[Any],
 		right: List[Any]
@@ -73,7 +75,7 @@ abstract class Driver
 		val values = left ::: right
 		val s = new sqlBuilder.InsertBuilder
 		val linkTable = manyToMany.linkTable
-		s.into(linkTable.schemaName, linkTable.name)
+		s.into(linkTable.schemaName, uc.schemaModifications, linkTable.name)
 		val cav = (linkTable.left ::: linkTable.right) zip values
 		s.columnAndValues(cav)
 		s
@@ -88,12 +90,13 @@ abstract class Driver
 	 * default impl of the insert statement generation
 	 */
 	def updateSql[ID, T](
+		uc: UpdateConfig,
 		tpe: Type[ID, T],
 		args: List[(SimpleColumn, Any)],
 		pkArgs: List[(SimpleColumn, Any)]
 		) = {
 		val s = new sqlBuilder.UpdateBuilder
-		s.table(tpe.table.schemaName, tpe.table.name)
+		s.table(tpe.table.schemaName, uc.schemaModifications, tpe.table.name)
 		s.set(args)
 		s.where(pkArgs, "=")
 		s
@@ -102,14 +105,19 @@ abstract class Driver
 	/**
 	 * links one-to-many objects to their parent
 	 */
-	def doUpdateOneToManyRef[ID, T](tpe: Type[ID, T], foreignKeys: List[(SimpleColumn, Any)], pkArgs: List[(SimpleColumn, Any)]): UpdateResult = {
-		val r = updateOneToManyRefSql(tpe, foreignKeys, pkArgs).result
+	def doUpdateOneToManyRef[ID, T](uc: UpdateConfig, tpe: Type[ID, T], foreignKeys: List[(SimpleColumn, Any)], pkArgs: List[(SimpleColumn, Any)]): UpdateResult = {
+		val r = updateOneToManyRefSql(uc, tpe, foreignKeys, pkArgs).result
 		jdbc.update(r.sql, r.values)
 	}
 
-	protected def updateOneToManyRefSql[ID, T](tpe: Type[ID, T], foreignKeys: List[(SimpleColumn, Any)], pkArgs: List[(SimpleColumn, Any)]) = {
+	protected def updateOneToManyRefSql[ID, T](
+		uc: UpdateConfig,
+		tpe: Type[ID, T],
+		foreignKeys: List[(SimpleColumn, Any)],
+		pkArgs: List[(SimpleColumn, Any)]
+		) = {
 		val s = new sqlBuilder.UpdateBuilder
-		s.table(tpe.table.schemaName, tpe.table.name)
+		s.table(tpe.table.schemaName, uc.schemaModifications, tpe.table.name)
 		s.set(foreignKeys)
 		s.where(pkArgs, "=")
 		s
@@ -119,26 +127,32 @@ abstract class Driver
 	 * delete many-to-many rows from link table
 	 */
 	def deleteManyToManySql(
+		dc: DeleteConfig,
 		manyToMany: ManyToMany[_, _],
 		leftKeys: List[(SimpleColumn, Any)],
 		rightKeys: List[(SimpleColumn, Any)]
 		) = {
 		val linkTable = manyToMany.linkTable
 		val s = new sqlBuilder.DeleteBuilder
-		s.from(linkTable.schemaName, linkTable.name)
+		s.from(linkTable.schemaName, dc.schemaModifications, linkTable.name)
 		val cav = leftKeys ::: rightKeys
 		s.where(cav, "=")
 		s
 	}
 
-	def doDeleteAllManyToManyRef[ID, T](tpe: Type[ID, T], manyToMany: ManyToMany[_, _], fkKeyValues: List[Any]): UpdateResult = {
-		val r = deleteAllManyToManyRef(tpe, manyToMany, fkKeyValues).result
+	def doDeleteAllManyToManyRef[ID, T](dc: DeleteConfig, tpe: Type[ID, T], manyToMany: ManyToMany[_, _], fkKeyValues: List[Any]): UpdateResult = {
+		val r = deleteAllManyToManyRef(dc, tpe, manyToMany, fkKeyValues).result
 		jdbc.update(r.sql, r.values)
 	}
 
-	protected def deleteAllManyToManyRef[ID, T](tpe: Type[ID, T], manyToMany: ManyToMany[_, _], fkKeyValues: List[Any]) = {
+	protected def deleteAllManyToManyRef[ID, T](
+		dc: DeleteConfig,
+		tpe: Type[ID, T],
+		manyToMany: ManyToMany[_, _],
+		fkKeyValues: List[Any]
+		) = {
 		val s = new sqlBuilder.DeleteBuilder
-		s.from(manyToMany.linkTable.schemaName, manyToMany.linkTable.name)
+		s.from(manyToMany.linkTable.schemaName, dc.schemaModifications, manyToMany.linkTable.name)
 		s.where(manyToMany.linkTable.left zip fkKeyValues, "=")
 		s
 	}
@@ -168,7 +182,7 @@ abstract class Driver
 		sql.columns(null,
 			tpe.table.distinctSelectColumnsForSelect
 		)
-		sql.from(tpe.table.schemaName, tpe.table.name, null, applyHints(selectConfig.hints))
+		sql.from(tpe.table.schemaName, selectConfig.schemaModifications, tpe.table.name, null, applyHints(selectConfig.hints))
 		sql.where(null, where, "=")
 		sql
 	}
@@ -194,7 +208,7 @@ abstract class Driver
 		val sql = new sqlBuilder.SqlSelectBuilder
 		val fColumns = ftpe.table.selectColumns
 		sql.columns("f", fColumns)
-		sql.from(ftpe.table.schemaName, ftpe.table.name, "f", applyHints(selectConfig.hints))
+		sql.from(ftpe.table.schemaName, selectConfig.schemaModifications, ftpe.table.name, "f", applyHints(selectConfig.hints))
 		val j = sql.innerJoin(linkTable.schemaName, linkTable.name, "l", applyHints(selectConfig.hints))
 		ftable.primaryKeys.zip(linkTable.right).foreach {
 			case (left, right) =>
@@ -213,7 +227,7 @@ abstract class Driver
 		val linkTable = manyToMany.linkTable
 		val sql = new sqlBuilder.SqlSelectBuilder
 		sql.columns(null, linkTable.right)
-		sql.from(linkTable.schemaName, linkTable.name, null, applyHints(selectConfig.hints))
+		sql.from(linkTable.schemaName, selectConfig.schemaModifications, linkTable.name, null, applyHints(selectConfig.hints))
 		sql.where(null, leftKeyValues, "=")
 		sql
 
@@ -223,7 +237,7 @@ abstract class Driver
 	 * selects all id's of external entities and returns them in a List[List[Any]]
 	 */
 	def doSelectManyToManyForExternalEntity[ID, T, FID, F](selectConfig: SelectConfig, tpe: Type[ID, T], ftpe: Type[FID, F], manyToMany: ManyToMany[FID, F], leftKeyValues: List[(SimpleColumn, Any)]): List[List[Any]] = {
-		val r = selectManyToManySqlForExternalEntity(tpe, ftpe, manyToMany, leftKeyValues).result
+		val r = selectManyToManySqlForExternalEntity(selectConfig, tpe, ftpe, manyToMany, leftKeyValues).result
 		val l = jdbc.queryForList(r.sql, r.values)
 
 		val linkTable = manyToMany.linkTable
@@ -234,12 +248,17 @@ abstract class Driver
 		}
 	}
 
-	protected def selectManyToManySqlForExternalEntity[ID, T, FID, F](tpe: Type[ID, T], ftpe: Type[FID, F], manyToMany: ManyToMany[FID, F], leftKeyValues: List[(SimpleColumn, Any)]) = {
+	protected def selectManyToManySqlForExternalEntity[ID, T, FID, F](
+		sc: SelectConfig,
+		tpe: Type[ID, T],
+		ftpe: Type[FID, F],
+		manyToMany: ManyToMany[FID, F],
+		leftKeyValues: List[(SimpleColumn, Any)]) = {
 		val linkTable = manyToMany.linkTable
 
 		val sql = new sqlBuilder.SqlSelectBuilder
 		sql.columns(null, linkTable.right)
-		sql.from(linkTable.schemaName, linkTable.name)
+		sql.from(linkTable.schemaName, sc.schemaModifications, linkTable.name)
 		sql.where(null, leftKeyValues, "=")
 		sql
 	}
@@ -249,26 +268,26 @@ abstract class Driver
 	 * DELETE
 	 * =====================================================================================
 	 */
-	def doDelete[ID, T](tpe: Type[ID, T], whereColumnValues: List[(SimpleColumn, Any)]) {
-		val s = deleteSql(tpe, whereColumnValues).result
+	def doDelete[ID, T](dc: DeleteConfig, tpe: Type[ID, T], whereColumnValues: List[(SimpleColumn, Any)]) {
+		val s = deleteSql(dc, tpe, whereColumnValues).result
 		jdbc.update(s.sql, s.values)
 	}
 
-	def deleteSql[ID, T](tpe: Type[ID, T], whereColumnValues: List[(SimpleColumn, Any)]) = {
+	def deleteSql[ID, T](dc: DeleteConfig, tpe: Type[ID, T], whereColumnValues: List[(SimpleColumn, Any)]) = {
 		val s = new sqlBuilder.DeleteBuilder
-		s.from(sqlBuilder.Table(tpe.table.schemaName, tpe.table.name))
+		s.from(sqlBuilder.Table(tpe.table.schemaName, dc.schemaModifications, tpe.table.name))
 		s.where(whereColumnValues, "=")
 		s
 	}
 
-	def doDeleteOneToOneReverse[ID, T, FID, FT](tpe: Type[ID, T], ftpe: Type[FID, FT], oneToOneReverse: OneToOneReverse[FID, FT], keyValues: List[Any]) {
-		val r = deleteOneToOneReverseSql(tpe, ftpe, oneToOneReverse.foreignColumns zip keyValues).result
+	def doDeleteOneToOneReverse[ID, T, FID, FT](dc: DeleteConfig, tpe: Type[ID, T], ftpe: Type[FID, FT], oneToOneReverse: OneToOneReverse[FID, FT], keyValues: List[Any]) {
+		val r = deleteOneToOneReverseSql(dc, tpe, ftpe, oneToOneReverse.foreignColumns zip keyValues).result
 		jdbc.update(r.sql, r.values)
 	}
 
-	def deleteOneToOneReverseSql[ID, T, FID, FT](tpe: Type[ID, T], ftpe: Type[FID, FT], columnAndValues: List[(SimpleColumn, Any)]) = {
+	def deleteOneToOneReverseSql[ID, T, FID, FT](dc: DeleteConfig, tpe: Type[ID, T], ftpe: Type[FID, FT], columnAndValues: List[(SimpleColumn, Any)]) = {
 		val s = new sqlBuilder.DeleteBuilder
-		s.from(sqlBuilder.Table(ftpe.table.schemaName, ftpe.table.name))
+		s.from(sqlBuilder.Table(ftpe.table.schemaName, dc.schemaModifications, ftpe.table.name))
 		s.where(columnAndValues, "=")
 		s
 	}
@@ -279,7 +298,7 @@ abstract class Driver
 	 * =====================================================================================
 	 */
 
-	// select ... from 
+	// select ... from
 	def startQuery[ID, PC <: Persisted, T](
 		q: sqlBuilder.SqlSelectBuilder,
 		queryConfig: QueryConfig,
@@ -293,7 +312,7 @@ abstract class Driver
 
 		q.columns(alias, columns)
 		val hints = queryConfig.hints.afterTableName.map(_.hint).mkString
-		q.from(tpe.table.schemaName, tpe.table.name, alias, hints)
+		q.from(tpe.table.schemaName, queryConfig.schemaModifications, tpe.table.name, alias, hints)
 	}
 
 	def queryAfterSelect[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]) {}

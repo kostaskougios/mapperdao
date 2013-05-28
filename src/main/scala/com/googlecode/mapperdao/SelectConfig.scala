@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.drivers.SelectHints
-import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
+import com.googlecode.mapperdao.schema.{SchemaModifications, ColumnInfoRelationshipBase}
 
 /**
  * mapperDao.select configuration.
@@ -24,7 +24,8 @@ case class SelectConfig(
 	cacheOptions: CacheOption = CacheOptions.NoCache,
 	lazyLoad: LazyLoad = LazyLoad.none,
 	hints: SelectHints = SelectHints.None,
-	manyToManyCustomLoaders: List[CustomLoader[_, _, _]] = Nil
+	manyToManyCustomLoaders: List[CustomLoader[_, _, _]] = Nil,
+	schemaModifications: SchemaModifications = SchemaModifications.NoOp
 	)
 {
 
