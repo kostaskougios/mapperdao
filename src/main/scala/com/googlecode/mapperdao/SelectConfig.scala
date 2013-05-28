@@ -40,7 +40,8 @@ object SelectConfig
 			data = queryConfig.data,
 			cacheOptions = queryConfig.cacheOptions,
 			lazyLoad = queryConfig.lazyLoad,
-			hints = queryConfig.hints
+			hints = queryConfig.hints,
+			schemaModifications = queryConfig.schemaModifications
 		)
 
 	def lazyLoad = SelectConfig(lazyLoad = LazyLoad.all)
