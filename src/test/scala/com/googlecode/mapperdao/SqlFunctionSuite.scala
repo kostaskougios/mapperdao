@@ -65,6 +65,21 @@ class SqlFunctionSuite extends FunSuite with ShouldMatchers
 			r should be === Set(ca, cb)
 		}
 
+		test("std upper function") {
+			createPersonCompany(jdbc)
+			mapperDao.insert(CompanyEntity, Company("Company A"))
+			val cb = mapperDao.insert(CompanyEntity, Company("Company B"))
+
+			import Query._
+			import StdSqlFunctions._
+			val r = (
+				select
+					from ce
+					where (upper(ce.name) === "COMPANY B")
+				).toSet(queryDao)
+			r should be === Set(cb)
+		}
+
 		test("std lower function with equals") {
 			createPersonCompany(jdbc)
 			mapperDao.insert(CompanyEntity, Company("Company A"))

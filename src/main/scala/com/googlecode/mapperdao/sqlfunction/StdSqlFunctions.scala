@@ -11,4 +11,5 @@ package com.googlecode.mapperdao.sqlfunction
 object StdSqlFunctions
 {
 	val lower = SqlFunction.with1Arg[String, String]("lower")
+	val upper = SqlFunction.with1Arg[String, String]("upper")
 }
