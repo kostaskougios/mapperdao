@@ -236,7 +236,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		def toValues = Nil
 	}
 
-	class InnerJoinBuilder(schema: Option[String], table: String, alias: String, hints: String)
+	class InnerJoinBuilder(table: Table)
 	{
 		private var e: Expression = null
 
@@ -262,11 +262,12 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 
 		def toSql = {
 			val sb = new StringBuilder("inner join ")
-			if (schema.isDefined) sb append schema.get append "."
-			sb append table append " "
-			if (alias != null) sb append alias append " "
-			if (hints != null) sb append hints append " "
-			sb append "on " append e.toSql
+			sb append table.toSql
+			//			if (schema.isDefined) sb append schema.get append "."
+			//			sb append table.tableName append " "
+			//			if (table.alias != null) sb append table.alias append " "
+			//			if (table.hints != null) sb append table.hints append " "
+			sb append " on " append e.toSql
 			sb.toString
 		}
 
@@ -360,8 +361,8 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			this
 		}
 
-		def innerJoin(schema: Option[String], table: String, alias: String, hints: String) = {
-			val ijb = new InnerJoinBuilder(schema, table, alias, hints)
+		def innerJoin(table: Table) = {
+			val ijb = new InnerJoinBuilder(table)
 			innerJoins = ijb :: innerJoins
 			ijb
 		}

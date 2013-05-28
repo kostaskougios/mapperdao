@@ -100,24 +100,24 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				val column = ci.column
 				column match {
 					case manyToOne: ManyToOne[_, _] =>
-						val join = manyToOneJoin(aliases, joinEntity, foreignEntity, manyToOne)
+						val join = manyToOneJoin(queryConfig, aliases, joinEntity, foreignEntity, manyToOne)
 						q.innerJoin(join)
 					case oneToMany: OneToMany[_, _] =>
-						val join = oneToManyJoin(aliases, joinEntity, foreignEntity, oneToMany)
+						val join = oneToManyJoin(queryConfig, aliases, joinEntity, foreignEntity, oneToMany)
 						q.innerJoin(join)
 					case manyToMany: ManyToMany[_, _] =>
-						val List(leftJoin, rightJoin) = manyToManyJoin(aliases, joinEntity, foreignEntity, manyToMany)
+						val List(leftJoin, rightJoin) = manyToManyJoin(queryConfig, aliases, joinEntity, foreignEntity, manyToMany)
 						q.innerJoin(leftJoin)
 						q.innerJoin(rightJoin)
 					case oneToOneReverse: OneToOneReverse[_, _] =>
-						val join = oneToOneReverseJoin(aliases, joinEntity, foreignEntity, oneToOneReverse)
+						val join = oneToOneReverseJoin(queryConfig, aliases, joinEntity, foreignEntity, oneToOneReverse)
 						q.innerJoin(join)
 					case oneToOne: OneToOne[_, _] =>
-						val join = oneToOneJoin(aliases, joinEntity, foreignEntity, oneToOne)
+						val join = oneToOneJoin(queryConfig, aliases, joinEntity, foreignEntity, oneToOne)
 						q.innerJoin(join)
 				}
 			case j: Query.SJoin[Any, Any, Any, Any, Any, Persisted, Any] =>
-				val joined = joinTable(aliases, j)
+				val joined = joinTable(queryConfig, aliases, j)
 				q.innerJoin(joined)
 		}
 
@@ -132,12 +132,12 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				case OneToManyOperation(left: OneToMany[Any, _], operand: Operand, right: Any) =>
 					val entity = typeRegistry.entityOf(left)
 					val foreignEntity = left.foreign.entity
-					q.innerJoin(oneToManyJoin(aliases, entity, foreignEntity, left))
+					q.innerJoin(oneToManyJoin(queryConfig, aliases, entity, foreignEntity, left))
 
 				case ManyToManyOperation(left: ManyToMany[Any, _], operand: Operand, right: Any) =>
 					val foreignEntity = left.foreign.entity
 					val entity = typeRegistry.entityOf(left)
-					val List(leftJ, _) = manyToManyJoin(aliases, entity, foreignEntity, left)
+					val List(leftJ, _) = manyToManyJoin(queryConfig, aliases, entity, foreignEntity, left)
 					q.innerJoin(leftJ)
 				case _ => //noop
 			}
@@ -173,6 +173,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		}
 
 	private def joinTable[JID, JT, FID, FT, QID, QPC <: Persisted, QT](
+		queryConfig: QueryConfig,
 		aliases: QueryDao.Aliases,
 		join: Query.SJoin[JID, JT, FID, FT, QID, QPC, QT]
 		) = {
@@ -181,7 +182,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val qAlias = aliases(jEntity)
 
 		val e = queryExpressions(aliases, join.on.ons.get.clauses)
-		val j = new driver.sqlBuilder.InnerJoinBuilder(jTable.schemaName, jTable.name, qAlias, null)
+		val j = new driver.sqlBuilder.InnerJoinBuilder(driver.sqlBuilder.Table(jTable.schemaName, queryConfig.schemaModifications, jTable.name, qAlias, null))
 		j(e)
 		j
 	}
@@ -329,6 +330,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 
 	// creates the join for one-to-one-reverse
 	private def oneToOneReverseJoin[JID, JT, FID, FT](
+		queryConfig: QueryConfig,
 		aliases: QueryDao.Aliases,
 		joinEntity: Entity[JID, _, JT],
 		foreignEntity: Entity[FID, _, FT],
@@ -341,7 +343,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val fAlias = aliases(foreignEntity)
 		val jAlias = aliases(joinEntity)
 
-		val j = new driver.sqlBuilder.InnerJoinBuilder(foreignTable.schemaName, foreignTable.name, fAlias, null)
+		val j = new driver.sqlBuilder.InnerJoinBuilder(driver.sqlBuilder.Table(foreignTable.schemaName, queryConfig.schemaModifications, foreignTable.name, fAlias, null))
 		(table.primaryKeys zip oneToOneReverse.foreignColumns).foreach {
 			case (left, right) =>
 				j.and(jAlias, left.name, "=", fAlias, right.name)
@@ -350,6 +352,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	}
 
 	private def oneToOneJoin[JID, JT, FID, FT](
+		queryConfig: QueryConfig,
 		aliases: QueryDao.Aliases,
 		joinEntity: Entity[JID, _, JT],
 		foreignEntity: Entity[FID, _, FT],
@@ -360,7 +363,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val fAlias = aliases(foreignEntity)
 		val jAlias = aliases(joinEntity)
 
-		val j = new driver.sqlBuilder.InnerJoinBuilder(foreignTable.schemaName, foreignTable.name, fAlias, null)
+		val j = new driver.sqlBuilder.InnerJoinBuilder(driver.sqlBuilder.Table(foreignTable.schemaName, queryConfig.schemaModifications, foreignTable.name, fAlias, null))
 		(oneToOne.selfColumns zip foreignTable.primaryKeys) foreach {
 			case (left, right) =>
 				j.and(jAlias, left.name, "=", fAlias, right.name)
@@ -370,6 +373,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 
 	// creates the join for many-to-one
 	private def manyToOneJoin[JID, JT, FID, FT](
+		queryConfig: QueryConfig,
 		aliases: QueryDao.Aliases,
 		joinEntity: EntityBase[JID, JT],
 		foreignEntity: EntityBase[FID, FT],
@@ -379,7 +383,8 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val fAlias = aliases(foreignEntity)
 		val jAlias = aliases(joinEntity)
 
-		val j = new driver.sqlBuilder.InnerJoinBuilder(foreignTable.schemaName, foreignTable.name, fAlias, null)
+		val t = driver.sqlBuilder.Table(foreignTable.schemaName, queryConfig.schemaModifications, foreignTable.name, fAlias, null)
+		val j = new driver.sqlBuilder.InnerJoinBuilder(t)
 		(manyToOne.columns zip foreignTable.primaryKeys).foreach {
 			case (left, right) =>
 				j.and(jAlias, left.name, "=", fAlias, right.name)
@@ -389,6 +394,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 
 	// creates the join for one-to-many
 	private def oneToManyJoin[JID, JT, FID, FT](
+		queryConfig: QueryConfig,
 		aliases: QueryDao.Aliases,
 		joinEntity: EntityBase[JID, JT],
 		foreignEntity: EntityBase[FID, FT],
@@ -400,7 +406,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val fAlias = aliases(foreignEntity)
 		val jAlias = aliases(joinEntity)
 
-		val j = new driver.sqlBuilder.InnerJoinBuilder(foreignTpe.table.schemaName, foreignTpe.table.name, fAlias, null)
+		val j = new driver.sqlBuilder.InnerJoinBuilder(driver.sqlBuilder.Table(foreignTpe.table.schemaName, queryConfig.schemaModifications, foreignTpe.table.name, fAlias, null))
 		(joinTpe.table.primaryKeys zip oneToMany.foreignColumns).foreach {
 			case (left, right) =>
 				j.and(jAlias, left.name, "=", fAlias, right.name)
@@ -410,6 +416,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 
 	// creates the join for one-to-many
 	private def manyToManyJoin[JID, JT, FID, FT](
+		queryConfig: QueryConfig,
 		aliases: QueryDao.Aliases,
 		joinEntity: EntityBase[JID, JT],
 		foreignEntity: EntityBase[FID, FT],
@@ -425,13 +432,13 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val linkTable = manyToMany.linkTable
 		val linkTableAlias = aliases(linkTable)
 
-		val j1 = new driver.sqlBuilder.InnerJoinBuilder(linkTable.schemaName, linkTable.name, linkTableAlias, null)
+		val j1 = new driver.sqlBuilder.InnerJoinBuilder(driver.sqlBuilder.Table(linkTable.schemaName, queryConfig.schemaModifications, linkTable.name, linkTableAlias, null))
 		(joinTpe.table.primaryKeys zip linkTable.left).foreach {
 			case (left, right) =>
 				j1.and(linkTableAlias, right.name, "=", jAlias, left.name)
 		}
 
-		val j2 = new driver.sqlBuilder.InnerJoinBuilder(foreignTable.schemaName, foreignTable.name, fAlias, null)
+		val j2 = new driver.sqlBuilder.InnerJoinBuilder(driver.sqlBuilder.Table(foreignTable.schemaName, queryConfig.schemaModifications, foreignTable.name, fAlias, null))
 		(foreignTable.primaryKeys zip linkTable.right).foreach {
 			case (left, right) =>
 				j2.and(fAlias, left.name, "=", linkTableAlias, right.name)

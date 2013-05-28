@@ -54,9 +54,29 @@ class SchemaModificationsSuite extends FunSuite with ShouldMatchers
 			r should be(Set(i1, i2))
 		}
 
+		test("CRUD, many to many") {
+			createTablesCommon()
+			import CommonEntities._
+
+			val a1 = Attribute("a1", "v1")
+			val a2 = Attribute("a2", "v2")
+			val a3 = Attribute("a3", "v3")
+
+			val p1 = Product("p1", Set(a1, a2))
+			val p2 = Product("p2", Set(a1, a3))
+			val List(i1, _) = mapperDao.insertBatch(uc, ProductEntity, List(p1, p2))
+
+			mapperDao.select(sc, ProductEntity, i1.id).get should be(p1)
+		}
+
 		def createTables() {
 			Setup.dropAllTables(jdbc)
 			Setup.queries(this, jdbc).update("person")
+		}
+
+		def createTablesCommon() {
+			Setup.dropAllTables(jdbc)
+			Setup.queries(this, jdbc).update("product-attribute")
 		}
 	}
 
