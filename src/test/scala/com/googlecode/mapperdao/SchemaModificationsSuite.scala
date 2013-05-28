@@ -20,10 +20,10 @@ class SchemaModificationsSuite extends FunSuite with ShouldMatchers
 		val modifications = SchemaModifications(
 			name => "tmp_" + name
 		)
-		val uc = UpdateConfig.default.copy(schemaModifications = modifications)
 		val sc = SelectConfig.default.copy(schemaModifications = modifications)
 		val dc = DeleteConfig.default.copy(schemaModifications = modifications)
 		val qc = QueryConfig.default.copy(schemaModifications = modifications)
+		val uc = UpdateConfig.default.copy(schemaModifications = modifications, deleteConfig = dc)
 
 		test("table name modified CRUD") {
 			createTables()
@@ -64,7 +64,7 @@ class SchemaModificationsSuite extends FunSuite with ShouldMatchers
 
 			val p1 = Product("p1", Set(a1, a2))
 			val p2 = Product("p2", Set(a1, a3))
-			val List(i1, _) = mapperDao.insertBatch(uc, ProductEntity, List(p1, p2))
+			val List(i1, i2) = mapperDao.insertBatch(uc, ProductEntity, List(p1, p2))
 
 			val s1 = mapperDao.select(sc, ProductEntity, i1.id).get
 			s1 should be(p1)
@@ -75,6 +75,8 @@ class SchemaModificationsSuite extends FunSuite with ShouldMatchers
 			mapperDao.delete(dc, ProductEntity, u1)
 
 			mapperDao.select(sc, ProductEntity, i1.id) should be(None)
+
+			mapperDao.select(sc, ProductEntity, i2.id).get should be(i2)
 		}
 
 		def createTables() {
