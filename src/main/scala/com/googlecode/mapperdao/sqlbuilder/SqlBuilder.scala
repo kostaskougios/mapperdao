@@ -136,6 +136,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			right match {
 				case null => throw new NullPointerException("null values not allowed as function parameters")
 				case v if (Jdbc.isPrimitiveJdbcType(driver, v.getClass)) => List(Jdbc.toSqlParameter(driver, right.getClass, right))
+				case f: SqlFunctionValue[_] => functionToValues(f)
 				case _ => Nil
 			}
 		else Nil
@@ -194,6 +195,8 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 							c =>
 								aliases(ci.column) + "." + c.name
 						}.mkString(",")
+					case right: SqlFunctionValue[_] =>
+						functionToSql(right)
 				})
 			}
 			sb.toString()

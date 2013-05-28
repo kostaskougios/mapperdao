@@ -35,6 +35,36 @@ class SqlFunctionSuite extends FunSuite with ShouldMatchers
 
 		Setup.queries(this, jdbc).update("functions")
 
+		test("function both left and right of the query expression, right been a param") {
+			createPersonCompany(jdbc)
+			mapperDao.insert(CompanyEntity, Company("Company A"))
+			val cb = mapperDao.insert(CompanyEntity, Company("Company B"))
+
+			import Query._
+			import StdSqlFunctions._
+			val r = (
+				select
+					from ce
+					where (lower(ce.name) === lower("Company B"))
+				).toSet(queryDao)
+			r should be === Set(cb)
+		}
+
+		test("function both left and right of the query expression") {
+			createPersonCompany(jdbc)
+			val ca = mapperDao.insert(CompanyEntity, Company("Company A"))
+			val cb = mapperDao.insert(CompanyEntity, Company("Company B"))
+
+			import Query._
+			import StdSqlFunctions._
+			val r = (
+				select
+					from ce
+					where (lower(ce.name) === lower(ce.name))
+				).toSet(queryDao)
+			r should be === Set(ca, cb)
+		}
+
 		test("std lower function with equals") {
 			createPersonCompany(jdbc)
 			mapperDao.insert(CompanyEntity, Company("Company A"))
