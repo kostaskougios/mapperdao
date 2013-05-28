@@ -17,14 +17,22 @@ class SchemaModificationsSuite extends FunSuite with ShouldMatchers
 
 	if (Setup.database == "h2") {
 
-		val uc = UpdateConfig.default.copy(schemaModifications = SchemaModifications(
+		val modifications = SchemaModifications(
 			name => "tmp_" + name
-		))
+		)
+		val uc = UpdateConfig.default.copy(schemaModifications = modifications)
+		val sc = SelectConfig.default.copy(schemaModifications = modifications)
 
-		test("table name modified") {
+		test("table name modified CRUD") {
 			createTables()
 
-			val inserted = mapperDao.insertBatch(uc, PersonEntity, List(Person("p1"), Person("p2")))
+			val List(i1, _) = mapperDao.insertBatch(uc, PersonEntity, List(Person("p1"), Person("p2")))
+
+			val s1 = mapperDao.select(sc, PersonEntity, i1.id).get
+			s1 should be(i1)
+
+			val u1 = mapperDao.update(uc, PersonEntity, s1, Person("p1updated"))
+			mapperDao.select(sc, PersonEntity, i1.id).get should be(u1)
 		}
 		def createTables() {
 			Setup.queries(this, jdbc).update("person")
