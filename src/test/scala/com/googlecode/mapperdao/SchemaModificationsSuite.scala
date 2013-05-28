@@ -66,7 +66,15 @@ class SchemaModificationsSuite extends FunSuite with ShouldMatchers
 			val p2 = Product("p2", Set(a1, a3))
 			val List(i1, _) = mapperDao.insertBatch(uc, ProductEntity, List(p1, p2))
 
-			mapperDao.select(sc, ProductEntity, i1.id).get should be(p1)
+			val s1 = mapperDao.select(sc, ProductEntity, i1.id).get
+			s1 should be(p1)
+
+			val u1 = mapperDao.update(uc, ProductEntity, s1, Product("p1updated", s1.attributes - a2 + Attribute("a4", "v4")))
+			mapperDao.select(sc, ProductEntity, i1.id).get should be(u1)
+
+			mapperDao.delete(dc, ProductEntity, u1)
+
+			mapperDao.select(sc, ProductEntity, i1.id) should be(None)
 		}
 
 		def createTables() {
