@@ -36,7 +36,7 @@ trait QueryDao
 	 * @param	qe		a query
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 */
-	def query[ID, PC <: Persisted, T](qe: Query.Where[ID, PC, T]): List[T with PC] = query(qe.builder)
+	def query[ID, PC <: Persisted, T](qe: ExecutableQuery[ID, PC, T]): List[T with PC] = query(defaultQueryConfig, qe)
 
 	/**
 	 * runs a query and retuns a list of entities.
@@ -50,19 +50,10 @@ trait QueryDao
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 * @see		#QueryConfig
 	 */
-	def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: Query.Where[ID, PC, T]): List[T with PC] = query(queryConfig, qe.builder)
-
-	/**
-	 * runs a query and retuns a list of entities.
-	 *
-	 * import Query._
-	 * val qe=(select from ProductEntity where title==="jeans")
-	 * val results=queryDao.query(qe) // list of products
-	 *
-	 * @param	qe		a query
-	 * @return	a list of T with PC i.e. List[Product with IntId]
-	 */
-	def query[ID, PC <: Persisted, T](qe: Query.Builder[ID, PC, T]): List[T with PC] = query(defaultQueryConfig, qe)
+	def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: ExecutableQuery[ID, PC, T]): List[T with PC] = qe match {
+		case qw: Query.Where[ID, PC, T] => query(queryConfig, qw.builder)
+		case qb: Query.Builder[ID, PC, T] => query(queryConfig, qb)
+	}
 
 	/**
 	 * runs a query and retuns a list of entities.
@@ -76,7 +67,7 @@ trait QueryDao
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 * @see		#QueryConfig
 	 */
-	def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): List[T with PC]
+	protected def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): List[T with PC]
 
 	/**
 	 * counts rows, i.e.
