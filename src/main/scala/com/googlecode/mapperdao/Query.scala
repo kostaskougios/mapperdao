@@ -78,7 +78,7 @@ with SqlOneToOneImplicitConvertions
 	 * main query builder, keeps track of all 'where', joins and order by.
 	 */
 	private[mapperdao] class Builder[ID, PC <: Persisted, T](protected[mapperdao] val entity: Entity[ID, PC, T])
-		extends OrderBy[Builder[ID, PC, T]] with ExecutableQuery[ID, PC, T]
+		extends OrderBy[Builder[ID, PC, T]] with QueryBuilder[ID, PC, T]
 	{
 		private[mapperdao] var wheres: Option[Where[ID, PC, T]] = None
 		private[mapperdao] var joins = List[Any]()
@@ -163,7 +163,7 @@ with SqlOneToOneImplicitConvertions
 	private[mapperdao] class Where[ID, PC <: Persisted, T](protected[mapperdao] val builder: Builder[ID, PC, T])
 		extends OrderBy[Where[ID, PC, T]]
 		with SqlWhereMixins[Where[ID, PC, T]]
-		with ExecutableQuery[ID, PC, T]
+		with QueryBuilder[ID, PC, T]
 	{
 		override def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)]) {
 			builder.order :::= l
