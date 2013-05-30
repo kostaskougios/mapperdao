@@ -28,7 +28,7 @@ import com.googlecode.mapperdao.plugins.SelectMod
  *
  *         13 Jul 2011
  */
-protected final class MapperDaoImpl(
+protected[mapperdao] final class MapperDaoImpl(
 	val driver: Driver,
 	val typeManager: TypeManager
 	) extends MapperDao

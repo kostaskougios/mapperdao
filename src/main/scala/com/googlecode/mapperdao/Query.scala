@@ -3,8 +3,6 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
 import com.googlecode.mapperdao.queries._
 import com.googlecode.mapperdao.schema.ColumnInfo
-import scala.Some
-
 
 /**
  * query builder and DSL
@@ -40,7 +38,7 @@ with SqlOneToOneImplicitConvertions
 	def select[ID, PC <: Persisted, T] = new QueryFrom[ID, PC, T]
 
 	// "from" syntactic sugar
-	protected class QueryFrom[ID, PC <: Persisted, T]
+	class QueryFrom[ID, PC <: Persisted, T]
 	{
 		def from(entity: Entity[ID, PC, T]) = new Builder[ID, PC, T](entity)
 	}
@@ -138,19 +136,19 @@ with SqlOneToOneImplicitConvertions
 		val sql = "desc"
 	}
 
-	protected[mapperdao] case class Join[JID, JT, FID, FT](
+	case class Join[JID, JT, FID, FT](
 		joinEntity: Entity[JID, Persisted, JT],
 		ci: ColumnInfoRelationshipBase[JT, _, FID, FT],
 		foreignEntity: Entity[FID, Persisted, FT]
 		)
 
-	protected[mapperdao] case class SJoin[JID, JT, FID, FT, QID, QPC <: Persisted, QT](
+	case class SJoin[JID, JT, FID, FT, QID, QPC <: Persisted, QT](
 		// for join on functionality
 		entity: Entity[JID, Persisted, JT],
 		on: JoinOn[QID, QPC, QT]
 		)
 
-	protected[mapperdao] class JoinOn[ID, PC <: Persisted, T](protected[mapperdao] val queryEntity: Builder[ID, PC, T])
+	class JoinOn[ID, PC <: Persisted, T](protected[mapperdao] val queryEntity: Builder[ID, PC, T])
 	{
 		protected[mapperdao] var ons: Option[Where[ID, PC, T]] = None
 
@@ -161,20 +159,17 @@ with SqlOneToOneImplicitConvertions
 		}
 	}
 
-	protected[mapperdao] class Where[ID, PC <: Persisted, T](
-		protected[mapperdao] val queryEntity: Builder[ID, PC, T]
-		)
+	class Where[ID, PC <: Persisted, T](protected[mapperdao] val builder: Builder[ID, PC, T])
 		extends OrderBy[Where[ID, PC, T]]
 		with SqlWhereMixins[Where[ID, PC, T]]
 	{
-
 		override def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)]) {
-			queryEntity.order :::= l
+			builder.order :::= l
 		}
 
 		def where = {
-			val qe = new Where(queryEntity)
-			queryEntity.wheres = Some(qe)
+			val qe = new Where(builder)
+			builder.wheres = Some(qe)
 			qe
 		}
 

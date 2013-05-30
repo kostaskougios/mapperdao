@@ -36,7 +36,7 @@ trait QueryDao
 	 * @param	qe		a query
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 */
-	def query[ID, PC <: Persisted, T](qe: Query.Where[ID, PC, T]): List[T with PC] = query(qe.queryEntity)
+	def query[ID, PC <: Persisted, T](qe: Query.Where[ID, PC, T]): List[T with PC] = query(qe.builder)
 
 	/**
 	 * runs a query and retuns a list of entities.
@@ -50,7 +50,7 @@ trait QueryDao
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 * @see		#QueryConfig
 	 */
-	def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: Query.Where[ID, PC, T]): List[T with PC] = query(queryConfig, qe.queryEntity)
+	def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: Query.Where[ID, PC, T]): List[T with PC] = query(queryConfig, qe.builder)
 
 	/**
 	 * runs a query and retuns a list of entities.
@@ -84,7 +84,7 @@ trait QueryDao
 	 * val qe=(select from ProductEntity where title==="jeans")
 	 * val count=queryDao.count(qe) // the number of jeans
 	 */
-	def count[ID, PC <: Persisted, T](qe: Query.Where[ID, PC, T], queryConfig: QueryConfig): Long = count(queryConfig, qe.queryEntity)
+	def count[ID, PC <: Persisted, T](qe: Query.Where[ID, PC, T], queryConfig: QueryConfig): Long = count(queryConfig, qe.builder)
 
 	def count[ID, PC <: Persisted, T](qe: Query.Where[ID, PC, T]): Long = count(qe, QueryConfig())
 
@@ -96,13 +96,13 @@ trait QueryDao
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, PC <: Persisted, T](qe: Query.Where[ID, PC, T]): Option[T with PC] = querySingleResult(defaultQueryConfig, qe.queryEntity)
+	def querySingleResult[ID, PC <: Persisted, T](qe: Query.Where[ID, PC, T]): Option[T with PC] = querySingleResult(defaultQueryConfig, qe.builder)
 
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: Query.Where[ID, PC, T]): Option[T with PC] = querySingleResult(queryConfig, qe.queryEntity)
+	def querySingleResult[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: Query.Where[ID, PC, T]): Option[T with PC] = querySingleResult(queryConfig, qe.builder)
 
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
