@@ -88,29 +88,26 @@ trait QueryDao
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, PC <: Persisted, T](qe: Query.Where[ID, PC, T]): Option[T with PC] = querySingleResult(defaultQueryConfig, qe.builder)
+	def querySingleResult[ID, PC <: Persisted, T](qb: QueryBuilder[ID, PC, T]): Option[T with PC] = querySingleResult(defaultQueryConfig, qb)
 
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: Query.Where[ID, PC, T]): Option[T with PC] = querySingleResult(queryConfig, qe.builder)
+	def querySingleResult[ID, PC <: Persisted, T](queryConfig: QueryConfig, qb: QueryBuilder[ID, PC, T]): Option[T with PC] = qb match {
+		case qw: Query.Where[ID, PC, T] => querySingleResult(queryConfig, qw.builder)
+		case qb: Query.Builder[ID, PC, T] => querySingleResult(queryConfig, qb)
+	}
 
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, PC <: Persisted, T](qe: Query.Builder[ID, PC, T]): Option[T with PC] = querySingleResult(defaultQueryConfig, qe)
-
-	/**
-	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
-	 * an IllegalStateException is thrown.
-	 */
-	def querySingleResult[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): Option[T with PC] = {
+	protected def querySingleResult[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): Option[T with PC] = {
 		val l = query(queryConfig, qe)
 		// l.size might be costly, so we'll test if l is empty first
 		if (l.isEmpty) None
-		else if (l.size > 1) throw new IllegalStateException("expected 0 or 1 result but got %s.".format(l))
+		else if (!l.tail.isEmpty) throw new IllegalStateException("expected 0 or 1 result but got %s.".format(l))
 		else l.headOption
 	}
 
