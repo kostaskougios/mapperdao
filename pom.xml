@@ -417,7 +417,7 @@
             <id>scala2.9</id>
             <properties>
                 <scala.version>2.9.3</scala.version>
-                <scala.lib.version>${scala.version}</scala.lib.version>
+                <scala.lib.version>2.9.2</scala.lib.version>
             </properties>
             <activation>
                 <property>
