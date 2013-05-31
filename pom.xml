@@ -416,7 +416,7 @@
         <profile>
             <id>scala2.9</id>
             <properties>
-                <scala.version>2.9.3</scala.version>
+                <scala.version>2.9.2</scala.version>
                 <scala.lib.version>2.9.2</scala.lib.version>
             </properties>
             <activation>
@@ -427,7 +427,7 @@
             <dependencies>
                 <dependency>
                     <groupId>org.scalatest</groupId>
-                    <artifactId>scalatest_2.9.3-RC1</artifactId>
+                    <artifactId>scalatest_2.9.2</artifactId>
                     <version>2.0.M5b</version>
                     <scope>test</scope>
                 </dependency>
