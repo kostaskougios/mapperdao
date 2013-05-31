@@ -23,6 +23,7 @@ package object mapperdao
 			val tpe = p.mapperDaoPersistedDetails.entity.tpe
 			val newVM = ValuesMap.fromType(p.mapperDaoPersistedDetails.typeManager, tpe.asInstanceOf[Type[Any, Any]], newO, p.mapperDaoValuesMap)
 			val n = tpe.constructor(p.mapperDaoPersistedDetails, None, newVM)
+			n.mapperDaoInit(p.mapperDaoValuesMap, p.mapperDaoPersistedDetails)
 			n.asInstanceOf[T]
 		case _ =>
 			throw new IllegalArgumentException("can't replace non-persisted entity " + oldO)
