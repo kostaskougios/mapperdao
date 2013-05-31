@@ -8,7 +8,7 @@ import com.googlecode.mapperdao.state.persistcmds.CmdPhase
 import com.googlecode.mapperdao.state.recreation.MockFactory
 import com.googlecode.mapperdao.state.recreation.RecreationPhase
 import com.googlecode.mapperdao.state.prioritise.PriorityPhase
-import com.googlecode.mapperdao.internal.UpdateEntityMap
+import com.googlecode.mapperdao.internal.{PersistedDetails, UpdateEntityMap, EntityMap}
 import com.googlecode.mapperdao.lazyload.LazyLoadManager
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.state.enhancevm.EnhanceVMPhase
@@ -19,7 +19,6 @@ import scala.Some
 import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
 import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
-import com.googlecode.mapperdao.internal.EntityMap
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
 import com.googlecode.mapperdao.plugins.SelectMod
 
@@ -36,6 +35,11 @@ protected[mapperdao] final class MapperDaoImpl(
 	private val typeRegistry = driver.typeRegistry
 	private val lazyLoadManager = new LazyLoadManager
 	private val mockFactory = new MockFactory(typeManager)
+
+	private val persistedDetailsPerTpe = typeRegistry.entities.map {
+		e =>
+			(e.tpe, new PersistedDetails(e, typeManager))
+	}.toMap
 
 	private val selectBeforePlugins: List[BeforeSelect] = List(
 		new ManyToOneSelectPlugin(typeRegistry, this),
@@ -87,7 +91,7 @@ protected[mapperdao] final class MapperDaoImpl(
 		val enhanceVM = new EnhanceVMPhase
 		enhanceVM.execute(pri)
 
-		val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap, nodes)
+		val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap, nodes, persistedDetailsPerTpe)
 		val recreated = recreationPhase.execute.asInstanceOf[List[T with DeclaredIds[ID]]]
 		recreated
 	}
@@ -146,7 +150,7 @@ protected[mapperdao] final class MapperDaoImpl(
 		val enhanceVM = new EnhanceVMPhase
 		enhanceVM.execute(pri)
 
-		val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap, nodes)
+		val recreationPhase = new RecreationPhase(updateConfig, mockFactory, typeManager, new UpdateEntityMap, nodes, persistedDetailsPerTpe)
 		recreationPhase.execute.asInstanceOf[List[T with Persisted]]
 	}
 
@@ -247,7 +251,8 @@ protected[mapperdao] final class MapperDaoImpl(
 
 				entities.get[T with Persisted](tpe.clz, ids) {
 					val mods = jdbcMap.toMap
-					val mock = mockFactory.createMock(selectConfig.data, entity.tpe, mods)
+					val persistedDetails = persistedDetailsPerTpe(tpe)
+					val mock = mockFactory.createMock(selectConfig.data, entity.tpe, mods, persistedDetails)
 					entities.putMock(tpe.clz, ids, mock)
 
 					val allMods = mods ++ selectBeforePlugins.map {
@@ -262,7 +267,7 @@ protected[mapperdao] final class MapperDaoImpl(
 					// we need to lazy load it
 					val entityV = if (lazyLoadManager.isLazyLoaded(selectConfig.lazyLoad, entity)) {
 						lazyLoadEntity(entity, selectConfig, vm)
-					} else tpe.constructor(selectConfig.data, vm)
+					} else tpe.constructor(persistedDetailsPerTpe(tpe), selectConfig.data, vm)
 					vm.o = entityV
 					Some(entityV)
 				}.get
@@ -298,7 +303,7 @@ protected[mapperdao] final class MapperDaoImpl(
 				(ci.column.alias, vm.valueOf(ci))
 		}).toMap
 		val lazyLoadedVM = ValuesMap.fromMap(null, lazyLoadedMods)
-		val constructed = tpe.constructor(selectConfig.data, lazyLoadedVM)
+		val constructed = tpe.constructor(persistedDetailsPerTpe(entity.tpe), selectConfig.data, lazyLoadedVM)
 		val proxy = lazyLoadManager.proxyFor(constructed, entity, lazyLoad, vm)
 		lazyLoadedVM.o = proxy
 		proxy
@@ -367,7 +372,7 @@ protected[mapperdao] final class MapperDaoImpl(
 	override def link0[ID, T](entity: Entity[ID, Persisted, T], o: T with Persisted) = {
 		val vm = ValuesMap.fromType(typeManager, entity.tpe, o)
 		val r = entity.constructor(None, vm)
-		r.mapperDaoValuesMap = vm
+		r.mapperDaoInit(vm, persistedDetailsPerTpe(entity.tpe))
 		r
 	}
 

@@ -84,7 +84,7 @@ class JavaMappingSuite extends FunSuite with ShouldMatchers
 		val vm = ValuesMap.fromMap(System.identityHashCode(p), Map(
 			"product:1" -> attrs.asScala.toList
 		))
-		val pc = ProductEntityMTM.tpe.constructor(null, vm)
+		val pc = ProductEntityMTM.tpe.constructor(null, null, vm)
 		pc.getAttributes.asScala should be === attrs.asScala.toSet
 	}
 
@@ -109,7 +109,7 @@ class JavaMappingSuite extends FunSuite with ShouldMatchers
 		val vm = ValuesMap.fromMap(System.identityHashCode(p), Map(
 			"product:1" -> attrs.asScala.toList
 		))
-		val pc = ProductEntityOTM.tpe.constructor(null, vm)
+		val pc = ProductEntityOTM.tpe.constructor(null, null, vm)
 		pc.getAttributes.asScala should be === attrs.asScala.toSet
 	}
 

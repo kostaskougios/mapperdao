@@ -10,24 +10,28 @@ import com.googlecode.mapperdao.schema.ColumnBase
  *
  *         25 Jul 2011
  */
-final class TypeRegistry private(val entities: List[Entity[_, _, _]])
+final class TypeRegistry private(val entities: List[EntityBase[_, _]])
 {
-	private val columnsToEntity = new IdentityHashMap[ColumnBase, Entity[Any, Persisted, Any]]
+	private val columnsToEntity = new IdentityHashMap[ColumnBase, EntityBase[Any, Any]]
 
 	entities.foreach {
 		entity =>
-			entity.init()
-			val columns = entity.onlyForQueryColumns.map {
-				ci =>
-					ci.column
-			} ::: entity.tpe.table.columns
-			columns.foreach {
-				c =>
-					columnsToEntity.put(c, entity.asInstanceOf[Entity[Any, Persisted, Any]])
+			entity match {
+				case e: Entity[_, Persisted, _] =>
+					e.init()
+					val columns = e.onlyForQueryColumns.map {
+						ci =>
+							ci.column
+					} ::: entity.tpe.table.columns
+					columns.foreach {
+						c =>
+							columnsToEntity.put(c, entity.asInstanceOf[EntityBase[Any, Any]])
+					}
+				case _ => // noop
 			}
 	}
 
-	def entityOf(column: ColumnBase): Entity[Any, Persisted, Any] = {
+	def entityOf(column: ColumnBase): EntityBase[Any, Any] = {
 		val e = columnsToEntity.get(column)
 		if (e == null)
 			throw new IllegalArgumentException("can't find entity for column %s, is entity registered with this type registry?".format(column))
@@ -42,7 +46,7 @@ object TypeRegistry
 	/**
 	 * creates a TypeRegistry, registers all types and initializes the TypeRegistry.
 	 */
-	def apply(types: Entity[_, _, _]*): TypeRegistry = new TypeRegistry(types.toList)
+	def apply(types: EntityBase[_, _]*): TypeRegistry = new TypeRegistry(types.toList)
 
-	def apply(types: List[Entity[_, _, _]]): TypeRegistry = new TypeRegistry(types)
+	def apply(types: List[EntityBase[_, _]]): TypeRegistry = new TypeRegistry(types)
 }

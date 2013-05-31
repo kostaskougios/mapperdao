@@ -5,14 +5,12 @@ import org.apache.commons.dbcp.BasicDataSource
 import org.apache.commons.dbcp.BasicDataSourceFactory
 import org.scala_tools.time.Imports._
 import org.slf4j.LoggerFactory
-import com.googlecode.mapperdao.DefaultTypeManager
-import com.googlecode.mapperdao.TypeRegistry
+import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.utils.{Setup => S}
 import com.googlecode.mapperdao.utils.Database
 import com.googlecode.mapperdao.drivers.Cache
 import org.joda.time.chrono.ISOChronology
 import javax.sql.DataSource
-import com.googlecode.mapperdao.Entity
 import org.springframework.jdbc.datasource.SingleConnectionDataSource
 
 /**
@@ -73,7 +71,7 @@ object Setup
 			properties.getProperty("password"), true)
 	}
 
-	def from(dataSource: DataSource, entities: List[Entity[_, _, _]]) = {
+	def from(dataSource: DataSource, entities: List[EntityBase[_, _]]) = {
 		val (j, m, q, t) = S.create(Database.byName(database), dataSource, TypeRegistry(entities))
 		(j, m, q, t)
 	}
@@ -186,7 +184,7 @@ object Setup
 					begin
 						select myseq.nextval into :new.id from dual;
 					end;
-					 """.format(table))
+		             """.format(table))
 
 	}
 

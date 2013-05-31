@@ -28,5 +28,17 @@ class MergeSuite extends FunSuite with ShouldMatchers
 			merged should be === upd
 			mapperDao.select(PersonEntity, inserted.id).get should be === merged
 		}
+
+		test("merge and replace") {
+			createPersonCompany(jdbc)
+			val person = Person("person 1", company)
+			val inserted = mapperDao.insert(PersonEntity, person)
+			val upd = Person("person 1 updated", replace(inserted.company, inserted.company.copy(name = "updated")))
+			val merged = mapperDao.merge(PersonEntity, upd, inserted.id)
+			merged should be === upd
+			mapperDao.select(PersonEntity, inserted.id).get should be === merged
+
+			jdbc.queryForInt("select count(*) from company") should be(1)
+		}
 	}
 }

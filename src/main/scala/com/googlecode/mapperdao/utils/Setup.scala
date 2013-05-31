@@ -32,7 +32,7 @@ object Setup
 	 */
 	def postGreSql(
 		dataSource: DataSource,
-		entities: List[Entity[_, _, _]],
+		entities: List[Entity[_, Persisted, _]],
 		cache: Option[Cache] = None
 		): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.PostgreSql, dataSource, entities, cache)
@@ -44,7 +44,7 @@ object Setup
 	 */
 	def mysql(
 		dataSource: DataSource,
-		entities: List[Entity[_, _, _]],
+		entities: List[Entity[_, Persisted, _]],
 		cache: Option[Cache] = None
 		): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.Mysql, dataSource, entities, cache)
@@ -56,7 +56,7 @@ object Setup
 	 */
 	def oracle(
 		dataSource: DataSource,
-		entities: List[Entity[_, _, _]],
+		entities: List[Entity[_, Persisted, _]],
 		cache: Option[Cache] = None
 		): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.Oracle, dataSource, entities, cache)
@@ -68,7 +68,7 @@ object Setup
 	 */
 	def derby(
 		dataSource: DataSource,
-		entities: List[Entity[_, _, _]],
+		entities: List[Entity[_, Persisted, _]],
 		cache: Option[Cache] = None
 		): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.Derby, dataSource, entities, cache)
@@ -80,7 +80,7 @@ object Setup
 	 */
 	def sqlServer(
 		dataSource: DataSource,
-		entities: List[Entity[_, _, _]],
+		entities: List[Entity[_, Persisted, _]],
 		cache: Option[Cache] = None
 		): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.SqlServer, dataSource, entities, cache)
@@ -92,7 +92,7 @@ object Setup
 	 */
 	def h2(
 		dataSource: DataSource,
-		entities: List[Entity[_, _, _]],
+		entities: List[Entity[_, Persisted, _]],
 		cache: Option[Cache] = None
 		): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		apply(Database.H2, dataSource, entities, cache)
@@ -104,7 +104,7 @@ object Setup
 	def apply(
 		database: Database.DriverConfiguration,
 		dataSource: DataSource,
-		entities: List[Entity[_, _, _]],
+		entities: List[Entity[_, Persisted, _]],
 		cache: Option[Cache] = None
 		): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
 		create(database, dataSource, TypeRegistry(entities), cache, ISOChronology.getInstance)

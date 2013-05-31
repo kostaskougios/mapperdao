@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.internal.{GetterDefinition, LazyActions, Utils}
+import com.googlecode.mapperdao.internal.{PersistedDetails, GetterDefinition, LazyActions, Utils}
 import java.util.Calendar
 import java.util.Date
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
@@ -89,11 +89,11 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	private[mapperdao] var onlyForQueryColumns = List[ColumnInfoBase[T, _]]()
 	private val unusedPKs = new LazyActions[ColumnInfoBase[Any, Any]]
 	private[mapperdao] lazy val tpe = {
-		val con: (Option[_], ValuesMap) => T with Persisted = (d, m) => {
+		val con: (PersistedDetails, Option[_], ValuesMap) => T with Persisted = (pd, d, m) => {
 			// construct the object
 			val o = constructor(d, m)
 			// set the values map
-			o.mapperDaoValuesMap = m
+			o.mapperDaoInit(m, pd)
 			o
 		}
 		EntityType[ID, T](clz, con, new Table[ID, T](databaseSchema, table, columns.reverse, persistedColumns, unusedPKs.executeAll.reverse))

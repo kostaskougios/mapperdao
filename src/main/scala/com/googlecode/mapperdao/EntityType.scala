@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.schema.{Type, Table}
+import com.googlecode.mapperdao.internal.PersistedDetails
 
 /**
  * @author: kostas.kougios
@@ -8,7 +9,7 @@ import com.googlecode.mapperdao.schema.{Type, Table}
  */
 protected case class EntityType[ID, T](
 	clz: Class[T],
-	constructor: (Option[_], ValuesMap) => T with Persisted,
+	constructor: (PersistedDetails, Option[_], ValuesMap) => T with Persisted,
 	table: Table[ID, T]
 	) extends Type[ID, T]
 {

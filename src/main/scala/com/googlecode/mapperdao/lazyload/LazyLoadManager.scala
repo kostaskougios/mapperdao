@@ -79,7 +79,7 @@ private[mapperdao] class LazyLoadManager
 		}.toMap
 
 		val llpm = new LazyLoadProxyMethod[T](toLazyLoad, methodToCI.asInstanceOf[Map[String, ColumnInfoRelationshipBase[T, Any, Any, Any]]])
-		llpm.mapperDaoValuesMap = vm
+		llpm.mapperDaoInit(vm, constructed.mapperDaoPersistedDetails)
 		instance.methodImplementation(llpm)
 		instance
 	}

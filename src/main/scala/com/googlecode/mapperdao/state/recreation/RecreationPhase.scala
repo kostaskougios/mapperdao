@@ -9,7 +9,7 @@ import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
 import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
 import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
-import com.googlecode.mapperdao.internal.{MutableIdentityHashMap, UpdateEntityMap}
+import com.googlecode.mapperdao.internal.{PersistedDetails, MutableIdentityHashMap, UpdateEntityMap}
 
 /**
  * during recreation phase, persisted objects are re-created with Stored type mixed in the
@@ -24,7 +24,8 @@ class RecreationPhase(
 	mockFactory: MockFactory,
 	typeManager: TypeManager,
 	entityMap: UpdateEntityMap,
-	nodes: List[PersistedNode[_, _]]
+	nodes: List[PersistedNode[_, _]],
+	persistedDetailsPerTpe: Map[Type[_, _], PersistedDetails]
 	)
 {
 
@@ -53,8 +54,9 @@ class RecreationPhase(
 
 							val modified = newVM.toMap
 
+							val persistedDetails = persistedDetailsPerTpe(tpe)
 							// create a mock
-							val mockO = mockFactory.createMock(updateConfig.data, tpe, modified)
+							val mockO = mockFactory.createMock(updateConfig.data, tpe, modified, persistedDetails)
 							entityMap.put(node.o, mockO)
 
 							val related = if (newVM.mock)
@@ -103,7 +105,7 @@ class RecreationPhase(
 
 							val finalMods = modified ++ related
 							val finalVM = ValuesMap.fromMap(null, finalMods)
-							val newE = tpe.constructor(updateConfig.data, finalVM)
+							val newE = tpe.constructor(persistedDetails, updateConfig.data, finalVM)
 							finalVM.o = newE
 							// re-put the actual
 							entityMap.put(node.o, newE)

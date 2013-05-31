@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao.schema
 
 import com.googlecode.mapperdao.{Persisted, ValuesMap}
+import com.googlecode.mapperdao.internal.PersistedDetails
 
 /**
  * a Type holds type information for an entity
@@ -12,7 +13,7 @@ import com.googlecode.mapperdao.{Persisted, ValuesMap}
 trait Type[ID, T]
 {
 	val clz: Class[T]
-	val constructor: (Option[_], ValuesMap) => T with Persisted
+	val constructor: (PersistedDetails, Option[_], ValuesMap) => T with Persisted
 	val table: Table[ID, T]
 }
 

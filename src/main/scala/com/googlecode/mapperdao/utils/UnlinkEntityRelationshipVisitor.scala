@@ -40,7 +40,7 @@ class UnlinkEntityRelationshipVisitor extends EntityRelationshipVisitor(visitLaz
 		o match {
 			case p: Persisted =>
 				p.mapperDaoDiscarded = true
-				p.mapperDaoValuesMap = null
+				p.mapperDaoInit(null, null)
 			case _ =>
 		}
 	}
