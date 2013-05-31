@@ -16,7 +16,7 @@ import com.googlecode.mapperdao.CommonEntities._
 @RunWith(classOf[JUnitRunner])
 class ImmutableUpdatingTreeSuite extends FunSuite with ShouldMatchers
 {
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(AllEntities))
 
 	test("many to many , update level 2 entity without inserting a new one") {
 		createProductAttribute(jdbc)

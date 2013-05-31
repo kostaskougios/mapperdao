@@ -20,7 +20,7 @@ class CachingEndToEndSuite extends FunSuite with ShouldMatchers
 	val ehCache = cacheManager.getCache("CachingEndToEndSuite")
 	val mapperDaoCache = new CacheUsingEHCache(ehCache)
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity), cache = Some(mapperDaoCache))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity, PersonEntity, HouseEntity), cache = Some(mapperDaoCache))
 	val selectConfig = SelectConfig(cacheOptions = CacheOptions.OneHour)
 	val queryConfig = QueryConfig(cacheOptions = CacheOptions.OneHour)
 
@@ -61,7 +61,7 @@ class CachingEndToEndSuite extends FunSuite with ShouldMatchers
 	test("delete flushes cache") {
 		createManyToManyTables
 		val product = Product(5, "blue jean", Set(Attribute(2, "colour", "blue")))
-		val inserted = mapperDao.insert(ProductEntity, product)
+		mapperDao.insert(ProductEntity, product)
 
 		// do a dummy select, just to cache it
 		mapperDao.select(ProductEntity, 5)
@@ -158,7 +158,7 @@ class CachingEndToEndSuite extends FunSuite with ShouldMatchers
 	test("query with cached data negative") {
 		createManyToManyTables
 		val product = Product(5, "blue jean", Set(Attribute(2, "colour", "blue"), Attribute(7, "size", "medium")))
-		val inserted = mapperDao.insert(ProductEntity, product)
+		mapperDao.insert(ProductEntity, product)
 
 		import Query._
 		// just to cache the data
