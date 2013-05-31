@@ -10,7 +10,7 @@ import com.googlecode.mapperdao.jdbc.Jdbc
  */
 object CommonEntities
 {
-	val AllEntities = List(ProductEntity, AttributeEntity, PersonEntity, CompanyEntity, OwnerEntity, HouseEntity, HusbandEntity, WifeEntity, ImageEntity)
+	val AllEntities: List[EntityBase[_, _]] = List(ProductEntity, AttributeEntity, PersonEntity, CompanyEntity, OwnerEntity, HouseEntity, HusbandEntity, WifeEntity, ImageEntity)
 
 	def createProductAttribute(jdbc: Jdbc) = {
 		Setup.dropAllTables(jdbc)

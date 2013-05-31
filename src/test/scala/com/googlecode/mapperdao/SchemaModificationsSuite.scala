@@ -13,7 +13,10 @@ import com.googlecode.mapperdao.schema.SchemaModifications
 @RunWith(classOf[JUnitRunner])
 class SchemaModificationsSuite extends FunSuite with ShouldMatchers
 {
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(PersonEntity :: CommonEntities.AllEntities)
+	val (jdbc, mapperDao, queryDao) = {
+		val entities = PersonEntity :: CommonEntities.AllEntities
+		Setup.setupMapperDao(entities)
+	}
 
 	if (Setup.database == "h2") {
 
