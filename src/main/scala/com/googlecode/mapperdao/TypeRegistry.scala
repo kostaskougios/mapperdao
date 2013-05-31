@@ -16,8 +16,8 @@ final class TypeRegistry private(typeManager: TypeManager, val entities: List[En
 	private val columnsToEntity = new IdentityHashMap[ColumnBase, EntityBase[Any, Any]]
 	private val persistedDetailsPerTpe = entities.map {
 		e =>
-			(e.tpe, new PersistedDetails(e, typeManager))
-	}.toMap
+			(e.tpe.asInstanceOf[Type[Any, Any]], new PersistedDetails(e, typeManager))
+	}.toMap.asInstanceOf[Map[Type[_, _], PersistedDetails]]
 
 	entities.foreach {
 		entity =>
