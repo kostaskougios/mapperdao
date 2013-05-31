@@ -16,7 +16,7 @@ import org.scalatest.matchers.ShouldMatchers
 class SimpleQuerySuite extends FunSuite with ShouldMatchers
 {
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(JobPositionEntity))
 
 	test("query select complex parenthesis") {
 		createJobPositionTable()

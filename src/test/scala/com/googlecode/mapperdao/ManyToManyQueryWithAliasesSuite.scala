@@ -17,7 +17,7 @@ class ManyToManyQueryWithAliasesSuite extends FunSuite with ShouldMatchers
 
 	import ManyToManyQueryWithAliasesSuite._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(AttributeEntity, ProductEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(AttributeEntity, ProductEntity))
 
 	import Query._
 

@@ -17,7 +17,7 @@ class UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite extends FunSuite with 
 {
 
 	if (Setup.database == "h2") {
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(TagEntity, SimpleProductEntity))
+		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(TagEntity, SimpleProductEntity))
 
 		val te = TagEntity
 		val spe = SimpleProductEntity

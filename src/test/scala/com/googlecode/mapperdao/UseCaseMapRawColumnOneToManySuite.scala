@@ -19,7 +19,7 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with ShouldMatchers
 
 	// run this only against H2 database
 	if (Setup.database == "h2") {
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity, PersonEntity))
+		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(JobPositionEntity, PersonEntity))
 
 		test("updating items (immutable)") {
 			createTables()

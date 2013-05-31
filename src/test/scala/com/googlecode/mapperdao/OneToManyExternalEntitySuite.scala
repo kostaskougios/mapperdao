@@ -15,7 +15,7 @@ import org.scalatest.junit.JUnitRunner
 class OneToManyExternalEntitySuite extends FunSuite with ShouldMatchers
 {
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(HouseEntity, PersonEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(HouseEntity, PersonEntity))
 
 	if (Setup.database == "h2") {
 		test("persist/select") {

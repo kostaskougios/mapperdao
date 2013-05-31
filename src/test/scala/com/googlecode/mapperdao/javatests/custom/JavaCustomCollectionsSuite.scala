@@ -16,7 +16,7 @@ import scala.Some
 @RunWith(classOf[JUnitRunner])
 class JavaCustomCollectionsSuite extends FunSuite with ShouldMatchers
 {
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, AttributeEntity))
 
 	test("CRUD") {
 		createProductAttribute(jdbc)

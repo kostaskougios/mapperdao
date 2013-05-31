@@ -25,7 +25,6 @@ class CustomTypesSuite extends FunSuite with ShouldMatchers
 		 * factory methods to create the mapperDao classes. We'll create each class separatelly.
 		 */
 		val dataSource = BasicDataSourceFactory.createDataSource(properties)
-		val typeRegistry = TypeRegistry(DatesEntity)
 
 		/**
 		 * we need to store Dates.time as long in the database. We'll configure
@@ -64,7 +63,7 @@ class CustomTypesSuite extends FunSuite with ShouldMatchers
 		/**
 		 * now we can initialize mapperDao
 		 */
-		val (jdbc, mapperDao, queryDao, _) = Setup.create(Database.byName(database), dataSource, typeRegistry, customDatabaseToScalaTypes = myDatabaseToScalaTypes)
+		val (jdbc, mapperDao, queryDao, _) = Setup.create(Database.byName(database), dataSource, List(DatesEntity), customDatabaseToScalaTypes = myDatabaseToScalaTypes)
 
 		test("date as long in db") {
 			createTables("longdate")

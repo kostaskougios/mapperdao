@@ -14,7 +14,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 @RunWith(classOf[JUnitRunner])
 class OneToOneReverseExternalEntitySuite extends FunSuite with ShouldMatchers
 {
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, InventoryEntity))
 
 	if (Setup.database == "h2") {
 		test("persist/select") {

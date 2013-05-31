@@ -15,7 +15,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 class ManyToOneLazyLoadSuite extends FunSuite with ShouldMatchers
 {
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(PersonEntity, CompanyEntity))
 
 	if (Setup.database == "h2") {
 		val selectConfig = SelectConfig.lazyLoad

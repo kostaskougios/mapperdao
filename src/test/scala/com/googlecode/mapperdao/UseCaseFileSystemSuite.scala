@@ -17,7 +17,7 @@ class UseCaseFileSystemSuite extends FunSuite with ShouldMatchers
 
 	import UseCaseFileSystemSuite._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(DirectoryEntity, FileEntity, ArchiveEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(DirectoryEntity, FileEntity, ArchiveEntity))
 
 	if (Setup.database == "h2") {
 		test("integration") {

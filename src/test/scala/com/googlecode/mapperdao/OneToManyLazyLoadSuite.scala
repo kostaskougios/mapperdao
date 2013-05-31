@@ -16,7 +16,7 @@ import com.googlecode.concurrent.ExecutorServiceManager
 @RunWith(classOf[JUnitRunner])
 class OneToManyLazyLoadSuite extends FunSuite with ShouldMatchers
 {
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(HouseEntity, PersonEntity, CarEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(HouseEntity, PersonEntity, CarEntity))
 
 	if (Setup.database == "h2") {
 		val reflectionManager = new ReflectionManager

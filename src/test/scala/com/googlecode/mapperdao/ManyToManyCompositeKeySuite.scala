@@ -17,7 +17,7 @@ class ManyToManyCompositeKeySuite extends FunSuite with ShouldMatchers
 
 	val database = Setup.database
 	if (database != "h2") {
-		implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(UserEntity, AccountEntity))
+		implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(UserEntity, AccountEntity))
 
 		// aliases
 		val ue = UserEntity

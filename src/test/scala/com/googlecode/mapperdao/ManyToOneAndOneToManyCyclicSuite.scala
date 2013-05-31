@@ -17,7 +17,7 @@ class ManyToOneAndOneToManyCyclicSuite extends FunSuite with ShouldMatchers
 
 	import ManyToOneAndOneToManyCyclicSuite._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(PersonEntity, CompanyEntity))
 
 	import mapperDao._
 

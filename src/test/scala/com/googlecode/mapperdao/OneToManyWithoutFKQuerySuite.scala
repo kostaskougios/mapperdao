@@ -19,7 +19,7 @@ class OneToManyWithoutFKQuerySuite extends FunSuite with ShouldMatchers
 	val l2 = Location(2, "fr")
 
 	if (Setup.database == "h2") {
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InfoEntity, LocationEntity))
+		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, InfoEntity, LocationEntity))
 
 		test("query for many") {
 			createTables()

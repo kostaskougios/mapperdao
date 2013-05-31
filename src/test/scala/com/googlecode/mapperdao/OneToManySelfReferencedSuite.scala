@@ -19,7 +19,7 @@ class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers
 
 	import OneToManySelfReferencedSuite._
 
-	val (jdbc, mapperDao, queryDao) = setup
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(PersonEntity))
 
 	test("batch insert") {
 		createTables()
@@ -143,13 +143,6 @@ class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers
 		updated should be === modified
 
 		mapperDao.select(PersonEntity, updated.id).get should be === updated
-	}
-
-	def setup = {
-
-		val typeRegistry = TypeRegistry(PersonEntity)
-
-		Setup.setupMapperDao(typeRegistry)
 	}
 
 	def createTables() {

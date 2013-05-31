@@ -17,7 +17,7 @@ class OneToOneQuerySuite extends FunSuite with ShouldMatchers
 	val InventoryEntity = new InventoryEntityBase
 	val ProductEntity = new ProductEntityBase
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, InventoryEntity))
 
 	test("query with limits (offset only)") {
 		createTables

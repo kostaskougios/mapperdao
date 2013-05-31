@@ -19,7 +19,7 @@ import org.joda.time.chrono.ISOChronology
 class ValuesMapSuite extends FunSuite with ShouldMatchers
 {
 	if (Setup.database == "h2") {
-		Setup.setupMapperDao(TypeRegistry(TypeEntity))
+		Setup.setupMapperDao(List(TypeEntity))
 		val typeManager = new DefaultTypeManager(ISOChronology.getInstance)
 
 		test("calendar") {

@@ -18,7 +18,7 @@ class LowLevelQuerySuite extends FunSuite with ShouldMatchers
 	import CommonEntities._
 
 	if (Setup.database == "h2") {
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, AttributeEntity))
 
 		test("low level query, single entity") {
 			createProductAttribute(jdbc)

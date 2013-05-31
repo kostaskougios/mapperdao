@@ -17,7 +17,7 @@ class MultipleInheritance1TableSuite extends FunSuite with ShouldMatchers
 {
 
 	if (Setup.database == "h2") {
-		implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ReminderEntity))
+		implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ReminderEntity))
 
 		test("crud for Daily") {
 			createTables()

@@ -19,7 +19,7 @@ class SqlFunctionSuite extends FunSuite with ShouldMatchers
 	import CommonEntities._
 
 	if (Setup.database != "derby") {
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(
+		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(
 			CompanyEntity,
 			PersonEntity,
 			HusbandEntity,

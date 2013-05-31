@@ -13,7 +13,7 @@ import org.scalatest.junit.JUnitRunner
 class OneToManyDeclarePrimaryKeysIssueSuite extends FunSuite with ShouldMatchers
 {
 	if (Setup.database == "h2") {
-		val (jdbc, mapperDao, _) = Setup.setupMapperDao(TypeRegistry(ProductEntity, PropertyEntity))
+		val (jdbc, mapperDao, _) = Setup.setupMapperDao(List(ProductEntity, PropertyEntity))
 
 		test("insert") {
 			createTables()

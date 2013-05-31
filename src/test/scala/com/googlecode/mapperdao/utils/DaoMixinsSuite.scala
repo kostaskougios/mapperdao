@@ -21,7 +21,7 @@ class DaoMixinsSuite extends FunSuite with ShouldMatchers
 
 	import DaoMixinsSuite._
 
-	val (jdbc, mapperDao, queryDao) = TestSetup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+	val (jdbc, mapperDao, queryDao) = TestSetup.setupMapperDao(List(ProductEntity, AttributeEntity))
 
 	val txManager = Transaction.transactionManager(jdbc)
 

@@ -13,7 +13,7 @@ import com.googlecode.mapperdao.schema.Schema
 @RunWith(classOf[JUnitRunner])
 class SchemaSuite extends FunSuite with ShouldMatchers
 {
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, AttributeEntity))
 
 	if (Setup.database == "postgresql") {
 		test("schema CRUD") {

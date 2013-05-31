@@ -14,7 +14,7 @@ import org.scalatest.matchers.ShouldMatchers
 @RunWith(classOf[JUnitRunner])
 class TwoPrimaryKeysSimpleSuite extends FunSuite with ShouldMatchers
 {
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(UserEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(UserEntity))
 
 	test("insert") {
 		createTables

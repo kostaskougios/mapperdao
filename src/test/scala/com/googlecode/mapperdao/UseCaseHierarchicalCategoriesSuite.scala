@@ -15,7 +15,7 @@ class UseCaseHierarchicalCategoriesSuite extends FunSuite with ShouldMatchers
 
 	import UseCaseHierarchicalCategoriesSuite._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(CategoryEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(CategoryEntity))
 
 	if (Setup.database == "h2") {
 		test("hierarchy") {

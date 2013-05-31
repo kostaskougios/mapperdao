@@ -15,7 +15,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with ShouldMatchers
 {
 	val LinkedPeopleEntity = PersonEntity.LinkedPeopleEntity
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, LinkedPeopleEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(PersonEntity, LinkedPeopleEntity))
 
 	val person1 = Person("person1@example.com", "Mr Person One")
 	val person2 = Person("person2@example.com", "Mrs Person Two")

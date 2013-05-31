@@ -18,7 +18,7 @@ class ForQueryOnlySuite extends FunSuite with ShouldMatchers
 	if (Setup.database == "h2") {
 		import CommonEntities._
 
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, AttributeEntity))
 
 		val ae = AttributeEntity
 		val pe = ProductEntity

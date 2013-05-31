@@ -19,7 +19,7 @@ class OneToOneReverseCompositeKeySuite extends FunSuite with ShouldMatchers
 	import OneToOneReverseCompositeKeySuite._
 
 	if (database != "h2") {
-		implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(InventoryEntity, ProductEntity))
+		implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(InventoryEntity, ProductEntity))
 		var noiseId = 100
 
 		// aliases

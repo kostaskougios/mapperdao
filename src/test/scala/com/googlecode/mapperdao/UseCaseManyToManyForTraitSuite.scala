@@ -18,7 +18,7 @@ class UseCaseManyToManyForTraitSuite extends FunSuite with ShouldMatchers
 {
 
 	if (Setup.database == "h2") {
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity, ContactListEntity))
+		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(PersonEntity, CompanyEntity, ContactListEntity))
 
 		test("CRUD") {
 			createTables()

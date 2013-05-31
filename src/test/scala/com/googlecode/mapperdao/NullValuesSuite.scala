@@ -15,7 +15,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 class NullValuesSuite extends FunSuite with ShouldMatchers
 {
 	if (Setup.database == "h2") {
-		val (jdbc, mapperDao, _) = Setup.setupMapperDao(TypeRegistry(ValuesEntity))
+		val (jdbc, mapperDao, _) = Setup.setupMapperDao(List(ValuesEntity))
 
 		val v = Values(1, null, null, null, null)
 

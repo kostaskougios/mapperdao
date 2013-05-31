@@ -15,7 +15,7 @@ import org.scala_tools.time.Imports._
 @RunWith(classOf[JUnitRunner])
 class TypesSuite extends FunSuite with ShouldMatchers
 {
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(BDEntity, IntervalEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(BDEntity, IntervalEntity))
 
 	if (Setup.database == "postgresql") {
 		test("duration") {

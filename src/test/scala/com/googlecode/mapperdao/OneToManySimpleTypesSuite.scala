@@ -18,8 +18,7 @@ class OneToManySimpleTypesSuite extends FunSuite with ShouldMatchers
 	import OneToManySimpleTypesSuiteString._
 	import OneToManySimpleTypesSuiteInt._
 
-	val typeRegistry = TypeRegistry(ProductEntity, ProductEntityI)
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(typeRegistry)
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, ProductEntityI))
 
 	test("select") {
 		createTables("create-tables-string")

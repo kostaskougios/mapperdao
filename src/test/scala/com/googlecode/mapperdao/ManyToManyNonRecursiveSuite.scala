@@ -15,9 +15,7 @@ import com.googlecode.mapperdao.utils.Helpers
 @RunWith(classOf[JUnitRunner])
 class ManyToManyNonRecursiveSuite extends FunSuite with ShouldMatchers
 {
-	val typeRegistry = TypeRegistry(ProductEntity, AttributeEntity)
-
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(typeRegistry)
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, AttributeEntity))
 
 	test("update, add with new set") {
 		createTables()

@@ -16,7 +16,7 @@ import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
 class OneToManyQuerySuite extends FunSuite with ShouldMatchers
 {
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(HouseEntity, PersonEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(HouseEntity, PersonEntity))
 	val p = PersonEntity
 	val h = HouseEntity
 

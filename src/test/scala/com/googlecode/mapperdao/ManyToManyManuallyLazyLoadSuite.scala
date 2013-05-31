@@ -16,7 +16,7 @@ import com.googlecode.classgenerator.ReflectionManager
 class ManyToManyManuallyLazyLoadSuite extends FunSuite with ShouldMatchers
 {
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, AttributeEntity))
 	val reflectionManager = new ReflectionManager
 
 	if (Setup.database == "h2") {

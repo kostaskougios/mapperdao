@@ -17,7 +17,7 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with ShouldMatchers
 
 	import ManyToOneSelfJoinQuerySuite._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, HouseEntity, AddressEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(PersonEntity, HouseEntity, AddressEntity))
 
 	import TestQueries._
 	import mapperDao._

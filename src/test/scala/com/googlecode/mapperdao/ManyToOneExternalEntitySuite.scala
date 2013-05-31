@@ -14,7 +14,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 @RunWith(classOf[JUnitRunner])
 class ManyToOneExternalEntitySuite extends FunSuite with ShouldMatchers
 {
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, HouseEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(PersonEntity, HouseEntity))
 
 	if (Setup.database == "h2") {
 

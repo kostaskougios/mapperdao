@@ -18,7 +18,7 @@ class OneToManyDeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers
 	import OneToManyDeclarePrimaryKeysSuite._
 
 	if (Setup.database == "h2") {
-		val (jdbc, mapperDao, _) = Setup.setupMapperDao(TypeRegistry(HouseEntity, PersonEntity))
+		val (jdbc, mapperDao, _) = Setup.setupMapperDao(List(HouseEntity, PersonEntity))
 
 		test("batch insert") {
 			createTables()

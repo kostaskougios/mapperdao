@@ -16,7 +16,7 @@ class MergeSuite extends FunSuite with ShouldMatchers
 {
 	if (Setup.database == "h2") {
 		import CommonEntities._
-		val (jdbc, mapperDao, _) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity))
+		val (jdbc, mapperDao, _) = Setup.setupMapperDao(List(PersonEntity, CompanyEntity))
 		val company = Company("acme")
 
 		test("merge entity") {

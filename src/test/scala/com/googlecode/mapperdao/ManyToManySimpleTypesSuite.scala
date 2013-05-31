@@ -17,8 +17,7 @@ class ManyToManySimpleTypesSuite extends FunSuite with ShouldMatchers
 
 	import ManyToManySimpleTypesSuite._
 
-	val typeRegistry = TypeRegistry(ProductEntity)
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(typeRegistry)
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity))
 
 	test("insert, string based") {
 		createTables("string-based")

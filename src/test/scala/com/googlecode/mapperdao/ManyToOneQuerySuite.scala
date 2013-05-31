@@ -17,7 +17,7 @@ class ManyToOneQuerySuite extends FunSuite with ShouldMatchers
 
 	import ManyToOneQuerySuite._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, HouseEntity, AddressEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(PersonEntity, HouseEntity, AddressEntity))
 
 	import MTOQuerySpec._
 	import mapperDao._

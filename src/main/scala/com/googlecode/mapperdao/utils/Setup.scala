@@ -104,20 +104,21 @@ object Setup
 	def apply(
 		database: Database.DriverConfiguration,
 		dataSource: DataSource,
-		entities: List[Entity[_, Persisted, _]],
+		entities: List[EntityBase[_, _]],
 		cache: Option[Cache] = None
 		): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) =
-		create(database, dataSource, TypeRegistry(entities), cache, ISOChronology.getInstance)
+		create(database, dataSource, entities, cache, ISOChronology.getInstance)
 
 	def create(
 		database: Database.DriverConfiguration,
 		dataSource: DataSource,
-		typeRegistry: TypeRegistry,
+		entities: List[EntityBase[_, _]],
 		cache: Option[Cache] = None,
 		chronology: Chronology = ISOChronology.getInstance,
 		customDatabaseToScalaTypes: CustomDatabaseToScalaTypes = DefaultDatabaseToScalaTypes
 		): (Jdbc, MapperDao, QueryDao, PlatformTransactionManager) = {
 		val typeManager = new DefaultTypeManager(chronology, customDatabaseToScalaTypes)
+		val typeRegistry = TypeRegistry(typeManager, entities)
 		val jdbc = Jdbc(dataSource, chronology)
 		val driver = database.driver(jdbc, typeRegistry, typeManager, cache)
 		val mapperDao = new MapperDaoImpl(driver, typeManager)

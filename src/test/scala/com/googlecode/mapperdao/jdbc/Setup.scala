@@ -49,10 +49,10 @@ object Setup
 		jdbc
 	} else jdbc
 
-	def setupMapperDao(typeRegistry: TypeRegistry, cache: Option[Cache] = None) = {
+	def setupMapperDao(entities: List[EntityBase[_, _]], cache: Option[Cache] = None) = {
 		val properties = loadJdbcProperties
 		val dataSource = BasicDataSourceFactory.createDataSource(properties)
-		val (j, m, q, _) = S.create(Database.byName(database), dataSource, typeRegistry, cache, ISOChronology.getInstance)
+		val (j, m, q, _) = S.create(Database.byName(database), dataSource, entities, cache, ISOChronology.getInstance)
 		(j, m, q)
 	}
 
@@ -72,7 +72,7 @@ object Setup
 	}
 
 	def from(dataSource: DataSource, entities: List[EntityBase[_, _]]) = {
-		val (j, m, q, t) = S.create(Database.byName(database), dataSource, TypeRegistry(entities))
+		val (j, m, q, t) = S.create(Database.byName(database), dataSource, entities)
 		(j, m, q, t)
 	}
 

@@ -18,7 +18,7 @@ import com.googlecode.mapperdao.utils.Helpers
 @RunWith(classOf[JUnitRunner])
 class SimpleEntitiesSuite extends FunSuite with ShouldMatchers
 {
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(JobPositionEntity))
 
 	test("delete by id") {
 		createJobPositionTable()

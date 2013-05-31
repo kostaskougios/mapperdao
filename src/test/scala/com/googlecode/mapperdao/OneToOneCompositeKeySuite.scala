@@ -18,7 +18,7 @@ class OneToOneCompositeKeySuite extends FunSuite with ShouldMatchers
 
 	val database = Setup.database
 	if (database != "h2") {
-		implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(InventoryEntity, ProductEntity))
+		implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(InventoryEntity, ProductEntity))
 
 		// aliases
 		val ie = InventoryEntity

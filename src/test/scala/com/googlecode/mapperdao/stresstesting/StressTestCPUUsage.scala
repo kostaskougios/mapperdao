@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao.stresstesting
 
-import com.googlecode.mapperdao.{LazyLoad, TypeRegistry, CommonEntities, SelectConfig}
+import com.googlecode.mapperdao.{LazyLoad, CommonEntities, SelectConfig}
 import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.mapperdao.ehcache.CacheUsingEHCache
 import com.googlecode.mapperdao.ehcache.Locking
@@ -23,7 +23,7 @@ object StressTestCPUUsage extends App
 		Some(new CacheUsingEHCache(ehCache) with Locking)
 	} else None
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(
-		TypeRegistry(ProductEntity, AttributeEntity),
+		List(ProductEntity, AttributeEntity),
 		cache = cache)
 
 	Setup.dropAllTables(jdbc)

@@ -14,7 +14,7 @@ import com.googlecode.mapperdao.utils.Helpers
 class OneToOneDeclarePrimaryKeySuite extends FunSuite with ShouldMatchers
 {
 	if (Setup.database == "h2") {
-		implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
+		implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, InventoryEntity))
 
 		val p = ProductEntity
 		val i = InventoryEntity

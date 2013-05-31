@@ -18,7 +18,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with ShouldMatchers
 
 	if (Setup.database == "postgresql" || Setup.database == "h2") {
 		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(
-			TypeRegistry(
+			List(
 				RoleTypeEntity,
 				PersonEntity,
 				SinglePartyRoleEntity,

@@ -87,7 +87,7 @@ class UseCaseCyclicDependenciesSuite extends FunSuite with ShouldMatchers
 			val entity = CommuteEntity
 		}
 
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(BusDriverEntity, PeopleEntity, VisitEntity, CommuteEntity))
+		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(BusDriverEntity, PeopleEntity, VisitEntity, CommuteEntity))
 		val transactionManager = Transaction.transactionManager(jdbc)
 
 		val busDriverDao = new BusDriverDao(mapperDao, queryDao, transactionManager)

@@ -4,7 +4,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
-import com.googlecode.mapperdao.{TypeRegistry, Entity, SurrogateIntId, ValuesMap}
+import com.googlecode.mapperdao.{Entity, SurrogateIntId, ValuesMap}
 import scala.collection.JavaConverters._
 import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.mapperdao.CommonEntities.createProductAttribute
@@ -19,7 +19,7 @@ class JavaMappingSuite extends FunSuite with ShouldMatchers
 {
 	test("CRUD") {
 
-		val (jdbc, mapperDao, _) = Setup.setupMapperDao(TypeRegistry(ProductEntityMTM, AttributeEntity))
+		val (jdbc, mapperDao, _) = Setup.setupMapperDao(List(ProductEntityMTM, AttributeEntity))
 		createProductAttribute(jdbc)
 
 		val p = new Product

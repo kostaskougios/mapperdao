@@ -17,7 +17,7 @@ class OneToOneImmutableOneWaySuite extends FunSuite with ShouldMatchers
 
 	import OneToOneImmutableOneWaySuite._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, InventoryEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, InventoryEntity))
 
 	if (Setup.database != "derby") {
 		test("update id") {

@@ -18,7 +18,7 @@ class ManyToOneSuite extends FunSuite with ShouldMatchers
 
 	import ManyToOneSuite._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(PersonEntity, CompanyEntity, HouseEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(PersonEntity, CompanyEntity, HouseEntity))
 
 	if (Setup.database != "derby") {
 		test("update id's") {

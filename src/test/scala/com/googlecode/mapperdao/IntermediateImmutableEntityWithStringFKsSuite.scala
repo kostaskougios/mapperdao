@@ -17,7 +17,7 @@ class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite with Should
 
 	import IntermediateImmutableEntityWithStringFKsSuite._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(EmployeeEntity, WorkedAtEntity, CompanyEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(EmployeeEntity, WorkedAtEntity, CompanyEntity))
 
 	import mapperDao._
 

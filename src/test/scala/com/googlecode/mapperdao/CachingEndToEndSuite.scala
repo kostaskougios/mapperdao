@@ -20,7 +20,7 @@ class CachingEndToEndSuite extends FunSuite with ShouldMatchers
 	val ehCache = cacheManager.getCache("CachingEndToEndSuite")
 	val mapperDaoCache = new CacheUsingEHCache(ehCache)
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity, PersonEntity, HouseEntity), cache = Some(mapperDaoCache))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, AttributeEntity, PersonEntity, HouseEntity), cache = Some(mapperDaoCache))
 	val selectConfig = SelectConfig(cacheOptions = CacheOptions.OneHour)
 	val queryConfig = QueryConfig(cacheOptions = CacheOptions.OneHour)
 

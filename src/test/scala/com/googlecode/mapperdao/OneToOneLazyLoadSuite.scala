@@ -15,7 +15,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 class OneToOneLazyLoadSuite extends FunSuite with ShouldMatchers
 {
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(InventoryEntity, ProductEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(InventoryEntity, ProductEntity))
 
 	if (Setup.database == "h2") {
 

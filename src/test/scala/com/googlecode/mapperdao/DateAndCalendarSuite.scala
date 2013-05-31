@@ -29,7 +29,7 @@ class DateAndCalendarSuite extends FunSuite with ShouldMatchers
 		def constructor(implicit m) = new DC(id, date, calendar) with Stored
 	}
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(DCEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(DCEntity))
 
 	test("CRUD") {
 		createTables()

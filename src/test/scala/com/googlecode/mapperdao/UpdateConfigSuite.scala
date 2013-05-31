@@ -18,7 +18,7 @@ class UpdateConfigSuite extends FunSuite with ShouldMatchers
 
 	test("one-to-many update.deleteConfig") {
 		import UpdateConfigSuiteOneToManyDecl._
-		val (jdbc, mapperDao, _) = Setup.setupMapperDao(TypeRegistry(FloorEntity, HouseEntity, PersonEntity))
+		val (jdbc, mapperDao, _) = Setup.setupMapperDao(List(FloorEntity, HouseEntity, PersonEntity))
 		prepareDb(jdbc, "OneToManyDecl")
 
 		val inserted = mapperDao.insert(PersonEntity, Person(1, "kostas", Set(House(10, Set(Floor(5, "floor5"), Floor(6, "floor6"))), House(11, Set(Floor(7, "floor7"), Floor(8, "floor8"))))))

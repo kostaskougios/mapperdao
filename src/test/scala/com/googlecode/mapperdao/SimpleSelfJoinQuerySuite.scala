@@ -17,7 +17,7 @@ class SimpleSelfJoinQuerySuite extends FunSuite with ShouldMatchers
 {
 
 	val JobPositionEntity = new JobPositionEntityBase
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(JobPositionEntity))
 
 	test("query join with alias") {
 		createJobPositionTable()

@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.jdbc.Setup
+import com.googlecode.mapperdao.jdbc.{Jdbc, Setup}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
@@ -15,7 +15,7 @@ import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
 @RunWith(classOf[JUnitRunner])
 class ManyToManyQuerySuite extends FunSuite with ShouldMatchers
 {
-	implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+	implicit val (jdbc: Jdbc, mapperDao: MapperDao, queryDao: QueryDao) = Setup.setupMapperDao(List(ProductEntity, AttributeEntity))
 
 	import Query._
 

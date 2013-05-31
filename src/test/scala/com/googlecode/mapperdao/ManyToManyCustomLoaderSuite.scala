@@ -19,7 +19,7 @@ class ManyToManyCustomLoaderSuite extends FunSuite with ShouldMatchers
 	import CommonEntities._
 
 	if (Setup.database == "h2") {
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, AttributeEntity))
 
 		val loaders = List(
 			CustomLoader(

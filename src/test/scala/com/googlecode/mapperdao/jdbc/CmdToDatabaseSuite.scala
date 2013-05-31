@@ -21,7 +21,7 @@ class CmdToDatabaseSuite extends FunSuite with ShouldMatchers with EasyMockSugar
 
 	def prepare(l: List[Entity[_, Persisted, _]]) = {
 		val typeManager = new DefaultTypeManager
-		val (jdbc, mapperDao: MapperDaoImpl, _) = Setup.setupMapperDao(TypeRegistry(l))
+		val (jdbc, mapperDao: MapperDaoImpl, _) = Setup.setupMapperDao(l)
 		val driver = mapperDao.driver
 		(typeManager, jdbc, mapperDao, driver)
 	}

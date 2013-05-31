@@ -48,7 +48,7 @@ class OptionSuite extends FunSuite with ShouldMatchers
 	}
 
 	val typeManager = new DefaultTypeManager(ISOChronology.getInstance)
-	val typeRegistry = TypeRegistry(CategoryEntity)
+	val typeRegistry = TypeRegistry(typeManager, CategoryEntity)
 
 	test("manyToOneOption None=>null") {
 		CategoryEntity.parent.columnToValue(Category("x", None, None)) should be(null)

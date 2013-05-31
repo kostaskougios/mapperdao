@@ -20,7 +20,7 @@ class OneToManySuite extends FunSuite with ShouldMatchers
 
 	import OneToManySuite._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(JobPositionEntity, HouseEntity, PersonEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(JobPositionEntity, HouseEntity, PersonEntity))
 
 	test("insert batch") {
 		createTables()

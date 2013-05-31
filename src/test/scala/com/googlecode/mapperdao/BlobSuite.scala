@@ -20,7 +20,7 @@ class BlobSuite extends FunSuite with ShouldMatchers
 	// blobs are not currently supported for derby
 	if (Setup.database != "derby") {
 
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ImageEntity))
+		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ImageEntity))
 		val ie = ImageEntity
 
 		test("CRUD") {

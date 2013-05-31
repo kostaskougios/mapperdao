@@ -17,7 +17,7 @@ class MultiThreadedQuerySuite extends FunSuite with ShouldMatchers
 {
 
 	if (Setup.database == "h2" || Setup.database == "postgresql") {
-		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(TypeRegistry(ProductEntity, AttributeEntity))
+		val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, AttributeEntity))
 		val txManager = Transaction.transactionManager(jdbc)
 
 		test("parallel query") {
