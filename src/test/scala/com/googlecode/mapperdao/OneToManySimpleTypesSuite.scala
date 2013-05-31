@@ -18,7 +18,7 @@ class OneToManySimpleTypesSuite extends FunSuite with ShouldMatchers
 	import OneToManySimpleTypesSuiteString._
 	import OneToManySimpleTypesSuiteInt._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, ProductEntityI))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, ProductEntityI, TagsEntity, TagsEntityI))
 
 	test("select") {
 		createTables("create-tables-string")
