@@ -17,7 +17,7 @@ class UpdateSuite extends FunSuite with ShouldMatchers
 
 	import CommonEntities._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, AttributeEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(AllEntities)
 
 	test("update 2 columns") {
 		createHusbandWife(jdbc)

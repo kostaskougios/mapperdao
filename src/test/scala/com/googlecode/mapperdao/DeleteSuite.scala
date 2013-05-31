@@ -18,7 +18,7 @@ class DeleteSuite extends FunSuite with ShouldMatchers
 
 	import CommonEntities._
 
-	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, AttributeEntity))
+	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(AllEntities)
 
 	test("delete with errors") {
 		createProductAttribute(jdbc)

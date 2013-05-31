@@ -71,7 +71,7 @@ class CmdToDatabaseSuite extends FunSuite with ShouldMatchers with EasyMockSugar
 
 	test("optimized updates for one to many and declared keys") {
 		import OneToManyDeclarePrimaryKeysSuite._
-		val (typeManager, jdbc, mapperDao, driver) = prepare(List(HouseEntity, PersonEntity))
+		val (typeManager, jdbc, mapperDao, driver) = prepare(List(HouseEntity, PersonEntity, PostCodeEntity))
 		val sw = mapperDao.link(PostCodeEntity, new PostCode("SW") with PostCodeEntity.Stored
 		{
 			val id = 1000
