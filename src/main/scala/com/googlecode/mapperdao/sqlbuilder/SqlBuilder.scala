@@ -151,7 +151,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 
 		private val leftValues = functionToValues(left)
 
-		private def functionCall(v: SqlFunctionValue[_]) = driver.functionCallPrependUser.map(_ + ".").getOrElse("") + v.name
+		private def functionCall(v: SqlFunctionValue[_]) = v.schema.map(_.name + ".").getOrElse("") + v.name
 
 		private def functionToSql[T](v: SqlFunctionValue[T]): String = {
 			val sb = new StringBuilder(functionCall(v)) append '('

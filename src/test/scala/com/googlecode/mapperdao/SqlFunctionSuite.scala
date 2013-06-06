@@ -6,6 +6,7 @@ import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.mapperdao.sqlfunction.{StdSqlFunctions, SqlFunction}
+import com.googlecode.mapperdao.schema.Schema
 
 /**
  * @author kostantinos.kougios
@@ -29,9 +30,14 @@ class SqlFunctionSuite extends FunSuite with ShouldMatchers
 		val pe = PersonEntity
 		val he = HusbandEntity
 
-		val companyAFunction = SqlFunction.with1Arg[String, Boolean]("companyA")
-		val addFunction = SqlFunction.with2Args[Int, Int, Int]("addition")
-		val subFunction = SqlFunction.with2Args[Int, Int, Int]("sub")
+		val schema = Setup.database match {
+			case "sqlserver" => Some(Schema("dbo"))
+			case _ => None
+		}
+
+		val companyAFunction = SqlFunction.with1Arg[String, Boolean]("companyA", schema)
+		val addFunction = SqlFunction.with2Args[Int, Int, Int]("addition", schema)
+		val subFunction = SqlFunction.with2Args[Int, Int, Int]("sub", schema)
 
 		Setup.queries(this, jdbc).update("functions")
 

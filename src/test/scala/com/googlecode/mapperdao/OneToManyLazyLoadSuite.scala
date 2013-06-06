@@ -30,7 +30,6 @@ class OneToManyLazyLoadSuite extends FunSuite with ShouldMatchers
 			val selected = mapperDao.select(selectConfig, PersonEntity, inserted.id).get
 			verifyNotLoaded(selected)
 			selected should be === person
-			println(person)
 		}
 
 		test("update, 1 entity lazy loaded") {

@@ -82,7 +82,5 @@ class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager:
 
 	override def shouldCreateOrderByClause(queryConfig: QueryConfig): Boolean = !queryConfig.hasRange
 
-	override val functionCallPrependUser = Some("dbo")
-
 	override def toString = "SqlServer"
 }
