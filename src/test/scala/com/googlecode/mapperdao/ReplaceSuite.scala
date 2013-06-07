@@ -43,8 +43,31 @@ class ReplaceSuite extends FunSuite with ShouldMatchers
 		i1 should be(u1)
 		i2 should be(u2)
 
+		val universeRows = jdbc.queryForInt("select count(*) from Universe")
+		val galaxyRows = jdbc.queryForInt("select count(*) from Galaxy")
+		val starRows = jdbc.queryForInt("select count(*) from Star")
+
 		val l1 = mapperDao.select(UniverseEntity, i1.id).get
 		l1 should be(i1)
+
+		val up1 = l1.copy(galaxies = l1.galaxies.map {
+			g =>
+				replace(g, g.copy(name = g.name + " updated", stars = g.stars.map {
+					case s: Solar =>
+						replace(s, s.copy(name = s.name + " updated"))
+					case b: BlackHole =>
+						replace(b, b.copy(name = b.name + " updated"))
+				})
+				)
+		})
+
+		val updated1 = mapperDao.update(UniverseEntity, l1, up1)
+		updated1 should be(up1)
+
+		// make sure only updates occured
+		jdbc.queryForInt("select count(*) from Universe") should be(universeRows)
+		jdbc.queryForInt("select count(*) from Galaxy") should be(galaxyRows)
+		jdbc.queryForInt("select count(*) from Star") should be(starRows)
 	}
 
 	test("many to many , update level 2 entity without inserting a new one") {
