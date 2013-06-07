@@ -1,3 +1,42 @@
+[universe]
+create table Universe (
+	id serial primary key,
+	name nvarchar(100) not null,
+)
+;
+create table Galaxy (
+	id serial primary key,
+	name nvarchar(100) not null,
+	universe_id int not null,
+	constraint FK_Galaxy_Universe foreign key (universe_id) references Universe(id) on delete cascade on update cascade
+)
+;
+
+create table Star (
+	id serial primary key,
+	name nvarchar(100) not null,
+	type int not null
+)
+;
+
+create table Galaxy_Star (
+	galaxy_id int not null,
+	star_id int not null,
+	primary key (galaxy_id,star_id),
+	constraint FK_Galaxy_Star_Galaxy foreign key (galaxy_id) references Galaxy(id) on delete cascade on update cascade,
+	constraint FK_Galaxy_Star_Star foreign key (star_id) references Star(id) on delete cascade on update cascade
+)
+;
+
+create table Star_Universe (
+	star_id int not null,
+	universe_id int not null,
+	prinary key (star_id,universe_id),
+	constraint FK_Star_Universe_Star foreign key (star_id) references Star(id) on delete cascade on update cascade,
+	constraint FK_Star_Universe_Universe foreign key (universe_id) references Universe(id) on delete cascade on update cascade
+)
+;
+
 [product-attribute]
 create table Product (
 	id serial not null,

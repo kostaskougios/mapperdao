@@ -14,7 +14,7 @@ import com.googlecode.mapperdao.CommonEntities._
  *          Date: 16/04/13
  */
 @RunWith(classOf[JUnitRunner])
-class ImmutableUpdatingTreeSuite extends FunSuite with ShouldMatchers
+class ReplaceSuite extends FunSuite with ShouldMatchers
 {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(AllEntities)
 
