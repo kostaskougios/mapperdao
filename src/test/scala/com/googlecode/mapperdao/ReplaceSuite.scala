@@ -24,7 +24,9 @@ class ReplaceSuite extends FunSuite with ShouldMatchers
 		val u1 = Universe("universe 1", Set(
 			Galaxy("galaxy 1", Set(
 				Solar("g1 - solar 1"),
-				BlackHole("g1 - black hole 1", Set())
+				BlackHole("g1 - black hole 1", Set(
+					Universe("in black hole g1", Set())
+				))
 			))
 		))
 
@@ -56,7 +58,10 @@ class ReplaceSuite extends FunSuite with ShouldMatchers
 					case s: Solar =>
 						replace(s, s.copy(name = s.name + " updated"))
 					case b: BlackHole =>
-						replace(b, b.copy(name = b.name + " updated"))
+						replace(b, b.copy(name = b.name + " updated", universes = b.universes.map {
+							u =>
+								replace(u, u.copy(name = u.name + " updated within black hole"))
+						}))
 				})
 				)
 		})
@@ -68,6 +73,12 @@ class ReplaceSuite extends FunSuite with ShouldMatchers
 		jdbc.queryForInt("select count(*) from Universe") should be(universeRows)
 		jdbc.queryForInt("select count(*) from Galaxy") should be(galaxyRows)
 		jdbc.queryForInt("select count(*) from Star") should be(starRows)
+
+		val reloaded1 = mapperDao.select(UniverseEntity, i1.id).get
+		reloaded1 should be(updated1)
+
+		// make sure no sideeffect for other rows
+		mapperDao.select(UniverseEntity, i2.id).get should be(i2)
 	}
 
 	test("many to many , update level 2 entity without inserting a new one") {
