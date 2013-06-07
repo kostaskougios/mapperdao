@@ -18,6 +18,35 @@ class ReplaceSuite extends FunSuite with ShouldMatchers
 {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(AllEntities)
 
+	test("deep tree of non-cyclic entities") {
+		createUniverse(jdbc)
+
+		val u1 = Universe("universe 1", Set(
+			Galaxy("galaxy 1", Set(
+				Solar("g1 - solar 1"),
+				BlackHole("g1 - black hole 1", Set())
+			))
+		))
+
+		val u2 = Universe("universe 2", Set(
+			Galaxy("galaxy 2", Set(
+				Solar("g2 - solar 1"),
+				BlackHole("g2 - black hole 1", Set())
+			)), Galaxy("galaxy 3", Set(
+				Solar("g3 - solar 1"),
+				Solar("g3 - solar 2"),
+				Solar("g3 - solar 3")
+			))
+		))
+
+		val List(i1, i2) = mapperDao.insertBatch(UniverseEntity, List(u1, u2))
+		i1 should be(u1)
+		i2 should be(u2)
+
+		val l1 = mapperDao.select(UniverseEntity, i1.id).get
+		l1 should be(i1)
+	}
+
 	test("many to many , update level 2 entity without inserting a new one") {
 		createProductAttribute(jdbc)
 

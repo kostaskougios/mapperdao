@@ -31,7 +31,7 @@ create table Galaxy_Star (
 create table Star_Universe (
 	star_id int not null,
 	universe_id int not null,
-	prinary key (star_id,universe_id),
+	primary key (star_id,universe_id),
 	constraint FK_Star_Universe_Star foreign key (star_id) references Star(id) on delete cascade on update cascade,
 	constraint FK_Star_Universe_Universe foreign key (universe_id) references Universe(id) on delete cascade on update cascade
 )
