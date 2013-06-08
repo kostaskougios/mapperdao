@@ -18,67 +18,69 @@ class ReplaceSuite extends FunSuite with ShouldMatchers
 {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(AllEntities)
 
-	test("deep tree of non-cyclic entities") {
-		createUniverse(jdbc)
+	if (Setup.database == "h2") {
+		test("deep tree of non-cyclic entities") {
+			createUniverse(jdbc)
 
-		val u1 = Universe("universe 1", Set(
-			Galaxy("galaxy 1", Set(
-				Solar("g1 - solar 1"),
-				BlackHole("g1 - black hole 1", Set(
-					Universe("in black hole g1", Set())
+			val u1 = Universe("universe 1", Set(
+				Galaxy("galaxy 1", Set(
+					Solar("g1 - solar 1"),
+					BlackHole("g1 - black hole 1", Set(
+						Universe("in black hole g1", Set())
+					))
 				))
 			))
-		))
 
-		val u2 = Universe("universe 2", Set(
-			Galaxy("galaxy 2", Set(
-				Solar("g2 - solar 1"),
-				BlackHole("g2 - black hole 1", Set())
-			)), Galaxy("galaxy 3", Set(
-				Solar("g3 - solar 1"),
-				Solar("g3 - solar 2"),
-				Solar("g3 - solar 3")
+			val u2 = Universe("universe 2", Set(
+				Galaxy("galaxy 2", Set(
+					Solar("g2 - solar 1"),
+					BlackHole("g2 - black hole 1", Set())
+				)), Galaxy("galaxy 3", Set(
+					Solar("g3 - solar 1"),
+					Solar("g3 - solar 2"),
+					Solar("g3 - solar 3")
+				))
 			))
-		))
 
-		val List(i1, i2) = mapperDao.insertBatch(UniverseEntity, List(u1, u2))
-		i1 should be(u1)
-		i2 should be(u2)
+			val List(i1, i2) = mapperDao.insertBatch(UniverseEntity, List(u1, u2))
+			i1 should be(u1)
+			i2 should be(u2)
 
-		val universeRows = jdbc.queryForInt("select count(*) from Universe")
-		val galaxyRows = jdbc.queryForInt("select count(*) from Galaxy")
-		val starRows = jdbc.queryForInt("select count(*) from Star")
+			val universeRows = jdbc.queryForInt("select count(*) from Universe")
+			val galaxyRows = jdbc.queryForInt("select count(*) from Galaxy")
+			val starRows = jdbc.queryForInt("select count(*) from Star")
 
-		val l1 = mapperDao.select(UniverseEntity, i1.id).get
-		l1 should be(i1)
+			val l1 = mapperDao.select(UniverseEntity, i1.id).get
+			l1 should be(i1)
 
-		val up1 = l1.copy(galaxies = l1.galaxies.map {
-			g =>
-				replace(g, g.copy(name = g.name + " updated", stars = g.stars.map {
-					case s: Solar =>
-						replace(s, s.copy(name = s.name + " updated"))
-					case b: BlackHole =>
-						replace(b, b.copy(name = b.name + " updated", universes = b.universes.map {
-							u =>
-								replace(u, u.copy(name = u.name + " updated within black hole"))
-						}))
-				})
-				)
-		})
+			val up1 = l1.copy(galaxies = l1.galaxies.map {
+				g =>
+					replace(g, g.copy(name = g.name + " updated", stars = g.stars.map {
+						case s: Solar =>
+							replace(s, s.copy(name = s.name + " updated"))
+						case b: BlackHole =>
+							replace(b, b.copy(name = b.name + " updated", universes = b.universes.map {
+								u =>
+									replace(u, u.copy(name = u.name + " updated within black hole"))
+							}))
+					})
+					)
+			})
 
-		val updated1 = mapperDao.update(UniverseEntity, l1, up1)
-		updated1 should be(up1)
+			val updated1 = mapperDao.update(UniverseEntity, l1, up1)
+			updated1 should be(up1)
 
-		// make sure only updates occured
-		jdbc.queryForInt("select count(*) from Universe") should be(universeRows)
-		jdbc.queryForInt("select count(*) from Galaxy") should be(galaxyRows)
-		jdbc.queryForInt("select count(*) from Star") should be(starRows)
+			// make sure only updates occured
+			jdbc.queryForInt("select count(*) from Universe") should be(universeRows)
+			jdbc.queryForInt("select count(*) from Galaxy") should be(galaxyRows)
+			jdbc.queryForInt("select count(*) from Star") should be(starRows)
 
-		val reloaded1 = mapperDao.select(UniverseEntity, i1.id).get
-		reloaded1 should be(updated1)
+			val reloaded1 = mapperDao.select(UniverseEntity, i1.id).get
+			reloaded1 should be(updated1)
 
-		// make sure no sideeffect for other rows
-		mapperDao.select(UniverseEntity, i2.id).get should be(i2)
+			// make sure no sideeffect for other rows
+			mapperDao.select(UniverseEntity, i2.id).get should be(i2)
+		}
 	}
 
 	test("many to many , update level 2 entity without inserting a new one") {
