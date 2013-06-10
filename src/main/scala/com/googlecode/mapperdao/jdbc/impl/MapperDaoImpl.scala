@@ -168,7 +168,8 @@ protected[mapperdao] final class MapperDaoImpl(
 		entity: EntityBase[ID, T],
 		selectConfig: SelectConfig,
 		ids: List[Any],
-		entities: EntityMap
+		entities: EntityMap,
+		databaseValuesO: Option[DatabaseValues] = None
 		): Option[T with Persisted] = {
 		val clz = entity.clz
 		val tpe = entity.tpe
@@ -206,11 +207,15 @@ protected[mapperdao] final class MapperDaoImpl(
 
 				val args = pkArgs ::: declaredArgs
 
-				val om = driver.doSelect(selectConfig, tpe, args)
-				if (om.isEmpty) None
-				else if (om.size > 1) throw new IllegalStateException("expected 1 result for %s and ids %s, but got %d. Is the primary key column a primary key in the table?".format(clz.getSimpleName, ids, om.size))
+				// if the database values are provided,use them, otherwise get them from the database
+				val dbValues = if (databaseValuesO.isDefined)
+					databaseValuesO.get :: Nil
+				else driver.doSelect(selectConfig, tpe, args)
+
+				if (dbValues.isEmpty) None
+				else if (dbValues.size > 1) throw new IllegalStateException("expected 1 result for %s and ids %s, but got %d. Is the primary key column a primary key in the table?".format(clz.getSimpleName, ids, dbValues.size))
 				else {
-					val l = toEntities(om, entity, selectConfig, entities)
+					val l = toEntities(dbValues, entity, selectConfig, entities)
 					Some(l.head)
 				}
 			} catch {
