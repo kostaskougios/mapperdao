@@ -16,16 +16,20 @@ class ManyToOneEntityLazyLoader[T, FID, F](
 	selectConfig: SelectConfig,
 	cis: ColumnInfoManyToOne[T, FID, F],
 	down: EntityMap,
-	om: DatabaseValues
+	databaseValues: DatabaseValues
 	)
 	extends LazyLoader
 {
 	def apply = {
 		val c = cis.column
 		val fe = c.foreign.entity
-		val foreignPKValues = c.columns.map(mtoc => om(mtoc))
+		val foreignPKValues = c.columns.map(mtoc => databaseValues(mtoc))
 
-		val v = mapperDao.selectInner(fe, selectConfig, foreignPKValues, down).getOrElse(null)
+		// it might be already loaded:
+		val dbValues = databaseValues.relatedSingle(c)
+
+		// now load it
+		val v = mapperDao.selectInner(fe, selectConfig, foreignPKValues, down, dbValues).getOrElse(null)
 		v
 	}
 }

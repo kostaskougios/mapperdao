@@ -16,6 +16,12 @@ class DatabaseValues(
 
 	def related(c: ColumnRelationshipBase[_, _]) = relatedValues.get(c.aliasLowerCase)
 
+	def relatedSingle(c: ColumnRelationshipBase[_, _]) = related(c).map {
+		l =>
+			if (l.size != 1) throw new IllegalStateException("List of 1 expected but got :" + l)
+			l.head
+	}
+
 	def toMap: Map[String, Any] = map
 
 	override def toString = "DatabaseValues(%s)".format(map)

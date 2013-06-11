@@ -53,7 +53,8 @@ class RelatedAreLoadedFromDatabaseValuesSuite extends FunSuite with ShouldMatche
 
 		val dbVs = new DatabaseValues(Map(
 			"id" -> 10,
-			"name" -> "person1"
+			"name" -> "person1",
+			"company_id" -> 101
 		),
 			Map(
 				PersonEntity.company.column.aliasLowerCase -> (
