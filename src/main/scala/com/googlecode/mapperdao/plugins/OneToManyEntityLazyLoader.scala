@@ -16,19 +16,17 @@ class OneToManyEntityLazyLoader[ID, T, FID, F](
 	selectConfig: SelectConfig,
 	entity: EntityBase[ID, T],
 	down: EntityMap,
-	om: DatabaseValues,
+	databaseValues: DatabaseValues,
 	ci: ColumnInfoTraversableOneToMany[ID, T, FID, F]
 	)
 	extends LazyLoader
 {
 
-	private val m = om.map
-
 	def apply = {
 		val c = ci.column
 		val fe = c.foreign.entity
 		val ids = entity.tpe.table.primaryKeys.map {
-			pk => m(pk.name)
+			pk => databaseValues(pk)
 		}
 		val where = c.foreignColumns.zip(ids)
 		val ftpe = fe.tpe

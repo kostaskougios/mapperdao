@@ -16,7 +16,7 @@ class ManyToManyEntityLazyLoader[ID, T, FID, F](
 	selectConfig: SelectConfig,
 	entity: EntityBase[ID, T],
 	entityMap: EntityMap,
-	om: DatabaseValues,
+	databaseValues: DatabaseValues,
 	ci: ColumnInfoTraversableManyToMany[T, FID, F]
 	)
 	extends LazyLoader
@@ -26,18 +26,21 @@ class ManyToManyEntityLazyLoader[ID, T, FID, F](
 		val fe = c.foreign.entity
 		val ftpe = fe.tpe
 		val ids = entity.tpe.table.primaryKeys.map {
-			pk => om(pk)
+			pk => databaseValues(pk)
 		}
 		val keys = c.linkTable.left zip ids
 		val customLoader = selectConfig.loaderFor(ci)
 
 		customLoader.map {
 			f =>
+			// a custom loader is defined. use it to load the data.
 				val fom = mapperDao.driver.doSelectManyToManyCustomLoader(selectConfig, entity.tpe, ftpe, c, keys)
 				val mtmR = f.loader(selectConfig, fom)
 				mtmR
 		}.getOrElse {
-			val fom = mapperDao.driver.doSelectManyToMany(selectConfig, entity.tpe, ftpe, c, keys)
+			// there is no custom loader. either get the data from database values, or read them from
+			// the database
+			val fom = databaseValues.related(ci.column).getOrElse(mapperDao.driver.doSelectManyToMany(selectConfig, entity.tpe, ftpe, c, keys))
 			val mtmR = mapperDao.toEntities(fom, fe, selectConfig, entityMap)
 			mtmR
 		}
