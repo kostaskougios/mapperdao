@@ -24,13 +24,16 @@ class OneToManyEntityLazyLoader[ID, T, FID, F](
 
 	def apply = {
 		val c = ci.column
+
 		val fe = c.foreign.entity
-		val ids = entity.tpe.table.primaryKeys.map {
-			pk => databaseValues(pk)
+		val fom = databaseValues.related(c).getOrElse {
+			val ids = entity.tpe.table.primaryKeys.map {
+				pk => databaseValues(pk)
+			}
+			val where = c.foreignColumns.zip(ids)
+			val ftpe = fe.tpe
+			mapperDao.driver.doSelect(selectConfig, ftpe, where)
 		}
-		val where = c.foreignColumns.zip(ids)
-		val ftpe = fe.tpe
-		val fom = mapperDao.driver.doSelect(selectConfig, ftpe, where)
 		val v = mapperDao.toEntities(fom, fe, selectConfig, down)
 		v
 	}

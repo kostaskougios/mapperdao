@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao
 
-import org.scalatest.FunSuite
+import org.scalatest.{BeforeAndAfter, FunSuite}
 import org.scalatest.matchers.ShouldMatchers
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -13,12 +13,16 @@ import com.googlecode.mapperdao.internal.EntityMap
  * @author kkougios
  */
 @RunWith(classOf[JUnitRunner])
-class RelatedAreLoadedFromDatabaseValuesSuite extends FunSuite with ShouldMatchers
+class RelatedAreLoadedFromDatabaseValuesSuite extends FunSuite with ShouldMatchers with BeforeAndAfter
 {
 
 	import CommonEntities._
 
 	val (jdbc, mapperDao: MapperDaoImpl, queryDao) = Setup.setupMapperDao(AllEntities)
+
+	before {
+		Setup.dropAllTables(jdbc)
+	}
 
 	test("many-to-many") {
 		// will not create tables to make sure all entities are loaded from DatabaseValues
@@ -71,5 +75,35 @@ class RelatedAreLoadedFromDatabaseValuesSuite extends FunSuite with ShouldMatche
 		r should be(Person("person1", Company("company1")))
 		Helpers.intIdOf(r) should be(10)
 		Helpers.intIdOf(r.company) should be(101)
+	}
+
+	test("one-to-many") {
+		val ids = Helpers.idToList(20)
+		val dbVs = new DatabaseValues(Map(
+			"id" -> 20,
+			"name" -> "owner1"
+		), Map(
+			OwnerEntity.owns.column.aliasLowerCase -> (
+				new DatabaseValues(
+					Map(
+						"id" -> 201,
+						"address" -> "first address",
+						"owner_id" -> 20
+					)
+				) :: new DatabaseValues(
+					Map(
+						"id" -> 202,
+						"address" -> "second address",
+						"owner_id" -> 20
+					)
+				) :: Nil
+				)
+		)
+		)
+		val r = mapperDao.selectInner(OwnerEntity, SelectConfig.default, ids, new EntityMap, Some(dbVs)).get
+		r should be(Owner("owner1", Set(House("first address"), House("second address"))))
+		Helpers.intIdOf(r) should be(20)
+		Helpers.intIdOf(r.owns.head) should be(201)
+		Helpers.intIdOf(r.owns.tail.head) should be(202)
 	}
 }
