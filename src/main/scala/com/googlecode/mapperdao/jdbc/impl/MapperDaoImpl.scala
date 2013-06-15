@@ -231,30 +231,30 @@ protected[mapperdao] final class MapperDaoImpl(
 		entities: EntityMap
 		): List[T with Persisted] = {
 		lm.map {
-			jdbcMap =>
+			databaseValues =>
 				val tpe = entity.tpe
 				val table = tpe.table
 				// calculate the id's for this tpe
 				val pkIds = table.primaryKeys.map {
-					pk => jdbcMap(pk)
+					pk => databaseValues(pk)
 				} ::: selectBeforePlugins.map {
-					_.idContribution(tpe, jdbcMap, entities)
+					_.idContribution(tpe, databaseValues, entities)
 				}.flatten
 				val unusedIds = table.unusedPKs.map {
 					pk =>
-						jdbcMap(pk)
+						databaseValues(pk)
 				}
 				val ids = pkIds ::: unusedIds
 				if (ids.isEmpty)
 					throw new IllegalStateException("entity %s without primary key, please use declarePrimaryKeys() to declare the primary key columns of tables into your entity declaration")
 
 				entities.get[T with Persisted](tpe.clz, ids) {
-					val mods = jdbcMap.toMap
+					val mods = databaseValues.toMap
 					val mock = mockFactory.createMock(selectConfig.data, entity.tpe, mods)
 					entities.putMock(tpe.clz, ids, mock)
 
 					val allMods = mods ++ selectBeforePlugins.map {
-						_.before(entity, selectConfig, jdbcMap, entities)
+						_.before(entity, selectConfig, databaseValues, entities)
 					}.flatten.map {
 						case SelectMod(k, v, lazyBeforeLoadVal) =>
 							(k, v)

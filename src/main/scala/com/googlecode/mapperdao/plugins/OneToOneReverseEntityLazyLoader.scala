@@ -15,7 +15,7 @@ class OneToOneReverseEntityLazyLoader[ID, T, FID, F](
 	selectConfig: SelectConfig,
 	mapperDao: MapperDaoImpl,
 	entity: EntityBase[ID, T],
-	om: DatabaseValues,
+	databaseValues: DatabaseValues,
 	down: EntityMap,
 	ci: ColumnInfoOneToOneReverse[T, FID, F]
 	) extends (() => Any)
@@ -24,12 +24,15 @@ class OneToOneReverseEntityLazyLoader[ID, T, FID, F](
 		val tpe = entity.tpe
 		val c = ci.column
 		val fe = c.foreign.entity
-		val ftpe = fe.tpe
-		val ids = tpe.table.primaryKeys.map {
-			pk => om(pk)
+
+		val fom = databaseValues.related(c).getOrElse {
+			val ftpe = fe.tpe
+			val ids = tpe.table.primaryKeys.map {
+				pk => databaseValues(pk)
+			}
+			val keys = c.foreignColumns.zip(ids)
+			mapperDao.driver.doSelect(selectConfig, ftpe, keys)
 		}
-		val keys = c.foreignColumns.zip(ids)
-		val fom = mapperDao.driver.doSelect(selectConfig, ftpe, keys)
 		val otmL = mapperDao.toEntities(fom, fe, selectConfig, down)
 		if (otmL.isEmpty) {
 			null
