@@ -44,7 +44,7 @@
         <dependency>
             <groupId>com.googlecode.scalaconcurrency</groupId>
             <artifactId>scalaconcurrency</artifactId>
-            <version>0.8.1-${scala.lib.version}</version>
+            <version>0.8.2-${scala.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -81,7 +81,7 @@
         <dependency>
             <groupId>com.googlecode.classgenerator</groupId>
             <artifactId>classgenerator</artifactId>
-            <version>0.6.7-${scala.lib.version}</version>
+            <version>0.6.8-${scala.version}</version>
         </dependency>
         <dependency>
             <groupId>postgresql</groupId>
@@ -436,7 +436,7 @@
         <profile>
             <id>scala2.10</id>
             <properties>
-                <scala.version>2.10.1</scala.version>
+                <scala.version>2.10.2</scala.version>
                 <scala.lib.version>2.10.0</scala.lib.version>
             </properties>
             <activation>
