@@ -24,7 +24,7 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 	override def before[ID, T](
 		entity: EntityBase[ID, T],
 		selectConfig: SelectConfig,
-		om: DatabaseValues,
+		databaseValues: DatabaseValues,
 		entities: EntityMap
 		) = {
 		val tpe = entity.tpe
@@ -33,15 +33,13 @@ class OneToOneSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDao
 		table.oneToOneColumnInfos.filterNot(selectConfig.skip(_)).map {
 			ci =>
 				val c = ci.column
-				val fe = c.foreign.entity
-				val ftpe = fe.tpe
-				val foreignKeyValues = c.selfColumns.map(sc => om(sc))
+				val foreignKeyValues = c.selfColumns.map(sc => databaseValues(sc))
 				val v = if (foreignKeyValues.contains(null)) {
 					// value is null
 					() => null
 				} else {
-					val down = entities.down(selectConfig, tpe, ci, om)
-					new OneToOneEntityLazyLoader(selectConfig, mapperDao, down, ci, foreignKeyValues)
+					val down = entities.down(selectConfig, tpe, ci, databaseValues)
+					new OneToOneEntityLazyLoader(selectConfig, mapperDao, down, ci, foreignKeyValues, databaseValues)
 				}
 				SelectMod(c.foreign.alias, v, null)
 		}
