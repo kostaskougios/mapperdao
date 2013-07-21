@@ -584,6 +584,8 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 			if (!onlyForQuery) columns ::= ci else onlyForQueryColumns ::= ci
 			ci
 		}
+
+		def option(columnToValue: T => Option[FT]): ColumnInfoOneToOneReverse[T, FID, FT] = to(optionToValue(columnToValue))
 	}
 
 	/**

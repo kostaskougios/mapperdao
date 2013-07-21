@@ -21,8 +21,8 @@ class OneToOneWithOneToManySuite extends FunSuite with ShouldMatchers
 			val catalog = Catalog(
 				1,
 				List(
-					Product(5, Inventory(1)),
-					Product(6, null)
+					Product(5, Some(Inventory(1))),
+					Product(6, None)
 				)
 			)
 			mapperDao.insert(CatalogEntity, catalog)
@@ -38,7 +38,7 @@ class OneToOneWithOneToManySuite extends FunSuite with ShouldMatchers
 
 	case class Catalog(id: Int, products: List[Product])
 
-	case class Product(id: Int, inventory: Inventory)
+	case class Product(id: Int, inventory: Option[Inventory])
 
 	case class Inventory(stock: Int)
 
@@ -52,7 +52,7 @@ class OneToOneWithOneToManySuite extends FunSuite with ShouldMatchers
 	object ProductEntity extends Entity[Int, NaturalIntId, Product]
 	{
 		val id = key("id") to (_.id)
-		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
+		val inventory = onetoonereverse(InventoryEntity) option (_.inventory)
 
 		def constructor(implicit m: ValuesMap) = new Product(id, inventory) with Stored
 	}
