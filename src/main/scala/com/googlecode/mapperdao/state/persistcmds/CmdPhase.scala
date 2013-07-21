@@ -464,6 +464,7 @@ class CmdPhase(typeManager: TypeManager)
 									oldVM.oneToOneReverse(column) match {
 										case oldFo: DeclaredIds[_] =>
 											oldFo.mapperDaoValuesMap
+										case null => null
 									}
 							}
 							if (oldFVM.isDefined && oldFVM.get != null) {

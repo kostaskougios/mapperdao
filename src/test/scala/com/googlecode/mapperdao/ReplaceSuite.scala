@@ -191,10 +191,11 @@ class ReplaceSuite extends FunSuite with ShouldMatchers
 
 		import Query._
 		val he = HusbandEntity
-		(select
+		val set = (select
 			from he
 			where he.name === "h1"
-			).toSet(queryDao) should be(Set(u1))
+			).toSet(queryDao)
+		set should be(Set(u1))
 
 		(select
 			from he
