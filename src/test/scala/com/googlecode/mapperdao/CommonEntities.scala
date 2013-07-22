@@ -258,7 +258,21 @@ object CommonEntities
 
 	case class Husband(name: String, age: Int, wife: Wife)
 
+	/**
+	 * Note: the equality and hashCode implementations are "shallow"
+	 * to avoid equality issues related to mock instances.
+	 */
 	case class Wife(name: String, age: Int, husband: Husband = null)
+	{
+		override def equals(o: Any) = o match {
+			case w: Wife =>
+				// skip the husband to avoid mock-related failures
+				w.name == name && w.age == age
+			case _ => false
+		}
+
+		override def hashCode = name.hashCode
+	}
 
 	object HusbandEntity extends Entity[Unit, NoId, Husband]
 	{

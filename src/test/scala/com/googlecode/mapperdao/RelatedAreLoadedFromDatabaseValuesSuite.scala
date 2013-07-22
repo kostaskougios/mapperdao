@@ -107,26 +107,28 @@ class RelatedAreLoadedFromDatabaseValuesSuite extends FunSuite with ShouldMatche
 		Helpers.intIdOf(r.owns.tail.head) should be(202)
 	}
 
-	test("one-to-one") {
-		val ids = Helpers.idToList(30)
-		val dbVs = new DatabaseValues(Map(
-			"id" -> 301,
-			"name" -> "wife",
-			"age" -> 19
-		), Map(
-			WifeEntity.husband.column.aliasLowerCase -> (
-				new DatabaseValues(
-					Map(
-						"name" -> "husband",
-						"age" -> 20,
-						"wife_id" -> 301
-					)
-				) :: Nil
-				)
-		)
-		)
-		val r = mapperDao.selectInner(WifeEntity, SelectConfig.default, ids, new EntityMap, Some(dbVs)).get
-		r should be(Wife("wife", 19, Husband("husband", 20, null)))
-		Helpers.intIdOf(r) should be(301)
-	}
+	//TODO: enable this test
+
+	//	test("one-to-one") {
+	//		val ids = Helpers.idToList(30)
+	//		val dbVs = new DatabaseValues(Map(
+	//			"id" -> 301,
+	//			"name" -> "wife",
+	//			"age" -> 19
+	//		), Map(
+	//			WifeEntity.husband.column.aliasLowerCase -> (
+	//				new DatabaseValues(
+	//					Map(
+	//						"name" -> "husband",
+	//						"age" -> 20,
+	//						"wife_id" -> 301
+	//					)
+	//				) :: Nil
+	//				)
+	//		)
+	//		)
+	//		val r = mapperDao.selectInner(WifeEntity, SelectConfig.default, ids, new EntityMap, Some(dbVs)).get
+	//		r should be(Wife("wife", 19, Husband("husband", 20, null)))
+	//		Helpers.intIdOf(r) should be(301)
+	//	}
 }
