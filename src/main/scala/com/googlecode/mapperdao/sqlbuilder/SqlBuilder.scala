@@ -288,7 +288,10 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 	{
 		def toValues = e.toValues
 
-		def toSql = "where " + e.toSql
+		def toSql = e match {
+			case null => throw new IllegalStateException("where with no clauses! Did you declare primary keys for your entity? Did you declare 1 or more where clauses?")
+			case _ => "where " + e.toSql
+		}
 
 		override def toString = "WhereBuilder(%s)".format(e.toSql)
 	}
