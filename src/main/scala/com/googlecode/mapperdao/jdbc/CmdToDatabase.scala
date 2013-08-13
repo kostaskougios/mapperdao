@@ -1,13 +1,13 @@
 package com.googlecode.mapperdao.jdbc
 
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.state.persistcmds._
+import com.googlecode.mapperdao.updatephase.persistcmds._
 import com.googlecode.mapperdao.drivers.Driver
-import com.googlecode.mapperdao.state.persisted._
-import com.googlecode.mapperdao.state.persistcmds.PersistCmd
-import com.googlecode.mapperdao.state.persistcmds.InsertCmd
+import com.googlecode.mapperdao.updatephase.persisted._
+import com.googlecode.mapperdao.updatephase.persistcmds.PersistCmd
+import com.googlecode.mapperdao.updatephase.persistcmds.InsertCmd
 import exceptions.PersistException
-import state.prioritise.Prioritized
+import updatephase.prioritise.Prioritized
 import com.googlecode.mapperdao.schema.{SimpleColumn, ColumnInfo}
 import com.googlecode.mapperdao.internal.{MutableIdentityHashMap, MutableIdentityHashSet}
 

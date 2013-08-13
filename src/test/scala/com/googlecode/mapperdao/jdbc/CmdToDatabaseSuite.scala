@@ -7,8 +7,8 @@ import org.scalatest.matchers.ShouldMatchers
 import com.googlecode.mapperdao._
 import drivers.Driver
 import org.scalatest.mock.EasyMockSugar
-import state.persistcmds.CmdPhase
-import state.prioritise.PriorityPhase
+import updatephase.persistcmds.CmdPhase
+import updatephase.prioritise.PriorityPhase
 import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
 
 /**
