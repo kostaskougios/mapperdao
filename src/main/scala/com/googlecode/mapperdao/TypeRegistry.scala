@@ -43,7 +43,7 @@ final class TypeRegistry private(typeManager: TypeManager, val entities: List[En
 		e
 	}
 
-	def persistDetails(tpe: Type[_, _]) = persistedDetailsPerTpe(tpe)
+	def persistDetails(tpe: Type[_, _]) = persistedDetailsPerTpe.getOrElse(tpe, throw new IllegalStateException("Unknown entity, was it registered during configuration of mapperdao? For table : " + tpe.table.name))
 
 	override def toString = "TypeRegistry(%s)".format(entities)
 }
