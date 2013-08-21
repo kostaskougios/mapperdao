@@ -8,6 +8,9 @@ import com.googlecode.mapperdao.schema.LinkTable
  *          Date: 13/08/13
  */
 case class Table(schema: Option[String], name: String)
+{
+	override def toString = schema.getOrElse("n") + "." + name
+}
 
 object Table
 {

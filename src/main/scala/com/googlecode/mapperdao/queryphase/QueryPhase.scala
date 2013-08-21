@@ -11,26 +11,36 @@ import com.googlecode.mapperdao.schema.ManyToMany
 class QueryPhase
 {
 	def toQuery[ID, T](tpe: Type[ID, T]): Select = {
-		val from = From(InQueryTable(Table(tpe.table), "maint"))
-		Select(from, joins(tpe))
+		val iqt = InQueryTable(Table(tpe.table), "maint")
+		val from = From(iqt)
+		Select(from, joins(iqt, tpe))
 	}
 
-	private def joins[ID, T](tpe: Type[ID, T]) = {
+	private def joins[ID, T](iqt: InQueryTable, tpe: Type[ID, T]) = {
 		tpe.table.relationshipColumns.map {
 			case ManyToMany(e, linkTable, foreign) =>
+				val linkT = Table(linkTable)
+				val leftIQT = InQueryTable(linkT, alias)
 				Join(
-					Table(linkTable),
+					leftIQT,
 					OnClause(
 						tpe.table.primaryKeys.map {
 							pk =>
-								Column(pk.name)
+								Column(iqt, pk.name)
 						},
 						linkTable.left.map {
 							c =>
-								Column(c.name)
+								Column(leftIQT, c.name)
 						}
 					)
 				)
 		}
+	}
+
+	private var aliasCnt = 0
+
+	private def alias = {
+		aliasCnt += 1
+		"a" + aliasCnt
 	}
 }

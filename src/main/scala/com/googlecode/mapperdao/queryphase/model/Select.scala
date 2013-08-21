@@ -9,3 +9,6 @@ case class Select(
 	joins: List[Join],
 	where: Clause = NoClause
 	)
+{
+	override def toString = "select \n" + from + "\n" + joins + "\n" + where
+}

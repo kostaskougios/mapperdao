@@ -5,3 +5,6 @@ package com.googlecode.mapperdao.queryphase.model
  *          Date: 16/08/13
  */
 case class OnClause(left: List[Column], right: List[Column]) extends Clause
+{
+	override def toString = "on " + left + " - " + right
+}
