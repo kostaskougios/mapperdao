@@ -19,16 +19,17 @@ class QueryPhaseSuite extends FunSuite with ShouldMatchers
 		val qp = new QueryPhase
 		val q = qp.toQuery(ProductEntity.tpe)
 
+		val maint = InQueryTable(Table(ProductEntity.tpe.table), "maint")
+
 		q.from should be(
-			From(
-				InQueryTable(Table(ProductEntity.tpe.table), "maint")
-			)
+			From(maint)
 		)
+		val pat = InQueryTable(Table(ProductEntity.attributes.column.linkTable), "a1")
 		q.joins should be(
 			List(
 				Join(
-					InQueryTable(Table(ProductEntity.attributes.column.linkTable), "a1"),
-					NoClause
+					pat,
+					OnClause(List(Column(maint, "id")), List(Column(pat, "product_id")))
 				)
 			)
 		)

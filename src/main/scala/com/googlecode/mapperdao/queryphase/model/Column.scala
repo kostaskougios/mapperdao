@@ -5,6 +5,3 @@ package com.googlecode.mapperdao.queryphase.model
  *          Date: 16/08/13
  */
 case class Column(table: InQueryTable, name: String)
-{
-	override def toString = table + "." + name
-}
