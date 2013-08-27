@@ -43,20 +43,19 @@ class QueryPhase
 									Column(linkIQT, c.name)
 							}
 						)
-					) ::
-						Join(
-							rightIQT,
-							OnClause(
-								ftpe.table.primaryKeys.map {
-									pk =>
-										Column(rightIQT, pk.name)
-								},
-								linkTable.right.map {
-									c =>
-										Column(linkIQT, c.name)
-								}
-							)
-						) ::: joins(ftpe, rightIQT)
+					) :: Join(
+						rightIQT,
+						OnClause(
+							ftpe.table.primaryKeys.map {
+								pk =>
+									Column(rightIQT, pk.name)
+							},
+							linkTable.right.map {
+								c =>
+									Column(linkIQT, c.name)
+							}
+						)
+					) :: joins(ftpe, rightIQT)
 			}.flatten
 		}
 	}
