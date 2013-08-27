@@ -3,6 +3,7 @@ package com.googlecode.mapperdao.queryphase
 import com.googlecode.mapperdao.queryphase.model._
 import com.googlecode.mapperdao.schema.Type
 import com.googlecode.mapperdao.schema.ManyToMany
+import com.googlecode.mapperdao.{Query, Persisted}
 
 /**
  * @author: kostas.kougios
@@ -12,7 +13,8 @@ class QueryPhase
 {
 	private val alreadyDone = collection.mutable.Set.empty[Type[_, _]]
 
-	def toQuery[ID, T](tpe: Type[ID, T]): Select = {
+	def toQuery[ID, PC <: Persisted, T](q: Query.Builder[ID, PC, T]): Select = {
+		val tpe = q.entity.tpe
 		val iqt = InQueryTable(Table(tpe.table), "maint")
 		val from = From(iqt)
 		Select(from, joins(tpe, iqt))
