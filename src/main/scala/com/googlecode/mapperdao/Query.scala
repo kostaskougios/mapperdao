@@ -165,6 +165,8 @@ with SqlOneToOneImplicitConvertions
 		with SqlWhereMixins[Where[ID, PC, T]]
 		with QueryBuilder[ID, PC, T]
 	{
+		protected[mapperdao] def entity = builder.entity
+
 		override def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)]) {
 			builder.order :::= l
 		}

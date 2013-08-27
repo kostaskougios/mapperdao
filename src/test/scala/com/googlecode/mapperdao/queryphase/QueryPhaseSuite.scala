@@ -14,12 +14,16 @@ class QueryPhaseSuite extends FunSuite with ShouldMatchers
 {
 
 	import com.googlecode.mapperdao.CommonEntities._
-	import com.googlecode.mapperdao.Query
+
+	val pe = ProductEntity
 
 	test("many-to-many") {
 		val qp = new QueryPhase
 
-		val s = Query.select from ProductEntity
+		val s = {
+			import com.googlecode.mapperdao.Query._
+			select from pe where pe.id === 5
+		}
 
 		val q = qp.toQuery(s)
 
