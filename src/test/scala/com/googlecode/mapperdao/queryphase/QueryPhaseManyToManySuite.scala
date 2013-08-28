@@ -10,27 +10,21 @@ import com.googlecode.mapperdao.queryphase.model._
  * @author kkougios
  */
 @RunWith(classOf[JUnitRunner])
-class QueryPhaseSuite extends FunSuite with ShouldMatchers
+class QueryPhaseManyToManySuite extends FunSuite with ShouldMatchers
 {
 
 	import com.googlecode.mapperdao.CommonEntities._
 
 	val pe = ProductEntity
+	val query1 = {
+		import com.googlecode.mapperdao.Query._
+		select from pe where pe.id === 5
+	}
+	val maint = InQueryTable(Table(ProductEntity.tpe.table), "maint")
 
-	test("many-to-many") {
+	test("joins") {
 		val qp = new QueryPhase
-
-		val s = {
-			import com.googlecode.mapperdao.Query._
-			select from pe where pe.id === 5
-		}
-
-		val q = qp.toQuery(s)
-
-		val maint = InQueryTable(Table(ProductEntity.tpe.table), "maint")
-
-		q.from should be(From(maint))
-
+		val q = qp.toQuery(query1)
 		val pat = InQueryTable(Table(ProductEntity.attributes.column.linkTable), "a1")
 		val att = InQueryTable(Table(AttributeEntity.tpe.table), "a2")
 		q.joins(0) should be(
@@ -45,5 +39,7 @@ class QueryPhaseSuite extends FunSuite with ShouldMatchers
 				OnClause(List(Column(att, "id")), List(Column(pat, "attribute_id")))
 			)
 		)
+
+		q.joins.size should be(2)
 	}
 }

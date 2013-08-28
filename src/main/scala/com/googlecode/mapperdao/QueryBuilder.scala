@@ -6,5 +6,5 @@ package com.googlecode.mapperdao
  */
 trait QueryBuilder[ID, PC <: Persisted, T]
 {
-	protected[mapperdao] def entity: EntityBase[ID, T]
+	private[mapperdao] def entity: EntityBase[ID, T]
 }
