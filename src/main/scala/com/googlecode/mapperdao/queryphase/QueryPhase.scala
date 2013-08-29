@@ -2,8 +2,14 @@ package com.googlecode.mapperdao.queryphase
 
 import com.googlecode.mapperdao.queryphase.model._
 import com.googlecode.mapperdao.schema.Type
+import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.queryphase.model.InQueryTable
+import com.googlecode.mapperdao.queryphase.model.Select
+import com.googlecode.mapperdao.queryphase.model.Join
+import com.googlecode.mapperdao.queryphase.model.From
+import com.googlecode.mapperdao.queryphase.model.OnClause
 import com.googlecode.mapperdao.schema.ManyToMany
-import com.googlecode.mapperdao.{Query, QueryBuilder, Persisted}
+import com.googlecode.mapperdao.queryphase.model.Column
 
 /**
  * @author: kostas.kougios
@@ -62,14 +68,17 @@ class QueryPhase
 		}
 	}
 
-	private def where[ID, PC <: Persisted, T](tpe: Type[ID, T], iqt: InQueryTable, q: QueryBuilder[ID, PC, T]): Clause =
+	private def where[ID, PC <: Persisted, T](mainTpe: Type[ID, T], iqt: InQueryTable, q: QueryBuilder[ID, PC, T]): Clause =
 		q matches {
 			case wc: Query.Where[ID, PC, T] =>
-				where(tpe, iqt, wc)
+				where(mainTpe, iqt, wc.builder.wheres.map(_.clauses).get)
 			case _ => NoClause
 		}
 
-	private def where[ID, T](tpe: Type[ID, T], iqt: InQueryTable, q: Query.Where[ID, T]): Clause = {}
+	private def where[ID, PC <: Persisted, T](mainTpe: Type[ID, T], iqt: InQueryTable, op: OpBase): Clause = op match {
+		case Operation(left, operand, right) =>
+			WhereValueComparisonClause(Column(), operand.sql, "?")
+	}
 
 	private var aliasCnt = 0
 
