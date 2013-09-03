@@ -7,4 +7,6 @@ package com.googlecode.mapperdao
 trait QueryBuilder[ID, PC <: Persisted, T]
 {
 	private[mapperdao] def entity: EntityBase[ID, T]
+
+	private[mapperdao] def joins: List[Any]
 }

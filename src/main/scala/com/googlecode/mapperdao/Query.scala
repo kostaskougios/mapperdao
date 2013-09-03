@@ -167,6 +167,8 @@ with SqlOneToOneImplicitConvertions
 	{
 		private[mapperdao] def entity = builder.entity
 
+		private[mapperdao] def joins = builder.joins
+
 		override def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)]) {
 			builder.order :::= l
 		}

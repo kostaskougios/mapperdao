@@ -23,10 +23,12 @@ class QueryPhase
 		val tpe = q.entity.tpe
 		val iqt = InQueryTable(Table(tpe.table), "maint")
 		val from = From(iqt)
-		Select(from, joins(tpe, iqt), where(tpe, iqt, q))
+		val j = joins(tpe, iqt, q.joins)
+		val w = where(tpe, iqt, q)
+		Select(from, j, w)
 	}
 
-	private def joins[ID, T](tpe: Type[ID, T], iqt: InQueryTable): List[Join] = {
+	private def joins[ID, T](tpe: Type[ID, T], iqt: InQueryTable, queryJoins: List[Any]): List[Join] = {
 		// make sure we don't process the same type twice
 		if (alreadyDone.contains(tpe))
 			Nil
@@ -63,13 +65,13 @@ class QueryPhase
 									Column(linkIQT, c.name)
 							}
 						)
-					) :: joins(ftpe, rightIQT)
+					) :: joins(ftpe, rightIQT, queryJoins)
 			}.flatten
 		}
 	}
 
 	private def where[ID, PC <: Persisted, T](mainTpe: Type[ID, T], iqt: InQueryTable, q: QueryBuilder[ID, PC, T]): Clause =
-		q matches {
+		q match {
 			case wc: Query.Where[ID, PC, T] =>
 				where(mainTpe, iqt, wc.builder.wheres.map(_.clauses).get)
 			case _ => NoClause
@@ -77,7 +79,7 @@ class QueryPhase
 
 	private def where[ID, PC <: Persisted, T](mainTpe: Type[ID, T], iqt: InQueryTable, op: OpBase): Clause = op match {
 		case Operation(left, operand, right) =>
-			WhereValueComparisonClause(Column(), operand.sql, "?")
+			WhereValueComparisonClause(Column(iqt, left.name), operand.sql, "?")
 	}
 
 	private var aliasCnt = 0
