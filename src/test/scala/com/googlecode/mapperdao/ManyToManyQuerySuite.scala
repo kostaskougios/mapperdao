@@ -93,8 +93,8 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers
 
 		val p0 = mapperDao.insert(ProductEntity, Product(1, "TV 1", Set(a0, a2)))
 		val p1 = mapperDao.insert(ProductEntity, Product(2, "TV 2", Set(a1, a2)))
-		val p2 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
-		val p3 = mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
+		mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
+		mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
 		(select from p).toList(QueryConfig(limit = Some(2))).toSet should be === Set(p0, p1)
 	}
@@ -106,10 +106,10 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers
 		val a2 = mapperDao.insert(AttributeEntity, Attribute(102, "colour", "black"))
 		val a3 = mapperDao.insert(AttributeEntity, Attribute(103, "colour", "white"))
 
-		val p0 = mapperDao.insert(ProductEntity, Product(1, "TV 1", Set(a0, a2)))
+		mapperDao.insert(ProductEntity, Product(1, "TV 1", Set(a0, a2)))
 		val p1 = mapperDao.insert(ProductEntity, Product(2, "TV 2", Set(a1, a2)))
 		val p2 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
-		val p3 = mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
+		mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
 		(select from p).toList(QueryConfig(offset = Some(1), limit = Some(2))).toSet should be === Set(p1, p2)
 	}
@@ -142,9 +142,9 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers
 		val a3 = mapperDao.insert(AttributeEntity, Attribute(103, "colour", "white"))
 
 		val p0 = mapperDao.insert(ProductEntity, Product(1, "TV 1", Set(a0, a2)))
-		val p1 = mapperDao.insert(ProductEntity, Product(2, "TV 2", Set(a1, a2)))
+		mapperDao.insert(ProductEntity, Product(2, "TV 2", Set(a1, a2)))
 		val p2 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
-		val p3 = mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
+		mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
 		(select from p join(p, p.attributes, attr) where attr.value === "46'").toList.toSet should be === Set(p0, p2)
 	}
@@ -158,7 +158,7 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers
 
 		val p0 = mapperDao.insert(ProductEntity, Product(1, "TV 1", Set(a0, a2)))
 		val p1 = mapperDao.insert(ProductEntity, Product(2, "TV 2", Set(a1, a2)))
-		val p2 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
+		mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
 		val p3 = mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
 		(select from p join(p, p.attributes, attr) where attr.value === "50'" or attr.value === "black").toList.toSet should be === Set(p0, p1, p3)
@@ -172,7 +172,7 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers
 						name varchar(100) not null,
 						primary key(id)
 					)
-		             """)
+					 """)
 		jdbc.update( """
 					create table Attribute (
 						id int not null,
@@ -180,14 +180,14 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers
 						value varchar(100) not null,
 						primary key(id)
 					)
-		             """)
+					 """)
 		jdbc.update( """
 					create table Product_Attribute (
 						product_id int not null,
 						attribute_id int not null,
 						primary key(product_id,attribute_id)
 					)
-		             """)
+					 """)
 	}
 
 	case class Product(id: Int, name: String, attributes: Set[Attribute])
