@@ -96,7 +96,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	private def joins[ID, PC <: Persisted, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], aliases: Aliases) = {
 		// iterate through the joins in the correct order
 		qe.joins.reverse.foreach {
-			case Query.Join(joinEntity, ci, foreignEntity) =>
+			case Query.InnerJoin(joinEntity, ci, foreignEntity) =>
 				val column = ci.column
 				column match {
 					case manyToOne: ManyToOne[_, _] =>
@@ -116,7 +116,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 						val join = oneToOneJoin(queryConfig, aliases, joinEntity, foreignEntity, oneToOne)
 						q.innerJoin(join)
 				}
-			case j: Query.SJoin[Any, Any, Any, Any, Any, Persisted, Any] =>
+			case j: Query.SelfJoin[Any, Any, Any, Any, Any, Persisted, Any] =>
 				val joined = joinTable(queryConfig, aliases, j)
 				q.innerJoin(joined)
 		}
@@ -175,7 +175,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	private def joinTable[JID, JT, FID, FT, QID, QPC <: Persisted, QT](
 		queryConfig: QueryConfig,
 		aliases: QueryDao.Aliases,
-		join: Query.SJoin[JID, JT, FID, FT, QID, QPC, QT]
+		join: Query.SelfJoin[JID, JT, FID, FT, QID, QPC, QT]
 		) = {
 		val jEntity = join.entity
 		val jTable = jEntity.tpe.table

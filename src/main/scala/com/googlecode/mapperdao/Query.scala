@@ -99,14 +99,14 @@ with SqlOneToOneImplicitConvertions
 			ci: ColumnInfoRelationshipBase[JT, _, FID, FT],
 			foreignEntity: EntityBase[FID, FT]
 			) = {
-			val j = new Join(joinEntity, ci, foreignEntity)
+			val j = new InnerJoin(joinEntity, ci, foreignEntity)
 			joins ::= j
 			this
 		}
 
 		def join[JID, JPC <: Persisted, JT](entity: Entity[JID, JPC, JT]) = {
 			val on = new JoinOn(this)
-			val j = new SJoin(entity, on)
+			val j = new SelfJoin(entity, on)
 			joins ::= j
 			on
 		}
@@ -137,13 +137,13 @@ with SqlOneToOneImplicitConvertions
 		val sql = "desc"
 	}
 
-	case class Join[JID, JT, FID, FT](
+	case class InnerJoin[JID, JT, FID, FT](
 		joinEntity: EntityBase[JID, JT],
 		ci: ColumnInfoRelationshipBase[JT, _, FID, FT],
 		foreignEntity: EntityBase[FID, FT]
 		)
 
-	case class SJoin[JID, JT, FID, FT, QID, QPC <: Persisted, QT](
+	case class SelfJoin[JID, JT, FID, FT, QID, QPC <: Persisted, QT](
 		// for join on functionality
 		entity: Entity[JID, Persisted, JT],
 		on: JoinOn[QID, QPC, QT]
