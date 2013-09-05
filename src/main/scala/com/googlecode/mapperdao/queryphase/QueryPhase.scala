@@ -23,12 +23,12 @@ class QueryPhase
 		val tpe = q.entity.tpe
 		val iqt = InQueryTable(Table(tpe.table), "maint")
 		val from = From(iqt)
-		val j = joins(tpe, iqt, q.joins)
+		val entityJoins = joins(tpe, iqt)
 		val w = where(tpe, iqt, q)
-		Select(from, j, w)
+		Select(from, entityJoins, w)
 	}
 
-	private def joins[ID, T](tpe: Type[ID, T], iqt: InQueryTable, queryJoins: List[Any]): List[Join] = {
+	private def joins[ID, T](tpe: Type[ID, T], iqt: InQueryTable): List[Join] = {
 		// make sure we don't process the same type twice
 		if (alreadyDone.contains(tpe))
 			Nil
@@ -65,7 +65,7 @@ class QueryPhase
 									Column(linkIQT, c.name)
 							}
 						)
-					) :: joins(ftpe, rightIQT, queryJoins)
+					) :: joins(ftpe, rightIQT)
 			}.flatten
 		}
 	}

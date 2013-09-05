@@ -332,8 +332,8 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	private def oneToOneReverseJoin[JID, JT, FID, FT](
 		queryConfig: QueryConfig,
 		aliases: QueryDao.Aliases,
-		joinEntity: Entity[JID, _, JT],
-		foreignEntity: Entity[FID, _, FT],
+		joinEntity: EntityBase[JID, JT],
+		foreignEntity: EntityBase[FID, FT],
 		oneToOneReverse: OneToOneReverse[_, _]
 		) = {
 		val tpe = joinEntity.tpe
@@ -354,8 +354,8 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	private def oneToOneJoin[JID, JT, FID, FT](
 		queryConfig: QueryConfig,
 		aliases: QueryDao.Aliases,
-		joinEntity: Entity[JID, _, JT],
-		foreignEntity: Entity[FID, _, FT],
+		joinEntity: EntityBase[JID, JT],
+		foreignEntity: EntityBase[FID, FT],
 		oneToOne: OneToOne[_, _]
 		) = {
 		val foreignTpe = foreignEntity.tpe

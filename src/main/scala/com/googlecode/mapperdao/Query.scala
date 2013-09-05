@@ -95,9 +95,9 @@ with SqlOneToOneImplicitConvertions
 		}
 
 		def join[JID, JT, FID, FT](
-			joinEntity: Entity[JID, Persisted, JT],
+			joinEntity: EntityBase[JID, JT],
 			ci: ColumnInfoRelationshipBase[JT, _, FID, FT],
-			foreignEntity: Entity[FID, Persisted, FT]
+			foreignEntity: EntityBase[FID, FT]
 			) = {
 			val j = new Join(joinEntity, ci, foreignEntity)
 			joins ::= j
@@ -138,9 +138,9 @@ with SqlOneToOneImplicitConvertions
 	}
 
 	case class Join[JID, JT, FID, FT](
-		joinEntity: Entity[JID, Persisted, JT],
+		joinEntity: EntityBase[JID, JT],
 		ci: ColumnInfoRelationshipBase[JT, _, FID, FT],
-		foreignEntity: Entity[FID, Persisted, FT]
+		foreignEntity: EntityBase[FID, FT]
 		)
 
 	case class SJoin[JID, JT, FID, FT, QID, QPC <: Persisted, QT](
