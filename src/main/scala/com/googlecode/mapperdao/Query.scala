@@ -77,22 +77,19 @@ with SqlOneToOneImplicitConvertions
 	/**
 	 * main query builder, keeps track of all 'where', joins and order by.
 	 */
-	private[mapperdao] class Builder[ID, PC <: Persisted, T](private[mapperdao] val entity: Entity[ID, PC, T])
+	private[mapperdao] case class Builder[ID, PC <: Persisted, T](
+		private[mapperdao] val entity: Entity[ID, PC, T],
+		private[mapperdao] val wheres: Option[Where[ID, PC, T]] = None,
+		private[mapperdao] var joins: List[Join] = Nil,
+		private[mapperdao] var order: List[(ColumnInfo[_, _], AscDesc)] = Nil
+		)
 		extends OrderBy[Builder[ID, PC, T]] with QueryBuilder[ID, PC, T]
 	{
-		private[mapperdao] var wheres: Option[Where[ID, PC, T]] = None
-		private[mapperdao] var joins = List[Any]()
-		private[mapperdao] var order = List[(ColumnInfo[_, _], AscDesc)]()
-
 		override protected def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)]) {
 			order :::= l
 		}
 
-		def where = {
-			val qe = new Where(this)
-			wheres = Some(qe)
-			qe
-		}
+		def where = new Where(this)
 
 		def join[JID, JT, FID, FT](
 			joinEntity: EntityBase[JID, JT],
@@ -137,17 +134,19 @@ with SqlOneToOneImplicitConvertions
 		val sql = "desc"
 	}
 
+	trait Join
+
 	case class InnerJoin[JID, JT, FID, FT](
 		joinEntity: EntityBase[JID, JT],
 		ci: ColumnInfoRelationshipBase[JT, _, FID, FT],
 		foreignEntity: EntityBase[FID, FT]
-		)
+		) extends Join
 
 	case class SelfJoin[JID, JT, FID, FT, QID, QPC <: Persisted, QT](
 		// for join on functionality
 		entity: Entity[JID, Persisted, JT],
 		on: JoinOn[QID, QPC, QT]
-		)
+		) extends Join
 
 	class JoinOn[ID, PC <: Persisted, T](protected[mapperdao] val queryEntity: Builder[ID, PC, T])
 	{
@@ -160,11 +159,13 @@ with SqlOneToOneImplicitConvertions
 		}
 	}
 
-	private[mapperdao] class Where[ID, PC <: Persisted, T](protected[mapperdao] val builder: Builder[ID, PC, T])
+	private[mapperdao] class Where[ID, PC <: Persisted, T](b: Builder[ID, PC, T])
 		extends OrderBy[Where[ID, PC, T]]
 		with SqlWhereMixins[Where[ID, PC, T]]
 		with QueryBuilder[ID, PC, T]
 	{
+		private[mapperdao] val builder: Builder[ID, PC, T] = b.copy(wheres = Some(this))
+
 		private[mapperdao] def entity = builder.entity
 
 		private[mapperdao] def joins = builder.joins
@@ -173,11 +174,7 @@ with SqlOneToOneImplicitConvertions
 			builder.order :::= l
 		}
 
-		def where = {
-			val qe = new Where(builder)
-			builder.wheres = Some(qe)
-			qe
-		}
+		def where = new Where(builder)
 
 		def toList(implicit queryDao: QueryDao): List[T with PC] = toList(QueryConfig.default)(queryDao)
 

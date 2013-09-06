@@ -249,12 +249,12 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 		createJobPositionTable()
 
 		val now = Setup.now
-		val j5 = mapperDao.insert(JobPositionEntity, JobPosition(5, "developer", now.minusDays(2)))
-		val j6 = mapperDao.insert(JobPositionEntity, JobPosition(6, "Scala Developer", now.minusDays(1)))
-		val j7 = mapperDao.insert(JobPositionEntity, JobPosition(7, "manager", now))
+		mapperDao.insert(JobPositionEntity, JobPosition(5, "developer", now.minusDays(2)))
+		mapperDao.insert(JobPositionEntity, JobPosition(6, "Scala Developer", now.minusDays(1)))
+		mapperDao.insert(JobPositionEntity, JobPosition(7, "manager", now))
 		val j8 = mapperDao.insert(JobPositionEntity, JobPosition(8, "Scala Developer", now.plusDays(1)))
 		val j12 = mapperDao.insert(JobPositionEntity, JobPosition(12, "Scala Developer", now.plusDays(2)))
-		val j9 = mapperDao.insert(JobPositionEntity, JobPosition(9, "x", now.plusDays(3)))
+		mapperDao.insert(JobPositionEntity, JobPosition(9, "x", now.plusDays(3)))
 		queryDao.query(q10).toSet should be === Set(j8, j12)
 		queryDao.query(q10Alias).toSet should be === Set(j8, j12)
 	}
@@ -297,7 +297,6 @@ class SimpleQuerySuite extends FunSuite with ShouldMatchers
 	def q10Alias = {
 		val q = select from jpe
 		q where jpe.start > DateTime.now + 0.days and jpe.start < DateTime.now + 3.days - 60.seconds
-		q
 	}
 
 	def qAsBuilder = {

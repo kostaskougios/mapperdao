@@ -33,11 +33,11 @@ class QueryPhaseManyToManySuite extends FunSuite with ShouldMatchers
 	val maint = InQueryTable(Table(pe.tpe.table), "maint")
 	val attrt = InQueryTable(Table(ae.tpe.table), "a1")
 
-	test("where clause") {
-		val qp = new QueryPhase
-		val q = qp.toQuery(query2)
-		q.where should be(WhereValueComparisonClause(Column(attrt, "name"), "=", "?"))
-	}
+	//	test("where clause") {
+	//		val qp = new QueryPhase
+	//		val q = qp.toQuery(query2)
+	//		q.where should be(WhereValueComparisonClause(Column(attrt, "name"), "=", "?"))
+	//	}
 
 	test("joins") {
 		val qp = new QueryPhase
