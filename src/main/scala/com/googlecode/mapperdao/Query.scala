@@ -80,7 +80,7 @@ with SqlOneToOneImplicitConvertions
 	private[mapperdao] case class Builder[ID, PC <: Persisted, T](
 		private[mapperdao] val entity: Entity[ID, PC, T],
 		private[mapperdao] val wheres: Option[Where[ID, PC, T]] = None,
-		private[mapperdao] var joins: List[Join] = Nil,
+		private[mapperdao] val joins: List[Join] = Nil,
 		private[mapperdao] var order: List[(ColumnInfo[_, _], AscDesc)] = Nil
 		)
 		extends OrderBy[Builder[ID, PC, T]] with QueryBuilder[ID, PC, T]
@@ -97,16 +97,10 @@ with SqlOneToOneImplicitConvertions
 			foreignEntity: EntityBase[FID, FT]
 			) = {
 			val j = new InnerJoin(joinEntity, ci, foreignEntity)
-			joins ::= j
-			this
+			copy(joins = j :: joins)
 		}
 
-		def join[JID, JPC <: Persisted, JT](entity: Entity[JID, JPC, JT]) = {
-			val on = new JoinOn(this)
-			val j = new SelfJoin(entity, on)
-			joins ::= j
-			on
-		}
+		def join[JID, JPC <: Persisted, JT](entity: Entity[JID, JPC, JT]) = new JoinOn(this)
 
 		def toList(implicit queryDao: QueryDao): List[T with PC] = toList(QueryConfig.default)(queryDao)
 
@@ -148,12 +142,15 @@ with SqlOneToOneImplicitConvertions
 		on: JoinOn[QID, QPC, QT]
 		) extends Join
 
-	class JoinOn[ID, PC <: Persisted, T](protected[mapperdao] val queryEntity: Builder[ID, PC, T])
+	class JoinOn[ID, PC <: Persisted, T](protected[mapperdao] val builder: Builder[ID, PC, T])
 	{
 		protected[mapperdao] var ons: Option[Where[ID, PC, T]] = None
 
 		def on = {
-			val qe = new Where(queryEntity)
+			val j = new SelfJoin(builder.entity, this)
+			val b = builder.copy(joins = j :: builder.joins)
+
+			val qe = new Where(b)
 			ons = Some(qe)
 			qe
 		}
