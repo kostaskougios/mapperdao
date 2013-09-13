@@ -4,7 +4,7 @@ import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import com.googlecode.mapperdao.{AndOp, EQ, Operation}
+import com.googlecode.mapperdao.{OrOp, AndOp, EQ, Operation}
 
 /**
  * @author kkougios
@@ -16,6 +16,8 @@ class Query2Suite extends FunSuite with ShouldMatchers
 	import com.googlecode.mapperdao.CommonEntities._
 
 	val pe = PersonEntity
+	val ce = CompanyEntity
+
 	val nameIsX = Operation(pe.name.column, EQ, "x")
 	val nameIsXX = Operation(pe.name.column, EQ, "xx")
 	val idIs5 = Operation(pe.id.column, EQ, 5)
@@ -54,6 +56,18 @@ class Query2Suite extends FunSuite with ShouldMatchers
 		where should be(AndOp(nameIsX, idIs5))
 	}
 
+	test("or") {
+		import Query2._
+
+		val q = (
+			select
+				from pe
+				where pe.name === "x" or pe.id === 5
+			)
+		val where = q.queryInfo.wheres.get
+		where should be(OrOp(nameIsX, idIs5))
+	}
+
 	test("operation presidence") {
 		import Query2._
 
@@ -64,5 +78,46 @@ class Query2Suite extends FunSuite with ShouldMatchers
 			)
 		val where = q.queryInfo.wheres.get
 		where should be(AndOp(AndOp(nameIsX, idIs5), nameIsXX))
+	}
+
+	test("join") {
+		import Query2._
+
+		val q = (
+			select
+				from pe
+				join(pe, pe.company, ce)
+			)
+		val qi = q.queryInfo
+		qi.entity should be(pe)
+		qi.joins should be(List(InnerJoin(pe, pe.company, ce)))
+	}
+
+	test("join with where") {
+		import Query2._
+
+		val q = (
+			select
+				from pe
+				join(pe, pe.company, ce)
+				where pe.name === "x"
+			)
+		val qi = q.queryInfo
+		qi.entity should be(pe)
+		qi.joins should be(List(InnerJoin(pe, pe.company, ce)))
+		qi.wheres.get should be(nameIsX)
+	}
+
+	test("self join") {
+		import Query2._
+
+		val pe2 = alias(PersonEntity)
+		val q = (
+			select
+				from pe
+				join (pe2) on pe.name === pe2.name
+				where pe.name === "x"
+			)
+		val qi = q.queryInfo
 	}
 }
