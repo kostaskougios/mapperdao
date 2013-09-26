@@ -111,12 +111,11 @@ class Query2Suite extends FunSuite with ShouldMatchers
 	test("self join") {
 		import Query2._
 
-		val pe2 = alias(PersonEntity)
 		val q = (
 			select
 				from pe
-				join (pe2) on pe.name === pe2.name
-				where pe.name === "x"
+				join pe as 'x on pe.name ===('x, pe.name)
+				where pe.name === "a name"
 			)
 		val qi = q.queryInfo
 	}
