@@ -13,8 +13,8 @@ case class AfterFrom[ID, PC <: Persisted, T](queryInfo: QueryInfo[ID, T]) extend
 
 	def join[JID, JT, FID, FT](from: EntityBase[JID, JT], column: ColumnInfoRelationshipBase[JT, _, FID, FT], to: EntityBase[FID, FT]) =
 		JoinClause[ID, PC, T, FID, FT](queryInfo.copy(
-			joins = InnerJoin(from, column, to) :: queryInfo.joins
-		), to)
+			joins = InnerJoin(Alias(from), column, Alias(to)) :: queryInfo.joins
+		), Alias(to))
 
 	def join[FID, FT](e: Alias[FID, FT]) = SelfJoinOn(queryInfo, e)
 }

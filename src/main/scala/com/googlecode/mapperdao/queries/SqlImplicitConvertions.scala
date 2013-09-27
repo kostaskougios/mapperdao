@@ -54,6 +54,8 @@ trait SqlImplicitConvertions
 
 		def ===(v: ColumnInfo[_, V]) = new Operation(t.column, EQ, v.column) with EqualityOperation
 
+		def ===(v: (Symbol, ColumnInfo[_, V])) = new Operation(t.column, EQ, v._2.column) with EqualityOperation
+
 		def like(v: V) = new Operation(t.column, LIKE, v)
 
 		def like(v: ColumnInfo[_, V]) = new Operation(t.column, LIKE, v.column)

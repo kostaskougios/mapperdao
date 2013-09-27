@@ -8,6 +8,6 @@ import com.googlecode.mapperdao.{EntityBase, Persisted}
  */
 class From[ID, PC <: Persisted, T]
 {
-	def from(entity: EntityBase[ID, T]) = AfterFrom(QueryInfo(entity))
+	def from(entity: EntityBase[ID, T]) = AfterFrom(QueryInfo(Alias(entity, Some('maint))))
 }
 

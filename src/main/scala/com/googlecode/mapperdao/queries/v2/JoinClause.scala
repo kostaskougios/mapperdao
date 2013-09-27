@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao.queries.v2
 
-import com.googlecode.mapperdao.{Persisted, EntityBase}
+import com.googlecode.mapperdao.Persisted
 
 /**
  * @author: kostas.kougios
@@ -8,7 +8,7 @@ import com.googlecode.mapperdao.{Persisted, EntityBase}
  */
 case class JoinClause[ID, PC <: Persisted, T, FID, FT](
 	queryInfo: QueryInfo[ID, T],
-	to: EntityBase[FID, FT]
+	to: Alias[FID, FT]
 	) extends WithQueryInfo[ID, PC, T]
 {
 	def where = Where(queryInfo)

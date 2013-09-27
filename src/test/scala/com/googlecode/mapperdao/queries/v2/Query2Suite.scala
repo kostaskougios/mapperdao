@@ -90,7 +90,7 @@ class Query2Suite extends FunSuite with ShouldMatchers
 			)
 		val qi = q.queryInfo
 		qi.entity should be(pe)
-		qi.joins should be(List(InnerJoin(pe, pe.company, ce)))
+		qi.joins should be(List(InnerJoin(Alias(pe), pe.company, Alias(ce))))
 	}
 
 	test("join with where") {
@@ -104,7 +104,7 @@ class Query2Suite extends FunSuite with ShouldMatchers
 			)
 		val qi = q.queryInfo
 		qi.entity should be(pe)
-		qi.joins should be(List(InnerJoin(pe, pe.company, ce)))
+		qi.joins should be(List(InnerJoin(Alias(pe), pe.company, Alias(ce))))
 		qi.wheres.get should be(nameIsX)
 	}
 
