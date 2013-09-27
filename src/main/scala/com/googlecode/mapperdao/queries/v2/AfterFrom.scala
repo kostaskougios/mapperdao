@@ -16,5 +16,5 @@ case class AfterFrom[ID, PC <: Persisted, T](queryInfo: QueryInfo[ID, T]) extend
 			joins = InnerJoin(from, column, to) :: queryInfo.joins
 		), to)
 
-	def join[FID, FT](e: EntityBase[FID, FT]) = SelfJoinOn(queryInfo, e)
+	def join[FID, FT](e: Alias[FID, FT]) = SelfJoinOn(queryInfo, e)
 }
