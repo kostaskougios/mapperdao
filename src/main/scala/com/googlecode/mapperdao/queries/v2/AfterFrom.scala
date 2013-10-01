@@ -15,6 +15,6 @@ case class AfterFrom[ID, PC <: Persisted, T](queryInfo: QueryInfo[ID, T]) extend
 		), Alias(to))
 
 	def join[FID, FT](e: Alias[FID, FT]) = SelfJoinOn(queryInfo.copy(
-		joins =
+		joins = SelfJoin(e) :: queryInfo.joins
 	), e)
 }

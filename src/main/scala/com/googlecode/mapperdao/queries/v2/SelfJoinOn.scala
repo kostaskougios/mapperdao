@@ -8,5 +8,5 @@ import com.googlecode.mapperdao.Persisted
  */
 case class SelfJoinOn[ID, PC <: Persisted, T, FID, FT](queryInfo: QueryInfo[ID, T], e: Alias[FID, FT])
 {
-	def on = new Where[ID, PC, T](queryInfo) with WithWhere[ID, PC, T]
+	def on = new JoinOn[ID, PC, T](queryInfo) with WithWhere[ID, PC, T]
 }

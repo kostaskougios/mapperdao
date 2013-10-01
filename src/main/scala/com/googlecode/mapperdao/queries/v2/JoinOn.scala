@@ -8,15 +8,24 @@ import com.googlecode.mapperdao.{OrOp, AndOp, OpBase, Persisted}
  */
 case class JoinOn[ID, PC <: Persisted, T](queryInfo: QueryInfo[ID, T]) extends WithQueryInfo[ID, PC, T] with WithWhere[ID, PC, T]
 {
+	private def joinList(op: OpBase) = {
+		val j = queryInfo.joins.head match {
+			case sj: SelfJoin[_, _, _, _, _, _, _] =>
+				sj.copy(ons = Some(op))
+		}
+		j :: queryInfo.joins.tail
+	}
+
 	def apply(op: OpBase) = {
 		if (queryInfo.wheres.isDefined) throw new IllegalStateException("already defined a where clause, use and() or or()")
-		JoinOn(queryInfo = queryInfo.copy(joins = Some(op)))
+
+		JoinOn(queryInfo = queryInfo.copy(joins = joinList(op)))
 	}
 
 	def and(op: OpBase) =
-		Where(queryInfo = queryInfo.copy(wheres = Some(AndOp(queryInfo.wheres.get, op))))
+		JoinOn(queryInfo = queryInfo.copy(joins = joinList(AndOp(queryInfo.joins.head.ons.get, op))))
 
 	def or(op: OpBase) =
-		Where(queryInfo = queryInfo.copy(wheres = Some(OrOp(queryInfo.wheres.get, op))))
+		JoinOn(queryInfo = queryInfo.copy(joins = joinList(OrOp(queryInfo.joins.head.ons.get, op))))
 
 }

@@ -9,7 +9,7 @@ import com.googlecode.mapperdao.OpBase
  */
 trait Join
 {
-	val wheres: Option[OpBase] = None
+	val ons: Option[OpBase] = None
 }
 
 

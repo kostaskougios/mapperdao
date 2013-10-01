@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao.queries.v2
 
-import com.googlecode.mapperdao.Query.JoinOn
-import com.googlecode.mapperdao.{EntityBase, Persisted}
+import com.googlecode.mapperdao.{OpBase, Persisted}
 
 /**
  * @author: kostas.kougios
@@ -9,6 +8,6 @@ import com.googlecode.mapperdao.{EntityBase, Persisted}
  */
 case class SelfJoin[JID, JT, FID, FT, QID, QPC <: Persisted, QT](
 	// for join on functionality
-	entity: EntityBase[JID, JT],
-	on: JoinOn[QID, QPC, QT]
+	entity: Alias[JID, JT],
+	override val ons: Option[OpBase] = None
 	) extends Join
