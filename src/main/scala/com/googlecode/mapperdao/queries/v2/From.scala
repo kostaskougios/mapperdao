@@ -1,13 +1,13 @@
 package com.googlecode.mapperdao.queries.v2
 
-import com.googlecode.mapperdao.{EntityBase, Persisted}
+import com.googlecode.mapperdao.{Entity, Persisted}
 
 /**
  * @author: kostas.kougios
  *          Date: 10/09/13
  */
-class From[ID, PC <: Persisted, T]
+class From
 {
-	def from(entity: EntityBase[ID, T]) = AfterFrom(QueryInfo(Alias(entity, Some('maint))))
+	def from[ID, PC <: Persisted, T](entity: Entity[ID, PC, T]) = AfterFrom[ID, PC, T](QueryInfo(Alias(entity, Some('maint))))
 }
 

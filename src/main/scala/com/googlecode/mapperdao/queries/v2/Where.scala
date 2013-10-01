@@ -10,7 +10,7 @@ case class Where[ID, PC <: Persisted, T](queryInfo: QueryInfo[ID, T]) extends Wi
 {
 	def apply(op: OpBase) = {
 		if (queryInfo.wheres.isDefined) throw new IllegalStateException("already defined a where clause, use and() or or()")
-		Where(queryInfo = queryInfo.copy(wheres = Some(op)))
+		Where[ID, PC, T](queryInfo = queryInfo.copy(wheres = Some(op)))
 	}
 
 	def and(op: OpBase) =

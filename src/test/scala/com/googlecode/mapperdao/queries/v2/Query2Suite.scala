@@ -25,9 +25,7 @@ class Query2Suite extends FunSuite with ShouldMatchers
 	test("select from") {
 		import Query2._
 
-		val q = (
-			select from pe
-			)
+		val q = select from pe
 		val qi = q.queryInfo
 		qi.entity should be(Alias(pe, Some('maint)))
 	}
@@ -118,5 +116,6 @@ class Query2Suite extends FunSuite with ShouldMatchers
 			//where pe.name === "a name"
 			)
 		val qi = q.queryInfo
+		println(qi)
 	}
 }
