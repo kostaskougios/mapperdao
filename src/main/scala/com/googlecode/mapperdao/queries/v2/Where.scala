@@ -14,8 +14,8 @@ case class Where[ID, PC <: Persisted, T](queryInfo: QueryInfo[ID, T]) extends Wi
 	}
 
 	def and(op: OpBase) =
-		Where(queryInfo = queryInfo.copy(wheres = Some(AndOp(queryInfo.wheres.get, op))))
+		Where[ID, PC, T](queryInfo = queryInfo.copy(wheres = Some(AndOp(queryInfo.wheres.get, op))))
 
 	def or(op: OpBase) =
-		Where(queryInfo = queryInfo.copy(wheres = Some(OrOp(queryInfo.wheres.get, op))))
+		Where[ID, PC, T](queryInfo = queryInfo.copy(wheres = Some(OrOp(queryInfo.wheres.get, op))))
 }

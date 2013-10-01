@@ -116,6 +116,7 @@ class Query2Suite extends FunSuite with ShouldMatchers
 			//where pe.name === "a name"
 			)
 		val qi = q.queryInfo
-		println(qi)
+		val ons = pe.name ===('x, pe.name)
+		qi.joins should be(List(SelfJoin(pe as 'x, Some(ons))))
 	}
 }

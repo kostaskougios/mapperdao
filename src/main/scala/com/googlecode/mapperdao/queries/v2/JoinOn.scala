@@ -19,13 +19,13 @@ case class JoinOn[ID, PC <: Persisted, T](queryInfo: QueryInfo[ID, T]) extends W
 	def apply(op: OpBase) = {
 		if (queryInfo.wheres.isDefined) throw new IllegalStateException("already defined a where clause, use and() or or()")
 
-		JoinOn(queryInfo = queryInfo.copy(joins = joinList(op)))
+		JoinOn[ID, PC, T](queryInfo = queryInfo.copy(joins = joinList(op)))
 	}
 
 	def and(op: OpBase) =
-		JoinOn(queryInfo = queryInfo.copy(joins = joinList(AndOp(queryInfo.joins.head.ons.get, op))))
+		JoinOn[ID, PC, T](queryInfo = queryInfo.copy(joins = joinList(AndOp(queryInfo.joins.head.ons.get, op))))
 
 	def or(op: OpBase) =
-		JoinOn(queryInfo = queryInfo.copy(joins = joinList(OrOp(queryInfo.joins.head.ons.get, op))))
+		JoinOn[ID, PC, T](queryInfo = queryInfo.copy(joins = joinList(OrOp(queryInfo.joins.head.ons.get, op))))
 
 }
