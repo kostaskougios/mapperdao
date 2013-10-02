@@ -25,6 +25,9 @@ import com.googlecode.mapperdao.queries.v2.AliasColumn
  */
 trait SqlImplicitConvertions
 {
+	implicit def columnToAlias[T, V](v: ColumnInfo[T, V]) = new AliasColumn[SimpleColumn](v.column)
+
+	implicit def columnToAlias[T, V](v: (Symbol, ColumnInfo[T, V])) = new AliasColumn[SimpleColumn](v._2.column, Some(v._1))
 
 	/**
 	 * manages simple type expressions
@@ -55,7 +58,7 @@ trait SqlImplicitConvertions
 
 		def ===(v: ColumnInfo[_, V]) = new Operation(AliasColumn(t.column), EQ, v.column) with EqualityOperation
 
-		def ===(v: (Symbol, ColumnInfo[_, V])) = new Operation(AliasColumn(t.column), EQ, v._2.column) with EqualityOperation
+		def ===(v: AliasColumn[SimpleColumn]) = new Operation(AliasColumn(t.column), EQ, v) with EqualityOperation
 
 		def like(v: V) = new Operation(AliasColumn(t.column), LIKE, v)
 

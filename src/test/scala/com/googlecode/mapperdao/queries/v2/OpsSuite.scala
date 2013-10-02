@@ -33,4 +33,8 @@ class OpsSuite extends FunSuite with ShouldMatchers
 	test("or") {
 		(pe.name === "x" or pe.id === 5) should be(OrOp(nameIsX, idIs5))
 	}
+
+	test("alias") {
+		(pe.name ===('x, pe.name)) should be(Operation(AliasColumn(pe.name.column), EQ, AliasColumn(pe.name.column, Some('x))))
+	}
 }
