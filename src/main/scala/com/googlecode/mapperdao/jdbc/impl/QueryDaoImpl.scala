@@ -196,10 +196,10 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 			case o: Operation[_] =>
 				o.right match {
 					case rc: SimpleColumn =>
-						driver.sqlBuilder.NonValueClause(aliases(o.left), o.left.name, o.operand.sql, aliases(rc), rc.name)
+						driver.sqlBuilder.NonValueClause(aliases(o.left.column), o.left.column.name, o.operand.sql, aliases(rc), rc.name)
 					case _ =>
-						val List((left, right)) = typeManager.transformValuesBeforeStoring(List((o.left, o.right)))
-						driver.sqlBuilder.Clause(aliases(o.left), left, o.operand.sql, right)
+						val List((left, right)) = typeManager.transformValuesBeforeStoring(List((o.left.column, o.right)))
+						driver.sqlBuilder.Clause(aliases(o.left.column), left, o.operand.sql, right)
 				}
 			case AndOp(left, right) =>
 				driver.sqlBuilder.And(inner(left), inner(right))

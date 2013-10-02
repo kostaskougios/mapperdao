@@ -16,9 +16,9 @@ class OpsSuite extends FunSuite with ShouldMatchers
 	val pe = PersonEntity
 	val ce = CompanyEntity
 
-	val nameIsX = Operation(pe.name.column, EQ, "x")
-	val nameIsXX = Operation(pe.name.column, EQ, "xx")
-	val idIs5 = Operation(pe.id.column, EQ, 5)
+	val nameIsX = Operation(AliasColumn(pe.name.column), EQ, "x")
+	val nameIsXX = Operation(AliasColumn(pe.name.column), EQ, "xx")
+	val idIs5 = Operation(AliasColumn(pe.id.column), EQ, 5)
 
 	import Query2._
 

@@ -79,7 +79,7 @@ class QueryPhase
 
 	private def where[ID, PC <: Persisted, T](mainTpe: Type[ID, T], iqt: InQueryTable, op: OpBase): Clause = op match {
 		case Operation(left, operand, right) =>
-			WhereValueComparisonClause(Column(iqt, left.name), operand.sql, "?")
+			WhereValueComparisonClause(Column(iqt, left.column.name), operand.sql, "?")
 	}
 
 	private var aliasCnt = 0

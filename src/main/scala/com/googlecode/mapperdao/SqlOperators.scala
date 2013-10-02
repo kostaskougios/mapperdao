@@ -5,6 +5,7 @@ import com.googlecode.mapperdao.schema.ManyToOne
 import com.googlecode.mapperdao.schema.OneToOne
 import com.googlecode.mapperdao.schema.OneToOneReverse
 import com.googlecode.mapperdao.schema.OneToMany
+import com.googlecode.mapperdao.queries.v2.AliasColumn
 
 sealed abstract class Operand
 {
@@ -55,7 +56,7 @@ class OpBase
 	def or(op: OpBase) = OrOp(this, op)
 }
 
-case class Operation[V](left: SimpleColumn, operand: Operand, right: V) extends OpBase
+case class Operation[V](left: AliasColumn[SimpleColumn], operand: Operand, right: V) extends OpBase
 {
 	override def toString = "%s %s %s".format(left, operand, right)
 }
