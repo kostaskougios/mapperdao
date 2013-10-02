@@ -106,17 +106,18 @@ class Query2Suite extends FunSuite with ShouldMatchers
 		qi.wheres.get should be(nameIsX)
 	}
 
-	test("self join") {
+	test("alias and self join") {
 		import Query2._
 
 		val q = (
 			select
 				from pe
 				join (pe as 'x) on pe.name ===('x, pe.name)
-			//where pe.name === "a name"
+				where pe.name === "x"
 			)
 		val qi = q.queryInfo
 		val ons = pe.name ===('x, pe.name)
 		qi.joins should be(List(SelfJoin(pe as 'x, Some(ons))))
+		qi.wheres.get should be(nameIsX)
 	}
 }
