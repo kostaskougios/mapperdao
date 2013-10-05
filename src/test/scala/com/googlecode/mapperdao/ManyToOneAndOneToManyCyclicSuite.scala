@@ -19,53 +19,51 @@ class ManyToOneAndOneToManyCyclicSuite extends FunSuite with ShouldMatchers
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(PersonEntity, CompanyEntity))
 
-	import mapperDao._
-
 	if (Setup.database != "derby") {
 		test("update id of one-to-many") {
 			createTables
-			val company = insert(CompanyEntity, Company(1, "Coders Ltd", List()))
-			val inserted = insert(PersonEntity, Person(10, "Coder1", company))
+			val company = mapperDao.insert(CompanyEntity, Company(1, "Coders Ltd", List()))
+			val inserted = mapperDao.insert(PersonEntity, Person(10, "Coder1", company))
 
 			// reload company to get the actual state of the entity
-			val companyReloaded = select(CompanyEntity, 1).get
-			val updated = update(CompanyEntity, companyReloaded, Company(5, "Coders Ltd", companyReloaded.employees))
+			val companyReloaded = mapperDao.select(CompanyEntity, 1).get
+			val updated = mapperDao.update(CompanyEntity, companyReloaded, Company(5, "Coders Ltd", companyReloaded.employees))
 			updated should be === Company(5, "Coders Ltd", List(inserted))
-			select(CompanyEntity, 5).get should be === Company(5, "Coders Ltd", List(Person(10, "Coder1", Company(5, "Coders Ltd", List())))) // Company(5, "Coders Ltd", List() is a mock object due to the cyclic dependencies
-			select(CompanyEntity, 1) should be(None)
+			mapperDao.select(CompanyEntity, 5).get should be === Company(5, "Coders Ltd", List(Person(10, "Coder1", Company(5, "Coders Ltd", List())))) // Company(5, "Coders Ltd", List() is a mock object due to the cyclic dependencies
+			mapperDao.select(CompanyEntity, 1) should be(None)
 		}
 	}
 
 	test("update id of many-to-one") {
 		createTables
-		val company = insert(CompanyEntity, Company(1, "Coders Ltd", List()))
-		val inserted = insert(PersonEntity, Person(10, "Coder1", company))
-		val updated = update(PersonEntity, inserted, Person(15, "Coder1", inserted.company))
+		val company = mapperDao.insert(CompanyEntity, Company(1, "Coders Ltd", List()))
+		val inserted = mapperDao.insert(PersonEntity, Person(10, "Coder1", company))
+		val updated = mapperDao.update(PersonEntity, inserted, Person(15, "Coder1", inserted.company))
 		updated should be === Person(15, "Coder1", inserted.company)
-		select(PersonEntity, 15).get should be === Person(15, "Coder1",
+		mapperDao.select(PersonEntity, 15).get should be === Person(15, "Coder1",
 			Company(1, "Coders Ltd",
 				List(Person(15, "Coder1", Company(1, "Coders Ltd", List()))
 				)
 			)
 		)
-		select(PersonEntity, 10) should be(None)
+		mapperDao.select(PersonEntity, 10) should be(None)
 	}
 
 	test("insert") {
 		createTables
 
-		val company = insert(CompanyEntity, Company(1, "Coders Ltd", List()))
+		val company = mapperDao.insert(CompanyEntity, Company(1, "Coders Ltd", List()))
 		val person = Person(10, "Coder1", company)
-		insert(PersonEntity, person) should be === person
+		mapperDao.insert(PersonEntity, person) should be === person
 	}
 
 	test("select") {
 		createTables
 
-		val company = insert(CompanyEntity, Company(1, "Coders Ltd", List()))
-		insert(PersonEntity, Person(10, "Coder1", company))
+		val company = mapperDao.insert(CompanyEntity, Company(1, "Coders Ltd", List()))
+		mapperDao.insert(PersonEntity, Person(10, "Coder1", company))
 
-		select(PersonEntity, 10).get should be === Person(10, "Coder1",
+		mapperDao.select(PersonEntity, 10).get should be === Person(10, "Coder1",
 			Company(1, "Coders Ltd",
 				List(
 					Person(10, "Coder1", Company(1, "Coders Ltd", List()))
@@ -77,15 +75,15 @@ class ManyToOneAndOneToManyCyclicSuite extends FunSuite with ShouldMatchers
 	test("update") {
 		createTables
 
-		val company = insert(CompanyEntity, Company(1, "Coders Ltd", List()))
-		insert(PersonEntity, Person(10, "Coder1", company))
+		val company = mapperDao.insert(CompanyEntity, Company(1, "Coders Ltd", List()))
+		mapperDao.insert(PersonEntity, Person(10, "Coder1", company))
 
-		val selected = select(PersonEntity, 10).get
+		val selected = mapperDao.select(PersonEntity, 10).get
 
-		val updated = update(PersonEntity, selected, Person(10, "Coder1-changed", company))
+		val updated = mapperDao.update(PersonEntity, selected, Person(10, "Coder1-changed", company))
 		updated should be === Person(10, "Coder1-changed", Company(1, "Coders Ltd", List()))
 
-		select(CompanyEntity, 1).get should be === Company(1, "Coders Ltd", List(Person(10, "Coder1-changed", Company(1, "Coders Ltd", List()))))
+		mapperDao.select(CompanyEntity, 1).get should be === Company(1, "Coders Ltd", List(Person(10, "Coder1-changed", Company(1, "Coders Ltd", List()))))
 	}
 
 	def createTables = {

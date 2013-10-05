@@ -199,20 +199,19 @@ class ManyToOneSuite extends FunSuite with ShouldMatchers
 	test("update") {
 		createTables
 
-		import mapperDao._
-		val company1 = insert(CompanyEntity, Company(5, "Coders limited"))
-		val company2 = insert(CompanyEntity, Company(6, "Scala Inc"))
+		val company1 = mapperDao.insert(CompanyEntity, Company(5, "Coders limited"))
+		val company2 = mapperDao.insert(CompanyEntity, Company(6, "Scala Inc"))
 		val house = House(8, "Rhodes,Greece")
 		val person = Person(2, "Kostas", company1, house)
 
-		val inserted = insert(PersonEntity, person)
+		val inserted = mapperDao.insert(PersonEntity, person)
 		inserted should be === person
 
 		val modified = Person(2, "changed", company2, inserted.lives)
-		val updated = update(PersonEntity, inserted, modified)
+		val updated = mapperDao.update(PersonEntity, inserted, modified)
 		updated should be === modified
 
-		val selected = select(PersonEntity, 2).get
+		val selected = mapperDao.select(PersonEntity, 2).get
 		selected should be === updated
 
 		mapperDao.delete(PersonEntity, selected)
@@ -222,19 +221,18 @@ class ManyToOneSuite extends FunSuite with ShouldMatchers
 	test("update to null") {
 		createTables
 
-		import mapperDao._
-		val company1 = insert(CompanyEntity, Company(5, "Coders limited"))
+		val company1 = mapperDao.insert(CompanyEntity, Company(5, "Coders limited"))
 		val house = House(8, "Rhodes,Greece")
 		val person = Person(2, "Kostas", company1, house)
 
-		val inserted = insert(PersonEntity, person)
+		val inserted = mapperDao.insert(PersonEntity, person)
 		inserted should be === person
 
 		val modified = Person(2, "changed", null, inserted.lives)
-		val updated = update(PersonEntity, inserted, modified)
+		val updated = mapperDao.update(PersonEntity, inserted, modified)
 		updated should be === modified
 
-		val selected = select(PersonEntity, 2).get
+		val selected = mapperDao.select(PersonEntity, 2).get
 		selected should be === updated
 
 		mapperDao.delete(PersonEntity, selected)
@@ -244,19 +242,18 @@ class ManyToOneSuite extends FunSuite with ShouldMatchers
 	test("update to null both FK") {
 		createTables
 
-		import mapperDao._
-		val company1 = insert(CompanyEntity, Company(5, "Coders limited"))
+		val company1 = mapperDao.insert(CompanyEntity, Company(5, "Coders limited"))
 		val house = House(8, "Rhodes,Greece")
 		val person = Person(2, "Kostas", company1, house)
 
-		val inserted = insert(PersonEntity, person)
+		val inserted = mapperDao.insert(PersonEntity, person)
 		inserted should be === person
 
 		val modified = Person(2, "changed", null, null)
-		val updated = update(PersonEntity, inserted, modified)
+		val updated = mapperDao.update(PersonEntity, inserted, modified)
 		updated should be === modified
 
-		val selected = select(PersonEntity, 2).get
+		val selected = mapperDao.select(PersonEntity, 2).get
 		selected should be === updated
 
 		mapperDao.delete(PersonEntity, selected)

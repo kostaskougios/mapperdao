@@ -3,8 +3,7 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 
 /**
  * @author kostantinos.kougios
@@ -12,14 +11,12 @@ import org.scalatest.matchers.ShouldMatchers
  *         6 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite with ShouldMatchers
+class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite with Matchers
 {
 
 	import IntermediateImmutableEntityWithStringFKsSuite._
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(EmployeeEntity, WorkedAtEntity, CompanyEntity))
-
-	import mapperDao._
 
 	test("update intermediate") {
 		createTables()
@@ -28,12 +25,12 @@ class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite with Should
 		{
 			val workedAt = List(WorkedAt(this, Company("c01", "web sites inc"), 1990), WorkedAt(this, Company("c02", "communications inc"), 1992))
 		}
-		val inserted = insert(EmployeeEntity, e)
+		val inserted = mapperDao.insert(EmployeeEntity, e)
 
-		val im = select(WorkedAtEntity, ("e01", "c01")).get
-		update(WorkedAtEntity, im, WorkedAt(im.employee, Company("c03", "company3"), 2000))
+		val im = mapperDao.select(WorkedAtEntity, ("e01", "c01")).get
+		mapperDao.update(WorkedAtEntity, im, WorkedAt(im.employee, Company("c03", "company3"), 2000))
 
-		val selected = select(EmployeeEntity, inserted.no).get
+		val selected = mapperDao.select(EmployeeEntity, inserted.no).get
 		test(selected, new Employee("e01")
 		{
 			val workedAt = List(WorkedAt(this, Company("c03", "company3"), 2000), WorkedAt(this, Company("c02", "communications inc"), 1992))
@@ -49,7 +46,7 @@ class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite with Should
 		{
 			val workedAt = List(WorkedAt(this, c1, 1990), WorkedAt(this, c2, 1992))
 		}
-		val inserted = insert(EmployeeEntity, e)
+		val inserted = mapperDao.insert(EmployeeEntity, e)
 		test(inserted, e)
 	}
 
@@ -62,8 +59,8 @@ class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite with Should
 		{
 			val workedAt = List(WorkedAt(this, c1, 1990), WorkedAt(this, c2, 1992))
 		}
-		val inserted = insert(EmployeeEntity, e)
-		val selected = select(EmployeeEntity, inserted.no).get
+		val inserted = mapperDao.insert(EmployeeEntity, e)
+		val selected = mapperDao.select(EmployeeEntity, inserted.no).get
 		test(selected, inserted)
 	}
 
@@ -78,15 +75,15 @@ class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite with Should
 		{
 			val workedAt = List(WorkedAt(this, c1, 1990), WorkedAt(this, c2, 1992))
 		}
-		val inserted = insert(EmployeeEntity, e)
+		val inserted = mapperDao.insert(EmployeeEntity, e)
 		val ue = new Employee("e01")
 		{
 			val workedAt = inserted.workedAt ::: List(WorkedAt(this, c3, 1993))
 		}
 
-		val updated = update(EmployeeEntity, inserted, ue)
+		val updated = mapperDao.update(EmployeeEntity, inserted, ue)
 		test(updated, ue)
-		val selected = select(EmployeeEntity, inserted.no).get
+		val selected = mapperDao.select(EmployeeEntity, inserted.no).get
 		test(selected, updated)
 	}
 
@@ -95,21 +92,21 @@ class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite with Should
 
 		val c1 = Company("c01", "web sites inc")
 		val c2 = Company("c02", "communications inc")
-		val c3 = insert(CompanyEntity, Company("c03", "company-3"))
+		val c3 = mapperDao.insert(CompanyEntity, Company("c03", "company-3"))
 
 		val e = new Employee("e01")
 		{
 			val workedAt = List(WorkedAt(this, c1, 1990), WorkedAt(this, c2, 1992))
 		}
-		val inserted = insert(EmployeeEntity, e)
+		val inserted = mapperDao.insert(EmployeeEntity, e)
 		val ue = new Employee("e01")
 		{
 			val workedAt = inserted.workedAt ::: List(WorkedAt(this, c3, 1993))
 		}
 
-		val updated = update(EmployeeEntity, inserted, ue)
+		val updated = mapperDao.update(EmployeeEntity, inserted, ue)
 		test(updated, ue)
-		val selected = select(EmployeeEntity, inserted.no).get
+		val selected = mapperDao.select(EmployeeEntity, inserted.no).get
 		test(selected, updated)
 	}
 
@@ -124,32 +121,32 @@ class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite with Should
 		{
 			val workedAt = List(WorkedAt(this, c1, 1990), WorkedAt(this, c2, 1992), WorkedAt(this, c3, 1992))
 		}
-		val inserted = insert(EmployeeEntity, e)
+		val inserted = mapperDao.insert(EmployeeEntity, e)
 		val ue = new Employee("e01")
 		{
 			val workedAt = inserted.workedAt.filterNot(w => w.year == 1992)
 		}
 
-		val updated = update(EmployeeEntity, inserted, ue)
+		val updated = mapperDao.update(EmployeeEntity, inserted, ue)
 		test(updated, ue)
-		val selected = select(EmployeeEntity, inserted.no).get
+		val selected = mapperDao.select(EmployeeEntity, inserted.no).get
 		test(selected, updated)
 	}
 
 	test("update, remove an intermediate affects only correct entity") {
 		createTables()
 
-		val c1 = insert(CompanyEntity, Company("c01", "web sites inc"))
-		val c2 = insert(CompanyEntity, Company("c02", "communications inc"))
-		val c3 = insert(CompanyEntity, Company("c03", "company-3"))
+		val c1 = mapperDao.insert(CompanyEntity, Company("c01", "web sites inc"))
+		val c2 = mapperDao.insert(CompanyEntity, Company("c02", "communications inc"))
+		val c3 = mapperDao.insert(CompanyEntity, Company("c03", "company-3"))
 
 		val e1 = new Employee("e01")
 		{
 			val workedAt = List(WorkedAt(this, c1, 1990), WorkedAt(this, c2, 1992), WorkedAt(this, c3, 1992))
 		}
-		val inserted = insert(EmployeeEntity, e1)
+		val inserted = mapperDao.insert(EmployeeEntity, e1)
 
-		val e2 = insert(EmployeeEntity, new Employee("e02")
+		val e2 = mapperDao.insert(EmployeeEntity, new Employee("e02")
 		{
 			val workedAt = List(WorkedAt(this, c1, 2000), WorkedAt(this, c2, 2001), WorkedAt(this, c3, 2002))
 		})
@@ -159,8 +156,8 @@ class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite with Should
 			val workedAt = inserted.workedAt.filterNot(w => w.year == 1992)
 		}
 
-		update(EmployeeEntity, inserted, ue)
-		val selected = select(EmployeeEntity, e2.no).get
+		mapperDao.update(EmployeeEntity, inserted, ue)
+		val selected = mapperDao.select(EmployeeEntity, e2.no).get
 		test(selected, e2)
 	}
 

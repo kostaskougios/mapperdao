@@ -25,10 +25,11 @@ class UpdateSuite extends FunSuite with ShouldMatchers
 		mapperDao.insert(HusbandEntity, Husband("h2", 40, Wife("w2", 39)))
 		val he = HusbandEntity
 
+		import Update._
 		{
-			import Update._
 			(
-				update(he)
+				// scalatest has it's own update method, hence we prefix with Update.
+				Update.update(he)
 					set(he.name === "x", he.age === 29)
 					where he.age === 30
 				).run(queryDao).rowsAffected should be(1)
@@ -54,7 +55,7 @@ class UpdateSuite extends FunSuite with ShouldMatchers
 		{
 			import Update._
 			(
-				update(he)
+				Update.update(he)
 					set(
 					he.name === "x",
 					he.age === 29,
@@ -84,7 +85,7 @@ class UpdateSuite extends FunSuite with ShouldMatchers
 		{
 			import Update._
 			(
-				update(he)
+				Update.update(he)
 					set he.wife === w3
 					where he.age === 30
 				).run(queryDao).rowsAffected should be(1)
@@ -110,7 +111,7 @@ class UpdateSuite extends FunSuite with ShouldMatchers
 		import Update._
 		val pe = PersonEntity
 		(
-			update(pe)
+			Update.update(pe)
 				set pe.company === c2
 				where pe.name === "p1"
 			).run(queryDao).rowsAffected should be === 1
@@ -123,7 +124,7 @@ class UpdateSuite extends FunSuite with ShouldMatchers
 		val (p1, p2) = createTestData
 		import Update._
 		val pe = ProductEntity
-		(update(pe) set pe.name === "fast cpu").run(queryDao).rowsAffected should be === 2
+		(Update.update(pe) set pe.name === "fast cpu").run(queryDao).rowsAffected should be === 2
 
 		mapperDao.select(ProductEntity, p1.id).get.name should be === "fast cpu"
 		mapperDao.select(ProductEntity, p2.id).get.name should be === "fast cpu"
@@ -134,7 +135,7 @@ class UpdateSuite extends FunSuite with ShouldMatchers
 		val (p1, p2) = createTestData
 		import Update._
 		val pe = ProductEntity
-		(update(pe) set pe.name === "fast cpu" where pe.name === "cpu").run(queryDao).rowsAffected should be === 1
+		(Update.update(pe) set pe.name === "fast cpu" where pe.name === "cpu").run(queryDao).rowsAffected should be === 1
 
 		mapperDao.select(ProductEntity, p1.id).get.name should be === "fast cpu"
 		mapperDao.select(ProductEntity, p2.id).get.name should be === "ram"

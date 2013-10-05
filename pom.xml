@@ -38,7 +38,7 @@
     </developers>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>3.2.3.RELEASE</spring.version>
+        <spring.version>3.2.4.RELEASE</spring.version>
     </properties>
     <dependencies>
         <dependency>
@@ -436,7 +436,7 @@
         <profile>
             <id>scala2.10</id>
             <properties>
-                <scala.version>2.10.2</scala.version>
+                <scala.version>2.10.3</scala.version>
                 <scala.lib.version>2.10.0</scala.lib.version>
             </properties>
             <activation>
@@ -448,8 +448,14 @@
                 <dependency>
                     <groupId>org.scalatest</groupId>
                     <artifactId>scalatest_2.10</artifactId>
-                    <version>2.0.M5b</version>
+                    <version>2.0.RC1</version>
                     <scope>test</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.scala-lang</groupId>
+                            <artifactId>scala-library</artifactId>
+                        </exclusion>
+                    </exclusions>
                 </dependency>
             </dependencies>
         </profile>
