@@ -2,8 +2,7 @@ package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
+import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.jdbc.Setup
 
 /**
@@ -12,7 +11,7 @@ import com.googlecode.mapperdao.jdbc.Setup
  *         May 4, 2012
  */
 @RunWith(classOf[JUnitRunner])
-class OneToManyDeclarePrimaryKeysSuite extends FunSuite with ShouldMatchers
+class OneToManyDeclarePrimaryKeysSuite extends FunSuite with Matchers
 {
 
 	import OneToManyDeclarePrimaryKeysSuite._

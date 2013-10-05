@@ -2,8 +2,7 @@ package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.internal.EntityMap
 
 /**
@@ -12,7 +11,7 @@ import com.googlecode.mapperdao.internal.EntityMap
  *         7 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class EntityMapSuite extends FunSuite with ShouldMatchers
+class EntityMapSuite extends FunSuite with Matchers
 {
 
 	case class E1(n: String)

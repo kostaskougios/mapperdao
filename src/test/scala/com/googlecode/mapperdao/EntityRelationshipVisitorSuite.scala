@@ -2,8 +2,7 @@ package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
+import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.schema._
 import com.googlecode.mapperdao.schema.ColumnInfo
 import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
@@ -16,7 +15,7 @@ import com.googlecode.mapperdao.utils.EntityRelationshipVisitor
  *         22 May 2012
  */
 @RunWith(classOf[JUnitRunner])
-class EntityRelationshipVisitorSuite extends FunSuite with ShouldMatchers
+class EntityRelationshipVisitorSuite extends FunSuite with Matchers
 {
 
 	import CommonEntities._

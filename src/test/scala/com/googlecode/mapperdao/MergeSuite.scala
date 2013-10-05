@@ -1,8 +1,7 @@
 package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
+import org.scalatest.{Matchers, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.jdbc.Setup
 
@@ -12,7 +11,7 @@ import com.googlecode.mapperdao.jdbc.Setup
  *         21 Sep 2012
  */
 @RunWith(classOf[JUnitRunner])
-class MergeSuite extends FunSuite with ShouldMatchers
+class MergeSuite extends FunSuite with Matchers
 {
 	if (Setup.database == "h2") {
 		import CommonEntities._

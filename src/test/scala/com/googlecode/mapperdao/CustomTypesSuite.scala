@@ -1,8 +1,7 @@
 package com.googlecode.mapperdao
 
 import customization.UserDefinedDatabaseToScalaTypes
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scala_tools.time.Imports._
@@ -14,7 +13,7 @@ import com.googlecode.mapperdao.schema.{SimpleColumn, Column}
  * @author kkougios
  */
 @RunWith(classOf[JUnitRunner])
-class CustomTypesSuite extends FunSuite with ShouldMatchers
+class CustomTypesSuite extends FunSuite with Matchers
 {
 	val s = com.googlecode.mapperdao.jdbc.Setup
 	val database = s.database

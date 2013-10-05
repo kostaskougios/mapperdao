@@ -3,8 +3,7 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.jdbc.{Jdbc, Setup}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.utils.Helpers
 
 /**
@@ -13,7 +12,7 @@ import com.googlecode.mapperdao.utils.Helpers
  *         1 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToOneWithoutReverseSuite extends FunSuite with ShouldMatchers
+class OneToOneWithoutReverseSuite extends FunSuite with Matchers
 {
 	implicit val (jdbc: Jdbc, mapperDao: MapperDao, queryDao: QueryDao) = Setup.setupMapperDao(List(ProductEntity, InventoryEntity))
 

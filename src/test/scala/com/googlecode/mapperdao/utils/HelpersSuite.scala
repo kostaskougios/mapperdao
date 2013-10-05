@@ -2,8 +2,7 @@ package com.googlecode.mapperdao.utils
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 
 /**
  * @author kostantinos.kougios
@@ -11,7 +10,7 @@ import org.scalatest.matchers.ShouldMatchers
  *         26 Oct 2011
  */
 @RunWith(classOf[JUnitRunner])
-class HelpersSuite extends FunSuite with ShouldMatchers
+class HelpersSuite extends FunSuite with Matchers
 {
 
 	import Helpers._

@@ -2,8 +2,7 @@ package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
+import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.classgenerator.ReflectionManager
 import com.googlecode.concurrent.ExecutorServiceManager
@@ -14,7 +13,7 @@ import com.googlecode.concurrent.ExecutorServiceManager
  *         25 Apr 2012
  */
 @RunWith(classOf[JUnitRunner])
-class OneToManyLazyLoadSuite extends FunSuite with ShouldMatchers
+class OneToManyLazyLoadSuite extends FunSuite with Matchers
 {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(HouseEntity, PersonEntity, CarEntity))
 

@@ -2,8 +2,7 @@ package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import org.joda.time.chrono.ISOChronology
 
 /**
@@ -14,7 +13,7 @@ import org.joda.time.chrono.ISOChronology
  *         30 Oct 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OptionSuite extends FunSuite with ShouldMatchers
+class OptionSuite extends FunSuite with Matchers
 {
 
 	case class Category(name: String, parent: Option[Category], linked: Option[Category])

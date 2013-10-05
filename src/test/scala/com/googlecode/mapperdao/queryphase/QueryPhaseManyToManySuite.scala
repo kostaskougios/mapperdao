@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao.queryphase
 
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.queryphase.model._
@@ -10,7 +9,7 @@ import com.googlecode.mapperdao.queryphase.model._
  * @author kkougios
  */
 @RunWith(classOf[JUnitRunner])
-class QueryPhaseManyToManySuite extends FunSuite with ShouldMatchers
+class QueryPhaseManyToManySuite extends FunSuite with Matchers
 {
 
 	import com.googlecode.mapperdao.CommonEntities._

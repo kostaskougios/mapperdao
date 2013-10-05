@@ -2,8 +2,7 @@ package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
+import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.jdbc.Setup
 
 /**
@@ -14,7 +13,7 @@ import com.googlecode.mapperdao.jdbc.Setup
  *         7 Jul 2012
  */
 @RunWith(classOf[JUnitRunner])
-class UseCaseManyToManyForTraitSuite extends FunSuite with ShouldMatchers
+class UseCaseManyToManyForTraitSuite extends FunSuite with Matchers
 {
 
 	if (Setup.database == "h2") {

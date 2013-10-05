@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao.queries.v2
 
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.CommonEntities.{CompanyEntity, PersonEntity}
@@ -11,7 +10,7 @@ import com.googlecode.mapperdao.{OrOp, AndOp, EQ, Operation}
  * @author kkougios
  */
 @RunWith(classOf[JUnitRunner])
-class OpsSuite extends FunSuite with ShouldMatchers
+class OpsSuite extends FunSuite with Matchers
 {
 	val pe = PersonEntity
 	val ce = CompanyEntity

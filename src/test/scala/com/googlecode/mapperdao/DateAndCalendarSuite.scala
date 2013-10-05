@@ -6,8 +6,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 import java.util.Date
 import java.util.Locale
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 
 /**
  * @author kostantinos.kougios
@@ -15,7 +14,7 @@ import org.scalatest.matchers.ShouldMatchers
  *         9 Dec 2011
  */
 @RunWith(classOf[JUnitRunner])
-class DateAndCalendarSuite extends FunSuite with ShouldMatchers
+class DateAndCalendarSuite extends FunSuite with Matchers
 {
 
 	case class DC(id: Int, date: Date, calendar: Calendar)

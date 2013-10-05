@@ -3,8 +3,7 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.classgenerator.ReflectionManager
 
 /**
@@ -13,7 +12,7 @@ import com.googlecode.classgenerator.ReflectionManager
  *         April 2012
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToManyManuallyLazyLoadSuite extends FunSuite with ShouldMatchers
+class ManyToManyManuallyLazyLoadSuite extends FunSuite with Matchers
 {
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, AttributeEntity))

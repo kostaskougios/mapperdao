@@ -1,8 +1,7 @@
 package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
+import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.jdbc.Setup
 import org.scalatest.junit.JUnitRunner
 
@@ -12,7 +11,7 @@ import org.scalatest.junit.JUnitRunner
  *         May 21, 2012
  */
 @RunWith(classOf[JUnitRunner])
-class OneToManyWithoutFKQuerySuite extends FunSuite with ShouldMatchers
+class OneToManyWithoutFKQuerySuite extends FunSuite with Matchers
 {
 
 	val l1 = Location(1, "uk")

@@ -3,8 +3,7 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.jdbc.{Jdbc, Setup}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
 
 /**
@@ -13,7 +12,7 @@ import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
  *         28 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToManyQuerySuite extends FunSuite with ShouldMatchers
+class ManyToManyQuerySuite extends FunSuite with Matchers
 {
 	implicit val (jdbc: Jdbc, mapperDao: MapperDao, queryDao: QueryDao) = Setup.setupMapperDao(List(ProductEntity, AttributeEntity))
 
@@ -172,7 +171,7 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers
 						name varchar(100) not null,
 						primary key(id)
 					)
-					 """)
+		             """)
 		jdbc.update( """
 					create table Attribute (
 						id int not null,
@@ -180,14 +179,14 @@ class ManyToManyQuerySuite extends FunSuite with ShouldMatchers
 						value varchar(100) not null,
 						primary key(id)
 					)
-					 """)
+		             """)
 		jdbc.update( """
 					create table Product_Attribute (
 						product_id int not null,
 						attribute_id int not null,
 						primary key(product_id,attribute_id)
 					)
-					 """)
+		             """)
 	}
 
 	case class Product(id: Int, name: String, attributes: Set[Attribute])

@@ -1,8 +1,7 @@
 package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
+import org.scalatest.{Matchers, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.jdbc.Setup
 import net.sf.ehcache.CacheManager
@@ -14,7 +13,7 @@ import ehcache.CacheUsingEHCache
  *         29 Mar 2012
  */
 @RunWith(classOf[JUnitRunner])
-class CachingEndToEndSuite extends FunSuite with ShouldMatchers
+class CachingEndToEndSuite extends FunSuite with Matchers
 {
 	val cacheManager = CacheManager.create
 	val ehCache = cacheManager.getCache("CachingEndToEndSuite")

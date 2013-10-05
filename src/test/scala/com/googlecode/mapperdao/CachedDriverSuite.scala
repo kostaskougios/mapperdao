@@ -1,8 +1,7 @@
 package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
+import org.scalatest.{Matchers, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import drivers.Driver
 import com.googlecode.mapperdao.drivers.Cache
@@ -18,7 +17,7 @@ import com.googlecode.mapperdao.schema.{Type, SimpleColumn, ManyToMany}
  *         23 Mar 2012
  */
 @RunWith(classOf[JUnitRunner])
-class CachedDriverSuite extends FunSuite with ShouldMatchers
+class CachedDriverSuite extends FunSuite with Matchers
 {
 
 	val cachedValue = List[JdbcMap](new JdbcMap(new java.util.HashMap()))

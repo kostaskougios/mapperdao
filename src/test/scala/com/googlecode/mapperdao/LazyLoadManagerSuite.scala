@@ -2,8 +2,7 @@ package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
+import org.scalatest.{Matchers, FunSuite}
 import org.joda.time.chrono.ISOChronology
 import utils.Helpers
 import com.googlecode.mapperdao.lazyload.LazyLoadManager
@@ -14,7 +13,7 @@ import com.googlecode.mapperdao.lazyload.LazyLoadManager
  *         27 Apr 2012
  */
 @RunWith(classOf[JUnitRunner])
-class LazyLoadManagerSuite extends FunSuite with ShouldMatchers
+class LazyLoadManagerSuite extends FunSuite with Matchers
 {
 
 	val lazyLoadManager = new LazyLoadManager

@@ -2,8 +2,7 @@ package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 
 /**
  * @author kostantinos.kougios
@@ -11,7 +10,7 @@ import org.scalatest.matchers.ShouldMatchers
  *         29 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class CRUDConfigsSuite extends FunSuite with ShouldMatchers
+class CRUDConfigsSuite extends FunSuite with Matchers
 {
 	test("limits") {
 		QueryConfig.limits(5, 10) should be === QueryConfig(Set(), Some(5), Some(10))

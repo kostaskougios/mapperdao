@@ -2,8 +2,7 @@ package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import org.joda.time.DateTime
 import com.googlecode.mapperdao.jdbc.Setup
 
@@ -13,7 +12,7 @@ import com.googlecode.mapperdao.jdbc.Setup
  *         25 Jul 2012
  */
 @RunWith(classOf[JUnitRunner])
-class MultipleInheritance1TableSuite extends FunSuite with ShouldMatchers
+class MultipleInheritance1TableSuite extends FunSuite with Matchers
 {
 
 	if (Setup.database == "h2") {

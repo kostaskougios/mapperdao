@@ -3,14 +3,13 @@ package com.googlecode.mapperdao
 import jdbc.{Transaction, Setup}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import utils.{TransactionalNaturalStringIdCRUD, TransactionalSurrogateIntIdCRUD}
 import org.springframework.transaction.PlatformTransactionManager
 import java.util.UUID._
 
 @RunWith(classOf[JUnitRunner])
-class UseCaseCyclicDependenciesSuite extends FunSuite with ShouldMatchers
+class UseCaseCyclicDependenciesSuite extends FunSuite with Matchers
 {
 	if (Setup.database == "postgresql") {
 

@@ -7,8 +7,7 @@ import com.googlecode.mapperdao.jdbc.Transaction._
 import exceptions.PersistException
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 
 /**
  * @author kostantinos.kougios
@@ -16,7 +15,7 @@ import org.scalatest.matchers.ShouldMatchers
  *         14 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class DaoMixinsSuite extends FunSuite with ShouldMatchers
+class DaoMixinsSuite extends FunSuite with Matchers
 {
 
 	import DaoMixinsSuite._

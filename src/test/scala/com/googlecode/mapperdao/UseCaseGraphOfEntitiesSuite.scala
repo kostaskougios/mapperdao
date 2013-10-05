@@ -2,8 +2,7 @@ package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.Setup
 
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
@@ -12,7 +11,7 @@ import org.scalatest.junit.JUnitRunner
  *          Date: 09/04/13
  */
 @RunWith(classOf[JUnitRunner])
-class UseCaseGraphOfEntitiesSuite extends FunSuite with ShouldMatchers
+class UseCaseGraphOfEntitiesSuite extends FunSuite with Matchers
 {
 
 	import UseCaseGraphOfEntitiesSuite._

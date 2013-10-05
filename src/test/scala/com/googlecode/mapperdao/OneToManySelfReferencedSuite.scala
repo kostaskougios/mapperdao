@@ -3,8 +3,7 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 
 /**
  * tests one-to-many references to self
@@ -14,7 +13,7 @@ import org.scalatest.matchers.ShouldMatchers
  *         5 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToManySelfReferencedSuite extends FunSuite with ShouldMatchers
+class OneToManySelfReferencedSuite extends FunSuite with Matchers
 {
 
 	import OneToManySelfReferencedSuite._

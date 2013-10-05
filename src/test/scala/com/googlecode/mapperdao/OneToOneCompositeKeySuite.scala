@@ -2,8 +2,7 @@ package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.mapperdao.utils.Helpers
 
@@ -13,7 +12,7 @@ import com.googlecode.mapperdao.utils.Helpers
  *         29 Jul 2012
  */
 @RunWith(classOf[JUnitRunner])
-class OneToOneCompositeKeySuite extends FunSuite with ShouldMatchers
+class OneToOneCompositeKeySuite extends FunSuite with Matchers
 {
 
 	val database = Setup.database

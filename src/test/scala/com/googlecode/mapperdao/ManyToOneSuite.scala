@@ -3,8 +3,7 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.utils.Helpers
 
 /**
@@ -13,7 +12,7 @@ import com.googlecode.mapperdao.utils.Helpers
  *         13 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToOneSuite extends FunSuite with ShouldMatchers
+class ManyToOneSuite extends FunSuite with Matchers
 {
 
 	import ManyToOneSuite._

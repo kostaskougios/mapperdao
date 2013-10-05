@@ -3,8 +3,7 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 
 /**
  * @author kostantinos.kougios
@@ -12,7 +11,7 @@ import org.scalatest.matchers.ShouldMatchers
  *         1 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToOneQuerySuite extends FunSuite with ShouldMatchers
+class OneToOneQuerySuite extends FunSuite with Matchers
 {
 	val InventoryEntity = new InventoryEntityBase
 	val ProductEntity = new ProductEntityBase

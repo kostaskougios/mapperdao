@@ -1,8 +1,7 @@
 package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
+import org.scalatest.{Matchers, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
@@ -13,7 +12,7 @@ import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
  *         17 Oct 2012
  */
 @RunWith(classOf[JUnitRunner])
-class DeleteSuite extends FunSuite with ShouldMatchers
+class DeleteSuite extends FunSuite with Matchers
 {
 
 	import CommonEntities._

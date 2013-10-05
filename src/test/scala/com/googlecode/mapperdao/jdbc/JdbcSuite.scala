@@ -4,8 +4,7 @@ import java.util.Calendar
 import org.scala_tools.time.Imports._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import java.math.BigDecimal
 import com.googlecode.mapperdao.utils.Database
 import com.googlecode.mapperdao.{DefaultTypeManager, TypeRegistry}
@@ -16,7 +15,7 @@ import com.googlecode.mapperdao.{DefaultTypeManager, TypeRegistry}
  *         12 Jul 2011
  */
 @RunWith(classOf[JUnitRunner])
-class JdbcSuite extends FunSuite with ShouldMatchers
+class JdbcSuite extends FunSuite with Matchers
 {
 	private val jdbc = Setup.setupJdbc
 	val driver = {

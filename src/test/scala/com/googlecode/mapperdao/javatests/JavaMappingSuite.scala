@@ -2,8 +2,7 @@ package com.googlecode.mapperdao.javatests
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.{Entity, SurrogateIntId, ValuesMap}
 import scala.collection.JavaConverters._
 import com.googlecode.mapperdao.jdbc.Setup
@@ -15,7 +14,7 @@ import com.googlecode.mapperdao.CommonEntities.createProductAttribute
  *         3 Jul 2012
  */
 @RunWith(classOf[JUnitRunner])
-class JavaMappingSuite extends FunSuite with ShouldMatchers
+class JavaMappingSuite extends FunSuite with Matchers
 {
 	test("CRUD") {
 

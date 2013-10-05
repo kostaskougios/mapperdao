@@ -2,8 +2,7 @@ package com.googlecode.mapperdao
 
 import exceptions.PersistException
 import jdbc.Setup
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
@@ -11,7 +10,7 @@ import org.scalatest.junit.JUnitRunner
  * @author kkougios
  */
 @RunWith(classOf[JUnitRunner])
-class ErrorsSuite extends FunSuite with ShouldMatchers
+class ErrorsSuite extends FunSuite with Matchers
 {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(PersonEntity, CompanyEntity))
 

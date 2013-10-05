@@ -1,8 +1,7 @@
 package com.googlecode.mapperdao.jdbc
 
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import org.junit.runner.RunWith
 
 /**
@@ -11,7 +10,7 @@ import org.junit.runner.RunWith
  *         3 Oct 2011
  */
 @RunWith(classOf[JUnitRunner])
-class QueriesSuite extends FunSuite with ShouldMatchers
+class QueriesSuite extends FunSuite with Matchers
 {
 	val jdbc = Setup.setupJdbc
 	val q = Queries.fromClassPath(getClass, jdbc, "/queries/test-queries.sql")

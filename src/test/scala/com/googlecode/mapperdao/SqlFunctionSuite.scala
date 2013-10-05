@@ -1,8 +1,7 @@
 package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
+import org.scalatest.{Matchers, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.mapperdao.sqlfunction.{StdSqlFunctions, SqlFunction}
@@ -14,7 +13,7 @@ import com.googlecode.mapperdao.schema.Schema
  *         5 Sep 2012
  */
 @RunWith(classOf[JUnitRunner])
-class SqlFunctionSuite extends FunSuite with ShouldMatchers
+class SqlFunctionSuite extends FunSuite with Matchers
 {
 
 	import CommonEntities._

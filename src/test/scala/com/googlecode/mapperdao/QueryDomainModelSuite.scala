@@ -2,8 +2,7 @@ package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 
 /**
  * @author kostantinos.kougios
@@ -11,7 +10,7 @@ import org.scalatest.matchers.ShouldMatchers
  *         15 Dec 2011
  */
 @RunWith(classOf[JUnitRunner])
-class QueryDomainModelSuite extends FunSuite with ShouldMatchers
+class QueryDomainModelSuite extends FunSuite with Matchers
 {
 
 	case class Product(id: Int, name: String, attributes: Set[Attribute])

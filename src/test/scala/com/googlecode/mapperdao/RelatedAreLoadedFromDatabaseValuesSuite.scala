@@ -1,7 +1,6 @@
 package com.googlecode.mapperdao
 
-import org.scalatest.{BeforeAndAfter, FunSuite}
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, BeforeAndAfter, FunSuite}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.jdbc.{DatabaseValues, Setup}
@@ -13,7 +12,7 @@ import com.googlecode.mapperdao.internal.EntityMap
  * @author kkougios
  */
 @RunWith(classOf[JUnitRunner])
-class RelatedAreLoadedFromDatabaseValuesSuite extends FunSuite with ShouldMatchers with BeforeAndAfter
+class RelatedAreLoadedFromDatabaseValuesSuite extends FunSuite with Matchers with BeforeAndAfter
 {
 
 	import CommonEntities._

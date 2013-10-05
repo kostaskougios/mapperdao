@@ -2,8 +2,7 @@ package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.jdbc.Setup
 
 /**
@@ -12,7 +11,7 @@ import com.googlecode.mapperdao.jdbc.Setup
  *         16 Aug 2012
  */
 @RunWith(classOf[JUnitRunner])
-class DeclarePrimaryKeysWithOneToManySuite extends FunSuite with ShouldMatchers
+class DeclarePrimaryKeysWithOneToManySuite extends FunSuite with Matchers
 {
 	val LinkedPeopleEntity = PersonEntity.LinkedPeopleEntity
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(PersonEntity, LinkedPeopleEntity))

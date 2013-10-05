@@ -3,8 +3,7 @@ package com.googlecode.mapperdao.utils
 import com.googlecode.mapperdao.StringValue
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.Entity
 import com.googlecode.mapperdao.StringEntity
 import com.googlecode.mapperdao.NaturalIntId
@@ -17,7 +16,7 @@ import com.googlecode.mapperdao.internal.TraversableSeparation
  *         6 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class TraversableSeparationSuite extends FunSuite with ShouldMatchers
+class TraversableSeparationSuite extends FunSuite with Matchers
 {
 
 	test("intersect") {

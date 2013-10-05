@@ -1,12 +1,10 @@
 package com.googlecode.mapperdao.ehcache
 
 import org.junit.runner.RunWith
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
+import org.scalatest.{Matchers, FunSuite, BeforeAndAfter}
 import com.googlecode.mapperdao.CacheOptions
 import net.sf.ehcache.CacheManager
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.BeforeAndAfter
 import com.googlecode.mapperdao.jdbc.Setup
 import scala.Predef._
 
@@ -16,7 +14,7 @@ import scala.Predef._
  *         24 Mar 2012
  */
 @RunWith(classOf[JUnitRunner])
-class EHCacheSuite extends FunSuite with ShouldMatchers with BeforeAndAfter
+class EHCacheSuite extends FunSuite with Matchers with BeforeAndAfter
 {
 	if (Setup.database == "h2") {
 		val cacheManager = CacheManager.create

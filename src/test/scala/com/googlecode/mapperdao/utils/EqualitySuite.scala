@@ -2,8 +2,7 @@ package com.googlecode.mapperdao.utils
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.internal.Equality
 
 /**
@@ -12,7 +11,7 @@ import com.googlecode.mapperdao.internal.Equality
  *         10 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class EqualitySuite extends FunSuite with ShouldMatchers
+class EqualitySuite extends FunSuite with Matchers
 {
 
 	import Equality._

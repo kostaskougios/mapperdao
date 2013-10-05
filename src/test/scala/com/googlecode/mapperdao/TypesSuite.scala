@@ -1,8 +1,7 @@
 package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
+import org.scalatest.{Matchers, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.jdbc.Setup
 import org.scala_tools.time.Imports._
@@ -13,7 +12,7 @@ import org.scala_tools.time.Imports._
  *         6 Aug 2012
  */
 @RunWith(classOf[JUnitRunner])
-class TypesSuite extends FunSuite with ShouldMatchers
+class TypesSuite extends FunSuite with Matchers
 {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(IntervalDurationEntity, OIntervalDurationEntity, OIntervalEntity, DatesEntity, ODatesEntity, OBDEntity, BDEntity, IntervalEntity))
 

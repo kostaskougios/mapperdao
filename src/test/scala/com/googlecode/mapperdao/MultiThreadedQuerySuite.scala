@@ -1,8 +1,7 @@
 package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
+import org.scalatest.{Matchers, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.mapperdao.jdbc.Transaction
@@ -13,7 +12,7 @@ import com.googlecode.mapperdao.jdbc.Transaction
  *         6 May 2012
  */
 @RunWith(classOf[JUnitRunner])
-class MultiThreadedQuerySuite extends FunSuite with ShouldMatchers
+class MultiThreadedQuerySuite extends FunSuite with Matchers
 {
 
 	if (Setup.database == "h2" || Setup.database == "postgresql") {

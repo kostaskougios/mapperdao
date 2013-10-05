@@ -1,8 +1,7 @@
 package com.googlecode.mapperdao.updatephase.prioritise
 
 import org.junit.runner.RunWith
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
+import org.scalatest.{Matchers, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.{UpdateConfig, CommonEntities}
 
@@ -12,7 +11,7 @@ import com.googlecode.mapperdao.{UpdateConfig, CommonEntities}
  *         15 Dec 2012
  */
 @RunWith(classOf[JUnitRunner])
-class PriorityPhaseSuite extends FunSuite with ShouldMatchers
+class PriorityPhaseSuite extends FunSuite with Matchers
 {
 
 	import CommonEntities._

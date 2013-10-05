@@ -2,8 +2,7 @@ package com.googlecode.mapperdao.jdbc
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao._
 import drivers.Driver
 import org.scalatest.mock.EasyMockSugar
@@ -16,7 +15,7 @@ import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
  *          Date: 25/01/13
  */
 @RunWith(classOf[JUnitRunner])
-class CmdToDatabaseSuite extends FunSuite with ShouldMatchers with EasyMockSugar
+class CmdToDatabaseSuite extends FunSuite with Matchers with EasyMockSugar
 {
 
 	def prepare(l: List[Entity[_, Persisted, _]]) = {

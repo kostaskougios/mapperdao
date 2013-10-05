@@ -4,8 +4,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.mapperdao.jdbc.Jdbc
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 
 /**
  * @author kostantinos.kougios
@@ -13,7 +12,7 @@ import org.scalatest.matchers.ShouldMatchers
  *         18 Oct 2011
  */
 @RunWith(classOf[JUnitRunner])
-class UpdateConfigSuite extends FunSuite with ShouldMatchers
+class UpdateConfigSuite extends FunSuite with Matchers
 {
 
 	test("one-to-many update.deleteConfig") {

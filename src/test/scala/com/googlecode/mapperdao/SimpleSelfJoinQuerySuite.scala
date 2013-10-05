@@ -4,8 +4,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 import org.scala_tools.time.Imports._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 
 /**
  * @author kostantinos.kougios
@@ -13,7 +12,7 @@ import org.scalatest.matchers.ShouldMatchers
  *         28 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class SimpleSelfJoinQuerySuite extends FunSuite with ShouldMatchers
+class SimpleSelfJoinQuerySuite extends FunSuite with Matchers
 {
 
 	val JobPositionEntity = new JobPositionEntityBase
