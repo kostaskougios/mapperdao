@@ -40,7 +40,11 @@ class SchemaSuite extends FunSuite with ShouldMatchers
 		}
 
 		def createTables() {
-			jdbc.update("drop schema test cascade")
+			try {
+				jdbc.update("drop schema test cascade")
+			} catch {
+				case e: Throwable => // ignore
+			}
 			Setup.queries(this, jdbc).update("ddl")
 		}
 	}
