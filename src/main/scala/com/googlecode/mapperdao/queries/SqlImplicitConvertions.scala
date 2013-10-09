@@ -26,16 +26,16 @@ import com.googlecode.mapperdao.GT
  */
 trait SqlImplicitConvertions
 {
-	implicit def columnToAlias[T, V](v: ColumnInfo[T, V]) = new AliasColumn[SimpleColumn, V](v.column)
+	implicit def columnToAlias[V](v: ColumnInfo[_, V]) = new AliasColumn[SimpleColumn, V](v.column)
 
-	implicit def columnToAlias[T, V](v: (Symbol, ColumnInfo[T, V])) = new AliasColumn[SimpleColumn, V](v._2.column, Some(v._1))
+	implicit def columnToAlias[V](v: (Symbol, ColumnInfo[_, V])) = new AliasColumn[SimpleColumn, V](v._2.column, Some(v._1))
 
 	/**
 	 * manages simple type expressions
 	 */
-	protected class Convertor[T, V](a: AliasColumn[SimpleColumn, V])
+	protected class Convertor[V](a: AliasColumn[SimpleColumn, V])
 	{
-		def this(t: ColumnInfo[T, V]) = this(AliasColumn[SimpleColumn, V](t.column))
+		def this(t: ColumnInfo[_, V]) = this(AliasColumn[SimpleColumn, V](t.column))
 
 		def >(v: V) = new Operation(a, GT, v)
 
