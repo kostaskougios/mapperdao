@@ -4,7 +4,11 @@ import org.scalatest.{Matchers, FunSuite}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.CommonEntities.{CompanyEntity, PersonEntity}
-import com.googlecode.mapperdao.{OrOp, AndOp, EQ, Operation}
+import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.Operation
+import scala.Some
+import com.googlecode.mapperdao.AndOp
+import com.googlecode.mapperdao.OrOp
 
 /**
  * @author kkougios
@@ -34,10 +38,10 @@ class OpsSuite extends FunSuite with Matchers
 	}
 
 	test("alias on right side") {
-		(pe.name ===('x, pe.name)) should be(Operation(AliasColumn(pe.name.column), EQ, AliasColumn(pe.name.column, Some('x))))
+		(pe.name ===('x, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), EQ, AliasColumn(pe.name.column, Some('x))))
 	}
 
 	test("alias on left side") {
-		(('x, pe.name) === pe.name) should be(Operation(AliasColumn(pe.name.column, Some('x)), EQ, AliasColumn(pe.name.column)))
+		(('x, pe.name) === pe.name) should be(ColumnOperation(AliasColumn(pe.name.column, Some('x)), EQ, AliasColumn(pe.name.column)))
 	}
 }

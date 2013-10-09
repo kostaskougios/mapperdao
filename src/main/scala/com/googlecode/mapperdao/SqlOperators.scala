@@ -56,7 +56,12 @@ class OpBase
 	def or(op: OpBase) = OrOp(this, op)
 }
 
-case class Operation[V](left: AliasColumn[SimpleColumn], operand: Operand, right: V) extends OpBase
+case class Operation[V](left: AliasColumn[SimpleColumn, V], operand: Operand, right: V) extends OpBase
+{
+	override def toString = "%s %s %s".format(left, operand, right)
+}
+
+case class ColumnOperation[V](left: AliasColumn[SimpleColumn, V], operand: Operand, right: AliasColumn[SimpleColumn, V]) extends OpBase
 {
 	override def toString = "%s %s %s".format(left, operand, right)
 }
