@@ -29,6 +29,38 @@ class OpsSuite extends FunSuite with Matchers
 		(pe.name === "x") should be(nameIsX)
 	}
 
+	test("greater than value") {
+		(pe.name > "x") should be(Operation(AliasColumn(pe.name.column), GT, "x"))
+	}
+
+	test("greater than column") {
+		(pe.name >('a, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), GT, AliasColumn(pe.name.column, Some('a))))
+	}
+
+	test("greater than or equals to value") {
+		(pe.name >= "x") should be(Operation(AliasColumn(pe.name.column), GE, "x"))
+	}
+
+	test("greater than equal column") {
+		(pe.name >=('a, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), GE, AliasColumn(pe.name.column, Some('a))))
+	}
+
+	test("less than value") {
+		(pe.name < "x") should be(Operation(AliasColumn(pe.name.column), LT, "x"))
+	}
+
+	test("less than column") {
+		(pe.name <('a, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), LT, AliasColumn(pe.name.column, Some('a))))
+	}
+
+	test("less than or equals value") {
+		(pe.name <= "x") should be(Operation(AliasColumn(pe.name.column), LE, "x"))
+	}
+
+	test("less than or equals column") {
+		(pe.name <=('a, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), LE, AliasColumn(pe.name.column, Some('a))))
+	}
+
 	test("and") {
 		(pe.name === "x" and pe.id === 5) should be(AndOp(nameIsX, idIs5))
 	}
