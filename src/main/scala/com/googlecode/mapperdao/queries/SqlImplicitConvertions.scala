@@ -17,7 +17,6 @@ import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
 import com.googlecode.mapperdao.OneToManyDeclaredPrimaryKeyOperation
 import com.googlecode.mapperdao.OneToOneOperation
 import com.googlecode.mapperdao.queries.v2.AliasColumn
-import com.googlecode.mapperdao.GT
 
 /**
  * @author kostantinos.kougios
@@ -26,46 +25,39 @@ import com.googlecode.mapperdao.GT
  */
 trait SqlImplicitConvertions
 {
-	implicit def columnToAlias[V](v: ColumnInfo[_, V]) = new AliasColumn[SimpleColumn, V](v.column)
-
-	implicit def columnToAlias[V](v: (Symbol, ColumnInfo[_, V])) = new AliasColumn[SimpleColumn, V](v._2.column, Some(v._1))
 
 	/**
 	 * manages simple type expressions
 	 */
-	protected class Convertor[V](a: AliasColumn[SimpleColumn, V])
+	protected class Convertor[T, V](t: ColumnInfo[T, V])
 	{
-		def this(t: ColumnInfo[_, V]) = this(AliasColumn[SimpleColumn, V](t.column))
+		def >(v: V) = new Operation(AliasColumn(t.column), GT, v)
 
-		def >(v: V) = new Operation(a, GT, v)
+		def >(v: ColumnInfo[_, V]) = new Operation(AliasColumn(t.column), GT, v.column)
 
-		def >(v: ColumnInfo[_, V]) = new ColumnOperation(a, GT, AliasColumn(v.column))
+		def >=(v: V) = new Operation(AliasColumn(t.column), GE, v)
 
-		def >=(v: V) = new Operation(a, GE, v)
+		def >=(v: ColumnInfo[_, V]) = new ColumnOperation(AliasColumn(t.column), GE, AliasColumn(v.column))
 
-		def >=(v: ColumnInfo[_, V]) = new ColumnOperation(a, GE, AliasColumn(v.column))
+		def <(v: V) = new Operation(AliasColumn(t.column), LT, v)
 
-		def <(v: V) = new Operation(a, LT, v)
+		def <(v: ColumnInfo[_, V]) = new ColumnOperation(AliasColumn(t.column), LT, AliasColumn(v.column))
 
-		def <(v: ColumnInfo[_, V]) = new ColumnOperation(a, LT, AliasColumn(v.column))
+		def <>(v: V) = new Operation(AliasColumn(t.column), NE, v)
 
-		def <>(v: V) = new Operation(a, NE, v)
+		def <>(v: ColumnInfo[_, V]) = new ColumnOperation(AliasColumn(t.column), NE, AliasColumn(v.column))
 
-		def <>(v: ColumnInfo[_, V]) = new ColumnOperation(a, NE, AliasColumn(v.column))
+		def <=(v: V) = new Operation(AliasColumn(t.column), LE, v)
 
-		def <=(v: V) = new Operation(a, LE, v)
+		def <=(v: ColumnInfo[_, V]) = new Operation(AliasColumn(t.column), LE, v.column)
 
-		def <=(v: ColumnInfo[_, V]) = new ColumnOperation(a, LE, AliasColumn(v.column))
+		def ===(v: V) = new Operation(AliasColumn(t.column), EQ, v) with EqualityOperation
 
-		def ===(v: V) = new Operation(a, EQ, v) with EqualityOperation
+		def ===(v: ColumnInfo[_, V]) = new Operation(AliasColumn(t.column), EQ, v.column) with EqualityOperation
 
-		def ===(v: ColumnInfo[_, V]) = new ColumnOperation(a, EQ, AliasColumn(v.column)) with EqualityOperation
+		def like(v: V) = new Operation(AliasColumn(t.column), LIKE, v)
 
-		def ===(v: AliasColumn[SimpleColumn, V]) = new ColumnOperation(a, EQ, v) with EqualityOperation
-
-		def like(v: V) = new Operation(a, LIKE, v)
-
-		def like(v: ColumnInfo[_, V]) = new ColumnOperation(a, LIKE, AliasColumn(v.column))
+		def like(v: ColumnInfo[_, V]) = new ColumnOperation(AliasColumn(t.column), LIKE, AliasColumn(v.column))
 	}
 
 	implicit def columnInfoToOperableString[T](ci: ColumnInfo[T, String]) = new Convertor(ci)
