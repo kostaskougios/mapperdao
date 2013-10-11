@@ -2,7 +2,6 @@ package com.googlecode.mapperdao.queries.v2
 
 import com.googlecode.mapperdao.schema.SimpleColumn
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.schema.ColumnInfo
 import com.googlecode.mapperdao.ColumnOperation
 import com.googlecode.mapperdao.Operation
 
@@ -15,15 +14,11 @@ case class AliasColumn[V](column: SimpleColumn, symbol: Option[Symbol] = None)
 
 	def >(v: V) = new Operation(this, GT, v)
 
-	def >(v: ColumnInfo[_, V]) = new ColumnOperation(this, GT, AliasColumn(v.column))
-
 	def >(v: AliasColumn[V]) = new ColumnOperation(this, GT, v)
 
 	def >=(v: V) = new Operation(this, GE, v)
 
 	def >=(v: AliasColumn[V]) = new ColumnOperation(this, GE, v)
-
-	def >=(v: ColumnInfo[_, V]) = new ColumnOperation(this, GE, AliasColumn(v.column))
 
 	def <(v: V) = new Operation(this, LT, v)
 

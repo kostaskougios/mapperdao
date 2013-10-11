@@ -25,32 +25,52 @@ class OpsSuite extends FunSuite with Matchers
 
 	import Query2._
 
-	test("equality") {
+	test("equality to value") {
 		(pe.name === "x") should be(nameIsX)
+	}
+
+	test("equality to column with alias") {
+		(pe.name ===('a, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), EQ, AliasColumn(pe.name.column, Some('a))))
+	}
+
+	test("equality to column") {
+		(pe.name === pe.name) should be(ColumnOperation(AliasColumn(pe.name.column), EQ, AliasColumn(pe.name.column, None)))
 	}
 
 	test("greater than value") {
 		(pe.name > "x") should be(Operation(AliasColumn(pe.name.column), GT, "x"))
 	}
 
-	test("greater than column") {
+	test("greater than column with alias") {
 		(pe.name >('a, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), GT, AliasColumn(pe.name.column, Some('a))))
+	}
+
+	test("greater than column") {
+		(pe.name > pe.name) should be(ColumnOperation(AliasColumn(pe.name.column), GT, AliasColumn(pe.name.column, None)))
 	}
 
 	test("greater than or equals to value") {
 		(pe.name >= "x") should be(Operation(AliasColumn(pe.name.column), GE, "x"))
 	}
 
-	test("greater than equal column") {
+	test("greater than equal column with alias") {
 		(pe.name >=('a, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), GE, AliasColumn(pe.name.column, Some('a))))
+	}
+
+	test("greater than equal column") {
+		(pe.name >= pe.name) should be(ColumnOperation(AliasColumn(pe.name.column), GE, AliasColumn(pe.name.column, None)))
 	}
 
 	test("less than value") {
 		(pe.name < "x") should be(Operation(AliasColumn(pe.name.column), LT, "x"))
 	}
 
-	test("less than column") {
+	test("less than column with alias") {
 		(pe.name <('a, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), LT, AliasColumn(pe.name.column, Some('a))))
+	}
+
+	test("less than column") {
+		(pe.name < pe.name) should be(ColumnOperation(AliasColumn(pe.name.column), LT, AliasColumn(pe.name.column, None)))
 	}
 
 	test("less than or equals value") {
