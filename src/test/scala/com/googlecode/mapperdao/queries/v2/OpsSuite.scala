@@ -96,4 +96,8 @@ class OpsSuite extends FunSuite with Matchers
 	test("alias on left side") {
 		(('x, pe.name) === pe.name) should be(ColumnOperation(AliasColumn(pe.name.column, Some('x)), EQ, AliasColumn(pe.name.column)))
 	}
+
+	test("presidence") {
+		(pe.name === "x" or (pe.id === 5 and pe.id > 1)) should be(OrOp(nameIsX, AndOp(idIs5, Operation(pe.id, GT, 1))))
+	}
 }
