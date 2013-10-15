@@ -18,4 +18,6 @@ case class Where[ID, PC <: Persisted, T](queryInfo: QueryInfo[ID, T]) extends Wi
 
 	def or(op: OpBase) =
 		Where[ID, PC, T](queryInfo = queryInfo.copy(wheres = Some(OrOp(queryInfo.wheres.get, op))))
+
+	def order = new Order[ID, PC, T](queryInfo)
 }

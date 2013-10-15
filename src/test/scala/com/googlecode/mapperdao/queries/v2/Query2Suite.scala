@@ -119,4 +119,13 @@ class Query2Suite extends FunSuite with Matchers
 		qi.joins should be(List(SelfJoin(pe as 'x, Some(ons))))
 		qi.wheres.get should be(nameIsX)
 	}
+
+	test("order by") {
+		import Query2._
+
+		val q = select from pe where (pe.name === "x") order by(pe.name, asc)
+		val qi = q.queryInfo
+		qi.order should be(List(AliasColumn(pe.name), asc))
+	}
+
 }

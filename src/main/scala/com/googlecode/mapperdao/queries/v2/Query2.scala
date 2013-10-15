@@ -19,4 +19,20 @@ object Query2
 	implicit def columnToAlias[V](v: ColumnInfo[_, V]) = new AliasColumn[V](v.column)
 
 	implicit def columnToAlias[V](v: (Symbol, ColumnInfo[_, V])) = new AliasColumn[V](v._2.column, Some(v._1))
+
+	sealed abstract class AscDesc
+	{
+		val sql: String
+	}
+
+	object asc extends AscDesc
+	{
+		val sql = "asc"
+	}
+
+	object desc extends AscDesc
+	{
+		val sql = "desc"
+	}
+
 }
