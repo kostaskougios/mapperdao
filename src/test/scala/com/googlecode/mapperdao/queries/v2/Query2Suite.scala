@@ -135,4 +135,20 @@ class Query2Suite extends FunSuite with Matchers
 		val qi = q.queryInfo
 		qi.order should be(List((AliasColumn(pe.name.column), asc), (AliasColumn(pe.id.column), desc)))
 	}
+
+	test("extend join") {
+		import Query2._
+
+		val qm = (
+			select
+				from pe
+				where pe.name === "x"
+			)
+
+		val q = qm extend join(pe, pe.company, ce)
+		val qi = q.queryInfo
+		qi.entity should be(Alias(pe, 'maint))
+		qi.joins should be(List(InnerJoin(Alias(pe), pe.company, Alias(ce))))
+	}
+
 }

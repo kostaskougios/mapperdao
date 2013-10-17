@@ -11,5 +11,5 @@ case class JoinClause[ID, PC <: Persisted, T, FID, FT](
 	to: Alias[FID, FT]
 	) extends WithQueryInfo[ID, PC, T]
 {
-	def where = Where[ID, PC, T](queryInfo)
+	def where = new Where[ID, PC, T](queryInfo)
 }

@@ -9,5 +9,5 @@ import com.googlecode.mapperdao.Persisted
  */
 trait WithWhere[ID, PC <: Persisted, T] extends WithQueryInfo[ID, PC, T]
 {
-	def where = Where[ID, PC, T](queryInfo)
+	def where = new Where[ID, PC, T](queryInfo)
 }

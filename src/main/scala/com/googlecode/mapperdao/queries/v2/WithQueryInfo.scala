@@ -8,5 +8,5 @@ import com.googlecode.mapperdao.Persisted
  */
 trait WithQueryInfo[ID, PC <: Persisted, T]
 {
-	def queryInfo: QueryInfo[ID, T]
+	private[mapperdao] def queryInfo: QueryInfo[ID, T]
 }
