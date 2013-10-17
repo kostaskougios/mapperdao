@@ -7,9 +7,12 @@ import com.googlecode.mapperdao.queries.v2.Query2.AscDesc
  * @author: kostas.kougios
  *          Date: 15/10/13
  */
-class Order[ID, PC <: Persisted, T](val queryInfo: QueryInfo[ID, T]) extends WithQueryInfo[ID, PC, T]
+class Order[ID, PC <: Persisted, T](private val qi: QueryInfo[ID, T])
 {
-	def by(column: AliasColumn[_], ascDesc: AscDesc) = {
-		queryInfo.copy(order = (column, ascDesc) :: queryInfo.order)
+	def apply(column: AliasColumn[_], ascDesc: AscDesc): WithQueryInfo[ID, PC, T] = apply((column, ascDesc) :: Nil)
+
+	def apply(obs: List[(AliasColumn[_], AscDesc)]): WithQueryInfo[ID, PC, T] = new WithQueryInfo[ID, PC, T]
+	{
+		val queryInfo = qi.copy(order = obs ::: qi.order)
 	}
 }

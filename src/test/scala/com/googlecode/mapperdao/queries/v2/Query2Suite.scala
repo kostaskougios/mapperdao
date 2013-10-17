@@ -123,9 +123,9 @@ class Query2Suite extends FunSuite with Matchers
 	test("order by") {
 		import Query2._
 
-		val q = select from pe where (pe.name === "x") order by(pe.name, asc)
+		val q = select from pe where (pe.name === "x") orderBy(pe.name, asc)
 		val qi = q.queryInfo
-		qi.order should be(List(AliasColumn(pe.name), asc))
+		qi.order should be(List((AliasColumn(pe.name.column), asc)))
 	}
 
 }
