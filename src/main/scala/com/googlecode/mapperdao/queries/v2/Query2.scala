@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao.queries.v2
 
-import com.googlecode.mapperdao.EntityBase
+import com.googlecode.mapperdao.{Persisted, EntityBase}
 import com.googlecode.mapperdao.schema.ColumnInfo
 
 /**
@@ -10,6 +10,8 @@ import com.googlecode.mapperdao.schema.ColumnInfo
 object Query2
 {
 	def select = new From
+
+	def extend[ID, PC <: Persisted, T](wqi: WithQueryInfo[ID, PC, T]) = new Extend[ID, PC, T](wqi.queryInfo)
 
 	implicit def implicitAs[ID, T](e: EntityBase[ID, T]) = new
 		{

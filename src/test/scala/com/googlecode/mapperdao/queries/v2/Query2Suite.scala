@@ -145,10 +145,10 @@ class Query2Suite extends FunSuite with Matchers
 				where pe.name === "x"
 			)
 
-		val q = qm extend join(pe, pe.company, ce)
+		val q = extend(qm) and pe.id === 5
 		val qi = q.queryInfo
 		qi.entity should be(Alias(pe, 'maint))
-		qi.joins should be(List(InnerJoin(Alias(pe), pe.company, Alias(ce))))
+		qi.joins should be(List(nameIsX, idIs5))
 	}
 
 }
