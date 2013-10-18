@@ -148,7 +148,7 @@ class Query2Suite extends FunSuite with Matchers
 		val q = extend(qm) and pe.id === 5
 		val qi = q.queryInfo
 		qi.entity should be(Alias(pe, 'maint))
-		qi.joins should be(List(nameIsX, idIs5))
+		qi.wheres should be(Some(AndOp(nameIsX, idIs5)))
 	}
 
 }
