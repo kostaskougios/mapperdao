@@ -20,6 +20,7 @@ class Query2Suite extends FunSuite with Matchers
 	val nameIsX = Operation(AliasColumn(pe.name.column), EQ, "x")
 	val nameIsXX = Operation(AliasColumn(pe.name.column), EQ, "xx")
 	val idIs5 = Operation(AliasColumn(pe.id.column), EQ, 5)
+	val companyNameIsY = Operation(AliasColumn(ce.name.column), EQ, "y")
 
 	test("select from") {
 		import Query2._
@@ -136,7 +137,7 @@ class Query2Suite extends FunSuite with Matchers
 		qi.order should be(List((AliasColumn(pe.name.column), asc), (AliasColumn(pe.id.column), desc)))
 	}
 
-	test("extend join") {
+	test("extend where") {
 		import Query2._
 
 		val qm = (
@@ -149,6 +150,23 @@ class Query2Suite extends FunSuite with Matchers
 		val qi = q.queryInfo
 		qi.entity should be(Alias(pe, 'maint))
 		qi.wheres should be(Some(AndOp(nameIsX, idIs5)))
+	}
+
+	test("extend join") {
+		import Query2._
+
+		val qm = (
+			select
+				from pe
+				where pe.name === "x"
+			)
+
+		val q1 = extend(qm) join(pe, pe.company, ce)
+		val q = extend(q1) and ce.name === "y"
+		val qi = q.queryInfo
+		qi.entity should be(Alias(pe, 'maint))
+		qi.joins should be(List(InnerJoin(Alias(pe), pe.company, Alias(ce))))
+		qi.wheres should be(Some(AndOp(nameIsX, companyNameIsY)))
 	}
 
 }
