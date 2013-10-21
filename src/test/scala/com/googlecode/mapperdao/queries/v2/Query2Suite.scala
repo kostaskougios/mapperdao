@@ -121,6 +121,14 @@ class Query2Suite extends FunSuite with Matchers
 		qi.wheres.get should be(nameIsX)
 	}
 
+	test("order by, no where clause") {
+		import Query2._
+
+		val q = select from pe orderBy(pe.name, asc)
+		val qi = q.queryInfo
+		qi.order should be(List((AliasColumn(pe.name.column), asc)))
+	}
+
 	test("order by") {
 		import Query2._
 

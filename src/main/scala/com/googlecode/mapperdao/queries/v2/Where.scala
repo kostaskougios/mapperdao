@@ -9,11 +9,10 @@ import com.googlecode.mapperdao.{OpBase, Persisted}
 class Where[ID, PC <: Persisted, T](private[mapperdao] val queryInfo: QueryInfo[ID, T])
 	extends WithQueryInfo[ID, PC, T]
 	with WhereBooleanOps[ID, PC, T]
+	with WithOrderBy[ID, PC, T]
 {
 	def apply(op: OpBase) = {
 		if (queryInfo.wheres.isDefined) throw new IllegalStateException("already defined a where clause, use and() or or()")
 		new Where[ID, PC, T](queryInfo = queryInfo.copy(wheres = Some(op)))
 	}
-
-	def orderBy = new Order[ID, PC, T](queryInfo)
 }
