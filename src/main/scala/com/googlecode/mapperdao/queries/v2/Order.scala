@@ -9,6 +9,9 @@ import com.googlecode.mapperdao.queries.v2.Query2.AscDesc
  */
 class Order[ID, PC <: Persisted, T](private val qi: QueryInfo[ID, T])
 {
+
+	def apply(by: Object) = this
+
 	def apply(column: AliasColumn[_], ascDesc: AscDesc): WithQueryInfo[ID, PC, T] = apply((column, ascDesc) :: Nil)
 
 	def apply(

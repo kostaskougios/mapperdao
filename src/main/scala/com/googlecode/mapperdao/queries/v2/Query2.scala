@@ -37,4 +37,5 @@ object Query2
 		val sql = "desc"
 	}
 
+	val by = new Object()
 }
