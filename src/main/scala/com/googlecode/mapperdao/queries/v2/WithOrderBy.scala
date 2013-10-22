@@ -10,7 +10,5 @@ trait WithOrderBy[ID, PC <: Persisted, T]
 {
 	private[mapperdao] val queryInfo: QueryInfo[ID, T]
 
-	def orderBy = new Order[ID, PC, T](queryInfo)
-
 	def order = new Order[ID, PC, T](queryInfo)
 }

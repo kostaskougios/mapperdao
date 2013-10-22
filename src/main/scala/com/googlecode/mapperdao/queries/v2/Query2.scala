@@ -37,5 +37,20 @@ object Query2
 		val sql = "desc"
 	}
 
-	val by = new Object()
+	// used on "order by" clauses
+	val by = new
+		{
+			def apply[ID, PC <: Persisted, T](column: AliasColumn[_], ascDesc: AscDesc): List[(AliasColumn[_], AscDesc)] =
+				List((column, ascDesc))
+
+			def apply[ID, PC <: Persisted, T](
+				column1: AliasColumn[_],
+				ascDesc1: AscDesc,
+				column2: AliasColumn[_],
+				ascDesc2: AscDesc
+				): List[(AliasColumn[_], AscDesc)] = (column1, ascDesc1) ::(column2, ascDesc2) :: Nil
+
+			def apply[ID, PC <: Persisted, T](obs: List[(AliasColumn[_], AscDesc)]): List[(AliasColumn[_], AscDesc)] = obs
+
+		}
 }

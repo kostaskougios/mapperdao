@@ -124,9 +124,7 @@ class Query2Suite extends FunSuite with Matchers
 	test("order by, no where clause") {
 		import Query2._
 
-		val q1 = select from pe order by(pe.name, asc)
-
-		val q = select from pe orderBy(pe.name, asc)
+		val q = select from pe order by(pe.name, asc)
 		val qi = q.queryInfo
 		qi.order should be(List((AliasColumn(pe.name.column), asc)))
 	}
@@ -134,7 +132,7 @@ class Query2Suite extends FunSuite with Matchers
 	test("order by") {
 		import Query2._
 
-		val q = select from pe where (pe.name === "x") orderBy(pe.name, asc)
+		val q = select from pe where (pe.name === "x") order by(pe.name, asc)
 		val qi = q.queryInfo
 		qi.order should be(List((AliasColumn(pe.name.column), asc)))
 	}
@@ -142,7 +140,7 @@ class Query2Suite extends FunSuite with Matchers
 	test("order by 2 clauses") {
 		import Query2._
 
-		val q = select from pe where (pe.name === "x") orderBy(pe.name, asc, pe.id, desc)
+		val q = select from pe where (pe.name === "x") order by(pe.name, asc, pe.id, desc)
 		val qi = q.queryInfo
 		qi.order should be(List((AliasColumn(pe.name.column), asc), (AliasColumn(pe.id.column), desc)))
 	}
