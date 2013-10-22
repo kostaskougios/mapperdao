@@ -51,6 +51,5 @@ object Query2
 				): List[(AliasColumn[_], AscDesc)] = (column1, ascDesc1) ::(column2, ascDesc2) :: Nil
 
 			def apply[ID, PC <: Persisted, T](obs: List[(AliasColumn[_], AscDesc)]): List[(AliasColumn[_], AscDesc)] = obs
-
 		}
 }
