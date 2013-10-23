@@ -4,6 +4,7 @@ import org.scalatest.{Matchers, FunSuite}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.{OrOp, AndOp, EQ, Operation}
+import com.googlecode.mapperdao.sqlfunction.{SqlFunctionValue, SqlFunctionOp, StdSqlFunctions}
 
 /**
  * @author kkougios
@@ -177,4 +178,22 @@ class Query2Suite extends FunSuite with Matchers
 		qi.wheres should be(Some(AndOp(nameIsX, companyNameIsY)))
 	}
 
+	test("function") {
+		import Query2._
+		import StdSqlFunctions._
+
+		val qm = (
+			select
+				from pe
+				where lower(pe.name) === lower("X")
+			)
+
+		qm.queryInfo.wheres.get should be(
+			SqlFunctionOp(
+				SqlFunctionValue("lower", List(pe.name)),
+				EQ,
+				SqlFunctionValue("lower", List("X"))
+			)
+		)
+	}
 }
