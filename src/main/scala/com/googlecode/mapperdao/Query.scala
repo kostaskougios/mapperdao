@@ -1,8 +1,10 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
 import com.googlecode.mapperdao.queries._
+import com.googlecode.mapperdao.queries.v2._
 import com.googlecode.mapperdao.schema.ColumnInfo
+import scala.Some
+import com.googlecode.mapperdao.queries.v2.AliasColumn
 
 /**
  * query builder and DSL
@@ -28,90 +30,22 @@ import com.googlecode.mapperdao.schema.ColumnInfo
  *
  *         15 Aug 2011
  */
-object Query extends SqlImplicitConvertions
-with SqlRelatedImplicitConvertions
+object Query extends SqlRelatedImplicitConvertions
 with SqlManyToOneImplicitConvertions
 with SqlOneToOneImplicitConvertions
 {
+	def select = new From
 
-	// starting point of a query, "select" syntactic sugar
-	def select[ID, PC <: Persisted, T] = new QueryFrom[ID, PC, T]
+	def extend[ID, PC <: Persisted, T](wqi: WithQueryInfo[ID, PC, T]) = new Extend[ID, PC, T](wqi.queryInfo)
 
-	// "from" syntactic sugar
-	class QueryFrom[ID, PC <: Persisted, T]
-	{
-		def from(entity: Entity[ID, PC, T]) = new Builder[ID, PC, T](entity)
-	}
-
-	trait OrderBy[Q]
-	{
-		self: Q =>
-		protected def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)])
-
-		def orderBy(byList: (ColumnInfo[_, _], AscDesc)*) = {
-			addOrderBy(byList.toList)
-			self
+	implicit def implicitAs[ID, T](e: EntityBase[ID, T]) = new
+		{
+			def as[ID, T](symbol: Symbol) = Alias(e, Some(symbol))
 		}
 
-		def orderBy[T, V](ci: ColumnInfo[T, V]) = {
-			addOrderBy(List((ci, asc)))
-			self
-		}
+	implicit def columnToAlias[V](v: ColumnInfo[_, V]) = new AliasColumn[V](v.column)
 
-		def orderBy[T, V](ci: ColumnInfo[T, V], ascDesc: AscDesc) = {
-			addOrderBy(List((ci, ascDesc)))
-			self
-		}
-
-		def orderBy[T1, V1, T2, V2](ci1: ColumnInfo[T1, V1], ci2: ColumnInfo[T2, V2]) = {
-			addOrderBy(List((ci1, asc), (ci2, asc)))
-			self
-		}
-
-		def orderBy[T1, V1, T2, V2](ci1: ColumnInfo[T1, V1], ascDesc1: AscDesc, ci2: ColumnInfo[T2, V2], ascDesc2: AscDesc) = {
-			addOrderBy(List((ci1, ascDesc1), (ci2, ascDesc2)))
-			self
-		}
-	}
-
-	/**
-	 * main query builder, keeps track of all 'where', joins and order by.
-	 */
-	private[mapperdao] case class Builder[ID, PC <: Persisted, T](
-		private[mapperdao] val entity: Entity[ID, PC, T],
-		private[mapperdao] val wheres: Option[Where[ID, PC, T]] = None,
-		private[mapperdao] val joins: List[Join] = Nil,
-		private[mapperdao] var order: List[(ColumnInfo[_, _], AscDesc)] = Nil
-		)
-		extends OrderBy[Builder[ID, PC, T]] with QueryBuilder[ID, PC, T]
-	{
-		override protected def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)]) {
-			order :::= l
-		}
-
-		def where = new Where(this)
-
-		def join[JID, JT, FID, FT](
-			joinEntity: EntityBase[JID, JT],
-			ci: ColumnInfoRelationshipBase[JT, _, FID, FT],
-			foreignEntity: EntityBase[FID, FT]
-			) = {
-			val j = new InnerJoin(joinEntity, ci, foreignEntity)
-			copy(joins = j :: joins)
-		}
-
-		def join[JID, JPC <: Persisted, JT](entity: Entity[JID, JPC, JT]) = new JoinOn(this)
-
-		def toList(implicit queryDao: QueryDao): List[T with PC] = toList(QueryConfig.default)(queryDao)
-
-		def toList(queryConfig: QueryConfig)(implicit queryDao: QueryDao): List[T with PC] = queryDao.query(queryConfig, this)
-
-		def toSet(implicit queryDao: QueryDao): Set[T with PC] = toSet(QueryConfig.default)(queryDao)
-
-		def toSet(queryConfig: QueryConfig)(implicit queryDao: QueryDao): Set[T with PC] = queryDao.query(queryConfig, this).toSet
-
-		override def toString = "select from %s join %s where %s".format(entity, joins, wheres)
-	}
+	implicit def columnToAlias[V](v: (Symbol, ColumnInfo[_, V])) = new AliasColumn[V](v._2.column, Some(v._1))
 
 	sealed abstract class AscDesc
 	{
@@ -128,60 +62,19 @@ with SqlOneToOneImplicitConvertions
 		val sql = "desc"
 	}
 
-	trait Join
+	// used on "order by" clauses
+	val by = new
+		{
+			def apply[ID, PC <: Persisted, T](column: AliasColumn[_], ascDesc: AscDesc): List[(AliasColumn[_], AscDesc)] =
+				List((column, ascDesc))
 
-	case class InnerJoin[JID, JT, FID, FT](
-		joinEntity: EntityBase[JID, JT],
-		ci: ColumnInfoRelationshipBase[JT, _, FID, FT],
-		foreignEntity: EntityBase[FID, FT]
-		) extends Join
+			def apply[ID, PC <: Persisted, T](
+				column1: AliasColumn[_],
+				ascDesc1: AscDesc,
+				column2: AliasColumn[_],
+				ascDesc2: AscDesc
+				): List[(AliasColumn[_], AscDesc)] = (column1, ascDesc1) ::(column2, ascDesc2) :: Nil
 
-	case class SelfJoin[JID, JT, FID, FT, QID, QPC <: Persisted, QT](
-		// for join on functionality
-		entity: Entity[JID, Persisted, JT],
-		on: JoinOn[QID, QPC, QT]
-		) extends Join
-
-	class JoinOn[ID, PC <: Persisted, T](protected[mapperdao] val builder: Builder[ID, PC, T])
-	{
-		protected[mapperdao] var ons: Option[Where[ID, PC, T]] = None
-
-		def on = {
-			val j = new SelfJoin(builder.entity, this)
-			val b = builder.copy(joins = j :: builder.joins)
-
-			val qe = new Where(b)
-			ons = Some(qe)
-			qe
+			def apply[ID, PC <: Persisted, T](obs: List[(AliasColumn[_], AscDesc)]): List[(AliasColumn[_], AscDesc)] = obs
 		}
-	}
-
-	private[mapperdao] class Where[ID, PC <: Persisted, T](b: Builder[ID, PC, T])
-		extends OrderBy[Where[ID, PC, T]]
-		with SqlWhereMixins[Where[ID, PC, T]]
-		with QueryBuilder[ID, PC, T]
-	{
-		private[mapperdao] val builder: Builder[ID, PC, T] = b.copy(wheres = Some(this))
-
-		private[mapperdao] def entity = builder.entity
-
-		private[mapperdao] def joins = builder.joins
-
-		override def addOrderBy(l: List[(ColumnInfo[_, _], AscDesc)]) {
-			builder.order :::= l
-		}
-
-		def where = new Where(builder)
-
-		def toList(implicit queryDao: QueryDao): List[T with PC] = toList(QueryConfig.default)(queryDao)
-
-		def toList(queryConfig: QueryConfig)(implicit queryDao: QueryDao): List[T with PC] = queryDao.query(queryConfig, this)
-
-		def toSet(implicit queryDao: QueryDao): Set[T with PC] = toSet(QueryConfig.default)(queryDao)
-
-		def toSet(queryConfig: QueryConfig)(implicit queryDao: QueryDao): Set[T with PC] = queryDao.query(queryConfig, this).toSet
-
-		override def toString = "Where(%s)".format(clauses)
-	}
-
 }

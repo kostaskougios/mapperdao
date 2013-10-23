@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.queries.v2
 
 import com.googlecode.mapperdao.OpBase
-import com.googlecode.mapperdao.queries.v2.Query2.AscDesc
+import com.googlecode.mapperdao.Query.AscDesc
 
 /**
  * @author: kostas.kougios

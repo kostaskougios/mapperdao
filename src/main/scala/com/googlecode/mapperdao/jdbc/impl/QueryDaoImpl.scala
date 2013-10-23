@@ -23,6 +23,7 @@ import com.googlecode.mapperdao.AndOp
 import com.googlecode.mapperdao.ManyToOneOperation
 import com.googlecode.mapperdao.sqlfunction.SqlFunctionBoolOp
 import com.googlecode.mapperdao.jdbc.DatabaseValues
+import com.googlecode.mapperdao.queries.v2.QueryInfo
 
 /**
  * the QueryDao implementation
@@ -39,10 +40,10 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 
 	import QueryDao._
 
-	def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): List[T with PC] = {
-		if (qe == null) throw new NullPointerException("qe can't be null")
-		val r = sqlAndArgs(queryConfig, qe).result
-		queryInner(queryConfig, qe.entity, r.sql, r.values)
+	def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: QueryInfo[ID, T]): List[T with PC] = {
+		if (qi == null) throw new NullPointerException("qi can't be null")
+		val r = sqlAndArgs(queryConfig, qi).result
+		queryInner(queryConfig, qi.entity, r.sql, r.values)
 	}
 
 	def lowLevelQuery[ID, PC <: Persisted, T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], sql: String, args: List[Any]): List[T with PC] =
@@ -76,24 +77,24 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		driver.queryForLong(queryConfig, r.sql, r.values)
 	}
 
-	private def sqlAndArgs[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]) = {
-		val e = qe.entity
+	private def sqlAndArgs[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: QueryInfo[ID, T]) = {
+		val e = qi.entity
 		val tpe = e.tpe
 		val columns = tpe.table.selectColumns
 
 		val aliases = new Aliases(typeRegistry)
 
 		val q = new driver.sqlBuilder.SqlSelectBuilder
-		val outer = driver.beforeStartOfQuery(q, queryConfig, qe, columns)
-		driver.startQuery(q, queryConfig, aliases, qe, columns)
-		joins(q, queryConfig, qe, aliases)
-		whereAndArgs(q, queryConfig, qe, aliases)
-		orderBy(q, queryConfig, qe, aliases)
-		driver.endOfQuery(outer, queryConfig, qe)
+		val outer = driver.beforeStartOfQuery(q, queryConfig, qi, columns)
+		driver.startQuery(q, queryConfig, aliases, qi, columns)
+		joins(q, queryConfig, qi, aliases)
+		whereAndArgs(q, queryConfig, qi, aliases)
+		orderBy(q, queryConfig, qi, aliases)
+		driver.endOfQuery(outer, queryConfig, qi)
 		outer
 	}
 
-	private def joins[ID, PC <: Persisted, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], aliases: Aliases) = {
+	private def joins[ID, PC <: Persisted, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], aliases: Aliases) = {
 		// iterate through the joins in the correct order
 		qe.joins.reverse.foreach {
 			case Query.InnerJoin(joinEntity, ci, foreignEntity) =>
@@ -149,7 +150,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		}
 	}
 
-	private def whereAndArgs[ID, PC <: Persisted, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], aliases: Aliases) =
+	private def whereAndArgs[ID, PC <: Persisted, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], aliases: Aliases) =
 	// append the where clause and get the list of arguments
 		if (qe.wheres.isDefined) {
 			val e = queryExpressions(aliases, qe.wheres.get.clauses)

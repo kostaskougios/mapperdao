@@ -7,6 +7,7 @@ import com.googlecode.mapperdao.schema._
 import com.googlecode.mapperdao.jdbc.UpdateResult
 import com.googlecode.mapperdao.schema.ManyToMany
 import com.googlecode.mapperdao.schema.OneToOneReverse
+import com.googlecode.mapperdao.queries.v2.QueryInfo
 
 /**
  * all database drivers must implement this trait
@@ -255,7 +256,8 @@ abstract class Driver
 		tpe: Type[ID, T],
 		ftpe: Type[FID, F],
 		manyToMany: ManyToMany[FID, F],
-		leftKeyValues: List[(SimpleColumn, Any)]) = {
+		leftKeyValues: List[(SimpleColumn, Any)]
+		) = {
 		val linkTable = manyToMany.linkTable
 
 		val sql = new sqlBuilder.SqlSelectBuilder
@@ -305,7 +307,7 @@ abstract class Driver
 		q: sqlBuilder.SqlSelectBuilder,
 		queryConfig: QueryConfig,
 		aliases: QueryDao.Aliases,
-		qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]
+		qe: QueryInfo[ID, T], columns: List[SimpleColumn]
 		) = {
 		val entity = qe.entity
 		val tpe = entity.tpe
@@ -322,10 +324,10 @@ abstract class Driver
 	def shouldCreateOrderByClause(queryConfig: QueryConfig): Boolean = true
 
 	// called at the start of each query sql generation, sql is empty at this point
-	def beforeStartOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]): sqlBuilder.SqlSelectBuilder = q
+	def beforeStartOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], columns: List[SimpleColumn]): sqlBuilder.SqlSelectBuilder = q
 
 	// called at the end of each query sql generation
-	def endOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): sqlBuilder.SqlSelectBuilder = q
+	def endOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T]): sqlBuilder.SqlSelectBuilder = q
 
 	/**
 	 * =====================================================================================

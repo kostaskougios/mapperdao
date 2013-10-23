@@ -5,6 +5,7 @@ import com.googlecode.mapperdao.jdbc.{DatabaseValues, UpdateResult}
 import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
 import com.googlecode.mapperdao.schema.{LinkTable, ManyToOne, ColumnInfoManyToOne, ColumnBase}
 import com.googlecode.mapperdao.jdbc.impl.{MapperDaoImpl, QueryDaoImpl}
+import com.googlecode.mapperdao.queries.v2.{QueryInfo, WithQueryInfo}
 
 /**
  * querydao takes care of querying the database and fetching entities using
@@ -33,10 +34,10 @@ trait QueryDao
 	 * val qe=(select from ProductEntity where title==="jeans")
 	 * val results=queryDao.query(qe) // list of products
 	 *
-	 * @param	qe		a query
+	 * @param	qi		a query
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 */
-	def query[ID, PC <: Persisted, T](qe: QueryBuilder[ID, PC, T]): List[T with PC] = query(defaultQueryConfig, qe)
+	def query[ID, PC <: Persisted, T](qi: WithQueryInfo[ID, PC, T]): List[T with PC] = query(defaultQueryConfig, qi)
 
 	/**
 	 * runs a query and retuns a list of entities.
@@ -46,14 +47,12 @@ trait QueryDao
 	 * val results=queryDao.query(qe) // list of products
 	 *
 	 * @param	queryConfig		configures the query
-	 * @param	qe				a query
+	 * @param	qi				a query
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 * @see		#QueryConfig
 	 */
-	def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: QueryBuilder[ID, PC, T]): List[T with PC] = qe match {
-		case qw: Query.Where[ID, PC, T] => query(queryConfig, qw.builder)
-		case qb: Query.Builder[ID, PC, T] => query(queryConfig, qb)
-	}
+	def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: WithQueryInfo[ID, PC, T]): List[T with PC] =
+		query(queryConfig, qi.queryInfo)
 
 	/**
 	 * runs a query and retuns a list of entities.
@@ -63,11 +62,11 @@ trait QueryDao
 	 * val results=queryDao.query(qe) // list of products
 	 *
 	 * @param	queryConfig		configures the query
-	 * @param	qe				a query
+	 * @param	qi				a query
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 * @see		#QueryConfig
 	 */
-	protected def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): List[T with PC]
+	protected def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: QueryInfo[ID, T]): List[T with PC]
 
 	/**
 	 * counts rows, i.e.
@@ -75,36 +74,33 @@ trait QueryDao
 	 * val qe=(select from ProductEntity where title==="jeans")
 	 * val count=queryDao.count(qe) // the number of jeans
 	 */
-	def count[ID, PC <: Persisted, T](queryConfig: QueryConfig, qb: QueryBuilder[ID, PC, T]): Long = qb match {
-		case qw: Query.Where[ID, PC, T] => count(queryConfig, qw.builder)
-		case qb: Query.Builder[ID, PC, T] => count(queryConfig, qb)
-	}
+	def count[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: WithQueryInfo[ID, PC, T]): Long =
+		count(queryConfig, qi.queryInfo)
 
-	def count[ID, PC <: Persisted, T](qb: QueryBuilder[ID, PC, T]): Long = count(QueryConfig.default, qb)
+	def count[ID, PC <: Persisted, T](qi: WithQueryInfo[ID, PC, T]): Long = count(QueryConfig.default, qi.queryInfo)
 
-	protected def count[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): Long
+	protected def count[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: QueryInfo[ID, T]): Long
 
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, PC <: Persisted, T](qb: QueryBuilder[ID, PC, T]): Option[T with PC] = querySingleResult(defaultQueryConfig, qb)
+	def querySingleResult[ID, PC <: Persisted, T](qi: WithQueryInfo[ID, PC, T]): Option[T with PC] =
+		querySingleResult(defaultQueryConfig, qi)
 
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, PC <: Persisted, T](queryConfig: QueryConfig, qb: QueryBuilder[ID, PC, T]): Option[T with PC] = qb match {
-		case qw: Query.Where[ID, PC, T] => querySingleResult(queryConfig, qw.builder)
-		case qb: Query.Builder[ID, PC, T] => querySingleResult(queryConfig, qb)
-	}
+	def querySingleResult[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: WithQueryInfo[ID, PC, T]): Option[T with PC] =
+		querySingleResult(queryConfig, qi.queryInfo)
 
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	protected def querySingleResult[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): Option[T with PC] = {
-		val l = query(queryConfig, qe)
+	protected def querySingleResult[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: QueryInfo[ID, T]): Option[T with PC] = {
+		val l = query(queryConfig, qi)
 		// l.size might be costly, so we'll test if l is empty first
 		if (l.isEmpty) None
 		else if (!l.tail.isEmpty) throw new IllegalStateException("expected 0 or 1 result but got %s.".format(l))
