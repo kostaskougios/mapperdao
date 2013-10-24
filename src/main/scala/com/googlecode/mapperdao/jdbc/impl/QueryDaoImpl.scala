@@ -53,7 +53,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		try {
 			val lm = driver.queryForList(queryConfig, entityAlias.entity.tpe, sql, args)
 
-			lowLevelValuesToEntities(queryConfig, entityAlias.entity, lm)
+			lowLevelValuesToEntities(queryConfig, entityAlias, lm)
 		} catch {
 			case e: Throwable =>
 				val extra = "\n------\nThe query:%s\nThe arguments:%s\n------\n".format(sql, args)
