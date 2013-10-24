@@ -309,7 +309,7 @@ abstract class Driver
 		aliases: QueryDao.Aliases,
 		qe: QueryInfo[ID, T], columns: List[SimpleColumn]
 		) = {
-		val entity = qe.entity
+		val entity = qe.entityAlias.entity
 		val tpe = entity.tpe
 		queryAfterSelect(q, queryConfig, aliases, qe, columns)
 		val alias = aliases(entity)
@@ -319,7 +319,7 @@ abstract class Driver
 		q.from(tpe.table.schemaName, queryConfig.schemaModifications, tpe.table.name, alias, hints)
 	}
 
-	def queryAfterSelect[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]) {}
+	def queryAfterSelect[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: QueryInfo[ID, T], columns: List[SimpleColumn]) {}
 
 	def shouldCreateOrderByClause(queryConfig: QueryConfig): Boolean = true
 

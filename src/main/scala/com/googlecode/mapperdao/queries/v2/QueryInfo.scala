@@ -8,7 +8,7 @@ import com.googlecode.mapperdao.Query.AscDesc
  *          Date: 10/09/13
  */
 case class QueryInfo[ID, T](
-	entity: Alias[ID, T],
+	entityAlias: Alias[ID, T],
 	wheres: Option[OpBase] = None,
 	joins: List[Join] = Nil,
 	order: List[(AliasColumn[_], AscDesc)] = Nil

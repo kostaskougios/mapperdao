@@ -5,7 +5,7 @@ import com.googlecode.mapperdao.jdbc.{DatabaseValues, UpdateResult}
 import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
 import com.googlecode.mapperdao.schema.{LinkTable, ManyToOne, ColumnInfoManyToOne, ColumnBase}
 import com.googlecode.mapperdao.jdbc.impl.{MapperDaoImpl, QueryDaoImpl}
-import com.googlecode.mapperdao.queries.v2.{QueryInfo, WithQueryInfo}
+import com.googlecode.mapperdao.queries.v2.{Alias, QueryInfo, WithQueryInfo}
 
 /**
  * querydao takes care of querying the database and fetching entities using
@@ -200,6 +200,9 @@ object QueryDao
 			aliasCount(prefix) = v + 1
 			v
 		}
+
+		def apply[ID, T](alias: Alias[ID, T]): String =
+			alias.symbol.map(_.name).getOrElse(apply(alias.entity))
 
 		def apply[ID, T](entity: EntityBase[ID, T]): String = {
 			val v = aliases.get(entity)

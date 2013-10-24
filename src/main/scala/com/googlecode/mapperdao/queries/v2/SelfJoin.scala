@@ -8,6 +8,6 @@ import com.googlecode.mapperdao.{OpBase, Persisted}
  */
 case class SelfJoin[JID, JT, FID, FT, QID, QPC <: Persisted, QT](
 	// for join on functionality
-	entity: Alias[JID, JT],
+	entityAlias: Alias[JID, JT],
 	override val ons: Option[OpBase] = None
 	) extends Join

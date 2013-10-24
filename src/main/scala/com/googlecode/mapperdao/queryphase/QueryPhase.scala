@@ -10,6 +10,7 @@ import com.googlecode.mapperdao.queryphase.model.From
 import com.googlecode.mapperdao.queryphase.model.OnClause
 import com.googlecode.mapperdao.schema.ManyToMany
 import com.googlecode.mapperdao.queryphase.model.Column
+import com.googlecode.mapperdao.queries.v2.QueryInfo
 
 /**
  * @author: kostas.kougios
@@ -19,8 +20,8 @@ class QueryPhase
 {
 	private val alreadyDone = collection.mutable.Set.empty[Type[_, _]]
 
-	def toQuery[ID, PC <: Persisted, T](q: QueryBuilder[ID, PC, T]): Select = {
-		val tpe = q.entity.tpe
+	def toQuery[ID, PC <: Persisted, T](q: QueryInfo[ID, T]): Select = {
+		val tpe = q.entityAlias.entity.tpe
 		val iqt = InQueryTable(Table(tpe.table), "maint")
 		val from = From(iqt)
 		val entityJoins = joins(tpe, iqt)
@@ -70,12 +71,14 @@ class QueryPhase
 		}
 	}
 
-	private def where[ID, PC <: Persisted, T](mainTpe: Type[ID, T], iqt: InQueryTable, q: QueryBuilder[ID, PC, T]): Clause =
-		q match {
-			case wc: Query.Where[ID, PC, T] =>
-				where(mainTpe, iqt, wc.builder.wheres.map(_.clauses).get)
-			case _ => NoClause
-		}
+	private def where[ID, PC <: Persisted, T](mainTpe: Type[ID, T], iqt: InQueryTable, q: QueryInfo[ID, T]): Clause =
+		???
+
+	//		q match {
+	//			case wc: Query.Where[ID, PC, T] =>
+	//				where(mainTpe, iqt, wc.builder.wheres.map(_.clauses).get)
+	//			case _ => NoClause
+	//		}
 
 	private def where[ID, PC <: Persisted, T](mainTpe: Type[ID, T], iqt: InQueryTable, op: OpBase): Clause = op match {
 		case Operation(left, operand, right) =>

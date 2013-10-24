@@ -23,7 +23,7 @@ import com.googlecode.mapperdao.AndOp
 import com.googlecode.mapperdao.ManyToOneOperation
 import com.googlecode.mapperdao.sqlfunction.SqlFunctionBoolOp
 import com.googlecode.mapperdao.jdbc.DatabaseValues
-import com.googlecode.mapperdao.queries.v2.QueryInfo
+import com.googlecode.mapperdao.queries.v2.{Alias, SelfJoin, InnerJoin, QueryInfo}
 
 /**
  * the QueryDao implementation
@@ -43,17 +43,17 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: QueryInfo[ID, T]): List[T with PC] = {
 		if (qi == null) throw new NullPointerException("qi can't be null")
 		val r = sqlAndArgs(queryConfig, qi).result
-		queryInner(queryConfig, qi.entity, r.sql, r.values)
+		queryInner(queryConfig, qi.entityAlias, r.sql, r.values)
 	}
 
-	def lowLevelQuery[ID, PC <: Persisted, T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], sql: String, args: List[Any]): List[T with PC] =
-		queryInner(queryConfig, entity, sql, args)
+	def lowLevelQuery[ID, PC <: Persisted, T](queryConfig: QueryConfig, entityAlias: Alias[ID, T], sql: String, args: List[Any]): List[T with PC] =
+		queryInner(queryConfig, entityAlias, sql, args)
 
-	private def queryInner[ID, PC <: Persisted, T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], sql: String, args: List[Any]) = {
+	private def queryInner[ID, PC <: Persisted, T](queryConfig: QueryConfig, entityAlias: Alias[ID, T], sql: String, args: List[Any]) = {
 		try {
-			val lm = driver.queryForList(queryConfig, entity.tpe, sql, args)
+			val lm = driver.queryForList(queryConfig, entityAlias.entity.tpe, sql, args)
 
-			lowLevelValuesToEntities(queryConfig, entity, lm)
+			lowLevelValuesToEntities(queryConfig, entityAlias.entity, lm)
 		} catch {
 			case e: Throwable =>
 				val extra = "\n------\nThe query:%s\nThe arguments:%s\n------\n".format(sql, args)
@@ -62,13 +62,13 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		}
 	}
 
-	def lowLevelValuesToEntities[ID, PC <: Persisted, T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], values: List[DatabaseValues]): List[T with PC] =
+	def lowLevelValuesToEntities[ID, PC <: Persisted, T](queryConfig: QueryConfig, entityAlias: Alias[ID, T], values: List[DatabaseValues]): List[T with PC] =
 		queryConfig.multi.runStrategy.run(mapperDao, entity, queryConfig, values).asInstanceOf[List[T with PC]]
 
-	def count[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]): Long = {
+	def count[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: QueryInfo[ID, T]): Long = {
 		if (qe == null) throw new NullPointerException("qe can't be null")
 		val aliases = new Aliases(typeRegistry)
-		val e = qe.entity
+		val e = qe.entityAlias.entity
 		val q = new driver.sqlBuilder.SqlSelectBuilder
 		countSql(queryConfig, q, aliases, e)
 		joins(q, defaultQueryConfig, qe, aliases)
@@ -78,7 +78,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	}
 
 	private def sqlAndArgs[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: QueryInfo[ID, T]) = {
-		val e = qi.entity
+		val e = qi.entityAlias.entity
 		val tpe = e.tpe
 		val columns = tpe.table.selectColumns
 
@@ -97,7 +97,9 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	private def joins[ID, PC <: Persisted, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], aliases: Aliases) = {
 		// iterate through the joins in the correct order
 		qe.joins.reverse.foreach {
-			case Query.InnerJoin(joinEntity, ci, foreignEntity) =>
+			case InnerJoin(joinEntityAlias, ci, foreignEntityAlias) =>
+				val joinEntity = joinEntityAlias.entity
+				val foreignEntity = foreignEntityAlias.entity
 				val column = ci.column
 				column match {
 					case manyToOne: ManyToOne[_, _] =>
@@ -117,7 +119,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 						val join = oneToOneJoin(queryConfig, aliases, joinEntity, foreignEntity, oneToOne)
 						q.innerJoin(join)
 				}
-			case j: Query.SelfJoin[Any, Any, Any, Any, Any, Persisted, Any] =>
+			case j: SelfJoin[Any, Any, Any, Any, Any, Persisted, Any] =>
 				val joined = joinTable(queryConfig, aliases, j)
 				q.innerJoin(joined)
 		}
@@ -144,7 +146,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 			}
 		}
 		// also where clauses might imply joins
-		qe.wheres.map(_.clauses).map {
+		qe.wheres.map {
 			op =>
 				joins(op)
 		}
@@ -153,11 +155,11 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	private def whereAndArgs[ID, PC <: Persisted, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], aliases: Aliases) =
 	// append the where clause and get the list of arguments
 		if (qe.wheres.isDefined) {
-			val e = queryExpressions(aliases, qe.wheres.get.clauses)
+			val e = queryExpressions(aliases, qe.wheres.get)
 			q.where(e)
 		}
 
-	private def orderBy[ID, PC <: Persisted, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], aliases: Aliases) =
+	private def orderBy[ID, PC <: Persisted, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], aliases: Aliases) =
 		if (!qe.order.isEmpty) {
 			val orderColumns = qe.order.map {
 				case (ci, ascDesc) => (ci.column, ascDesc)
@@ -176,13 +178,13 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	private def joinTable[JID, JT, FID, FT, QID, QPC <: Persisted, QT](
 		queryConfig: QueryConfig,
 		aliases: QueryDao.Aliases,
-		join: Query.SelfJoin[JID, JT, FID, FT, QID, QPC, QT]
+		join: SelfJoin[JID, JT, FID, FT, QID, QPC, QT]
 		) = {
-		val jEntity = join.entity
-		val jTable = jEntity.tpe.table
+		val jEntity = join.entityAlias
+		val jTable = jEntity.entity.tpe.table
 		val qAlias = aliases(jEntity)
 
-		val e = queryExpressions(aliases, join.on.ons.get.clauses)
+		val e = queryExpressions(aliases, join.ons.get)
 		val j = new driver.sqlBuilder.InnerJoinBuilder(driver.sqlBuilder.Table(jTable.schemaName, queryConfig.schemaModifications, jTable.name, qAlias, null))
 		j(e)
 		j

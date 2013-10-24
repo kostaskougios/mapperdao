@@ -5,6 +5,7 @@ import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.jdbc.Batch
 import com.googlecode.mapperdao.schema.{PK, SimpleColumn, ColumnBase, Column}
+import com.googlecode.mapperdao.queries.v2.QueryInfo
 
 /**
  * @author kostantinos.kougios
@@ -36,7 +37,7 @@ class Oracle(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: Ty
 		case PK(_, columnName, true, sequence, _) => "%s.nextval".format(sequence.get)
 	}
 
-	override def beforeStartOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T], columns: List[SimpleColumn]) =
+	override def beforeStartOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], columns: List[SimpleColumn]) =
 		if (queryConfig.offset.isDefined || queryConfig.limit.isDefined) {
 			val nq = new sqlBuilder.SqlSelectBuilder
 			nq.columnNames(null, List("*"))
@@ -54,7 +55,7 @@ class Oracle(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: Ty
 	private val rn = Column(null, "rn$", classOf[Long])
 	private val rownum = Column(null, "rownum", classOf[Long])
 
-	override def endOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]) =
+	override def endOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T]) =
 		if (queryConfig.offset.isDefined || queryConfig.limit.isDefined) {
 			val offset = queryConfig.offset.getOrElse(0l)
 

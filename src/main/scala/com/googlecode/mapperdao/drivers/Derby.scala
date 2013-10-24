@@ -5,6 +5,7 @@ import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.jdbc.Batch
 import com.googlecode.mapperdao.schema.{PK, SimpleColumn, ColumnBase}
+import com.googlecode.mapperdao.queries.v2.QueryInfo
 
 /**
  * @author kostantinos.kougios
@@ -37,7 +38,7 @@ class Derby(override val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeMan
 		case PK(_, columnName, true, sequence, _) => "NEXT VALUE FOR %s".format(sequence.get)
 	}
 
-	override def endOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]) = {
+	override def endOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T]) = {
 		queryConfig.offset.foreach(o => q.appendSql("offset " + o + " rows"))
 		queryConfig.limit.foreach(l => q.appendSql("fetch next " + l + " rows only"))
 		q

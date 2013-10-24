@@ -8,6 +8,7 @@ import org.joda.time.{Duration, Period}
 import org.postgresql.util.PGInterval
 import java.sql.BatchUpdateException
 import com.googlecode.mapperdao.schema.{PK, ColumnBase}
+import com.googlecode.mapperdao.queries.v2.QueryInfo
 
 /**
  * @author kostantinos.kougios
@@ -34,7 +35,7 @@ class PostgreSql(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager
 		case PK(_, columnName, true, sequence, _) => "NEXTVAL('%s')".format(sequence.get)
 	}
 
-	override def endOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: Query.Builder[ID, PC, T]) = {
+	override def endOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T]) = {
 		queryConfig.offset.foreach(o => q.appendSql("offset " + o))
 		queryConfig.limit.foreach(l => q.appendSql("limit " + l))
 		q
