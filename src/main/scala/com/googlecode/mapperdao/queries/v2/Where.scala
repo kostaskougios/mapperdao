@@ -10,6 +10,7 @@ class Where[ID, PC <: Persisted, T](private[mapperdao] val queryInfo: QueryInfo[
 	extends WithQueryInfo[ID, PC, T]
 	with WhereBooleanOps[ID, PC, T]
 	with WithOrderBy[ID, PC, T]
+	with Execution[ID, PC, T]
 {
 	def apply(op: OpBase) = {
 		if (queryInfo.wheres.isDefined) throw new IllegalStateException("already defined a where clause, use and() or or()")

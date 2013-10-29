@@ -52,11 +52,12 @@ class BlobSuite extends FunSuite with Matchers
 
 			import Query._
 
-			val l = (
+			val q = (
 				select
 					from ie
-					orderBy(ie.id, asc)
-				).toList(queryDao)
+					order by(ie.id, asc)
+				)
+			val l = q.toList(queryDao)
 
 			l.head.data.toList should be === im1.data.toList
 			l.tail.head.data.toList should be === im2.data.toList

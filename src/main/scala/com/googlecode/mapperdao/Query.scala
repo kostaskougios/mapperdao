@@ -65,6 +65,9 @@ with SqlOneToOneImplicitConvertions
 	// used on "order by" clauses
 	val by = new
 		{
+			def apply[ID, PC <: Persisted, T](column: AliasColumn[_]): List[(AliasColumn[_], AscDesc)] =
+				List((column, asc))
+
 			def apply[ID, PC <: Persisted, T](column: AliasColumn[_], ascDesc: AscDesc): List[(AliasColumn[_], AscDesc)] =
 				List((column, ascDesc))
 

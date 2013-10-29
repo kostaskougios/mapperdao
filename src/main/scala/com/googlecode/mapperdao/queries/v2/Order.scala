@@ -9,8 +9,8 @@ import com.googlecode.mapperdao.Query.AscDesc
  */
 class Order[ID, PC <: Persisted, T](private val qi: QueryInfo[ID, T])
 {
-	def apply(obs: List[(AliasColumn[_], AscDesc)]): WithQueryInfo[ID, PC, T] = new WithQueryInfo[ID, PC, T]
+	def apply(obs: List[(AliasColumn[_], AscDesc)]) = new Execution[ID, PC, T]
 	{
-		val queryInfo = qi.copy(order = obs ::: qi.order)
+		private[mapperdao] val queryInfo = qi.copy(order = obs ::: qi.order)
 	}
 }

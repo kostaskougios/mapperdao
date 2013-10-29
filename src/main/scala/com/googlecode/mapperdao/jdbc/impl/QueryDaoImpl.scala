@@ -46,14 +46,14 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		queryInner(queryConfig, qi.entityAlias, r.sql, r.values)
 	}
 
-	def lowLevelQuery[ID, PC <: Persisted, T](queryConfig: QueryConfig, entityAlias: Alias[ID, T], sql: String, args: List[Any]): List[T with PC] =
-		queryInner(queryConfig, entityAlias, sql, args)
+	def lowLevelQuery[ID, PC <: Persisted, T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], sql: String, args: List[Any]): List[T with PC] =
+		queryInner(queryConfig, Alias(entity), sql, args)
 
 	private def queryInner[ID, PC <: Persisted, T](queryConfig: QueryConfig, entityAlias: Alias[ID, T], sql: String, args: List[Any]) = {
 		try {
 			val lm = driver.queryForList(queryConfig, entityAlias.entity.tpe, sql, args)
 
-			lowLevelValuesToEntities(queryConfig, entityAlias, lm)
+			executeQuery(queryConfig, entityAlias, lm)
 		} catch {
 			case e: Throwable =>
 				val extra = "\n------\nThe query:%s\nThe arguments:%s\n------\n".format(sql, args)
@@ -62,8 +62,11 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		}
 	}
 
-	def lowLevelValuesToEntities[ID, PC <: Persisted, T](queryConfig: QueryConfig, entityAlias: Alias[ID, T], values: List[DatabaseValues]): List[T with PC] =
+	def lowLevelValuesToEntities[ID, PC <: Persisted, T](queryConfig: QueryConfig, entity: Entity[ID, PC, T], values: List[DatabaseValues]): List[T with PC] =
 		queryConfig.multi.runStrategy.run(mapperDao, entity, queryConfig, values).asInstanceOf[List[T with PC]]
+
+	private def executeQuery[ID, PC <: Persisted, T](queryConfig: QueryConfig, entityAlias: Alias[ID, T], values: List[DatabaseValues]): List[T with PC] =
+		queryConfig.multi.runStrategy.run(mapperDao, entityAlias.entity, queryConfig, values).asInstanceOf[List[T with PC]]
 
 	def count[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: QueryInfo[ID, T]): Long = {
 		if (qe == null) throw new NullPointerException("qe can't be null")
@@ -454,7 +457,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	 * aggregate methods
 	 * =====================================================================================
 	 */
-	private def countSql[ID, PC <: Persisted, T](queryConfig: QueryConfig, q: driver.sqlBuilder.SqlSelectBuilder, aliases: QueryDao.Aliases, entity: Entity[ID, PC, T]) {
+	private def countSql[ID, PC <: Persisted, T](queryConfig: QueryConfig, q: driver.sqlBuilder.SqlSelectBuilder, aliases: QueryDao.Aliases, entity: EntityBase[ID, T]) {
 		val table = entity.tpe.table
 		val alias = aliases(entity)
 		q.columnNames(null, List("count(*)"))

@@ -11,3 +11,4 @@ class AfterFrom[ID, PC <: Persisted, T](private[mapperdao] val queryInfo: QueryI
 	with WithWhere[ID, PC, T]
 	with WithJoin[ID, PC, T]
 	with WithOrderBy[ID, PC, T]
+	with Execution[ID, PC, T]
