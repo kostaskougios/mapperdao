@@ -23,14 +23,14 @@ class QueryPhaseCommonSuite extends FunSuite with Matchers
 
 	test("main table") {
 		val qp = new QueryPhase
-		val q = qp.toQuery(query1)
+		val q = qp.toQuery(query1.queryInfo)
 
 		q.from should be(From(maint))
 	}
 
 	test("where clause") {
 		val qp = new QueryPhase
-		val q = qp.toQuery(query1)
+		val q = qp.toQuery(query1.queryInfo)
 		q.where should be(WhereValueComparisonClause(Column(maint, "id"), "=", "?"))
 	}
 }

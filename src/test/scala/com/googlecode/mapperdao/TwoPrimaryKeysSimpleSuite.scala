@@ -74,7 +74,7 @@ class TwoPrimaryKeysSimpleSuite extends FunSuite with Matchers
 
 		import Query._
 		queryDao.query(select from u where
-			u.surname === "Kougios" or u.name === "Kostas" orderBy(u.name, u.surname)) should be === List(u0, u4, u2)
+			u.surname === "Kougios" or u.name === "Kostas" order by(u.name, asc, u.surname, asc)) should be === List(u0, u4, u2)
 	}
 
 	def createTables = {

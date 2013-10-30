@@ -26,6 +26,8 @@ case class AliasColumn[V](column: SimpleColumn, symbol: Option[Symbol] = None)
 
 	def <>(v: V) = new Operation(this, NE, v)
 
+	def <>(v: AliasColumn[V]) = new ColumnOperation(this, NE, v)
+
 	def <=(v: V) = new Operation(this, LE, v)
 
 	def <=(v: AliasColumn[V]) = new ColumnOperation(this, LE, v)
@@ -35,4 +37,6 @@ case class AliasColumn[V](column: SimpleColumn, symbol: Option[Symbol] = None)
 	def ===(v: AliasColumn[V]) = new ColumnOperation(this, EQ, v) with EqualityOperation
 
 	def like(v: V) = new Operation(this, LIKE, v)
+
+	def like(v: AliasColumn[V]) = new ColumnOperation(this, LIKE, v)
 }

@@ -104,7 +104,7 @@ class UseCaseManyToManyForTraitSuite extends FunSuite with Matchers
 					join(cle, cle.people, p)
 					where
 					(cle.companies === company2) or (p.name === "nick")
-					orderBy (cle.name)
+					order by(cle.name)
 				).toList(queryDao)
 			r should be === List(inserted1, inserted2, inserted2, inserted2)
 		}

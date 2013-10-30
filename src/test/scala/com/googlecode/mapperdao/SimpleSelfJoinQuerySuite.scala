@@ -41,12 +41,11 @@ class SimpleSelfJoinQuerySuite extends FunSuite with Matchers
 		// main table
 		val jp1 = JobPositionEntity
 		// alias of same table
-		val jp2 = new JobPositionEntityBase
 
 		select from jp1 join
-			jp2 on
-			jp1.name === jp2.name and
-			jp1.id <> jp2.id
+			(JobPositionEntity as 'jp) on
+			jp1.name ===('jp, jp1.name) and
+			jp1.id <>('jp, jp1.id)
 	}
 
 	case class JobPosition(id: Int, var name: String, start: DateTime)

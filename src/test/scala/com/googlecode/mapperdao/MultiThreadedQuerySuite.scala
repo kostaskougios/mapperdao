@@ -39,7 +39,7 @@ class MultiThreadedQuerySuite extends FunSuite with Matchers
 			import Query._
 			val loaded = queryDao.query(
 				QueryConfig(multi = MultiThreadedConfig.Multi),
-				select from ProductEntity orderBy(ProductEntity.name, desc)
+				select from ProductEntity order by(ProductEntity.name, desc)
 			)
 			val dt = System.currentTimeMillis - start
 			println("dt: " + dt)

@@ -30,7 +30,6 @@ class UseCasePersonAndRolesSuite extends FunSuite with Matchers
 		val spr = SinglePartyRoleEntity
 		val rte = RoleTypeEntity
 		val ipr = InterPartyRelationshipEntity
-		val ipr1 = new InterPartyRelationshipEntityBase
 
 		// test data
 		val roleType1 = RoleType("Scala Developer", Some("A Scala Software Developer"))
@@ -90,7 +89,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with Matchers
 			val q = (
 				select
 					from ipr
-					join ipr1 on ipr.from === ipr1.to
+					join (ipr as 'ipr) on ipr.from ===('ipr, ipr.to)
 					where ipr.to === person1
 				)
 			val r = q.toList(queryDao)
@@ -108,7 +107,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with Matchers
 			val q = (
 				select
 					from ipr
-					join ipr1 on ipr.from <> ipr1.to
+					join (ipr as 'ipr) on ipr.from <>('ipr, ipr.to)
 					where ipr.to === person1
 				)
 			val r = q.toList(queryDao)

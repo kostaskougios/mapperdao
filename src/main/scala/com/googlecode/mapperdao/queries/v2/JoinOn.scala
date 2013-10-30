@@ -6,7 +6,11 @@ import com.googlecode.mapperdao.{OrOp, AndOp, OpBase, Persisted}
  * @author: kostas.kougios
  *          Date: 27/09/13
  */
-case class JoinOn[ID, PC <: Persisted, T](queryInfo: QueryInfo[ID, T]) extends WithQueryInfo[ID, PC, T] with WithWhere[ID, PC, T]
+case class JoinOn[ID, PC <: Persisted, T](queryInfo: QueryInfo[ID, T])
+	extends WithQueryInfo[ID, PC, T]
+	with WithWhere[ID, PC, T]
+	with WithJoin[ID, PC, T]
+	with WithOrderBy[ID, PC, T]
 {
 	private def joinList(op: OpBase) = {
 		val j = queryInfo.joins.head match {

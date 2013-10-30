@@ -23,7 +23,7 @@ class OpsSuite extends FunSuite with Matchers
 	val nameIsXX = Operation(AliasColumn(pe.name.column), EQ, "xx")
 	val idIs5 = Operation(AliasColumn(pe.id.column), EQ, 5)
 
-	import Query2._
+	import com.googlecode.mapperdao.Query._
 
 	test("equality to value") {
 		(pe.name === "x") should be(nameIsX)

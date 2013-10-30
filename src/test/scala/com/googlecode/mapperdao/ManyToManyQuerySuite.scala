@@ -128,7 +128,7 @@ class ManyToManyQuerySuite extends FunSuite with Matchers
 		val result = (
 			select from p
 				join(p, p.attributes, attr)
-				orderBy(attr.value, asc, p.id, desc)
+				order by(attr.value, asc, p.id, desc)
 			).toList
 		result should be === List(p3, p1, p1, p3, p2, p4, p2)
 	}
@@ -171,7 +171,7 @@ class ManyToManyQuerySuite extends FunSuite with Matchers
 						name varchar(100) not null,
 						primary key(id)
 					)
-		             """)
+					 """)
 		jdbc.update( """
 					create table Attribute (
 						id int not null,
@@ -179,14 +179,14 @@ class ManyToManyQuerySuite extends FunSuite with Matchers
 						value varchar(100) not null,
 						primary key(id)
 					)
-		             """)
+					 """)
 		jdbc.update( """
 					create table Product_Attribute (
 						product_id int not null,
 						attribute_id int not null,
 						primary key(product_id,attribute_id)
 					)
-		             """)
+					 """)
 	}
 
 	case class Product(id: Int, name: String, attributes: Set[Attribute])

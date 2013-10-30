@@ -26,7 +26,7 @@ class ManyToManySuite extends FunSuite with Matchers
 		inserted should be(p1 :: p2 :: Nil)
 
 		import Query._
-		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1 :: p2 :: Nil)
+		(select from ProductEntity order by(ProductEntity.id)).toList(queryDao) should be(p1 :: p2 :: Nil)
 	}
 
 	test("batch update on inserted") {
@@ -45,7 +45,7 @@ class ManyToManySuite extends FunSuite with Matchers
 		val updated = mapperDao.updateBatch(UpdateConfig.default, ProductEntity, (i1, p1u) ::(i2, p2u) :: Nil)
 		updated should be(p1u :: p2u :: Nil)
 		import Query._
-		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1u :: p2u :: Nil)
+		(select from ProductEntity order by(ProductEntity.id)).toList(queryDao) should be(p1u :: p2u :: Nil)
 	}
 
 	test("batch update on selected") {
@@ -67,7 +67,7 @@ class ManyToManySuite extends FunSuite with Matchers
 		val updated = mapperDao.updateBatch(UpdateConfig.default, ProductEntity, (i1, p1u) ::(i2, p2u) :: Nil)
 		updated should be(p1u :: p2u :: Nil)
 		import Query._
-		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1u :: p2u :: Nil)
+		(select from ProductEntity order by(ProductEntity.id)).toList(queryDao) should be(p1u :: p2u :: Nil)
 	}
 
 	test("multiple entities, with existing") {
@@ -84,13 +84,13 @@ class ManyToManySuite extends FunSuite with Matchers
 		inserted should be(p1 :: p2 :: Nil)
 
 		import Query._
-		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1 :: p2 :: Nil)
+		(select from ProductEntity order by(ProductEntity.id)).toList(queryDao) should be(p1 :: p2 :: Nil)
 
 		val p1u = p1.copy(name = "b jeans", attributes = Set(a1))
 		val p2u = p2.copy(name = "g jeans", attributes = Set(a2))
 		val updated = mapperDao.updateBatch(UpdateConfig.default, ProductEntity, (inserted.head, p1u) ::(inserted.tail.head, p2u) :: Nil)
 		updated should be(p1u :: p2u :: Nil)
-		(select from ProductEntity orderBy (ProductEntity.id)).toList(queryDao) should be(p1u :: p2u :: Nil)
+		(select from ProductEntity order by(ProductEntity.id)).toList(queryDao) should be(p1u :: p2u :: Nil)
 	}
 
 	if (Setup.database != "derby") {

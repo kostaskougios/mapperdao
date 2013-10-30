@@ -45,7 +45,7 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with Matchers
 				postcode varchar(8) not null,
 				primary key (id)
 			)
-		             """)
+					 """)
 		jdbc.update( """
 			create table House (
 				id int not null,
@@ -54,7 +54,7 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with Matchers
 				primary key (id),
 				foreign key (address_id) references Address(id) on delete cascade
 			)
-		             """)
+					 """)
 		jdbc.update( """
 			create table Person (
 				id int not null,
@@ -63,7 +63,7 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with Matchers
 				primary key (id),
 				foreign key (lives_id) references House(id) on delete cascade
 			)
-		             """)
+					 """)
 	}
 }
 
@@ -79,11 +79,10 @@ object ManyToOneSelfJoinQuerySuite
 
 		val q0 = {
 			val ho1 = HouseEntity
-			val ho2 = new HouseEntityBase
 			(
 				select from pe
 					join(pe, pe.lives, ho1)
-					join ho2 on ho1.name <> ho2.name and ho2.id === 11
+					join (HouseEntity as 'he) on ho1.name <>('he, ho1.name) and ('he, ho1.id) === 11
 				)
 		}
 	}

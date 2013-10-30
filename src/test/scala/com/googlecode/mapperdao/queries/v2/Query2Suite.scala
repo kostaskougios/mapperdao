@@ -24,15 +24,15 @@ class Query2Suite extends FunSuite with Matchers
 	val companyNameIsY = Operation(AliasColumn(ce.name.column), EQ, "y")
 
 	test("select from") {
-		import Query2._
+		import com.googlecode.mapperdao.Query._
 
 		val q = select from pe
 		val qi = q.queryInfo
-		qi.entity should be(Alias(pe, Some('maint)))
+		qi.entityAlias should be(Alias(pe, Some('maint)))
 	}
 
 	test("where") {
-		import Query2._
+		import com.googlecode.mapperdao.Query._
 
 		val q = (
 			select
@@ -44,7 +44,7 @@ class Query2Suite extends FunSuite with Matchers
 	}
 
 	test("and") {
-		import Query2._
+		import com.googlecode.mapperdao.Query._
 
 		val q = (
 			select
@@ -56,7 +56,7 @@ class Query2Suite extends FunSuite with Matchers
 	}
 
 	test("or") {
-		import Query2._
+		import com.googlecode.mapperdao.Query._
 
 		val q = (
 			select
@@ -68,7 +68,7 @@ class Query2Suite extends FunSuite with Matchers
 	}
 
 	test("operation presidence") {
-		import Query2._
+		import com.googlecode.mapperdao.Query._
 
 		val q = (
 			select
@@ -80,7 +80,7 @@ class Query2Suite extends FunSuite with Matchers
 	}
 
 	test("join") {
-		import Query2._
+		import com.googlecode.mapperdao.Query._
 
 		val q = (
 			select
@@ -88,12 +88,12 @@ class Query2Suite extends FunSuite with Matchers
 				join(pe, pe.company, ce)
 			)
 		val qi = q.queryInfo
-		qi.entity should be(Alias(pe, 'maint))
+		qi.entityAlias should be(Alias(pe, 'maint))
 		qi.joins should be(List(InnerJoin(Alias(pe), pe.company, Alias(ce))))
 	}
 
 	test("join with where") {
-		import Query2._
+		import com.googlecode.mapperdao.Query._
 
 		val q = (
 			select
@@ -102,13 +102,13 @@ class Query2Suite extends FunSuite with Matchers
 				where pe.name === "x"
 			)
 		val qi = q.queryInfo
-		qi.entity should be(Alias(pe, 'maint))
+		qi.entityAlias should be(Alias(pe, 'maint))
 		qi.joins should be(List(InnerJoin(Alias(pe), pe.company, Alias(ce))))
 		qi.wheres.get should be(nameIsX)
 	}
 
 	test("alias and self join") {
-		import Query2._
+		import com.googlecode.mapperdao.Query._
 
 		val q = (
 			select
@@ -123,7 +123,7 @@ class Query2Suite extends FunSuite with Matchers
 	}
 
 	test("order by, no where clause") {
-		import Query2._
+		import com.googlecode.mapperdao.Query._
 
 		val q = select from pe order by(pe.name, asc)
 		val qi = q.queryInfo
@@ -131,7 +131,7 @@ class Query2Suite extends FunSuite with Matchers
 	}
 
 	test("order by") {
-		import Query2._
+		import com.googlecode.mapperdao.Query._
 
 		val q = select from pe where (pe.name === "x") order by(pe.name, asc)
 		val qi = q.queryInfo
@@ -139,7 +139,7 @@ class Query2Suite extends FunSuite with Matchers
 	}
 
 	test("order by 2 clauses") {
-		import Query2._
+		import com.googlecode.mapperdao.Query._
 
 		val q = select from pe where (pe.name === "x") order by(pe.name, asc, pe.id, desc)
 		val qi = q.queryInfo
@@ -147,7 +147,7 @@ class Query2Suite extends FunSuite with Matchers
 	}
 
 	test("extend where") {
-		import Query2._
+		import com.googlecode.mapperdao.Query._
 
 		val qm = (
 			select
@@ -157,12 +157,12 @@ class Query2Suite extends FunSuite with Matchers
 
 		val q = extend(qm) and pe.id === 5
 		val qi = q.queryInfo
-		qi.entity should be(Alias(pe, 'maint))
+		qi.entityAlias should be(Alias(pe, 'maint))
 		qi.wheres should be(Some(AndOp(nameIsX, idIs5)))
 	}
 
 	test("extend join") {
-		import Query2._
+		import com.googlecode.mapperdao.Query._
 
 		val qm = (
 			select
@@ -173,13 +173,13 @@ class Query2Suite extends FunSuite with Matchers
 		val q1 = extend(qm) join(pe, pe.company, ce)
 		val q = extend(q1) and ce.name === "y"
 		val qi = q.queryInfo
-		qi.entity should be(Alias(pe, 'maint))
+		qi.entityAlias should be(Alias(pe, 'maint))
 		qi.joins should be(List(InnerJoin(Alias(pe), pe.company, Alias(ce))))
 		qi.wheres should be(Some(AndOp(nameIsX, companyNameIsY)))
 	}
 
 	test("function") {
-		import Query2._
+		import com.googlecode.mapperdao.Query._
 		import StdSqlFunctions._
 
 		val qm = (

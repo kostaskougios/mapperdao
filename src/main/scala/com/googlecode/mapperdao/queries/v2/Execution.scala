@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao.queries.v2
 
-import com.googlecode.mapperdao.{QueryDao, Persisted}
+import com.googlecode.mapperdao.{QueryConfig, QueryDao, Persisted}
 
 /**
  * @author: kostas.kougios
@@ -8,7 +8,11 @@ import com.googlecode.mapperdao.{QueryDao, Persisted}
  */
 trait Execution[ID, PC <: Persisted, T] extends WithQueryInfo[ID, PC, T]
 {
-	def toSet(queryDao: QueryDao) = queryDao.query(this).toSet
+	def toSet(queryConfig: QueryConfig)(implicit queryDao: QueryDao): Set[T with PC] = queryDao.query(queryConfig, this).toSet
 
-	def toList(queryDao: QueryDao) = queryDao.query(this)
+	def toSet(implicit queryDao: QueryDao): Set[T with PC] = queryDao.query(this).toSet
+
+	def toList(queryConfig: QueryConfig)(implicit queryDao: QueryDao): List[T with PC] = queryDao.query(queryConfig, this)
+
+	def toList(implicit queryDao: QueryDao): List[T with PC] = queryDao.query(this)
 }

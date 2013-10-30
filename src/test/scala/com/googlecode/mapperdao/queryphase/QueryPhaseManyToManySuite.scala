@@ -40,7 +40,7 @@ class QueryPhaseManyToManySuite extends FunSuite with Matchers
 
 	test("joins") {
 		val qp = new QueryPhase
-		val q = qp.toQuery(query1)
+		val q = qp.toQuery(query1.queryInfo)
 		val pat = InQueryTable(Table(ProductEntity.attributes.column.linkTable), "a1")
 		val att = InQueryTable(Table(AttributeEntity.tpe.table), "a2")
 		q.joins(0) should be(

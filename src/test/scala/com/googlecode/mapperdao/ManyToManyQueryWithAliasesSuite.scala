@@ -43,13 +43,14 @@ class ManyToManyQueryWithAliasesSuite extends FunSuite with Matchers
 			val a1 = new AttributeEntityBase
 			val a2 = new AttributeEntityBase
 
-			select from p join
+			(select from p join
 				(p, p.attributes, attr) join
 				(p, p1.attributes, a1) join
 				(p, p2.attributes, a2) where
 				(attr.name === "size" and attr.value === "46'") and
 				(a1.name === "colour" and a1.value === "white") and
 				(a2.name === "dimensions" and a2.value === "100x100")
+				)
 		}
 
 		queryDao.query(q0).toSet should be === Set(p2)
@@ -63,7 +64,7 @@ class ManyToManyQueryWithAliasesSuite extends FunSuite with Matchers
 						name varchar(100) not null,
 						primary key(id)
 					)
-		             """)
+					 """)
 		jdbc.update( """
 					create table Attribute (
 						id int not null,
@@ -71,14 +72,14 @@ class ManyToManyQueryWithAliasesSuite extends FunSuite with Matchers
 						value varchar(100) not null,
 						primary key(id)
 					)
-		             """)
+					 """)
 		jdbc.update( """
 					create table Product_Attribute (
 						product_id int not null,
 						attribute_id int not null,
 						primary key(product_id,attribute_id)
 					)
-		             """)
+					 """)
 	}
 }
 

@@ -271,7 +271,7 @@ class SimpleQuerySuite extends FunSuite with Matchers
 
 	def qWithLimit = select from jpe
 
-	def qWithLimitAndOrderBy = select from jpe orderBy(jpe.id, desc)
+	def qWithLimitAndOrderBy = select from jpe order by(jpe.id, desc)
 
 	def q1 = select from jpe where jpe.name === "Scala Developer"
 
@@ -302,19 +302,19 @@ class SimpleQuerySuite extends FunSuite with Matchers
 		val q = select from jpe where jpe.id === 1
 		q or jpe.id === 2
 		q or (jpe.id === 5 or jpe.id === 6)
-		q orderBy(jpe.id, desc)
+		q order by(jpe.id, desc)
 		q
 	}
 
-	def qOrderBy1 = select from jpe orderBy jpe.name
+	def qOrderBy1 = select from jpe order by(jpe.name)
 
-	def qOrderBy2Alias1 = select from jpe orderBy((jpe.name, asc), (jpe.start, asc))
+	def qOrderBy2Alias1 = select from jpe order by(jpe.name, asc, jpe.start, asc)
 
-	def qOrderBy2Alias2 = select from jpe orderBy(jpe.name, asc, jpe.start, asc)
+	def qOrderBy2Alias2 = select from jpe order by(jpe.name, asc, jpe.start, asc)
 
-	def qOrderBy3Alias1 = select from jpe orderBy((jpe.name, desc), (jpe.start, asc))
+	def qOrderBy3Alias1 = select from jpe order by(jpe.name, desc, jpe.start, asc)
 
-	def qOrderBy3Alias2 = select from jpe orderBy(jpe.name, desc, jpe.start, asc)
+	def qOrderBy3Alias2 = select from jpe order by(jpe.name, desc, jpe.start, asc)
 
 	case class JobPosition(id: Int, var name: String, start: DateTime)
 
