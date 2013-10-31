@@ -1,11 +1,10 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.schema._
-import com.googlecode.mapperdao.schema.ManyToOne
 import com.googlecode.mapperdao.schema.OneToOne
 import com.googlecode.mapperdao.schema.OneToOneReverse
 import com.googlecode.mapperdao.schema.OneToMany
-import com.googlecode.mapperdao.queries.v2.AliasColumn
+import com.googlecode.mapperdao.queries.v2.{AliasRelationshipColumn, AliasColumn}
 
 sealed abstract class Operand
 {
@@ -69,9 +68,18 @@ case class ColumnOperation[V](left: AliasColumn[V], operand: Operand, right: Ali
 trait EqualityOperation
 
 case class ManyToOneOperation[FID, F, V](
-	left: ManyToOne[FID, F],
+	left: AliasRelationshipColumn[FID, F],
 	operand: Operand,
 	right: V
+	) extends OpBase
+{
+	override def toString = "%s %s %s".format(left, operand, right)
+}
+
+case class ManyToOneColumnOperation[FID, F](
+	left: AliasRelationshipColumn[FID, F],
+	operand: Operand,
+	right: AliasRelationshipColumn[FID, F]
 	) extends OpBase
 {
 	override def toString = "%s %s %s".format(left, operand, right)

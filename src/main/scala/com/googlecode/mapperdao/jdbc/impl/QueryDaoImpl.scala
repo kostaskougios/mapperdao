@@ -217,7 +217,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 			case ManyToOneOperation(left, operand, right) =>
 				val exprs = right match {
 					case null =>
-						left.columns map {
+						left.column.columns map {
 							c =>
 								val r = operand match {
 									case EQ => "null"
@@ -227,7 +227,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 								driver.sqlBuilder.NonValueClause(aliases(c), c.name, "is", null, r)
 						}
 					case ManyToOne(_, columns, foreign) =>
-						left.columns zip columns map {
+						left.column.columns zip columns map {
 							case (l, r) =>
 								new driver.sqlBuilder.ColumnAndColumnClause(
 									aliases(l), l,
@@ -236,13 +236,13 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 								)
 						}
 					case _ =>
-						val fTpe = left.foreign.entity.tpe
+						val fTpe = left.column.foreign.entity.tpe
 
 						val fPKs =
 							fTpe.table.toListOfPrimaryKeyValues(right) ::: fTpe.table.toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(right)
 
-						if (left.columns.size != fPKs.size) throw new IllegalStateException("foreign keys %s don't match foreign key columns %s".format(fPKs, left.columns))
-						left.columns zip fPKs map {
+						if (left.column.columns.size != fPKs.size) throw new IllegalStateException("foreign keys %s don't match foreign key columns %s".format(fPKs, left.column.columns))
+						left.column.columns zip fPKs map {
 							case (c, v) =>
 								driver.sqlBuilder.Clause(aliases(c), c, operand.sql, v)
 						}

@@ -12,11 +12,10 @@ import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
 import com.googlecode.mapperdao.Operation
 import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
-import com.googlecode.mapperdao.ManyToOneOperation
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
 import com.googlecode.mapperdao.OneToManyDeclaredPrimaryKeyOperation
 import com.googlecode.mapperdao.OneToOneOperation
-import com.googlecode.mapperdao.queries.v2.AliasColumn
+import com.googlecode.mapperdao.queries.v2.{AliasRelationshipColumn, AliasColumn}
 
 /**
  * @author kostantinos.kougios
@@ -110,22 +109,11 @@ trait SqlManyToOneImplicitConvertions
 	/**
 	 * manages many-to-one expressions
 	 */
-	protected class ConvertorManyToOne[T, FID, F](ci: ColumnInfoManyToOne[T, FID, F])
-	{
-
-		def ===(v: F) = new ManyToOneOperation(ci.column, EQ, v) with EqualityOperation
-
-		def ===(v: ColumnInfoBase[T, F]) =
-			new ManyToOneOperation(ci.column, EQ, v.column) with EqualityOperation
-
-		def <>(v: F) = new ManyToOneOperation(ci.column, NE, v)
-
-		def <>(v: ColumnInfoBase[T, F]) =
-			new ManyToOneOperation(ci.column, NE, v.column)
-	}
-
 	implicit def columnInfoManyToOneOperation[T, FID, F](ci: ColumnInfoManyToOne[T, FID, F]) =
-		new ConvertorManyToOne(ci)
+		AliasRelationshipColumn[T, FID, F](ci, None)
+
+	implicit def columnInfoManyToOneOperation[T, FID, F](alias: (Symbol, ColumnInfoManyToOne[T, FID, F])) =
+		AliasRelationshipColumn(alias._2, Some(alias._1))
 }
 
 trait SqlOneToOneImplicitConvertions
