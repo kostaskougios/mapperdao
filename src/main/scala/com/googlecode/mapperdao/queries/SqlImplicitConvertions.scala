@@ -103,17 +103,16 @@ trait SqlImplicitConvertions
 	implicit def columnInfoToOperableJBoolean[T](ci: ColumnInfo[T, java.lang.Boolean]) = new Convertor(ci)
 }
 
+/**
+ * manages many-to-one expressions
+ */
 trait SqlManyToOneImplicitConvertions
 {
-
-	/**
-	 * manages many-to-one expressions
-	 */
 	implicit def columnInfoManyToOneOperation[T, FID, F](ci: ColumnInfoManyToOne[T, FID, F]) =
-		AliasRelationshipColumn[T, FID, F](ci, None)
+		AliasRelationshipColumn[T, FID, F](ci.column, None)
 
 	implicit def columnInfoManyToOneOperation[T, FID, F](alias: (Symbol, ColumnInfoManyToOne[T, FID, F])) =
-		AliasRelationshipColumn(alias._2, Some(alias._1))
+		AliasRelationshipColumn(alias._2.column, Some(alias._1))
 }
 
 trait SqlOneToOneImplicitConvertions

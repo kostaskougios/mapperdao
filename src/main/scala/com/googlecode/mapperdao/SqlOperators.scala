@@ -67,19 +67,19 @@ case class ColumnOperation[V](left: AliasColumn[V], operand: Operand, right: Ali
 
 trait EqualityOperation
 
-case class ManyToOneOperation[FID, F, V](
-	left: AliasRelationshipColumn[FID, F],
+case class ManyToOneOperation[T, FID, F](
+	left: AliasRelationshipColumn[T, FID, F],
 	operand: Operand,
-	right: V
+	right: F
 	) extends OpBase
 {
 	override def toString = "%s %s %s".format(left, operand, right)
 }
 
-case class ManyToOneColumnOperation[FID, F](
-	left: AliasRelationshipColumn[FID, F],
+case class ManyToOneColumnOperation[T, FID, F](
+	left: AliasRelationshipColumn[T, FID, F],
 	operand: Operand,
-	right: AliasRelationshipColumn[FID, F]
+	right: AliasRelationshipColumn[T, FID, F]
 	) extends OpBase
 {
 	override def toString = "%s %s %s".format(left, operand, right)

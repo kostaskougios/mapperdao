@@ -14,15 +14,18 @@ case class AliasRelationshipColumn[T, FID, F](column: ColumnRelationshipBase[FID
 	def ===(v: F) = new ManyToOneOperation(this, EQ, v) with EqualityOperation
 
 	def ===(v: ColumnInfoRelationshipBase[T, _, FID, F]) =
-		new ManyToOneColumnOperation(this, EQ, AliasRelationshipColumn(v.column)) with EqualityOperation
+		new ManyToOneColumnOperation(this, EQ, AliasRelationshipColumn[T, FID, F](v.column)) with EqualityOperation
 
 	def ===(aliasColumn: (Symbol, ColumnInfoRelationshipBase[T, _, FID, F])) = {
 		val (alias, v) = aliasColumn
-		new ManyToOneColumnOperation(this, EQ, AliasRelationshipColumn(v.column, alias)) with EqualityOperation
+		new ManyToOneColumnOperation(this, EQ, AliasRelationshipColumn[T, FID, F](v.column, Some(alias))) with EqualityOperation
 	}
 
-	def <>(v: F) = new ManyToOneOperation(leftAliasColumn, NE, v)
+	def <>(v: F) = new ManyToOneOperation(this, NE, v)
 
 	def <>(v: ColumnInfoRelationshipBase[T, _, FID, F]) =
-		new ManyToOneColumnOperation(this, NE, AliasRelationshipColumn(v.column))
+		new ManyToOneColumnOperation(this, NE, AliasRelationshipColumn[T, FID, F](v.column))
+
+	def <>(v: (Symbol, ColumnInfoRelationshipBase[T, _, FID, F])) =
+		new ManyToOneColumnOperation(this, NE, AliasRelationshipColumn[T, FID, F](v._2.column, Some(v._1)))
 }
