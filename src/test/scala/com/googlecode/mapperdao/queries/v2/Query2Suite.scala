@@ -196,4 +196,37 @@ class Query2Suite extends FunSuite with Matchers
 			)
 		)
 	}
+
+	test("many to one equality") {
+		import com.googlecode.mapperdao.Query._
+		val com1 = Company("x")
+		val q = (
+			select
+				from pe
+				where pe.company === com1
+			)
+		fail()
+	}
+
+	test("many to one equality, alias") {
+		import com.googlecode.mapperdao.Query._
+		val com1 = Company("x")
+		val q = (
+			select
+				from pe
+				where pe.company ===('x, com1)
+			)
+		fail()
+	}
+
+	test("many to one non-equal") {
+		import com.googlecode.mapperdao.Query._
+		val com1 = Company("x")
+		val q = (
+			select
+				from pe
+				where pe.company <> com1
+			)
+		fail()
+	}
 }
