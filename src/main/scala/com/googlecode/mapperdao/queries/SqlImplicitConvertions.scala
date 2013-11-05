@@ -115,12 +115,6 @@ trait SqlRelationshipImplicitConvertions
 		val (a, v) = alias
 		new AliasRelationshipColumn[T, FID, F](v.column, Some(a))
 	}
-
-	//	implicit def columnInfoManyToOneOperation[T, FID, F](ci: ColumnInfoManyToOne[T, FID, F]) =
-	//		AliasRelationshipColumn[T, FID, F](ci.column, None)
-
-	//	implicit def columnInfoManyToOneOperation[T, FID, F](alias: (Symbol, ColumnInfoManyToOne[T, FID, F])) =
-	//		AliasRelationshipColumn(alias._2.column, Some(alias._1))
 }
 
 trait SqlOneToOneImplicitConvertions

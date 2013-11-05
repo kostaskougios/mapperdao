@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao.queries.v2
 
-import com.googlecode.mapperdao.schema.{ColumnInfoRelationshipBase, ColumnRelationshipBase}
+import com.googlecode.mapperdao.schema.ColumnRelationshipBase
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.ManyToOneColumnOperation
 import com.googlecode.mapperdao.ManyToOneOperation
@@ -13,17 +13,11 @@ case class AliasRelationshipColumn[T, FID, F](column: ColumnRelationshipBase[FID
 {
 	def ===(v: F) = new ManyToOneOperation(this, EQ, v) with EqualityOperation
 
-	def ===(v: ColumnInfoRelationshipBase[T, _, FID, F]) =
-		new ManyToOneColumnOperation(this, EQ, AliasRelationshipColumn[T, FID, F](v.column)) with EqualityOperation
-
-	def ===(alias: Symbol, v: ColumnInfoRelationshipBase[T, _, FID, F]) =
-		new ManyToOneColumnOperation(this, EQ, AliasRelationshipColumn[T, FID, F](v.column, Some(alias))) with EqualityOperation
+	def ===(alias: AliasRelationshipColumn[T, FID, F]) =
+		new ManyToOneColumnOperation(this, EQ, alias) with EqualityOperation
 
 	def <>(v: F) = new ManyToOneOperation(this, NE, v)
 
-	def <>(v: ColumnInfoRelationshipBase[T, _, FID, F]) =
-		new ManyToOneColumnOperation(this, NE, AliasRelationshipColumn[T, FID, F](v.column))
-
-	def <>(v: (Symbol, ColumnInfoRelationshipBase[T, _, FID, F])) =
-		new ManyToOneColumnOperation(this, NE, AliasRelationshipColumn[T, FID, F](v._2.column, Some(v._1)))
+	def <>(alias: AliasRelationshipColumn[T, FID, F]) =
+		new ManyToOneColumnOperation(this, NE, alias)
 }

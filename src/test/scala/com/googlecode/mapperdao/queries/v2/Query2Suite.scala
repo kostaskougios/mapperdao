@@ -210,7 +210,11 @@ class Query2Suite extends FunSuite with Matchers
 				from pe
 				where pe.company === com1
 			)
-		fail()
+		q.queryInfo.wheres.get should be(ManyToOneOperation(
+			AliasRelationshipColumn[Person, Int, Company](pe.company.column),
+			EQ,
+			com1
+		))
 	}
 
 	test("many to one equality, alias") {
@@ -237,6 +241,10 @@ class Query2Suite extends FunSuite with Matchers
 				from pe
 				where pe.company <> com1
 			)
-		fail()
+		q.queryInfo.wheres.get should be(ManyToOneOperation(
+			AliasRelationshipColumn[Person, Int, Company](pe.company.column),
+			NE,
+			com1
+		))
 	}
 }
