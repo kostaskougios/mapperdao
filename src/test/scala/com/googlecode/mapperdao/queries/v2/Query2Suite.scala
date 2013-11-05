@@ -3,8 +3,13 @@ package com.googlecode.mapperdao.queries.v2
 import org.scalatest.{Matchers, FunSuite}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import com.googlecode.mapperdao.{OrOp, AndOp, EQ, Operation}
-import com.googlecode.mapperdao.sqlfunction.{SqlFunctionValue, SqlFunctionOp, StdSqlFunctions}
+import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.sqlfunction.{SqlFunctionValue, StdSqlFunctions}
+import com.googlecode.mapperdao.sqlfunction.SqlFunctionOp
+import com.googlecode.mapperdao.Operation
+import com.googlecode.mapperdao.AndOp
+import com.googlecode.mapperdao.OrOp
+import scala.Some
 
 /**
  * @author kkougios
@@ -210,13 +215,18 @@ class Query2Suite extends FunSuite with Matchers
 
 	test("many to one equality, alias") {
 		import com.googlecode.mapperdao.Query._
-		val com1 = Company("x")
 		val q = (
 			select
 				from pe
-				where pe.company ===('x, com1)
+				where pe.company ===('x, pe.company)
 			)
-		fail()
+		q.queryInfo.wheres.get should be(
+			ManyToOneColumnOperation(
+				AliasRelationshipColumn[Company, Int, Company](pe.company.column),
+				EQ,
+				AliasRelationshipColumn[Company, Int, Company](pe.company.column, Some('x))
+			)
+		)
 	}
 
 	test("many to one non-equal") {

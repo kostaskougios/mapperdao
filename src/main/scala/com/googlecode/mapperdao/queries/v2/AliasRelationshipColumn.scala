@@ -16,10 +16,8 @@ case class AliasRelationshipColumn[T, FID, F](column: ColumnRelationshipBase[FID
 	def ===(v: ColumnInfoRelationshipBase[T, _, FID, F]) =
 		new ManyToOneColumnOperation(this, EQ, AliasRelationshipColumn[T, FID, F](v.column)) with EqualityOperation
 
-	def ===(aliasColumn: (Symbol, ColumnInfoRelationshipBase[T, _, FID, F])) = {
-		val (alias, v) = aliasColumn
+	def ===(alias: Symbol, v: ColumnInfoRelationshipBase[T, _, FID, F]) =
 		new ManyToOneColumnOperation(this, EQ, AliasRelationshipColumn[T, FID, F](v.column, Some(alias))) with EqualityOperation
-	}
 
 	def <>(v: F) = new ManyToOneOperation(this, NE, v)
 
