@@ -8,7 +8,6 @@ import com.googlecode.mapperdao.OneToOneReverseOperation
 import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
 import com.googlecode.mapperdao.ManyToManyOperation
 import com.googlecode.mapperdao.OneToManyOperation
-import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
 import com.googlecode.mapperdao.Operation
 import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
@@ -106,13 +105,22 @@ trait SqlImplicitConvertions
 /**
  * manages many-to-one expressions
  */
-trait SqlManyToOneImplicitConvertions
+trait SqlRelationshipImplicitConvertions
 {
-	implicit def columnInfoManyToOneOperation[T, FID, F](ci: ColumnInfoManyToOne[T, FID, F]) =
-		AliasRelationshipColumn[T, FID, F](ci.column, None)
 
-	implicit def columnInfoManyToOneOperation[T, FID, F](alias: (Symbol, ColumnInfoManyToOne[T, FID, F])) =
-		AliasRelationshipColumn(alias._2.column, Some(alias._1))
+	implicit def relationshipColumnToAlias[T, FID, F](v: ColumnInfoRelationshipBase[T, _, FID, F]) =
+		new AliasRelationshipColumn[T, FID, F](v.column)
+
+	implicit def relationshipAliasColumnToAlias[T, FID, F](alias: (Symbol, ColumnInfoRelationshipBase[T, _, FID, F])) = {
+		val (a, v) = alias
+		new AliasRelationshipColumn[T, FID, F](v.column, Some(a))
+	}
+
+	//	implicit def columnInfoManyToOneOperation[T, FID, F](ci: ColumnInfoManyToOne[T, FID, F]) =
+	//		AliasRelationshipColumn[T, FID, F](ci.column, None)
+
+	//	implicit def columnInfoManyToOneOperation[T, FID, F](alias: (Symbol, ColumnInfoManyToOne[T, FID, F])) =
+	//		AliasRelationshipColumn(alias._2.column, Some(alias._1))
 }
 
 trait SqlOneToOneImplicitConvertions

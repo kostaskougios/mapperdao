@@ -31,7 +31,7 @@ import com.googlecode.mapperdao.queries.v2.AliasColumn
  *         15 Aug 2011
  */
 object Query extends SqlRelatedImplicitConvertions
-with SqlManyToOneImplicitConvertions
+with SqlRelationshipImplicitConvertions
 with SqlOneToOneImplicitConvertions
 {
 	def select = new From

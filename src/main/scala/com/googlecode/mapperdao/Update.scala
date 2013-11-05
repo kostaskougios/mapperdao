@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.queries.{SqlWhereMixins, SqlOneToOneImplicitConvertions, SqlManyToOneImplicitConvertions, SqlImplicitConvertions}
+import com.googlecode.mapperdao.queries.{SqlWhereMixins, SqlOneToOneImplicitConvertions, SqlRelationshipImplicitConvertions, SqlImplicitConvertions}
 
 
 /**
@@ -9,7 +9,7 @@ import com.googlecode.mapperdao.queries.{SqlWhereMixins, SqlOneToOneImplicitConv
  *         29 Oct 2012
  */
 object Update extends SqlImplicitConvertions
-with SqlManyToOneImplicitConvertions
+with SqlRelationshipImplicitConvertions
 with SqlOneToOneImplicitConvertions
 {
 

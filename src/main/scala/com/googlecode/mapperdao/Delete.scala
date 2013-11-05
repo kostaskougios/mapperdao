@@ -1,6 +1,6 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.queries.{SqlWhereMixins, SqlOneToOneImplicitConvertions, SqlManyToOneImplicitConvertions, SqlImplicitConvertions}
+import com.googlecode.mapperdao.queries.{SqlWhereMixins, SqlOneToOneImplicitConvertions, SqlRelationshipImplicitConvertions, SqlImplicitConvertions}
 
 /**
  * a DSL to delete data.
@@ -10,7 +10,7 @@ import com.googlecode.mapperdao.queries.{SqlWhereMixins, SqlOneToOneImplicitConv
  *         17 Oct 2012
  */
 object Delete extends SqlImplicitConvertions
-with SqlManyToOneImplicitConvertions
+with SqlRelationshipImplicitConvertions
 with SqlOneToOneImplicitConvertions
 {
 	def delete = From
