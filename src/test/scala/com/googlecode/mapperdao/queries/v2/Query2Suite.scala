@@ -247,4 +247,20 @@ class Query2Suite extends FunSuite with Matchers
 			com1
 		))
 	}
+
+	test("many to one non equality, alias") {
+		import com.googlecode.mapperdao.Query._
+		val q = (
+			select
+				from pe
+				where pe.company <>('x, pe.company)
+			)
+		q.queryInfo.wheres.get should be(
+			ManyToOneColumnOperation(
+				AliasRelationshipColumn[Company, Int, Company](pe.company.column),
+				NE,
+				AliasRelationshipColumn[Company, Int, Company](pe.company.column, Some('x))
+			)
+		)
+	}
 }

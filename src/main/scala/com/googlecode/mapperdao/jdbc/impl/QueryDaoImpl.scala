@@ -315,7 +315,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				}
 			case OneToManyDeclaredPrimaryKeyOperation(left, operand, right, foreignEntity) =>
 				val fTpe = foreignEntity.tpe
-				val fPKColumnAndValues = left.columns zip fTpe.table.toListOfPrimaryKeyValues(right)
+				val fPKColumnAndValues = left.column.columns zip fTpe.table.toListOfPrimaryKeyValues(right)
 				if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 				val exprs = fPKColumnAndValues.map {
 					case (c, v) =>

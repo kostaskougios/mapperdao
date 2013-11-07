@@ -30,9 +30,9 @@ import com.googlecode.mapperdao.queries.v2.AliasColumn
  *
  *         15 Aug 2011
  */
-object Query extends SqlRelatedImplicitConvertions
-with SqlRelationshipImplicitConvertions
-with SqlOneToOneImplicitConvertions
+object Query //extends SqlRelatedImplicitConvertions
+	extends SqlRelationshipImplicitConvertions
+	with SqlOneToOneImplicitConvertions
 {
 	def select = new From
 

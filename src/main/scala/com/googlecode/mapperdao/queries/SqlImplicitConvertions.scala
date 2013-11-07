@@ -14,7 +14,8 @@ import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
 import com.googlecode.mapperdao.OneToManyDeclaredPrimaryKeyOperation
 import com.googlecode.mapperdao.OneToOneOperation
-import com.googlecode.mapperdao.queries.v2.{AliasRelationshipColumn, AliasColumn}
+import com.googlecode.mapperdao.queries.v2.AliasColumn
+import com.googlecode.mapperdao.queries.v2.AliasRelationshipColumn
 
 /**
  * @author kostantinos.kougios
@@ -31,31 +32,31 @@ trait SqlImplicitConvertions
 	{
 		def >(v: V) = new Operation(AliasColumn(t.column), GT, v)
 
-		def >(v: ColumnInfo[_, V]) = new Operation(AliasColumn(t.column), GT, v.column)
+		def >(v: AliasColumn[V]) = new ColumnOperation(AliasColumn(t.column), GT, v)
 
 		def >=(v: V) = new Operation(AliasColumn(t.column), GE, v)
 
-		def >=(v: ColumnInfo[_, V]) = new ColumnOperation(AliasColumn(t.column), GE, AliasColumn(v.column))
+		def >=(v: AliasColumn[V]) = new ColumnOperation(AliasColumn(t.column), GE, v)
 
 		def <(v: V) = new Operation(AliasColumn(t.column), LT, v)
 
-		def <(v: ColumnInfo[_, V]) = new ColumnOperation(AliasColumn(t.column), LT, AliasColumn(v.column))
+		def <(v: AliasColumn[V]) = new ColumnOperation(AliasColumn(t.column), LT, v)
 
 		def <>(v: V) = new Operation(AliasColumn(t.column), NE, v)
 
-		def <>(v: ColumnInfo[_, V]) = new ColumnOperation(AliasColumn(t.column), NE, AliasColumn(v.column))
+		def <>(v: AliasColumn[V]) = new ColumnOperation(AliasColumn(t.column), NE, v)
 
 		def <=(v: V) = new Operation(AliasColumn(t.column), LE, v)
 
-		def <=(v: ColumnInfo[_, V]) = new Operation(AliasColumn(t.column), LE, v.column)
+		def <=(v: AliasColumn[V]) = new ColumnOperation(AliasColumn(t.column), LE, v)
 
 		def ===(v: V) = new Operation(AliasColumn(t.column), EQ, v) with EqualityOperation
 
-		def ===(v: ColumnInfo[_, V]) = new Operation(AliasColumn(t.column), EQ, v.column) with EqualityOperation
+		def ===(v: AliasColumn[V]) = new ColumnOperation(AliasColumn(t.column), EQ, v) with EqualityOperation
 
 		def like(v: V) = new Operation(AliasColumn(t.column), LIKE, v)
 
-		def like(v: ColumnInfo[_, V]) = new ColumnOperation(AliasColumn(t.column), LIKE, AliasColumn(v.column))
+		def like(v: AliasColumn[V]) = new ColumnOperation(AliasColumn(t.column), LIKE, v)
 	}
 
 	implicit def columnInfoToOperableString[T](ci: ColumnInfo[T, String]) = new Convertor(ci)
@@ -115,6 +116,18 @@ trait SqlRelationshipImplicitConvertions
 		val (a, v) = alias
 		new AliasRelationshipColumn[T, FID, F](v.column, Some(a))
 	}
+
+	protected class ConvertorOneToManyDeclaredPrimaryKey[FID, F, TID, T](alias: AliasRelationshipColumn[T, FID, F])
+	{
+		// ci.declaredColumnInfo.column
+		def ===(v: F) = new OneToManyDeclaredPrimaryKeyOperation[Any, T, FID, F](alias, EQ, v, alias.column.entity.asInstanceOf[EntityBase[Any, T]])
+
+		def <>(v: F) = new OneToManyDeclaredPrimaryKeyOperation(alias, NE, v, alias.column.entity.asInstanceOf[EntityBase[Any, T]])
+	}
+
+	implicit def columnInfoOneToManyForDeclaredPrimaryKeyOperation[FID, F, TID, T](alias: AliasRelationshipColumn[T, FID, F]) =
+		new ConvertorOneToManyDeclaredPrimaryKey[FID, F, TID, T](alias)
+
 }
 
 trait SqlOneToOneImplicitConvertions
@@ -133,6 +146,7 @@ trait SqlOneToOneImplicitConvertions
 	implicit def columnInfoOneToOneOperation[T, FID, F](ci: ColumnInfoOneToOne[T, FID, F]) = new ConvertorOneToOne[T, FID, F](ci)
 }
 
+@deprecated("use SqlRelationshipImplicitConvertions")
 trait SqlRelatedImplicitConvertions
 {
 
@@ -153,18 +167,18 @@ trait SqlRelatedImplicitConvertions
 		) = new ConvertorOneToMany(ci)
 
 	protected class ConvertorOneToManyDeclaredPrimaryKey[FID, F, TID, T](
-		ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[FID, F, TID, T]
+		alias: AliasRelationshipColumn[T, FID, F]
 		)
 	{
-		def ===(v: F) = new OneToManyDeclaredPrimaryKeyOperation(ci.declaredColumnInfo.column, EQ, v, ci.declaredColumnInfo.entityOfT)
+		def ===(v: F) = new OneToManyDeclaredPrimaryKeyOperation[Any, T, FID, F](alias, EQ, v, alias.column.entity.asInstanceOf[EntityBase[Any, T]])
 
-		def <>(v: F) = new OneToManyDeclaredPrimaryKeyOperation(ci.declaredColumnInfo.column, NE, v, ci.declaredColumnInfo.entityOfT)
+		def <>(v: F) = new OneToManyDeclaredPrimaryKeyOperation[Any, T, FID, F](alias, NE, v, alias.column.entity.asInstanceOf[EntityBase[Any, T]])
 	}
 
 	implicit def columnInfoOneToManyForDeclaredPrimaryKeyOperation[FID, F, TID, T](
 		ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[FID, F, TID, T]
 		) =
-		new ConvertorOneToManyDeclaredPrimaryKey[FID, F, TID, T](ci)
+		new ConvertorOneToManyDeclaredPrimaryKey[TID, T, FID, F](AliasRelationshipColumn(ci.declaredColumnInfo.column))
 
 	/**
 	 * manages many-to-many expressions

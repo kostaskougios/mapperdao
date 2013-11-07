@@ -97,10 +97,10 @@ case class OneToManyOperation[FID, F, V](
 }
 
 case class OneToManyDeclaredPrimaryKeyOperation[ID, T, FID, F](
-	left: OneToMany[FID, F],
+	left: AliasRelationshipColumn[T, FID, F],
 	operand: Operand,
-	right: T,
-	entityOfT: Entity[ID, Persisted, T]
+	right: F,
+	entityOfT: EntityBase[ID, T]
 	) extends OpBase
 {
 	if (right == null) throw new NullPointerException("Value can't be null in one-to-many FK queries. Expression was on %s.".format(left))
