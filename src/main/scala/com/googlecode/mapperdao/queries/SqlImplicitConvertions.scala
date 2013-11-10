@@ -117,16 +117,16 @@ trait SqlRelationshipImplicitConvertions
 		new AliasRelationshipColumn[T, FID, F](v.column, Some(a))
 	}
 
-	protected class ConvertorOneToManyDeclaredPrimaryKey[FID, F, TID, T](alias: AliasRelationshipColumn[T, FID, F])
+	protected class ConvertorOneToManyDeclaredPrimaryKey[TID, T, FID, F](alias: AliasRelationshipColumn[F, TID, T])
 	{
 		// ci.declaredColumnInfo.column
-		def ===(v: F) = new OneToManyDeclaredPrimaryKeyOperation[Any, T, FID, F](alias, EQ, v, alias.column.entity.asInstanceOf[EntityBase[Any, T]])
+		def ===(v: F) = new OneToManyDeclaredPrimaryKeyOperation[TID, T, FID, F](alias, EQ, v, alias.column.entity.asInstanceOf[EntityBase[TID, T]])
 
-		def <>(v: F) = new OneToManyDeclaredPrimaryKeyOperation(alias, NE, v, alias.column.entity.asInstanceOf[EntityBase[Any, T]])
+		def <>(v: F) = new OneToManyDeclaredPrimaryKeyOperation[TID, T, FID, F](alias, NE, v, alias.column.entity.asInstanceOf[EntityBase[TID, T]])
 	}
 
-	implicit def columnInfoOneToManyForDeclaredPrimaryKeyOperation[FID, F, TID, T](alias: AliasRelationshipColumn[T, FID, F]) =
-		new ConvertorOneToManyDeclaredPrimaryKey[FID, F, TID, T](alias)
+	implicit def columnInfoOneToManyForDeclaredPrimaryKeyOperation[TID, T, FID, F](ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[FID, F, TID, T]) =
+		new ConvertorOneToManyDeclaredPrimaryKey[TID, T, FID, F](AliasRelationshipColumn[F, TID, T](ci.declaredColumnInfo.column))
 
 }
 
@@ -166,19 +166,19 @@ trait SqlRelatedImplicitConvertions
 		ci: ColumnInfoTraversableOneToMany[ID, T, FID, F]
 		) = new ConvertorOneToMany(ci)
 
-	protected class ConvertorOneToManyDeclaredPrimaryKey[FID, F, TID, T](
-		alias: AliasRelationshipColumn[T, FID, F]
-		)
-	{
-		def ===(v: F) = new OneToManyDeclaredPrimaryKeyOperation[Any, T, FID, F](alias, EQ, v, alias.column.entity.asInstanceOf[EntityBase[Any, T]])
-
-		def <>(v: F) = new OneToManyDeclaredPrimaryKeyOperation[Any, T, FID, F](alias, NE, v, alias.column.entity.asInstanceOf[EntityBase[Any, T]])
-	}
-
-	implicit def columnInfoOneToManyForDeclaredPrimaryKeyOperation[FID, F, TID, T](
-		ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[FID, F, TID, T]
-		) =
-		new ConvertorOneToManyDeclaredPrimaryKey[TID, T, FID, F](AliasRelationshipColumn(ci.declaredColumnInfo.column))
+	//	protected class ConvertorOneToManyDeclaredPrimaryKey[FID, F, TID, T](
+	//		alias: AliasRelationshipColumn[T, FID, F]
+	//		)
+	//	{
+	//		def ===(v: F) = new OneToManyDeclaredPrimaryKeyOperation[Any, T, FID, F](alias, EQ, v, alias.column.entity.asInstanceOf[EntityBase[Any, T]])
+	//
+	//		def <>(v: F) = new OneToManyDeclaredPrimaryKeyOperation[Any, T, FID, F](alias, NE, v, alias.column.entity.asInstanceOf[EntityBase[Any, T]])
+	//	}
+	//
+	//	implicit def columnInfoOneToManyForDeclaredPrimaryKeyOperation[FID, F, TID, T](
+	//		ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[FID, F, TID, T]
+	//		) =
+	//		new ConvertorOneToManyDeclaredPrimaryKey[TID, T, FID, F](AliasRelationshipColumn(ci.declaredColumnInfo.column))
 
 	/**
 	 * manages many-to-many expressions

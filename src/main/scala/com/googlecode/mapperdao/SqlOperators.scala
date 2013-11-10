@@ -97,7 +97,7 @@ case class OneToManyOperation[FID, F, V](
 }
 
 case class OneToManyDeclaredPrimaryKeyOperation[ID, T, FID, F](
-	left: AliasRelationshipColumn[T, FID, F],
+	left: AliasRelationshipColumn[F, ID, T],
 	operand: Operand,
 	right: F,
 	entityOfT: EntityBase[ID, T]
