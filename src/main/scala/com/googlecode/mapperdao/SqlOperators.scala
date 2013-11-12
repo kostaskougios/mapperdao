@@ -1,9 +1,12 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.schema.OneToOne
+import com.googlecode.mapperdao.queries.v2._
+import com.googlecode.mapperdao.queries.v2.AliasManyToMany
 import com.googlecode.mapperdao.schema.OneToOneReverse
+import com.googlecode.mapperdao.queries.v2.AliasRelationshipColumn
+import com.googlecode.mapperdao.queries.v2.AliasManyToOne
+import com.googlecode.mapperdao.queries.v2.AliasColumn
 import com.googlecode.mapperdao.schema.OneToMany
-import com.googlecode.mapperdao.queries.v2.{AliasManyToMany, AliasManyToOne, AliasRelationshipColumn, AliasColumn}
 
 sealed abstract class Operand
 {
@@ -84,10 +87,10 @@ case class ManyToOneColumnOperation[T, FID, F](
 	override def toString = "%s %s %s".format(left, operand, right)
 }
 
-case class OneToManyOperation[FID, F, V](
+case class OneToManyOperation[FID, F](
 	left: OneToMany[FID, F],
 	operand: Operand,
-	right: V
+	right: F
 	) extends OpBase
 {
 	if (right == null) throw new NullPointerException("Value can't be null in one-to-many FK queries. Expression was on %s.".format(left))
@@ -114,7 +117,7 @@ case class ManyToManyOperation[T, FID, F](left: AliasManyToMany[FID, F], operand
 	override def toString = "%s %s %s".format(left, operand, right)
 }
 
-case class OneToOneOperation[FID, F, V](left: OneToOne[FID, F], operand: Operand, right: V) extends OpBase
+case class OneToOneOperation[FID, F](left: AliasOneToOne[FID, F], operand: Operand, right: F) extends OpBase
 {
 	if (right == null) throw new NullPointerException("Value can't be null in one-to-one FK queries. Expression was on %s.".format(left))
 

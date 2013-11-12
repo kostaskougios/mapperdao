@@ -3,18 +3,24 @@ package com.googlecode.mapperdao.queries
 import org.joda.time._
 import com.googlecode.mapperdao.schema._
 import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.queries.v2._
 import com.googlecode.mapperdao.schema.ColumnInfo
 import com.googlecode.mapperdao.OneToOneReverseOperation
 import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
 import com.googlecode.mapperdao.ManyToManyOperation
+import com.googlecode.mapperdao.ColumnOperation
 import com.googlecode.mapperdao.OneToManyOperation
+import scala.Some
+import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
+import com.googlecode.mapperdao.queries.v2.AliasRelationshipColumn
+import com.googlecode.mapperdao.queries.v2.AliasColumn
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
 import com.googlecode.mapperdao.Operation
 import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
+import com.googlecode.mapperdao.queries.v2.AliasManyToMany
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
 import com.googlecode.mapperdao.OneToManyDeclaredPrimaryKeyOperation
-import com.googlecode.mapperdao.OneToOneOperation
-import com.googlecode.mapperdao.queries.v2.{AliasManyToMany, AliasManyToOne, AliasColumn, AliasRelationshipColumn}
+import com.googlecode.mapperdao.queries.v2.AliasManyToOne
 
 /**
  * @author kostantinos.kougios
@@ -131,30 +137,42 @@ trait SqlRelationshipImplicitConvertions
 
 trait SqlOneToOneImplicitConvertions
 {
+	implicit def columnInfoOneToOneCI[T, FID, F](ci: ColumnInfoOneToOne[T, FID, F]) = new AliasOneToOne[FID, F](ci.column)
 
-	/**
-	 * manages one-to-one expressions
-	 */
-	protected class ConvertorOneToOne[T, FID, F](ci: ColumnInfoOneToOne[T, FID, F])
-	{
-		def ===(v: F) = new OneToOneOperation(ci.column, EQ, v) with EqualityOperation
-
-		def <>(v: F) = new OneToOneOperation(ci.column, NE, v)
+	implicit def columnInfoOneToOneAlias[T, FID, F](alias: (Symbol, ColumnInfoOneToOne[T, FID, F])) = {
+		val (a, ci) = alias
+		new AliasOneToOne[FID, F](ci.column, Some(a))
 	}
-
-	implicit def columnInfoOneToOneOperation[T, FID, F](ci: ColumnInfoOneToOne[T, FID, F]) = new ConvertorOneToOne[T, FID, F](ci)
 }
 
 trait SqlManyToOneImplicitConvertions
 {
-
 	implicit def columnInfoManyToOneCI[T, FID, F](ci: ColumnInfoManyToOne[T, FID, F]) = new AliasManyToOne[T, FID, F](ci.column)
+
+	implicit def columnInfoManyToOneAlias[T, FID, F](alias: (Symbol, ColumnInfoManyToOne[T, FID, F])) = {
+		val (a, ci) = alias
+		new AliasManyToOne[T, FID, F](ci.column, Some(a))
+	}
 }
 
 trait SqlManyToManyImplicitConvertions
 {
-
 	implicit def columnInfoManyToManyCI[T, FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F]) = new AliasManyToMany[FID, F](ci.column)
+
+	implicit def columnInfoManyToManyAlias[T, FID, F](alias: (Symbol, ColumnInfoTraversableManyToMany[T, FID, F])) = {
+		val (a, ci) = alias
+		new AliasManyToMany[FID, F](ci.column, Some(a))
+	}
+}
+
+trait SqlOneToManyImplicitConvertions
+{
+	implicit def columnInfoOneToManyCI[T, FID, F](ci: ColumnInfoTraversableOneToMany[_, T, FID, F]) = new AliasOneToMany[FID, F](ci.column)
+
+	implicit def columnInfoOneToManyAlias[T, FID, F](alias: (Symbol, ColumnInfoTraversableOneToMany[_, T, FID, F])) = {
+		val (a, ci) = alias
+		new AliasOneToMany[FID, F](ci.column, Some(a))
+	}
 }
 
 @deprecated("use SqlRelationshipImplicitConvertions")

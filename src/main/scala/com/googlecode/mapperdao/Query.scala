@@ -35,6 +35,7 @@ object Query
 	with SqlOneToOneImplicitConvertions
 	with SqlManyToOneImplicitConvertions
 	with SqlManyToManyImplicitConvertions
+	with SqlOneToManyImplicitConvertions
 {
 	def select = new From
 
