@@ -14,8 +14,7 @@ import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
 import com.googlecode.mapperdao.OneToManyDeclaredPrimaryKeyOperation
 import com.googlecode.mapperdao.OneToOneOperation
-import com.googlecode.mapperdao.queries.v2.AliasColumn
-import com.googlecode.mapperdao.queries.v2.AliasRelationshipColumn
+import com.googlecode.mapperdao.queries.v2.{AliasManyToMany, AliasManyToOne, AliasColumn, AliasRelationshipColumn}
 
 /**
  * @author kostantinos.kougios
@@ -146,6 +145,18 @@ trait SqlOneToOneImplicitConvertions
 	implicit def columnInfoOneToOneOperation[T, FID, F](ci: ColumnInfoOneToOne[T, FID, F]) = new ConvertorOneToOne[T, FID, F](ci)
 }
 
+trait SqlManyToOneImplicitConvertions
+{
+
+	implicit def columnInfoManyToOneCI[T, FID, F](ci: ColumnInfoManyToOne[T, FID, F]) = new AliasManyToOne[T, FID, F](ci.column)
+}
+
+trait SqlManyToManyImplicitConvertions
+{
+
+	implicit def columnInfoManyToManyCI[T, FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F]) = new AliasManyToMany[FID, F](ci.column)
+}
+
 @deprecated("use SqlRelationshipImplicitConvertions")
 trait SqlRelatedImplicitConvertions
 {
@@ -185,9 +196,9 @@ trait SqlRelatedImplicitConvertions
 	 */
 	protected class ConvertorManyToMany[T, FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F])
 	{
-		def ===(v: F) = new ManyToManyOperation(ci.column, EQ, v)
+		def ===(v: F) = new ManyToManyOperation(AliasManyToMany(ci.column), EQ, v)
 
-		def <>(v: F) = new ManyToManyOperation(ci.column, NE, v)
+		def <>(v: F) = new ManyToManyOperation(AliasManyToMany(ci.column), NE, v)
 	}
 
 	implicit def columnInfoManyToManyOperation[T, FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F]) = new ConvertorManyToMany[T, FID, F](ci)

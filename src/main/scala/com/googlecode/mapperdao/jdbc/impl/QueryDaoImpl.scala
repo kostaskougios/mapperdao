@@ -4,9 +4,14 @@ import com.googlecode.mapperdao.exceptions.QueryException
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.schema._
 import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.jdbc.DatabaseValues
+import com.googlecode.mapperdao.queries.v2._
 import com.googlecode.mapperdao.OneToOneReverseOperation
+import com.googlecode.mapperdao.queries.v2.SelfJoin
+import com.googlecode.mapperdao.queries.v2.QueryInfo
 import scala.Some
 import com.googlecode.mapperdao.OrOp
+import com.googlecode.mapperdao.queries.v2.InnerJoin
 import com.googlecode.mapperdao.schema.OneToOneReverse
 import com.googlecode.mapperdao.OneToManyDeclaredPrimaryKeyOperation
 import com.googlecode.mapperdao.OneToOneOperation
@@ -22,8 +27,6 @@ import com.googlecode.mapperdao.Operation
 import com.googlecode.mapperdao.AndOp
 import com.googlecode.mapperdao.ManyToOneOperation
 import com.googlecode.mapperdao.sqlfunction.SqlFunctionBoolOp
-import com.googlecode.mapperdao.jdbc.DatabaseValues
-import com.googlecode.mapperdao.queries.v2.{Alias, SelfJoin, InnerJoin, QueryInfo}
 
 /**
  * the QueryDao implementation
@@ -265,7 +268,8 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 					(l, r) =>
 						driver.sqlBuilder.And(l, r)
 				}
-			case ManyToManyOperation(left: ManyToMany[_, _], operand: Operand, right: Any) =>
+			case ManyToManyOperation(leftAlias: AliasManyToMany[_, _], operand: Operand, right: Any) =>
+				val left = leftAlias.column
 				val foreignEntity = left.foreign.entity
 				val fTpe = foreignEntity.tpe
 
