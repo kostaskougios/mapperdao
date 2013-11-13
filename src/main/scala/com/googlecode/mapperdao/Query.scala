@@ -33,6 +33,7 @@ import com.googlecode.mapperdao.queries.v2.AliasColumn
 object Query
 	extends SqlRelationshipImplicitConvertions
 	with SqlOneToOneImplicitConvertions
+	with SqlOneToOneReverseImplicitConvertions
 	with SqlManyToOneImplicitConvertions
 	with SqlManyToManyImplicitConvertions
 	with SqlOneToManyImplicitConvertions

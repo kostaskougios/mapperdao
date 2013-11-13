@@ -211,7 +211,7 @@ class Query2Suite extends FunSuite with Matchers
 				where pe.company === com1
 			)
 		q.queryInfo.wheres.get should be(ManyToOneOperation(
-			AliasRelationshipColumn[Person, Int, Company](pe.company.column),
+			AliasManyToOne[Person, Int, Company](pe.company.column),
 			EQ,
 			com1
 		))
@@ -226,7 +226,7 @@ class Query2Suite extends FunSuite with Matchers
 			)
 		q.queryInfo.wheres.get should be(
 			ManyToOneColumnOperation(
-				AliasRelationshipColumn[Company, Int, Company](pe.company.column),
+				AliasManyToOne[Company, Int, Company](pe.company.column),
 				EQ,
 				AliasRelationshipColumn[Company, Int, Company](pe.company.column, Some('x))
 			)
@@ -242,7 +242,7 @@ class Query2Suite extends FunSuite with Matchers
 				where pe.company <> com1
 			)
 		q.queryInfo.wheres.get should be(ManyToOneOperation(
-			AliasRelationshipColumn[Person, Int, Company](pe.company.column),
+			AliasManyToOne[Person, Int, Company](pe.company.column),
 			NE,
 			com1
 		))
@@ -257,7 +257,7 @@ class Query2Suite extends FunSuite with Matchers
 			)
 		q.queryInfo.wheres.get should be(
 			ManyToOneColumnOperation(
-				AliasRelationshipColumn[Company, Int, Company](pe.company.column),
+				AliasManyToOne[Company, Int, Company](pe.company.column),
 				NE,
 				AliasRelationshipColumn[Company, Int, Company](pe.company.column, Some('x))
 			)

@@ -304,7 +304,8 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 					(l, r) =>
 						driver.sqlBuilder.And(l, r)
 				}
-			case OneToOneReverseOperation(left, operand, right) =>
+			case OneToOneReverseOperation(leftAlias, operand, right) =>
+				val left = leftAlias.column
 				val foreignEntity = left.foreign.entity
 				val fTpe = foreignEntity.tpe
 				val fPKColumnAndValues =

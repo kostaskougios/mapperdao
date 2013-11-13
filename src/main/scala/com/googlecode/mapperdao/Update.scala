@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.queries.{SqlWhereMixins, SqlOneToOneImplicitConvertions, SqlRelationshipImplicitConvertions, SqlImplicitConvertions}
+import com.googlecode.mapperdao.queries._
+import scala.Some
 
 
 /**
@@ -11,6 +12,7 @@ import com.googlecode.mapperdao.queries.{SqlWhereMixins, SqlOneToOneImplicitConv
 object Update extends SqlImplicitConvertions
 with SqlRelationshipImplicitConvertions
 with SqlOneToOneImplicitConvertions
+with SqlManyToOneImplicitConvertions
 {
 
 	def update[ID, PC <: Persisted, T](entity: Entity[ID, PC, T]) =

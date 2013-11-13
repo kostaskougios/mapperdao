@@ -2,7 +2,6 @@ package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.queries.v2._
 import com.googlecode.mapperdao.queries.v2.AliasManyToMany
-import com.googlecode.mapperdao.schema.OneToOneReverse
 import com.googlecode.mapperdao.queries.v2.AliasRelationshipColumn
 import com.googlecode.mapperdao.queries.v2.AliasManyToOne
 import com.googlecode.mapperdao.queries.v2.AliasColumn
@@ -123,7 +122,7 @@ case class OneToOneOperation[FID, F](left: AliasOneToOne[FID, F], operand: Opera
 	override def toString = "%s %s %s".format(left, operand, right)
 }
 
-case class OneToOneReverseOperation[FID, F, V](left: OneToOneReverse[FID, F], operand: Operand, right: V) extends OpBase
+case class OneToOneReverseOperation[FID, F, V](left: AliasOneToOneReverse[FID, F], operand: Operand, right: V) extends OpBase
 {
 	if (right == null) throw new NullPointerException("Value can't be null in one-to-one FK queries. Expression was on %s.".format(left))
 
