@@ -23,6 +23,10 @@ class Query2Suite extends FunSuite with Matchers
 	val pe = PersonEntity
 	val ce = CompanyEntity
 
+	val oe = OwnerEntity
+
+	val prode = ProductEntity
+
 	val nameIsX = Operation(AliasColumn(pe.name.column), EQ, "x")
 	val nameIsXX = Operation(AliasColumn(pe.name.column), EQ, "xx")
 	val idIs5 = Operation(AliasColumn(pe.id.column), EQ, 5)
@@ -262,5 +266,65 @@ class Query2Suite extends FunSuite with Matchers
 				AliasRelationshipColumn[Company, Int, Company](pe.company.column, Some('x))
 			)
 		)
+	}
+
+	test("one to many equality") {
+		import com.googlecode.mapperdao.Query._
+		val house = House("addr")
+		val q = (
+			select
+				from oe
+				where oe.owns === house
+			)
+		q.queryInfo.wheres.get should be(OneToManyOperation(
+			AliasOneToMany[Int, House](oe.owns.column),
+			EQ,
+			house
+		))
+	}
+
+	test("one to many not equals") {
+		import com.googlecode.mapperdao.Query._
+		val house = House("addr")
+		val q = (
+			select
+				from oe
+				where oe.owns <> house
+			)
+		q.queryInfo.wheres.get should be(OneToManyOperation(
+			AliasOneToMany[Int, House](oe.owns.column),
+			NE,
+			house
+		))
+	}
+
+	test("many to many equality") {
+		import com.googlecode.mapperdao.Query._
+		val attr = Attribute("a", "v")
+		val q = (
+			select
+				from prode
+				where prode.attributes === attr
+			)
+		q.queryInfo.wheres.get should be(ManyToManyOperation(
+			AliasManyToMany[Int, Attribute](prode.attributes.column),
+			EQ,
+			attr
+		))
+	}
+
+	test("many to many not equals") {
+		import com.googlecode.mapperdao.Query._
+		val attr = Attribute("a", "v")
+		val q = (
+			select
+				from prode
+				where prode.attributes <> attr
+			)
+		q.queryInfo.wheres.get should be(ManyToManyOperation(
+			AliasManyToMany[Int, Attribute](prode.attributes.column),
+			NE,
+			attr
+		))
 	}
 }
