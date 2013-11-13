@@ -254,7 +254,8 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 					(l, r) =>
 						driver.sqlBuilder.And(l, r)
 				}
-			case OneToManyOperation(left: OneToMany[_, _], operand: Operand, right: Any) =>
+			case OneToManyOperation(leftAlias: AliasOneToMany[_, _], operand: Operand, right: Any) =>
+				val left = leftAlias.column
 				val foreignEntity = left.foreign.entity
 				val fTpe = foreignEntity.tpe
 				val fPKColumnAndValues =

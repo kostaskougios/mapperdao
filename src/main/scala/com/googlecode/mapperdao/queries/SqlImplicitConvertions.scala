@@ -186,9 +186,9 @@ trait SqlRelatedImplicitConvertions
 		ci: ColumnInfoTraversableOneToMany[ID, T, FID, F]
 		)
 	{
-		def ===(v: F) = new OneToManyOperation(ci.column, EQ, v)
+		def ===(v: F) = new OneToManyOperation(AliasOneToMany(ci.column), EQ, v)
 
-		def <>(v: F) = new OneToManyOperation(ci.column, NE, v)
+		def <>(v: F) = new OneToManyOperation(AliasOneToMany(ci.column), NE, v)
 	}
 
 	implicit def columnInfoOneToManyOperation[ID, T, FID, F](

@@ -6,7 +6,6 @@ import com.googlecode.mapperdao.schema.OneToOneReverse
 import com.googlecode.mapperdao.queries.v2.AliasRelationshipColumn
 import com.googlecode.mapperdao.queries.v2.AliasManyToOne
 import com.googlecode.mapperdao.queries.v2.AliasColumn
-import com.googlecode.mapperdao.schema.OneToMany
 
 sealed abstract class Operand
 {
@@ -88,7 +87,7 @@ case class ManyToOneColumnOperation[T, FID, F](
 }
 
 case class OneToManyOperation[FID, F](
-	left: OneToMany[FID, F],
+	left: AliasOneToMany[FID, F],
 	operand: Operand,
 	right: F
 	) extends OpBase
