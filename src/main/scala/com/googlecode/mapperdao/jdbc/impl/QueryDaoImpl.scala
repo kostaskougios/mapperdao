@@ -2,7 +2,6 @@ package com.googlecode.mapperdao.jdbc.impl
 
 import com.googlecode.mapperdao.exceptions.QueryException
 import com.googlecode.mapperdao.drivers.Driver
-import com.googlecode.mapperdao.schema._
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.jdbc.DatabaseValues
 import com.googlecode.mapperdao.queries.v2._
@@ -203,13 +202,12 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		): driver.sqlBuilder.Expression = {
 		def inner(op: OpBase): driver.sqlBuilder.Expression = op match {
 			case o: Operation[_] =>
-				o.right match {
-					case rc: SimpleColumn =>
-						driver.sqlBuilder.NonValueClause(aliases(o.left.column), o.left.column.name, o.operand.sql, aliases(rc), rc.name)
-					case _ =>
-						val List((left, right)) = typeManager.transformValuesBeforeStoring(List((o.left.column, o.right)))
-						driver.sqlBuilder.Clause(aliases(o.left.column), left, o.operand.sql, right)
-				}
+				//				o.right match {
+				//					case rc: SimpleColumn =>
+				//						driver.sqlBuilder.NonValueClause(aliases(o.left.column), o.left.column.name, o.operand.sql, aliases(rc), rc.name)
+				//					case _ =>
+				val List((left, right)) = typeManager.transformValuesBeforeStoring(List((o.left.column, o.right)))
+				driver.sqlBuilder.Clause(aliases(o.left.column), left, o.operand.sql, right)
 			case AndOp(left, right) =>
 				driver.sqlBuilder.And(inner(left), inner(right))
 			case OrOp(left, right) =>
@@ -217,6 +215,8 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 			case CommaOp(ops) =>
 				val expressions = ops.map(inner(_))
 				driver.sqlBuilder.Comma(expressions)
+			case ColumnOperation(left, operand, right) =>
+				driver.sqlBuilder.NonValueClause(aliases(left.column), left.column.name, operand.sql, aliases(right.column), right.column.name)
 			case ManyToOneOperation(left, operand, right) =>
 				val exprs = right match {
 					case null =>
