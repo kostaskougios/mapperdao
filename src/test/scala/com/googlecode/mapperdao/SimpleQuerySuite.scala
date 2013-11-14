@@ -300,10 +300,10 @@ class SimpleQuerySuite extends FunSuite with Matchers
 
 	def qAsBuilder = {
 		val q = select from jpe where jpe.id === 1
-		q or jpe.id === 2
-		q or (jpe.id === 5 or jpe.id === 6)
-		q order by(jpe.id, desc)
-		q
+		val q1 = extend(q) or jpe.id === 2
+		val q2 = extend(q1) or (jpe.id === 5 or jpe.id === 6)
+		val q3 = extend(q2) order by(jpe.id, desc)
+		q3
 	}
 
 	def qOrderBy1 = select from jpe order by(jpe.name)

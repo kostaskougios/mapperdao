@@ -14,7 +14,6 @@ import org.scalatest.{Matchers, FunSuite}
 @RunWith(classOf[JUnitRunner])
 class SimpleSelfJoinQuerySuite extends FunSuite with Matchers
 {
-
 	val JobPositionEntity = new JobPositionEntityBase
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(JobPositionEntity))
 
