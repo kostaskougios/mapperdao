@@ -21,5 +21,7 @@ trait EntityBase[ID, T]
 
 	private[mapperdao] def keysDuringDeclaration: List[PK]
 
+	private[mapperdao] def entityId: Int
+
 	def databaseSchema: Option[Schema]
 }
