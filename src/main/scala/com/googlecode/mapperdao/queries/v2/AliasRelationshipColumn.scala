@@ -14,9 +14,9 @@ import com.googlecode.mapperdao.OneToOneOperation
  * @author: kostas.kougios
  *          Date: 31/10/13
  */
-case class AliasRelationshipColumn[T, FID, F](column: ColumnRelationshipBase[FID, F], symbol: Option[Symbol] = None)
+case class AliasRelationshipColumn[T, FID, F](column: ColumnRelationshipBase[FID, F], tableAlias: Option[Symbol] = None)
 
-case class AliasManyToOne[T, FID, F](column: ManyToOne[FID, F], symbol: Option[Symbol] = None)
+case class AliasManyToOne[T, FID, F](column: ManyToOne[FID, F], tableAlias: Option[Symbol] = None)
 {
 	def ===(v: F) = new ManyToOneOperation(this, EQ, v) with EqualityOperation
 
@@ -29,28 +29,28 @@ case class AliasManyToOne[T, FID, F](column: ManyToOne[FID, F], symbol: Option[S
 		new ManyToOneColumnOperation(this, NE, alias)
 }
 
-case class AliasManyToMany[FID, F](column: ManyToMany[FID, F], symbol: Option[Symbol] = None)
+case class AliasManyToMany[FID, F](column: ManyToMany[FID, F], tableAlias: Option[Symbol] = None)
 {
 	def ===(v: F) = new ManyToManyOperation(this, EQ, v) with EqualityOperation
 
 	def <>(v: F) = new ManyToManyOperation(this, NE, v)
 }
 
-case class AliasOneToOne[FID, F](column: OneToOne[FID, F], symbol: Option[Symbol] = None)
+case class AliasOneToOne[FID, F](column: OneToOne[FID, F], tableAlias: Option[Symbol] = None)
 {
 	def ===(v: F) = new OneToOneOperation(this, EQ, v) with EqualityOperation
 
 	def <>(v: F) = new OneToOneOperation(this, NE, v)
 }
 
-case class AliasOneToOneReverse[FID, F](column: OneToOneReverse[FID, F], symbol: Option[Symbol] = None)
+case class AliasOneToOneReverse[FID, F](column: OneToOneReverse[FID, F], tableAlias: Option[Symbol] = None)
 {
 	def ===(v: F) = new OneToOneReverseOperation(this, EQ, v) with EqualityOperation
 
 	def <>(v: F) = new OneToOneReverseOperation(this, NE, v)
 }
 
-case class AliasOneToMany[FID, F](column: OneToMany[FID, F], symbol: Option[Symbol] = None)
+case class AliasOneToMany[FID, F](column: OneToMany[FID, F], tableAlias: Option[Symbol] = None)
 {
 	def ===(v: F) = new OneToManyOperation(this, EQ, v) with EqualityOperation
 

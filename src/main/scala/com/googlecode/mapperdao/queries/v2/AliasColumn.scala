@@ -9,7 +9,7 @@ import com.googlecode.mapperdao.Operation
  * @author: kostas.kougios
  *          Date: 02/10/13
  */
-case class AliasColumn[V](column: SimpleColumn, symbol: Option[Symbol] = None)
+case class AliasColumn[V](column: SimpleColumn, tableAlias: Option[Symbol] = None)
 {
 
 	def >(v: V) = new Operation(this, GT, v)
