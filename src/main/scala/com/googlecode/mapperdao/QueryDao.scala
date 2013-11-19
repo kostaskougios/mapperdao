@@ -202,7 +202,7 @@ object QueryDao
 		}
 
 		def apply[ID, T](alias: Alias[ID, T]): String =
-			alias.tableAlias.map(_.name).getOrElse(apply(alias.entity))
+			alias.tableAlias.name
 
 		def apply[ID, T](entity: EntityBase[ID, T]): String = {
 			val v = aliases.get(entity)

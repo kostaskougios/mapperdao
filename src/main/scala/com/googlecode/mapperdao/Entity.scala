@@ -9,6 +9,7 @@ import com.googlecode.mapperdao.schema._
 import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
 import com.googlecode.mapperdao.schema.Column
 import com.googlecode.mapperdao.schema.ColumnInfo
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * the main class that must be inherited to create entities.
@@ -753,6 +754,8 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 
 	// ===================== /Java section ================================
 
+	private[mapperdao] val entityId = Entity.idGenerator.incrementAndGet
+
 	/**
 	 * utility method to cast an entity to it's persisted type
 	 *
@@ -760,4 +763,10 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 * @return      entity with Stored
 	 */
 	def toPersistedType(t: T): T with Stored = t.asInstanceOf[T with Stored]
+}
+
+object Entity
+{
+	// generates id's for entities
+	private val idGenerator = new AtomicInteger
 }

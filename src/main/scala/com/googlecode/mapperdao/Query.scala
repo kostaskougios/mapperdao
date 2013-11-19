@@ -44,7 +44,7 @@ object Query
 
 	implicit def implicitAs[ID, T](e: EntityBase[ID, T]) = new
 		{
-			def as[ID, T](symbol: Symbol) = Alias(e, Some(symbol))
+			def as[ID, T](symbol: Symbol) = Alias(e, symbol)
 		}
 
 	implicit def columnToAlias[V](v: ColumnInfo[_, V]) = new AliasColumn[V](v.column)

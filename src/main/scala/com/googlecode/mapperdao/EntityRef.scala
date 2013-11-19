@@ -19,6 +19,8 @@ class EntityRef[ID, T](
 {
 	private[mapperdao] def tpe = refOf.tpe
 
+	private[mapperdao] def entityId = refOf.entityId
+
 	private[mapperdao] def keysDuringDeclaration = Nil
 }
 

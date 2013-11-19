@@ -37,7 +37,7 @@ class Query2Suite extends FunSuite with Matchers
 
 		val q = select from pe
 		val qi = q.queryInfo
-		qi.entityAlias should be(Alias(pe, Some('maint)))
+		qi.entityAlias should be(Alias(pe, Alias.aliasFor(pe)))
 	}
 
 	test("where") {
@@ -97,7 +97,7 @@ class Query2Suite extends FunSuite with Matchers
 				join(pe, pe.company, ce)
 			)
 		val qi = q.queryInfo
-		qi.entityAlias should be(Alias(pe, 'maint))
+		qi.entityAlias should be(Alias(pe, Alias.aliasFor(pe)))
 		qi.joins should be(List(InnerJoin(Alias(pe), pe.company, Alias(ce))))
 	}
 
@@ -111,7 +111,7 @@ class Query2Suite extends FunSuite with Matchers
 				where pe.name === "x"
 			)
 		val qi = q.queryInfo
-		qi.entityAlias should be(Alias(pe, 'maint))
+		qi.entityAlias should be(Alias(pe, Alias.aliasFor(pe)))
 		qi.joins should be(List(InnerJoin(Alias(pe), pe.company, Alias(ce))))
 		qi.wheres.get should be(nameIsX)
 	}
@@ -166,7 +166,7 @@ class Query2Suite extends FunSuite with Matchers
 
 		val q = extend(qm) and pe.id === 5
 		val qi = q.queryInfo
-		qi.entityAlias should be(Alias(pe, 'maint))
+		qi.entityAlias should be(Alias(pe, Alias.aliasFor(pe)))
 		qi.wheres should be(Some(AndOp(nameIsX, idIs5)))
 	}
 
@@ -182,7 +182,7 @@ class Query2Suite extends FunSuite with Matchers
 		val q1 = extend(qm) join(pe, pe.company, ce)
 		val q = extend(q1) and ce.name === "y"
 		val qi = q.queryInfo
-		qi.entityAlias should be(Alias(pe, 'maint))
+		qi.entityAlias should be(Alias(pe, Alias.aliasFor(pe)))
 		qi.joins should be(List(InnerJoin(Alias(pe), pe.company, Alias(ce))))
 		qi.wheres should be(Some(AndOp(nameIsX, companyNameIsY)))
 	}
