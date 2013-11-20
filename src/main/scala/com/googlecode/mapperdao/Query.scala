@@ -3,7 +3,6 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.queries._
 import com.googlecode.mapperdao.queries.v2._
 import com.googlecode.mapperdao.schema.ColumnInfo
-import scala.Some
 import com.googlecode.mapperdao.queries.v2.AliasColumn
 
 /**
@@ -47,9 +46,9 @@ object Query
 			def as[ID, T](symbol: Symbol) = Alias(e, symbol)
 		}
 
-	implicit def columnToAlias[V](v: ColumnInfo[_, V]) = new AliasColumn[V](v.column)
+	implicit def columnToAlias[V](v: ColumnInfo[_, V]) = AliasColumn[V](v.column)
 
-	implicit def columnToAlias[V](v: (Symbol, ColumnInfo[_, V])) = new AliasColumn[V](v._2.column, Some(v._1))
+	implicit def columnToAlias[V](v: (Symbol, ColumnInfo[_, V])) = new AliasColumn[V](v._2.column, v._1)
 
 	sealed abstract class AscDesc
 	{

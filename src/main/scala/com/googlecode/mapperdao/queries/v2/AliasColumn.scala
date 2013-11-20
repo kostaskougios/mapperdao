@@ -9,7 +9,7 @@ import com.googlecode.mapperdao.Operation
  * @author: kostas.kougios
  *          Date: 02/10/13
  */
-case class AliasColumn[V](column: SimpleColumn, tableAlias: Option[Symbol] = None)
+case class AliasColumn[V](column: SimpleColumn, tableAlias: Symbol)
 {
 
 	def >(v: V) = new Operation(this, GT, v)
@@ -39,4 +39,9 @@ case class AliasColumn[V](column: SimpleColumn, tableAlias: Option[Symbol] = Non
 	def like(v: V) = new Operation(this, LIKE, v)
 
 	def like(v: AliasColumn[V]) = new ColumnOperation(this, LIKE, v)
+}
+
+object AliasColumn
+{
+	def apply[V](column: SimpleColumn): AliasColumn[V] = AliasColumn(column, Alias.aliasFor(column))
 }
