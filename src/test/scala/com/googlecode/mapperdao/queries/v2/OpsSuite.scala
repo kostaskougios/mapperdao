@@ -6,7 +6,6 @@ import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.CommonEntities.{CompanyEntity, PersonEntity}
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.Operation
-import scala.Some
 import com.googlecode.mapperdao.AndOp
 import com.googlecode.mapperdao.OrOp
 
@@ -30,11 +29,11 @@ class OpsSuite extends FunSuite with Matchers
 	}
 
 	test("equality to column with alias") {
-		(pe.name ===('a, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), EQ, AliasColumn(pe.name.column, Some('a))))
+		(pe.name ===('a, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), EQ, AliasColumn(pe.name.column, 'a)))
 	}
 
 	test("equality to column") {
-		(pe.name === pe.name) should be(ColumnOperation(AliasColumn(pe.name.column), EQ, AliasColumn(pe.name.column, None)))
+		(pe.name === pe.name) should be(ColumnOperation(AliasColumn(pe.name.column), EQ, AliasColumn(pe.name.column)))
 	}
 
 	test("greater than value") {
@@ -42,11 +41,11 @@ class OpsSuite extends FunSuite with Matchers
 	}
 
 	test("greater than column with alias") {
-		(pe.name >('a, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), GT, AliasColumn(pe.name.column, Some('a))))
+		(pe.name >('a, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), GT, AliasColumn(pe.name.column, 'a)))
 	}
 
 	test("greater than column") {
-		(pe.name > pe.name) should be(ColumnOperation(AliasColumn(pe.name.column), GT, AliasColumn(pe.name.column, None)))
+		(pe.name > pe.name) should be(ColumnOperation(AliasColumn(pe.name.column), GT, AliasColumn(pe.name.column)))
 	}
 
 	test("greater than or equals to value") {
@@ -54,11 +53,11 @@ class OpsSuite extends FunSuite with Matchers
 	}
 
 	test("greater than equal column with alias") {
-		(pe.name >=('a, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), GE, AliasColumn(pe.name.column, Some('a))))
+		(pe.name >=('a, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), GE, AliasColumn(pe.name.column, 'a)))
 	}
 
 	test("greater than equal column") {
-		(pe.name >= pe.name) should be(ColumnOperation(AliasColumn(pe.name.column), GE, AliasColumn(pe.name.column, None)))
+		(pe.name >= pe.name) should be(ColumnOperation(AliasColumn(pe.name.column), GE, AliasColumn(pe.name.column)))
 	}
 
 	test("less than value") {
@@ -66,11 +65,11 @@ class OpsSuite extends FunSuite with Matchers
 	}
 
 	test("less than column with alias") {
-		(pe.name <('a, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), LT, AliasColumn(pe.name.column, Some('a))))
+		(pe.name <('a, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), LT, AliasColumn(pe.name.column, 'a)))
 	}
 
 	test("less than column") {
-		(pe.name < pe.name) should be(ColumnOperation(AliasColumn(pe.name.column), LT, AliasColumn(pe.name.column, None)))
+		(pe.name < pe.name) should be(ColumnOperation(AliasColumn(pe.name.column), LT, AliasColumn(pe.name.column)))
 	}
 
 	test("less than or equals value") {
@@ -78,7 +77,7 @@ class OpsSuite extends FunSuite with Matchers
 	}
 
 	test("less than or equals column") {
-		(pe.name <=('a, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), LE, AliasColumn(pe.name.column, Some('a))))
+		(pe.name <=('a, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), LE, AliasColumn(pe.name.column, 'a)))
 	}
 
 	test("and") {
@@ -90,11 +89,11 @@ class OpsSuite extends FunSuite with Matchers
 	}
 
 	test("alias on right side") {
-		(pe.name ===('x, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), EQ, AliasColumn(pe.name.column, Some('x))))
+		(pe.name ===('x, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column), EQ, AliasColumn(pe.name.column, 'x)))
 	}
 
 	test("alias on left side") {
-		(('x, pe.name) === pe.name) should be(ColumnOperation(AliasColumn(pe.name.column, Some('x)), EQ, AliasColumn(pe.name.column)))
+		(('x, pe.name) === pe.name) should be(ColumnOperation(AliasColumn(pe.name.column, 'x), EQ, AliasColumn(pe.name.column)))
 	}
 
 	test("presidence") {
