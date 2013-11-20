@@ -50,6 +50,8 @@ object Query
 
 	implicit def columnToAlias[V](v: (Symbol, ColumnInfo[_, V])) = new AliasColumn[V](v._2.column, v._1)
 
+	implicit def entityToAlias[ID, T](e: EntityBase[ID, T]) = Alias(e)
+
 	sealed abstract class AscDesc
 	{
 		val sql: String

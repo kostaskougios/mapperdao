@@ -8,7 +8,12 @@ import com.googlecode.mapperdao.{Entity, Persisted}
  */
 class From
 {
+
+	//note:implicit alias makes scala compiler crash
 	def from[ID, PC <: Persisted, T](entity: Entity[ID, PC, T]) =
 		new AfterFrom[ID, PC, T](QueryInfo(Alias(entity)))
+
+	def from[ID, PC <: Persisted, T](alias: Alias[ID, T]) =
+		new AfterFrom[ID, PC, T](QueryInfo(alias))
 }
 

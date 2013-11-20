@@ -101,6 +101,18 @@ class Query2Suite extends FunSuite with Matchers
 		qi.joins should be(List(InnerJoin(Alias(pe), pe.company, Alias(ce))))
 	}
 
+	test("join aliased") {
+		import com.googlecode.mapperdao.Query._
+
+		val q = (
+			select
+				from pe
+				join(pe as 'peA, pe.company, ce as 'ceA)
+			)
+		val qi = q.queryInfo
+		qi.joins should be(List(InnerJoin(Alias(pe, 'peA), pe.company, Alias(ce, 'ceA))))
+	}
+
 	test("join with where") {
 		import com.googlecode.mapperdao.Query._
 
