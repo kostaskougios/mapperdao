@@ -14,19 +14,18 @@ import org.scalatest.{Matchers, FunSuite}
 @RunWith(classOf[JUnitRunner])
 class SimpleSelfJoinQuerySuite extends FunSuite with Matchers
 {
-	val JobPositionEntity = new JobPositionEntityBase
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(JobPositionEntity))
 
 	test("query join with alias") {
 		createJobPositionTable()
 
 		val now = Setup.now
-		val j1 = mapperDao.insert(JobPositionEntity, JobPosition(1, "developer", now))
+		mapperDao.insert(JobPositionEntity, JobPosition(1, "developer", now))
 		val j2 = mapperDao.insert(JobPositionEntity, JobPosition(2, "Scala Developer", now))
-		val j3 = mapperDao.insert(JobPositionEntity, JobPosition(3, "manager", now))
+		mapperDao.insert(JobPositionEntity, JobPosition(3, "manager", now))
 		val j4 = mapperDao.insert(JobPositionEntity, JobPosition(4, "Scala Developer", now))
 		val j5 = mapperDao.insert(JobPositionEntity, JobPosition(5, "Scala Developer", now))
-		val j6 = mapperDao.insert(JobPositionEntity, JobPosition(6, "driver", DateTime.now))
+		mapperDao.insert(JobPositionEntity, JobPosition(6, "driver", DateTime.now))
 		queryDao.query(q11).toSet should be === Set(j2, j4, j5)
 	}
 
@@ -38,18 +37,17 @@ class SimpleSelfJoinQuerySuite extends FunSuite with Matchers
 	def q11 = {
 		import Query._
 		// main table
-		val jp1 = JobPositionEntity
-		// alias of same table
+		val j = JobPositionEntity
 
-		select from jp1 join
+		select from j join
 			(JobPositionEntity as 'jp) on
-			jp1.name ===('jp, jp1.name) and
-			jp1.id <>('jp, jp1.id)
+			j.name ===('jp, j.name) and
+			j.id <>('jp, j.id)
 	}
 
 	case class JobPosition(id: Int, var name: String, start: DateTime)
 
-	class JobPositionEntityBase extends Entity[Int, SurrogateIntId, JobPosition]
+	object JobPositionEntity extends Entity[Int, SurrogateIntId, JobPosition]
 	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
