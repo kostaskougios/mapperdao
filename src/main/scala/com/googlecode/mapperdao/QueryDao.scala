@@ -2,10 +2,8 @@ package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.jdbc.{DatabaseValues, UpdateResult}
-import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
-import com.googlecode.mapperdao.schema.{LinkTable, ManyToOne, ColumnInfoManyToOne, ColumnBase}
 import com.googlecode.mapperdao.jdbc.impl.{MapperDaoImpl, QueryDaoImpl}
-import com.googlecode.mapperdao.queries.v2.{Alias, QueryInfo, WithQueryInfo}
+import com.googlecode.mapperdao.queries.v2.{QueryInfo, WithQueryInfo}
 
 /**
  * querydao takes care of querying the database and fetching entities using
@@ -186,79 +184,4 @@ object QueryDao
 {
 
 	def apply(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl): QueryDao = new QueryDaoImpl(typeRegistry, driver, mapperDao)
-
-	// creates aliases for tables
-	class Aliases(typeRegistry: TypeRegistry, nullMode: Boolean = false)
-	{
-		private val aliases = new java.util.IdentityHashMap[Any, String]
-		private val aliasCount = new scala.collection.mutable.HashMap[String, Int]
-
-		override def toString = "Aliases(%s)".format(aliases)
-
-		private def getCnt(prefix: String): Int = {
-			val v = aliasCount.getOrElseUpdate(prefix, 1)
-			aliasCount(prefix) = v + 1
-			v
-		}
-
-		def apply[ID, T](alias: Alias[ID, T]): String =
-			alias.tableAlias.name
-
-		def apply[ID, T](entity: EntityBase[ID, T]): String = {
-			val v = aliases.get(entity)
-			val r = if (v != null) v
-			else {
-				val prefix = entity.table.substring(0, 2)
-
-				val v = prefix.toLowerCase + getCnt(prefix)
-				aliases.put(entity, v)
-				val table = entity.tpe.table
-				table.columnInfosPlain.foreach {
-					ci =>
-						aliases.put(ci.column, v)
-						ci match {
-							case ColumnInfoManyToOne(column: ManyToOne[_, _], _, _) =>
-								column.columns.foreach {
-									c =>
-										aliases.put(c, v)
-								}
-							case _ =>
-						}
-				}
-				table.extraColumnInfosPersisted.foreach {
-					ci =>
-						aliases.put(ci.column, v)
-				}
-				entity.tpe.table.unusedPKs.foreach {
-					c =>
-						aliases.put(c, v)
-				}
-				v
-			}
-
-			if (nullMode) null else r
-		}
-
-		def apply(linkTable: LinkTable): String = {
-			val v = aliases.get(linkTable)
-			val r = if (v != null) v
-			else {
-				val prefix = linkTable.name.substring(0, 3)
-
-				val v = prefix.toLowerCase + getCnt(prefix)
-				aliases.put(linkTable, v)
-				v
-			}
-
-			if (nullMode) null else r
-		}
-
-		def apply(c: ColumnBase): String = {
-			val v = aliases.get(c)
-			if (v == null)
-				throw new ColumnNotPartOfQueryException(c)
-			if (nullMode) null else v
-		}
-	}
-
 }

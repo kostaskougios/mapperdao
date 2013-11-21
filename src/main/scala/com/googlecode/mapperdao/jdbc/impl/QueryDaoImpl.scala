@@ -40,7 +40,6 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 {
 	private val typeManager = driver.typeManager
 
-	import QueryDao._
 
 	def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: QueryInfo[ID, T]): List[T with PC] = {
 		if (qi == null) throw new NullPointerException("qi can't be null")
@@ -72,7 +71,6 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 
 	def count[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: QueryInfo[ID, T]): Long = {
 		if (qe == null) throw new NullPointerException("qe can't be null")
-		val aliases = new Aliases(typeRegistry)
 		val e = qe.entityAlias.entity
 		val q = new driver.sqlBuilder.SqlSelectBuilder
 		countSql(queryConfig, q, aliases, e)
@@ -86,8 +84,6 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val e = qi.entityAlias.entity
 		val tpe = e.tpe
 		val columns = tpe.table.selectColumns
-
-		val aliases = new Aliases(typeRegistry)
 
 		val q = new driver.sqlBuilder.SqlSelectBuilder
 		val outer = driver.beforeStartOfQuery(q, queryConfig, qi, columns)
