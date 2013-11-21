@@ -96,6 +96,18 @@ class OpsSuite extends FunSuite with Matchers
 		(('x, pe.name) === pe.name) should be(ColumnOperation(AliasColumn(pe.name.column, 'x), EQ, AliasColumn(pe.name.column)))
 	}
 
+	test("alias on both sides, equals") {
+		(('x, pe.name) ===('y, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column, 'x), EQ, AliasColumn(pe.name.column, 'y)))
+	}
+
+	test("alias on both sides, GT") {
+		(('x, pe.name) >('y, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column, 'x), GT, AliasColumn(pe.name.column, 'y)))
+	}
+
+	test("alias on both sides, LT") {
+		(('x, pe.name) <('y, pe.name)) should be(ColumnOperation(AliasColumn(pe.name.column, 'x), LT, AliasColumn(pe.name.column, 'y)))
+	}
+
 	test("presidence") {
 		(pe.name === "x" or (pe.id === 5 and pe.id > 1)) should be(OrOp(nameIsX, AndOp(idIs5, Operation(pe.id, GT, 1))))
 	}

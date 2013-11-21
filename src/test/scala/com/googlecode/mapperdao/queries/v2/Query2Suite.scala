@@ -9,7 +9,6 @@ import com.googlecode.mapperdao.sqlfunction.SqlFunctionOp
 import com.googlecode.mapperdao.Operation
 import com.googlecode.mapperdao.AndOp
 import com.googlecode.mapperdao.OrOp
-import scala.Some
 
 /**
  * @author kkougios
@@ -37,7 +36,24 @@ class Query2Suite extends FunSuite with Matchers
 
 		val q = select from pe
 		val qi = q.queryInfo
-		qi.entityAlias should be(Alias(pe, Alias.aliasFor(pe)))
+		qi.entityAlias should be(Alias(pe))
+	}
+
+	test("select from aliased") {
+		import com.googlecode.mapperdao.Query._
+
+		val q = select from (pe as 'x)
+		val qi = q.queryInfo
+		qi.entityAlias should be(Alias(pe, 'x))
+	}
+
+	test("select from aliased where") {
+		import com.googlecode.mapperdao.Query._
+
+		val q = select from (pe as 'x) where ('x, pe.name) === "x"
+		val qi = q.queryInfo
+		qi.entityAlias should be(Alias(pe, 'x))
+		qi.wheres.get should be(Operation(AliasColumn(pe.name.column, 'x), EQ, "x"))
 	}
 
 	test("where") {
@@ -97,7 +113,7 @@ class Query2Suite extends FunSuite with Matchers
 				join(pe, pe.company, ce)
 			)
 		val qi = q.queryInfo
-		qi.entityAlias should be(Alias(pe, Alias.aliasFor(pe)))
+		qi.entityAlias should be(Alias(pe))
 		qi.joins should be(List(InnerJoin(Alias(pe), pe.company, Alias(ce))))
 	}
 
@@ -123,7 +139,7 @@ class Query2Suite extends FunSuite with Matchers
 				where pe.name === "x"
 			)
 		val qi = q.queryInfo
-		qi.entityAlias should be(Alias(pe, Alias.aliasFor(pe)))
+		qi.entityAlias should be(Alias(pe))
 		qi.joins should be(List(InnerJoin(Alias(pe), pe.company, Alias(ce))))
 		qi.wheres.get should be(nameIsX)
 	}
@@ -178,7 +194,7 @@ class Query2Suite extends FunSuite with Matchers
 
 		val q = extend(qm) and pe.id === 5
 		val qi = q.queryInfo
-		qi.entityAlias should be(Alias(pe, Alias.aliasFor(pe)))
+		qi.entityAlias should be(Alias(pe))
 		qi.wheres should be(Some(AndOp(nameIsX, idIs5)))
 	}
 
@@ -194,7 +210,7 @@ class Query2Suite extends FunSuite with Matchers
 		val q1 = extend(qm) join(pe, pe.company, ce)
 		val q = extend(q1) and ce.name === "y"
 		val qi = q.queryInfo
-		qi.entityAlias should be(Alias(pe, Alias.aliasFor(pe)))
+		qi.entityAlias should be(Alias(pe))
 		qi.joins should be(List(InnerJoin(Alias(pe), pe.company, Alias(ce))))
 		qi.wheres should be(Some(AndOp(nameIsX, companyNameIsY)))
 	}
