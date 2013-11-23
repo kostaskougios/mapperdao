@@ -202,20 +202,23 @@ abstract class Driver
 		jdbc.queryForList(r.sql, r.values).map(j => typeManager.correctTypes(this, ftpe, j))
 	}
 
+	private val ForeignFStdAlias = Symbol("f")
+	private val ForeignLStdAlias = Symbol("l")
+
 	protected def selectManyToManySql[ID, T, FID, F](selectConfig: SelectConfig, tpe: Type[ID, T], ftpe: Type[FID, F], manyToMany: ManyToMany[FID, F], leftKeyValues: List[(SimpleColumn, Any)]) = {
 		val ftable = ftpe.table
 		val linkTable = manyToMany.linkTable
 
 		val sql = new sqlBuilder.SqlSelectBuilder
 		val fColumns = ftpe.table.selectColumns
-		sql.columns("f", fColumns)
-		sql.from(ftpe.table.schemaName, selectConfig.schemaModifications, ftpe.table.name, "f", applyHints(selectConfig.hints))
+		sql.columns(ForeignFStdAlias, fColumns)
+		sql.from(ftpe.table.schemaName, selectConfig.schemaModifications, ftpe.table.name, ForeignFStdAlias, applyHints(selectConfig.hints))
 
-		val lt = sqlBuilder.Table(ftpe.table.schemaName, selectConfig.schemaModifications, linkTable.name, "l", applyHints(selectConfig.hints))
+		val lt = sqlBuilder.Table(ftpe.table.schemaName, selectConfig.schemaModifications, linkTable.name, ForeignLStdAlias, applyHints(selectConfig.hints))
 		val j = sql.innerJoin(lt)
 		ftable.primaryKeys.zip(linkTable.right).foreach {
 			case (left, right) =>
-				j.and("f", left.name, "=", "l", right.name)
+				j.and(ForeignFStdAlias, left.name, "=", ForeignLStdAlias, right.name)
 		}
 		sql.where("l", leftKeyValues, "=")
 		sql
@@ -306,20 +309,18 @@ abstract class Driver
 	def startQuery[ID, PC <: Persisted, T](
 		q: sqlBuilder.SqlSelectBuilder,
 		queryConfig: QueryConfig,
-		aliases: QueryDao.Aliases,
 		qe: QueryInfo[ID, T], columns: List[SimpleColumn]
 		) = {
 		val entity = qe.entityAlias.entity
 		val tpe = entity.tpe
-		queryAfterSelect(q, queryConfig, aliases, qe, columns)
-		val alias = aliases(entity)
+		queryAfterSelect(q, queryConfig, qe, columns)
 
-		q.columns(alias, columns)
+		q.columns(qe.entityAlias.tableAlias, columns)
 		val hints = queryConfig.hints.afterTableName.map(_.hint).mkString
-		q.from(tpe.table.schemaName, queryConfig.schemaModifications, tpe.table.name, alias, hints)
+		q.from(tpe.table.schemaName, queryConfig.schemaModifications, tpe.table.name, qe.entityAlias.tableAlias, hints)
 	}
 
-	def queryAfterSelect[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: QueryInfo[ID, T], columns: List[SimpleColumn]) {}
+	def queryAfterSelect[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], columns: List[SimpleColumn]) {}
 
 	def shouldCreateOrderByClause(queryConfig: QueryConfig): Boolean = true
 

@@ -47,14 +47,16 @@ class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager:
 	 * ) as t
 	 * where Row between 3 and 5
 	 */
-	override def queryAfterSelect[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, aliases: QueryDao.Aliases, qe: QueryInfo[ID, T], columns: List[SimpleColumn]) {
+	override def queryAfterSelect[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], columns: List[SimpleColumn]) {
 		if (queryConfig.hasRange) {
 			val sb = new StringBuilder("ROW_NUMBER() over (order by ")
 			val entity = qe.entityAlias.entity
-			val alias = aliases(qe.entityAlias.entity)
-			val orderBySql = qe.order.map(t => alias + "." + t._1.column.name + " " + t._2.sql).mkString(",")
+			val orderBySql = qe.order.map {
+				case (aliasColumn, ascDesc) => aliasColumn.tableAlias.name + "." + aliasColumn.column.name + " " + ascDesc.sql
+			}.mkString(",")
+
 			if (orderBySql.isEmpty) {
-				sb append entity.tpe.table.primaryKeys.map(alias + "." + _.name).mkString(",")
+				sb append entity.tpe.table.primaryKeys.map(qe.entityAlias.tableAlias.name + "." + _.name).mkString(",")
 			} else sb append orderBySql
 
 			sb append ") as Row"
