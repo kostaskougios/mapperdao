@@ -29,8 +29,11 @@ case class AliasManyToOne[T, FID, F](column: ManyToOne[FID, F], tableAlias: Opti
 		new ManyToOneColumnOperation(this, NE, alias)
 }
 
-case class AliasManyToMany[FID, F](column: ManyToMany[FID, F], tableAlias: Option[Symbol] = None)
+case class AliasManyToMany[FID, F](column: ManyToMany[FID, F], tableAlias: Symbol)
 {
+	private[mapperdao] val leftAlias = Alias(column.entity, tableAlias)
+	private[mapperdao] val foreignAlias = Alias(column.foreign.entity)
+
 	def ===(v: F) = new ManyToManyOperation(this, EQ, v) with EqualityOperation
 
 	def <>(v: F) = new ManyToManyOperation(this, NE, v)
@@ -52,6 +55,9 @@ case class AliasOneToOneReverse[FID, F](column: OneToOneReverse[FID, F], tableAl
 
 case class AliasOneToMany[FID, F](column: OneToMany[FID, F], tableAlias: Option[Symbol] = None)
 {
+	private[mapperdao] val leftAlias = Alias(column.entity, tableAlias)
+	private[mapperdao] val foreignAlias = Alias(column.foreign.entity)
+
 	def ===(v: F) = new OneToManyOperation(this, EQ, v) with EqualityOperation
 
 	def <>(v: F) = new OneToManyOperation(this, NE, v)

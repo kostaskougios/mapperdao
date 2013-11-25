@@ -132,14 +132,10 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 					joins(and.left)
 					joins(and.right)
 				case OneToManyOperation(left: AliasOneToMany[Any, _], operand: Operand, right: Any) =>
-					val entity = typeRegistry.entityOf(left.column)
-					val foreignEntity = left.column.foreign.entity
-					q.innerJoin(oneToManyJoin(queryConfig, entity, foreignEntity, left))
+					q.innerJoin(oneToManyJoin(queryConfig, left.leftAlias, left.foreignAlias, left.column))
 
 				case ManyToManyOperation(left: AliasManyToMany[Any, _], operand: Operand, right: Any) =>
-					val foreignEntity = left.column.foreign.entity
-					val entity = typeRegistry.entityOf(left.column)
-					val List(leftJ, _) = manyToManyJoin(queryConfig, entity, foreignEntity, left)
+					val List(leftJ, _) = manyToManyJoin(queryConfig, left.leftAlias, left.foreignAlias, left.column)
 					q.innerJoin(leftJ)
 				case _ => //noop
 			}
@@ -154,7 +150,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	private def whereAndArgs[ID, PC <: Persisted, T](q: driver.sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T]) =
 	// append the where clause and get the list of arguments
 		if (qe.wheres.isDefined) {
-			val e = queryExpressions(aliases, qe.wheres.get)
+			val e = queryExpressions(qe.wheres.get)
 			q.where(e)
 		}
 
@@ -199,7 +195,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				//						driver.sqlBuilder.NonValueClause(aliases(o.left.column), o.left.column.name, o.operand.sql, aliases(rc), rc.name)
 				//					case _ =>
 				val List((left, right)) = typeManager.transformValuesBeforeStoring(List((o.left.column, o.right)))
-				driver.sqlBuilder.Clause(aliases(o.left.column), left, o.operand.sql, right)
+				driver.sqlBuilder.Clause(o.left.tableAlias, left, o.operand.sql, right)
 			case AndOp(left, right) =>
 				driver.sqlBuilder.And(inner(left), inner(right))
 			case OrOp(left, right) =>
@@ -208,7 +204,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				val expressions = ops.map(inner(_))
 				driver.sqlBuilder.Comma(expressions)
 			case ColumnOperation(left, operand, right) =>
-				driver.sqlBuilder.NonValueClause(aliases(left.column), left.column.name, operand.sql, aliases(right.column), right.column.name)
+				driver.sqlBuilder.NonValueClause(left.tableAlias, left.column.name, operand.sql, aliases(right.column), right.column.name)
 			case ManyToOneOperation(left, operand, right) =>
 				val exprs = right match {
 					case null =>

@@ -54,6 +54,8 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class[T]) extends EntityBase[ID, T]
 {
+	private[mapperdao] val entityId = Entity.idGenerator.incrementAndGet
+
 	/**
 	 * example:
 	 *
@@ -753,8 +755,6 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	}
 
 	// ===================== /Java section ================================
-
-	private[mapperdao] val entityId = Entity.idGenerator.incrementAndGet
 
 	/**
 	 * utility method to cast an entity to it's persisted type

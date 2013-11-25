@@ -166,11 +166,12 @@ trait SqlManyToOneImplicitConvertions
 
 trait SqlManyToManyImplicitConvertions
 {
-	implicit def columnInfoManyToManyCI[T, FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F]) = new AliasManyToMany[FID, F](ci.column)
+	implicit def columnInfoManyToManyCI[T, FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F]) =
+		new AliasManyToMany[FID, F](ci.column, Alias.aliasFor(ci.column))
 
 	implicit def columnInfoManyToManyAlias[T, FID, F](alias: (Symbol, ColumnInfoTraversableManyToMany[T, FID, F])) = {
 		val (a, ci) = alias
-		new AliasManyToMany[FID, F](ci.column, Some(a))
+		new AliasManyToMany[FID, F](ci.column, a)
 	}
 }
 
@@ -209,9 +210,9 @@ trait SqlRelatedImplicitConvertions
 	 */
 	protected class ConvertorManyToMany[T, FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F])
 	{
-		def ===(v: F) = new ManyToManyOperation(AliasManyToMany(ci.column), EQ, v)
+		def ===(v: F) = new ManyToManyOperation(AliasManyToMany(ci.column, Alias.aliasFor(ci.column)), EQ, v)
 
-		def <>(v: F) = new ManyToManyOperation(AliasManyToMany(ci.column), NE, v)
+		def <>(v: F) = new ManyToManyOperation(AliasManyToMany(ci.column, Alias.aliasFor(ci.column)), NE, v)
 	}
 
 	implicit def columnInfoManyToManyOperation[T, FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F]) = new ConvertorManyToMany[T, FID, F](ci)

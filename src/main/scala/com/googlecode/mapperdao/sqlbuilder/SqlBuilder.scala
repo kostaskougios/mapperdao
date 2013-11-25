@@ -65,7 +65,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 	}
 
 	case class Clause(
-		alias: String,
+		alias: Symbol,
 		column: SimpleColumn,
 		op: String,
 		value: Any
@@ -76,13 +76,13 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 
 		override def toSql = {
 			val sb = new StringBuilder
-			if (alias != null) sb append (alias) append (".")
+			if (alias != null) sb append (alias.name) append (".")
 			sb append escapeNamesStrategy.escapeColumnNames(column.name) append " "
 			if (isNull)
 				sb append "is null"
 			else
 				sb append op append " ?"
-			sb.toString()
+			sb.toString
 		}
 
 		override def toValues = if (isNull) Nil
@@ -111,7 +111,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 	}
 
 	class ColumnAndColumnClause(
-		leftAlias: String, leftColumn: SimpleColumn,
+		leftAlias: Symbol, leftColumn: SimpleColumn,
 		op: String,
 		rightAlias: String, rightColumn: SimpleColumn
 		) extends NonValueClause(leftAlias, leftColumn.name, op, rightAlias, rightColumn.name)
@@ -341,7 +341,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			this
 		}
 
-		def where(alias: String, column: SimpleColumn, op: String, value: Any) = {
+		def where(alias: Symbol, column: SimpleColumn, op: String, value: Any) = {
 			if (whereBuilder.isDefined) throw new IllegalStateException("where already defined")
 			whereBuilder = Some(new WhereBuilder(Clause(alias, column, op, value)))
 			this
