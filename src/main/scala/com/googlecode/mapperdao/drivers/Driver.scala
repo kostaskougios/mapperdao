@@ -220,7 +220,7 @@ abstract class Driver
 			case (left, right) =>
 				j.and(ForeignFStdAlias, left.name, "=", ForeignLStdAlias, right.name)
 		}
-		sql.where("l", leftKeyValues, "=")
+		sql.where(Symbol("l"), leftKeyValues, "=")
 		sql
 	}
 

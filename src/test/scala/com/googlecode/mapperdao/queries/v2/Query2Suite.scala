@@ -243,7 +243,7 @@ class Query2Suite extends FunSuite with Matchers
 				where pe.company === com1
 			)
 		q.queryInfo.wheres.get should be(ManyToOneOperation(
-			AliasManyToOne[Person, Int, Company](pe.company.column),
+			AliasManyToOne[Person, Int, Company](pe.company.column, Alias.aliasFor(pe)),
 			EQ,
 			com1
 		))
@@ -258,9 +258,9 @@ class Query2Suite extends FunSuite with Matchers
 			)
 		q.queryInfo.wheres.get should be(
 			ManyToOneColumnOperation(
-				AliasManyToOne[Company, Int, Company](pe.company.column),
+				AliasManyToOne[Company, Int, Company](pe.company.column, Alias.aliasFor(pe)),
 				EQ,
-				AliasRelationshipColumn[Company, Int, Company](pe.company.column, Some('x))
+				AliasRelationshipColumn[Company, Int, Company](pe.company.column, 'x)
 			)
 		)
 	}
@@ -274,7 +274,7 @@ class Query2Suite extends FunSuite with Matchers
 				where pe.company <> com1
 			)
 		q.queryInfo.wheres.get should be(ManyToOneOperation(
-			AliasManyToOne[Person, Int, Company](pe.company.column),
+			AliasManyToOne[Person, Int, Company](pe.company.column, Alias.aliasFor(pe)),
 			NE,
 			com1
 		))
@@ -289,9 +289,9 @@ class Query2Suite extends FunSuite with Matchers
 			)
 		q.queryInfo.wheres.get should be(
 			ManyToOneColumnOperation(
-				AliasManyToOne[Company, Int, Company](pe.company.column),
+				AliasManyToOne[Company, Int, Company](pe.company.column, Alias.aliasFor(pe)),
 				NE,
-				AliasRelationshipColumn[Company, Int, Company](pe.company.column, Some('x))
+				AliasRelationshipColumn[Company, Int, Company](pe.company.column, 'x)
 			)
 		)
 	}
@@ -305,7 +305,7 @@ class Query2Suite extends FunSuite with Matchers
 				where oe.owns === house
 			)
 		q.queryInfo.wheres.get should be(OneToManyOperation(
-			AliasOneToMany[Int, House](oe.owns.column),
+			AliasOneToMany[Int, House](oe.owns.column, Alias.aliasFor(oe)),
 			EQ,
 			house
 		))
@@ -320,7 +320,7 @@ class Query2Suite extends FunSuite with Matchers
 				where oe.owns <> house
 			)
 		q.queryInfo.wheres.get should be(OneToManyOperation(
-			AliasOneToMany[Int, House](oe.owns.column),
+			AliasOneToMany[Int, House](oe.owns.column, Alias.aliasFor(oe)),
 			NE,
 			house
 		))
@@ -335,7 +335,7 @@ class Query2Suite extends FunSuite with Matchers
 				where prode.attributes === attr
 			)
 		q.queryInfo.wheres.get should be(ManyToManyOperation(
-			AliasManyToMany[Int, Attribute](prode.attributes.column),
+			AliasManyToMany[Int, Attribute](prode.attributes.column, Alias.aliasFor(prode)),
 			EQ,
 			attr
 		))
@@ -350,7 +350,7 @@ class Query2Suite extends FunSuite with Matchers
 				where prode.attributes <> attr
 			)
 		q.queryInfo.wheres.get should be(ManyToManyOperation(
-			AliasManyToMany[Int, Attribute](prode.attributes.column),
+			AliasManyToMany[Int, Attribute](prode.attributes.column, Alias.aliasFor(prode)),
 			NE,
 			attr
 		))

@@ -204,7 +204,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				val expressions = ops.map(inner(_))
 				driver.sqlBuilder.Comma(expressions)
 			case ColumnOperation(left, operand, right) =>
-				driver.sqlBuilder.NonValueClause(left.tableAlias, left.column.name, operand.sql, aliases(right.column), right.column.name)
+				driver.sqlBuilder.NonValueClause(left.tableAlias, left.column.name, operand.sql, right.tableAlias, right.column.name)
 			case ManyToOneOperation(left, operand, right) =>
 				val exprs = right match {
 					case null =>
@@ -215,15 +215,15 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 									case NE => "not null"
 									case _ => throw new IllegalArgumentException("operand %s not valid when right hand parameter is null.".format(operand))
 								}
-								driver.sqlBuilder.NonValueClause(aliases(c), c.name, "is", null, r)
+								driver.sqlBuilder.NonValueClause(left.tableAlias, c.name, "is", null, r)
 						}
 					case ManyToOne(_, columns, foreign) =>
 						left.column.columns zip columns map {
 							case (l, r) =>
 								new driver.sqlBuilder.ColumnAndColumnClause(
-									aliases(l), l,
+									left.tableAlias, l,
 									operand.sql,
-									aliases(r), r
+									r.entity.entityAlias, r
 								)
 						}
 					case _ =>
@@ -235,7 +235,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 						if (left.column.columns.size != fPKs.size) throw new IllegalStateException("foreign keys %s don't match foreign key columns %s".format(fPKs, left.column.columns))
 						left.column.columns zip fPKs map {
 							case (c, v) =>
-								driver.sqlBuilder.Clause(aliases(c), c, operand.sql, v)
+								driver.sqlBuilder.Clause(left.tableAlias, c, operand.sql, v)
 						}
 				}
 				exprs.reduceLeft {
@@ -251,7 +251,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 				val exprs = fPKColumnAndValues.map {
 					case (c, v) =>
-						driver.sqlBuilder.Clause(aliases(c), c, operand.sql, v)
+						driver.sqlBuilder.Clause(c.entity.entityAlias, c, operand.sql, v)
 				}
 				exprs.reduceLeft[driver.sqlBuilder.Expression] {
 					(l, r) =>
@@ -270,7 +270,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				val zipped = (fPKColumnAndValues zip left.linkTable.right)
 				zipped.map {
 					case ((c, v), ltr) =>
-						driver.sqlBuilder.Clause(aliases(left.linkTable), ltr, operand.sql, v)
+						driver.sqlBuilder.Clause(leftAlias.tableAlias, ltr, operand.sql, v)
 				}.reduceLeft[driver.sqlBuilder.Expression] {
 					(l, r) =>
 						driver.sqlBuilder.And(l, r)
@@ -286,7 +286,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 				val exprs = fPKColumnAndValues.map {
 					case (c, v) =>
-						driver.sqlBuilder.Clause(aliases(left), c, operand.sql, v)
+						driver.sqlBuilder.Clause(leftAlias.tableAlias, c, operand.sql, v)
 				}
 				exprs.reduceLeft[driver.sqlBuilder.Expression] {
 					(l, r) =>
@@ -302,7 +302,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 				val exprs = fPKColumnAndValues.map {
 					case (c, v) =>
-						driver.sqlBuilder.Clause(aliases(left.foreign.entity), c, operand.sql, v)
+						driver.sqlBuilder.Clause(left.foreign.entity.entityAlias, c, operand.sql, v)
 				}
 				exprs.reduceLeft[driver.sqlBuilder.Expression] {
 					(l, r) =>
@@ -314,16 +314,16 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 				val exprs = fPKColumnAndValues.map {
 					case (c, v) =>
-						driver.sqlBuilder.Clause(aliases(c), c, operand.sql, v)
+						driver.sqlBuilder.Clause(foreignEntity.entityAlias, c, operand.sql, v)
 				}
 				exprs.reduceLeft[driver.sqlBuilder.Expression] {
 					(l, r) =>
 						driver.sqlBuilder.And(l, r)
 				}
 			case SqlFunctionOp(left, operand, right) =>
-				driver.sqlBuilder.FunctionClause(aliases, left, Some(operand.sql), right)
+				driver.sqlBuilder.FunctionClause(left, Some(operand.sql), right)
 			case SqlFunctionBoolOp(left) =>
-				new driver.sqlBuilder.FunctionClause(aliases, left)
+				new driver.sqlBuilder.FunctionClause(left)
 		}
 
 		inner(clauses)
@@ -414,19 +414,19 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	// creates the join for one-to-many
 	private def manyToManyJoin[JID, JT, FID, FT](
 		queryConfig: QueryConfig,
-		joinEntity: Alias[JID, JT],
-		foreignEntity: Alias[FID, FT],
+		joinAlias: Alias[JID, JT],
+		foreignAlias: Alias[FID, FT],
 		manyToMany: ManyToMany[_, _]
 		): List[driver.sqlBuilder.InnerJoinBuilder] = {
-		val joinTpe = joinEntity.tpe
-		val foreignTpe = foreignEntity.tpe
+		val joinTpe = joinAlias.entity.tpe
+		val foreignTpe = foreignAlias.entity.tpe
 
 		val foreignTable = foreignTpe.table
-		val fAlias = aliases(foreignEntity)
-		val jAlias = aliases(joinEntity)
+		val fAlias = foreignAlias.tableAlias
+		val jAlias = joinAlias.tableAlias
 
 		val linkTable = manyToMany.linkTable
-		val linkTableAlias = aliases(linkTable)
+		val linkTableAlias = Alias.aliasFor(linkTable)
 
 		val j1 = new driver.sqlBuilder.InnerJoinBuilder(driver.sqlBuilder.Table(linkTable.schemaName, queryConfig.schemaModifications, linkTable.name, linkTableAlias, null))
 		(joinTpe.table.primaryKeys zip linkTable.left).foreach {
@@ -449,7 +449,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	 */
 	private def countSql[ID, PC <: Persisted, T](queryConfig: QueryConfig, q: driver.sqlBuilder.SqlSelectBuilder, entity: EntityBase[ID, T]) {
 		val table = entity.tpe.table
-		val alias = aliases(entity)
+		val alias = entity.entityAlias
 		q.columnNames(null, List("count(*)"))
 		q.from(table.schemaName, queryConfig.schemaModifications, table.name, alias, null)
 	}
@@ -458,10 +458,10 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val b = new driver.sqlBuilder.DeleteBuilder
 		val entity = d.entity
 		val table = entity.tpe.table
-		b.from(driver.sqlBuilder.Table(table.schemaName, deleteConfig.schemaModifications, table.name, aliases(entity)))
+		b.from(driver.sqlBuilder.Table(table.schemaName, deleteConfig.schemaModifications, table.name, entity.entityAlias))
 		d match {
 			case w: Delete.Where[_, _, _] =>
-				val we = queryExpressions(aliases, w.clauses)
+				val we = queryExpressions(w.clauses)
 				b.where(new driver.sqlBuilder.WhereBuilder(we))
 			case f: Delete.FromOptions[_, _, _] =>
 		}
@@ -474,13 +474,13 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val b = new driver.sqlBuilder.UpdateBuilder
 		val entity = u.entity
 		val table = entity.tpe.table
-		b.table(driver.sqlBuilder.Table(table.schemaName, updateConfig.schemaModifications, table.name, aliases(entity)))
+		b.table(driver.sqlBuilder.Table(table.schemaName, updateConfig.schemaModifications, table.name, entity.entityAlias))
 
-		val we = queryExpressions(aliases, u.setClauses)
+		val we = queryExpressions(u.setClauses)
 		b.set(we)
 		u.whereClauses.foreach {
 			wc =>
-				val wh = queryExpressions(aliases, wc)
+				val wh = queryExpressions(wc)
 				b.where(wh)
 		}
 		val sql = b.toSql

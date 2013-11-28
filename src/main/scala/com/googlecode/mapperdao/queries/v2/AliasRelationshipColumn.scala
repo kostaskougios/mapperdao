@@ -14,9 +14,9 @@ import com.googlecode.mapperdao.OneToOneOperation
  * @author: kostas.kougios
  *          Date: 31/10/13
  */
-case class AliasRelationshipColumn[T, FID, F](column: ColumnRelationshipBase[FID, F], tableAlias: Option[Symbol] = None)
+case class AliasRelationshipColumn[T, FID, F](column: ColumnRelationshipBase[FID, F], tableAlias: Symbol)
 
-case class AliasManyToOne[T, FID, F](column: ManyToOne[FID, F], tableAlias: Option[Symbol] = None)
+case class AliasManyToOne[T, FID, F](column: ManyToOne[FID, F], tableAlias: Symbol)
 {
 	def ===(v: F) = new ManyToOneOperation(this, EQ, v) with EqualityOperation
 
@@ -39,21 +39,21 @@ case class AliasManyToMany[FID, F](column: ManyToMany[FID, F], tableAlias: Symbo
 	def <>(v: F) = new ManyToManyOperation(this, NE, v)
 }
 
-case class AliasOneToOne[FID, F](column: OneToOne[FID, F], tableAlias: Option[Symbol] = None)
+case class AliasOneToOne[FID, F](column: OneToOne[FID, F], tableAlias: Symbol)
 {
 	def ===(v: F) = new OneToOneOperation(this, EQ, v) with EqualityOperation
 
 	def <>(v: F) = new OneToOneOperation(this, NE, v)
 }
 
-case class AliasOneToOneReverse[FID, F](column: OneToOneReverse[FID, F], tableAlias: Option[Symbol] = None)
+case class AliasOneToOneReverse[FID, F](column: OneToOneReverse[FID, F], tableAlias: Symbol)
 {
 	def ===(v: F) = new OneToOneReverseOperation(this, EQ, v) with EqualityOperation
 
 	def <>(v: F) = new OneToOneReverseOperation(this, NE, v)
 }
 
-case class AliasOneToMany[FID, F](column: OneToMany[FID, F], tableAlias: Option[Symbol] = None)
+case class AliasOneToMany[FID, F](column: OneToMany[FID, F], tableAlias: Symbol)
 {
 	private[mapperdao] val leftAlias = Alias(column.entity, tableAlias)
 	private[mapperdao] val foreignAlias = Alias(column.foreign.entity)

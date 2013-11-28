@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.schema.{Schema, PK, Type}
+import com.googlecode.mapperdao.queries.v2.Alias
 
 /**
  * all entities inherit this
@@ -22,6 +23,8 @@ trait EntityBase[ID, T]
 	private[mapperdao] def keysDuringDeclaration: List[PK]
 
 	private[mapperdao] def entityId: Int
+
+	private[mapperdao] val entityAlias = Alias.aliasFor(this)
 
 	def databaseSchema: Option[Schema]
 }

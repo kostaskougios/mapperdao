@@ -71,10 +71,10 @@ class SimpleQuerySuite extends FunSuite with Matchers
 		createJobPositionTable()
 
 		val now = Setup.now
-		val j1 = mapperDao.insert(JobPositionEntity, JobPosition(5, "developer", now))
-		val j2 = mapperDao.insert(JobPositionEntity, JobPosition(6, "Scala Developer", now))
-		val j3 = mapperDao.insert(JobPositionEntity, JobPosition(7, "manager", now))
-		val j4 = mapperDao.insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
+		mapperDao.insert(JobPositionEntity, JobPosition(5, "developer", now))
+		mapperDao.insert(JobPositionEntity, JobPosition(6, "Scala Developer", now))
+		mapperDao.insert(JobPositionEntity, JobPosition(7, "manager", now))
+		mapperDao.insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
 		queryDao.count(q1) should be === 2
 	}
 

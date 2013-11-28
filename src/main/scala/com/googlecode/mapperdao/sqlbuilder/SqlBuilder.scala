@@ -10,6 +10,7 @@ import com.googlecode.mapperdao.schema.ColumnInfo
 import scala.Some
 import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
 import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
+import com.googlecode.mapperdao.queries.v2.Alias
 
 /**
  * builds queries, inserts, updates and deletes. This is a thread-safe factory, 1 instance can be reused
@@ -113,7 +114,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 	class ColumnAndColumnClause(
 		leftAlias: Symbol, leftColumn: SimpleColumn,
 		op: String,
-		rightAlias: String, rightColumn: SimpleColumn
+		rightAlias: Symbol, rightColumn: SimpleColumn
 		) extends NonValueClause(leftAlias, leftColumn.name, op, rightAlias, rightColumn.name)
 
 	case class FunctionClause[R](
@@ -155,16 +156,16 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			sb append v.values.map {
 				case value if (Jdbc.isPrimitiveJdbcType(driver, value.getClass)) =>
 					"?"
-				case ci: ColumnInfo[_, _] => aliases(ci.column) + "." + ci.column.name
+				case ci: ColumnInfo[_, _] => Alias.aliasFor(ci.column) + "." + ci.column.name
 				case ci: ColumnInfoManyToOne[_, _, _] =>
 					ci.column.columns.map {
 						c =>
-							aliases(ci.column) + "." + c.name
+							Alias.aliasFor(ci.column) + "." + c.name
 					}.mkString(",")
 				case ci: ColumnInfoOneToOne[_, _, _] =>
 					ci.column.columns.map {
 						c =>
-							aliases(ci.column) + "." + c.name
+							Alias.aliasFor(ci.column) + "." + c.name
 					}.mkString(",")
 				case iv: SqlFunctionValue[_] =>
 					functionToSql(iv)
@@ -179,18 +180,18 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 				sb append op.get
 				sb append (right match {
 					case v if (Jdbc.isPrimitiveJdbcType(driver, right.getClass)) => "?"
-					case ci: ColumnInfo[_, _] => aliases(ci.column) + "." + ci.column.name
+					case ci: ColumnInfo[_, _] => Alias.aliasFor(ci.column) + "." + ci.column.name
 					case ci: ColumnInfoManyToOne[_, _, _] =>
 						if (ci.column.columns.size > 1) throw new IllegalArgumentException("can't use a multi-column-primary-key many-to-one in the right part of a function comparison : " + ci.column.columns)
 						ci.column.columns.map {
 							c =>
-								aliases(ci.column) + "." + c.name
+								Alias.aliasFor(ci.column) + "." + c.name
 						}.mkString(",")
 					case ci: ColumnInfoOneToOne[_, _, _] =>
 						if (ci.column.columns.size > 1) throw new IllegalArgumentException("can't use a multi-column-primary-key one-to-one in the right part of a function comparison : " + ci.column.columns)
 						ci.column.columns.map {
 							c =>
-								aliases(ci.column) + "." + c.name
+								Alias.aliasFor(ci.column) + "." + c.name
 						}.mkString(",")
 					case right: SqlFunctionValue[_] =>
 						functionToSql(right)
@@ -240,7 +241,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 	{
 		private var e: Expression = null
 
-		def on(leftAlias: String, left: String, op: String, rightAlias: String, right: String) = {
+		def on(leftAlias: Symbol, left: String, op: String, rightAlias: Symbol, right: String) = {
 			if (e != null) throw new IllegalStateException("expression already set to " + e)
 			e = NonValueClause(leftAlias, left, op, rightAlias, right)
 			this
@@ -335,7 +336,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			this
 		}
 
-		def where(alias: String, columnsAndValues: List[(SimpleColumn, Any)], op: String) = {
+		def where(alias: Symbol, columnsAndValues: List[(SimpleColumn, Any)], op: String) = {
 			if (whereBuilder.isDefined) throw new IllegalStateException("where already defined")
 			whereBuilder = Some(SqlBuilder.this.whereAll(alias, columnsAndValues, op))
 			this
@@ -404,7 +405,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		override def toString = "SqlSelectBuilder(" + toSql + ")"
 	}
 
-	def whereAll(alias: String, columnsAndValues: List[(SimpleColumn, Any)], op: String): WhereBuilder =
+	def whereAll(alias: Symbol, columnsAndValues: List[(SimpleColumn, Any)], op: String): WhereBuilder =
 		new WhereBuilder(columnsAndValues.foldLeft[Expression](null) {
 			case (prevClause, (column, value)) =>
 				val clause = Clause(alias, column, op, value)

@@ -10,7 +10,6 @@ import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
 import com.googlecode.mapperdao.ManyToManyOperation
 import com.googlecode.mapperdao.ColumnOperation
 import com.googlecode.mapperdao.OneToManyOperation
-import scala.Some
 import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
 import com.googlecode.mapperdao.queries.v2.AliasRelationshipColumn
 import com.googlecode.mapperdao.queries.v2.AliasColumn
@@ -115,11 +114,11 @@ trait SqlRelationshipImplicitConvertions
 {
 
 	implicit def relationshipColumnToAlias[T, FID, F](v: ColumnInfoRelationshipBase[T, _, FID, F]) =
-		new AliasRelationshipColumn[T, FID, F](v.column)
+		new AliasRelationshipColumn[T, FID, F](v.column, Alias.aliasFor(v.column))
 
 	implicit def relationshipAliasColumnToAlias[T, FID, F](alias: (Symbol, ColumnInfoRelationshipBase[T, _, FID, F])) = {
 		val (a, v) = alias
-		new AliasRelationshipColumn[T, FID, F](v.column, Some(a))
+		new AliasRelationshipColumn[T, FID, F](v.column, a)
 	}
 
 	protected class ConvertorOneToManyDeclaredPrimaryKey[TID, T, FID, F](alias: AliasRelationshipColumn[F, TID, T])
@@ -130,37 +129,37 @@ trait SqlRelationshipImplicitConvertions
 	}
 
 	implicit def columnInfoOneToManyForDeclaredPrimaryKeyOperation[TID, T, FID, F](ci: ColumnInfoTraversableOneToManyDeclaredPrimaryKey[FID, F, TID, T]) =
-		new ConvertorOneToManyDeclaredPrimaryKey[TID, T, FID, F](AliasRelationshipColumn[F, TID, T](ci.declaredColumnInfo.column))
+		new ConvertorOneToManyDeclaredPrimaryKey[TID, T, FID, F](AliasRelationshipColumn[F, TID, T](ci.declaredColumnInfo.column, Alias.aliasFor(ci.declaredColumnInfo.column)))
 
 }
 
 trait SqlOneToOneImplicitConvertions
 {
-	implicit def columnInfoOneToOneCI[T, FID, F](ci: ColumnInfoOneToOne[T, FID, F]) = new AliasOneToOne[FID, F](ci.column)
+	implicit def columnInfoOneToOneCI[T, FID, F](ci: ColumnInfoOneToOne[T, FID, F]) = new AliasOneToOne[FID, F](ci.column, Alias.aliasFor(ci.column))
 
 	implicit def columnInfoOneToOneAlias[T, FID, F](alias: (Symbol, ColumnInfoOneToOne[T, FID, F])) = {
 		val (a, ci) = alias
-		new AliasOneToOne[FID, F](ci.column, Some(a))
+		new AliasOneToOne[FID, F](ci.column, a)
 	}
 }
 
 trait SqlOneToOneReverseImplicitConvertions
 {
-	implicit def columnInfoOneToOneReverseCI[T, FID, F](ci: ColumnInfoOneToOneReverse[T, FID, F]) = new AliasOneToOneReverse[FID, F](ci.column)
+	implicit def columnInfoOneToOneReverseCI[T, FID, F](ci: ColumnInfoOneToOneReverse[T, FID, F]) = new AliasOneToOneReverse[FID, F](ci.column, Alias.aliasFor(ci.column))
 
 	implicit def columnInfoOneToOneReverseAlias[T, FID, F](alias: (Symbol, ColumnInfoOneToOneReverse[T, FID, F])) = {
 		val (a, ci) = alias
-		new AliasOneToOneReverse[FID, F](ci.column, Some(a))
+		new AliasOneToOneReverse[FID, F](ci.column, a)
 	}
 }
 
 trait SqlManyToOneImplicitConvertions
 {
-	implicit def columnInfoManyToOneCI[T, FID, F](ci: ColumnInfoManyToOne[T, FID, F]) = new AliasManyToOne[T, FID, F](ci.column)
+	implicit def columnInfoManyToOneCI[T, FID, F](ci: ColumnInfoManyToOne[T, FID, F]) = new AliasManyToOne[T, FID, F](ci.column, Alias.aliasFor(ci.column))
 
 	implicit def columnInfoManyToOneAlias[T, FID, F](alias: (Symbol, ColumnInfoManyToOne[T, FID, F])) = {
 		val (a, ci) = alias
-		new AliasManyToOne[T, FID, F](ci.column, Some(a))
+		new AliasManyToOne[T, FID, F](ci.column, a)
 	}
 }
 
@@ -177,11 +176,11 @@ trait SqlManyToManyImplicitConvertions
 
 trait SqlOneToManyImplicitConvertions
 {
-	implicit def columnInfoOneToManyCI[T, FID, F](ci: ColumnInfoTraversableOneToMany[_, T, FID, F]) = new AliasOneToMany[FID, F](ci.column)
+	implicit def columnInfoOneToManyCI[T, FID, F](ci: ColumnInfoTraversableOneToMany[_, T, FID, F]) = new AliasOneToMany[FID, F](ci.column, Alias.aliasFor(ci.column))
 
 	implicit def columnInfoOneToManyAlias[T, FID, F](alias: (Symbol, ColumnInfoTraversableOneToMany[_, T, FID, F])) = {
 		val (a, ci) = alias
-		new AliasOneToMany[FID, F](ci.column, Some(a))
+		new AliasOneToMany[FID, F](ci.column, a)
 	}
 }
 
@@ -196,9 +195,9 @@ trait SqlRelatedImplicitConvertions
 		ci: ColumnInfoTraversableOneToMany[ID, T, FID, F]
 		)
 	{
-		def ===(v: F) = new OneToManyOperation(AliasOneToMany(ci.column), EQ, v)
+		def ===(v: F) = new OneToManyOperation(AliasOneToMany(ci.column, Alias.aliasFor(ci.column)), EQ, v)
 
-		def <>(v: F) = new OneToManyOperation(AliasOneToMany(ci.column), NE, v)
+		def <>(v: F) = new OneToManyOperation(AliasOneToMany(ci.column, Alias.aliasFor(ci.column)), NE, v)
 	}
 
 	implicit def columnInfoOneToManyOperation[ID, T, FID, F](
@@ -222,9 +221,9 @@ trait SqlRelatedImplicitConvertions
 	 */
 	protected class ConvertorOneToOneReverse[T, FID, F](ci: ColumnInfoOneToOneReverse[T, FID, F])
 	{
-		def ===(v: F) = new OneToOneReverseOperation(AliasOneToOneReverse(ci.column), EQ, v)
+		def ===(v: F) = new OneToOneReverseOperation(AliasOneToOneReverse(ci.column, Alias.aliasFor(ci.column)), EQ, v)
 
-		def <>(v: F) = new OneToOneReverseOperation(AliasOneToOneReverse(ci.column), NE, v)
+		def <>(v: F) = new OneToOneReverseOperation(AliasOneToOneReverse(ci.column, Alias.aliasFor(ci.column)), NE, v)
 	}
 
 	implicit def columnInfoOneToOneReverseOperation[T, FID, F](ci: ColumnInfoOneToOneReverse[T, FID, F]) = new ConvertorOneToOneReverse[T, FID, F](ci)

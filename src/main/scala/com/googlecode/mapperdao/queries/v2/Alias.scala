@@ -1,7 +1,7 @@
 package com.googlecode.mapperdao.queries.v2
 
 import com.googlecode.mapperdao.EntityBase
-import com.googlecode.mapperdao.schema.ColumnBase
+import com.googlecode.mapperdao.schema.{LinkTable, ColumnBase}
 
 /**
  * @author: kostas.kougios
@@ -16,9 +16,12 @@ object Alias
 	def aliasFor(column: ColumnBase): Symbol = aliasFor(column.entity)
 
 	def aliasFor[ID, T](entity: EntityBase[ID, T]): Symbol = {
-		val len = entity.tableLower.length
-		val prefix = entity.tableLower.substring(0, math.min(2, len))
-		val a = prefix + entity.entityId
+		val a = prefix(entity.tableLower) + entity.entityId
 		Symbol(a)
 	}
+
+	def aliasFor[ID, T](linkTable: LinkTable): Symbol =
+		Symbol(prefix(linkTable.name))
+
+	private def prefix(name: String) = name.substring(0, math.min(2, name.length))
 }

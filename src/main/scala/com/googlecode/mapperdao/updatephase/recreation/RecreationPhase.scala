@@ -35,7 +35,7 @@ class RecreationPhase(
 			node =>
 				val o = node.o
 				if (o == null)
-					throw new IllegalStateException("unexpected error, o is null")
+					throw new IllegalStateException("unexpected error, o is null for node " + node + ". This is either a mapperdao bug or an unknown way of mapping that is not supported yet. Please report this to mapperdao forums.")
 				m(o) = node
 		}
 		m
