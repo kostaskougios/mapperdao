@@ -71,9 +71,8 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 
 	def count[ID, PC <: Persisted, T](queryConfig: QueryConfig, qe: QueryInfo[ID, T]): Long = {
 		if (qe == null) throw new NullPointerException("qe can't be null")
-		val e = qe.entityAlias.entity
 		val q = new driver.sqlBuilder.SqlSelectBuilder
-		countSql(queryConfig, q, e)
+		countSql(queryConfig, q, qe.entityAlias)
 		joins(q, defaultQueryConfig, qe)
 		whereAndArgs(q, defaultQueryConfig, qe)
 		val r = q.result
@@ -447,11 +446,11 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	 * aggregate methods
 	 * =====================================================================================
 	 */
-	private def countSql[ID, PC <: Persisted, T](queryConfig: QueryConfig, q: driver.sqlBuilder.SqlSelectBuilder, entity: EntityBase[ID, T]) {
+	private def countSql[ID, PC <: Persisted, T](queryConfig: QueryConfig, q: driver.sqlBuilder.SqlSelectBuilder, entityAlias: Alias[ID, T]) {
+		val entity = entityAlias.entity
 		val table = entity.tpe.table
-		val alias = entity.entityAlias
 		q.columnNames(null, List("count(*)"))
-		q.from(table.schemaName, queryConfig.schemaModifications, table.name, alias, null)
+		q.from(table.schemaName, queryConfig.schemaModifications, table.name, entityAlias.tableAlias, null)
 	}
 
 	override def delete[ID, PC <: Persisted, T](deleteConfig: DeleteConfig, d: Delete.DeleteDDL[ID, PC, T]) = {

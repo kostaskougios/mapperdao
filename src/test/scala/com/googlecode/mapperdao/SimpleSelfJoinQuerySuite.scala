@@ -40,7 +40,7 @@ class SimpleSelfJoinQuerySuite extends FunSuite with Matchers
 		val j = JobPositionEntity
 
 		select from j join
-			(JobPositionEntity as 'jp) on
+			(j as 'jp) on
 			j.name ===('jp, j.name) and
 			j.id <>('jp, j.id)
 	}
