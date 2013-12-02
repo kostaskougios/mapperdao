@@ -768,5 +768,5 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 object Entity
 {
 	// generates id's for entities
-	private val idGenerator = new AtomicInteger
+	private[mapperdao] val idGenerator = new AtomicInteger
 }

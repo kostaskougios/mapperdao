@@ -4,7 +4,6 @@ import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, FunSuite}
-import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
 
 /**
  * @author kostantinos.kougios
@@ -19,13 +18,6 @@ class OneToManyQuerySuite extends FunSuite with Matchers
 	val p = PersonEntity
 	val h = HouseEntity
 
-	test("query with errors") {
-		createTables()
-		intercept[ColumnNotPartOfQueryException] {
-			import Query._
-			(select from p where h.address === "test").toList(queryDao)
-		}
-	}
 	test("query with limits (offset only)") {
 		createTables()
 		val persons = for (i <- 0 to 10) yield mapperDao.insert(PersonEntity, Person(i, "person%d".format(i), Set(House(i * 2, "London"), House(i * 2 + 1, "Paris"))))
@@ -110,7 +102,7 @@ class OneToManyQuerySuite extends FunSuite with Matchers
 				name varchar(100) not null,
 				primary key (id)
 			)
-		             """)
+					 """)
 
 		jdbc.update( """
 			create table House (
@@ -120,7 +112,7 @@ class OneToManyQuerySuite extends FunSuite with Matchers
 				primary key (id),
 				constraint FK_House_Person foreign key (person_id) references Person(id) on delete cascade
 			)
-		             """)
+					 """)
 	}
 
 	case class Person(id: Int, var name: String, owns: Set[House])

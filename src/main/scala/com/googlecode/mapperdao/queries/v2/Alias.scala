@@ -21,7 +21,7 @@ object Alias
 	}
 
 	def aliasFor[ID, T](linkTable: LinkTable): Symbol =
-		Symbol(prefix(linkTable.name))
+		Symbol(prefix(linkTable.name.toLowerCase, 3) + linkTable.entityId)
 
-	private def prefix(name: String) = name.substring(0, math.min(2, name.length))
+	private def prefix(name: String, maxChars: Int = 2) = name.substring(0, math.min(maxChars, name.length))
 }

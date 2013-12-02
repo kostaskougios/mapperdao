@@ -4,7 +4,6 @@ import com.googlecode.mapperdao.jdbc.{Jdbc, Setup}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, FunSuite}
-import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
 
 /**
  * @author kostantinos.kougios
@@ -21,11 +20,27 @@ class ManyToManyQuerySuite extends FunSuite with Matchers
 	val p = ProductEntity
 	val attr = AttributeEntity
 
-	test("query with errors, column not part of a query") {
+	test("match on FK") {
 		createTables
-		intercept[ColumnNotPartOfQueryException] {
-			(select from p where attr.name === "z").toList
-		}
+		val a = mapperDao.insert(AttributeEntity, Attribute(100, "size", "A"))
+		val b = mapperDao.insert(AttributeEntity, Attribute(101, "size", "B"))
+		val c = mapperDao.insert(AttributeEntity, Attribute(102, "size", "C"))
+		val d = mapperDao.insert(AttributeEntity, Attribute(103, "size", "D"))
+
+		val p1 = mapperDao.insert(ProductEntity, Product(1, "TV 1", Set(a, b)))
+		val p2 = mapperDao.insert(ProductEntity, Product(2, "TV 2", Set(c, d)))
+		val p3 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a, c)))
+		val p4 = mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(d)))
+
+		def q(attr: Attribute) = select from p where p.attributes === attr
+
+		def qn(attr: Attribute) = select from p where p.attributes <> attr
+
+		q(a).toList.toSet should be === Set(p1, p3)
+		q(d).toList.toSet should be === Set(p2, p4)
+		q(c).toList.toSet should be === Set(p2, p3)
+		q(d).toList.toSet should be === Set(p2, p4)
+		qn(d).toList.toSet should be === Set(p1, p2, p3)
 	}
 
 	test("query with limits (offset only)") {
@@ -59,28 +74,6 @@ class ManyToManyQuerySuite extends FunSuite with Matchers
 		(select from p join(p, p.attributes, attr) where attr.value === "46'")
 			.toList(QueryConfig(skip = Set(ProductEntity.attributes)))
 			.toSet should be === Set(Product(1, "TV 1", Set()), Product(3, "TV 3", Set()))
-	}
-	test("match on FK") {
-		createTables
-		val a = mapperDao.insert(AttributeEntity, Attribute(100, "size", "A"))
-		val b = mapperDao.insert(AttributeEntity, Attribute(101, "size", "B"))
-		val c = mapperDao.insert(AttributeEntity, Attribute(102, "size", "C"))
-		val d = mapperDao.insert(AttributeEntity, Attribute(103, "size", "D"))
-
-		val p1 = mapperDao.insert(ProductEntity, Product(1, "TV 1", Set(a, b)))
-		val p2 = mapperDao.insert(ProductEntity, Product(2, "TV 2", Set(c, d)))
-		val p3 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a, c)))
-		val p4 = mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(d)))
-
-		def q(attr: Attribute) = select from p where p.attributes === attr
-
-		def qn(attr: Attribute) = select from p where p.attributes <> attr
-
-		q(a).toList.toSet should be === Set(p1, p3)
-		q(d).toList.toSet should be === Set(p2, p4)
-		q(c).toList.toSet should be === Set(p2, p3)
-		q(d).toList.toSet should be === Set(p2, p4)
-		qn(d).toList.toSet should be === Set(p1, p2, p3)
 	}
 
 	test("query with limits (limit only)") {

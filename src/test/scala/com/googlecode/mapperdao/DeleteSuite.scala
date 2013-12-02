@@ -4,7 +4,6 @@ import org.junit.runner.RunWith
 import org.scalatest.{Matchers, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.jdbc.Setup
-import com.googlecode.mapperdao.exceptions.ColumnNotPartOfQueryException
 
 /**
  * @author kostantinos.kougios
@@ -18,18 +17,6 @@ class DeleteSuite extends FunSuite with Matchers
 	import CommonEntities._
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(AllEntities)
-
-	test("delete with errors") {
-		createProductAttribute(jdbc)
-		createTestData
-
-		import Delete._
-		val pe = ProductEntity
-		val ae = AttributeEntity
-		intercept[ColumnNotPartOfQueryException] {
-			(delete from pe where ae.name === "colour").run(queryDao).rowsAffected should be(1)
-		}
-	}
 
 	test("delete with where referencing related one-to-one") {
 		createHusbandWife(jdbc)

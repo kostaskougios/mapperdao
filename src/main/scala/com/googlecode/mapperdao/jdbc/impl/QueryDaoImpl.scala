@@ -57,9 +57,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 			executeQuery(queryConfig, entityAlias, lm)
 		} catch {
 			case e: Throwable =>
-				val extra = "\n------\nThe query:%s\nThe arguments:%s\n------\n".format(sql, args)
-				val msg = "An error occured during execution of query %s.\nQuery Information:%s\nIssue:\n%s".format(sql, extra, e.getMessage)
-				throw new QueryException(msg, e)
+				throw new QueryException(s"An error occured during execution of query :\n${sql}\nThe arguments:\n${args}\n\nIssue:\n${e.getMessage}", e)
 		}
 	}
 
