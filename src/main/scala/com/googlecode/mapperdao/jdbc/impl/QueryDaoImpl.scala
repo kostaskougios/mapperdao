@@ -187,10 +187,6 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		): driver.sqlBuilder.Expression = {
 		def inner(op: OpBase): driver.sqlBuilder.Expression = op match {
 			case o: Operation[_] =>
-				//				o.right match {
-				//					case rc: SimpleColumn =>
-				//						driver.sqlBuilder.NonValueClause(aliases(o.left.column), o.left.column.name, o.operand.sql, aliases(rc), rc.name)
-				//					case _ =>
 				val List((left, right)) = typeManager.transformValuesBeforeStoring(List((o.left.column, o.right)))
 				driver.sqlBuilder.Clause(o.left.tableAlias, left, o.operand.sql, right)
 			case AndOp(left, right) =>
@@ -267,7 +263,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				val zipped = (fPKColumnAndValues zip left.linkTable.right)
 				zipped.map {
 					case ((c, v), ltr) =>
-						driver.sqlBuilder.Clause(leftAlias.tableAlias, ltr, operand.sql, v)
+						driver.sqlBuilder.Clause(leftAlias.column.linkTable.alias, ltr, operand.sql, v)
 				}.reduceLeft[driver.sqlBuilder.Expression] {
 					(l, r) =>
 						driver.sqlBuilder.And(l, r)
