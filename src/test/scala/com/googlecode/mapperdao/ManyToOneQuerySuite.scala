@@ -24,34 +24,34 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 
 	test("query 2 level join") {
 		createTables()
-		val (p0, p1, p2, p3, p4) = testData1
+		val (p0, p1, p2, _, _) = testData1
 		query(q1) should be === List(p0, p1, p2)
 	}
 
 	test("query with limits (offset only)") {
 		createTables()
-		val (p0, p1, p2, p3, p4) = testData1
+		val (_, _, p2, p3, p4) = testData1
 
 		query(QueryConfig(offset = Some(2)), q0Limits).toSet should be === Set(p2, p3, p4)
 	}
 
 	test("query with limits (limit only)") {
 		createTables()
-		val (p0, p1, p2, p3, p4) = testData1
+		val (p0, p1, _, _, _) = testData1
 
 		query(QueryConfig(limit = Some(2)), q0Limits).toSet should be === Set(p0, p1)
 	}
 
 	test("query with limits") {
 		createTables()
-		val (p0, p1, p2, p3, p4) = testData1
+		val (_, _, p2, _, _) = testData1
 
 		query(QueryConfig(offset = Some(2), limit = Some(1)), q0Limits).toSet should be === Set(p2)
 	}
 
 	test("query with skip") {
 		createTables()
-		val (p0, p1, p2, p3, p4) = testData1
+		testData1
 
 		query(QueryConfig(skip = Set(PersonEntity.lives)), q0ForSkip) should be === List(Person(3, "p3", null), Person(4, "p4", null))
 	}
@@ -75,7 +75,7 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 
 	test("query 1 level join") {
 		createTables()
-		val (p0, p1, p2, p3, p4) = testData1
+		val (_, _, _, p3, p4) = testData1
 
 		query(q0) should be === List(p3, p4)
 	}
@@ -108,7 +108,7 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 				postcode varchar(8) not null,
 				primary key (id)
 			)
-		             """)
+					 """)
 		jdbc.update( """
 			create table House (
 				id int not null,
@@ -117,7 +117,7 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 				primary key (id),
 				foreign key (address_id) references Address(id) on delete cascade
 			)
-		             """)
+					 """)
 		jdbc.update( """
 			create table Person (
 				id int not null,
@@ -126,7 +126,7 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 				primary key (id),
 				foreign key (lives_id) references House(id) on delete cascade
 			)
-		             """)
+					 """)
 	}
 }
 

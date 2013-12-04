@@ -40,7 +40,7 @@ class ForQueryOnlySuite extends FunSuite with Matchers
 		}
 
 		test("simple query with join on 2") {
-			val (red, blue, acer, dell, p1, p2, p3, p4, p5) = createData
+			val (red, blue, _, dell, _, _, _, p4, p5) = createData
 			import Query._
 			(
 				select
@@ -51,7 +51,7 @@ class ForQueryOnlySuite extends FunSuite with Matchers
 		}
 
 		test("simple query with join") {
-			val (red, blue, acer, dell, p1, p2, p3, p4, p5) = createData
+			val (_, blue, _, dell, _, _, _, p4, _) = createData
 
 			import Query._
 			(
@@ -63,7 +63,7 @@ class ForQueryOnlySuite extends FunSuite with Matchers
 		}
 
 		test("complex query with join") {
-			val (red, blue, acer, dell, p1, p2, p3, p4, p5) = createData
+			val (red, blue, _, _, _, _, _, _, _) = createData
 			import Query._
 
 			(
@@ -77,4 +77,3 @@ class ForQueryOnlySuite extends FunSuite with Matchers
 		}
 	}
 }
-
