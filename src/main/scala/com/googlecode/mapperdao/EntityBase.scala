@@ -24,7 +24,7 @@ trait EntityBase[ID, T]
 
 	private[mapperdao] def entityId: Int
 
-	private[mapperdao] val entityAlias = Alias.aliasFor(this)
+	private[mapperdao] lazy val entityAlias = Alias.aliasFor(this)
 
 	def databaseSchema: Option[Schema]
 }
