@@ -244,7 +244,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 				val exprs = fPKColumnAndValues.map {
 					case (c, v) =>
-						driver.sqlBuilder.Clause(c.entity.entityAlias, c, operand.sql, v)
+						driver.sqlBuilder.Clause(leftAlias.foreignAlias.tableAlias, c, operand.sql, v)
 				}
 				exprs.reduceLeft[driver.sqlBuilder.Expression] {
 					(l, r) =>

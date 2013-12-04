@@ -55,7 +55,8 @@ class OneToManyQuerySuite extends FunSuite with Matchers
 		val p1 = mapperDao.insert(PersonEntity, Person(6, "person1", Set(House(3, "London"), House(4, "Athens"))))
 
 		import Query._
-		queryDao.query(select from p where p.owns === p0.owns.head) should be === List(p0)
+		val q1 = select from p where p.owns === p0.owns.head
+		queryDao.query(q1) should be === List(p0)
 		queryDao.query(select from p where p.owns === p1.owns.head) should be === List(p1)
 	}
 
