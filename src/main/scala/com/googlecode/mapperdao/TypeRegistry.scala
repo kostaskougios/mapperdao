@@ -16,6 +16,7 @@ final class TypeRegistry private(typeManager: TypeManager, val entities: List[En
 	private val columnsToEntity = new IdentityHashMap[ColumnBase, EntityBase[Any, Any]]
 	private val persistedDetailsPerTpe = entities.map {
 		e =>
+			if (e == null) throw new NullPointerException("a null was passed on while registering an entity")
 			(e.tpe.asInstanceOf[Type[Any, Any]], new PersistedDetails(e, typeManager))
 	}.toMap.asInstanceOf[Map[Type[_, _], PersistedDetails]]
 
