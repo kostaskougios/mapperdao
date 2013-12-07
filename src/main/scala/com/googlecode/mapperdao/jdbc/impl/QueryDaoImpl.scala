@@ -467,7 +467,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val b = new driver.sqlBuilder.UpdateBuilder
 		val entity = u.entity
 		val table = entity.tpe.table
-		b.table(driver.sqlBuilder.Table(table.schemaName, updateConfig.schemaModifications, table.name, entity.entityAlias))
+		b.table(driver.sqlBuilder.Table(table.schemaName, updateConfig.schemaModifications, table.name, null))
 
 		val we = queryExpressions(u.setClauses)
 		b.set(we)
