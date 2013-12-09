@@ -44,11 +44,12 @@ class DeclarePrimaryKeysWithOneToManySuite extends FunSuite with Matchers
 		val (p1, p2, p3) = testData
 
 		import Query._
-		(
+		val q = (
 			select
 				from lpe
 				where lpe.from === p1
-			).toSet(queryDao) should be === Set(
+			)
+		q.toSet(queryDao) should be === Set(
 			LinkedPeople(p2, "good chap this p2"),
 			LinkedPeople(p3, "hi p3")
 		)
@@ -102,7 +103,6 @@ class DeclarePrimaryKeysWithOneToManySuite extends FunSuite with Matchers
 
 	object PersonEntity extends Entity[String, NaturalStringId, Person]
 	{
-
 		val email = key("email") to (_.email)
 		val name = column("name") to (_.name)
 
@@ -117,7 +117,6 @@ class DeclarePrimaryKeysWithOneToManySuite extends FunSuite with Matchers
 	class LinkedPeopleEntityDecl(pe: PersonEntity.type)
 		extends Entity[(Person with NaturalStringId, Person with NaturalStringId), With2Ids[Person with NaturalStringId, Person with NaturalStringId], LinkedPeople]
 	{
-
 		val to = manytoone(pe) foreignkey ("to_id") to (_.to)
 		val note = column("note") to (_.note)
 
