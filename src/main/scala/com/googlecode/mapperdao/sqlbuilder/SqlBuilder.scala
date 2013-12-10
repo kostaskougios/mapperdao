@@ -156,22 +156,22 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 			sb append v.values.map {
 				case value if (Jdbc.isPrimitiveJdbcType(driver, value.getClass)) =>
 					"?"
-				case ci: ColumnInfo[_, _] => Alias.aliasFor(ci.column) + "." + ci.column.name
+				case ci: ColumnInfo[_, _] => Alias.aliasFor(ci.column).name + "." + ci.column.name
 				case ci: ColumnInfoManyToOne[_, _, _] =>
 					ci.column.columns.map {
 						c =>
-							Alias.aliasFor(ci.column) + "." + c.name
+							Alias.aliasFor(ci.column).name + "." + c.name
 					}.mkString(",")
 				case ci: ColumnInfoOneToOne[_, _, _] =>
 					ci.column.columns.map {
 						c =>
-							Alias.aliasFor(ci.column) + "." + c.name
+							Alias.aliasFor(ci.column).name + "." + c.name
 					}.mkString(",")
 				case iv: SqlFunctionValue[_] =>
 					functionToSql(iv)
 			}.mkString(",")
 			sb append ')'
-			sb.toString()
+			sb.toString
 		}
 
 		override def toSql(includeAlias: Boolean) = {
@@ -182,7 +182,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 					case v if (Jdbc.isPrimitiveJdbcType(driver, right.getClass)) => "?"
 					case ci: ColumnInfo[_, _] =>
 						if (includeAlias)
-							Alias.aliasFor(ci.column) + "." + ci.column.name
+							Alias.aliasFor(ci.column).name + "." + ci.column.name
 						else
 							ci.column.name
 					case ci: ColumnInfoManyToOne[_, _, _] =>
@@ -190,7 +190,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 						ci.column.columns.map {
 							c =>
 								if (includeAlias)
-									Alias.aliasFor(ci.column) + "." + c.name
+									Alias.aliasFor(ci.column).name + "." + c.name
 								else
 									c.name
 						}.mkString(",")
@@ -199,7 +199,7 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 						ci.column.columns.map {
 							c =>
 								if (includeAlias)
-									Alias.aliasFor(ci.column) + "." + c.name
+									Alias.aliasFor(ci.column).name + "." + c.name
 								else
 									c.name
 						}.mkString(",")
