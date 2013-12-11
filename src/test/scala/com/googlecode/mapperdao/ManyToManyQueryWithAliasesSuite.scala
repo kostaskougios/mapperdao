@@ -38,18 +38,15 @@ class ManyToManyQueryWithAliasesSuite extends FunSuite with Matchers
 		val p3 = mapperDao.insert(ProductEntity, Product(4, "TV 3", Set(a1, a3, a5)))
 
 		def q0 = {
-			val p1 = new ProductEntityBase
-			val p2 = new ProductEntityBase
-			val a1 = new AttributeEntityBase
-			val a2 = new AttributeEntityBase
+			val p = ProductEntity
 
 			(select from p join
 				(p, p.attributes, attr) join
-				(p, p1.attributes, a1) join
-				(p, p2.attributes, a2) where
+				(p as 'p1, p.attributes, attr as 'a1) join
+				(p as 'p2, p.attributes, attr as 'a2) where
 				(attr.name === "size" and attr.value === "46'") and
-				(a1.name === "colour" and a1.value === "white") and
-				(a2.name === "dimensions" and a2.value === "100x100")
+				(('a1, attr.name) === "colour" and ('a1, attr.value) === "white") and
+				(('a2, attr.name) === "dimensions" and ('a2, attr.value) === "100x100")
 				)
 		}
 
@@ -90,24 +87,22 @@ object ManyToManyQueryWithAliasesSuite
 
 	case class Attribute(id: Int, name: String, value: String)
 
-	class AttributeEntityBase extends Entity[Int, SurrogateIntId, Attribute]
+	object AttributeEntity extends Entity[Int, SurrogateIntId, Attribute]
 	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m) = new Attribute(id, name, value) with Stored
+		def constructor(implicit m: ValuesMap) = new Attribute(id, name, value) with Stored
 	}
 
-	class ProductEntityBase extends Entity[Int, SurrogateIntId, Product]
+	object ProductEntity extends Entity[Int, SurrogateIntId, Product]
 	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
 
-		def constructor(implicit m) = new Product(id, name, attributes) with Stored
+		def constructor(implicit m: ValuesMap) = new Product(id, name, attributes) with Stored
 	}
 
-	val AttributeEntity = new AttributeEntityBase
-	val ProductEntity = new ProductEntityBase
 }
