@@ -39,7 +39,12 @@ class SchemaSuite extends FunSuite with Matchers
 		}
 
 		def createTables() {
-			jdbc.update("drop schema test cascade")
+			try {
+				jdbc.update("drop schema test cascade")
+			} catch {
+				case _: Throwable =>
+				// ignore as schema might not exist
+			}
 			Setup.queries(this, jdbc).update("ddl")
 		}
 	}
