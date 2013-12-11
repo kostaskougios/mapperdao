@@ -89,7 +89,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with Matchers
 			val q = (
 				select
 					from ipr
-					join (ipr as 'ipr) on ipr.from ===('ipr, ipr.to)
+					join (ipr as 'x) on ipr.from ===('x, ipr.to)
 					where ipr.to === person1
 				)
 			val r = q.toList(queryDao)
@@ -107,7 +107,7 @@ class UseCasePersonAndRolesSuite extends FunSuite with Matchers
 			val q = (
 				select
 					from ipr
-					join (ipr as 'ipr) on ipr.from <>('ipr, ipr.to)
+					join (ipr as 'x) on ipr.from <>('x, ipr.to)
 					where ipr.to === person1
 				)
 			val r = q.toList(queryDao)

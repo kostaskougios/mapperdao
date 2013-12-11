@@ -198,6 +198,22 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				driver.sqlBuilder.Comma(expressions)
 			case ColumnOperation(left, operand, right) =>
 				driver.sqlBuilder.NonValueClause(left.tableAlias, left.column.name, operand.sql, right.tableAlias, right.column.name)
+			case ManyToOneColumnOperation(left, operand, right) =>
+				val exprs: List[driver.sqlBuilder.Expression] = right.column match {
+					case ManyToOne(_, columns, foreign) =>
+						left.column.columns zip columns map {
+							case (l, r) =>
+								new driver.sqlBuilder.ColumnAndColumnClause(
+									left.tableAlias, l,
+									operand.sql,
+									right.tableAlias, r
+								)
+						}
+				}
+				exprs.reduceLeft {
+					(l, r) =>
+						driver.sqlBuilder.And(l, r)
+				}
 			case ManyToOneOperation(left, operand, right) =>
 				val exprs = right match {
 					case null =>
@@ -209,15 +225,6 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 									case _ => throw new IllegalArgumentException("operand %s not valid when right hand parameter is null.".format(operand))
 								}
 								driver.sqlBuilder.NonValueClause(left.tableAlias, c.name, "is", null, r)
-						}
-					case ManyToOne(_, columns, foreign) =>
-						left.column.columns zip columns map {
-							case (l, r) =>
-								new driver.sqlBuilder.ColumnAndColumnClause(
-									left.tableAlias, l,
-									operand.sql,
-									r.entity.entityAlias, r
-								)
 						}
 					case _ =>
 						val fTpe = left.column.foreign.entity.tpe
