@@ -268,9 +268,11 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				if (fPKColumnAndValues.isEmpty) throw new IllegalStateException("can't match against an entity that doesn't have a key : %s".format(foreignEntity.clz))
 				if (fPKColumnAndValues.size != left.linkTable.right.size) throw new IllegalStateException("linktable not having the correct right columns for %s and %s".format(fPKColumnAndValues, left.linkTable.right))
 				val zipped = (fPKColumnAndValues zip left.linkTable.right)
+
+				val linkTableAlias = Symbol(leftAlias.tableAlias.name + leftAlias.foreignAlias.tableAlias.name)
 				zipped.map {
 					case ((c, v), ltr) =>
-						driver.sqlBuilder.Clause(leftAlias.column.linkTable.alias, ltr, operand.sql, v)
+						driver.sqlBuilder.Clause(linkTableAlias, ltr, operand.sql, v)
 				}.reduceLeft[driver.sqlBuilder.Expression] {
 					(l, r) =>
 						driver.sqlBuilder.And(l, r)
@@ -426,7 +428,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val jAlias = joinAlias.tableAlias
 
 		val linkTable = manyToMany.linkTable
-		val linkTableAlias = Alias.aliasFor(linkTable)
+		val linkTableAlias = Symbol(jAlias.name + fAlias.name)
 
 		val j1 = new driver.sqlBuilder.InnerJoinBuilder(driver.sqlBuilder.Table(linkTable.schemaName, queryConfig.schemaModifications, linkTable.name, linkTableAlias, null))
 		(joinTpe.table.primaryKeys zip linkTable.left).foreach {

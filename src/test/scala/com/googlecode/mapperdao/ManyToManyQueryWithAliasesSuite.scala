@@ -42,8 +42,8 @@ class ManyToManyQueryWithAliasesSuite extends FunSuite with Matchers
 
 			(select from p join
 				(p, p.attributes, attr) join
-				(p as 'p1, p.attributes, attr as 'a1) join
-				(p as 'p2, p.attributes, attr as 'a2) where
+				(p, p.attributes, attr as 'a1) join
+				(p, p.attributes, attr as 'a2) where
 				(attr.name === "size" and attr.value === "46'") and
 				(('a1, attr.name) === "colour" and ('a1, attr.value) === "white") and
 				(('a2, attr.name) === "dimensions" and ('a2, attr.value) === "100x100")
