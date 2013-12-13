@@ -43,15 +43,15 @@ class ManyToManyQueryWithAliasesSuite extends FunSuite with Matchers
 
 		val p = ProductEntity
 
-		val q0 = select from p join
-			(p, p.attributes, attr) join
-			(p, p.attributes, attr as 'a1) join
-			(p, p.attributes, attr as 'a2) where
-			(attr.name === "size" and attr.value === "46'") and
-			(('a1, attr.name) === "colour" and ('a1, attr.value) === "white") and
-			(('a2, attr.name) === "dimensions" and ('a2, attr.value) === "100x100")
-
-		queryDao.query(q0).toSet should be === Set(p2)
+		val q0 = (select from p
+			join(p, p.attributes, attr)
+			join(p, p.attributes, attr as 'a1)
+			join(p, p.attributes, attr as 'a2)
+			where (attr.name === "size" and attr.value === "46'")
+			and (('a1, attr.name) === "colour" and ('a1, attr.value) === "white")
+			and (('a2, attr.name) === "dimensions" and ('a2, attr.value) === "100x100")
+			)
+		queryDao.query(q0) should be(List(p2))
 	}
 
 	def createTables = {
