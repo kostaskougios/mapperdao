@@ -32,23 +32,24 @@ class ManyToManyQueryWithAliasesSuite extends FunSuite with Matchers
 		val a4 = mapperDao.insert(AttributeEntity, Attribute(104, "dimensions", "100x100"))
 		val a5 = mapperDao.insert(AttributeEntity, Attribute(105, "dimensions", "200x200"))
 
-		val p0 = mapperDao.insert(ProductEntity, Product(1, "TV 1", Set(a0, a2, a4)))
-		val p1 = mapperDao.insert(ProductEntity, Product(2, "TV 2", Set(a1, a2, a4)))
-		val p2 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3, a4)))
-		val p3 = mapperDao.insert(ProductEntity, Product(4, "TV 3", Set(a1, a3, a5)))
+		val List(_, _, p2, _) = mapperDao.insertBatch(ProductEntity,
+			List(
+				Product(1, "TV 1", Set(a0, a2, a4)),
+				Product(2, "TV 2", Set(a1, a2, a4)),
+				Product(3, "TV 3", Set(a0, a3, a4)),
+				Product(4, "TV 3", Set(a1, a3, a5))
+			)
+		)
 
-		def q0 = {
-			val p = ProductEntity
+		val p = ProductEntity
 
-			(select from p join
-				(p, p.attributes, attr) join
-				(p, p.attributes, attr as 'a1) join
-				(p, p.attributes, attr as 'a2) where
-				(attr.name === "size" and attr.value === "46'") and
-				(('a1, attr.name) === "colour" and ('a1, attr.value) === "white") and
-				(('a2, attr.name) === "dimensions" and ('a2, attr.value) === "100x100")
-				)
-		}
+		val q0 = select from p join
+			(p, p.attributes, attr) join
+			(p, p.attributes, attr as 'a1) join
+			(p, p.attributes, attr as 'a2) where
+			(attr.name === "size" and attr.value === "46'") and
+			(('a1, attr.name) === "colour" and ('a1, attr.value) === "white") and
+			(('a2, attr.name) === "dimensions" and ('a2, attr.value) === "100x100")
 
 		queryDao.query(q0).toSet should be === Set(p2)
 	}
