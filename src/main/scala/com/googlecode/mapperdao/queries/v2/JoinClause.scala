@@ -9,7 +9,11 @@ import com.googlecode.mapperdao.Persisted
 case class JoinClause[ID, PC <: Persisted, T, FID, FT](
 	queryInfo: QueryInfo[ID, T],
 	to: Alias[FID, FT]
-	) extends WithQueryInfo[ID, PC, T] with WithJoin[ID, PC, T] with WithOrderBy[ID, PC, T]
+	)
+	extends WithQueryInfo[ID, PC, T]
+	with WithWhere[ID, PC, T]
+	with WithJoin[ID, PC, T]
+	with WithOrderBy[ID, PC, T]
 {
-	def where = new Where[ID, PC, T](queryInfo)
+	def on = JoinOn(queryInfo)
 }

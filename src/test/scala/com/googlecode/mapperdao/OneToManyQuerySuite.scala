@@ -18,6 +18,24 @@ class OneToManyQuerySuite extends FunSuite with Matchers
 	val p = PersonEntity
 	val h = HouseEntity
 
+	test("self join") {
+		createTables()
+		val List(p0, p1, _) = mapperDao.insertBatch(PersonEntity,
+			List(
+				Person(5, "person0", Set(House(1, "London"), House(2, "Paris"))),
+				Person(6, "person1", Set(House(3, "London"), House(4, "Athens"))),
+				Person(7, "person2", Set(House(5, "Rome"), House(6, "Athens")))
+			)
+		)
+		import Query._
+		queryDao.query(
+			select from p
+				join(p, p.owns, h)
+				join (p as 'p1)
+				join(p as 'p1, p.owns, h as 'h1) on h.address ===('h1, h.address) and p.id <>('p1, p.id)
+		).toSet should be(Set(p0, p1))
+	}
+
 	test("with aliases") {
 		createTables()
 		val List(p0, _, _) = mapperDao.insertBatch(PersonEntity,
