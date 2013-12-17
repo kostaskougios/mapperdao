@@ -1,6 +1,7 @@
 package com.googlecode.mapperdao.queries.v2
 
 import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
+import com.googlecode.mapperdao.OpBase
 
 /**
  * @author: kostas.kougios
@@ -9,5 +10,6 @@ import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
 case class InnerJoin[JID, JT, FID, FT](
 	joinEntity: Alias[JID, JT],
 	ci: ColumnInfoRelationshipBase[JT, _, FID, FT],
-	foreignEntity: Alias[FID, FT]
+	foreignEntity: Alias[FID, FT],
+	ons: Option[OpBase] = None
 	) extends Join

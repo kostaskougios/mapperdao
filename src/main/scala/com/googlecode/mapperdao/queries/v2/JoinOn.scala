@@ -16,6 +16,8 @@ case class JoinOn[ID, PC <: Persisted, T](queryInfo: QueryInfo[ID, T])
 		val j = queryInfo.joins.head match {
 			case sj: SelfJoin[_, _, _, _, _, _, _] =>
 				sj.copy(ons = Some(op))
+			case ij: InnerJoin[_, _, _, _] =>
+				ij.copy(ons = Some(op))
 		}
 		j :: queryInfo.joins.tail
 	}

@@ -272,11 +272,13 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 		def toSql(includeAliases: Boolean) = {
 			val sb = new StringBuilder("inner join ")
 			sb append table.toSql(includeAliases)
-			sb append " on " append e.toSql(includeAliases)
+			if (e != null) {
+				sb append " on " append e.toSql(includeAliases)
+			}
 			sb.toString
 		}
 
-		def toValues = e.toValues
+		def toValues = if (e != null) e.toValues else Nil
 
 		override def toString = toSql(true)
 
