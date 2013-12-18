@@ -249,9 +249,16 @@ private[mapperdao] class SqlBuilder(driver: Driver, escapeNamesStrategy: EscapeN
 	{
 		private var e: Expression = null
 
+		def hasExpression = e != null
+
 		def on(leftAlias: Symbol, left: String, op: String, rightAlias: Symbol, right: String) = {
 			if (e != null) throw new IllegalStateException("expression already set to " + e)
 			e = NonValueClause(leftAlias, left, op, rightAlias, right)
+			this
+		}
+
+		def and(expr: Expression) = {
+			e = And(e, expr)
 			this
 		}
 

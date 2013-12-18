@@ -8,7 +8,6 @@ import com.googlecode.mapperdao.Persisted
  */
 case class SelfJoinOn[ID, PC <: Persisted, T, FID, FT](queryInfo: QueryInfo[ID, T], e: Alias[FID, FT])
 	extends WithQueryInfo[ID, PC, T]
-	with WithWhere[ID, PC, T]
 	with WithJoin[ID, PC, T]
 	with WithOrderBy[ID, PC, T]
 {

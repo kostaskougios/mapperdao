@@ -24,16 +24,32 @@ class OneToManyQuerySuite extends FunSuite with Matchers
 			List(
 				Person(5, "person0", Set(House(1, "London"), House(2, "Paris"))),
 				Person(6, "person1", Set(House(3, "London"), House(4, "Athens"))),
-				Person(7, "person2", Set(House(5, "Rome"), House(6, "Athens")))
+				Person(7, "person2", Set(House(5, "Rome"), House(6, "Berlin")))
 			)
 		)
 		import Query._
 		queryDao.query(
 			select from p
 				join(p, p.owns, h)
-				join (p as 'p1)
-				join(p as 'p1, p.owns, h as 'h1) on h.address ===('h1, h.address) and p.id <>('p1, p.id)
+				join (p as 'p1) on p.id <>('p1, p.id)
+				join(p as 'p1, p.owns, h as 'h1) on h.address ===('h1, h.address)
 		).toSet should be(Set(p0, p1))
+	}
+
+	test("join unlrelated table") {
+		createTables()
+		val List(p0, p1, _) = mapperDao.insertBatch(PersonEntity,
+			List(
+				Person(5, "Berlin", Set(House(1, "London"), House(2, "Paris"))),
+				Person(6, "person1", Set(House(3, "London"), House(4, "Athens"))),
+				Person(7, "person2", Set(House(5, "Rome"), House(6, "Berlin")))
+			)
+		)
+		import Query._
+		queryDao.query(
+			select from p
+				join h on h.address === p.name
+		) should be(List(p0))
 	}
 
 	test("with aliases") {

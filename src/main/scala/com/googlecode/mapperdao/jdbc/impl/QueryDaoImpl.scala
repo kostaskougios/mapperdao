@@ -183,7 +183,10 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	private def joinOns(ons: Option[OpBase], jb: driver.sqlBuilder.InnerJoinBuilder) {
 		if (ons.isDefined) {
 			val e = queryExpressions(ons.get)
-			jb(e)
+			if (jb.hasExpression)
+				jb.and(e)
+			else
+				jb(e)
 		}
 	}
 
@@ -413,15 +416,11 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val jAlias = joinEntity.tableAlias
 
 		val j = new driver.sqlBuilder.InnerJoinBuilder(driver.sqlBuilder.Table(foreignTpe.table.schemaName, queryConfig.schemaModifications, foreignTpe.table.name, fAlias, null))
-		ons match {
-			case None =>
-				(joinTpe.table.primaryKeys zip oneToMany.foreignColumns).foreach {
-					case (left, right) =>
-						j.and(jAlias, left.name, "=", fAlias, right.name)
-				}
-			case Some(e) =>
-				joinOns(ons, j)
+		(joinTpe.table.primaryKeys zip oneToMany.foreignColumns).foreach {
+			case (left, right) =>
+				j.and(jAlias, left.name, "=", fAlias, right.name)
 		}
+		if (ons.isDefined) joinOns(ons, j)
 		j
 	}
 
