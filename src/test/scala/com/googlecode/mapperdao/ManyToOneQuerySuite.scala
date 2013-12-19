@@ -23,7 +23,7 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 
 	test("query with aliases") {
 		createTables()
-		val (p0, p1, p2, p3, p4) = testData1
+		val (p0, p1, p2, _, _) = testData1
 		import Query._
 		query(
 			select from (pe as 'x)
@@ -31,7 +31,17 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 				join(he as 'y, he.address, ad as 'z)
 				where ('z, ad.postCode) === "SE1 1AA"
 		) should be(List(p0, p1, p2))
+	}
 
+	test("join on") {
+		createTables()
+		val (p0, p1, p2, _, _) = testData1
+		import Query._
+		query(
+			select from (pe as 'x)
+				join(pe as 'x, pe.lives, he as 'y)
+				join(he as 'y, he.address, ad as 'z) on ('z, ad.postCode) === "SE1 1AA"
+		) should be(List(p0, p1, p2))
 	}
 
 	test("query 2 level join") {

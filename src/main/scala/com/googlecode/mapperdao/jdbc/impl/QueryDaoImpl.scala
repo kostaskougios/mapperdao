@@ -99,7 +99,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				val column = ci.column
 				column match {
 					case manyToOne: ManyToOne[_, _] =>
-						val join = manyToOneJoin(queryConfig, joinEntityAlias, foreignEntityAlias, manyToOne)
+						val join = manyToOneJoin(queryConfig, joinEntityAlias, foreignEntityAlias, manyToOne, ons)
 						q.innerJoin(join)
 					case oneToMany: OneToMany[_, _] =>
 						val join = oneToManyJoin(queryConfig, joinEntityAlias, foreignEntityAlias, oneToMany, ons)
@@ -386,7 +386,8 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		queryConfig: QueryConfig,
 		joinEntity: Alias[JID, JT],
 		foreignEntity: Alias[FID, FT],
-		manyToOne: ManyToOne[_, _]
+		manyToOne: ManyToOne[_, _],
+		ons: Option[OpBase]
 		) = {
 		val foreignTable = foreignEntity.entity.tpe.table
 		val fAlias = foreignEntity.tableAlias
@@ -398,6 +399,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 			case (left, right) =>
 				j.and(jAlias, left.name, "=", fAlias, right.name)
 		}
+		joinOns(ons, j)
 		j
 	}
 
