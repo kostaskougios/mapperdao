@@ -18,7 +18,7 @@ class OneToManyQuerySuite extends FunSuite with Matchers
 	val p = PersonEntity
 	val h = HouseEntity
 
-	test("self join") {
+	test("self join, aliases") {
 		createTables()
 		val List(p0, p1, _) = mapperDao.insertBatch(PersonEntity,
 			List(

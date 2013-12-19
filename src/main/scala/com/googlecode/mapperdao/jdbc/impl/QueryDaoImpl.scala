@@ -420,7 +420,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 			case (left, right) =>
 				j.and(jAlias, left.name, "=", fAlias, right.name)
 		}
-		if (ons.isDefined) joinOns(ons, j)
+		joinOns(ons, j)
 		j
 	}
 
