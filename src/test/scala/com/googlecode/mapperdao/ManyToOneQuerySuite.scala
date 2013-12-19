@@ -21,6 +21,19 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 	import mapperDao._
 	import queryDao._
 
+	test("query with aliases") {
+		createTables()
+		val (p0, p1, p2, p3, p4) = testData1
+		import Query._
+		query(
+			select from (pe as 'x)
+				join(pe as 'x, pe.lives, he as 'y)
+				join(he as 'y, he.address, ad as 'z)
+				where ('z, ad.postCode) === "SE1 1AA"
+		) should be(List(p0, p1, p2))
+
+	}
+
 	test("query 2 level join") {
 		createTables()
 		val (p0, p1, p2, _, _) = testData1
@@ -103,15 +116,16 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 
 	def testData1 = {
 		createTables()
-		val a0 = insert(AddressEntity, Address(100, "SE1 1AA"))
-		val a1 = insert(AddressEntity, Address(101, "SE2 2BB"))
-		val h0 = insert(HouseEntity, House(10, "Appartment A", a0))
-		val h1 = insert(HouseEntity, House(11, "Block B", a1))
-		val p0 = insert(PersonEntity, Person(0, "p0", h0))
-		val p1 = insert(PersonEntity, Person(1, "p1", h0))
-		val p2 = insert(PersonEntity, Person(2, "p2", h0))
-		val p3 = insert(PersonEntity, Person(3, "p3", h1))
-		val p4 = insert(PersonEntity, Person(4, "p4", h1))
+		val List(a0, a1) = insertBatch(AddressEntity, List(Address(100, "SE1 1AA"), Address(101, "SE2 2BB")))
+		val List(h0, h1) = insertBatch(HouseEntity, List(House(10, "Appartment A", a0), House(11, "Block B", a1)))
+
+		val List(p0, p1, p2, p3, p4) = insertBatch(PersonEntity, List(
+			Person(0, "p0", h0),
+			Person(1, "p1", h0),
+			Person(2, "p2", h0),
+			Person(3, "p3", h1),
+			Person(4, "p4", h1)
+		))
 		(p0, p1, p2, p3, p4)
 	}
 
@@ -147,23 +161,24 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 
 object ManyToOneQuerySuite
 {
-		import Query._
 
-		val pe = PersonEntity
-		val he = HouseEntity
-		val ad = AddressEntity
+	import Query._
 
-		val q0Limits = select from pe
+	val pe = PersonEntity
+	val he = HouseEntity
+	val ad = AddressEntity
 
-		def q3(h: House) = (
-			select from pe
-				where pe.lives === h
-			)
+	val q0Limits = select from pe
 
-		def q3n(h: House) = (
-			select from pe
-				where pe.lives <> h
-			)
+	def q3(h: House) = (
+		select from pe
+			where pe.lives === h
+		)
+
+	def q3n(h: House) = (
+		select from pe
+			where pe.lives <> h
+		)
 
 	case class Person(id: Int, var name: String, lives: House)
 
