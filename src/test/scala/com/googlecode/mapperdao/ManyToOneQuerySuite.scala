@@ -18,14 +18,19 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(PersonEntity, HouseEntity, AddressEntity))
 
-	import MTOQuerySpec._
 	import mapperDao._
 	import queryDao._
 
 	test("query 2 level join") {
 		createTables()
 		val (p0, p1, p2, _, _) = testData1
-		query(q1) should be === List(p0, p1, p2)
+		import Query._
+		query(
+			select from pe
+				join(pe, pe.lives, he)
+				join(he, he.address, ad)
+				where ad.postCode === "SE1 1AA"
+		) should be === List(p0, p1, p2)
 	}
 
 	test("query with limits (offset only)") {
@@ -53,7 +58,11 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 		createTables()
 		testData1
 
-		query(QueryConfig(skip = Set(PersonEntity.lives)), q0ForSkip) should be === List(Person(3, "p3", null), Person(4, "p4", null))
+		import Query._
+		query(
+			QueryConfig(skip = Set(PersonEntity.lives)),
+			select from pe join(pe, pe.lives, he) where he.name === "Block B"
+		) should be === List(Person(3, "p3", null), Person(4, "p4", null))
 	}
 
 	test("query on FK for null") {
@@ -77,13 +86,19 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 		createTables()
 		val (_, _, _, p3, p4) = testData1
 
-		query(q0) should be === List(p3, p4)
+		import Query._
+		query(select from pe join(pe, pe.lives, he) where he.name === "Block B") should be === List(p3, p4)
 	}
 
 	test("query 2 level join with or") {
 		createTables()
 		val (p0, p1, p2, p3, p4) = testData1
-		query(q2) should be === List(p0, p1, p2, p3, p4)
+		import Query._
+		query(select from pe join
+			(pe, pe.lives, he) join
+			(he, he.address, ad) where
+			ad.postCode === "SE1 1AA" or
+			ad.postCode === "SE2 2BB") should be === List(p0, p1, p2, p3, p4)
 	}
 
 	def testData1 = {
@@ -132,32 +147,13 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 
 object ManyToOneQuerySuite
 {
-
-	object MTOQuerySpec
-	{
-
 		import Query._
 
 		val pe = PersonEntity
 		val he = HouseEntity
 		val ad = AddressEntity
 
-		val q0 = select from pe join(pe, pe.lives, he) where he.name === "Block B"
 		val q0Limits = select from pe
-		val q0ForSkip = select from pe join(pe, pe.lives, he) where he.name === "Block B"
-
-		val q1 = (
-			select from pe
-				join(pe, pe.lives, he)
-				join(he, he.address, ad)
-				where ad.postCode === "SE1 1AA"
-			)
-
-		val q2 = select from pe join
-			(pe, pe.lives, he) join
-			(he, he.address, ad) where
-			ad.postCode === "SE1 1AA" or
-			ad.postCode === "SE2 2BB"
 
 		def q3(h: House) = (
 			select from pe
@@ -168,7 +164,6 @@ object ManyToOneQuerySuite
 			select from pe
 				where pe.lives <> h
 			)
-	}
 
 	case class Person(id: Int, var name: String, lives: House)
 
@@ -182,26 +177,24 @@ object ManyToOneQuerySuite
 		val name = column("name") to (_.name)
 		val lives = manytoone(HouseEntity) foreignkey "lives_id" to (_.lives)
 
-		def constructor(implicit m) = new Person(id, name, lives) with Stored
+		def constructor(implicit m: ValuesMap) = new Person(id, name, lives) with Stored
 	}
 
-	class HouseEntityBase extends Entity[Int, SurrogateIntId, House]
+	object HouseEntity extends Entity[Int, SurrogateIntId, House]
 	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 		val address = manytoone(AddressEntity) to (_.address)
 
-		def constructor(implicit m) = new House(id, name, address) with Stored
+		def constructor(implicit m: ValuesMap) = new House(id, name, address) with Stored
 	}
-
-	val HouseEntity = new HouseEntityBase
 
 	object AddressEntity extends Entity[Int, SurrogateIntId, Address]
 	{
 		val id = key("id") to (_.id)
 		val postCode = column("postcode") to (_.postCode)
 
-		def constructor(implicit m) = new Address(id, postCode) with Stored
+		def constructor(implicit m: ValuesMap) = new Address(id, postCode) with Stored
 	}
 
 }

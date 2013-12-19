@@ -16,6 +16,7 @@ object Alias
 	def aliasFor(column: ColumnBase): Symbol = aliasFor(column.entity)
 
 	def aliasFor[ID, T](entity: EntityBase[ID, T]): Symbol = {
+		if (entity == null) throw new NullPointerException("entity shouldn't be null")
 		val a = prefix(entity.tableLower) + entity.entityId
 		Symbol(a)
 	}
