@@ -20,17 +20,49 @@ class ManyToManyQuerySuite extends FunSuite with Matchers
 	val p = ProductEntity
 	val attr = AttributeEntity
 
+	test("self join") {
+		createTables
+		val List(a, b, c, d) = mapperDao.insertBatch(AttributeEntity,
+			List(
+				Attribute(100, "size", "A"),
+				Attribute(101, "size", "B"),
+				Attribute(102, "size", "C"),
+				Attribute(103, "size", "D")
+			)
+		)
+		val List(p1, p2, _, _) = mapperDao.insertBatch(ProductEntity,
+			List(
+				Product(1, "TV 1", Set(a, b)),
+				Product(2, "TV 1", Set(c, d)),
+				Product(3, "TV 3", Set(a, c)),
+				Product(4, "TV 4", Set(d))
+			)
+		)
+
+		(
+			select from p
+				join (p as 'p1) on p.name ===('p1, p.name) and p.id <>('p1, p.id)
+			).toSet should be(Set(p1, p2))
+	}
+
 	test("match on FK") {
 		createTables
-		val a = mapperDao.insert(AttributeEntity, Attribute(100, "size", "A"))
-		val b = mapperDao.insert(AttributeEntity, Attribute(101, "size", "B"))
-		val c = mapperDao.insert(AttributeEntity, Attribute(102, "size", "C"))
-		val d = mapperDao.insert(AttributeEntity, Attribute(103, "size", "D"))
-
-		val p1 = mapperDao.insert(ProductEntity, Product(1, "TV 1", Set(a, b)))
-		val p2 = mapperDao.insert(ProductEntity, Product(2, "TV 2", Set(c, d)))
-		val p3 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a, c)))
-		val p4 = mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(d)))
+		val List(a, b, c, d) = mapperDao.insertBatch(AttributeEntity,
+			List(
+				Attribute(100, "size", "A"),
+				Attribute(101, "size", "B"),
+				Attribute(102, "size", "C"),
+				Attribute(103, "size", "D")
+			)
+		)
+		val List(p1, p2, p3, p4) = mapperDao.insertBatch(ProductEntity,
+			List(
+				Product(1, "TV 1", Set(a, b)),
+				Product(2, "TV 2", Set(c, d)),
+				Product(3, "TV 3", Set(a, c)),
+				Product(4, "TV 4", Set(d))
+			)
+		)
 
 		def q(attr: Attribute) = select from p where p.attributes === attr
 
@@ -141,7 +173,7 @@ class ManyToManyQuerySuite extends FunSuite with Matchers
 		(select from p join(p, p.attributes, attr) where attr.value === "46'").toList.toSet should be === Set(p0, p2)
 	}
 
-	test("join, 2 condition") {
+	test("join, 2 conditions") {
 		createTables
 		val a0 = mapperDao.insert(AttributeEntity, Attribute(100, "size", "46'"))
 		val a1 = mapperDao.insert(AttributeEntity, Attribute(101, "size", "50'"))

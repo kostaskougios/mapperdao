@@ -11,6 +11,7 @@ case class JoinOn[ID, PC <: Persisted, T](queryInfo: QueryInfo[ID, T])
 	with WithWhere[ID, PC, T]
 	with WithJoin[ID, PC, T]
 	with WithOrderBy[ID, PC, T]
+	with Execution[ID, PC, T]
 {
 	private def joinList(op: OpBase) = {
 		val j = queryInfo.joins.head match {

@@ -25,12 +25,16 @@ class ManyToManyQueryWithAliasesSuite extends FunSuite with Matchers
 
 	test("join, 3 condition") {
 		createTables
-		val a0 = mapperDao.insert(AttributeEntity, Attribute(100, "size", "46'"))
-		val a1 = mapperDao.insert(AttributeEntity, Attribute(101, "size", "50'"))
-		val a2 = mapperDao.insert(AttributeEntity, Attribute(102, "colour", "black"))
-		val a3 = mapperDao.insert(AttributeEntity, Attribute(103, "colour", "white"))
-		val a4 = mapperDao.insert(AttributeEntity, Attribute(104, "dimensions", "100x100"))
-		val a5 = mapperDao.insert(AttributeEntity, Attribute(105, "dimensions", "200x200"))
+		val List(a0, a1, a2, a3, a4, a5) = mapperDao.insertBatch(AttributeEntity,
+			List(
+				Attribute(100, "size", "46'"),
+				Attribute(101, "size", "50'"),
+				Attribute(102, "colour", "black"),
+				Attribute(103, "colour", "white"),
+				Attribute(104, "dimensions", "100x100"),
+				Attribute(105, "dimensions", "200x200")
+			)
+		)
 
 		val List(_, _, p2, _) = mapperDao.insertBatch(ProductEntity,
 			List(
