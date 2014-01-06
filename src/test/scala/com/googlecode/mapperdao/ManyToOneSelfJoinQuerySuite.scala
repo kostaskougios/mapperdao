@@ -32,8 +32,8 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with Matchers
 		val p0 = insert(PersonEntity, Person(0, "p0", h0))
 		val p1 = insert(PersonEntity, Person(1, "p1", h0))
 		val p2 = insert(PersonEntity, Person(2, "p2", h0))
-		val p3 = insert(PersonEntity, Person(3, "p3", h1))
-		val p4 = insert(PersonEntity, Person(4, "p4", h1))
+		insert(PersonEntity, Person(3, "p3", h1))
+		insert(PersonEntity, Person(4, "p4", h1))
 		query(q0).toSet should be === Set(p0, p1, p2)
 	}
 

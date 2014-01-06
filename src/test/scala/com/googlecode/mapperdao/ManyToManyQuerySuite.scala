@@ -43,6 +43,13 @@ class ManyToManyQuerySuite extends FunSuite with Matchers
 			select from p
 				join (p as 'p1) on p.name ===('p1, p.name) and p.id <>('p1, p.id)
 			).toSet should be(Set(p1, p2))
+
+		(
+			select from p
+				join (p as 'p1) on p.name ===('p1, p.name) and p.id <>('p1, p.id)
+				join(p as 'p1, p.attributes, attr as 'a1)
+				where ('a1, attr.value) === "D"
+			).toSet should be(Set(p1))
 	}
 
 	test("match on FK") {
