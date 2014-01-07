@@ -13,9 +13,6 @@ import org.scalatest.{Matchers, FunSuite}
 @RunWith(classOf[JUnitRunner])
 class ManyToOneSelfJoinQuerySuite extends FunSuite with Matchers
 {
-
-	import ManyToOneSelfJoinQuerySuite._
-
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(PersonEntity, HouseEntity, AddressEntity))
 
 	import Query._
@@ -75,10 +72,6 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with Matchers
 				foreign key (lives_id) references House(id) on delete cascade
 			)""")
 	}
-}
-
-object ManyToOneSelfJoinQuerySuite
-{
 
 	case class Person(id: Int, var name: String, lives: House)
 
@@ -95,7 +88,7 @@ object ManyToOneSelfJoinQuerySuite
 		def constructor(implicit m: ValuesMap) = new Person(id, name, lives) with Stored
 	}
 
-	class HouseEntityBase extends Entity[Int, SurrogateIntId, House]
+	object HouseEntity extends Entity[Int, SurrogateIntId, House]
 	{
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
@@ -104,8 +97,6 @@ object ManyToOneSelfJoinQuerySuite
 		def constructor(implicit m: ValuesMap) = new House(id, name, address) with Stored
 	}
 
-	val HouseEntity = new HouseEntityBase
-
 	object AddressEntity extends Entity[Int, SurrogateIntId, Address]
 	{
 		val id = key("id") to (_.id)
@@ -113,5 +104,4 @@ object ManyToOneSelfJoinQuerySuite
 
 		def constructor(implicit m: ValuesMap) = new Address(id, postCode) with Stored
 	}
-
 }
