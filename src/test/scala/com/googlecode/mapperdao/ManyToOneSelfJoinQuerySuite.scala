@@ -24,16 +24,24 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with Matchers
 
 	test("self join query on house") {
 		createTables()
-		val a0 = insert(AddressEntity, Address(100, "SE1 1AA"))
-		val a1 = insert(AddressEntity, Address(101, "SE2 2BB"))
-		val h0 = insert(HouseEntity, House(10, "Appartment A", a0))
-		val h1 = insert(HouseEntity, House(11, "Block B", a1))
-		insert(HouseEntity, House(12, "Block B", a1))
-		val p0 = insert(PersonEntity, Person(0, "p0", h0))
-		val p1 = insert(PersonEntity, Person(1, "p1", h0))
-		val p2 = insert(PersonEntity, Person(2, "p2", h0))
-		insert(PersonEntity, Person(3, "p3", h1))
-		insert(PersonEntity, Person(4, "p4", h1))
+		val List(a0, a1) = insertBatch(AddressEntity, List(
+			Address(100, "SE1 1AA"),
+			Address(101, "SE2 2BB")
+		))
+		val List(h0, h1, _) = insertBatch(HouseEntity,
+			List(
+				House(10, "Appartment A", a0),
+				House(11, "Block B", a1),
+				House(12, "Block B", a1)
+			))
+		val List(p0, p1, p2, _, _) = insertBatch(PersonEntity,
+			List(
+				Person(0, "p0", h0),
+				Person(1, "p1", h0),
+				Person(2, "p2", h0),
+				Person(3, "p3", h1),
+				Person(4, "p4", h1)
+			))
 		query(q0).toSet should be === Set(p0, p1, p2)
 	}
 
