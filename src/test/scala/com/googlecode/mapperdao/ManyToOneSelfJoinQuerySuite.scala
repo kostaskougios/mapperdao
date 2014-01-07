@@ -42,7 +42,7 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with Matchers
 				Person(3, "p3", h1),
 				Person(4, "p4", h1)
 			))
-		query(q0).toSet should be === Set(p0, p1, p2)
+		query(q0).toSet should be(Set(p0, p1, p2))
 	}
 
 	def createTables() {
@@ -52,8 +52,7 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with Matchers
 				id int not null,
 				postcode varchar(8) not null,
 				primary key (id)
-			)
-					 """)
+			)""")
 		jdbc.update( """
 			create table House (
 				id int not null,
@@ -61,8 +60,7 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with Matchers
 				address_id int not null,
 				primary key (id),
 				foreign key (address_id) references Address(id) on delete cascade
-			)
-					 """)
+			)""")
 		jdbc.update( """
 			create table Person (
 				id int not null,
@@ -70,8 +68,7 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with Matchers
 				lives_id int not null,
 				primary key (id),
 				foreign key (lives_id) references House(id) on delete cascade
-			)
-					 """)
+			)""")
 	}
 }
 
@@ -107,7 +104,7 @@ object ManyToOneSelfJoinQuerySuite
 		val name = column("name") to (_.name)
 		val lives = manytoone(HouseEntity) foreignkey "lives_id" to (_.lives)
 
-		def constructor(implicit m) = new Person(id, name, lives) with Stored
+		def constructor(implicit m: ValuesMap) = new Person(id, name, lives) with Stored
 	}
 
 	class HouseEntityBase extends Entity[Int, SurrogateIntId, House]
@@ -116,7 +113,7 @@ object ManyToOneSelfJoinQuerySuite
 		val name = column("name") to (_.name)
 		val address = manytoone(AddressEntity) to (_.address)
 
-		def constructor(implicit m) = new House(id, name, address) with Stored
+		def constructor(implicit m: ValuesMap) = new House(id, name, address) with Stored
 	}
 
 	val HouseEntity = new HouseEntityBase
@@ -126,7 +123,7 @@ object ManyToOneSelfJoinQuerySuite
 		val id = key("id") to (_.id)
 		val postCode = column("postcode") to (_.postCode)
 
-		def constructor(implicit m) = new Address(id, postCode) with Stored
+		def constructor(implicit m: ValuesMap) = new Address(id, postCode) with Stored
 	}
 
 }
