@@ -38,21 +38,28 @@ class OneToOneQuerySuite extends FunSuite with Matchers
 
 	test("query with skip") {
 		createTables
-		val p0 = mapperDao.insert(ProductEntity, Product(0, Inventory(4, 10)))
-		val p1 = mapperDao.insert(ProductEntity, Product(1, Inventory(5, 11)))
-		val p2 = mapperDao.insert(ProductEntity, Product(2, Inventory(6, 12)))
-		val p3 = mapperDao.insert(ProductEntity, Product(3, Inventory(7, 13)))
+		mapperDao.insertBatch(ProductEntity,
+			List(
+				Product(0, Inventory(4, 10)),
+				Product(1, Inventory(5, 11)),
+				Product(2, Inventory(6, 12)),
+				Product(3, Inventory(7, 13))
+			)
+		)
 
 		queryDao.query(QueryConfig(skip = Set(ProductEntity.inventory)), q0WithSkip).toSet should be === Set(Product(2, null), Product(3, null))
 	}
 
 	test("query by inventory.stock") {
 		createTables
-		val p0 = mapperDao.insert(ProductEntity, Product(0, Inventory(4, 10)))
-		val p1 = mapperDao.insert(ProductEntity, Product(1, Inventory(5, 11)))
-		val p2 = mapperDao.insert(ProductEntity, Product(2, Inventory(6, 12)))
-		val p3 = mapperDao.insert(ProductEntity, Product(3, Inventory(7, 13)))
-
+		val List(_, _, p2, p3) = mapperDao.insertBatch(ProductEntity,
+			List(
+				Product(0, Inventory(4, 10)),
+				Product(1, Inventory(5, 11)),
+				Product(2, Inventory(6, 12)),
+				Product(3, Inventory(7, 13))
+			)
+		)
 		queryDao.query(q0).toSet should be === Set(p2, p3)
 	}
 
@@ -73,7 +80,7 @@ class OneToOneQuerySuite extends FunSuite with Matchers
 					id int not null,
 					primary key (id)
 				)
-		             """)
+					 """)
 		jdbc.update( """
 				create table Inventory (
 					product_id int not null,
@@ -82,7 +89,7 @@ class OneToOneQuerySuite extends FunSuite with Matchers
 					primary key (product_id),
 					foreign key (product_id) references Product(id) on delete cascade
 				)
-		             """)
+					 """)
 	}
 
 	val p = ProductEntity
