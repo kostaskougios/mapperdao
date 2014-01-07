@@ -18,23 +18,24 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with Matchers
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(PersonEntity, HouseEntity, AddressEntity))
 
-	import TestQueries._
-	import mapperDao._
-	import queryDao._
+	import Query._
+
+	val pe = PersonEntity
+	val ho1 = HouseEntity
 
 	test("self join query on house") {
 		createTables()
-		val List(a0, a1) = insertBatch(AddressEntity, List(
+		val List(a0, a1) = mapperDao.insertBatch(AddressEntity, List(
 			Address(100, "SE1 1AA"),
 			Address(101, "SE2 2BB")
 		))
-		val List(h0, h1, _) = insertBatch(HouseEntity,
+		val List(h0, h1, _) = mapperDao.insertBatch(HouseEntity,
 			List(
 				House(10, "Appartment A", a0),
 				House(11, "Block B", a1),
 				House(12, "Block B", a1)
 			))
-		val List(p0, p1, p2, _, _) = insertBatch(PersonEntity,
+		val List(p0, p1, p2, _, _) = mapperDao.insertBatch(PersonEntity,
 			List(
 				Person(0, "p0", h0),
 				Person(1, "p1", h0),
@@ -42,7 +43,11 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with Matchers
 				Person(3, "p3", h1),
 				Person(4, "p4", h1)
 			))
-		query(q0).toSet should be(Set(p0, p1, p2))
+		queryDao.query(
+			select from pe
+				join(pe, pe.lives, ho1)
+				join (HouseEntity as 'he) on ho1.name <>('he, ho1.name) and ('he, ho1.id) === 11
+		).toSet should be(Set(p0, p1, p2))
 	}
 
 	def createTables() {
@@ -74,23 +79,6 @@ class ManyToOneSelfJoinQuerySuite extends FunSuite with Matchers
 
 object ManyToOneSelfJoinQuerySuite
 {
-
-	object TestQueries
-	{
-
-		import Query._
-
-		val pe = PersonEntity
-
-		val q0 = {
-			val ho1 = HouseEntity
-			(
-				select from pe
-					join(pe, pe.lives, ho1)
-					join (HouseEntity as 'he) on ho1.name <>('he, ho1.name) and ('he, ho1.id) === 11
-				)
-		}
-	}
 
 	case class Person(id: Int, var name: String, lives: House)
 
