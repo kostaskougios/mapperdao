@@ -4,6 +4,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, FunSuite}
+import com.googlecode.mapperdao.Query._
 
 /**
  * @author kostantinos.kougios
@@ -13,8 +14,8 @@ import org.scalatest.{Matchers, FunSuite}
 @RunWith(classOf[JUnitRunner])
 class OneToOneQuerySuite extends FunSuite with Matchers
 {
-	val InventoryEntity = new InventoryEntityBase
-	val ProductEntity = new ProductEntityBase
+	val p = ProductEntity
+	val i = InventoryEntity
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, InventoryEntity))
 
@@ -47,7 +48,9 @@ class OneToOneQuerySuite extends FunSuite with Matchers
 			)
 		)
 
-		queryDao.query(QueryConfig(skip = Set(ProductEntity.inventory)), q0WithSkip).toSet should be === Set(Product(2, null), Product(3, null))
+		queryDao.query(QueryConfig(skip = Set(ProductEntity.inventory)),
+			select from p join(p, p.inventory, i) where i.stock > 5
+		).toSet should be === Set(Product(2, null), Product(3, null))
 	}
 
 	test("query by inventory.stock") {
@@ -60,17 +63,27 @@ class OneToOneQuerySuite extends FunSuite with Matchers
 				Product(3, Inventory(7, 13))
 			)
 		)
-		queryDao.query(q0).toSet should be === Set(p2, p3)
+		queryDao.query(select from p join(p, p.inventory, i) where i.stock > 5).toSet should be === Set(p2, p3)
 	}
 
 	test("query with and") {
 		createTables
-		val p0 = mapperDao.insert(ProductEntity, Product(0, Inventory(4, 10)))
-		val p1 = mapperDao.insert(ProductEntity, Product(1, Inventory(5, 11)))
-		val p2 = mapperDao.insert(ProductEntity, Product(2, Inventory(6, 12)))
-		val p3 = mapperDao.insert(ProductEntity, Product(3, Inventory(7, 13)))
+		val List(_, _, p2, _) = mapperDao.insertBatch(ProductEntity,
+			List(
+				Product(0, Inventory(4, 10)),
+				Product(1, Inventory(5, 11)),
+				Product(2, Inventory(6, 12)),
+				Product(3, Inventory(7, 13))
+			)
+		)
 
-		queryDao.query(q1).toSet should be === Set(p2)
+		queryDao.query(
+			select from p
+				join(p, p.inventory, i)
+				where
+				i.stock > 5
+				and i.sold < 13
+		).toSet should be === Set(p2)
 	}
 
 	def createTables = {
@@ -92,43 +105,26 @@ class OneToOneQuerySuite extends FunSuite with Matchers
 					 """)
 	}
 
-	val p = ProductEntity
-	val i = InventoryEntity
-
-	import Query._
-
-	def q0 = select from p join(p, p.inventory, i) where i.stock > 5
-
 	def q0Limits = select from p
-
-	def q0WithSkip = select from p join(p, p.inventory, i) where i.stock > 5
-
-	def q1 = (
-		select from p
-			join(p, p.inventory, i)
-			where
-			i.stock > 5
-			and i.sold < 13
-		)
 
 	case class Inventory(stock: Int, sold: Int)
 
 	case class Product(id: Int, inventory: Inventory)
 
-	class InventoryEntityBase extends Entity[Unit, NoId, Inventory]
+	object InventoryEntity extends Entity[Unit, NoId, Inventory]
 	{
 		val stock = column("stock") to (_.stock)
 		val sold = column("sold") to (_.sold)
 
-		def constructor(implicit m) = new Inventory(stock, sold) with Stored
+		def constructor(implicit m: ValuesMap) = new Inventory(stock, sold) with Stored
 	}
 
-	class ProductEntityBase extends Entity[Int, SurrogateIntId, Product]
+	object ProductEntity extends Entity[Int, SurrogateIntId, Product]
 	{
 		val id = key("id") to (_.id)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 
-		def constructor(implicit m) = new Product(id, inventory) with Stored
+		def constructor(implicit m: ValuesMap) = new Product(id, inventory) with Stored
 	}
 
 }
