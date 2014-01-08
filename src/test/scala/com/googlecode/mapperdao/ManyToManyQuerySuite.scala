@@ -75,11 +75,11 @@ class ManyToManyQuerySuite extends FunSuite with Matchers
 
 		def qn(attr: Attribute) = select from p where p.attributes <> attr
 
-		q(a).toList.toSet should be(Set(p1, p3))
-		q(d).toList.toSet should be(Set(p2, p4))
-		q(c).toList.toSet should be(Set(p2, p3))
-		q(d).toList.toSet should be(Set(p2, p4))
-		qn(d).toList.toSet should be(Set(p1, p2, p3))
+		q(a).toSet should be(Set(p1, p3))
+		q(d).toSet should be(Set(p2, p4))
+		q(c).toSet should be(Set(p2, p3))
+		q(d).toSet should be(Set(p2, p4))
+		qn(d).toSet should be(Set(p1, p2, p3))
 	}
 
 	test("query with limits (offset only)") {
