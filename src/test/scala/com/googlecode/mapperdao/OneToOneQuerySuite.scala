@@ -19,22 +19,40 @@ class OneToOneQuerySuite extends FunSuite with Matchers
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, InventoryEntity))
 
+	test("query with alias") {
+		createTables
+		val List(p0, _, p2, _) = mapperDao.insertBatch(ProductEntity,
+			List(
+				Product(0, Inventory(4, 10)),
+				Product(1, Inventory(5, 11)),
+				Product(2, Inventory(6, 10)),
+				Product(3, Inventory(7, 13))
+			)
+		)
+		queryDao.query(
+			select from p
+				join (p as 'p1) on ('p1, p.id) <> p.id
+				join(p, p.inventory, i)
+				join(p as 'p1, p.inventory, i as 'i1) on ('i1, i.sold) === i.sold
+		).toSet should be === Set(p0, p2)
+	}
+
 	test("query with limits (offset only)") {
 		createTables
 		val products = for (i <- 0 to 10) yield mapperDao.insert(ProductEntity, Product(i, Inventory(10 + i, 15 + i)))
-		queryDao.query(QueryConfig(offset = Some(7)), q0Limits).toSet should be === Set(products(7), products(8), products(9), products(10))
+		queryDao.query(QueryConfig(offset = Some(7)), select from p).toSet should be === Set(products(7), products(8), products(9), products(10))
 	}
 
 	test("query with limits (limit only)") {
 		createTables
 		val products = for (i <- 0 to 10) yield mapperDao.insert(ProductEntity, Product(i, Inventory(10 + i, 15 + i)))
-		queryDao.query(QueryConfig(limit = Some(2)), q0Limits).toSet should be === Set(products(0), products(1))
+		queryDao.query(QueryConfig(limit = Some(2)), select from p).toSet should be === Set(products(0), products(1))
 	}
 
 	test("query with limits") {
 		createTables
 		val products = for (i <- 0 to 10) yield mapperDao.insert(ProductEntity, Product(i, Inventory(10 + i, 15 + i)))
-		queryDao.query(QueryConfig(offset = Some(3), limit = Some(4)), q0Limits).toSet should be === Set(products(3), products(4), products(5), products(6))
+		queryDao.query(QueryConfig(offset = Some(3), limit = Some(4)), select from p).toSet should be === Set(products(3), products(4), products(5), products(6))
 	}
 
 	test("query with skip") {
@@ -104,8 +122,6 @@ class OneToOneQuerySuite extends FunSuite with Matchers
 				)
 					 """)
 	}
-
-	def q0Limits = select from p
 
 	case class Inventory(stock: Int, sold: Int)
 

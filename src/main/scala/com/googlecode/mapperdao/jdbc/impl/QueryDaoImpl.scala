@@ -109,10 +109,10 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 						q.innerJoin(leftJoin)
 						q.innerJoin(rightJoin)
 					case oneToOneReverse: OneToOneReverse[_, _] =>
-						val join = oneToOneReverseJoin(queryConfig, joinEntityAlias, foreignEntityAlias, oneToOneReverse)
+						val join = oneToOneReverseJoin(queryConfig, joinEntityAlias, foreignEntityAlias, oneToOneReverse, ons)
 						q.innerJoin(join)
 					case oneToOne: OneToOne[_, _] =>
-						val join = oneToOneJoin(queryConfig, joinEntityAlias, foreignEntityAlias, oneToOne)
+						val join = oneToOneJoin(queryConfig, joinEntityAlias, foreignEntityAlias, oneToOne, ons)
 						q.innerJoin(join)
 				}
 			case j: SelfJoin[Any, Any, Any, Any, Any, Persisted, Any] =>
@@ -345,7 +345,8 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		queryConfig: QueryConfig,
 		joinEntity: Alias[JID, JT],
 		foreignEntity: Alias[FID, FT],
-		oneToOneReverse: OneToOneReverse[_, _]
+		oneToOneReverse: OneToOneReverse[_, _],
+		ons: Option[OpBase]
 		) = {
 		val tpe = joinEntity.entity.tpe
 		val table = tpe.table
@@ -359,6 +360,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 			case (left, right) =>
 				j.and(jAlias, left.name, "=", fAlias, right.name)
 		}
+		joinOns(ons, j)
 		j
 	}
 
@@ -366,7 +368,8 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		queryConfig: QueryConfig,
 		joinEntity: Alias[JID, JT],
 		foreignEntity: Alias[FID, FT],
-		oneToOne: OneToOne[_, _]
+		oneToOne: OneToOne[_, _],
+		ons: Option[OpBase]
 		) = {
 		val foreignTpe = foreignEntity.entity.tpe
 		val foreignTable = foreignTpe.table
@@ -378,6 +381,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 			case (left, right) =>
 				j.and(jAlias, left.name, "=", fAlias, right.name)
 		}
+		joinOns(ons, j)
 		j
 	}
 
