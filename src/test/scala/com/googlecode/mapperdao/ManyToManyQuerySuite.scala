@@ -20,6 +20,33 @@ class ManyToManyQuerySuite extends FunSuite with Matchers
 	val p = ProductEntity
 	val attr = AttributeEntity
 
+	test("join on") {
+		createTables
+		val List(a, b, c, d) = mapperDao.insertBatch(AttributeEntity,
+			List(
+				Attribute(100, "size", "A"),
+				Attribute(101, "size", "B"),
+				Attribute(102, "size", "C"),
+				Attribute(103, "size", "D")
+			)
+		)
+		val List(p1, p2, p3, _) = mapperDao.insertBatch(ProductEntity,
+			List(
+				Product(1, "TV 1", Set(a, b)),
+				Product(2, "TV 1", Set(a, c)),
+				Product(3, "TV 3", Set(a)),
+				Product(4, "TV 4", Set(d))
+			)
+		)
+
+		(
+			select from p
+				join(p, p.attributes, attr)
+				join (p as 'p1) on ('p1, p.id) <> p.id
+				join(p as 'p1, p.attributes, attr as 'a1) on ('a1, attr.value) === attr.value
+			).toSet should be(Set(p1, p2, p3))
+	}
+
 	test("self join") {
 		createTables
 		val List(a, b, c, d) = mapperDao.insertBatch(AttributeEntity,

@@ -105,7 +105,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 						val join = oneToManyJoin(queryConfig, joinEntityAlias, foreignEntityAlias, oneToMany, ons)
 						q.innerJoin(join)
 					case manyToMany: ManyToMany[_, _] =>
-						val List(leftJoin, rightJoin) = manyToManyJoin(queryConfig, joinEntityAlias, foreignEntityAlias, manyToMany)
+						val List(leftJoin, rightJoin) = manyToManyJoin(queryConfig, joinEntityAlias, foreignEntityAlias, manyToMany, ons)
 						q.innerJoin(leftJoin)
 						q.innerJoin(rightJoin)
 					case oneToOneReverse: OneToOneReverse[_, _] =>
@@ -132,7 +132,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 					q.innerJoin(oneToManyJoin(queryConfig, left.leftAlias, left.foreignAlias, left.column, None))
 
 				case ManyToManyOperation(left: AliasManyToMany[Any, _], operand: Operand, right: Any) =>
-					val List(leftJ, _) = manyToManyJoin(queryConfig, left.leftAlias, left.foreignAlias, left.column)
+					val List(leftJ, _) = manyToManyJoin(queryConfig, left.leftAlias, left.foreignAlias, left.column, None)
 					q.innerJoin(leftJ)
 				case _ => //noop
 			}
@@ -435,7 +435,8 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		queryConfig: QueryConfig,
 		joinAlias: Alias[JID, JT],
 		foreignAlias: Alias[FID, FT],
-		manyToMany: ManyToMany[_, _]
+		manyToMany: ManyToMany[_, _],
+		ons: Option[OpBase]
 		): List[driver.sqlBuilder.InnerJoinBuilder] = {
 		val joinTpe = joinAlias.entity.tpe
 		val foreignTpe = foreignAlias.entity.tpe
@@ -458,6 +459,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 			case (left, right) =>
 				j2.and(fAlias, left.name, "=", linkTableAlias, right.name)
 		}
+		joinOns(ons, j2)
 		List(j1, j2)
 	}
 
