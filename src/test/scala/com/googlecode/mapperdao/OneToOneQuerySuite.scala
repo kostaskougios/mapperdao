@@ -19,7 +19,7 @@ class OneToOneQuerySuite extends FunSuite with Matchers
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, InventoryEntity))
 
-	test("query with alias") {
+	test("join on") {
 		createTables
 		val List(p0, _, p2, _) = mapperDao.insertBatch(ProductEntity,
 			List(
