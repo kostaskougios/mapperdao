@@ -96,14 +96,11 @@ protected[mapperdao] final class MapperDaoImpl(
 		os: List[T with Persisted]
 		): List[T with Persisted] = {
 		val osAndNewValues = os.map {
-			o =>
-				o match {
-					case p: Persisted if (p.mapperDaoValuesMap.mock) =>
-						throw new IllegalStateException("Object %s is mock.".format(p))
-					case persisted: Persisted =>
-						val newValuesMap = ValuesMap.fromType(typeManager, tpe, o, persisted.mapperDaoValuesMap)
-						(o, newValuesMap)
-				}
+			case p: Persisted if (p.mapperDaoValuesMap.mock) =>
+				throw new IllegalStateException("Object %s is mock.".format(p))
+			case persisted: T with Persisted =>
+				val newValuesMap = ValuesMap.fromType(typeManager, tpe, persisted, persisted.mapperDaoValuesMap)
+				(persisted, newValuesMap)
 		}
 		updateProcess(updateConfig, tpe, osAndNewValues)
 	}
@@ -229,47 +226,45 @@ protected[mapperdao] final class MapperDaoImpl(
 		entity: EntityBase[ID, T],
 		selectConfig: SelectConfig,
 		entities: EntityMap
-		): List[T with Persisted] = {
-		lm.map {
-			databaseValues =>
-				val tpe = entity.tpe
-				val table = tpe.table
-				// calculate the id's for this tpe
-				val pkIds = table.primaryKeys.map {
-					pk => databaseValues(pk)
-				} ::: selectBeforePlugins.map {
-					_.idContribution(tpe, databaseValues, entities)
-				}.flatten
-				val unusedIds = table.unusedPKs.map {
-					pk =>
-						databaseValues(pk)
-				}
-				val ids = pkIds ::: unusedIds
-				if (ids.isEmpty)
-					throw new IllegalStateException("entity %s without primary key, please use declarePrimaryKeys() to declare the primary key columns of tables into your entity declaration")
+		): List[T with Persisted] = lm.map {
+		databaseValues =>
+			val tpe = entity.tpe
+			val table = tpe.table
+			// calculate the id's for this tpe
+			val pkIds = table.primaryKeys.map {
+				pk => databaseValues(pk)
+			} ::: selectBeforePlugins.map {
+				_.idContribution(tpe, databaseValues, entities)
+			}.flatten
+			val unusedIds = table.unusedPKs.map {
+				pk =>
+					databaseValues(pk)
+			}
+			val ids = pkIds ::: unusedIds
+			if (ids.isEmpty)
+				throw new IllegalStateException("entity %s without primary key, please use declarePrimaryKeys() to declare the primary key columns of tables into your entity declaration")
 
-				entities.get[T with Persisted](tpe.clz, ids) {
-					val mods = databaseValues.toMap
-					val mock = mockFactory.createMock(selectConfig.data, entity.tpe, mods)
-					entities.putMock(tpe.clz, ids, mock)
+			entities.get[T with Persisted](tpe.clz, ids) {
+				val mods = databaseValues.toMap
+				val mock = mockFactory.createMock(selectConfig.data, entity.tpe, mods)
+				entities.putMock(tpe.clz, ids, mock)
 
-					val allMods = mods ++ selectBeforePlugins.map {
-						_.before(entity, selectConfig, databaseValues, entities)
-					}.flatten.map {
-						case SelectMod(k, v, lazyBeforeLoadVal) =>
-							(k, v)
-					}.toMap
+				val allMods = mods ++ selectBeforePlugins.map {
+					_.before(entity, selectConfig, databaseValues, entities)
+				}.flatten.map {
+					case SelectMod(k, v, lazyBeforeLoadVal) =>
+						(k, v)
+				}.toMap
 
-					val vm = ValuesMap.fromMap(null, allMods)
-					// if the entity should be lazy loaded and it has relationships, then
-					// we need to lazy load it
-					val entityV = if (lazyLoadManager.isLazyLoaded(selectConfig.lazyLoad, entity)) {
-						lazyLoadEntity(entity, selectConfig, vm)
-					} else tpe.constructor(typeRegistry.persistDetails(tpe), selectConfig.data, vm)
-					vm.o = entityV
-					Some(entityV)
-				}.get
-		}
+				val vm = ValuesMap.fromMap(null, allMods)
+				// if the entity should be lazy loaded and it has relationships, then
+				// we need to lazy load it
+				val entityV = if (lazyLoadManager.isLazyLoaded(selectConfig.lazyLoad, entity)) {
+					lazyLoadEntity(entity, selectConfig, vm)
+				} else tpe.constructor(typeRegistry.persistDetails(tpe), selectConfig.data, vm)
+				vm.o = entityV
+				Some(entityV)
+			}.get
 	}
 
 	private def lazyLoadEntity[ID, T](
