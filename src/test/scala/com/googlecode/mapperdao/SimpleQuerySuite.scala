@@ -291,7 +291,7 @@ class SimpleQuerySuite extends FunSuite with Matchers
 
 	def q9 = select from jpe where ((jpe.id > 10 and jpe.id < 20) or (jpe.id > 30 and jpe.id < 40)) and jpe.name === "correct"
 
-	def q10 = select from jpe where jpe.start > DateTime.now.plusDays(0) and jpe.start < DateTime.now.plusDays(3).plusSeconds(60)
+	def q10 = select from jpe where jpe.start > DateTime.now.plusDays(0) and jpe.start < DateTime.now.plusDays(3).minusSeconds(60)
 
 	def q10Alias = {
 		val q = select from jpe
