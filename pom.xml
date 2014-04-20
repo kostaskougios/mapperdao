@@ -44,8 +44,8 @@
         <dependency>
             <groupId>com.googlecode.scalaconcurrency</groupId>
             <artifactId>scalaconcurrency</artifactId>
-            <version>0.8.2-${scala.version}</version>
-            <scope>test</scope>
+			<version>0.9.0-${scala.major.version}</version>
+			<scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -81,8 +81,8 @@
         <dependency>
             <groupId>com.googlecode.classgenerator</groupId>
             <artifactId>classgenerator</artifactId>
-            <version>0.6.8-${scala.version}</version>
-        </dependency>
+			<version>0.7.0-${scala.major.version}</version>
+		</dependency>
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -436,9 +436,10 @@
         <profile>
             <id>scala2.10</id>
             <properties>
-                <scala.version>2.10.3</scala.version>
-                <scala.lib.version>2.10.0</scala.lib.version>
-            </properties>
+				<scala.major.version>2.10</scala.major.version>
+				<scala.version>${scala.major.version}.4</scala.version>
+				<scala.lib.version>${scala.major.version}.0</scala.lib.version>
+			</properties>
             <activation>
                 <property>
                     <name>!exclude</name>
