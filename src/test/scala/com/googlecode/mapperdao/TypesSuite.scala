@@ -4,7 +4,8 @@ import org.junit.runner.RunWith
 import org.scalatest.{Matchers, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.jdbc.Setup
-import org.scala_tools.time.Imports._
+import org.joda.time._
+import scala.Some
 
 /**
  * @author kostantinos.kougios
@@ -164,7 +165,7 @@ class TypesSuite extends FunSuite with Matchers
 	if (Setup.database != "sqlserver") {
 		test("localTime, query") {
 			createTables("dates")
-			val time = DateTime.now.withMillisOfSecond(0).toLocalTime.withHour(5)
+			val time = DateTime.now.withMillisOfSecond(0).toLocalTime.withHourOfDay(5)
 			val nextHour = time.plusHours(1)
 			val List(_, i2) = mapperDao.insertBatch(DatesEntity, List(Dates(5, time = time), Dates(6, time = nextHour)))
 
@@ -523,7 +524,7 @@ class TypesSuite extends FunSuite with Matchers
 		val float = column("float") option (_.float)
 		val double = column("double") option (_.double)
 
-		def constructor(implicit m) = new OBD(
+		def constructor(implicit m: ValuesMap) = new OBD(
 			id,
 			big,
 			bool,

@@ -1,11 +1,11 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.Setup
-import org.scala_tools.time.Imports._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.utils.Helpers
+import org.joda.time.DateTime
 
 /**
  * this is a self contained spec, all test entities, mapping are contained within this spec
@@ -33,10 +33,10 @@ class SimpleEntitiesSuite extends FunSuite with Matchers
 		createJobPositionTable()
 
 		val date = Setup.now
-		val jp = JobPosition(5, "Developer", date, date - 2.months, 10)
+		val jp = JobPosition(5, "Developer", date, date.minusMonths(2), 10)
 		val inserted = mapperDao.insert(JobPositionEntity, jp)
 
-		val newV = JobPosition(7, "X", date, date - 2.months, 10, true)
+		val newV = JobPosition(7, "X", date, date.minusMonths(2), 10, true)
 		val updated = mapperDao.update(JobPositionEntity, inserted, newV)
 		updated should be === newV
 		val s1 = mapperDao.select(JobPositionEntity, 7).get
@@ -48,7 +48,7 @@ class SimpleEntitiesSuite extends FunSuite with Matchers
 		createJobPositionTable()
 
 		val date = Setup.now
-		val jp = JobPosition(5, "Developer", date, date - 2.months, 10)
+		val jp = JobPosition(5, "Developer", date, date.minusMonths(2), 10)
 		val inserted = mapperDao.insert(JobPositionEntity, jp)
 
 		inserted.id = 7
@@ -62,7 +62,7 @@ class SimpleEntitiesSuite extends FunSuite with Matchers
 		createJobPositionTable()
 
 		val date = Setup.now
-		val jp = new JobPosition(5, "Developer", date, date - 2.months, 10)
+		val jp = new JobPosition(5, "Developer", date, date.minusMonths(2), 10)
 		val inserted = mapperDao.insert(JobPositionEntity, jp)
 
 		var updated: JobPosition = inserted
@@ -143,7 +143,7 @@ class SimpleEntitiesSuite extends FunSuite with Matchers
 		val inserted = tx {
 			() =>
 				val date = Setup.now
-				val inserted = mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date - 2.months, 10))
+				val inserted = mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date.minusMonths(2), 10))
 				mapperDao.select(JobPositionEntity, inserted.id).get should be === inserted
 				inserted
 		}
@@ -162,7 +162,7 @@ class SimpleEntitiesSuite extends FunSuite with Matchers
 			tx {
 				() =>
 					val date = Setup.now
-					val inserted = mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date - 2.months, 10))
+					val inserted = mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date.minusMonths(2), 10))
 					mapperDao.select(JobPositionEntity, inserted.id).get should be === inserted
 					throw new IllegalStateException
 			}
@@ -219,7 +219,7 @@ class SimpleEntitiesSuite extends FunSuite with Matchers
 
 		// a function from ValuesMap=>JobPosition that constructs the object.
 		// This means that immutability is possible and even desirable for entities!
-		def constructor(implicit m) = new JobPosition(id, name, start, end, rank, married) with Stored
+		def constructor(implicit m: ValuesMap) = new JobPosition(id, name, start, end, rank, married) with Stored
 	}
 
 }

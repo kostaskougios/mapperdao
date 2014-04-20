@@ -1,10 +1,10 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.Setup
-import org.scala_tools.time.Imports._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, FunSuite}
+import org.joda.time.DateTime
 
 /**
  * @author kostantinos.kougios
@@ -291,11 +291,11 @@ class SimpleQuerySuite extends FunSuite with Matchers
 
 	def q9 = select from jpe where ((jpe.id > 10 and jpe.id < 20) or (jpe.id > 30 and jpe.id < 40)) and jpe.name === "correct"
 
-	def q10 = select from jpe where jpe.start > DateTime.now + 0.days and jpe.start < DateTime.now + 3.days - 60.seconds
+	def q10 = select from jpe where jpe.start > DateTime.now.plusDays(0) and jpe.start < DateTime.now.plusDays(3).plusSeconds(60)
 
 	def q10Alias = {
 		val q = select from jpe
-		q where jpe.start > DateTime.now + 0.days and jpe.start < DateTime.now + 3.days - 60.seconds
+		q where jpe.start > DateTime.now.plusDays(0) and jpe.start < DateTime.now.plusDays(3).minusSeconds(60)
 	}
 
 	def qAsBuilder = {
@@ -324,7 +324,7 @@ class SimpleQuerySuite extends FunSuite with Matchers
 		val name = column("name") to (_.name)
 		val start = column("start") to (_.start)
 
-		def constructor(implicit m) = new JobPosition(id, name, start) with Stored
+		def constructor(implicit m: ValuesMap) = new JobPosition(id, name, start) with Stored
 	}
 
 }

@@ -3,7 +3,6 @@ package com.googlecode.mapperdao.jdbc
 import java.util.Properties
 import org.apache.commons.dbcp.BasicDataSource
 import org.apache.commons.dbcp.BasicDataSourceFactory
-import org.scala_tools.time.Imports._
 import org.slf4j.LoggerFactory
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.utils.{Setup => S}
@@ -12,6 +11,7 @@ import com.googlecode.mapperdao.drivers.Cache
 import org.joda.time.chrono.ISOChronology
 import javax.sql.DataSource
 import org.springframework.jdbc.datasource.SingleConnectionDataSource
+import org.joda.time.DateTime
 
 /**
  * creates an environment for specs

@@ -1,10 +1,10 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.Setup
-import org.scala_tools.time.Imports._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, FunSuite}
+import org.joda.time.DateTime
 
 /**
  * @author kostantinos.kougios
@@ -53,7 +53,7 @@ class SimpleSelfJoinQuerySuite extends FunSuite with Matchers
 		val name = column("name") to (_.name)
 		val start = column("start") to (_.start)
 
-		def constructor(implicit m) = new JobPosition(id, name, start) with Stored
+		def constructor(implicit m: ValuesMap) = new JobPosition(id, name, start) with Stored
 	}
 
 }

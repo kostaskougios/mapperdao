@@ -3,8 +3,8 @@ package com.googlecode.mapperdao
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, FunSuite}
-import org.scala_tools.time.Imports._
 import com.googlecode.mapperdao.jdbc.Setup
+import org.joda.time.DateTime
 
 /**
  * @author kostantinos.kougios
