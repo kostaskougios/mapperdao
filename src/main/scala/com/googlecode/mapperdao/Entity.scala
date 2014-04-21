@@ -10,6 +10,7 @@ import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
 import com.googlecode.mapperdao.schema.Column
 import com.googlecode.mapperdao.schema.ColumnInfo
 import java.util.concurrent.atomic.AtomicInteger
+import scala.annotation.unchecked.uncheckedVariance
 
 /**
  * the main class that must be inherited to create entities.
@@ -70,7 +71,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 * declares the extra trait that will be mixed into every persisted instance
 	 * of T. So T becomes T with Stored when it is persisted.
 	 */
-	type Stored = PC
+	type Stored = (PC@uncheckedVariance)
 
 	def this(table: String)(implicit m: ClassManifest[T]) = this(table, m.erasure.asInstanceOf[Class[T]])
 
