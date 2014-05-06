@@ -6,7 +6,7 @@ import com.googlecode.mapperdao.queries.v2.Alias
 /**
  * all entities inherit this
  *
- * @author: kostas.kougios
+ * @author kostas.kougios
  *          Date: 22/04/13
  */
 trait EntityBase[ID, T]

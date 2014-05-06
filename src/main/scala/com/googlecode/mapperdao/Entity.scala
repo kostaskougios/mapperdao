@@ -388,14 +388,14 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	protected class ColumnBuilder(column: String)
 		extends OnlyForQueryDefinition
 	{
-		def to[V](columnToValue: T => V)(implicit m: Manifest[V]): ColumnInfo[T, V] = {
-			val tpe = m.erasure.asInstanceOf[Class[V]]
+		def to[V](columnToValue: T => V)(implicit m: ClassTag[V]): ColumnInfo[T, V] = {
+			val tpe = m.runtimeClass.asInstanceOf[Class[V]]
 			val ci = ColumnInfo[T, V](Column(Entity.this, column, tpe), columnToValue, tpe)
 			if (!onlyForQuery) columns ::= ci else onlyForQueryColumns ::= ci
 			ci
 		}
 
-		def option[V](columnToValue: T => Option[V])(implicit m: Manifest[V]): ColumnInfo[T, V] = to(optionToValue(columnToValue))
+		def option[V](columnToValue: T => Option[V])(implicit m: ClassTag[V]): ColumnInfo[T, V] = to(optionToValue(columnToValue))
 	}
 
 	/**
