@@ -11,6 +11,7 @@ import com.googlecode.mapperdao.schema.Column
 import com.googlecode.mapperdao.schema.ColumnInfo
 import java.util.concurrent.atomic.AtomicInteger
 import scala.annotation.unchecked.uncheckedVariance
+import scala.reflect.ClassTag
 
 /**
  * the main class that must be inherited to create entities.
@@ -73,9 +74,9 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 */
 	type Stored = (PC@uncheckedVariance)
 
-	def this(table: String)(implicit m: ClassManifest[T]) = this(table, m.erasure.asInstanceOf[Class[T]])
+	def this(table: String)(implicit m: ClassTag[T]) = this(table, m.runtimeClass.asInstanceOf[Class[T]])
 
-	def this()(implicit m: ClassManifest[T]) = this(m.erasure.getSimpleName, m.erasure.asInstanceOf[Class[T]])
+	def this()(implicit m: ClassTag[T]) = this(m.runtimeClass.getSimpleName, m.runtimeClass.asInstanceOf[Class[T]])
 
 	/**
 	 * overriding any of these entity-constructors is mandatory. These
