@@ -20,9 +20,9 @@ trait CRUD[ID, PC <: Persisted, T]
 	protected val entity: Entity[ID, PC, T]
 
 	// override these to customise them
-	protected val selectConfig = SelectConfig.default
+	protected val selectConfig = SelectConfig.Default
 	protected val updateConfig = UpdateConfig.default
-	protected val deleteConfig = DeleteConfig.default
+	protected val deleteConfig = DeleteConfig.Default
 
 	/**
 	 * insert an entity into the database

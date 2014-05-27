@@ -310,7 +310,7 @@ protected[mapperdao] final class MapperDaoImpl(
 		if (pks.size != ids.size) throw new IllegalArgumentException("number of primary key values don't match number of primary keys : %s != %s".format(pks, ids))
 		val keyValues = pks zip ids
 		// do the actual delete database op
-		driver.doDelete(DeleteConfig.default, tpe, keyValues)
+		driver.doDelete(DeleteConfig.Default, tpe, keyValues)
 	}
 
 	/**

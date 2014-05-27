@@ -44,7 +44,7 @@ class RelatedAreLoadedFromDatabaseValuesSuite extends FunSuite with Matchers wit
 				)
 			) :: Nil)
 		))
-		val s = mapperDao.selectInner(ProductEntity, SelectConfig.default, ids, new EntityMap, Some(dbVs)).get
+		val s = mapperDao.selectInner(ProductEntity, SelectConfig.Default, ids, new EntityMap, Some(dbVs)).get
 		s should be(Product("product1", Set(Attribute("a1", "v1"), Attribute("a2", "v2"))))
 		Helpers.intIdOf(s) should be(5)
 		Helpers.intIdOf(s.attributes.head) should be(105)
@@ -70,7 +70,7 @@ class RelatedAreLoadedFromDatabaseValuesSuite extends FunSuite with Matchers wit
 					)
 			)
 		)
-		val r = mapperDao.selectInner(PersonEntity, SelectConfig.default, ids, new EntityMap, Some(dbVs)).get
+		val r = mapperDao.selectInner(PersonEntity, SelectConfig.Default, ids, new EntityMap, Some(dbVs)).get
 		r should be(Person("person1", Company("company1")))
 		Helpers.intIdOf(r) should be(10)
 		Helpers.intIdOf(r.company) should be(101)
@@ -99,7 +99,7 @@ class RelatedAreLoadedFromDatabaseValuesSuite extends FunSuite with Matchers wit
 				)
 		)
 		)
-		val r = mapperDao.selectInner(OwnerEntity, SelectConfig.default, ids, new EntityMap, Some(dbVs)).get
+		val r = mapperDao.selectInner(OwnerEntity, SelectConfig.Default, ids, new EntityMap, Some(dbVs)).get
 		r should be(Owner("owner1", Set(House("first address"), House("second address"))))
 		Helpers.intIdOf(r) should be(20)
 		Helpers.intIdOf(r.owns.head) should be(201)

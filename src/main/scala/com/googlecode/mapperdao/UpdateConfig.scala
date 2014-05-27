@@ -11,7 +11,7 @@ case class UpdateConfig(
 	/**
 	 * some updates require deleting related data. This deleteConfig will be used
 	 */
-	deleteConfig: DeleteConfig = DeleteConfig.default,
+	deleteConfig: DeleteConfig = DeleteConfig.Default,
 
 	/**
 	 * pass these data to the Entity.constructor method

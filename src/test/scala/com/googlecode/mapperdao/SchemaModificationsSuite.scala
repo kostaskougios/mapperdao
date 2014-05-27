@@ -22,8 +22,8 @@ class SchemaModificationsSuite extends FunSuite with Matchers
 		val modifications = SchemaModifications(
 			name => "tmp_" + name
 		)
-		val sc = SelectConfig.default.copy(schemaModifications = modifications)
-		val dc = DeleteConfig.default.copy(schemaModifications = modifications)
+		val sc = SelectConfig.Default.copy(schemaModifications = modifications)
+		val dc = DeleteConfig.Default.copy(schemaModifications = modifications)
 		val qc = QueryConfig.default.copy(schemaModifications = modifications)
 		val uc = UpdateConfig.default.copy(schemaModifications = modifications, deleteConfig = dc)
 

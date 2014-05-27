@@ -47,5 +47,5 @@ object SelectConfig
 	def lazyLoad = SelectConfig(lazyLoad = LazyLoad.all)
 
 	// use this to avoid creating instances for the default select config
-	val default = SelectConfig()
+	val Default = SelectConfig()
 }

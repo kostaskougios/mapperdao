@@ -17,5 +17,5 @@ case class DeleteConfig(
 object DeleteConfig
 {
 	// the default delete config which doesn't propagate the deletes
-	val default = DeleteConfig()
+	val Default = DeleteConfig()
 }
