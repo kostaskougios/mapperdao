@@ -49,22 +49,7 @@ trait QueryDao
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 * @see		#QueryConfig
 	 */
-	def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: WithQueryInfo[ID, PC, T]): List[T with PC] =
-		query(queryConfig, qi.queryInfo)
-
-	/**
-	 * runs a query and retuns a list of entities.
-	 *
-	 * import Query._
-	 * val qe=(select from ProductEntity where title==="jeans")
-	 * val results=queryDao.query(qe) // list of products
-	 *
-	 * @param	queryConfig		configures the query
-	 * @param	qi				a query
-	 * @return	a list of T with PC i.e. List[Product with IntId]
-	 * @see		#QueryConfig
-	 */
-	protected def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: QueryInfo[ID, T]): List[T with PC]
+	def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: WithQueryInfo[ID, PC, T]): List[T with PC]
 
 	/**
 	 * counts rows, i.e.
@@ -90,20 +75,7 @@ trait QueryDao
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.
 	 */
-	def querySingleResult[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: WithQueryInfo[ID, PC, T]): Option[T with PC] =
-		querySingleResult(queryConfig, qi.queryInfo)
-
-	/**
-	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
-	 * an IllegalStateException is thrown.
-	 */
-	protected def querySingleResult[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: QueryInfo[ID, T]): Option[T with PC] = {
-		val l = query(queryConfig, qi)
-		// l.size might be costly, so we'll test if l is empty first
-		if (l.isEmpty) None
-		else if (!l.tail.isEmpty) throw new IllegalStateException("expected 0 or 1 result but got %s.".format(l))
-		else l.headOption
-	}
+	def querySingleResult[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: WithQueryInfo[ID, PC, T]): Option[T with PC]
 
 	/**
 	 * low level query where client code provides the sql and a list of arguments.

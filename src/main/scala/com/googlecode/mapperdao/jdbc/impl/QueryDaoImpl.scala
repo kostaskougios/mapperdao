@@ -40,6 +40,24 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 {
 	private val typeManager = driver.typeManager
 
+	override def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: WithQueryInfo[ID, PC, T]): List[T with PC] =
+		query(queryConfig, qi.queryInfo)
+
+	override def querySingleResult[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: WithQueryInfo[ID, PC, T]): Option[T with PC] =
+		querySingleResult(queryConfig, qi.queryInfo)
+
+	/**
+	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
+	 * an IllegalStateException is thrown.
+	 */
+	private def querySingleResult[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: QueryInfo[ID, T]): Option[T with PC] = {
+		val l = query(queryConfig, qi)
+		// l.size might be costly, so we'll test if l is empty first
+		if (l.isEmpty) None
+		else if (!l.tail.isEmpty) throw new IllegalStateException("expected 0 or 1 result but got %s.".format(l))
+		else l.headOption
+	}
+
 	def query[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: QueryInfo[ID, T]): List[T with PC] = {
 		if (qi == null) throw new NullPointerException("qi can't be null")
 		val r = sqlAndArgs(queryConfig, qi).result
