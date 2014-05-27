@@ -24,7 +24,7 @@ class SchemaModificationsSuite extends FunSuite with Matchers
 		)
 		val sc = SelectConfig.Default.copy(schemaModifications = modifications)
 		val dc = DeleteConfig.Default.copy(schemaModifications = modifications)
-		val qc = QueryConfig.default.copy(schemaModifications = modifications)
+		val qc = QueryConfig.Default.copy(schemaModifications = modifications)
 		val uc = UpdateConfig.default.copy(schemaModifications = modifications, deleteConfig = dc)
 
 		test("table name modified CRUD") {

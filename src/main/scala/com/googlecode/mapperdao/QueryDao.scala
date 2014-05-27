@@ -23,7 +23,7 @@ import com.googlecode.mapperdao.queries.v2.{QueryInfo, WithQueryInfo}
  */
 trait QueryDao
 {
-	val defaultQueryConfig = QueryConfig.default
+	protected val DefaultQueryConfig = QueryConfig.Default
 
 	/**
 	 * runs a query and retuns a list of entities.
@@ -35,7 +35,7 @@ trait QueryDao
 	 * @param	qi		a query
 	 * @return	a list of T with PC i.e. List[Product with IntId]
 	 */
-	def query[ID, PC <: Persisted, T](qi: WithQueryInfo[ID, PC, T]): List[T with PC] = query(defaultQueryConfig, qi)
+	def query[ID, PC <: Persisted, T](qi: WithQueryInfo[ID, PC, T]): List[T with PC] = query(DefaultQueryConfig, qi)
 
 	/**
 	 * runs a query and retuns a list of entities.
@@ -75,7 +75,7 @@ trait QueryDao
 	def count[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: WithQueryInfo[ID, PC, T]): Long =
 		count(queryConfig, qi.queryInfo)
 
-	def count[ID, PC <: Persisted, T](qi: WithQueryInfo[ID, PC, T]): Long = count(QueryConfig.default, qi.queryInfo)
+	def count[ID, PC <: Persisted, T](qi: WithQueryInfo[ID, PC, T]): Long = count(QueryConfig.Default, qi.queryInfo)
 
 	protected def count[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: QueryInfo[ID, T]): Long
 
@@ -84,7 +84,7 @@ trait QueryDao
 	 * an IllegalStateException is thrown.
 	 */
 	def querySingleResult[ID, PC <: Persisted, T](qi: WithQueryInfo[ID, PC, T]): Option[T with PC] =
-		querySingleResult(defaultQueryConfig, qi)
+		querySingleResult(DefaultQueryConfig, qi)
 
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
@@ -128,7 +128,7 @@ trait QueryDao
 	 * @param	args				a list of arguments
 	 */
 	def lowLevelQuery[ID, PC <: Persisted, T](entity: Entity[ID, PC, T], sql: String, args: List[Any]): List[T with PC] =
-		lowLevelQuery(defaultQueryConfig, entity, sql, args)
+		lowLevelQuery(DefaultQueryConfig, entity, sql, args)
 
 	/**
 	 * low level query where client code provides the sql and a list of arguments.

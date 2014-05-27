@@ -49,7 +49,7 @@ case class QueryConfig(
 object QueryConfig
 {
 
-	val default = QueryConfig()
+	val Default = QueryConfig()
 
 	/**
 	 * @param offset	start index of first row that will be returned

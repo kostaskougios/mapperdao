@@ -18,7 +18,7 @@ trait All[ID, PC <: Persisted, T]
 	protected val entity: Entity[ID, PC, T]
 
 	// override these as necessary
-	protected val queryConfig = QueryConfig.default
+	protected val queryConfig = QueryConfig.Default
 
 	import Query._
 
