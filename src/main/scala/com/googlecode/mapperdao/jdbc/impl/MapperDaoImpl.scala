@@ -64,6 +64,12 @@ protected[mapperdao] final class MapperDaoImpl(
 		os: List[T]
 		): List[T with PC] = insert0(updateConfig, entity.tpe, os).asInstanceOf[List[T with PC]]
 
+	override def updateBatchMutable[ID, PC <: Persisted, T](
+		updateConfig: UpdateConfig,
+		entity: Entity[ID, PC, T],
+		values: List[T with PC]
+		): List[T with PC] = updateMutable0(updateConfig, entity.tpe, values.asInstanceOf[List[T with Persisted]]).asInstanceOf[List[T with PC]]
+
 	/**
 	 * ===================================================================================
 	 * Utility methods
@@ -104,7 +110,7 @@ protected[mapperdao] final class MapperDaoImpl(
 		recreated
 	}
 
-	override def updateMutable0[ID, T](
+	private def updateMutable0[ID, T](
 		updateConfig: UpdateConfig,
 		tpe: Type[ID, T],
 		os: List[T with Persisted]

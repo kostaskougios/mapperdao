@@ -41,18 +41,29 @@ trait MapperDao
 		insertBatch(updateConfig, entity, o :: Nil).head
 	}
 
+	/**
+	 * batch inserts all values
+	 *
+	 * @param entity		the entity
+	 * @param values		the values for entity
+	 * @return				the inserted values along with their ID's (if ids are surrogate)
+	 */
 	def insertBatch[ID, PC <: Persisted, T](
 		entity: Entity[ID, PC, T],
-		os: List[T]
+		values: List[T]
 		): List[T with PC]
 
 	/**
-	 * batch insert many entities
+	 *
+	 * @param updateConfig	the UpdateConfig to use for this batch insert
+	 * @param entity		the entity
+	 * @param values		the values for entity
+	 * @return				the inserted values along with their ID's (if ids are surrogate)
 	 */
 	def insertBatch[ID, PC <: Persisted, T](
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, PC, T],
-		os: List[T]
+		values: List[T]
 		): List[T with PC]
 
 	/**
@@ -79,31 +90,30 @@ trait MapperDao
 	}
 
 	/**
-	 * we can't call this "update" cause due to erasure it will have the same signature like other update
-	 * methods.
+	 * batch update values, please call this if the entity T is mutable.
+	 *
+	 * @param entity	the entity to be updated
+	 * @param values	the values for the entity. Since the entity T is mutable, the values must have mutated
+	 * @return			the updated values.
 	 */
 	def updateBatchMutable[ID, PC <: Persisted, T](
 		entity: Entity[ID, PC, T],
-		os: List[T with PC]
-		): List[T with PC] = updateBatchMutable(DefaultUpdateConfig, entity, os)
+		values: List[T with PC]
+		): List[T with PC] = updateBatchMutable(DefaultUpdateConfig, entity, values)
 
 	/**
-	 * batch update mutable entities
+	 * batch update values, please call this if the entity T is mutable.
+	 * @param updateConfig	the config for this update
+	 * @param entity		the entity to be updated
+	 * @param values		the values for the entity. Since the entity T is mutable, the values must have mutated
+	 * @return				the updated values.
 	 */
 	def updateBatchMutable[ID, PC <: Persisted, T](
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, PC, T],
-		os: List[T with PC]
-		): List[T with PC] = updateMutable0(updateConfig, entity.tpe, os.asInstanceOf[List[T with Persisted]]).asInstanceOf[List[T with PC]]
+		values: List[T with PC]
+		): List[T with PC]
 
-	/**
-	 * internally we throw away PC (as scala compiler is pretty tough on it)
-	 */
-	protected def updateMutable0[ID, T](
-		updateConfig: UpdateConfig,
-		tpe: Type[ID, T],
-		os: List[T with Persisted]
-		): List[T with Persisted]
 
 	/**
 	 * update of an immutable entity.
