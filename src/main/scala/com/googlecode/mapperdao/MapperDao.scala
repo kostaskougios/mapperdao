@@ -229,13 +229,8 @@ trait MapperDao
 	 *
 	 * @see 	#SelectConfig for all available configuration parameters
 	 */
-	def select[ID, PC <: Persisted, T](selectConfig: SelectConfig, entity: Entity[ID, PC, T], id: ID): Option[T with PC] =
-		select0(selectConfig, entity, id).asInstanceOf[Option[T with PC]]
+	def select[ID, PC <: Persisted, T](selectConfig: SelectConfig, entity: Entity[ID, PC, T], id: ID): Option[T with PC]
 
-	/**
-	 * internally we throw away PC (as scala compiler is pretty tough on it)
-	 */
-	protected def select0[ID, T](selectConfig: SelectConfig, entity: Entity[ID, Persisted, T], id: ID): Option[T with Persisted]
 
 	/**
 	 * deletes an entity from the database. By default, related entities won't be deleted.
@@ -281,10 +276,5 @@ trait MapperDao
 	 */
 	def unlink[ID, PC <: Persisted, T](entity: Entity[ID, PC, T], o: T): T = throw new IllegalStateException("Not supported")
 
-	def link[ID, PC <: Persisted, T](entity: Entity[ID, PC, T], o: T with PC): T with PC = link0[ID, T](entity, o.asInstanceOf[T with Persisted]).asInstanceOf[T with PC]
-
-	/**
-	 * internally we throw away PC (as scala compiler is pretty tough on it)
-	 */
-	protected def link0[ID, T](entity: Entity[ID, Persisted, T], o: T with Persisted): T with Persisted = throw new IllegalStateException("Not supported")
+	def link[ID, PC <: Persisted, T](entity: Entity[ID, PC, T], o: T with PC): T with PC
 }

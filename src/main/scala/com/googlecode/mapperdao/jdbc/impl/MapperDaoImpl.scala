@@ -70,6 +70,9 @@ protected[mapperdao] final class MapperDaoImpl(
 		values: List[T with PC]
 		): List[T with PC] = updateMutable0(updateConfig, entity.tpe, values.asInstanceOf[List[T with Persisted]]).asInstanceOf[List[T with PC]]
 
+	override def select[ID, PC <: Persisted, T](selectConfig: SelectConfig, entity: Entity[ID, PC, T], id: ID): Option[T with PC] =
+		select0(selectConfig, entity, id).asInstanceOf[Option[T with PC]]
+
 	/**
 	 * ===================================================================================
 	 * Utility methods
@@ -189,7 +192,7 @@ protected[mapperdao] final class MapperDaoImpl(
 	 *
 	 * SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
 	 */
-	override def select0[ID, T](selectConfig: SelectConfig, entity: Entity[ID, Persisted, T], id: ID) = {
+	private def select0[ID, T](selectConfig: SelectConfig, entity: Entity[ID, Persisted, T], id: ID) = {
 		if (id == null) throw new NullPointerException("ids can't be null")
 		val ids = Helpers.idToList(id)
 		val pkSz = entity.tpe.table.primaryKeysSize
@@ -198,6 +201,8 @@ protected[mapperdao] final class MapperDaoImpl(
 		val v = selectInner(entity, selectConfig, ids, entityMap)
 		v
 	}
+
+	override def link[ID, PC <: Persisted, T](entity: Entity[ID, PC, T], o: T with PC): T with PC = link0[ID, T](entity, o.asInstanceOf[T with Persisted]).asInstanceOf[T with PC]
 
 	private[mapperdao] def selectInner[ID, T](
 		entity: EntityBase[ID, T],
@@ -400,7 +405,7 @@ protected[mapperdao] final class MapperDaoImpl(
 		o
 	}
 
-	override def link0[ID, T](entity: Entity[ID, Persisted, T], o: T with Persisted) = {
+	private def link0[ID, T](entity: Entity[ID, Persisted, T], o: T with Persisted) = {
 		val vm = ValuesMap.fromType(typeManager, entity.tpe, o)
 		val r = entity.constructor(None, vm)
 		val persistedDetails = typeRegistry.persistDetails(entity.tpe)
