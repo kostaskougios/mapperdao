@@ -145,7 +145,6 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 		new ColumnInfoTraversableOneToManyDeclaredPrimaryKey(ci)
 	}
 
-
 	/**
 	 * dsl for declaring columns
 	 */
@@ -537,44 +536,6 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 		def option(columnToValue: T => Option[FT]): ColumnInfoManyToOne[T, FID, FT] =
 			to(optionToValue(columnToValue))
 	}
-
-	// ===================== Java section ================================
-	protected implicit def columnToJBoolean(ci: ColumnInfo[T, java.lang.Boolean])(implicit m: ValuesMap): java.lang.Boolean = m(ci)
-
-	protected implicit def columnToJShort(ci: ColumnInfo[T, java.lang.Short])(implicit m: ValuesMap): java.lang.Short = m.short(ci)
-
-	protected implicit def columnToJInteger(ci: ColumnInfo[T, java.lang.Integer])(implicit m: ValuesMap): java.lang.Integer = m.int(ci)
-
-	protected implicit def columnToJLong(ci: ColumnInfo[T, java.lang.Long])(implicit m: ValuesMap): java.lang.Long = m.long(ci)
-
-	protected implicit def columnToJDouble(ci: ColumnInfo[T, java.lang.Double])(implicit m: ValuesMap): java.lang.Double = m.double(ci)
-
-	protected implicit def columnToJFloat(ci: ColumnInfo[T, java.lang.Float])(implicit m: ValuesMap): java.lang.Float = m.float(ci)
-
-	// many to many : Java
-	protected implicit def toJavaSet[FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F])(implicit m: ValuesMap): java.util.Set[F] =
-		m(ci) match {
-			case null => null
-			case v => Utils.toJavaSet(v)
-		}
-
-	protected implicit def toJavaList[FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F])(implicit m: ValuesMap): java.util.List[F] = m(ci) match {
-		case null => null
-		case v => Utils.toJavaList(v)
-	}
-
-	// one to many : Java
-	protected implicit def toJavaList[FID, F](ci: ColumnInfoTraversableOneToMany[ID, T, FID, F])(implicit m: ValuesMap): java.util.List[F] = m(ci) match {
-		case null => null
-		case v => Utils.toJavaList(v)
-	}
-
-	protected implicit def toJavaSet[FID, F](ci: ColumnInfoTraversableOneToMany[ID, T, FID, F])(implicit m: ValuesMap): java.util.Set[F] = m(ci) match {
-		case null => null
-		case v => Utils.toJavaSet(v)
-	}
-
-	// ===================== /Java section ================================
 
 	/**
 	 * utility method to cast an entity to it's persisted type

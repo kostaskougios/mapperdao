@@ -3,7 +3,7 @@ package com.googlecode.mapperdao.internal
 import java.util
 
 /**
- * @author: kostas.kougios
+ * @author kostas.kougios
  *          Date: 05/03/13
  */
 private[mapperdao] object Utils
