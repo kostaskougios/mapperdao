@@ -25,7 +25,7 @@ final class TypeRegistry private(typeManager: TypeManager, val entities: List[En
 			entity match {
 				case e: Entity[_, Persisted, _] =>
 					e.init()
-					val columns = e.onlyForQueryColumns.map {
+					val columns = e.tpe.onlyForQueryColumns.map {
 						ci =>
 							ci.column
 					} ::: entity.tpe.table.columns

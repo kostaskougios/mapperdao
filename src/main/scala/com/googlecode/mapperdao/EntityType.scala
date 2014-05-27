@@ -1,16 +1,17 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.schema.{Type, Table}
+import com.googlecode.mapperdao.schema.{ColumnInfoBase, Type, Table}
 import com.googlecode.mapperdao.internal.PersistedDetails
 
 /**
- * @author: kostas.kougios
+ * @author  kostas.kougios
  *          Date: 03/01/13
  */
 protected case class EntityType[ID, T](
 	clz: Class[T],
 	constructor: (PersistedDetails, Option[_], ValuesMap) => T with Persisted,
-	table: Table[ID, T]
+	table: Table[ID, T],
+	onlyForQueryColumns: List[ColumnInfoBase[T, _]]
 	) extends Type[ID, T]
 {
 	override def equals(o: Any) = o match {

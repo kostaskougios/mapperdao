@@ -91,7 +91,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 
 	private var persistedColumns = List[ColumnInfoBase[T with DeclaredIds[ID], _]]()
 	private var columns = List[ColumnInfoBase[T, _]]()
-	private[mapperdao] var onlyForQueryColumns = List[ColumnInfoBase[T, _]]()
+	private var onlyForQueryColumns = List[ColumnInfoBase[T, _]]()
 	private val unusedPKs = new LazyActions[ColumnInfoBase[Any, Any]]
 	private[mapperdao] lazy val tpe = {
 		val con: (PersistedDetails, Option[_], ValuesMap) => T with Persisted = (pd, d, m) => {
@@ -101,7 +101,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 			o.mapperDaoInit(m, pd)
 			o
 		}
-		EntityType[ID, T](clz, con, new Table[ID, T](databaseSchema, table, columns.reverse, persistedColumns, unusedPKs.executeAll.reverse))
+		EntityType[ID, T](clz, con, new Table[ID, T](databaseSchema, table, columns.reverse, persistedColumns, unusedPKs.executeAll.reverse), onlyForQueryColumns)
 	}
 
 	override def hashCode = table.hashCode
