@@ -46,6 +46,11 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 	override def querySingleResult[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: WithQueryInfo[ID, PC, T]): Option[T with PC] =
 		querySingleResult(queryConfig, qi.queryInfo)
 
+	override def count[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: WithQueryInfo[ID, PC, T]): Long =
+		count(queryConfig, qi.queryInfo)
+
+	override def count[ID, PC <: Persisted, T](qi: WithQueryInfo[ID, PC, T]): Long = count(QueryConfig.Default, qi.queryInfo)
+
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
 	 * an IllegalStateException is thrown.

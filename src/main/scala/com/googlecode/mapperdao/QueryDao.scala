@@ -3,7 +3,7 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.jdbc.{DatabaseValues, UpdateResult}
 import com.googlecode.mapperdao.jdbc.impl.{MapperDaoImpl, QueryDaoImpl}
-import com.googlecode.mapperdao.queries.v2.{QueryInfo, WithQueryInfo}
+import com.googlecode.mapperdao.queries.v2.WithQueryInfo
 
 /**
  * querydao takes care of querying the database and fetching entities using
@@ -57,12 +57,9 @@ trait QueryDao
 	 * val qe=(select from ProductEntity where title==="jeans")
 	 * val count=queryDao.count(qe) // the number of jeans
 	 */
-	def count[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: WithQueryInfo[ID, PC, T]): Long =
-		count(queryConfig, qi.queryInfo)
+	def count[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: WithQueryInfo[ID, PC, T]): Long
 
-	def count[ID, PC <: Persisted, T](qi: WithQueryInfo[ID, PC, T]): Long = count(QueryConfig.Default, qi.queryInfo)
-
-	protected def count[ID, PC <: Persisted, T](queryConfig: QueryConfig, qi: QueryInfo[ID, T]): Long
+	def count[ID, PC <: Persisted, T](qi: WithQueryInfo[ID, PC, T]): Long
 
 	/**
 	 * runs a query and retuns an Option[Entity]. The query should return 0 or 1 results. If not
