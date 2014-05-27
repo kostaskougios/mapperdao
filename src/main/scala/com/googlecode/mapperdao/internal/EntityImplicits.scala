@@ -4,18 +4,7 @@ import com.googlecode.mapperdao._
 import org.joda.time._
 import java.util.{Calendar, Date}
 import scala.reflect.ClassTag
-import com.googlecode.mapperdao.schema.ColumnInfo
-import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
-import com.googlecode.mapperdao.LongValue
-import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
-import com.googlecode.mapperdao.IntValue
-import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
-import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
-import com.googlecode.mapperdao.FloatValue
-import scala.Some
-import com.googlecode.mapperdao.StringValue
-import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
-import com.googlecode.mapperdao.DoubleValue
+import com.googlecode.mapperdao.schema._
 
 /**
  * implicit conversions to be used to convert columns to values via a ValuesMap
@@ -26,7 +15,7 @@ import com.googlecode.mapperdao.DoubleValue
 trait EntityImplicits[ID, T]
 {
 	// implicit conversions to be used implicitly into the constructor method.
-	// these shouldn't be explicitly be called.
+	// these shouldn't be explicitly called.
 	protected implicit def columnToBoolean(ci: ColumnInfo[_ <: T, Boolean])(implicit m: ValuesMap): Boolean = m(ci)
 
 	protected implicit def columnToBooleanOption(ci: ColumnInfo[_ <: T, Boolean])(implicit m: ValuesMap): Option[Boolean] =
