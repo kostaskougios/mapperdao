@@ -204,18 +204,8 @@ trait MapperDao
 		entity: Entity[ID, PC, T],
 		o: T,
 		id: ID
-		): T with PC = merge0(selectConfig, updateConfig, entity, o, id).asInstanceOf[T with PC]
+		): T with PC
 
-	/**
-	 * internally we throw awat PC (as scala compiler is pretty tough on it)
-	 */
-	protected def merge0[ID, T](
-		selectConfig: SelectConfig,
-		updateConfig: UpdateConfig,
-		entity: Entity[ID, Persisted, T],
-		o: T,
-		ids: ID
-		): T with Persisted
 
 	/**
 	 * select an entity by it's ID

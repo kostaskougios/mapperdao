@@ -148,6 +148,15 @@ protected[mapperdao] final class MapperDaoImpl(
 		updateProcess(updateConfig, tpe, osAndNewValues)
 	}
 
+	override def merge[ID, PC <: Persisted, T](
+		selectConfig: SelectConfig,
+		updateConfig: UpdateConfig,
+		entity: Entity[ID, PC, T],
+		o: T,
+		id: ID
+		): T with PC = merge0(selectConfig, updateConfig, entity, o, id).asInstanceOf[T with PC]
+
+
 	private def updateProcess[ID, T](
 		updateConfig: UpdateConfig,
 		tpe: Type[ID, T],
@@ -399,7 +408,7 @@ protected[mapperdao] final class MapperDaoImpl(
 		r
 	}
 
-	override def merge0[ID, T](
+	private def merge0[ID, T](
 		selectConfig: SelectConfig,
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, Persisted, T],
