@@ -4,7 +4,7 @@ import com.googlecode.mapperdao.EntityBase
 import com.googlecode.mapperdao.schema.{LinkTable, ColumnBase}
 
 /**
- * @author: kostas.kougios
+ * @author kostas.kougios
  *          Date: 13/09/13
  */
 case class Alias[ID, T](entity: EntityBase[ID, T], tableAlias: Symbol)
