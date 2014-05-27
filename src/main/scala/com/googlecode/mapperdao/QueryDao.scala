@@ -151,6 +151,5 @@ trait QueryDao
 
 object QueryDao
 {
-
 	def apply(typeRegistry: TypeRegistry, driver: Driver, mapperDao: MapperDaoImpl): QueryDao = new QueryDaoImpl(typeRegistry, driver, mapperDao)
 }
