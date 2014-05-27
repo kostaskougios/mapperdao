@@ -90,7 +90,7 @@ class TwoPrimaryKeysSimpleSuite extends FunSuite with Matchers
 		val surname = key("surname") to (_.surname)
 		val age = column("age") to (_.age)
 
-		def constructor(implicit m) = new User(name, surname, age) with Stored
+		def constructor(implicit m: ValuesMap) = new User(name, surname, age) with Stored
 	}
 
 }

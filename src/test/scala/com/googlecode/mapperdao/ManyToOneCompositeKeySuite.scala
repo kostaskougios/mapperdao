@@ -201,7 +201,7 @@ class ManyToOneCompositeKeySuite extends FunSuite with Matchers
 		val reference = key("reference") to (_.reference)
 		val name = column("name") to (_.name)
 
-		def constructor(implicit m) = new City(reference, name) with Stored
+		def constructor(implicit m: ValuesMap) = new City(reference, name) with Stored
 		{
 			val id = m(CityEntity.id)
 		}
@@ -215,7 +215,7 @@ class ManyToOneCompositeKeySuite extends FunSuite with Matchers
 		val address = column("address") to (_.address)
 		val city = manytoone(CityEntity) to (_.city)
 
-		def constructor(implicit m) = new House(address, city) with Stored
+		def constructor(implicit m: ValuesMap) = new House(address, city) with Stored
 		{
 			val id: Int = HouseEntity.id
 		}

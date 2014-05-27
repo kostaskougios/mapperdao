@@ -59,7 +59,7 @@ class NullValuesSuite extends FunSuite with Matchers
 		val f = column("f") to (_.f)
 		val d = column("d") to (_.d)
 
-		def constructor(implicit m) = new Values(id, i, l, f, d) with Stored
+		def constructor(implicit m: ValuesMap) = new Values(id, i, l, f, d) with Stored
 	}
 
 }

@@ -147,7 +147,7 @@ object OneToOneReverseCompositeKeySuite
 		val product = onetoone(ProductEntity) to (_.product)
 		val stock = column("stock") to (_.stock)
 
-		def constructor(implicit m) = new Inventory(id, refCode, product, stock) with Stored
+		def constructor(implicit m: ValuesMap) = new Inventory(id, refCode, product, stock) with Stored
 	}
 
 	object ProductEntity extends Entity[Int, SurrogateIntId, Product]
@@ -158,7 +158,7 @@ object OneToOneReverseCompositeKeySuite
 		val name = column("name") to (_.name)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 
-		def constructor(implicit m) = new Product(name, inventory) with Stored
+		def constructor(implicit m: ValuesMap) = new Product(name, inventory) with Stored
 		{
 			val id: Int = ProductEntity.id
 		}

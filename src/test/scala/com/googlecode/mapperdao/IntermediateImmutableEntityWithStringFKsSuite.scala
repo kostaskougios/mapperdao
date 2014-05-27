@@ -198,7 +198,7 @@ object IntermediateImmutableEntityWithStringFKsSuite
 		val no = key("no") to (_.no)
 		val workedAt = onetomany(WorkedAtEntity) foreignkey "employee_no" to (_.workedAt)
 
-		def constructor(implicit m) = new Employee(no) with Stored
+		def constructor(implicit m: ValuesMap) = new Employee(no) with Stored
 		{
 			val workedAt: List[WorkedAt] = EmployeeEntity.workedAt
 		}
@@ -213,7 +213,7 @@ object IntermediateImmutableEntityWithStringFKsSuite
 		val employee = manytoone(EmployeeEntity) foreignkey "employee_no" to (_.employee)
 		val company = manytoone(CompanyEntity) foreignkey "company_no" to (_.company)
 
-		def constructor(implicit m) = new WorkedAt(employee, company, year) with Stored
+		def constructor(implicit m: ValuesMap) = new WorkedAt(employee, company, year) with Stored
 	}
 
 	object CompanyEntity extends Entity[String, NaturalStringId, Company]
@@ -221,7 +221,7 @@ object IntermediateImmutableEntityWithStringFKsSuite
 		val no = key("no") to (_.no)
 		val name = column("name") to (_.name)
 
-		def constructor(implicit m) = new Company(no, name) with Stored
+		def constructor(implicit m: ValuesMap) = new Company(no, name) with Stored
 	}
 
 }

@@ -137,7 +137,7 @@ object OneToManySimpleTypesSuiteInt
 		val name = column("name") to (_.name)
 		val tags = onetomany(TagsEntityI) toint (_.tags)
 
-		def constructor(implicit m) = new ProductI(name, tags) with Stored
+		def constructor(implicit m: ValuesMap) = new ProductI(name, tags) with Stored
 		{
 			val id: Int = ProductEntityI.id
 		}

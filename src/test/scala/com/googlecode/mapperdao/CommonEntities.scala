@@ -323,7 +323,7 @@ object CommonEntities
 		val name = column("name") to (_.name)
 		val data = column("data") to (_.data)
 
-		def constructor(implicit m) = new Image(name, data) with Stored
+		def constructor(implicit m: ValuesMap) = new Image(name, data) with Stored
 		{
 			val id: Int = ImageEntity.id
 		}

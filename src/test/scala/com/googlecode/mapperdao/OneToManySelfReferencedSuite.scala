@@ -169,7 +169,7 @@ object OneToManySelfReferencedSuite
 		val name = column("name") to (_.name)
 		val friends = onetomany(PersonEntity) foreignkey "friend_id" to (_.friends)
 
-		def constructor(implicit m) = new Person(name, friends) with Stored
+		def constructor(implicit m: ValuesMap) = new Person(name, friends) with Stored
 		{
 			val id: Int = aid
 		}

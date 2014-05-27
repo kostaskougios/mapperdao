@@ -249,7 +249,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with Matchers
 		val attributes = manytomany(AttributeEntity) getter ("attributes") to (_.attributes)
 		val properties = manytomany(PropertyEntity) getter ("properties") to (_.properties)
 
-		def constructor(implicit m) = new Product(id, name, attributes, properties) with Stored
+		def constructor(implicit m: ValuesMap) = new Product(id, name, attributes, properties) with Stored
 	}
 
 	object AttributeEntity extends Entity[Int, NaturalIntId, Attribute]
@@ -258,7 +258,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with Matchers
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m) = new Attribute(id, name, value) with Stored
+		def constructor(implicit m: ValuesMap) = new Attribute(id, name, value) with Stored
 	}
 
 	object PropertyEntity extends Entity[Int, NaturalIntId, Property]
@@ -267,7 +267,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with Matchers
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m) = new Property(id, name, value) with Stored
+		def constructor(implicit m: ValuesMap) = new Property(id, name, value) with Stored
 	}
 
 }

@@ -128,7 +128,7 @@ class OneToOneLazyLoadSuite extends FunSuite with Matchers
 	{
 		val stock = column("stock") to (_.stock)
 
-		def constructor(implicit m) = new Inventory(stock) with Stored
+		def constructor(implicit m: ValuesMap) = new Inventory(stock) with Stored
 	}
 
 	object ProductEntity extends Entity[Long, SurrogateLongId, Product]
@@ -137,7 +137,7 @@ class OneToOneLazyLoadSuite extends FunSuite with Matchers
 		val inventory = onetoonereverse(InventoryEntity) getter ("inventory") to (_.inventory)
 		val x = column("x") to (_.x)
 
-		def constructor(implicit m) = new Product(inventory, x) with Stored
+		def constructor(implicit m: ValuesMap) = new Product(inventory, x) with Stored
 		{
 			val id: Long = ProductEntity.id
 		}

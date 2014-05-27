@@ -104,7 +104,6 @@ class CustomTypesSuite extends FunSuite with Matchers
 		}
 	}
 
-
 	case class Dates(id: Int, time: DateTime)
 
 	object DatesEntity extends Entity[Int, NaturalIntId, Dates]
@@ -112,7 +111,7 @@ class CustomTypesSuite extends FunSuite with Matchers
 		val id = key("id") to (_.id)
 		val time = column("time") to (_.time)
 
-		def constructor(implicit m) = new Dates(id, time) with Stored
+		def constructor(implicit m: ValuesMap) = new Dates(id, time) with Stored
 	}
 
 }

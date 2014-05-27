@@ -125,7 +125,7 @@ object UseCaseFileSystemSuite
 
 		// though we map files and archives separatelly, for the domain model we need to
 		// merge them into a node list:
-		def constructor(implicit m) = {
+		def constructor(implicit m: ValuesMap) = {
 			val fList = m(files).toList ++ m(archives).toList
 			new Directory(uri, parent, fList) with Stored
 			{
@@ -143,7 +143,7 @@ object UseCaseFileSystemSuite
 	{
 		val fileType = column("fileType") to (_.fileType)
 
-		def constructor(implicit m) = new File(uri, parent, fileType) with Stored
+		def constructor(implicit m: ValuesMap) = new File(uri, parent, fileType) with Stored
 		{
 			val id: Int = FileEntity.id
 		}
@@ -153,7 +153,7 @@ object UseCaseFileSystemSuite
 	{
 		val zipType = column("zipType") to (_.zipType)
 
-		def constructor(implicit m) = new Archive(uri, parent, zipType) with Stored
+		def constructor(implicit m: ValuesMap) = new Archive(uri, parent, zipType) with Stored
 		{
 			val id: Int = ArchiveEntity.id
 		}

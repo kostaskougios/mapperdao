@@ -107,7 +107,7 @@ class OneToManyExternalEntitySuite extends FunSuite with Matchers
 		val name = column("name") to (_.name)
 		val owns = onetomany(HouseEntity) to (_.owns)
 
-		def constructor(implicit m) = new Person(name, owns) with Stored
+		def constructor(implicit m: ValuesMap) = new Person(name, owns) with Stored
 		{
 			val id: Int = PersonEntity.id
 		}

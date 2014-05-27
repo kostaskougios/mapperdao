@@ -86,7 +86,7 @@ class DeclarePrimaryKeysSuite extends FunSuite with Matchers
 		val title = column("title") to (_.title)
 		val prices = onetomany(PriceEntity) to (_.prices)
 
-		def constructor(implicit m) = new Product(title, prices) with Stored
+		def constructor(implicit m: ValuesMap) = new Product(title, prices) with Stored
 		{
 			val id: Int = ProductEntity.id
 		}
@@ -100,7 +100,7 @@ class DeclarePrimaryKeysSuite extends FunSuite with Matchers
 		declarePrimaryKey(currency)
 		declarePrimaryKey(unitPrice)
 
-		def constructor(implicit m) = new Price(currency, unitPrice, salePrice) with Stored
+		def constructor(implicit m: ValuesMap) = new Price(currency, unitPrice, salePrice) with Stored
 	}
 
 }

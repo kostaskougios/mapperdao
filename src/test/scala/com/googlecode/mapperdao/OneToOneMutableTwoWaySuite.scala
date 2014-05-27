@@ -111,7 +111,7 @@ object OneToOneMutableTwoWaySuite
 		val product = onetoone(ProductEntity) to (_.product)
 		val stock = column("stock") to (_.stock)
 
-		def constructor(implicit m) = new Inventory(product, stock) with Stored
+		def constructor(implicit m: ValuesMap) = new Inventory(product, stock) with Stored
 	}
 
 	object ProductEntity extends Entity[Int, NaturalIntId, Product]
@@ -119,7 +119,7 @@ object OneToOneMutableTwoWaySuite
 		val id = key("id") to (_.id)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 
-		def constructor(implicit m) = new Product(id, inventory) with Stored
+		def constructor(implicit m: ValuesMap) = new Product(id, inventory) with Stored
 	}
 
 }

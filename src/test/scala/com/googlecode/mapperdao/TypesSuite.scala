@@ -496,7 +496,7 @@ class TypesSuite extends FunSuite with Matchers
 		val nvarchar = column("nv") to (_.nvarchar)
 		val text = column("tx") to (_.text)
 
-		def constructor(implicit m) = new BD(id, big, bool, nvarchar, text) with Stored
+		def constructor(implicit m: ValuesMap) = new BD(id, big, bool, nvarchar, text) with Stored
 	}
 
 	case class OBD(

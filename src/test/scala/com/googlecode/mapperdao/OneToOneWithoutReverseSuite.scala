@@ -119,14 +119,14 @@ class OneToOneWithoutReverseSuite extends FunSuite with Matchers
 		val product = onetoone(ProductEntity) to (_.product)
 		val stock = column("stock") to (_.stock)
 
-		def constructor(implicit m) = new Inventory(id, product, stock) with Stored
+		def constructor(implicit m: ValuesMap) = new Inventory(id, product, stock) with Stored
 	}
 
 	object ProductEntity extends Entity[Int, SurrogateIntId, Product]
 	{
 		val id = key("id") to (_.id)
 
-		def constructor(implicit m) = new Product(id) with Stored
+		def constructor(implicit m: ValuesMap) = new Product(id) with Stored
 	}
 
 }

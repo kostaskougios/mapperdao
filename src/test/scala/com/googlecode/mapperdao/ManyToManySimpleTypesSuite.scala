@@ -71,7 +71,7 @@ object ManyToManySimpleTypesSuite
 		val name = column("name") to (_.name)
 		val categories = manytomany(SE) join("Product_Category", "product_id", "category_id") tostring (_.categories)
 
-		def constructor(implicit m) = new Product(name, categories) with Stored
+		def constructor(implicit m: ValuesMap) = new Product(name, categories) with Stored
 		{
 			val id: Int = ProductEntity.id
 		}

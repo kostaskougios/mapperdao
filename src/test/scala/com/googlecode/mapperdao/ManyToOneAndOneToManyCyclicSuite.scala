@@ -104,7 +104,7 @@ object ManyToOneAndOneToManyCyclicSuite
 		val name = column("name") to (_.name)
 		val company = manytoone(CompanyEntity) to (_.company)
 
-		def constructor(implicit m) = new Person(id, name, company) with SurrogateIntId
+		def constructor(implicit m: ValuesMap) = new Person(id, name, company) with SurrogateIntId
 	}
 
 	object CompanyEntity extends Entity[Int, SurrogateIntId, Company]
@@ -113,7 +113,7 @@ object ManyToOneAndOneToManyCyclicSuite
 		val name = column("name") to (_.name)
 		val employees = onetomany(PersonEntity) to (_.employees)
 
-		def constructor(implicit m) = new Company(id, name, employees) with SurrogateIntId
+		def constructor(implicit m: ValuesMap) = new Company(id, name, employees) with SurrogateIntId
 	}
 
 }

@@ -47,7 +47,7 @@ object UpdateConfigSuiteOneToManyDecl
 		val id = key("id") to (_.id)
 		val description = column("description") to (_.description)
 
-		def constructor(implicit m) = new Floor(id, description) with Stored
+		def constructor(implicit m: ValuesMap) = new Floor(id, description) with Stored
 	}
 
 	object HouseEntity extends Entity[Int, NaturalIntId, House]
@@ -55,7 +55,7 @@ object UpdateConfigSuiteOneToManyDecl
 		val id = key("id") to (_.id)
 		val floors = onetomany(FloorEntity) to (_.floors)
 
-		def constructor(implicit m) = new House(id, floors) with Stored
+		def constructor(implicit m: ValuesMap) = new House(id, floors) with Stored
 	}
 
 	object PersonEntity extends Entity[Int, NaturalIntId, Person]
@@ -64,7 +64,7 @@ object UpdateConfigSuiteOneToManyDecl
 		val name = column("name") to (_.name)
 		val houses = onetomany(HouseEntity) to (_.owns)
 
-		def constructor(implicit m) = new Person(id, name, houses) with Stored
+		def constructor(implicit m: ValuesMap) = new Person(id, name, houses) with Stored
 	}
 
 }

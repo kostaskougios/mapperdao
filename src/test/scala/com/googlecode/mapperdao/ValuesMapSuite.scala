@@ -57,7 +57,7 @@ class ValuesMapSuite extends FunSuite with Matchers
 		val dt = column("dt") to (_.dt)
 		val joda = column("joda") to (_.joda)
 
-		def constructor(implicit m) = new Type(cal, dt, joda) with Stored
+		def constructor(implicit m: ValuesMap) = new Type(cal, dt, joda) with Stored
 	}
 
 }

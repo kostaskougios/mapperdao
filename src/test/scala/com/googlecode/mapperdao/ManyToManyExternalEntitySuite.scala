@@ -139,7 +139,7 @@ class ManyToManyExternalEntitySuite extends FunSuite with Matchers
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
 
-		def constructor(implicit m) = new Product(name, attributes) with Stored
+		def constructor(implicit m: ValuesMap) = new Product(name, attributes) with Stored
 		{
 			val id: Int = ProductEntity.id
 		}

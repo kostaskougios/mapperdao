@@ -95,7 +95,7 @@ class ManyToOneExternalEntitySuite extends FunSuite with Matchers
 		val name = column("name") to (_.name)
 		val house = manytoone(HouseEntity) to (_.house)
 
-		def constructor(implicit m) = new Person(name, house) with Stored
+		def constructor(implicit m: ValuesMap) = new Person(name, house) with Stored
 		{
 			val id: Int = PersonEntity.id
 		}

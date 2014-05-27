@@ -77,7 +77,7 @@ class OneToOneReverseExternalEntitySuite extends FunSuite with Matchers
 		val id = key("id") to (_.id)
 		val inventory = onetoonereverse(InventoryEntity) to (_.inventory)
 
-		def constructor(implicit m) = new Product(id, inventory) with Stored
+		def constructor(implicit m: ValuesMap) = new Product(id, inventory) with Stored
 	}
 
 	object InventoryEntity extends ExternalEntity[Int, Inventory]

@@ -25,7 +25,7 @@ class DateAndCalendarSuite extends FunSuite with Matchers
 		val date = column("dt") to (_.date)
 		val calendar = column("cal") to (_.calendar)
 
-		def constructor(implicit m) = new DC(id, date, calendar) with Stored
+		def constructor(implicit m: ValuesMap) = new DC(id, date, calendar) with Stored
 	}
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(DCEntity))

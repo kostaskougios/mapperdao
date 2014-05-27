@@ -201,7 +201,7 @@ class ManyToManyCompositeKeySuite extends FunSuite with Matchers
 		val name = column("name") to (_.name)
 		val accounts = manytomany(AccountEntity) join("User_Account", "user_id" :: "user_reference" :: Nil, "account_id" :: "account_serial" :: Nil) to (_.accounts)
 
-		def constructor(implicit m) = new User(reference, name, accounts) with Stored
+		def constructor(implicit m: ValuesMap) = new User(reference, name, accounts) with Stored
 		{
 			val id: Int = UserEntity.id
 		}
@@ -215,7 +215,7 @@ class ManyToManyCompositeKeySuite extends FunSuite with Matchers
 		val serial = key("serial") to (_.serial)
 		val name = column("name") to (_.name)
 
-		def constructor(implicit m) = new Account(serial, name) with Stored
+		def constructor(implicit m: ValuesMap) = new Account(serial, name) with Stored
 		{
 			val id: Int = AccountEntity.id
 		}

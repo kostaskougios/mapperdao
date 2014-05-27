@@ -1,14 +1,11 @@
 package com.googlecode.mapperdao.utils
 
-import com.googlecode.mapperdao.StringValue
+import com.googlecode.mapperdao._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, FunSuite}
-import com.googlecode.mapperdao.Entity
-import com.googlecode.mapperdao.StringEntity
-import com.googlecode.mapperdao.NaturalIntId
-import com.googlecode.mapperdao.NoId
 import com.googlecode.mapperdao.internal.TraversableSeparation
+import com.googlecode.mapperdao.StringValue
 
 /**
  * @author kostantinos.kougios
@@ -68,7 +65,7 @@ class TraversableSeparationSuite extends FunSuite with Matchers
 
 	test("SimpleTypeValue separation, addition") {
 		val old = List(swith("kostas"), swith("kougios"))
-		val (added, intersect, removed) = TraversableSeparation.separate(stringEntity, old, List(StringValue("kostas"), StringValue("kougios"), StringValue("X")))
+		val (added, intersect, _) = TraversableSeparation.separate(stringEntity, old, List(StringValue("kostas"), StringValue("kougios"), StringValue("X")))
 		added should be === List(StringValue("X"))
 		intersect should be === List((StringValue("kostas"), StringValue("kostas")), (StringValue("kougios"), StringValue("kougios")))
 		intersect.head._1 should be theSameInstanceAs (old.head)
@@ -83,7 +80,7 @@ class TraversableSeparationSuite extends FunSuite with Matchers
 	{
 		val id = key("id") to (_.id)
 
-		def constructor(implicit m) = new X(id) with Stored
+		def constructor(implicit m: ValuesMap) = new X(id) with Stored
 	}
 
 	val stringEntity = StringEntity.oneToMany("", "")

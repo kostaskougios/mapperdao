@@ -180,7 +180,7 @@ class OneToManyCompositeKeySuite extends FunSuite with Matchers
 		val address = key("address") to (_.address)
 		val doors = onetomany(DoorEntity) to (_.doors)
 
-		def constructor(implicit m) = new House(address, doors) with Stored
+		def constructor(implicit m: ValuesMap) = new House(address, doors) with Stored
 		{
 			val id = m(HouseEntity.id)
 		}
@@ -192,7 +192,7 @@ class OneToManyCompositeKeySuite extends FunSuite with Matchers
 
 		declarePrimaryKey(location)
 
-		def constructor(implicit m) = new Door(location) with Stored
+		def constructor(implicit m: ValuesMap) = new Door(location) with Stored
 	}
 
 }

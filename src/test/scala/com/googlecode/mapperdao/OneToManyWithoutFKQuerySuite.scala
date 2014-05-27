@@ -69,7 +69,7 @@ class OneToManyWithoutFKQuerySuite extends FunSuite with Matchers
 
 		declarePrimaryKey(loc)
 
-		def constructor(implicit m) = new Info(title, loc) with Stored
+		def constructor(implicit m: ValuesMap) = new Info(title, loc) with Stored
 	}
 
 	object ProductEntity extends Entity[Int, SurrogateIntId, Product]
@@ -78,7 +78,7 @@ class OneToManyWithoutFKQuerySuite extends FunSuite with Matchers
 		val name = column("name") to (_.name)
 		val infos = onetomany(InfoEntity) to (_.infos)
 
-		def constructor(implicit m) = new Product(id, name, infos) with Stored
+		def constructor(implicit m: ValuesMap) = new Product(id, name, infos) with Stored
 	}
 
 }

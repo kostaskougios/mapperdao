@@ -22,7 +22,7 @@ import com.googlecode.mapperdao.schema.{ColumnInfoTraversableOneToMany, ColumnIn
  * val name = column("name") to (_.name)
  * val attributes = manytomany(AttributeEntity) to (_.attributes)
  *
- * def constructor(implicit m) = new Product(name, attributes) with IntId with Persisted {
+ * def constructor(implicit m:ValuesMap) = new Product(name, attributes) with IntId with Persisted {
  * val id: Int = ProductEntity.id
  * }
  * }

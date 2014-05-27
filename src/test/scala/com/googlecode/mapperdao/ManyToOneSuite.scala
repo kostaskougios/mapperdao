@@ -281,7 +281,7 @@ object ManyToOneSuite
 		val company = manytoone(CompanyEntity) to (_.company)
 		val lives = manytoone(HouseEntity) to (_.lives)
 
-		def constructor(implicit m) = new Person(id, name, company, lives) with Stored
+		def constructor(implicit m: ValuesMap) = new Person(id, name, company, lives) with Stored
 	}
 
 	object CompanyEntity extends Entity[Int, SurrogateIntId, Company]
@@ -289,7 +289,7 @@ object ManyToOneSuite
 		val id = key("id") to (_.id)
 		val name = column("name") to (_.name)
 
-		def constructor(implicit m) = new Company(id, name) with Stored
+		def constructor(implicit m: ValuesMap) = new Company(id, name) with Stored
 	}
 
 	object HouseEntity extends Entity[Int, SurrogateIntId, House]
@@ -297,7 +297,7 @@ object ManyToOneSuite
 		val id = key("id") to (_.id)
 		val address = column("address") to (_.address)
 
-		def constructor(implicit m) = new House(id, address) with Stored
+		def constructor(implicit m: ValuesMap) = new House(id, address) with Stored
 	}
 
 }

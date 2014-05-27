@@ -108,7 +108,7 @@ class MultipleInheritance1TableSuite extends FunSuite with Matchers
 			case remindOnce: RemindOnce => remindOnce.time
 		}
 
-		def constructor(implicit m) = m(t) match {
+		def constructor(implicit m: ValuesMap) = m(t) match {
 			case 0 => new Daily(hourOfDay) with Stored
 			{
 				val id: Int = ReminderEntity.id

@@ -201,7 +201,7 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with Matchers
 		val rank = column("rank") to (_.rank)
 		val personId = column("person_id") to (_.personId)
 
-		def constructor(implicit m) = new JobPosition(id, name, rank, personId) with Stored
+		def constructor(implicit m: ValuesMap) = new JobPosition(id, name, rank, personId) with Stored
 	}
 
 	object PersonEntity extends Entity[Int, SurrogateIntId, Person]
@@ -212,7 +212,7 @@ class UseCaseMapRawColumnOneToManySuite extends FunSuite with Matchers
 		val age = column("age") to (_.age)
 		val jobPositions = onetomany(JobPositionEntity) to (_.positions)
 
-		def constructor(implicit m) = new Person(id, name, surname, age, m(jobPositions).toList.sortWith(_.id < _.id)) with Stored
+		def constructor(implicit m: ValuesMap) = new Person(id, name, surname, age, m(jobPositions).toList.sortWith(_.id < _.id)) with Stored
 	}
 
 }

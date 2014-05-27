@@ -140,7 +140,7 @@ class JavaCustomCollectionsSuite extends FunSuite with Matchers
 					new Attributes(l.asJava)
 			}) tojava (_.getAttributes)
 
-		def constructor(implicit m) = {
+		def constructor(implicit m: ValuesMap) = {
 			val p = new Product with Stored
 			{
 				val id: Int = ProductEntity.id
@@ -160,7 +160,7 @@ class JavaCustomCollectionsSuite extends FunSuite with Matchers
 		val name = column("name") to (_.getName)
 		val value = column("value") to (_.getValue)
 
-		def constructor(implicit m) = {
+		def constructor(implicit m: ValuesMap) = {
 			val a = new Attribute(name, value) with Stored
 			{
 				val id: Int = AttributeEntity.id

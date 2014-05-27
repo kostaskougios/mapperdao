@@ -75,14 +75,14 @@ class OneToOneDeclarePrimaryKeySuite extends FunSuite with Matchers
 
 		declarePrimaryKey(product)
 
-		def constructor(implicit m) = new Inventory(product, stock) with Stored
+		def constructor(implicit m: ValuesMap) = new Inventory(product, stock) with Stored
 	}
 
 	object ProductEntity extends Entity[Int, NaturalIntId, Product]
 	{
 		val id = key("id") to (_.id)
 
-		def constructor(implicit m) = new Product(id) with Stored
+		def constructor(implicit m: ValuesMap) = new Product(id) with Stored
 	}
 
 }

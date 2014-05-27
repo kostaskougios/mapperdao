@@ -107,7 +107,7 @@ class ManyToManyNonRecursiveSuite extends FunSuite with Matchers
 		val name = column("name") to (_.name)
 		val attributes = manytomany(AttributeEntity) to (_.attributes)
 
-		def constructor(implicit m) = new Product(name, attributes) with Stored
+		def constructor(implicit m: ValuesMap) = new Product(name, attributes) with Stored
 		{
 			val id: Int = ProductEntity.id // we explicitly convert this to an int because mysql serial values are always BigInteger (a bug maybe?)
 		}
@@ -122,7 +122,7 @@ class ManyToManyNonRecursiveSuite extends FunSuite with Matchers
 		val name = column("name") to (_.name)
 		val value = column("value") to (_.value)
 
-		def constructor(implicit m) = new Attribute(name, value) with Stored
+		def constructor(implicit m: ValuesMap) = new Attribute(name, value) with Stored
 		{
 			val id: Int = AttributeEntity.id // we explicitly convert this to an int because mysql serial values are always BigInteger (a bug maybe?)
 		}

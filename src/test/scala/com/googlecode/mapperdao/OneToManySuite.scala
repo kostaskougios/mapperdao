@@ -297,7 +297,7 @@ object OneToManySuite
 		// _.name : JobPosition => Any . Function that maps the column to the value of the object
 		val rank = column("rank") to (_.rank)
 
-		def constructor(implicit m) = new JobPosition(id, name, rank) with Stored
+		def constructor(implicit m: ValuesMap) = new JobPosition(id, name, rank) with Stored
 	}
 
 	object HouseEntity extends Entity[Int, SurrogateIntId, House]
@@ -305,7 +305,7 @@ object OneToManySuite
 		val id = key("id") to (_.id)
 		val address = column("address") to (_.address)
 
-		def constructor(implicit m) = new House(id, address) with Stored
+		def constructor(implicit m: ValuesMap) = new House(id, address) with Stored
 	}
 
 	object PersonEntity extends Entity[Int, SurrogateIntId, Person]
@@ -317,7 +317,7 @@ object OneToManySuite
 		val age = column("age") to (_.age)
 		val jobPositions = onetomany(JobPositionEntity) to (_.positions)
 
-		def constructor(implicit m) = new Person(id, name, surname, houses, age, m(jobPositions).toList.sortWith(_.id < _.id)) with Stored
+		def constructor(implicit m: ValuesMap) = new Person(id, name, surname, houses, age, m(jobPositions).toList.sortWith(_.id < _.id)) with Stored
 	}
 
 }
