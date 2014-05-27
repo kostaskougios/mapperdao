@@ -1,6 +1,5 @@
 package com.googlecode.mapperdao.schema
 
-import com.googlecode.mapperdao.Entity
 
 /**
  * @author kostas.kougios
@@ -10,5 +9,5 @@ case class LinkTable(schema: Option[Schema], name: String, left: List[Column], r
 {
 	if (schema == null) throw new NullPointerException("databaseSchema should be declared first thing in an entity, for " + name)
 	val schemaName = schema.map(_.name)
-	val entityId = Entity.idGenerator.incrementAndGet
+	val entityId = com.googlecode.mapperdao.internal.nextId
 }

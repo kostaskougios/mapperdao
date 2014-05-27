@@ -3,7 +3,6 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.internal._
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import com.googlecode.mapperdao.schema._
-import java.util.concurrent.atomic.AtomicInteger
 import scala.annotation.unchecked.uncheckedVariance
 import scala.reflect.ClassTag
 import com.googlecode.mapperdao.schema.PK
@@ -50,7 +49,7 @@ object JobPositionEntity extends Entity[Int,SurrogateIntId, JobPosition] {
  */
 abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class[T]) extends EntityBase[ID, T] with EntityImplicits[ID, T]
 {
-	private[mapperdao] val entityId = Entity.idGenerator.incrementAndGet
+	private[mapperdao] val entityId = internal.nextId
 
 	/**
 	 * example:
@@ -544,10 +543,4 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 * @return      entity with Stored
 	 */
 	def toPersistedType(t: T): T with Stored = t.asInstanceOf[T with Stored]
-}
-
-object Entity
-{
-	// generates id's for entities
-	private[mapperdao] val idGenerator = new AtomicInteger
 }
