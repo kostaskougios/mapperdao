@@ -50,6 +50,20 @@ protected[mapperdao] final class MapperDaoImpl(
 		new ManyToOneDeletePlugin
 	)
 
+	override def insertBatch[ID, PC <: Persisted, T](
+		entity: Entity[ID, PC, T],
+		os: List[T]
+		): List[T with PC] = insert0(DefaultUpdateConfig, entity.tpe, os).asInstanceOf[List[T with PC]]
+
+	/**
+	 * batch insert many entities
+	 */
+	override def insertBatch[ID, PC <: Persisted, T](
+		updateConfig: UpdateConfig,
+		entity: Entity[ID, PC, T],
+		os: List[T]
+		): List[T with PC] = insert0(updateConfig, entity.tpe, os).asInstanceOf[List[T with PC]]
+
 	/**
 	 * ===================================================================================
 	 * Utility methods
@@ -64,7 +78,7 @@ protected[mapperdao] final class MapperDaoImpl(
 	 * ===================================================================================
 	 */
 
-	override def insert0[ID, T](
+	def insert0[ID, T](
 		updateConfig: UpdateConfig,
 		tpe: Type[ID, T],
 		os: List[T]

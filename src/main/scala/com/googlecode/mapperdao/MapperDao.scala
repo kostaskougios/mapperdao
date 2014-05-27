@@ -2,7 +2,6 @@ package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.schema.Type
 
-
 /**
  * The MapperDao is the central trait that allows CRUD operations on entities.
  *
@@ -45,7 +44,7 @@ trait MapperDao
 	def insertBatch[ID, PC <: Persisted, T](
 		entity: Entity[ID, PC, T],
 		os: List[T]
-		): List[T with PC] = insert0(DefaultUpdateConfig, entity.tpe, os).asInstanceOf[List[T with PC]]
+		): List[T with PC]
 
 	/**
 	 * batch insert many entities
@@ -54,16 +53,7 @@ trait MapperDao
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, PC, T],
 		os: List[T]
-		): List[T with PC] = insert0(updateConfig, entity.tpe, os).asInstanceOf[List[T with PC]]
-
-	/**
-	 * internally we throw away PC (as scala compiler is pretty tough on it)
-	 */
-	protected def insert0[ID, T](
-		updateConfig: UpdateConfig,
-		tpe: Type[ID, T],
-		os: List[T]
-		): List[T with Persisted]
+		): List[T with PC]
 
 	/**
 	 * updates a mutable entity. Non-persisted related entities will be inserted and persisted
