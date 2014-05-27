@@ -3,8 +3,8 @@ package com.googlecode.mapperdao.schema
 import com.googlecode.mapperdao.Entity
 
 /**
- * @author: kostas.kougios
- *          Date: 30/05/13
+ * @author kostas.kougios
+ *         Date: 30/05/13
  */
 case class LinkTable(schema: Option[Schema], name: String, left: List[Column], right: List[Column])
 {
