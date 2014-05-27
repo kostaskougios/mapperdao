@@ -1,7 +1,5 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.schema.Type
-
 /**
  * The MapperDao is the central trait that allows CRUD operations on entities.
  *
@@ -150,33 +148,33 @@ trait MapperDao
 	 * this method batch-updates immutable entities.
 	 *
 	 * The returned list contains the updated entities in the same
-	 * order as the os param.
+	 * order as the values param.
 	 *
-	 * we can't call this "update" cause due to erasure it will have the same signature like other update
-	 * methods.
+	 * @param entity	the entity of T to be updated
+	 * @param values	the value pairs, (already persisted immutable entity value, modified value)
+	 * @return			the updated values
 	 */
 	def updateBatch[ID, PC <: Persisted, T](
 		entity: Entity[ID, PC, T],
-		os: List[(T with PC, T)]
-		): List[T with PC] = updateBatch(DefaultUpdateConfig, entity, os)
+		values: List[(T with PC, T)]
+		): List[T with PC] = updateBatch(DefaultUpdateConfig, entity, values)
 
 	/**
-	 * batch update immutable entities
+	 * this method batch-updates immutable entities.
+	 *
+	 * The returned list contains the updated entities in the same
+	 * order as the values param.
+	 *
+	 * @param updateConfig	the update configuration
+	 * @param entity	the entity of T to be updated
+	 * @param values	the value pairs, (already persisted immutable entity value, modified value)
+	 * @return			the updated values
 	 */
 	def updateBatch[ID, PC <: Persisted, T](
 		updateConfig: UpdateConfig,
 		entity: Entity[ID, PC, T],
-		os: List[(T with PC, T)]
-		): List[T with PC] = updateImmutable0[ID, T](updateConfig, entity.tpe, os.asInstanceOf[List[(T with Persisted, T)]]).asInstanceOf[List[T with PC]]
-
-	/**
-	 * internally we throw awat PC (as scala compiler is pretty tough on it)
-	 */
-	protected def updateImmutable0[ID, T](
-		updateConfig: UpdateConfig,
-		tpe: Type[ID, T],
-		os: List[(T with Persisted, T)]
-		): List[T with Persisted]
+		values: List[(T with PC, T)]
+		): List[T with PC]
 
 	/**
 	 * merges o with the database value according to id. If id exists in the database, an update

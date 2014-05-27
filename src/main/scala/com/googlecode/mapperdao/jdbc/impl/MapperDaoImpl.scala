@@ -125,7 +125,16 @@ protected[mapperdao] final class MapperDaoImpl(
 		updateProcess(updateConfig, tpe, osAndNewValues)
 	}
 
-	override def updateImmutable0[ID, T](
+	/**
+	 * batch update immutable entities
+	 */
+	override def updateBatch[ID, PC <: Persisted, T](
+		updateConfig: UpdateConfig,
+		entity: Entity[ID, PC, T],
+		os: List[(T with PC, T)]
+		): List[T with PC] = updateImmutable0[ID, T](updateConfig, entity.tpe, os.asInstanceOf[List[(T with Persisted, T)]]).asInstanceOf[List[T with PC]]
+
+	private def updateImmutable0[ID, T](
 		updateConfig: UpdateConfig,
 		tpe: Type[ID, T],
 		os: List[(T with Persisted, T)]
