@@ -5,13 +5,15 @@ import com.googlecode.mapperdao.schema.Type
 /**
  * global utility methods
  *
- * @author: kostas.kougios
- *          Date: 17/04/13
+ * @author kostas.kougios
+ *         Date: 17/04/13
  */
 package object mapperdao
 {
 	/**
 	 * replace an immutable instance with an other one
+	 *
+	 * https://code.google.com/p/mapperdao/wiki/UpdatingImmutableGraphs
 	 *
 	 * @param oldO      the persisted entity
 	 * @param newO      the new value for oldO
