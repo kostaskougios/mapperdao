@@ -184,7 +184,7 @@ class CmdPhase(typeManager: TypeManager)
 						} else {
 							// entity is new
 							newVM.manyToMany(column).map {
-								case p: DeclaredIds[Any] =>
+								case p: DeclaredIds[Any@unchecked] =>
 									// we need to link to the already existing foreign entity
 									// and update the foreign entity
 									val foreignVM = vmFor(foreignEntity.tpe, p)
@@ -501,10 +501,11 @@ class CmdPhase(typeManager: TypeManager)
 		case Some(p: Persisted) => Some(p.mapperDaoValuesMap)
 		case Some(null) => o.asInstanceOf[Some[ValuesMap]]
 		case None => None
+		case Some(x) => throw new IllegalStateException(s"unexpected : $x")
 	}
 
 	private def insertOrUpdate[ID, T](tpe: Type[ID, T], o: T, updateConfig: UpdateConfig) = o match {
-		case p: T with DeclaredIds[ID] => doUpdate(tpe, p, updateConfig)
+		case p: T@unchecked with DeclaredIds[ID] => doUpdate(tpe, p, updateConfig)
 		case _ => doInsert(tpe, o, updateConfig)
 	}
 

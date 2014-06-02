@@ -43,7 +43,7 @@ class OneToOneReverseSelectPlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 		table.oneToOneReverseColumnInfos.filterNot(selectConfig.skip(_)).map {
 			ci =>
 				val v = ci.column.foreign.entity match {
-					case ee: ExternalEntity[Any, Any] =>
+					case ee: ExternalEntity[_, Any@unchecked] =>
 						() => {
 							val foreignIds = tpe.table.primaryKeys.map {
 								pk => om(pk)
