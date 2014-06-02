@@ -121,7 +121,7 @@ protected[mapperdao] final class MapperDaoImpl(
 		val osAndNewValues = os.map {
 			case p: Persisted if (p.mapperDaoValuesMap.mock) =>
 				throw new IllegalStateException("Object %s is mock.".format(p))
-			case persisted: T with Persisted =>
+			case persisted: T@unchecked with Persisted =>
 				val newValuesMap = ValuesMap.fromType(typeManager, tpe, persisted, persisted.mapperDaoValuesMap)
 				(persisted, newValuesMap)
 		}
@@ -227,16 +227,16 @@ protected[mapperdao] final class MapperDaoImpl(
 						(tpe.table.unusedPKColumnInfos zip declared) map {
 							case (ci, v) =>
 								ci match {
-									case ci: ColumnInfoManyToOne[T, Any, Any] =>
+									case ci: ColumnInfoManyToOne[_, _, Any@unchecked] =>
 										val foreign = ci.column.foreign
 										val fentity = foreign.entity
 										val ftable = fentity.tpe.table
 										ci.column.columns zip ftable.toListOfPrimaryKeyValues(v)
-									case ci: ColumnInfoTraversableOneToMany[Any, Any, Any, Any] =>
+									case ci: ColumnInfoTraversableOneToMany[_, _, _, _] =>
 										val fentity = ci.entityOfT
 										val ftable = fentity.tpe.table
 										ci.column.columns zip ftable.toListOfPrimaryKeyValues(v)
-									case ci: ColumnInfoOneToOne[T, Any, Any] =>
+									case ci: ColumnInfoOneToOne[_, _, Any@unchecked] =>
 										val foreign = ci.column.foreign
 										val fentity = foreign.entity
 										val ftable = fentity.tpe.table
