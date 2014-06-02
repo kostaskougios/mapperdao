@@ -39,7 +39,7 @@ class ManyToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperD
 					// to conserve memory for lazy loaded entities, we try to capture as 
 					// fewer variables as possible
 					ci.column.foreign.entity match {
-						case ee: ExternalEntity[Any, Any] =>
+						case ee: ExternalEntity[_, Any@unchecked] =>
 							new LazyLoader
 							{
 								def apply = {

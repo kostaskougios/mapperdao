@@ -2,6 +2,7 @@ package com.googlecode.mapperdao
 
 import internal.{LazyActions, MapWithDefault}
 import com.googlecode.mapperdao.schema.{ColumnInfoTraversableOneToMany, ColumnInfoTraversableManyToMany, ColumnInfoOneToOneReverse, ColumnInfoManyToOne}
+import scala.reflect.ClassTag
 
 /**
  * external entities allow loading entities via a custom dao or i.e. hibernate,
@@ -53,9 +54,9 @@ import com.googlecode.mapperdao.schema.{ColumnInfoTraversableOneToMany, ColumnIn
  */
 abstract class ExternalEntity[FID, F](table: String, clz: Class[F]) extends Entity[FID, Persisted, F](table, clz)
 {
-	def this()(implicit m: ClassManifest[F]) = this(m.erasure.getSimpleName, m.erasure.asInstanceOf[Class[F]])
+	def this()(implicit m: ClassTag[F]) = this(m.runtimeClass.getSimpleName, m.runtimeClass.asInstanceOf[Class[F]])
 
-	def this(table: String)(implicit m: ClassManifest[F]) = this(table, m.erasure.asInstanceOf[Class[F]])
+	def this(table: String)(implicit m: ClassTag[F]) = this(table, m.runtimeClass.asInstanceOf[Class[F]])
 
 	private val lazyActions = new LazyActions[Unit]
 
