@@ -30,7 +30,7 @@ class ManyToManyDeletePlugin(driver: Driver, mapperDao: MapperDaoImpl) extends B
 					driver.doDeleteAllManyToManyRef(deleteConfig, tpe, ci.column, keyValues.map(_._2))
 
 					ci.column.foreign.entity match {
-						case ee: ExternalEntity[Any, Any] =>
+						case ee: ExternalEntity[_, Any@unchecked] =>
 							val fos = ci.columnToValue(o)
 
 							val de = DeleteExternalManyToMany(deleteConfig, fos)
