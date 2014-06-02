@@ -137,7 +137,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 						val join = oneToOneJoin(queryConfig, joinEntityAlias, foreignEntityAlias, oneToOne, ons)
 						q.innerJoin(join)
 				}
-			case j: SelfJoin[Any, Any, Any, Any, Any, Persisted, Any] =>
+			case j: SelfJoin[_, _, _, _, _, _, _] =>
 				val joined = joinTable(queryConfig, j)
 				q.innerJoin(joined)
 		}
@@ -150,10 +150,10 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				case and: OrOp =>
 					joins(and.left)
 					joins(and.right)
-				case OneToManyOperation(left: AliasOneToMany[Any, _], operand: Operand, right: Any) =>
+				case OneToManyOperation(left: AliasOneToMany[_, _], operand: Operand, right: Any) =>
 					q.innerJoin(oneToManyJoin(queryConfig, left.leftAlias, left.foreignAlias, left.column, None))
 
-				case ManyToManyOperation(left: AliasManyToMany[Any, _], operand: Operand, right: Any) =>
+				case ManyToManyOperation(left: AliasManyToMany[_, _], operand: Operand, right: Any) =>
 					val List(leftJ, _) = manyToManyJoin(queryConfig, left.leftAlias, left.foreignAlias, left.column, None)
 					q.innerJoin(leftJ)
 				case _ => //noop
