@@ -5,11 +5,8 @@ import com.googlecode.mapperdao.schema._
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.queries.v2._
 import com.googlecode.mapperdao.schema.ColumnInfo
-import com.googlecode.mapperdao.OneToOneReverseOperation
 import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
-import com.googlecode.mapperdao.ManyToManyOperation
 import com.googlecode.mapperdao.ColumnOperation
-import com.googlecode.mapperdao.OneToManyOperation
 import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
 import com.googlecode.mapperdao.queries.v2.AliasRelationshipColumn
 import com.googlecode.mapperdao.queries.v2.AliasColumn
@@ -182,49 +179,4 @@ trait SqlOneToManyImplicitConvertions
 		val (a, ci) = alias
 		new AliasOneToMany[FID, F](ci.column, a)
 	}
-}
-
-@deprecated("use SqlRelationshipImplicitConvertions")
-trait SqlRelatedImplicitConvertions
-{
-
-	/**
-	 * manages one-to-many expressions
-	 */
-	protected class ConvertorOneToMany[ID, T, FID, F](
-		ci: ColumnInfoTraversableOneToMany[ID, T, FID, F]
-		)
-	{
-		def ===(v: F) = new OneToManyOperation(AliasOneToMany(ci.column, Alias.aliasFor(ci.column)), EQ, v)
-
-		def <>(v: F) = new OneToManyOperation(AliasOneToMany(ci.column, Alias.aliasFor(ci.column)), NE, v)
-	}
-
-	implicit def columnInfoOneToManyOperation[ID, T, FID, F](
-		ci: ColumnInfoTraversableOneToMany[ID, T, FID, F]
-		) = new ConvertorOneToMany(ci)
-
-	/**
-	 * manages many-to-many expressions
-	 */
-	protected class ConvertorManyToMany[T, FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F])
-	{
-		def ===(v: F) = new ManyToManyOperation(AliasManyToMany(ci.column, Alias.aliasFor(ci.column)), EQ, v)
-
-		def <>(v: F) = new ManyToManyOperation(AliasManyToMany(ci.column, Alias.aliasFor(ci.column)), NE, v)
-	}
-
-	implicit def columnInfoManyToManyOperation[T, FID, F](ci: ColumnInfoTraversableManyToMany[T, FID, F]) = new ConvertorManyToMany[T, FID, F](ci)
-
-	/**
-	 * manages one-to-one reverse expressions
-	 */
-	protected class ConvertorOneToOneReverse[T, FID, F](ci: ColumnInfoOneToOneReverse[T, FID, F])
-	{
-		def ===(v: F) = new OneToOneReverseOperation(AliasOneToOneReverse(ci.column, Alias.aliasFor(ci.column)), EQ, v)
-
-		def <>(v: F) = new OneToOneReverseOperation(AliasOneToOneReverse(ci.column, Alias.aliasFor(ci.column)), NE, v)
-	}
-
-	implicit def columnInfoOneToOneReverseOperation[T, FID, F](ci: ColumnInfoOneToOneReverse[T, FID, F]) = new ConvertorOneToOneReverse[T, FID, F](ci)
 }

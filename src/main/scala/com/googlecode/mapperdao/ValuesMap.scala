@@ -162,14 +162,8 @@ class ValuesMap private[mapperdao](private[mapperdao] var o: Any, mOrig: scala.c
 	def mutableHashSet[T, FID, F](column: ColumnInfoTraversableManyToMany[T, FID, F]): scala.collection.mutable.HashSet[F] =
 		new scala.collection.mutable.HashSet ++ apply(column)
 
-	def mutableLinkedList[T, FID, F](column: ColumnInfoTraversableManyToMany[T, FID, F]): scala.collection.mutable.LinkedList[F] =
-		new scala.collection.mutable.LinkedList ++ apply(column)
-
 	def mutableHashSet[ID, T, FID, F](column: ColumnInfoTraversableOneToMany[ID, T, FID, F]): scala.collection.mutable.HashSet[F] =
 		new scala.collection.mutable.HashSet ++ apply(column)
-
-	def mutableLinkedList[ID, T, FID, F](column: ColumnInfoTraversableOneToMany[ID, T, FID, F]): scala.collection.mutable.LinkedList[F] =
-		new scala.collection.mutable.LinkedList ++ apply(column)
 
 	/**
 	 * the following methods do a conversion
