@@ -210,8 +210,8 @@ class ValuesMap private[mapperdao](private[mapperdao] var o: Any, mOrig: scala.c
 					c =>
 						(c, columnValue(c))
 				}
-			case ci: ColumnInfoOneToOne[_, _, _] =>
-				val l = columnValue(ci.column)
+			case ci: ColumnInfoOneToOne[_, _, Any@unchecked] =>
+				val l = columnValue[Any](ci.column)
 				val fe = ci.column.foreign.entity
 				val pks = fe.tpe.table.toListOfPrimaryKeyValues(l)
 				ci.column.columns zip pks
