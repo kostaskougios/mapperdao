@@ -171,10 +171,10 @@ class Table[ID, T](
 				o match {
 					case null =>
 						(c, null)
-					case pc: T with DeclaredIds[ID] =>
+					case pc: T@unchecked with DeclaredIds[ID] =>
 						val ci = pcColumnToColumnInfoMap(c)
 						(c, ci.columnToValue(pc))
-					case t: T => throw new ExpectedPersistedEntityException(t)
+					case _ => throw new ExpectedPersistedEntityException(o)
 				}
 			}
 	}
