@@ -135,7 +135,7 @@ class Jdbc private(val dataSource: DataSource, val chronology: Chronology)
 
 	def queryForInt(sql: String, args: List[Any]): Int = queryForInt(sql, args: _*)
 
-	def queryForInt(sql: String, args: Any*): Int = j.queryForInt(sql, args.asInstanceOf[Seq[Object]]: _*)
+	def queryForInt(sql: String, args: Any*): Int = j.queryForObject(sql, classOf[Integer], args.asInstanceOf[Seq[Object]]: _*)
 
 	def queryForLong(sql: String, args: List[Any]): Long = queryForLong(sql, args: _*)
 
@@ -143,7 +143,7 @@ class Jdbc private(val dataSource: DataSource, val chronology: Chronology)
 		if (isDebugEnabled) {
 			logger.debug("sql:\n" + toString(sql, args))
 		}
-		j.queryForLong(sql, args.asInstanceOf[Seq[Object]]: _*)
+		j.queryForObject(sql, classOf[Long], args.asInstanceOf[Seq[Object]]: _*)
 	}
 
 	/**
