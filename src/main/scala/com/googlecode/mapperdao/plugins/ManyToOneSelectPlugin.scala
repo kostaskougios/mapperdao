@@ -32,7 +32,7 @@ class ManyToOneSelectPlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 		table.manyToOneColumnInfos.filterNot(selectConfig.skip(_)).map {
 			cis =>
 				val v = cis.column.foreign.entity match {
-					case ee: ExternalEntity[Any, Any] =>
+					case ee: ExternalEntity[_, Any@unchecked] =>
 						() => {
 							val c = cis.column
 							val foreignPKValues = c.columns.map(mtoc => om(mtoc))

@@ -24,7 +24,7 @@ class ManyToOneDeletePlugin extends BeforeDelete
 			entity.tpe.table.manyToOneColumnInfos.filterNot(deleteConfig.skip.contains(_)).foreach {
 				cis =>
 					cis.column.foreign.entity match {
-						case ee: ExternalEntity[Any, Any] =>
+						case ee: ExternalEntity[_, Any@unchecked] =>
 							val v = cis.columnToValue(o)
 							val handler = ee.manyToOneOnDeleteMap(cis.asInstanceOf[ColumnInfoManyToOne[T, _, Any]])
 							handler(DeleteExternalManyToOne(deleteConfig, v))

@@ -22,7 +22,7 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 		) = {
 		val peek = entities.peek[ID, T, Traversable[Any], Any, Any]
 		peek.ci match {
-			case ci: ColumnInfoTraversableOneToMany[_, T, Any, Any] =>
+			case ci: ColumnInfoTraversableOneToMany[_, T, _, _] =>
 				val parentTable = peek.tpe.table
 				val parentValues = peek.databaseValues
 				val ids = ci.column.columns zip parentTable.primaryKeys.map {
@@ -47,7 +47,7 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 					() => Nil
 				} else
 					ci.column.foreign.entity match {
-						case ee: ExternalEntity[Any, Any] =>
+						case ee: ExternalEntity[_, Any@unchecked] =>
 							() => {
 								val table = tpe.table
 								val ids = table.primaryKeys.map {
@@ -56,7 +56,7 @@ class OneToManySelectPlugin(typeRegistry: TypeRegistry, driver: Driver, mapperDa
 								}
 								ee.oneToManyOnSelectMap(ci.asInstanceOf[ColumnInfoTraversableOneToMany[_, _, _, Any]])(SelectExternalOneToMany(selectConfig, ids))
 							}
-						case _: Entity[Any, Persisted, Any] =>
+						case _: Entity[_, Persisted, _] =>
 							// try to capture as few variables as possible
 							// for optimal memory usage for lazy loaded entities
 							val down = entities.down(selectConfig, tpe, ci, om)
