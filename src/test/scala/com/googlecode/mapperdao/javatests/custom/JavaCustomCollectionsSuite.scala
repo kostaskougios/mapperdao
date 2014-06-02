@@ -136,7 +136,7 @@ class JavaCustomCollectionsSuite extends FunSuite with Matchers
 		val name = column("name") to (_.getName)
 		val attributes = manytomany(AttributeEntity) getter("getAttributes", "attributes",
 			v => v match {
-				case l: List[Attribute] =>
+				case l: List[Attribute@unchecked] =>
 					new Attributes(l.asJava)
 			}) tojava (_.getAttributes)
 
