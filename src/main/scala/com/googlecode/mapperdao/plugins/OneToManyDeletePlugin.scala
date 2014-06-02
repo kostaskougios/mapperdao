@@ -38,12 +38,12 @@ class OneToManyDeletePlugin(typeRegistry: TypeRegistry, mapperDao: MapperDaoImpl
 					val fOTraversable = cis.columnToValue(o)
 
 					cis.column.foreign.entity match {
-						case ee: ExternalEntity[Any, Any] =>
+						case ee: ExternalEntity[_, Any@unchecked] =>
 							val handler = ee.oneToManyOnDeleteMap(cis.asInstanceOf[ColumnInfoTraversableOneToMany[_, T, _, Any]])
 								.asInstanceOf[ee.OnDeleteOneToMany[T]]
 							handler(DeleteExternalOneToMany(deleteConfig, o, fOTraversable))
 
-						case fe: Entity[Any, _, Any] =>
+						case fe: Entity[_, _, Any@unchecked] =>
 							if (fOTraversable != null) fOTraversable.foreach {
 								fO =>
 									val fOPersisted = fO.asInstanceOf[DeclaredIds[Any]]

@@ -32,14 +32,14 @@ class OneToOneReverseDeletePlugin(typeRegistry: TypeRegistry, driver: Driver, ma
 				cis =>
 
 					cis.column.foreign.entity match {
-						case ee: ExternalEntity[Any, Any] =>
+						case ee: ExternalEntity[_, Any@unchecked] =>
 							val fo = cis.columnToValue(o)
 							val handler = ee.oneToOneOnDeleteMap(cis.asInstanceOf[ColumnInfoOneToOneReverse[T, _, Any]])
 								.asInstanceOf[ee.OnDeleteOneToOneReverse[T]]
 							handler(DeleteExternalOneToOneReverse(deleteConfig, o, fo))
-						case fe: Entity[Any, _, Any] =>
+						case fe: Entity[_, _, _] =>
 							val ftpe = fe.tpe
-							driver.doDeleteOneToOneReverse(deleteConfig, tpe, ftpe, cis.column.asInstanceOf[OneToOneReverse[Any, Any]], keyValues.map(_._2))
+							driver.doDeleteOneToOneReverse(deleteConfig, tpe, ftpe.asInstanceOf[Type[Any, Any]], cis.column.asInstanceOf[OneToOneReverse[Any, Any]], keyValues.map(_._2))
 					}
 			}
 		}
