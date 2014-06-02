@@ -29,10 +29,10 @@ class Table[ID, T](
 		case pk: PK => pk
 	}
 	val unusedPKs = unusedPKColumnInfos.map {
-		case ci: ColumnInfo[Any, Any] => List(ci.column)
-		case ci: ColumnInfoManyToOne[Any, Any, Any] => ci.column.columns
-		case ci: ColumnInfoTraversableOneToMany[Any, Any, Any, Any] => ci.column.columns
-		case ci: ColumnInfoOneToOne[Any, Any, Any] => ci.column.columns
+		case ci: ColumnInfo[_, _] => List(ci.column)
+		case ci: ColumnInfoManyToOne[_, _, _] => ci.column.columns
+		case ci: ColumnInfoTraversableOneToMany[_, _, _, _] => ci.column.columns
+		case ci: ColumnInfoOneToOne[_, _, _] => ci.column.columns
 	}.flatten
 
 	val primaryKeysAndUnusedKeys = primaryKeys ::: unusedPKs
@@ -79,26 +79,26 @@ class Table[ID, T](
 		allRelationshipColumnInfos
 	} else allRelationshipColumnInfos.filterNot(skip(_))
 
-	val oneToOneColumns: List[OneToOne[Any, Any]] = columns.collect {
-		case c: OneToOne[Any, Any] => c
+	val oneToOneColumns = columns.collect {
+		case c: OneToOne[_, _] => c
 	}
 
-	val oneToOneReverseColumns: List[OneToOneReverse[Any, Any]] = columns.collect {
-		case c: OneToOneReverse[Any, Any] => c
+	val oneToOneReverseColumns = columns.collect {
+		case c: OneToOneReverse[_, _] => c
 	}
 
-	val oneToManyColumns: List[OneToMany[Any, Any]] = columns.collect {
-		case c: OneToMany[Any, Any] => c
+	val oneToManyColumns = columns.collect {
+		case c: OneToMany[_, _] => c
 	}
-	val manyToOneColumns: List[ManyToOne[Any, Any]] = columns.collect {
-		case mto: ManyToOne[Any, Any] => mto
+	val manyToOneColumns = columns.collect {
+		case mto: ManyToOne[_, _] => mto
 	}
 	val manyToOneColumnsFlattened: List[Column] = columns.collect {
 		case ManyToOne(_, columns: List[Column], _) => columns
 	}.flatten
 
-	val manyToManyColumns: List[ManyToMany[Any, Any]] = columns.collect {
-		case c: ManyToMany[Any, Any] => c
+	val manyToManyColumns = columns.collect {
+		case c: ManyToMany[_, _] => c
 	}
 
 	val oneToOneColumnInfos: List[ColumnInfoOneToOne[T, Any, _]] = columnInfosPlain.collect {
