@@ -5,6 +5,7 @@ import LazyLoadManager._
 import com.googlecode.classgenerator._
 import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
 import com.googlecode.mapperdao.Persisted
+import scala.reflect.ClassTag
 
 /**
  * implements lazy loaded methods
@@ -65,7 +66,7 @@ protected class LazyLoadProxyMethod[T](
 							val returnType = args.method.getReturnType
 							if (returnType.isArray) {
 								val ct = returnType.getComponentType
-								val am = ClassManifest.fromClass(ct.asInstanceOf[Class[Any]])
+								val am = ClassTag[Any](ct)
 								v.asInstanceOf[List[_]].toArray(am)
 							} else {
 								val con = converters.getOrElse(
