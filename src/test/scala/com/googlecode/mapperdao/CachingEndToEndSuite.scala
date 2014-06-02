@@ -44,7 +44,7 @@ class CachingEndToEndSuite extends FunSuite with Matchers
 		mapperDao.select(selectConfig, PersonEntity, p.id)
 		val updated = mapperDao.update(PersonEntity, p, Person("updated", p.owns + House("Rhodes")))
 
-		mapperDao.select(selectConfig, PersonEntity, p.id).get should be === updated
+		mapperDao.select(selectConfig, PersonEntity, p.id).get should be(updated)
 	}
 
 	test("update one-to-many, remove related, flushes cache") {
@@ -54,7 +54,7 @@ class CachingEndToEndSuite extends FunSuite with Matchers
 		mapperDao.select(selectConfig, PersonEntity, p.id)
 		val updated = mapperDao.update(PersonEntity, p, Person("updated", p.owns - House("Rhodes")))
 
-		mapperDao.select(selectConfig, PersonEntity, p.id).get should be === updated
+		mapperDao.select(selectConfig, PersonEntity, p.id).get should be(updated)
 	}
 
 	test("delete flushes cache") {
@@ -67,7 +67,7 @@ class CachingEndToEndSuite extends FunSuite with Matchers
 
 		mapperDao.delete(ProductEntity, 5)
 
-		mapperDao.select(selectConfig, ProductEntity, 5) should be === None
+		mapperDao.select(selectConfig, ProductEntity, 5) should be(None)
 	}
 
 	test("update, many to many, add related, flushes cached") {
@@ -80,7 +80,7 @@ class CachingEndToEndSuite extends FunSuite with Matchers
 
 		val updated = mapperDao.update(ProductEntity, inserted, Product(5, "xxx", inserted.attributes + Attribute(8, "size", "large")))
 		// still cached
-		mapperDao.select(selectConfig, ProductEntity, 5) should be === Some(updated)
+		mapperDao.select(selectConfig, ProductEntity, 5) should be(Some(updated))
 	}
 
 	test("update, many to many, remove related, flushes cached") {
@@ -108,7 +108,7 @@ class CachingEndToEndSuite extends FunSuite with Matchers
 		// manually delete rows
 		deleteAll()
 		// still cached
-		mapperDao.select(selectConfig, ProductEntity, 5) should be === Some(inserted)
+		mapperDao.select(selectConfig, ProductEntity, 5) should be(Some(inserted))
 	}
 
 	test("main entity selection is cached but expired") {
@@ -124,7 +124,7 @@ class CachingEndToEndSuite extends FunSuite with Matchers
 
 		Thread.sleep(15)
 		// still cached
-		mapperDao.select(SelectConfig(cacheOptions = CacheOptions(2)), ProductEntity, 5) should be === None
+		mapperDao.select(SelectConfig(cacheOptions = CacheOptions(2)), ProductEntity, 5) should be(None)
 	}
 
 	test("secondary entity selection is cached") {
@@ -138,7 +138,7 @@ class CachingEndToEndSuite extends FunSuite with Matchers
 		// manually delete rows
 		deleteAll()
 		// still cached
-		mapperDao.select(selectConfig, AttributeEntity, 2) should be === Some(Attribute(2, "colour", "blue"))
+		mapperDao.select(selectConfig, AttributeEntity, 2) should be(Some(Attribute(2, "colour", "blue")))
 	}
 
 	test("query with cached data positive") {
@@ -151,7 +151,7 @@ class CachingEndToEndSuite extends FunSuite with Matchers
 		queryDao.query(select from ProductEntity)
 		deleteAll()
 		// even if the data are deleted, the cached values will be used
-		queryDao.query(queryConfig, select from ProductEntity) should be === List(inserted)
+		queryDao.query(queryConfig, select from ProductEntity) should be(List(inserted))
 	}
 
 	test("query with cached data negative") {
@@ -165,7 +165,7 @@ class CachingEndToEndSuite extends FunSuite with Matchers
 		deleteAll()
 		Thread.sleep(15)
 		// even if the data are deleted, the cached values will be used
-		queryDao.query(QueryConfig(cacheOptions = CacheOptions(3)), select from ProductEntity) should be === List()
+		queryDao.query(QueryConfig(cacheOptions = CacheOptions(3)), select from ProductEntity) should be(List())
 	}
 
 	def deleteAll() {

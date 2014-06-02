@@ -49,19 +49,19 @@ class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with Matchers
 			)
 		)
 		val updated = mapperDao.update(PersonEntity, p3, upd)
-		updated should be === upd
+		updated should be(upd)
 
 		val selected = mapperDao.select(PersonEntity, person3.email).get
-		selected should be === updated
-		selected.linked should be === updated.linked // please see Person.equals as why this is necessary
-		selected.linkedToMe should be === updated.linkedToMe
+		selected should be(updated)
+		selected.linked should be(updated.linked) // please see Person.equals as why this is necessary
+		selected.linkedToMe should be(updated.linkedToMe)
 
 		mapperDao.delete(PersonEntity, selected)
 
 		val p2selected = mapperDao.select(PersonEntity, person2.email).get
-		p2selected should be === p2updated
-		p2selected.linked should be === p2updated.linked
-		p2selected.linkedToMe should be === p2updated.linkedToMe
+		p2selected should be(p2updated)
+		p2selected.linked should be(p2updated.linked)
+		p2selected.linkedToMe should be(p2updated.linkedToMe)
 	}
 
 	test("crud straight on LinkedPeopleEntity") {
@@ -73,27 +73,27 @@ class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with Matchers
 
 		val lp1 = LinkedPeople(p1, p2, "these like each other")
 		val lp1Inserted = mapperDao.insert(LinkedPeopleEntity, lp1)
-		lp1Inserted should be === lp1
+		lp1Inserted should be(lp1)
 
 		// add some noise
 		val lp2Inserted = mapperDao.insert(LinkedPeopleEntity, LinkedPeople(p2, p3, "p2 likes p3"))
 
 		val selected = mapperDao.select(LinkedPeopleEntity, (p1, p2)).get
-		selected should be === lp1Inserted
+		selected should be(lp1Inserted)
 
 		val upd = selected.copy(from = p3, note = "now p3 likes p2")
 		val updated = mapperDao.update(LinkedPeopleEntity, selected, upd)
-		updated should be === upd
+		updated should be(upd)
 
 		// verify the update
 		mapperDao.select(LinkedPeopleEntity, (p1, p2)) should be(None)
 		val reselected = mapperDao.select(LinkedPeopleEntity, (p3, p2)).get
-		reselected should be === updated
+		reselected should be(updated)
 
 		// now delete
 		mapperDao.delete(LinkedPeopleEntity, reselected)
 		mapperDao.select(LinkedPeopleEntity, (p3, p2)) should be(None)
-		mapperDao.select(LinkedPeopleEntity, (p2, p3)).get should be === lp2Inserted
+		mapperDao.select(LinkedPeopleEntity, (p2, p3)).get should be(lp2Inserted)
 	}
 
 	test("queries") {
@@ -113,18 +113,18 @@ class DeclarePrimaryKeysWithManyToOneSuite extends FunSuite with Matchers
 			select
 				from lpe
 				where lpe.from === p1
-			).toSet(queryDao) should be === Set(lp1, lp3)
+			).toSet(queryDao) should be(Set(lp1, lp3))
 		(
 			select
 				from lpe
 				where lpe.to === p3
-			).toSet(queryDao) should be === Set(lp2, lp3)
+			).toSet(queryDao) should be(Set(lp2, lp3))
 
 		(
 			select
 				from lpe
 				where lpe.from === p1 and lpe.to === p3
-			).toSet(queryDao) should be === Set(lp3)
+			).toSet(queryDao) should be(Set(lp3))
 
 	}
 

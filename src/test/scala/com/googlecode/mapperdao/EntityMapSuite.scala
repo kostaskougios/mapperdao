@@ -27,17 +27,17 @@ class EntityMapSuite extends FunSuite with Matchers
 
 		m.get[E1](classOf[E1], List(5)) {
 			None
-		}.get should be === E1("1")
+		}.get should be(E1("1"))
 		m.get[E1](classOf[E1], List(6)) {
 			None
-		}.get should be === E1("2")
+		}.get should be(E1("2"))
 
 		m.get[E2](classOf[E2], List(5, 6)) {
 			None
-		}.get should be === E2("x")
+		}.get should be(E2("x"))
 		m.get[E2](classOf[E2], List(5, 7)) {
 			None
-		}.get should be === E2("y")
+		}.get should be(E2("y"))
 	}
 
 	test("get from empty") {
@@ -50,8 +50,8 @@ class EntityMapSuite extends FunSuite with Matchers
 	test("re-put throws exception") {
 		val m = new EntityMap
 		m.putMock(classOf[E1], List(5), E1("1"))
-		evaluating {
+		an[IllegalStateException] should be thrownBy {
 			m.putMock(classOf[E1], List(5), E1("1"))
-		} should produce[IllegalStateException]
+		}
 	}
 }

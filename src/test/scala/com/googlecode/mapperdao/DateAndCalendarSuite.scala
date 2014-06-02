@@ -36,15 +36,15 @@ class DateAndCalendarSuite extends FunSuite with Matchers
 		val date = Setup.now.toDate
 		val calendar = Setup.now.toCalendar(Locale.getDefault)
 
-		mapperDao.insert(DCEntity, DC(1, date, calendar)) should be === DC(1, date, calendar)
+		mapperDao.insert(DCEntity, DC(1, date, calendar)) should be(DC(1, date, calendar))
 		val selected = mapperDao.select(DCEntity, 1).get
-		selected should be === DC(1, date, calendar)
+		selected should be(DC(1, date, calendar))
 
 		selected.date.setHours(date.getHours - 1)
 		selected.calendar.add(Calendar.HOUR, -1)
 		val updated = mapperDao.update(DCEntity, selected)
-		updated should be === selected
-		mapperDao.select(DCEntity, 1).get should be === updated
+		updated should be(selected)
+		mapperDao.select(DCEntity, 1).get should be(updated)
 	}
 
 	def createTables() {

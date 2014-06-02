@@ -49,37 +49,37 @@ class DeclarePrimaryKeysWithOneToManySuite extends FunSuite with Matchers
 				from lpe
 				where lpe.from === p1
 			)
-		q.toSet(queryDao) should be === Set(
+		q.toSet(queryDao) should be(Set(
 			LinkedPeople(p2, "good chap this p2"),
 			LinkedPeople(p3, "hi p3")
-		)
+		))
 		(
 			select
 				from lpe
 				where lpe.from === p2
-			).toSet(queryDao) should be === Set(
+			).toSet(queryDao) should be(Set(
 			LinkedPeople(p3, "I like p3")
-		)
+		))
 	}
 
 	test("rud") {
 		createTables()
 		val (p1, p2, p3) = testData
 
-		mapperDao.select(LinkedPeopleEntity, (p1, p2)).get should be === LinkedPeople(p2, "good chap this p2")
-		mapperDao.select(LinkedPeopleEntity, (p1, p3)).get should be === LinkedPeople(p3, "hi p3")
+		mapperDao.select(LinkedPeopleEntity, (p1, p2)).get should be(LinkedPeople(p2, "good chap this p2"))
+		mapperDao.select(LinkedPeopleEntity, (p1, p3)).get should be(LinkedPeople(p3, "hi p3"))
 		val slp2 = mapperDao.select(LinkedPeopleEntity, (p2, p3)).get
-		slp2 should be === LinkedPeople(p3, "I like p3")
+		slp2 should be(LinkedPeople(p3, "I like p3"))
 
 		mapperDao.update(LinkedPeopleEntity, slp2, LinkedPeople(p1, "now I like p1"))
 		val rslp2 = mapperDao.select(LinkedPeopleEntity, (p2, p1)).get
-		rslp2 should be === LinkedPeople(p1, "now I like p1")
+		rslp2 should be(LinkedPeople(p1, "now I like p1"))
 
 		mapperDao.delete(LinkedPeopleEntity, rslp2)
 		mapperDao.select(LinkedPeopleEntity, (p2, p1)) should be(None)
 
-		mapperDao.select(LinkedPeopleEntity, (p1, p2)).get should be === LinkedPeople(p2, "good chap this p2")
-		mapperDao.select(LinkedPeopleEntity, (p1, p3)).get should be === LinkedPeople(p3, "hi p3")
+		mapperDao.select(LinkedPeopleEntity, (p1, p2)).get should be(LinkedPeople(p2, "good chap this p2"))
+		mapperDao.select(LinkedPeopleEntity, (p1, p3)).get should be(LinkedPeople(p3, "hi p3"))
 	}
 
 	def createTables() {

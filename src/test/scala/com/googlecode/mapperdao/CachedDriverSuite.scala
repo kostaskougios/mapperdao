@@ -93,7 +93,7 @@ class CachedDriverSuite extends FunSuite with Matchers
 		val d = driver(cachedValue)
 		d.doSelect(SelectConfig(cacheOptions = CacheOptions.OneDay), ProductEntity.tpe, mockKeyValue)
 		d.updateSql(UpdateConfig.default, ProductEntity.tpe, Nil, mockKeyValue)
-		cachedKey should be === flushedKey
+		cachedKey should be(flushedKey)
 	}
 
 	test("doSelectManyToMany cached positive") {
