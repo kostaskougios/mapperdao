@@ -9,8 +9,8 @@ import com.googlecode.mapperdao.CommonEntities._
 /**
  * updating a tree of immutable entities is tough. this suite deals with this issue
  *
- * @author: kostas.kougios
- *          Date: 16/04/13
+ * @author kostas.kougios
+ *         Date: 16/04/13
  */
 @RunWith(classOf[JUnitRunner])
 class ReplaceSuite extends FunSuite with Matchers
