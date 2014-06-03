@@ -38,9 +38,9 @@ class ManyToManyLazyLoadSuite extends FunSuite with Matchers
 			r2 should be(Set())
 			verifyPropertiesNotLoadded(selected)
 
-			selected should be === Product(2, "blue jean", inserted.attributes, inserted.properties)
-			selected.attributes should be === inserted.attributes
-			selected.properties should be === inserted.properties
+			selected should be(Product(2, "blue jean", inserted.attributes, inserted.properties))
+			selected.attributes should be(inserted.attributes)
+			selected.properties should be(inserted.properties)
 		}
 
 		test("unlink doesn't load the lazy loaded") {
@@ -61,9 +61,9 @@ class ManyToManyLazyLoadSuite extends FunSuite with Matchers
 			val r2: Set[Attribute] = reflectionManager.get("properties", selected)
 			r2 should be(Set())
 
-			selected should be === Product(2, "blue jean", inserted.attributes, inserted.properties)
-			selected.attributes should be === inserted.attributes
-			selected.properties should be === inserted.properties
+			selected should be(Product(2, "blue jean", inserted.attributes, inserted.properties))
+			selected.attributes should be(inserted.attributes)
+			selected.properties should be(inserted.properties)
 		}
 
 		test("free lazy loaded") {
@@ -83,7 +83,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with Matchers
 			val r2: Set[Attribute] = reflectionManager.get("properties", selected)
 			r2 should be(Set())
 
-			selected should be === Product(2, "blue jean", Set(), Set())
+			selected should be(Product(2, "blue jean", Set(), Set()))
 		}
 
 		test("lazy load 1 of 2 related entities and update it") {
@@ -97,9 +97,9 @@ class ManyToManyLazyLoadSuite extends FunSuite with Matchers
 
 			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad.some(Set(ProductEntity.properties))), ProductEntity, 2).get
 			val updated = mapperDao.update(ProductEntity, selected, Product(2, "blue jean", Set(a1), Set(p1)))
-			updated should be === Product(2, "blue jean", Set(a1), Set(p1))
+			updated should be(Product(2, "blue jean", Set(a1), Set(p1)))
 			val reloaded = mapperDao.select(SelectConfig(lazyLoad = LazyLoad.some(Set(ProductEntity.properties))), ProductEntity, 2).get
-			reloaded should be === updated
+			reloaded should be(updated)
 		}
 
 		test("lazy load 2 related entities") {
@@ -120,9 +120,9 @@ class ManyToManyLazyLoadSuite extends FunSuite with Matchers
 
 			verifyNotLoadded(selected)
 
-			selected should be === Product(2, "blue jean", inserted.attributes, inserted.properties)
-			selected.attributes should be === inserted.attributes
-			selected.properties should be === inserted.properties
+			selected should be(Product(2, "blue jean", inserted.attributes, inserted.properties))
+			selected.attributes should be(inserted.attributes)
+			selected.properties should be(inserted.properties)
 		}
 
 		test("querying, lazy load") {
@@ -139,8 +139,8 @@ class ManyToManyLazyLoadSuite extends FunSuite with Matchers
 			verifyNotLoadded(s1)
 			verifyNotLoadded(s2)
 
-			s1 should be === i1
-			s2 should be === i2
+			s1 should be(i1)
+			s2 should be(i2)
 		}
 
 		test("update immutable entity, skip lazy loaded") {
@@ -153,7 +153,7 @@ class ManyToManyLazyLoadSuite extends FunSuite with Matchers
 			mapperDao.update(UpdateConfig(skip = Set(ProductEntity.attributes, ProductEntity.properties)), ProductEntity, selected, Product(2, "blue jean new", Set(a1)))
 			verifyNotLoadded(selected)
 			val reloaded = mapperDao.select(ProductEntity, 2).get
-			reloaded should be === Product(2, "blue jean new", Set(a1, a2))
+			reloaded should be(Product(2, "blue jean new", Set(a1, a2)))
 		}
 
 		test("update mutable entity") {
@@ -165,9 +165,9 @@ class ManyToManyLazyLoadSuite extends FunSuite with Matchers
 			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad.all), ProductEntity, 2).get
 			selected.attributes = Set(a1)
 			val updated = mapperDao.update(ProductEntity, selected)
-			updated should be === Product(2, "blue jean", Set(a1))
+			updated should be(Product(2, "blue jean", Set(a1)))
 			val reloaded = mapperDao.select(ProductEntity, 2).get
-			reloaded should be === updated
+			reloaded should be(updated)
 		}
 
 		test("update immutable entity") {
@@ -178,9 +178,9 @@ class ManyToManyLazyLoadSuite extends FunSuite with Matchers
 
 			val selected = mapperDao.select(SelectConfig(lazyLoad = LazyLoad.all), ProductEntity, 2).get
 			val updated = mapperDao.update(ProductEntity, selected, Product(2, "blue jean new", Set(a1)))
-			updated should be === Product(2, "blue jean new", Set(a1))
+			updated should be(Product(2, "blue jean new", Set(a1)))
 			val reloaded = mapperDao.select(ProductEntity, 2).get
-			reloaded should be === updated
+			reloaded should be(updated)
 		}
 
 		test("lazy load") {
@@ -196,8 +196,8 @@ class ManyToManyLazyLoadSuite extends FunSuite with Matchers
 
 			verifyNotLoadded(selected)
 
-			selected should be === Product(2, "blue jean", inserted.attributes)
-			selected.attributes should be === inserted.attributes
+			selected should be(Product(2, "blue jean", inserted.attributes))
+			selected.attributes should be(inserted.attributes)
 		}
 
 		test("manually updating them stops lazy loading") {

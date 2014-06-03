@@ -52,7 +52,7 @@ class ManyToManyCustomLoaderSuite extends FunSuite with Matchers
 				manyToManyCustomLoaders = loaders
 
 			), ProductEntity, inserted.id).get
-			selected should be === Product("p1", Set(Attribute("x", "y")))
+			selected should be(Product("p1", Set(Attribute("x", "y"))))
 		}
 
 		test("update custom loaded data") {
@@ -64,8 +64,8 @@ class ManyToManyCustomLoaderSuite extends FunSuite with Matchers
 			), ProductEntity, inserted.id).get
 			val up = Product("updated", selected.attributes + Attribute("a3", "x3"))
 			val updated = mapperDao.update(ProductEntity, selected, up)
-			updated should be === up
-			mapperDao.select(ProductEntity, inserted.id).get should be === updated
+			updated should be(up)
+			mapperDao.select(ProductEntity, inserted.id).get should be(updated)
 		}
 	}
 }

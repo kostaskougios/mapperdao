@@ -22,8 +22,8 @@ class ManyToManyExternalEntitySuite extends FunSuite with Matchers
 
 			val product = Product("p1", Set(Attribute(10, "x10"), Attribute(20, "x20")))
 			val inserted = mapperDao.insert(ProductEntity, product)
-			inserted should be === product
-			mapperDao.select(ProductEntity, inserted.id).get should be === inserted
+			inserted should be(product)
+			mapperDao.select(ProductEntity, inserted.id).get should be(inserted)
 		}
 
 		test("updates/select, remove item") {
@@ -33,8 +33,8 @@ class ManyToManyExternalEntitySuite extends FunSuite with Matchers
 			val inserted = mapperDao.insert(ProductEntity, product)
 			val toUpdate = Product("p2", inserted.attributes.filterNot(_.id == 10))
 			val updated = mapperDao.update(ProductEntity, inserted, toUpdate)
-			updated should be === toUpdate
-			mapperDao.select(ProductEntity, inserted.id).get should be === updated
+			updated should be(toUpdate)
+			mapperDao.select(ProductEntity, inserted.id).get should be(updated)
 		}
 		test("updates/select, add item") {
 			createTables()
@@ -43,8 +43,8 @@ class ManyToManyExternalEntitySuite extends FunSuite with Matchers
 			val inserted = mapperDao.insert(ProductEntity, product)
 			val toUpdate = Product("p2", inserted.attributes + Attribute(20, "x20"))
 			val updated = mapperDao.update(ProductEntity, inserted, toUpdate)
-			updated should be === toUpdate
-			mapperDao.select(ProductEntity, inserted.id).get should be === updated
+			updated should be(toUpdate)
+			mapperDao.select(ProductEntity, inserted.id).get should be(updated)
 		}
 
 		test("added valid when inserting") {

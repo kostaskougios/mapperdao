@@ -32,8 +32,8 @@ class ManyToManyManuallyLazyLoadSuite extends FunSuite with Matchers
 			val s2 = l.last
 			verifyNotLoadded(s1)
 			verifyNotLoadded(s2)
-			s1 should be === i1
-			s2 should be === i2
+			s1 should be(i1)
+			s2 should be(i2)
 		}
 
 		test("update immutable entity, skip lazy loaded") {
@@ -46,20 +46,20 @@ class ManyToManyManuallyLazyLoadSuite extends FunSuite with Matchers
 			val updated = mapperDao.update(UpdateConfig(skip = Set(ProductEntity.attributes)), ProductEntity, selected, new Product(2, "blue jean new", Set(a1)))
 			verifyNotLoadded(selected)
 			val reloaded = mapperDao.select(ProductEntity, 2).get
-			reloaded should be === new Product(2, "blue jean new", Set(a1, a2))
+			reloaded should be(new Product(2, "blue jean new", Set(a1, a2)))
 		}
 
 		test("update immutable entity") {
 			createTables
 			val a1 = mapperDao.insert(AttributeEntity, Attribute(6, "colour", "blue"))
 			val a2 = mapperDao.insert(AttributeEntity, Attribute(9, "size", "medium"))
-			val inserted = mapperDao.insert(ProductEntity, new Product(2, "blue jean", Set(a1, a2)))
+			mapperDao.insert(ProductEntity, new Product(2, "blue jean", Set(a1, a2)))
 
 			val selected = mapperDao.select(ProductEntity, 2).get
 			val updated = mapperDao.update(ProductEntity, selected, new Product(2, "blue jean new", Set(a1)))
-			updated should be === new Product(2, "blue jean new", Set(a1))
+			updated should be(new Product(2, "blue jean new", Set(a1)))
 			val reloaded = mapperDao.select(ProductEntity, 2).get
-			reloaded should be === updated
+			reloaded should be(updated)
 		}
 
 		test("lazy load") {
@@ -72,8 +72,8 @@ class ManyToManyManuallyLazyLoadSuite extends FunSuite with Matchers
 
 			verifyNotLoadded(selected)
 
-			selected should be === new Product(2, "blue jean", inserted.attributes)
-			selected.attributes should be === (inserted.attributes)
+			selected should be(new Product(2, "blue jean", inserted.attributes))
+			selected.attributes should be(inserted.attributes)
 		}
 	}
 

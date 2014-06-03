@@ -107,13 +107,13 @@ class ManyToManyCompositeKeySuite extends FunSuite with Matchers
 				from ue
 				join(ue, ue.accounts, ae)
 				where ae.serial === 1500
-				).toList.toSet should be === Set(inserted1, inserted2)
+				).toList.toSet should be(Set(inserted1, inserted2))
 
 			(select
 				from ue
 				join(ue, ue.accounts, ae)
 				where ae.serial === 1700
-				).toList.toSet should be === Set(inserted2)
+				).toList.toSet should be(Set(inserted2))
 		}
 
 		test("insert, select and delete") {
@@ -127,10 +127,10 @@ class ManyToManyCompositeKeySuite extends FunSuite with Matchers
 
 			val u = User("ref1", "user X", Set(acc1, acc2))
 			val inserted = mapperDao.insert(UserEntity, u)
-			inserted should be === u
+			inserted should be(u)
 
 			val selected = mapperDao.select(UserEntity, (inserted.id, inserted.reference)).get
-			selected should be === inserted
+			selected should be(inserted)
 
 			mapperDao.delete(UserEntity, selected)
 
@@ -151,9 +151,9 @@ class ManyToManyCompositeKeySuite extends FunSuite with Matchers
 			val inserted = mapperDao.insert(UserEntity, User("ref1", "user X", Set(acc1, acc2)))
 			val upd = inserted.copy(accounts = inserted.accounts.filterNot(_ == acc2))
 			val updated = mapperDao.update(UserEntity, inserted, upd)
-			updated should be === upd
+			updated should be(upd)
 
-			mapperDao.select(UserEntity, (inserted.id, inserted.reference)).get should be === updated
+			mapperDao.select(UserEntity, (inserted.id, inserted.reference)).get should be(updated)
 		}
 
 		test("update, add") {
@@ -170,9 +170,9 @@ class ManyToManyCompositeKeySuite extends FunSuite with Matchers
 			val inserted = mapperDao.insert(UserEntity, User("ref1", "user X", Set(acc1)))
 			val upd = inserted.copy(accounts = Set(acc1, acc2))
 			val updated = mapperDao.update(UserEntity, inserted, upd)
-			updated should be === upd
+			updated should be(upd)
 
-			mapperDao.select(UserEntity, (updated.id, updated.reference)).get should be === updated
+			mapperDao.select(UserEntity, (updated.id, updated.reference)).get should be(updated)
 		}
 
 		def noise = mapperDao.insert(UserEntity, User("refX", "user X", Set(Account(50, "Noise1"), Account(51, "Noise2"), Account(52, "Noise3"))))

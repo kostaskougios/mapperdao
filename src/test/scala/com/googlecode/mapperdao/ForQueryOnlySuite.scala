@@ -47,7 +47,7 @@ class ForQueryOnlySuite extends FunSuite with Matchers
 					from ae
 					where
 					ae.product === p4 or ae.product === p5
-				).toSet(queryDao) should be === Set(dell, red, blue)
+				).toSet(queryDao) should be(Set(dell, red, blue))
 		}
 
 		test("simple query with join") {
@@ -59,7 +59,7 @@ class ForQueryOnlySuite extends FunSuite with Matchers
 					from ae
 					where
 					ae.product === p4
-				).toSet(queryDao) should be === Set(dell, blue)
+				).toSet(queryDao) should be(Set(dell, blue))
 		}
 
 		test("complex query with join") {
@@ -73,7 +73,7 @@ class ForQueryOnlySuite extends FunSuite with Matchers
 					where
 					ae.name === "colour"
 					and (pe.name like "%dell%")
-				).toSet(queryDao) should be === Set(red, blue)
+				).toSet(queryDao) should be(Set(red, blue))
 		}
 	}
 }

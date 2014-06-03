@@ -55,7 +55,7 @@ class EntityRelationshipVisitorSuite extends FunSuite with Matchers
 		visitor.visit(ProductEntity, p) match {
 			case vp: Product =>
 				vp should not be eq(p)
-				vp should be === (p)
+				vp should be(p)
 		}
 	}
 
@@ -65,7 +65,7 @@ class EntityRelationshipVisitorSuite extends FunSuite with Matchers
 		visitor.visit(PersonEntity, p) match {
 			case vp: Person =>
 				vp should not be eq(p)
-				vp should be === (p)
+				vp should be(p)
 		}
 	}
 
@@ -75,7 +75,7 @@ class EntityRelationshipVisitorSuite extends FunSuite with Matchers
 		visitor.visit(OwnerEntity, o) match {
 			case vo: Owner =>
 				vo should not be eq(o)
-				vo should be === (o)
+				vo should be(o)
 		}
 	}
 
@@ -85,7 +85,7 @@ class EntityRelationshipVisitorSuite extends FunSuite with Matchers
 		visitor.visit(HusbandEntity, o) match {
 			case vo: Husband =>
 				vo should not be eq(o)
-				vo should be === (o)
+				vo should be(o)
 		}
 	}
 }

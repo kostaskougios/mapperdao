@@ -166,8 +166,8 @@ class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite with Matche
 	// with be thrown
 	def test(actual: Employee, expected: Employee) {
 		def toS(w: WorkedAt) = "%s,%s,%d".format(w.employee.no, w.company, w.year)
-		expected.workedAt.map(toS _).toSet should be === actual.workedAt.map(toS _).toSet
-		expected.no should be === actual.no
+		expected.workedAt.map(toS _).toSet should be(actual.workedAt.map(toS _).toSet)
+		expected.no should be(actual.no)
 	}
 
 	def createTables() {

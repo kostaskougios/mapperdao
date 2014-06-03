@@ -25,7 +25,7 @@ class LowLevelQuerySuite extends FunSuite with Matchers
 			val blue = mapperDao.insert(AttributeEntity, Attribute("colour", "blue"))
 			mapperDao.insert(AttributeEntity, Attribute("brand", "acer"))
 
-			queryDao.lowLevelQuery(AttributeEntity, "select * from attribute where name=?", List("colour")).toSet should be === Set(red, blue)
+			queryDao.lowLevelQuery(AttributeEntity, "select * from attribute where name=?", List("colour")).toSet should be(Set(red, blue))
 		}
 
 		test("low level query, parent entities") {
@@ -44,7 +44,7 @@ class LowLevelQuerySuite extends FunSuite with Matchers
 				inner join product_attribute pa on pa.product_id=p.id 
 				inner join attribute a on pa.attribute_id = a.id
 				where a.value=?
-			                                      """, List("blue")).toSet should be === Set(p2, p3)
+												  """, List("blue")).toSet should be(Set(p2, p3))
 		}
 	}
 }

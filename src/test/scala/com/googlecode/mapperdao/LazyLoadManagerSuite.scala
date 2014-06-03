@@ -94,7 +94,7 @@ class LazyLoadManagerSuite extends FunSuite with Matchers
 		vm(PersonEntity.owns) = () => List(h1, h2) // vm always stores lists
 
 		val lazyP = Helpers.asSurrogateLongId(lazyLoadManager.proxyFor(p, PersonEntity, LazyLoad.all, vm))
-		lazyP.id should be === 5
+		lazyP.id should be(5)
 	}
 
 	case class Person(
