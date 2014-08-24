@@ -48,7 +48,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 *
 	 * override val databaseSchema = Schema("myschema")
 	 */
-	val databaseSchema: Option[Schema] = None
+	def databaseSchema: Option[Schema] = None
 
 	if (clz == null) throw new NullPointerException("clz can't be null")
 	if (table == null) throw new NullPointerException("table can't be null")
