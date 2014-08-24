@@ -1,16 +1,14 @@
 package com.googlecode.mapperdao.updatephase.prioritise
 
 import com.googlecode.mapperdao._
-import updatephase.persistcmds._
-import updatephase.persistcmds.EntityRelatedCmd
-import updatephase.persistcmds.ExternalEntityRelatedCmd
-import com.googlecode.mapperdao.schema.{OneToOneReverse, OneToOne, ManyToOne, OneToMany}
+import com.googlecode.mapperdao.schema.{ManyToOne, OneToMany, OneToOne, OneToOneReverse}
+import com.googlecode.mapperdao.updatephase.persistcmds.{EntityRelatedCmd, ExternalEntityRelatedCmd, _}
 
 /**
  * prioritized cmds
  *
- * @author: kostas.kougios
- *          Date: 04/01/13
+ * @author kostas.kougios
+ *         Date: 04/01/13
  */
 case class Prioritized(
 	high: List[List[PersistCmd]],
@@ -20,9 +18,7 @@ case class Prioritized(
 	dependent: List[DependsCmd]
 	)
 {
-	private val relatedById = related.filter(_.newVM != null).groupBy(_.newVM) ++ (
-		related.filterNot(_.oldVMO == None).groupBy(_.oldVMO.get)
-		)
+	private val relatedById = related.filter(_.newVM != null).groupBy(_.newVM) ++ related.filterNot(_.oldVMO == None).groupBy(_.oldVMO.get)
 
 	def relatedFor(vm: ValuesMap) = relatedById.getOrElse(vm, Nil)
 

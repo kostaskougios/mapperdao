@@ -1,35 +1,26 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.internal._
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
-import com.googlecode.mapperdao.schema._
+import com.googlecode.mapperdao.schema.{Column, ColumnInfo, ColumnInfoManyToOne, ColumnInfoOneToOne, ColumnInfoOneToOneReverse, ColumnInfoTraversableManyToMany, ColumnInfoTraversableOneToMany, LinkTable, ManyToMany, ManyToOne, OneToMany, OneToOne, OneToOneReverse, PK, Schema, TypeRef, _}
+
 import scala.annotation.unchecked.uncheckedVariance
+import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.reflect.ClassTag
-import com.googlecode.mapperdao.schema.PK
-import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
-import scala.Some
-import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
-import com.googlecode.mapperdao.schema.Column
-import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
-import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
-import com.googlecode.mapperdao.schema.LinkTable
-import com.googlecode.mapperdao.schema.Schema
-import com.googlecode.mapperdao.schema.OneToOneReverse
-import com.googlecode.mapperdao.schema.OneToMany
-import com.googlecode.mapperdao.schema.ManyToOne
-import com.googlecode.mapperdao.schema.ColumnInfo
-import com.googlecode.mapperdao.schema.TypeRef
-import com.googlecode.mapperdao.schema.OneToOne
-import com.googlecode.mapperdao.schema.ManyToMany
-import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
 
 /**
  * the main class that must be inherited to create entities.
  *
- * https://code.google.com/p/mapperdao/wiki/DiffBetweenNaturalAndSurrogateKeys
+ * Please see https://code.google.com/p/mapperdao/wiki/DiffBetweenNaturalAndSurrogateKeys
  *
- * A quick usage example:
+ * @param table	the name of the table for this entity
+ * @param clz	the class that is mapped to the table.
+ * @tparam ID	the type of the id of this entity, i.e. Int if the entity has an integer primary key.
+ * @tparam PC	the trait that maps to the primary key type, i.e. SurrogateIntId or NaturalIntId for Int primary keys.
+ *               One of the predefined traits can be used, or i.e. a trait that extends DeclaredIds[(Long, String)] for
+ *               a primary key with 2 columns, a long and a string.
+ * @tparam T	the type of the domain class
  *
+ * @example {{{
 
 case class JobPosition(var name: String)
 
@@ -41,12 +32,13 @@ object JobPositionEntity extends Entity[Int,SurrogateIntId, JobPosition] {
                 val id: Int = JobPositionEntity.id
         }
 }
-
+}}}
  *
  * @author kostantinos.kougios
  *
  *         13 Aug 2011
  */
+
 abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class[T]) extends EntityBase[ID, T] with EntityImplicits[ID, T]
 {
 	private[mapperdao] val entityId = internal.nextId
