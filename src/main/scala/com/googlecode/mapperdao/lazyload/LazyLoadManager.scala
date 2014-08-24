@@ -1,17 +1,15 @@
 package com.googlecode.mapperdao.lazyload
 
 import java.lang.reflect.Method
+import javassist._
 
-import scala.collection.mutable.ListMap
-
+import com.googlecode.classgenerator.{ClassManager, MethodImplementation, ReflectionManager}
+import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
 import org.objenesis.ObjenesisStd
 
-import com.googlecode.classgenerator.ClassManager
-import com.googlecode.classgenerator.MethodImplementation
-import com.googlecode.classgenerator.ReflectionManager
-import javassist._
-import com.googlecode.mapperdao.schema.ColumnInfoRelationshipBase
-import com.googlecode.mapperdao._
+import scala.collection.mutable.ListMap
+import scala.language.{existentials, implicitConversions}
 
 /**
  * manages lazy loading of classes
@@ -23,7 +21,7 @@ import com.googlecode.mapperdao._
 private[mapperdao] class LazyLoadManager
 {
 
-	import LazyLoadManager._
+	import com.googlecode.mapperdao.lazyload.LazyLoadManager._
 
 	type CacheKey = (Class[_], LazyLoad)
 

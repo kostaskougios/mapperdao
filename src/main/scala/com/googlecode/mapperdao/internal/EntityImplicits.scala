@@ -1,10 +1,13 @@
 package com.googlecode.mapperdao.internal
 
-import com.googlecode.mapperdao._
-import org.joda.time._
 import java.util.{Calendar, Date}
-import scala.reflect.ClassTag
+
+import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.schema._
+import org.joda.time._
+
+import scala.language.{existentials, implicitConversions}
+import scala.reflect.ClassTag
 
 /**
  * implicit conversions to be used to convert columns to values via a ValuesMap

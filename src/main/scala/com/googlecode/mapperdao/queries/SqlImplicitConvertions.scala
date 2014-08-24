@@ -1,22 +1,11 @@
 package com.googlecode.mapperdao.queries
 
+import com.googlecode.mapperdao.{ColumnOperation, OneToManyDeclaredPrimaryKeyOperation, Operation, _}
+import com.googlecode.mapperdao.queries.v2.{AliasColumn, AliasManyToMany, AliasManyToOne, AliasRelationshipColumn, _}
+import com.googlecode.mapperdao.schema.{ColumnInfo, ColumnInfoManyToOne, ColumnInfoOneToOne, ColumnInfoOneToOneReverse, ColumnInfoTraversableManyToMany, ColumnInfoTraversableOneToMany, _}
 import org.joda.time._
-import com.googlecode.mapperdao.schema._
-import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.queries.v2._
-import com.googlecode.mapperdao.schema.ColumnInfo
-import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
-import com.googlecode.mapperdao.ColumnOperation
-import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
-import com.googlecode.mapperdao.queries.v2.AliasRelationshipColumn
-import com.googlecode.mapperdao.queries.v2.AliasColumn
-import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
-import com.googlecode.mapperdao.Operation
-import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
-import com.googlecode.mapperdao.queries.v2.AliasManyToMany
-import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
-import com.googlecode.mapperdao.OneToManyDeclaredPrimaryKeyOperation
-import com.googlecode.mapperdao.queries.v2.AliasManyToOne
+
+import scala.language.{existentials, implicitConversions}
 
 /**
  * @author kostantinos.kougios

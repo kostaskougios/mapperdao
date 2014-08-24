@@ -2,6 +2,8 @@ package com.googlecode.mapperdao.schema
 
 import com.googlecode.mapperdao.EntityBase
 
+import scala.language.{existentials, implicitConversions}
+
 case class OneToMany[FID, F](
 	entity: EntityBase[_, _],
 	foreign: TypeRef[FID, F],

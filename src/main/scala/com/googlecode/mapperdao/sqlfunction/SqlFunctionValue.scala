@@ -1,7 +1,9 @@
 package com.googlecode.mapperdao.sqlfunction
 
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.schema.{Schema, ColumnInfo, ColumnInfoOneToOne, ColumnInfoManyToOne}
+import com.googlecode.mapperdao.schema.{ColumnInfo, ColumnInfoManyToOne, ColumnInfoOneToOne, Schema}
+
+import scala.language.{existentials, implicitConversions}
 
 /**
  * @author kostantinos.kougios

@@ -3,7 +3,7 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
+import org.scalatest.{FunSuite, Matchers}
 
 /**
  * @author kostantinos.kougios
@@ -14,7 +14,7 @@ import org.scalatest.{Matchers, FunSuite}
 class ManyToManySimpleTypesSuite extends FunSuite with Matchers
 {
 
-	import ManyToManySimpleTypesSuite._
+	import com.googlecode.mapperdao.ManyToManySimpleTypesSuite._
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, SE))
 
@@ -22,13 +22,13 @@ class ManyToManySimpleTypesSuite extends FunSuite with Matchers
 		createTables("string-based")
 		val product = Product("computer", Set("PC", "laptop"))
 		val inserted = mapperDao.insert(ProductEntity, product)
-		inserted should be === product
+		inserted should be(product)
 	}
 
 	test("select, string based") {
 		createTables("string-based")
 		val inserted = mapperDao.insert(ProductEntity, Product("computer", Set("PC", "laptop")))
-		mapperDao.select(ProductEntity, inserted.id).get should be === inserted
+		mapperDao.select(ProductEntity, inserted.id).get should be(inserted)
 	}
 
 	test("update, string based") {

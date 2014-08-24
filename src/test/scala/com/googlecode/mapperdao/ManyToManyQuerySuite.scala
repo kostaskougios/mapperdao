@@ -3,7 +3,7 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.jdbc.{Jdbc, Setup}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
+import org.scalatest.{FunSuite, Matchers}
 
 /**
  * @author kostantinos.kougios
@@ -15,7 +15,7 @@ class ManyToManyQuerySuite extends FunSuite with Matchers
 {
 	implicit val (jdbc: Jdbc, mapperDao: MapperDao, queryDao: QueryDao) = Setup.setupMapperDao(List(ProductEntity, AttributeEntity))
 
-	import Query._
+	import com.googlecode.mapperdao.Query._
 
 	val p = ProductEntity
 	val attr = AttributeEntity
@@ -122,7 +122,7 @@ class ManyToManyQuerySuite extends FunSuite with Matchers
 		val p3 = mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
 		val qc = QueryConfig(offset = Some(2))
-		(select from p).toList(qc).toSet should be === Set(p2, p3)
+		(select from p).toList(qc).toSet should be(Set(p2, p3))
 	}
 
 	test("query with skip") {
@@ -139,7 +139,7 @@ class ManyToManyQuerySuite extends FunSuite with Matchers
 
 		(select from p join(p, p.attributes, attr) where attr.value === "46'")
 			.toList(QueryConfig(skip = Set(ProductEntity.attributes)))
-			.toSet should be === Set(Product(1, "TV 1", Set()), Product(3, "TV 3", Set()))
+			.toSet should be(Set(Product(1, "TV 1", Set()), Product(3, "TV 3", Set())))
 	}
 
 	test("query with limits (limit only)") {
@@ -154,7 +154,7 @@ class ManyToManyQuerySuite extends FunSuite with Matchers
 		mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
 		mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
-		(select from p).toList(QueryConfig(limit = Some(2))).toSet should be === Set(p0, p1)
+		(select from p).toList(QueryConfig(limit = Some(2))).toSet should be(Set(p0, p1))
 	}
 
 	test("query with limits") {
@@ -169,7 +169,7 @@ class ManyToManyQuerySuite extends FunSuite with Matchers
 		val p2 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
 		mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
-		(select from p).toList(QueryConfig(offset = Some(1), limit = Some(2))).toSet should be === Set(p1, p2)
+		(select from p).toList(QueryConfig(offset = Some(1), limit = Some(2))).toSet should be(Set(p1, p2))
 	}
 
 	test("order by") {
@@ -189,7 +189,7 @@ class ManyToManyQuerySuite extends FunSuite with Matchers
 				join(p, p.attributes, attr)
 				order by(attr.value, asc, p.id, desc)
 			).toList
-		result should be === List(p3, p1, p1, p3, p2, p4, p2)
+		result should be(List(p3, p1, p1, p3, p2, p4, p2))
 	}
 
 	test("join, 1 condition") {
@@ -204,7 +204,7 @@ class ManyToManyQuerySuite extends FunSuite with Matchers
 		val p2 = mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
 		mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
-		(select from p join(p, p.attributes, attr) where attr.value === "46'").toList.toSet should be === Set(p0, p2)
+		(select from p join(p, p.attributes, attr) where attr.value === "46'").toList.toSet should be(Set(p0, p2))
 	}
 
 	test("join, 2 conditions") {
@@ -219,7 +219,7 @@ class ManyToManyQuerySuite extends FunSuite with Matchers
 		mapperDao.insert(ProductEntity, Product(3, "TV 3", Set(a0, a3)))
 		val p3 = mapperDao.insert(ProductEntity, Product(4, "TV 4", Set(a1, a3)))
 
-		(select from p join(p, p.attributes, attr) where attr.value === "50'" or attr.value === "black").toList.toSet should be === Set(p0, p1, p3)
+		(select from p join(p, p.attributes, attr) where attr.value === "50'" or attr.value === "black").toList.toSet should be(Set(p0, p1, p3))
 	}
 
 	def createTables = {

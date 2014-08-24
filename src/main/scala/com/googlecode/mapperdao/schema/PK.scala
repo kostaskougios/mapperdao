@@ -2,6 +2,8 @@ package com.googlecode.mapperdao.schema
 
 import com.googlecode.mapperdao.EntityBase
 
+import scala.language.{existentials, implicitConversions}
+
 case class PK(
 	entity: EntityBase[_, _],
 	name: String,

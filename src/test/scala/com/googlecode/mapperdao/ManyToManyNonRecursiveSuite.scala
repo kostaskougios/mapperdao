@@ -1,10 +1,10 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.Setup
+import com.googlecode.mapperdao.utils.Helpers
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
-import com.googlecode.mapperdao.utils.Helpers
+import org.scalatest.{FunSuite, Matchers}
 
 /**
  * @author kostantinos.kougios
@@ -24,17 +24,17 @@ class ManyToManyNonRecursiveSuite extends FunSuite with Matchers
 
 		val product = Product("blue jean", Set(a1))
 		val inserted = mapperDao.insert(ProductEntity, product)
-		inserted should be === product
+		inserted should be(product)
 
 		val selected = mapperDao.select(ProductEntity, inserted.id).get
-		selected should be === inserted
+		selected should be(inserted)
 
 		val up = Product("red jean", Set(a1l, a2))
 		val updated = mapperDao.update(ProductEntity, selected, up)
-		updated should be === up
+		updated should be(up)
 
 		val reloaded = mapperDao.select(ProductEntity, inserted.id).get
-		reloaded should be === updated
+		reloaded should be(updated)
 	}
 
 	test("update, remove with new set") {
@@ -45,31 +45,31 @@ class ManyToManyNonRecursiveSuite extends FunSuite with Matchers
 
 		val product = Product("blue jean", Set(a1, a2))
 		val inserted = mapperDao.insert(ProductEntity, product)
-		inserted should be === product
+		inserted should be(product)
 
 		val selected = mapperDao.select(ProductEntity, inserted.id).get
-		selected should be === inserted
+		selected should be(inserted)
 
 		val up = Product("red jean", Set(a1l))
 		val updated = mapperDao.update(ProductEntity, selected, up)
-		updated should be === up
+		updated should be(up)
 
 		val reloaded = mapperDao.select(ProductEntity, inserted.id).get
-		reloaded should be === updated
+		reloaded should be(updated)
 	}
 
 	test("insert tree of entities") {
 		createTables()
 		val product = Product("blue jean", Set(Attribute("colour", "blue"), Attribute("size", "medium")))
 		val inserted = mapperDao.insert(ProductEntity, product)
-		inserted should be === product
+		inserted should be(product)
 
-		mapperDao.select(ProductEntity, inserted.id).get should be === inserted
+		mapperDao.select(ProductEntity, inserted.id).get should be(inserted)
 
 		// attributes->product should also work
 		val colour = inserted.attributes.toList.filter(_.name == "colour").head
 		val loadedAttribute = mapperDao.select(AttributeEntity, Helpers.intIdOf(colour)).get
-		loadedAttribute should be === Attribute("colour", "blue")
+		loadedAttribute should be(Attribute("colour", "blue"))
 	}
 
 	test("insert tree of entities  leaf entities") {
@@ -78,9 +78,9 @@ class ManyToManyNonRecursiveSuite extends FunSuite with Matchers
 		val a2 = mapperDao.insert(AttributeEntity, Attribute("size", "medium"))
 		val product = Product("blue jean", Set(a1, a2))
 		val inserted = mapperDao.insert(ProductEntity, product)
-		inserted should be === product
+		inserted should be(product)
 
-		mapperDao.select(ProductEntity, inserted.id).get should be === inserted
+		mapperDao.select(ProductEntity, inserted.id).get should be(inserted)
 	}
 
 	def createTables() {

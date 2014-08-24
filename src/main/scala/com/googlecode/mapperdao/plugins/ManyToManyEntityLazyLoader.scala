@@ -1,10 +1,12 @@
 package com.googlecode.mapperdao.plugins
 
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
 import com.googlecode.mapperdao.internal.EntityMap
-import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
 import com.googlecode.mapperdao.jdbc.DatabaseValues
+import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
+import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
+
+import scala.language.{existentials, implicitConversions}
 
 /**
  * @author kostantinos.kougios
@@ -33,7 +35,7 @@ class ManyToManyEntityLazyLoader[ID, T, FID, F](
 
 		customLoader.map {
 			f =>
-			// a custom loader is defined. use it to load the data.
+				// a custom loader is defined. use it to load the data.
 				val fom = mapperDao.driver.doSelectManyToManyCustomLoader(selectConfig, entity.tpe, ftpe, c, keys)
 				val mtmR = f.loader(selectConfig, fom)
 				mtmR

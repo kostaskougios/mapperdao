@@ -1,15 +1,11 @@
 package com.googlecode.mapperdao.updatephase.recreation
 
 import com.googlecode.mapperdao._
-import updatephase.persisted.PersistedNode
-import com.googlecode.mapperdao.schema._
-import com.googlecode.mapperdao.updatephase.persisted.ExternalEntityPersistedNode
-import com.googlecode.mapperdao.updatephase.persisted.EntityPersistedNode
-import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
-import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
-import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
-import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
 import com.googlecode.mapperdao.internal.{MutableIdentityHashMap, UpdateEntityMap}
+import com.googlecode.mapperdao.schema.{ColumnInfoManyToOne, ColumnInfoOneToOne, ColumnInfoTraversableManyToMany, ColumnInfoTraversableOneToMany, _}
+import com.googlecode.mapperdao.updatephase.persisted.{EntityPersistedNode, ExternalEntityPersistedNode, PersistedNode}
+
+import scala.language.{existentials, implicitConversions}
 
 /**
  * during recreation phase, persisted objects are re-created with Stored type mixed in the

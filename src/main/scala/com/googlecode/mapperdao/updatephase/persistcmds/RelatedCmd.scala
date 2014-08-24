@@ -1,14 +1,16 @@
 package com.googlecode.mapperdao.updatephase.persistcmds
 
 import com.googlecode.mapperdao._
-import updatephase.prioritise.Priority
-import com.googlecode.mapperdao.schema.{Type, ColumnBase}
+import com.googlecode.mapperdao.schema.{ColumnBase, Type}
+import com.googlecode.mapperdao.updatephase.prioritise.Priority
+
+import scala.language.{existentials, implicitConversions}
 
 /**
  * a command that signals that an entity is related to an other entity
  *
- * @author: kostas.kougios
- *          Date: 04/01/13
+ * @author kostas.kougios
+ *         Date: 04/01/13
  */
 trait RelatedCmd extends PersistCmd
 {
