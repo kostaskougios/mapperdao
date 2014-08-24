@@ -35,8 +35,8 @@ class ManyToManySimpleTypesSuite extends FunSuite with Matchers
 		createTables("string-based")
 		val inserted = mapperDao.insert(ProductEntity, Product("computer", Set("PC", "laptop")))
 		val updated = mapperDao.update(ProductEntity, inserted, Product("computer", Set("PC")))
-		updated should be === Product("computer", Set("PC"))
-		mapperDao.select(ProductEntity, inserted.id).get should be === updated
+		updated should be(Product("computer", Set("PC")))
+		mapperDao.select(ProductEntity, inserted.id).get should be(updated)
 	}
 
 	def createTables(sql: String) {
