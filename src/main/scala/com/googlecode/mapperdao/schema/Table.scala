@@ -1,10 +1,13 @@
 package com.googlecode.mapperdao.schema
 
 import com.googlecode.mapperdao.exceptions.ExpectedPersistedEntityException
-import com.googlecode.mapperdao.{Persisted, DeclaredIds}
+import com.googlecode.mapperdao.{DeclaredIds, Persisted}
 
 /**
- * mapping tables to entities
+ * mapping tables to entities.
+ *
+ * This caches a lot of the mappings of an entity so that
+ * the rest of the code can quickly access primary keys, foreign mappings etc.
  *
  * this is internal mapperdao API.
  *

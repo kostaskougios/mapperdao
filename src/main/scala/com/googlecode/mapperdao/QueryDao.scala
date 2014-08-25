@@ -1,8 +1,8 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.drivers.Driver
-import com.googlecode.mapperdao.jdbc.{DatabaseValues, UpdateResult}
 import com.googlecode.mapperdao.jdbc.impl.{MapperDaoImpl, QueryDaoImpl}
+import com.googlecode.mapperdao.jdbc.{DatabaseValues, UpdateResult}
 import com.googlecode.mapperdao.queries.v2.WithQueryInfo
 
 /**
@@ -78,7 +78,7 @@ trait QueryDao
 	 * low level query where client code provides the sql and a list of arguments.
 	 *
 	 * Please note: Don't use this, better use the Query DSL. Use this method only
-	 * if the query dsl doesn't provide the flexibility that is needed.
+	 * if the query dsl doesn't provide the flexibility that is required.
 	 *
 	 * @param	entity				the entity that the query is for, i.e. ProductEntity
 	 * @param	sql					the sql to execute. This must be in the form of
