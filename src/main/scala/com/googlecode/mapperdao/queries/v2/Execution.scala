@@ -1,10 +1,10 @@
 package com.googlecode.mapperdao.queries.v2
 
-import com.googlecode.mapperdao.{QueryConfig, QueryDao, Persisted}
+import com.googlecode.mapperdao.{Persisted, QueryConfig, QueryDao}
 
 /**
- * @author: kostas.kougios
- *          Date: 29/10/13
+ * @author kostas.kougios
+ *         Date: 29/10/13
  */
 trait Execution[ID, PC <: Persisted, T] extends WithQueryInfo[ID, PC, T]
 {
