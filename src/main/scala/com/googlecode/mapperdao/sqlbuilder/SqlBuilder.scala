@@ -59,4 +59,6 @@ private[mapperdao] class SqlBuilder(val driver: Driver, val escapeNamesStrategy:
 		op: String,
 		rightAlias: Symbol, rightColumn: SimpleColumn
 		) = new ColumnAndColumnClause(this, leftAlias, leftColumn, op, rightAlias, rightColumn)
+
+	def comma(expressions: List[Expression]) = new Comma(expressions)
 }

@@ -209,7 +209,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				sqlBuilder.or(inner(left), inner(right))
 			case CommaOp(ops) =>
 				val expressions = ops.map(inner(_))
-				Comma(expressions)
+				sqlBuilder.comma(expressions)
 			case ColumnOperation(left, operand, right) =>
 				sqlBuilder.nonValueClause(left.tableAlias, left.column.name, operand.sql, right.tableAlias, right.column.name)
 			case ManyToOneColumnOperation(left, operand, right) =>

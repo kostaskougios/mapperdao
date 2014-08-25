@@ -4,7 +4,7 @@ package com.googlecode.mapperdao.sqlbuilder
  * @author	kostas.kougios
  *            Date: 25/08/14
  */
-case class Comma(expressions: List[Expression]) extends Expression
+class Comma private[sqlbuilder](expressions: List[Expression]) extends Expression
 {
 	override def toSql(includeAliases: Boolean) = expressions.map(_.toSql(includeAliases)).mkString(",")
 
