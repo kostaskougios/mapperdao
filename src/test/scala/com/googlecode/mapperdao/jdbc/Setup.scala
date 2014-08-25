@@ -1,20 +1,19 @@
 package com.googlecode.mapperdao.jdbc
 
 import java.util.Properties
-import org.apache.commons.dbcp.BasicDataSource
-import org.apache.commons.dbcp.BasicDataSourceFactory
-import org.slf4j.LoggerFactory
-import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.utils.{Setup => S}
-import com.googlecode.mapperdao.utils.Database
-import com.googlecode.mapperdao.drivers.Cache
-import org.joda.time.chrono.ISOChronology
 import javax.sql.DataSource
-import org.springframework.jdbc.datasource.SingleConnectionDataSource
+
+import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.drivers.Cache
+import com.googlecode.mapperdao.utils.{Database, Setup => S}
+import org.apache.commons.dbcp.{BasicDataSource, BasicDataSourceFactory}
 import org.joda.time.DateTime
+import org.joda.time.chrono.ISOChronology
+import org.slf4j.LoggerFactory
+import org.springframework.jdbc.datasource.SingleConnectionDataSource
 
 /**
- * creates an environment for specs
+ * creates an environment for tests
  *
  * @author kostantinos.kougios
  *
@@ -184,7 +183,7 @@ object Setup
 					begin
 						select myseq.nextval into :new.id from dual;
 					end;
-		             """.format(table))
+					 """.format(table))
 
 	}
 

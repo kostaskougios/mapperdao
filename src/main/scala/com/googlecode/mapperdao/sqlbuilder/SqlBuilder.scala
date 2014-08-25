@@ -72,4 +72,6 @@ private[mapperdao] class SqlBuilder(val driver: Driver, val escapeNamesStrategy:
 	def functionClause[R](left: SqlFunctionValue[R]) = new FunctionClause[R](this, left, None, null)
 
 	def innerJoinBuilder(table: Table) = new InnerJoinBuilder(this, table)
+
+	def orderByBuilder(expressions: List[OrderByExpression]) = new OrderByBuilder(expressions)
 }

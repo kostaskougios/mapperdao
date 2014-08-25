@@ -162,7 +162,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				case (ci, ascDesc) => (ci.column, ascDesc)
 			}
 			if (driver.shouldCreateOrderByClause(queryConfig)) {
-				val obb = new OrderByBuilder(
+				val obb = sqlBuilder.orderByBuilder(
 					orderColumns.map {
 						case (c, ad) =>
 							new OrderByExpression(sqlBuilder, c.name, ad.sql)
