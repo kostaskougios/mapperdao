@@ -55,7 +55,7 @@ class SqlSelectBuilder private[sqlbuilder](sqlBuilder: SqlBuilder) extends FromC
 
 	def where(alias: Symbol, column: SimpleColumn, op: String, value: Any) = {
 		if (whereBuilder.isDefined) throw new IllegalStateException("where already defined")
-		whereBuilder = Some(new WhereBuilder(Clause(sqlBuilder, alias, column, op, value)))
+		whereBuilder = Some(new WhereBuilder(sqlBuilder.clause(alias, column, op, value)))
 		this
 	}
 

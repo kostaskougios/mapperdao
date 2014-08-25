@@ -25,10 +25,10 @@ private[mapperdao] class SqlBuilder(val driver: Driver, val escapeNamesStrategy:
 	def whereAll(alias: Symbol, columnsAndValues: List[(SimpleColumn, Any)], op: String): WhereBuilder =
 		new WhereBuilder(columnsAndValues.foldLeft[Expression](null) {
 			case (prevClause, (column, value)) =>
-				val clause = Clause(this, alias, column, op, value)
+				val cl = clause(alias, column, op, value)
 				prevClause match {
-					case null => clause
-					case _ => and(prevClause, clause)
+					case null => cl
+					case _ => and(prevClause, cl)
 				}
 		})
 
@@ -45,4 +45,6 @@ private[mapperdao] class SqlBuilder(val driver: Driver, val escapeNamesStrategy:
 	def or(left: Expression, right: Expression) = new Or(left, right)
 
 	def between(alias: String, column: SimpleColumn, left: Any, right: Any) = new Between(this, alias, column, left, right)
+
+	def clause(alias: Symbol, column: SimpleColumn, op: String, value: Any) = new Clause(this, alias, column, op, value)
 }

@@ -7,12 +7,12 @@ import com.googlecode.mapperdao.schema.SimpleColumn
  * @author	kostas.kougios
  *            Date: 25/08/14
  */
-case class Clause(
+class Clause private[sqlbuilder](
 	sqlBuilder: SqlBuilder,
-	alias: Symbol,
-	column: SimpleColumn,
-	op: String,
-	value: Any
+	val alias: Symbol,
+	val column: SimpleColumn,
+	val op: String,
+	val value: Any
 	) extends Expression
 {
 
