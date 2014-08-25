@@ -4,8 +4,7 @@ import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.lazyload.FreeLazyLoadedEntityVisitor
 
 /**
- * useful methods for real life applications that use
- * mapperdao.
+ * useful methods to manage entity instances.
  *
  * @author kostantinos.kougios
  *
@@ -13,7 +12,6 @@ import com.googlecode.mapperdao.lazyload.FreeLazyLoadedEntityVisitor
  */
 object Helpers
 {
-
 	/**
 	 * tests any instance to find out if it is a persisted one
 	 *

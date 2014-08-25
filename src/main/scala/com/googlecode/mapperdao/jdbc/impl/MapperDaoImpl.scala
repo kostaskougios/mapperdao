@@ -1,25 +1,18 @@
 package com.googlecode.mapperdao.jdbc.impl
 
+import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.exceptions._
-import com.googlecode.mapperdao.plugins._
-import com.googlecode.mapperdao.utils.{UnlinkEntityRelationshipVisitor, Helpers}
-import com.googlecode.mapperdao.updatephase.persistcmds.CmdPhase
-import com.googlecode.mapperdao.updatephase.recreation.MockFactory
-import com.googlecode.mapperdao.updatephase.recreation.RecreationPhase
-import com.googlecode.mapperdao.updatephase.prioritise.PriorityPhase
-import com.googlecode.mapperdao.internal.{UpdateEntityMap, EntityMap}
+import com.googlecode.mapperdao.internal.{EntityMap, UpdateEntityMap}
+import com.googlecode.mapperdao.jdbc.{CmdToDatabase, DatabaseValues}
 import com.googlecode.mapperdao.lazyload.LazyLoadManager
-import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.plugins.{SelectMod, _}
+import com.googlecode.mapperdao.schema.{ColumnInfoManyToOne, ColumnInfoOneToOne, ColumnInfoOneToOneReverse, ColumnInfoTraversableManyToMany, ColumnInfoTraversableOneToMany, _}
 import com.googlecode.mapperdao.updatephase.enhancevm.EnhanceVMPhase
-import com.googlecode.mapperdao.schema._
-import com.googlecode.mapperdao.jdbc.{DatabaseValues, CmdToDatabase}
-import com.googlecode.mapperdao.schema.ColumnInfoTraversableManyToMany
-import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
-import com.googlecode.mapperdao.schema.ColumnInfoOneToOneReverse
-import com.googlecode.mapperdao.schema.ColumnInfoTraversableOneToMany
-import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
-import com.googlecode.mapperdao.plugins.SelectMod
+import com.googlecode.mapperdao.updatephase.persistcmds.CmdPhase
+import com.googlecode.mapperdao.updatephase.prioritise.PriorityPhase
+import com.googlecode.mapperdao.updatephase.recreation.{MockFactory, RecreationPhase}
+import com.googlecode.mapperdao.utils.{Helpers, UnlinkEntityRelationshipVisitor}
 
 /**
  * @author kostantinos.kougios
@@ -159,7 +152,6 @@ protected[mapperdao] final class MapperDaoImpl(
 		id: ID
 		): T with PC = merge0(selectConfig, updateConfig, entity, o, id).asInstanceOf[T with PC]
 
-
 	private def updateProcess[ID, T](
 		updateConfig: UpdateConfig,
 		tpe: Type[ID, T],
@@ -192,7 +184,7 @@ protected[mapperdao] final class MapperDaoImpl(
 	 *
 	 * SelectConfig(skip=Set(ProductEntity.attributes)) // attributes won't be loaded
 	 */
-	private def select0[ID, T](selectConfig: SelectConfig, entity: Entity[ID, Persisted, T], id: ID) = {
+	private def select0[ID, T](selectConfig: SelectConfig, entity: Entity[ID, Persisted, T], id: ID): Option[T with Persisted] = {
 		if (id == null) throw new NullPointerException("ids can't be null")
 		val ids = Helpers.idToList(id)
 		val pkSz = entity.tpe.table.primaryKeysSize
