@@ -43,4 +43,6 @@ private[mapperdao] class SqlBuilder(val driver: Driver, val escapeNamesStrategy:
 	def and(left: Expression, right: Expression) = new And(left, right)
 
 	def or(left: Expression, right: Expression) = new Or(left, right)
+
+	def between(alias: String, column: SimpleColumn, left: Any, right: Any) = new Between(this, alias, column, left, right)
 }

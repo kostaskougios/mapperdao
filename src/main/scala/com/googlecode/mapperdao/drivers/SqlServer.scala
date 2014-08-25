@@ -4,7 +4,7 @@ import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.jdbc.{Batch, Jdbc}
 import com.googlecode.mapperdao.queries.v2.QueryInfo
 import com.googlecode.mapperdao.schema.{Column, SimpleColumn}
-import com.googlecode.mapperdao.sqlbuilder.{Between, SqlBuilder, SqlSelectBuilder}
+import com.googlecode.mapperdao.sqlbuilder.{SqlBuilder, SqlSelectBuilder}
 
 /**
  * mapperdao driver for Sql Server
@@ -77,7 +77,7 @@ class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager:
 	override def endOfQuery[ID, PC <: Persisted, T](q: SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T]) =
 		if (queryConfig.hasRange) {
 			val offset = queryConfig.offset.getOrElse(0l) + 1
-			val w = Between(sqlBuilder, null, row, offset, (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue))
+			val w = sqlBuilder.between(null, row, offset, (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue))
 			q.where(w)
 			q
 		} else q

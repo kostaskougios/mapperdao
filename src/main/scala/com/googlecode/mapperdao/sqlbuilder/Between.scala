@@ -7,7 +7,7 @@ import com.googlecode.mapperdao.schema.SimpleColumn
  * @author	kostas.kougios
  *            Date: 25/08/14
  */
-case class Between(sqlBuilder: SqlBuilder, alias: String, column: SimpleColumn, left: Any, right: Any) extends Expression
+class Between private[sqlbuilder](sqlBuilder: SqlBuilder, val alias: String, val column: SimpleColumn, val left: Any, val right: Any) extends Expression
 {
 	override def toSql(includeAlias: Boolean) = sqlBuilder.escapeNamesStrategy.escapeColumnNames(column.name) + " " + (if (includeAlias && alias != null) alias else "") + " between ? and ?"
 
