@@ -28,7 +28,7 @@ private[mapperdao] class SqlBuilder(val driver: Driver, val escapeNamesStrategy:
 				val clause = Clause(this, alias, column, op, value)
 				prevClause match {
 					case null => clause
-					case _ => And(prevClause, clause)
+					case _ => and(prevClause, clause)
 				}
 		})
 
@@ -39,4 +39,8 @@ private[mapperdao] class SqlBuilder(val driver: Driver, val escapeNamesStrategy:
 	def deleteBuilder = new DeleteBuilder(this)
 
 	def insertBuilder = new InsertBuilder(this)
+
+	def and(left: Expression, right: Expression) = new And(left, right)
+
+	def or(left: Expression, right: Expression) = new Or(left, right)
 }

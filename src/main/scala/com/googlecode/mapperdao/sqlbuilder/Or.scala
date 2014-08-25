@@ -4,7 +4,7 @@ package com.googlecode.mapperdao.sqlbuilder
  * @author	kostas.kougios
  *            Date: 25/08/14
  */
-case class Or(left: Expression, right: Expression) extends Combine
+class Or private[sqlbuilder](val left: Expression, val right: Expression) extends Combine
 {
 	override def toSql(includeAliases: Boolean) = "(" + left.toSql(includeAliases) + ") or (" + right.toSql(includeAliases) + ")"
 

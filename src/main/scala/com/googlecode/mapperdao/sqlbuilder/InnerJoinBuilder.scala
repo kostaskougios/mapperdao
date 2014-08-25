@@ -17,7 +17,7 @@ class InnerJoinBuilder(sqlBuilder: SqlBuilder, table: Table)
 	}
 
 	def and(expr: Expression) = {
-		e = And(e, expr)
+		e = sqlBuilder.and(e, expr)
 		this
 	}
 
@@ -25,7 +25,7 @@ class InnerJoinBuilder(sqlBuilder: SqlBuilder, table: Table)
 		val nvc = NonValueClause(sqlBuilder, leftAlias, left, op, rightAlias, right)
 		if (e == null)
 			e = nvc
-		else e = And(e, nvc)
+		else e = sqlBuilder.and(e, nvc)
 		this
 	}
 
