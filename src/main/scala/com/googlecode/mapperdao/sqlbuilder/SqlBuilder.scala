@@ -74,4 +74,6 @@ private[mapperdao] class SqlBuilder(val driver: Driver, val escapeNamesStrategy:
 	def innerJoinBuilder(table: Table) = new InnerJoinBuilder(this, table)
 
 	def orderByBuilder(expressions: List[OrderByExpression]) = new OrderByBuilder(expressions)
+
+	def orderByExpression(column: String, ascDesc: String) = new OrderByExpression(this, column, ascDesc)
 }

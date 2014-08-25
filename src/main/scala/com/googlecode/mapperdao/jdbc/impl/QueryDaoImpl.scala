@@ -165,7 +165,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				val obb = sqlBuilder.orderByBuilder(
 					orderColumns.map {
 						case (c, ad) =>
-							new OrderByExpression(sqlBuilder, c.name, ad.sql)
+							sqlBuilder.orderByExpression(c.name, ad.sql)
 					}
 				)
 				q.orderBy(obb)
