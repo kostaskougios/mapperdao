@@ -47,4 +47,16 @@ private[mapperdao] class SqlBuilder(val driver: Driver, val escapeNamesStrategy:
 	def between(alias: String, column: SimpleColumn, left: Any, right: Any) = new Between(this, alias, column, left, right)
 
 	def clause(alias: Symbol, column: SimpleColumn, op: String, value: Any) = new Clause(this, alias, column, op, value)
+
+	def nonValueClause(
+		leftAlias: Symbol, left: String,
+		op: String,
+		rightAlias: Symbol, right: String
+		) = new NonValueClause(this, leftAlias, left, op, rightAlias, right)
+
+	def columnAndColumnClause(
+		leftAlias: Symbol, leftColumn: SimpleColumn,
+		op: String,
+		rightAlias: Symbol, rightColumn: SimpleColumn
+		) = new ColumnAndColumnClause(this, leftAlias, leftColumn, op, rightAlias, rightColumn)
 }

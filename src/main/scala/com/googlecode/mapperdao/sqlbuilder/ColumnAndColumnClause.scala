@@ -6,7 +6,7 @@ import com.googlecode.mapperdao.schema.SimpleColumn
  * @author	kostas.kougios
  *            Date: 25/08/14
  */
-class ColumnAndColumnClause(
+class ColumnAndColumnClause private[sqlbuilder](
 	sqlBuilder: SqlBuilder,
 	leftAlias: Symbol, leftColumn: SimpleColumn,
 	op: String,

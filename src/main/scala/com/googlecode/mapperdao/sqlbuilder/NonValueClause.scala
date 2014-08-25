@@ -4,11 +4,11 @@ package com.googlecode.mapperdao.sqlbuilder
  * @author	kostas.kougios
  *            Date: 25/08/14
  */
-case class NonValueClause(
+class NonValueClause private[sqlbuilder](
 	sqlBuilder: SqlBuilder,
-	leftAlias: Symbol, left: String,
-	op: String,
-	rightAlias: Symbol, right: String
+	val leftAlias: Symbol, val left: String,
+	val op: String,
+	val rightAlias: Symbol, val right: String
 	) extends Expression
 {
 

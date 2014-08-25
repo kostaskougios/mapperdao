@@ -12,7 +12,7 @@ class InnerJoinBuilder(sqlBuilder: SqlBuilder, table: Table)
 
 	def on(leftAlias: Symbol, left: String, op: String, rightAlias: Symbol, right: String) = {
 		if (e != null) throw new IllegalStateException("expression already set to " + e)
-		e = NonValueClause(sqlBuilder, leftAlias, left, op, rightAlias, right)
+		e = sqlBuilder.nonValueClause(leftAlias, left, op, rightAlias, right)
 		this
 	}
 
@@ -22,7 +22,7 @@ class InnerJoinBuilder(sqlBuilder: SqlBuilder, table: Table)
 	}
 
 	def and(leftAlias: Symbol, left: String, op: String, rightAlias: Symbol, right: String) = {
-		val nvc = NonValueClause(sqlBuilder, leftAlias, left, op, rightAlias, right)
+		val nvc = sqlBuilder.nonValueClause(leftAlias, left, op, rightAlias, right)
 		if (e == null)
 			e = nvc
 		else e = sqlBuilder.and(e, nvc)

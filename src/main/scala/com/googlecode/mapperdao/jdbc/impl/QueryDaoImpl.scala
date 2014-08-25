@@ -211,13 +211,13 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 				val expressions = ops.map(inner(_))
 				Comma(expressions)
 			case ColumnOperation(left, operand, right) =>
-				NonValueClause(sqlBuilder, left.tableAlias, left.column.name, operand.sql, right.tableAlias, right.column.name)
+				sqlBuilder.nonValueClause(left.tableAlias, left.column.name, operand.sql, right.tableAlias, right.column.name)
 			case ManyToOneColumnOperation(left, operand, right) =>
 				val exprs: List[Expression] = right.column match {
 					case ManyToOne(_, columns, foreign) =>
 						left.column.columns zip columns map {
 							case (l, r) =>
-								new ColumnAndColumnClause(sqlBuilder,
+								sqlBuilder.columnAndColumnClause(
 									left.tableAlias, l,
 									operand.sql,
 									right.tableAlias, r
@@ -238,7 +238,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 									case NE => "not null"
 									case _ => throw new IllegalArgumentException("operand %s not valid when right hand parameter is null.".format(operand))
 								}
-								NonValueClause(sqlBuilder, left.tableAlias, c.name, "is", null, r)
+								sqlBuilder.nonValueClause(left.tableAlias, c.name, "is", null, r)
 						}
 					case _ =>
 						val fTpe = left.column.foreign.entity.tpe
