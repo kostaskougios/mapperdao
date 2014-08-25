@@ -12,18 +12,13 @@ import scala.collection.mutable.StringBuilder
  * @author	kostas.kougios
  *            Date: 25/08/14
  */
-case class FunctionClause[R](
+class FunctionClause[R] private[sqlbuilder](
 	sqlBuilder: SqlBuilder,
 	left: SqlFunctionValue[R],
 	op: Option[String],
 	right: Any
 	) extends Expression
 {
-
-	def this(
-		sqlBuilder: SqlBuilder,
-		left: SqlFunctionValue[R]
-		) = this(sqlBuilder, left, None, null)
 
 	if (op.isDefined && right == null) throw new NullPointerException("right-part of expression can't be null, for " + left)
 

@@ -2,6 +2,7 @@ package com.googlecode.mapperdao.sqlbuilder
 
 import com.googlecode.mapperdao.drivers.{Driver, EscapeNamesStrategy}
 import com.googlecode.mapperdao.schema._
+import com.googlecode.mapperdao.sqlfunction.SqlFunctionValue
 
 /**
  * builds queries, inserts, updates and deletes. This is a thread-safe factory, 1 instance can be reused
@@ -61,4 +62,12 @@ private[mapperdao] class SqlBuilder(val driver: Driver, val escapeNamesStrategy:
 		) = new ColumnAndColumnClause(this, leftAlias, leftColumn, op, rightAlias, rightColumn)
 
 	def comma(expressions: List[Expression]) = new Comma(expressions)
+
+	def functionClause[R](
+		left: SqlFunctionValue[R],
+		op: Option[String],
+		right: Any
+		) = new FunctionClause[R](this, left, op, right)
+
+	def functionClause[R](left: SqlFunctionValue[R]) = new FunctionClause[R](this, left, None, null)
 }

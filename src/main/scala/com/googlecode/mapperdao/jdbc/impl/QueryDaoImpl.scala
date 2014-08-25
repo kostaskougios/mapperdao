@@ -337,9 +337,9 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 						sqlBuilder.and(l, r)
 				}
 			case SqlFunctionOp(left, operand, right) =>
-				FunctionClause(sqlBuilder, left, Some(operand.sql), right)
+				sqlBuilder.functionClause(left, Some(operand.sql), right)
 			case SqlFunctionBoolOp(left) =>
-				new FunctionClause(sqlBuilder, left)
+				sqlBuilder.functionClause(left)
 		}
 
 		inner(clauses)
