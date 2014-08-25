@@ -1,13 +1,10 @@
 package com.googlecode.mapperdao.drivers
 
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.jdbc._
-import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
-import com.googlecode.mapperdao.schema._
-import com.googlecode.mapperdao.jdbc.UpdateResult
-import com.googlecode.mapperdao.schema.ManyToMany
-import com.googlecode.mapperdao.schema.OneToOneReverse
+import com.googlecode.mapperdao.jdbc.{UpdateResult, _}
 import com.googlecode.mapperdao.queries.v2.QueryInfo
+import com.googlecode.mapperdao.schema.{ManyToMany, OneToOneReverse, _}
+import com.googlecode.mapperdao.sqlbuilder._
 
 /**
  * all database drivers must implement this trait
@@ -53,7 +50,7 @@ abstract class Driver
 		tpe: Type[ID, T],
 		args: List[(SimpleColumn, Any)]
 		) = {
-		val s = new sqlBuilder.InsertBuilder
+		val s = sqlBuilder.insertBuilder
 		s.into(tpe.table.schemaName, uc.schemaModifications, tpe.table.name)
 
 		val sequenceColumns = tpe.table.simpleTypeSequenceColumns
@@ -74,7 +71,7 @@ abstract class Driver
 		right: List[Any]
 		) = {
 		val values = left ::: right
-		val s = new sqlBuilder.InsertBuilder
+		val s = sqlBuilder.insertBuilder
 		val linkTable = manyToMany.linkTable
 		s.into(linkTable.schemaName, uc.schemaModifications, linkTable.name)
 		val cav = (linkTable.left ::: linkTable.right) zip values
@@ -96,7 +93,7 @@ abstract class Driver
 		args: List[(SimpleColumn, Any)],
 		pkArgs: List[(SimpleColumn, Any)]
 		) = {
-		val s = new sqlBuilder.UpdateBuilder
+		val s = sqlBuilder.updateBuilder
 		s.table(tpe.table.schemaName, uc.schemaModifications, tpe.table.name)
 		s.set(args)
 		s.where(pkArgs, "=")
@@ -117,7 +114,7 @@ abstract class Driver
 		foreignKeys: List[(SimpleColumn, Any)],
 		pkArgs: List[(SimpleColumn, Any)]
 		) = {
-		val s = new sqlBuilder.UpdateBuilder
+		val s = sqlBuilder.updateBuilder
 		s.table(tpe.table.schemaName, uc.schemaModifications, tpe.table.name)
 		s.set(foreignKeys)
 		s.where(pkArgs, "=")
@@ -134,7 +131,7 @@ abstract class Driver
 		rightKeys: List[(SimpleColumn, Any)]
 		) = {
 		val linkTable = manyToMany.linkTable
-		val s = new sqlBuilder.DeleteBuilder
+		val s = sqlBuilder.deleteBuilder
 		s.from(linkTable.schemaName, dc.schemaModifications, linkTable.name)
 		val cav = leftKeys ::: rightKeys
 		s.where(cav, "=")
@@ -152,7 +149,7 @@ abstract class Driver
 		manyToMany: ManyToMany[_, _],
 		fkKeyValues: List[Any]
 		) = {
-		val s = new sqlBuilder.DeleteBuilder
+		val s = sqlBuilder.deleteBuilder
 		s.from(manyToMany.linkTable.schemaName, dc.schemaModifications, manyToMany.linkTable.name)
 		s.where(manyToMany.linkTable.left zip fkKeyValues, "=")
 		s
@@ -179,7 +176,7 @@ abstract class Driver
 	}
 
 	protected def selectSql[ID, T](selectConfig: SelectConfig, tpe: Type[ID, T], where: List[(SimpleColumn, Any)]) = {
-		val sql = new sqlBuilder.SqlSelectBuilder
+		val sql = sqlBuilder.sqlSelectBuilder
 		sql.columns(null,
 			tpe.table.distinctSelectColumnsForSelect
 		)
@@ -209,12 +206,12 @@ abstract class Driver
 		val ftable = ftpe.table
 		val linkTable = manyToMany.linkTable
 
-		val sql = new sqlBuilder.SqlSelectBuilder
+		val sql = sqlBuilder.sqlSelectBuilder
 		val fColumns = ftpe.table.selectColumns
 		sql.columns(ForeignFStdAlias, fColumns)
 		sql.from(ftpe.table.schemaName, selectConfig.schemaModifications, ftpe.table.name, ForeignFStdAlias, applyHints(selectConfig.hints))
 
-		val lt = sqlBuilder.Table(ftpe.table.schemaName, selectConfig.schemaModifications, linkTable.name, ForeignLStdAlias, applyHints(selectConfig.hints))
+		val lt = Table(sqlBuilder, ftpe.table.schemaName, selectConfig.schemaModifications, linkTable.name, ForeignLStdAlias, applyHints(selectConfig.hints))
 		val j = sql.innerJoin(lt)
 		ftable.primaryKeys.zip(linkTable.right).foreach {
 			case (left, right) =>
@@ -231,7 +228,7 @@ abstract class Driver
 
 	protected def selectManyToManyCustomLoaderSql[ID, T, FID, F](selectConfig: SelectConfig, tpe: Type[ID, T], ftpe: Type[FID, F], manyToMany: ManyToMany[FID, F], leftKeyValues: List[(SimpleColumn, Any)]) = {
 		val linkTable = manyToMany.linkTable
-		val sql = new sqlBuilder.SqlSelectBuilder
+		val sql = sqlBuilder.sqlSelectBuilder
 		sql.columns(null, linkTable.right)
 		sql.from(linkTable.schemaName, selectConfig.schemaModifications, linkTable.name, null, applyHints(selectConfig.hints))
 		sql.where(null, leftKeyValues, "=")
@@ -263,7 +260,7 @@ abstract class Driver
 		) = {
 		val linkTable = manyToMany.linkTable
 
-		val sql = new sqlBuilder.SqlSelectBuilder
+		val sql = sqlBuilder.sqlSelectBuilder
 		sql.columns(null, linkTable.right)
 		sql.from(linkTable.schemaName, sc.schemaModifications, linkTable.name)
 		sql.where(null, leftKeyValues, "=")
@@ -281,8 +278,8 @@ abstract class Driver
 	}
 
 	def deleteSql[ID, T](dc: DeleteConfig, tpe: Type[ID, T], whereColumnValues: List[(SimpleColumn, Any)]) = {
-		val s = new sqlBuilder.DeleteBuilder
-		s.from(sqlBuilder.Table(tpe.table.schemaName, dc.schemaModifications, tpe.table.name))
+		val s = sqlBuilder.deleteBuilder
+		s.from(Table(sqlBuilder, tpe.table.schemaName, dc.schemaModifications, tpe.table.name))
 		s.where(whereColumnValues, "=")
 		s
 	}
@@ -293,8 +290,8 @@ abstract class Driver
 	}
 
 	def deleteOneToOneReverseSql[ID, T, FID, FT](dc: DeleteConfig, tpe: Type[ID, T], ftpe: Type[FID, FT], columnAndValues: List[(SimpleColumn, Any)]) = {
-		val s = new sqlBuilder.DeleteBuilder
-		s.from(sqlBuilder.Table(ftpe.table.schemaName, dc.schemaModifications, ftpe.table.name))
+		val s = sqlBuilder.deleteBuilder
+		s.from(Table(sqlBuilder, ftpe.table.schemaName, dc.schemaModifications, ftpe.table.name))
 		s.where(columnAndValues, "=")
 		s
 	}
@@ -307,7 +304,7 @@ abstract class Driver
 
 	// select ... from
 	def startQuery[ID, PC <: Persisted, T](
-		q: sqlBuilder.SqlSelectBuilder,
+		q: SqlSelectBuilder,
 		queryConfig: QueryConfig,
 		qe: QueryInfo[ID, T], columns: List[SimpleColumn]
 		) = {
@@ -320,15 +317,15 @@ abstract class Driver
 		q.from(tpe.table.schemaName, queryConfig.schemaModifications, tpe.table.name, qe.entityAlias.tableAlias, hints)
 	}
 
-	def queryAfterSelect[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], columns: List[SimpleColumn]) {}
+	def queryAfterSelect[ID, PC <: Persisted, T](q: SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], columns: List[SimpleColumn]) {}
 
 	def shouldCreateOrderByClause(queryConfig: QueryConfig): Boolean = true
 
 	// called at the start of each query sql generation, sql is empty at this point
-	def beforeStartOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], columns: List[SimpleColumn]): sqlBuilder.SqlSelectBuilder = q
+	def beforeStartOfQuery[ID, PC <: Persisted, T](q: SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], columns: List[SimpleColumn]): SqlSelectBuilder = q
 
 	// called at the end of each query sql generation
-	def endOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T]): sqlBuilder.SqlSelectBuilder = q
+	def endOfQuery[ID, PC <: Persisted, T](q: SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T]): SqlSelectBuilder = q
 
 	/**
 	 * =====================================================================================

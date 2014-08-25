@@ -1,15 +1,14 @@
 package com.googlecode.mapperdao.jdbc
 
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.updatephase.persistcmds._
 import com.googlecode.mapperdao.drivers.Driver
-import com.googlecode.mapperdao.updatephase.persisted._
-import com.googlecode.mapperdao.updatephase.persistcmds.PersistCmd
-import com.googlecode.mapperdao.updatephase.persistcmds.InsertCmd
-import exceptions.PersistException
-import updatephase.prioritise.Prioritized
-import com.googlecode.mapperdao.schema.{SimpleColumn, ColumnInfo}
+import com.googlecode.mapperdao.exceptions.PersistException
 import com.googlecode.mapperdao.internal.{MutableIdentityHashMap, MutableIdentityHashSet}
+import com.googlecode.mapperdao.schema.{ColumnInfo, SimpleColumn}
+import com.googlecode.mapperdao.sqlbuilder.Result
+import com.googlecode.mapperdao.updatephase.persistcmds.{InsertCmd, PersistCmd, _}
+import com.googlecode.mapperdao.updatephase.persisted._
+import com.googlecode.mapperdao.updatephase.prioritise.Prioritized
 
 /**
  * converts commands to database operations, executes
@@ -56,7 +55,7 @@ class CmdToDatabase(
 	}
 
 	private case class Node(
-		sql: driver.sqlBuilder.Result,
+		sql: Result,
 		cmd: PersistCmd
 		)
 
@@ -243,7 +242,7 @@ class CmdToDatabase(
 				}
 		}.flatten
 
-	protected[jdbc] def toSql(cmd: PersistCmd): List[driver.sqlBuilder.Result] =
+	protected[jdbc] def toSql(cmd: PersistCmd): List[Result] =
 		cmd match {
 			case ic@InsertCmd(tpe, newVM, columns, _) =>
 				persistedIdentities += ic.newVM.o

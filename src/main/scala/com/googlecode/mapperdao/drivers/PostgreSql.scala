@@ -1,14 +1,14 @@
 package com.googlecode.mapperdao.drivers
 
-import com.googlecode.mapperdao.jdbc.Jdbc
+import java.sql.BatchUpdateException
+
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
-import com.googlecode.mapperdao.jdbc.Batch
+import com.googlecode.mapperdao.jdbc.{Batch, Jdbc}
+import com.googlecode.mapperdao.queries.v2.QueryInfo
+import com.googlecode.mapperdao.schema.{ColumnBase, PK}
+import com.googlecode.mapperdao.sqlbuilder.{SqlBuilder, SqlSelectBuilder}
 import org.joda.time.{Duration, Period}
 import org.postgresql.util.PGInterval
-import java.sql.BatchUpdateException
-import com.googlecode.mapperdao.schema.{PK, ColumnBase}
-import com.googlecode.mapperdao.queries.v2.QueryInfo
 
 /**
  * @author kostantinos.kougios
@@ -35,7 +35,7 @@ class PostgreSql(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager
 		case PK(_, columnName, true, sequence, _) => "NEXTVAL('%s')".format(sequence.get)
 	}
 
-	override def endOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T]) = {
+	override def endOfQuery[ID, PC <: Persisted, T](q: SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T]) = {
 		queryConfig.offset.foreach(o => q.appendSql("offset " + o))
 		queryConfig.limit.foreach(l => q.appendSql("limit " + l))
 		q

@@ -1,11 +1,10 @@
 package com.googlecode.mapperdao.drivers
 
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.jdbc.Jdbc
-import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
-import com.googlecode.mapperdao.jdbc.Batch
-import com.googlecode.mapperdao.schema.{SimpleColumn, ColumnBase}
+import com.googlecode.mapperdao.jdbc.{Batch, Jdbc}
 import com.googlecode.mapperdao.queries.v2.QueryInfo
+import com.googlecode.mapperdao.schema.{ColumnBase, SimpleColumn}
+import com.googlecode.mapperdao.sqlbuilder.{SqlBuilder, SqlSelectBuilder}
 
 /**
  * @author kostantinos.kougios
@@ -34,7 +33,7 @@ class Mysql(override val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeMan
 		column: SimpleColumn
 		) = m.get("GENERATED_KEY")
 
-	override def endOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T]) = {
+	override def endOfQuery[ID, PC <: Persisted, T](q: SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T]) = {
 		if (queryConfig.offset.isDefined || queryConfig.limit.isDefined) {
 			val offset = queryConfig.offset.getOrElse(0)
 			val limit = queryConfig.limit.getOrElse(Long.MaxValue)

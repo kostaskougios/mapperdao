@@ -1,14 +1,15 @@
 package com.googlecode.mapperdao.jdbc
 
+import com.googlecode.mapperdao._
+import com.googlecode.mapperdao.drivers.Driver
+import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
+import com.googlecode.mapperdao.sqlbuilder.Result
+import com.googlecode.mapperdao.updatephase.persistcmds.CmdPhase
+import com.googlecode.mapperdao.updatephase.prioritise.PriorityPhase
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
-import com.googlecode.mapperdao._
-import drivers.Driver
 import org.scalatest.mock.EasyMockSugar
-import updatephase.persistcmds.CmdPhase
-import updatephase.prioritise.PriorityPhase
-import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
+import org.scalatest.{FunSuite, Matchers}
 
 /**
  * @author: kostas.kougios
@@ -28,7 +29,7 @@ class CmdToDatabaseSuite extends FunSuite with Matchers with EasyMockSugar
 	val uc = UpdateConfig.default
 
 	test("optimized updates for many-to-one, nothing to update") {
-		import CommonEntities._
+		import com.googlecode.mapperdao.CommonEntities._
 		val (typeManager, _, mapperDao, driver) = prepare(List(PersonEntity, CompanyEntity))
 
 		val c1 = mapperDao.link(CompanyEntity, new Company("company1") with CompanyEntity.Stored
@@ -46,7 +47,7 @@ class CmdToDatabaseSuite extends FunSuite with Matchers with EasyMockSugar
 	}
 
 	test("optimized updates for many-to-one") {
-		import CommonEntities._
+		import com.googlecode.mapperdao.CommonEntities._
 		val (typeManager, _, mapperDao, driver) = prepare(List(PersonEntity, CompanyEntity))
 
 		val c1 = mapperDao.link(CompanyEntity, new Company("company1") with CompanyEntity.Stored
@@ -69,7 +70,7 @@ class CmdToDatabaseSuite extends FunSuite with Matchers with EasyMockSugar
 	}
 
 	test("optimized updates for one to many and declared keys") {
-		import OneToManyDeclarePrimaryKeysSuite._
+		import com.googlecode.mapperdao.OneToManyDeclarePrimaryKeysSuite._
 		val (typeManager, jdbc, mapperDao, driver) = prepare(List(HouseEntity, PersonEntity, PostCodeEntity))
 		val sw = mapperDao.link(PostCodeEntity, new PostCode("SW") with PostCodeEntity.Stored
 		{
@@ -112,7 +113,7 @@ class CmdToDatabaseSuite extends FunSuite with Matchers with EasyMockSugar
 		entity: Entity[ID, PC, T],
 		oldP: T with PC,
 		newP: T
-		): List[driver.sqlBuilder.Result] = {
+		): List[Result] = {
 		val oldVM = ValuesMap.fromType(typeManager, entity.tpe, oldP)
 		val newVM = ValuesMap.fromType(typeManager, entity.tpe, newP)
 
@@ -127,6 +128,6 @@ class CmdToDatabaseSuite extends FunSuite with Matchers with EasyMockSugar
 		cmdList.map {
 			cmd =>
 				ctb.toSql(cmd)
-		}.flatten.asInstanceOf[List[driver.sqlBuilder.Result]]
+		}.flatten
 	}
 }

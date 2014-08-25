@@ -1,11 +1,10 @@
 package com.googlecode.mapperdao.drivers
 
-import com.googlecode.mapperdao.jdbc.Jdbc
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
-import com.googlecode.mapperdao.jdbc.Batch
-import com.googlecode.mapperdao.schema.{PK, SimpleColumn, ColumnBase}
+import com.googlecode.mapperdao.jdbc.{Batch, Jdbc}
 import com.googlecode.mapperdao.queries.v2.QueryInfo
+import com.googlecode.mapperdao.schema.{ColumnBase, PK, SimpleColumn}
+import com.googlecode.mapperdao.sqlbuilder.{SqlBuilder, SqlSelectBuilder}
 
 /**
  * @author kostantinos.kougios
@@ -38,7 +37,7 @@ class H2(override val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManage
 		case PK(_, columnName, true, sequence, _) => "NEXTVAL('%s')".format(sequence.get)
 	}
 
-	override def endOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T]) = {
+	override def endOfQuery[ID, PC <: Persisted, T](q: SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T]) = {
 		queryConfig.limit.foreach(l => q.appendSql("limit " + l))
 		queryConfig.offset.foreach {
 			o =>

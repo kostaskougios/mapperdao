@@ -1,11 +1,10 @@
 package com.googlecode.mapperdao.drivers
 
-import com.googlecode.mapperdao.jdbc.Jdbc
-import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.jdbc.Batch
-import com.googlecode.mapperdao.schema.{SimpleColumn, Column}
+import com.googlecode.mapperdao.jdbc.{Batch, Jdbc}
 import com.googlecode.mapperdao.queries.v2.QueryInfo
+import com.googlecode.mapperdao.schema.{Column, SimpleColumn}
+import com.googlecode.mapperdao.sqlbuilder.{Between, SqlBuilder, SqlSelectBuilder}
 
 /**
  * mapperdao driver for Sql Server
@@ -47,7 +46,7 @@ class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager:
 	 * ) as t
 	 * where Row between 3 and 5
 	 */
-	override def queryAfterSelect[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], columns: List[SimpleColumn]) {
+	override def queryAfterSelect[ID, PC <: Persisted, T](q: SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], columns: List[SimpleColumn]) {
 		if (queryConfig.hasRange) {
 			val sb = new StringBuilder("ROW_NUMBER() over (order by ")
 			val entity = qe.entityAlias.entity
@@ -65,9 +64,9 @@ class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager:
 		}
 	}
 
-	override def beforeStartOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], columns: List[SimpleColumn]) =
+	override def beforeStartOfQuery[ID, PC <: Persisted, T](q: SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], columns: List[SimpleColumn]) =
 		if (queryConfig.hasRange) {
-			val nq = new sqlBuilder.SqlSelectBuilder
+			val nq = sqlBuilder.sqlSelectBuilder
 			nq.columnNames(null, List("*"))
 			nq.from(q, "t")
 			nq
@@ -75,10 +74,10 @@ class SqlServer(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager:
 
 	private val row = Column(null, "Row", classOf[Long])
 
-	override def endOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T]) =
+	override def endOfQuery[ID, PC <: Persisted, T](q: SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T]) =
 		if (queryConfig.hasRange) {
 			val offset = queryConfig.offset.getOrElse(0l) + 1
-			val w = sqlBuilder.Between(null, row, offset, (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue))
+			val w = Between(sqlBuilder, null, row, offset, (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset - 1 else Long.MaxValue))
 			q.where(w)
 			q
 		} else q

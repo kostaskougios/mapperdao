@@ -1,11 +1,10 @@
 package com.googlecode.mapperdao.drivers
 
-import com.googlecode.mapperdao.jdbc.Jdbc
-import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.jdbc.Batch
-import com.googlecode.mapperdao.schema.{PK, SimpleColumn, ColumnBase, Column}
+import com.googlecode.mapperdao.jdbc.{Batch, Jdbc}
 import com.googlecode.mapperdao.queries.v2.QueryInfo
+import com.googlecode.mapperdao.schema.{Column, ColumnBase, PK, SimpleColumn}
+import com.googlecode.mapperdao.sqlbuilder.{SqlBuilder, SqlSelectBuilder}
 
 /**
  * @author kostantinos.kougios
@@ -37,31 +36,29 @@ class Oracle(val jdbc: Jdbc, val typeRegistry: TypeRegistry, val typeManager: Ty
 		case PK(_, columnName, true, sequence, _) => "%s.nextval".format(sequence.get)
 	}
 
-	override def beforeStartOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], columns: List[SimpleColumn]) =
+	override def beforeStartOfQuery[ID, PC <: Persisted, T](q: SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T], columns: List[SimpleColumn]) =
 		if (queryConfig.offset.isDefined || queryConfig.limit.isDefined) {
-			val nq = new sqlBuilder.SqlSelectBuilder
+			val nq = sqlBuilder.sqlSelectBuilder
 			nq.columnNames(null, List("*"))
 
-			val iq = new sqlBuilder.SqlSelectBuilder
+			val iq = sqlBuilder.sqlSelectBuilder
 			nq.from(iq)
 
 			iq.columnNames(null, "rownum as rn$" :: columns.map(_.name))
 			iq.from(q)
 			nq
-			//			sql append "select * from (\n"
-			//			sql append "select " append commaSeparatedListOfSimpleTypeColumns(",", columns) append ",rownum as rn$ from ("
 		} else q
 
 	private val rn = Column(null, "rn$", classOf[Long])
 	private val rownum = Column(null, "rownum", classOf[Long])
 
-	override def endOfQuery[ID, PC <: Persisted, T](q: sqlBuilder.SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T]) =
+	override def endOfQuery[ID, PC <: Persisted, T](q: SqlSelectBuilder, queryConfig: QueryConfig, qe: QueryInfo[ID, T]) =
 		if (queryConfig.offset.isDefined || queryConfig.limit.isDefined) {
 			val offset = queryConfig.offset.getOrElse(0l)
 
 			q.where(null, rn, ">", offset)
 			q.from match {
-				case iq: sqlBuilder.SqlSelectBuilder =>
+				case iq: SqlSelectBuilder =>
 					iq.where(null, rownum, "<=", (if (queryConfig.limit.isDefined) queryConfig.limit.get + offset else Long.MaxValue))
 			}
 			q
