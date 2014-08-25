@@ -76,4 +76,7 @@ private[mapperdao] class SqlBuilder(val driver: Driver, val escapeNamesStrategy:
 	def orderByBuilder(expressions: List[OrderByExpression]) = new OrderByBuilder(expressions)
 
 	def orderByExpression(column: String, ascDesc: String) = new OrderByExpression(this, column, ascDesc)
+
+	def table(schema: Option[String], schemaModifications: SchemaModifications, table: String, alias: Symbol = null, hints: String = null) =
+		new Table(this, schema, schemaModifications, table, alias, hints)
 }

@@ -20,7 +20,7 @@ class InsertBuilder private[sqlbuilder](sqlBuilder: SqlBuilder)
 	}
 
 	def into(schema: Option[String], schemaModifications: SchemaModifications, table: String): this.type = {
-		into(Table(sqlBuilder, schema, schemaModifications, table))
+		into(sqlBuilder.table(schema, schemaModifications, table))
 		this
 	}
 

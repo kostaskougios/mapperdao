@@ -6,7 +6,7 @@ import com.googlecode.mapperdao.schema.SchemaModifications
  * @author	kostas.kougios
  *            Date: 25/08/14
  */
-case class Table(sqlBuilder: SqlBuilder, schema: Option[String], schemaModifications: SchemaModifications, table: String, alias: Symbol = null, hints: String = null) extends FromClause
+class Table private[sqlbuilder](sqlBuilder: SqlBuilder, schema: Option[String], schemaModifications: SchemaModifications, table: String, alias: Symbol = null, hints: String = null) extends FromClause
 {
 	private val n = sqlBuilder.escapeNamesStrategy.escapeTableNames(schemaModifications.tableNameTransformer(table))
 

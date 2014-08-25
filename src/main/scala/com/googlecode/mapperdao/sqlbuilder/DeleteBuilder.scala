@@ -12,7 +12,7 @@ class DeleteBuilder private[sqlbuilder](sqlBuilder: SqlBuilder)
 	private var fromClause: FromClause = null
 	private var whereBuilder: WhereBuilder = null
 
-	def from(schema: Option[String], schemaModifications: SchemaModifications, table: String): this.type = from(Table(sqlBuilder, schema, schemaModifications, table))
+	def from(schema: Option[String], schemaModifications: SchemaModifications, table: String): this.type = from(sqlBuilder.table(schema, schemaModifications, table))
 
 	def from(fromClause: FromClause): this.type = {
 		this.fromClause = fromClause

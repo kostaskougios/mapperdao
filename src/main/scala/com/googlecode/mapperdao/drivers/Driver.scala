@@ -211,7 +211,7 @@ abstract class Driver
 		sql.columns(ForeignFStdAlias, fColumns)
 		sql.from(ftpe.table.schemaName, selectConfig.schemaModifications, ftpe.table.name, ForeignFStdAlias, applyHints(selectConfig.hints))
 
-		val lt = Table(sqlBuilder, ftpe.table.schemaName, selectConfig.schemaModifications, linkTable.name, ForeignLStdAlias, applyHints(selectConfig.hints))
+		val lt = sqlBuilder.table(ftpe.table.schemaName, selectConfig.schemaModifications, linkTable.name, ForeignLStdAlias, applyHints(selectConfig.hints))
 		val j = sql.innerJoin(lt)
 		ftable.primaryKeys.zip(linkTable.right).foreach {
 			case (left, right) =>
@@ -279,7 +279,7 @@ abstract class Driver
 
 	def deleteSql[ID, T](dc: DeleteConfig, tpe: Type[ID, T], whereColumnValues: List[(SimpleColumn, Any)]) = {
 		val s = sqlBuilder.deleteBuilder
-		s.from(Table(sqlBuilder, tpe.table.schemaName, dc.schemaModifications, tpe.table.name))
+		s.from(sqlBuilder.table(tpe.table.schemaName, dc.schemaModifications, tpe.table.name))
 		s.where(whereColumnValues, "=")
 		s
 	}
@@ -291,7 +291,7 @@ abstract class Driver
 
 	def deleteOneToOneReverseSql[ID, T, FID, FT](dc: DeleteConfig, tpe: Type[ID, T], ftpe: Type[FID, FT], columnAndValues: List[(SimpleColumn, Any)]) = {
 		val s = sqlBuilder.deleteBuilder
-		s.from(Table(sqlBuilder, ftpe.table.schemaName, dc.schemaModifications, ftpe.table.name))
+		s.from(sqlBuilder.table(ftpe.table.schemaName, dc.schemaModifications, ftpe.table.name))
 		s.where(columnAndValues, "=")
 		s
 	}

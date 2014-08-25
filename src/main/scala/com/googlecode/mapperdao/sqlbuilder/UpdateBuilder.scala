@@ -14,7 +14,7 @@ class UpdateBuilder private[sqlbuilder](sqlBuilder: SqlBuilder)
 	private var where: WhereBuilder = null
 	private var expression: Expression = sqlBuilder.EmptyExpression
 
-	def table(schema: Option[String], schemaModifications: SchemaModifications, name: String): this.type = table(Table(sqlBuilder, schema, schemaModifications, name))
+	def table(schema: Option[String], schemaModifications: SchemaModifications, name: String): this.type = table(sqlBuilder.table(schema, schemaModifications, name))
 
 	def table(table: Table): this.type = {
 		this.table = table

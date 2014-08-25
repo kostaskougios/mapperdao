@@ -43,7 +43,7 @@ class SqlSelectBuilder private[sqlbuilder](sqlBuilder: SqlBuilder) extends FromC
 
 	def from(schema: Option[String], schemaModifications: SchemaModifications, table: String, alias: Symbol, hints: String): this.type = {
 		if (fromClause != null) throw new IllegalStateException("from already called for %s".format(from))
-		fromClause = Table(sqlBuilder, schema, schemaModifications, table, alias, hints)
+		fromClause = sqlBuilder.table(schema, schemaModifications, table, alias, hints)
 		this
 	}
 

@@ -180,7 +180,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val jTable = jEntity.entity.tpe.table
 		val qAlias = jEntity.tableAlias
 
-		val j = sqlBuilder.innerJoinBuilder(Table(sqlBuilder, jTable.schemaName, queryConfig.schemaModifications, jTable.name, qAlias, null))
+		val j = sqlBuilder.innerJoinBuilder(sqlBuilder.table(jTable.schemaName, queryConfig.schemaModifications, jTable.name, qAlias, null))
 		joinOns(join.ons, j)
 		j
 	}
@@ -360,7 +360,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val fAlias = foreignEntity.tableAlias
 		val jAlias = joinEntity.tableAlias
 
-		val j = sqlBuilder.innerJoinBuilder(Table(sqlBuilder, foreignTable.schemaName, queryConfig.schemaModifications, foreignTable.name, fAlias, null))
+		val j = sqlBuilder.innerJoinBuilder(sqlBuilder.table(foreignTable.schemaName, queryConfig.schemaModifications, foreignTable.name, fAlias, null))
 		(table.primaryKeys zip oneToOneReverse.foreignColumns).foreach {
 			case (left, right) =>
 				j.and(jAlias, left.name, "=", fAlias, right.name)
@@ -381,7 +381,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val fAlias = foreignEntity.tableAlias
 		val jAlias = joinEntity.tableAlias
 
-		val j = sqlBuilder.innerJoinBuilder(Table(sqlBuilder, foreignTable.schemaName, queryConfig.schemaModifications, foreignTable.name, fAlias, null))
+		val j = sqlBuilder.innerJoinBuilder(sqlBuilder.table(foreignTable.schemaName, queryConfig.schemaModifications, foreignTable.name, fAlias, null))
 		(oneToOne.selfColumns zip foreignTable.primaryKeys) foreach {
 			case (left, right) =>
 				j.and(jAlias, left.name, "=", fAlias, right.name)
@@ -402,7 +402,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val fAlias = foreignEntity.tableAlias
 		val jAlias = joinEntity.tableAlias
 
-		val t = Table(sqlBuilder, foreignTable.schemaName, queryConfig.schemaModifications, foreignTable.name, fAlias, null)
+		val t = sqlBuilder.table(foreignTable.schemaName, queryConfig.schemaModifications, foreignTable.name, fAlias, null)
 		val j = sqlBuilder.innerJoinBuilder(t)
 		(manyToOne.columns zip foreignTable.primaryKeys).foreach {
 			case (left, right) =>
@@ -426,7 +426,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val fAlias = foreignEntity.tableAlias
 		val jAlias = joinEntity.tableAlias
 
-		val j = sqlBuilder.innerJoinBuilder(Table(sqlBuilder, foreignTpe.table.schemaName, queryConfig.schemaModifications, foreignTpe.table.name, fAlias, null))
+		val j = sqlBuilder.innerJoinBuilder(sqlBuilder.table(foreignTpe.table.schemaName, queryConfig.schemaModifications, foreignTpe.table.name, fAlias, null))
 		(joinTpe.table.primaryKeys zip oneToMany.foreignColumns).foreach {
 			case (left, right) =>
 				j.and(jAlias, left.name, "=", fAlias, right.name)
@@ -453,13 +453,13 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val linkTable = manyToMany.linkTable
 		val linkTableAlias = Symbol(jAlias.name + fAlias.name)
 
-		val j1 = sqlBuilder.innerJoinBuilder(Table(sqlBuilder, linkTable.schemaName, queryConfig.schemaModifications, linkTable.name, linkTableAlias, null))
+		val j1 = sqlBuilder.innerJoinBuilder(sqlBuilder.table(linkTable.schemaName, queryConfig.schemaModifications, linkTable.name, linkTableAlias, null))
 		(joinTpe.table.primaryKeys zip linkTable.left).foreach {
 			case (left, right) =>
 				j1.and(linkTableAlias, right.name, "=", jAlias, left.name)
 		}
 
-		val j2 = sqlBuilder.innerJoinBuilder(Table(sqlBuilder, foreignTable.schemaName, queryConfig.schemaModifications, foreignTable.name, fAlias, null))
+		val j2 = sqlBuilder.innerJoinBuilder(sqlBuilder.table(foreignTable.schemaName, queryConfig.schemaModifications, foreignTable.name, fAlias, null))
 		(foreignTable.primaryKeys zip linkTable.right).foreach {
 			case (left, right) =>
 				j2.and(fAlias, left.name, "=", linkTableAlias, right.name)
@@ -484,7 +484,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val b = sqlBuilder.deleteBuilder
 		val entity = d.entity
 		val table = entity.tpe.table
-		b.from(Table(sqlBuilder, table.schemaName, deleteConfig.schemaModifications, table.name, entity.entityAlias))
+		b.from(sqlBuilder.table(table.schemaName, deleteConfig.schemaModifications, table.name, entity.entityAlias))
 		d match {
 			case w: Delete.Where[_, _, _] =>
 				val we = queryExpressions(w.clauses)
@@ -500,7 +500,7 @@ final class QueryDaoImpl private[mapperdao](typeRegistry: TypeRegistry, driver: 
 		val b = sqlBuilder.updateBuilder
 		val entity = u.entity
 		val table = entity.tpe.table
-		b.table(Table(sqlBuilder, table.schemaName, updateConfig.schemaModifications, table.name, entity.entityAlias))
+		b.table(sqlBuilder.table(table.schemaName, updateConfig.schemaModifications, table.name, entity.entityAlias))
 
 		val we = queryExpressions(u.setClauses)
 		b.set(we)
