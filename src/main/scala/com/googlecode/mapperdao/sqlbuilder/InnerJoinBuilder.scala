@@ -4,7 +4,7 @@ package com.googlecode.mapperdao.sqlbuilder
  * @author	kostas.kougios
  *            Date: 25/08/14
  */
-class InnerJoinBuilder(sqlBuilder: SqlBuilder, table: Table)
+class InnerJoinBuilder private[sqlbuilder](sqlBuilder: SqlBuilder, table: Table)
 {
 	private var e: Expression = null
 

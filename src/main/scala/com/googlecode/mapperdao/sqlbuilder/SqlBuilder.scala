@@ -70,4 +70,6 @@ private[mapperdao] class SqlBuilder(val driver: Driver, val escapeNamesStrategy:
 		) = new FunctionClause[R](this, left, op, right)
 
 	def functionClause[R](left: SqlFunctionValue[R]) = new FunctionClause[R](this, left, None, null)
+
+	def innerJoinBuilder(table: Table) = new InnerJoinBuilder(this, table)
 }
