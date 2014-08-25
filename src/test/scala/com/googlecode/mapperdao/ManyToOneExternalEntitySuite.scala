@@ -1,9 +1,9 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
-import com.googlecode.mapperdao.jdbc.Setup
+import org.scalatest.{FunSuite, Matchers}
 
 /**
  * @author kostantinos.kougios
@@ -42,13 +42,13 @@ class ManyToOneExternalEntitySuite extends FunSuite with Matchers
 
 			val person1 = Person("kostas", House(10, "name10"))
 			val inserted1 = mapperDao.insert(PersonEntity, person1)
-			inserted1 should be === person1
+			inserted1 should be(person1)
 			val person2 = Person("kostas", House(20, "name20"))
 			val inserted2 = mapperDao.insert(PersonEntity, person2)
-			inserted2 should be === person2
+			inserted2 should be(person2)
 
-			mapperDao.select(PersonEntity, inserted1.id).get should be === inserted1
-			mapperDao.select(PersonEntity, inserted2.id).get should be === inserted2
+			mapperDao.select(PersonEntity, inserted1.id).get should be(inserted1)
+			mapperDao.select(PersonEntity, inserted2.id).get should be(inserted2)
 		}
 
 		test("update") {
@@ -59,11 +59,11 @@ class ManyToOneExternalEntitySuite extends FunSuite with Matchers
 			HouseEntity.updateCalled should be(1)
 			val toUpdate = Person("kostas", House(20, "name20"))
 			val updated = mapperDao.update(PersonEntity, inserted, toUpdate)
-			updated should be === toUpdate
+			updated should be(toUpdate)
 
 			HouseEntity.updateCalled should be(2)
 
-			mapperDao.select(PersonEntity, inserted.id).get should be === updated
+			mapperDao.select(PersonEntity, inserted.id).get should be(updated)
 		}
 
 		test("query for external entity id") {
@@ -72,8 +72,8 @@ class ManyToOneExternalEntitySuite extends FunSuite with Matchers
 			val person = Person("kostas", House(10, "name10"))
 			mapperDao.insert(PersonEntity, person)
 
-			import Query._
-			queryDao.query(select from pe where pe.house === person.house) should be === List(person)
+			import com.googlecode.mapperdao.Query._
+			queryDao.query(select from pe where pe.house === person.house) should be(List(person))
 		}
 	}
 

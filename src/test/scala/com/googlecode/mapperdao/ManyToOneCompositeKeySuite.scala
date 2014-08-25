@@ -3,7 +3,7 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
+import org.scalatest.{FunSuite, Matchers}
 
 /**
  * @author kostantinos.kougios
@@ -118,30 +118,30 @@ class ManyToOneCompositeKeySuite extends FunSuite with Matchers
 			val h3i = mapperDao.insert(HouseEntity, House("Holargos", city2))
 			val h4i = mapperDao.insert(HouseEntity, House("Pagrati", city2))
 
-			import Query._
+			import com.googlecode.mapperdao.Query._
 
 			(select
 				from he
 				where he.address === "Putney"
-				).toSet should be === Set(h1i)
+				).toSet should be(Set(h1i))
 
 			(select
 				from he
 				join(he, he.city, ce)
 				where ce.name === "Athens"
-				).toSet should be === Set(h3i, h4i)
+				).toSet should be(Set(h3i, h4i))
 
 			(select
 				from he
 				join(he, he.city, ce)
 				where ce.name === "London"
-				).toSet should be === Set(h1i, h2i)
+				).toSet should be(Set(h1i, h2i))
 
 			(select
 				from he
 				join(he, he.city, ce)
 				where ce.name === "Athens" and ce.reference === "ATH"
-				).toSet should be === Set(h3i, h4i)
+				).toSet should be(Set(h3i, h4i))
 		}
 
 		test("insert, select and delete") {
@@ -150,16 +150,16 @@ class ManyToOneCompositeKeySuite extends FunSuite with Matchers
 			val h1 = House("Putney", city)
 			val h2 = House("Greenwitch", city)
 			val h1i = mapperDao.insert(HouseEntity, h1)
-			h1i should be === h1
+			h1i should be(h1)
 			val h2i = mapperDao.insert(HouseEntity, h2)
-			h2i should be === h2
+			h2i should be(h2)
 
-			mapperDao.select(HouseEntity, h1i.id).get should be === h1i
-			mapperDao.select(HouseEntity, h2i.id).get should be === h2i
+			mapperDao.select(HouseEntity, h1i.id).get should be(h1i)
+			mapperDao.select(HouseEntity, h2i.id).get should be(h2i)
 
 			mapperDao.delete(HouseEntity, h1i.id)
-			mapperDao.select(HouseEntity, h1i.id) should be === None
-			mapperDao.select(HouseEntity, h2i.id).get should be === h2i
+			mapperDao.select(HouseEntity, h1i.id) should be(None)
+			mapperDao.select(HouseEntity, h2i.id).get should be(h2i)
 		}
 
 		test("update") {
@@ -173,10 +173,10 @@ class ManyToOneCompositeKeySuite extends FunSuite with Matchers
 
 			val upd1 = h1.copy(city = city2)
 			val updated1 = mapperDao.update(HouseEntity, h1i, upd1)
-			updated1 should be === upd1
+			updated1 should be(upd1)
 
-			mapperDao.select(HouseEntity, h1i.id).get should be === updated1
-			mapperDao.select(HouseEntity, h2i.id).get should be === h2i
+			mapperDao.select(HouseEntity, h1i.id).get should be(updated1)
+			mapperDao.select(HouseEntity, h2i.id).get should be(h2i)
 		}
 
 		def createTables() {

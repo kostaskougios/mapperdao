@@ -1,9 +1,9 @@
 package com.googlecode.mapperdao
 
-import org.junit.runner.RunWith
-import org.scalatest.{Matchers, FunSuite}
-import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.jdbc.Setup
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSuite, Matchers}
 
 /**
  * @author kostantinos.kougios
@@ -14,7 +14,7 @@ import com.googlecode.mapperdao.jdbc.Setup
 class MergeSuite extends FunSuite with Matchers
 {
 	if (Setup.database == "h2") {
-		import CommonEntities._
+		import com.googlecode.mapperdao.CommonEntities._
 		val (jdbc, mapperDao, _) = Setup.setupMapperDao(List(PersonEntity, CompanyEntity))
 		val company = Company("acme")
 
@@ -24,8 +24,8 @@ class MergeSuite extends FunSuite with Matchers
 			val inserted = mapperDao.insert(PersonEntity, person)
 			val upd = Person("person 1 updated", inserted.company)
 			val merged = mapperDao.merge(PersonEntity, upd, inserted.id)
-			merged should be === upd
-			mapperDao.select(PersonEntity, inserted.id).get should be === merged
+			merged should be(upd)
+			mapperDao.select(PersonEntity, inserted.id).get should be(merged)
 		}
 
 		test("merge and replace") {
@@ -34,8 +34,8 @@ class MergeSuite extends FunSuite with Matchers
 			val inserted = mapperDao.insert(PersonEntity, person)
 			val upd = Person("person 1 updated", replace(inserted.company, inserted.company.copy(name = "updated")))
 			val merged = mapperDao.merge(PersonEntity, upd, inserted.id)
-			merged should be === upd
-			mapperDao.select(PersonEntity, inserted.id).get should be === merged
+			merged should be(upd)
+			mapperDao.select(PersonEntity, inserted.id).get should be(merged)
 
 			jdbc.queryForInt("select count(*) from company") should be(1)
 		}

@@ -3,7 +3,7 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
+import org.scalatest.{FunSuite, Matchers}
 
 /**
  * @author kostantinos.kougios
@@ -14,7 +14,7 @@ import org.scalatest.{Matchers, FunSuite}
 class ManyToOneQuerySuite extends FunSuite with Matchers
 {
 
-	import ManyToOneQuerySuite._
+	import com.googlecode.mapperdao.ManyToOneQuerySuite._
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(PersonEntity, HouseEntity, AddressEntity))
 
@@ -24,7 +24,7 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 	test("query with aliases") {
 		createTables()
 		val (p0, p1, p2, _, _) = testData1
-		import Query._
+		import com.googlecode.mapperdao.Query._
 		query(
 			select from (pe as 'x)
 				join(pe as 'x, pe.lives, he as 'y)
@@ -36,7 +36,7 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 	test("join on") {
 		createTables()
 		val (p0, p1, p2, _, _) = testData1
-		import Query._
+		import com.googlecode.mapperdao.Query._
 		query(
 			select from (pe as 'x)
 				join(pe as 'x, pe.lives, he as 'y)
@@ -47,45 +47,45 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 	test("query 2 level join") {
 		createTables()
 		val (p0, p1, p2, _, _) = testData1
-		import Query._
+		import com.googlecode.mapperdao.Query._
 		query(
 			select from pe
 				join(pe, pe.lives, he)
 				join(he, he.address, ad)
 				where ad.postCode === "SE1 1AA"
-		) should be === List(p0, p1, p2)
+		) should be(List(p0, p1, p2))
 	}
 
 	test("query with limits (offset only)") {
 		createTables()
 		val (_, _, p2, p3, p4) = testData1
 
-		query(QueryConfig(offset = Some(2)), q0Limits).toSet should be === Set(p2, p3, p4)
+		query(QueryConfig(offset = Some(2)), q0Limits).toSet should be(Set(p2, p3, p4))
 	}
 
 	test("query with limits (limit only)") {
 		createTables()
 		val (p0, p1, _, _, _) = testData1
 
-		query(QueryConfig(limit = Some(2)), q0Limits).toSet should be === Set(p0, p1)
+		query(QueryConfig(limit = Some(2)), q0Limits).toSet should be(Set(p0, p1))
 	}
 
 	test("query with limits") {
 		createTables()
 		val (_, _, p2, _, _) = testData1
 
-		query(QueryConfig(offset = Some(2), limit = Some(1)), q0Limits).toSet should be === Set(p2)
+		query(QueryConfig(offset = Some(2), limit = Some(1)), q0Limits).toSet should be(Set(p2))
 	}
 
 	test("query with skip") {
 		createTables()
 		testData1
 
-		import Query._
+		import com.googlecode.mapperdao.Query._
 		query(
 			QueryConfig(skip = Set(PersonEntity.lives)),
 			select from pe join(pe, pe.lives, he) where he.name === "Block B"
-		) should be === List(Person(3, "p3", null), Person(4, "p4", null))
+		) should be(List(Person(3, "p3", null), Person(4, "p4", null)))
 	}
 
 	test("query on FK for null") {
@@ -93,35 +93,35 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 		val (p0, p1, p2, p3, p4) = testData1
 		val p5 = insert(PersonEntity, Person(5, "p5", null))
 		val p6 = insert(PersonEntity, Person(6, "p6", null))
-		query(q3(null)) should be === List(p5, p6)
-		query(q3n(null)) should be === List(p0, p1, p2, p3, p4)
+		query(q3(null)) should be(List(p5, p6))
+		query(q3n(null)) should be(List(p0, p1, p2, p3, p4))
 	}
 
 	test("query on FK") {
 		createTables()
 		val (p0, p1, p2, p3, p4) = testData1
-		query(q3(p4.lives)) should be === List(p3, p4)
-		query(q3(p0.lives)) should be === List(p0, p1, p2)
-		query(q3n(p0.lives)) should be === List(p3, p4)
+		query(q3(p4.lives)) should be(List(p3, p4))
+		query(q3(p0.lives)) should be(List(p0, p1, p2))
+		query(q3n(p0.lives)) should be(List(p3, p4))
 	}
 
 	test("query 1 level join") {
 		createTables()
 		val (_, _, _, p3, p4) = testData1
 
-		import Query._
-		query(select from pe join(pe, pe.lives, he) where he.name === "Block B") should be === List(p3, p4)
+		import com.googlecode.mapperdao.Query._
+		query(select from pe join(pe, pe.lives, he) where he.name === "Block B") should be(List(p3, p4))
 	}
 
 	test("query 2 level join with or") {
 		createTables()
 		val (p0, p1, p2, p3, p4) = testData1
-		import Query._
+		import com.googlecode.mapperdao.Query._
 		query(select from pe join
 			(pe, pe.lives, he) join
 			(he, he.address, ad) where
 			ad.postCode === "SE1 1AA" or
-			ad.postCode === "SE2 2BB") should be === List(p0, p1, p2, p3, p4)
+			ad.postCode === "SE2 2BB") should be(List(p0, p1, p2, p3, p4))
 	}
 
 	def testData1 = {
@@ -172,7 +172,7 @@ class ManyToOneQuerySuite extends FunSuite with Matchers
 object ManyToOneQuerySuite
 {
 
-	import Query._
+	import com.googlecode.mapperdao.Query._
 
 	val pe = PersonEntity
 	val he = HouseEntity

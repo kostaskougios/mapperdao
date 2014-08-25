@@ -1,10 +1,10 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.Setup
+import com.googlecode.mapperdao.utils.Helpers
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
-import com.googlecode.mapperdao.utils.Helpers
+import org.scalatest.{FunSuite, Matchers}
 
 /**
  * @author kostantinos.kougios
@@ -15,7 +15,7 @@ import com.googlecode.mapperdao.utils.Helpers
 class ManyToOneSuite extends FunSuite with Matchers
 {
 
-	import ManyToOneSuite._
+	import com.googlecode.mapperdao.ManyToOneSuite._
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(PersonEntity, CompanyEntity, HouseEntity))
 
@@ -29,7 +29,7 @@ class ManyToOneSuite extends FunSuite with Matchers
 
 			val inserted = mapperDao.insert(PersonEntity, person)
 			mapperDao.update(HouseEntity, Helpers.asSurrogateIntId(inserted.lives), House(7, "Rhodes,Greece"))
-			mapperDao.select(PersonEntity, 2).get should be === Person(2, "Kostas", company, House(7, "Rhodes,Greece"))
+			mapperDao.select(PersonEntity, 2).get should be(Person(2, "Kostas", company, House(7, "Rhodes,Greece")))
 		}
 	}
 
@@ -138,7 +138,7 @@ class ManyToOneSuite extends FunSuite with Matchers
 		val person = Person(2, "Kostas", company, house)
 
 		val inserted = mapperDao.insert(PersonEntity, person)
-		inserted should be === person
+		inserted should be(person)
 
 		mapperDao.delete(PersonEntity, inserted)
 		mapperDao.select(PersonEntity, inserted.id) should be(None)
@@ -153,10 +153,10 @@ class ManyToOneSuite extends FunSuite with Matchers
 		val person = Person(2, "Kostas", company, house)
 
 		val inserted = insert(PersonEntity, person)
-		inserted should be === person
+		inserted should be(person)
 
 		val selected = select(PersonEntity, 2).get
-		selected should be === inserted
+		selected should be(inserted)
 
 		mapperDao.delete(PersonEntity, inserted)
 		mapperDao.select(PersonEntity, inserted.id) should be(None)
@@ -173,7 +173,7 @@ class ManyToOneSuite extends FunSuite with Matchers
 		val inserted = insert(PersonEntity, person)
 
 		val selected = select(PersonEntity, 2).get
-		selected should be === inserted
+		selected should be(inserted)
 
 		mapperDao.delete(PersonEntity, inserted)
 		mapperDao.select(PersonEntity, inserted.id) should be(None)
@@ -189,7 +189,7 @@ class ManyToOneSuite extends FunSuite with Matchers
 		val inserted = insert(PersonEntity, person)
 
 		val selected = select(PersonEntity, 2).get
-		selected should be === inserted
+		selected should be(inserted)
 
 		mapperDao.delete(PersonEntity, inserted)
 		mapperDao.select(PersonEntity, inserted.id) should be(None)
@@ -204,14 +204,14 @@ class ManyToOneSuite extends FunSuite with Matchers
 		val person = Person(2, "Kostas", company1, house)
 
 		val inserted = mapperDao.insert(PersonEntity, person)
-		inserted should be === person
+		inserted should be(person)
 
 		val modified = Person(2, "changed", company2, inserted.lives)
 		val updated = mapperDao.update(PersonEntity, inserted, modified)
-		updated should be === modified
+		updated should be(modified)
 
 		val selected = mapperDao.select(PersonEntity, 2).get
-		selected should be === updated
+		selected should be(updated)
 
 		mapperDao.delete(PersonEntity, selected)
 		mapperDao.select(PersonEntity, selected.id) should be(None)
@@ -225,14 +225,14 @@ class ManyToOneSuite extends FunSuite with Matchers
 		val person = Person(2, "Kostas", company1, house)
 
 		val inserted = mapperDao.insert(PersonEntity, person)
-		inserted should be === person
+		inserted should be(person)
 
 		val modified = Person(2, "changed", null, inserted.lives)
 		val updated = mapperDao.update(PersonEntity, inserted, modified)
-		updated should be === modified
+		updated should be(modified)
 
 		val selected = mapperDao.select(PersonEntity, 2).get
-		selected should be === updated
+		selected should be(updated)
 
 		mapperDao.delete(PersonEntity, selected)
 		mapperDao.select(PersonEntity, selected.id) should be(None)
@@ -246,14 +246,14 @@ class ManyToOneSuite extends FunSuite with Matchers
 		val person = Person(2, "Kostas", company1, house)
 
 		val inserted = mapperDao.insert(PersonEntity, person)
-		inserted should be === person
+		inserted should be(person)
 
 		val modified = Person(2, "changed", null, null)
 		val updated = mapperDao.update(PersonEntity, inserted, modified)
-		updated should be === modified
+		updated should be(modified)
 
 		val selected = mapperDao.select(PersonEntity, 2).get
-		selected should be === updated
+		selected should be(updated)
 
 		mapperDao.delete(PersonEntity, selected)
 		mapperDao.select(PersonEntity, selected.id) should be(None)

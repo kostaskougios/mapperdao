@@ -1,9 +1,9 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
-import com.googlecode.mapperdao.jdbc.Setup
+import org.scalatest.{FunSuite, Matchers}
 
 /**
  * @author kostantinos.kougios
@@ -25,14 +25,14 @@ class ManyToOneLazyLoadSuite extends FunSuite with Matchers
 			val p2 = Person("Manolis", Company("Designers"))
 			val i1 = mapperDao.insert(PersonEntity, p1)
 			val i2 = mapperDao.insert(PersonEntity, p2)
-			import Query._
+			import com.googlecode.mapperdao.Query._
 			val l = queryDao.query(QueryConfig(lazyLoad = LazyLoad.all), select from PersonEntity)
 			val s1 = l.head
 			val s2 = l.last
 			verifyNotLoadded(s1)
 			verifyNotLoadded(s2)
-			s1 should be === p1
-			s2 should be === p2
+			s1 should be(p1)
+			s2 should be(p2)
 		}
 
 		test("update immutable entity, skip lazy loaded") {
@@ -43,7 +43,7 @@ class ManyToOneLazyLoadSuite extends FunSuite with Matchers
 			val selected = mapperDao.select(selectConfig, PersonEntity, inserted.id).get
 			val updated = mapperDao.update(UpdateConfig(skip = Set(PersonEntity.company)), PersonEntity, selected, Person("NotKostas", c2))
 			verifyNotLoadded(selected)
-			mapperDao.select(PersonEntity, inserted.id).get should be === Person("NotKostas", c1)
+			mapperDao.select(PersonEntity, inserted.id).get should be(Person("NotKostas", c1))
 		}
 
 		test("update mutable entity") {
@@ -56,8 +56,8 @@ class ManyToOneLazyLoadSuite extends FunSuite with Matchers
 			selected.company = c2
 			selected.name = "x"
 			val updated = mapperDao.update(PersonEntity, selected)
-			updated should be === selected
-			mapperDao.select(PersonEntity, updated.id).get should be === updated
+			updated should be(selected)
+			mapperDao.select(PersonEntity, updated.id).get should be(updated)
 		}
 
 		test("update immutable entity") {
@@ -69,8 +69,8 @@ class ManyToOneLazyLoadSuite extends FunSuite with Matchers
 			val selected = mapperDao.select(selectConfig, PersonEntity, inserted.id).get
 			val updatedPerson = Person("NotKostas", c2)
 			val updated = mapperDao.update(PersonEntity, inserted, updatedPerson)
-			updated should be === updatedPerson
-			mapperDao.select(selectConfig, PersonEntity, updated.id).get should be === updated
+			updated should be(updatedPerson)
+			mapperDao.select(selectConfig, PersonEntity, updated.id).get should be(updated)
 		}
 
 		test("manually updating them stops lazy loading") {
@@ -80,7 +80,7 @@ class ManyToOneLazyLoadSuite extends FunSuite with Matchers
 			val selected = mapperDao.select(selectConfig, PersonEntity, inserted.id).get
 			selected.company = Company("an other one")
 
-			selected.company should be === Company("an other one")
+			selected.company should be(Company("an other one"))
 			verifyNotLoadded(selected)
 		}
 
@@ -88,10 +88,10 @@ class ManyToOneLazyLoadSuite extends FunSuite with Matchers
 			createTables
 			val person = Person("Kostas", Company("Coders limited"))
 			val inserted = mapperDao.insert(PersonEntity, person)
-			inserted should be === person
+			inserted should be(person)
 			val selected = mapperDao.select(selectConfig, PersonEntity, inserted.id).get
 			verifyNotLoadded(selected)
-			selected should be === inserted
+			selected should be(inserted)
 			selected.id should be > 0
 		}
 	}
