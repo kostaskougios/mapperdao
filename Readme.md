@@ -8,7 +8,7 @@ MapperDao is an ORM library for the scala language and the following databases:
   * h2
 
 It allows
-[...(more)](Summary.md)
+[...(more)](wiki/Summary.md)
 
 ## News ##
   * 25/08/2014 : updated the [tutorial](https://drive.google.com/file/d/0B9UVzAyE_tvWa3paZVpqQ2lvelk/edit?usp=sharing)
