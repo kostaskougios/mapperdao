@@ -11,7 +11,7 @@ It allows
 [...(more)](wiki/Summary.md)
 
 ## News ##
-  * 25/08/2014 : updated the [tutorial](https://drive.google.com/file/d/0B9UVzAyE_tvWa3paZVpqQ2lvelk/edit?usp=sharing)
+  * 25/08/2014 : updated the [tutorial](documentation/tutorial.pdf)
   * 08/06/2014 : 1.0.1 for scala 2.10 & 2.11 is available, a maintenance release. The artifactId now complies with sbt rules reg. scala version. Also minor clean up of the exposed API and code.
   * 21/04/2014 : 1.0.0.2.11 is now released for scala 2.11 .
   * 20/04/2014 : 1.0.0.2.10 is now released for scala 2.10 .
