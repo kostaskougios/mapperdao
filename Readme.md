@@ -11,27 +11,28 @@ It allows
 [...(more)](wiki/Summary.md)
 
 ## News ##
+  * 05/04/2015 : moved to github, please note links might be broken.
   * 25/08/2014 : updated the [tutorial](documentation/tutorial.pdf)
   * 08/06/2014 : 1.0.1 for scala 2.10 & 2.11 is available, a maintenance release. The artifactId now complies with sbt rules reg. scala version. Also minor clean up of the exposed API and code.
   * 21/04/2014 : 1.0.0.2.11 is now released for scala 2.11 .
   * 20/04/2014 : 1.0.0.2.10 is now released for scala 2.10 .
-  * 18/01/2014 : 1.0.0.2.10.3-SNAPSHOT with immutable query DSL, better [aliasing](QueryAlias.md) and [immutable builder](DynamicQueries.md)
+  * 18/01/2014 : 1.0.0.2.10.3-SNAPSHOT with immutable query DSL, better [aliasing](wiki/QueryAlias.md) and [immutable builder](wiki/DynamicQueries.md)
 
-[...(more)](News.md)
+[...(more)](wiki/News.md)
 
 ## Quick Links ##
 
-  * [mapperdao tutorial (pdf)](https://drive.google.com/file/d/0B9UVzAyE_tvWa3paZVpqQ2lvelk/edit?usp=sharing)
+  * [mapperdao tutorial (pdf)](documentation/tutorial.pdf)
 
-  * [setup, configuration and usage documentation](TableOfContents.md)
+  * [setup, configuration and usage documentation](wiki/TableOfContents.md)
 
   * [Examples](https://code.google.com/p/mapperdao-examples/)
 
-  * [Sbt/Maven Configuration](MavenConfiguration.md)
+  * [Sbt/Maven Configuration](wiki/MavenConfiguration.md)
 
   * [Discussions group](http://groups.google.com/group/mapperdao)
 
-  * [F.A.Q.](FAQ.md)
+  * [F.A.Q.](wiki/FAQ.md)
 
 ## Example ##
 
