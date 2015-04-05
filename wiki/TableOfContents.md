@@ -9,7 +9,7 @@
   * [Sbt/Maven Configuration](MavenConfiguration.md)
   * [Integrating with popular web frameworks](IntegrationWithWebFrameworks.md)
   * [Examples](https://code.google.com/p/mapperdao-examples/)
-  * [MapperDao test cases source code: excellent usage examples](TestCasesAsExamples.md)
+  * [MapperDao test cases source code](TestCasesAsExamples.md)
 
 # Mapping #
 
