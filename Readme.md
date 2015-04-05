@@ -11,7 +11,7 @@ It allows
 [...(more)](wiki/Summary.md)
 
 ## News ##
-  * 05/04/2015 : moved to github, please note links might be broken.
+  * 05/04/2015 : moved the project to github.
   * 25/08/2014 : updated the [tutorial](documentation/tutorial.pdf)
   * 08/06/2014 : 1.0.1 for scala 2.10 & 2.11 is available, a maintenance release. The artifactId now complies with sbt rules reg. scala version. Also minor clean up of the exposed API and code.
   * 21/04/2014 : 1.0.0.2.11 is now released for scala 2.11 .
@@ -24,7 +24,7 @@ It allows
 
   * [mapperdao tutorial (pdf)](documentation/tutorial.pdf)
 
-  * [setup, configuration and usage documentation](wiki/TableOfContents.md)
+  * [Documentation](wiki/TableOfContents.md)
 
   * [Examples](https://code.google.com/p/mapperdao-examples/)
 

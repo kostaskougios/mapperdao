@@ -1,6 +1,6 @@
 Creating mappings might seem a bit verbose but in the long run they offer a lot more benefits compared i.e. to annotating your domain classes:
 
-1. domain classes are clean from ORM code
+1. domain classes don't contain ORM related declarations or code
 
 2. mapperdao mappings offer a way to refer to the columns when writing queries, i.e. (select from e where e.name==='x').toList . Compared to hibernate queries, this is typesafe, easier to read and less typing.
 
