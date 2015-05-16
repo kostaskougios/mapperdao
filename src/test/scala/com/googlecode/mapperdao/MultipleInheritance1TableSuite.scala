@@ -1,18 +1,18 @@
 package com.googlecode.mapperdao
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
-import org.joda.time.DateTime
 import com.googlecode.mapperdao.jdbc.Setup
-
+import org.joda.time.DateTime
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * @author kostantinos.kougios
  *
  *         25 Jul 2012
  */
 @RunWith(classOf[JUnitRunner])
-class MultipleInheritance1TableSuite extends FunSuite with Matchers
+class MultipleInheritance1TableSuite extends FunSuite
 {
 
 	if (Setup.database == "h2") {

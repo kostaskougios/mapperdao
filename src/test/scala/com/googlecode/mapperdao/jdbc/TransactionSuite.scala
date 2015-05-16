@@ -1,16 +1,16 @@
 package com.googlecode.mapperdao.jdbc
 
 import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
-
 /**
  * @author kostantinos.kougios
  *
  *         30 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class TransactionSuite extends FunSuite with Matchers
+class TransactionSuite extends FunSuite
 {
 
 	private val jdbc = Setup.setupJdbc

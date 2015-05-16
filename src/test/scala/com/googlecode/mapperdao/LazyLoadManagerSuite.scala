@@ -1,19 +1,19 @@
 package com.googlecode.mapperdao
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
-import org.joda.time.chrono.ISOChronology
-import utils.Helpers
 import com.googlecode.mapperdao.lazyload.LazyLoadManager
-
+import com.googlecode.mapperdao.utils.Helpers
+import org.joda.time.chrono.ISOChronology
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * @author kostantinos.kougios
  *
  *         27 Apr 2012
  */
 @RunWith(classOf[JUnitRunner])
-class LazyLoadManagerSuite extends FunSuite with Matchers
+class LazyLoadManagerSuite extends FunSuite
 {
 
 	val lazyLoadManager = new LazyLoadManager

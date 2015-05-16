@@ -1,21 +1,22 @@
 package com.googlecode.mapperdao.jdbc
 
-import java.util.Calendar
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
 import java.math.BigDecimal
+import java.util.Calendar
+
 import com.googlecode.mapperdao.utils.Database
 import com.googlecode.mapperdao.{DefaultTypeManager, TypeRegistry}
 import org.joda.time.DateTime
-
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * @author kostantinos.kougios
  *
  *         12 Jul 2011
  */
 @RunWith(classOf[JUnitRunner])
-class JdbcSuite extends FunSuite with Matchers
+class JdbcSuite extends FunSuite
 {
 	private val jdbc = Setup.setupJdbc
 	val driver = {

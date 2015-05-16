@@ -1,18 +1,17 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.jdbc.Setup
+import com.googlecode.mapperdao.jdbc.{JdbcMap, Setup}
 import org.junit.runner.RunWith
-import org.scalatest.{Matchers, FunSuite}
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-import com.googlecode.mapperdao.jdbc.JdbcMap
-
 /**
  * @author kostantinos.kougios
  *
  *         30 May 2012
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToManyCustomLoaderSuite extends FunSuite with Matchers
+class ManyToManyCustomLoaderSuite extends FunSuite
 {
 
 	import CommonEntities._

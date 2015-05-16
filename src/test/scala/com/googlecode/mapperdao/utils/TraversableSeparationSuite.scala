@@ -1,19 +1,18 @@
 package com.googlecode.mapperdao.utils
 
-import com.googlecode.mapperdao._
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
+import com.googlecode.mapperdao.{StringValue, _}
 import com.googlecode.mapperdao.internal.TraversableSeparation
-import com.googlecode.mapperdao.StringValue
-
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * @author kostantinos.kougios
  *
  *         6 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class TraversableSeparationSuite extends FunSuite with Matchers
+class TraversableSeparationSuite extends FunSuite
 {
 
 	test("intersect") {

@@ -1,16 +1,16 @@
 package com.googlecode.mapperdao.utils
 
 import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
-
 /**
  * @author kostantinos.kougios
  *
  *         26 Oct 2011
  */
 @RunWith(classOf[JUnitRunner])
-class HelpersSuite extends FunSuite with Matchers
+class HelpersSuite extends FunSuite
 {
 
 	import Helpers._

@@ -2,16 +2,16 @@ package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
-
 /**
  * @author kostantinos.kougios
  *
  *         6 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite with Matchers
+class IntermediateImmutableEntityWithStringFKsSuite extends FunSuite
 {
 
 	import IntermediateImmutableEntityWithStringFKsSuite._

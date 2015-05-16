@@ -1,18 +1,17 @@
 package com.googlecode.mapperdao
 
-import com.googlecode.mapperdao.jdbc.Setup
-import com.googlecode.mapperdao.jdbc.Jdbc
+import com.googlecode.mapperdao.jdbc.{Jdbc, Setup}
 import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
-
 /**
  * @author kostantinos.kougios
  *
  *         18 Oct 2011
  */
 @RunWith(classOf[JUnitRunner])
-class UpdateConfigSuite extends FunSuite with Matchers
+class UpdateConfigSuite extends FunSuite
 {
 
 	test("one-to-many update.deleteConfig") {

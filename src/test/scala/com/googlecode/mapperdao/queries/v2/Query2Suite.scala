@@ -1,20 +1,16 @@
 package com.googlecode.mapperdao.queries.v2
 
-import org.scalatest.{Matchers, FunSuite}
+import com.googlecode.mapperdao.{AndOp, Operation, OrOp, _}
+import com.googlecode.mapperdao.sqlfunction.{SqlFunctionOp, SqlFunctionValue, StdSqlFunctions}
 import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.sqlfunction.{SqlFunctionValue, StdSqlFunctions}
-import com.googlecode.mapperdao.sqlfunction.SqlFunctionOp
-import com.googlecode.mapperdao.Operation
-import com.googlecode.mapperdao.AndOp
-import com.googlecode.mapperdao.OrOp
-
 /**
  * @author kkougios
  */
 @RunWith(classOf[JUnitRunner])
-class Query2Suite extends FunSuite with Matchers
+class Query2Suite extends FunSuite
 {
 
 	import com.googlecode.mapperdao.CommonEntities._
@@ -216,8 +212,8 @@ class Query2Suite extends FunSuite with Matchers
 	}
 
 	test("function") {
-		import com.googlecode.mapperdao.Query._
 		import StdSqlFunctions._
+		import com.googlecode.mapperdao.Query._
 
 		val qm = (
 			select

@@ -3,16 +3,16 @@ package com.googlecode.mapperdao
 import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.mapperdao.utils.Helpers
 import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSuite, Matchers}
-
 /**
  * @author kostantinos.kougios
  *
  *         8 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToManyNonRecursiveSuite extends FunSuite with Matchers
+class ManyToManyNonRecursiveSuite extends FunSuite
 {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, AttributeEntity))
 

@@ -1,17 +1,17 @@
 package com.googlecode.mapperdao
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.jdbc.Setup
-
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * @author kostantinos.kougios
  *
  *         19 May 2012
  */
 @RunWith(classOf[JUnitRunner])
-class NullValuesSuite extends FunSuite with Matchers
+class NullValuesSuite extends FunSuite
 {
 	if (Setup.database == "h2") {
 		val (jdbc, mapperDao, _) = Setup.setupMapperDao(List(ValuesEntity))

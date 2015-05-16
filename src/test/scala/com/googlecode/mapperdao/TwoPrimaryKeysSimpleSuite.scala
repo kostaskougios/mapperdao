@@ -2,16 +2,16 @@ package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
-
 /**
  * @author kostantinos.kougios
  *
  *         5 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class TwoPrimaryKeysSimpleSuite extends FunSuite with Matchers
+class TwoPrimaryKeysSimpleSuite extends FunSuite
 {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(UserEntity))
 

@@ -1,17 +1,17 @@
 package com.googlecode.mapperdao
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.internal.EntityMap
-
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * @author kostantinos.kougios
  *
  *         7 Aug 2011
  */
 @RunWith(classOf[JUnitRunner])
-class EntityMapSuite extends FunSuite with Matchers
+class EntityMapSuite extends FunSuite
 {
 
 	case class E1(n: String)

@@ -1,17 +1,17 @@
 package com.googlecode.mapperdao.updatephase.prioritise
 
+import com.googlecode.mapperdao.{CommonEntities, UpdateConfig}
 import org.junit.runner.RunWith
-import org.scalatest.{Matchers, FunSuite}
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-import com.googlecode.mapperdao.{UpdateConfig, CommonEntities}
-
 /**
  * @author kostantinos.kougios
  *
  *         15 Dec 2012
  */
 @RunWith(classOf[JUnitRunner])
-class PriorityPhaseSuite extends FunSuite with Matchers
+class PriorityPhaseSuite extends FunSuite
 {
 
 	import CommonEntities._

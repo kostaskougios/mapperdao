@@ -1,19 +1,19 @@
 package com.googlecode.mapperdao
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
-import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.classgenerator.ReflectionManager
 import com.googlecode.concurrent.ExecutorServiceManager
-
+import com.googlecode.mapperdao.jdbc.Setup
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * @author kostantinos.kougios
  *
  *         25 Apr 2012
  */
 @RunWith(classOf[JUnitRunner])
-class OneToManyLazyLoadSuite extends FunSuite with Matchers
+class OneToManyLazyLoadSuite extends FunSuite
 {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(HouseEntity, PersonEntity, CarEntity))
 

@@ -1,18 +1,18 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.{Jdbc, Setup}
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.utils.Helpers
-
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * @author kostantinos.kougios
  *
  *         1 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToOneWithoutReverseSuite extends FunSuite with Matchers
+class OneToOneWithoutReverseSuite extends FunSuite
 {
 	implicit val (jdbc: Jdbc, mapperDao: MapperDao, queryDao: QueryDao) = Setup.setupMapperDao(List(ProductEntity, InventoryEntity))
 

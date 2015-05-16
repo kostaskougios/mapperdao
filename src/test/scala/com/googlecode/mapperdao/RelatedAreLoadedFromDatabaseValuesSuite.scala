@@ -1,18 +1,18 @@
 package com.googlecode.mapperdao
 
-import org.scalatest.{Matchers, BeforeAndAfter, FunSuite}
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import com.googlecode.mapperdao.jdbc.{DatabaseValues, Setup}
-import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
-import com.googlecode.mapperdao.utils.Helpers
 import com.googlecode.mapperdao.internal.EntityMap
-
+import com.googlecode.mapperdao.jdbc.impl.MapperDaoImpl
+import com.googlecode.mapperdao.jdbc.{DatabaseValues, Setup}
+import com.googlecode.mapperdao.utils.Helpers
+import org.junit.runner.RunWith
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{BeforeAndAfter, FunSuite}
 /**
  * @author kkougios
  */
 @RunWith(classOf[JUnitRunner])
-class RelatedAreLoadedFromDatabaseValuesSuite extends FunSuite with Matchers with BeforeAndAfter
+class RelatedAreLoadedFromDatabaseValuesSuite extends FunSuite with BeforeAndAfter
 {
 
 	import CommonEntities._

@@ -1,16 +1,16 @@
 package com.googlecode.mapperdao
 
-import exceptions.PersistException
-import jdbc.Setup
-import org.scalatest.{Matchers, FunSuite}
+import com.googlecode.mapperdao.exceptions.PersistException
+import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-
 /**
  * @author kkougios
  */
 @RunWith(classOf[JUnitRunner])
-class ErrorsSuite extends FunSuite with Matchers
+class ErrorsSuite extends FunSuite
 {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(PersonEntity, CompanyEntity))
 

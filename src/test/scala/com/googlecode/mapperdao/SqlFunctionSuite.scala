@@ -1,19 +1,19 @@
 package com.googlecode.mapperdao
 
-import org.junit.runner.RunWith
-import org.scalatest.{Matchers, FunSuite}
-import org.scalatest.junit.JUnitRunner
 import com.googlecode.mapperdao.jdbc.Setup
-import com.googlecode.mapperdao.sqlfunction.{StdSqlFunctions, SqlFunction}
 import com.googlecode.mapperdao.schema.Schema
-
+import com.googlecode.mapperdao.sqlfunction.{SqlFunction, StdSqlFunctions}
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * @author kostantinos.kougios
  *
  *         5 Sep 2012
  */
 @RunWith(classOf[JUnitRunner])
-class SqlFunctionSuite extends FunSuite with Matchers
+class SqlFunctionSuite extends FunSuite
 {
 
 	import CommonEntities._

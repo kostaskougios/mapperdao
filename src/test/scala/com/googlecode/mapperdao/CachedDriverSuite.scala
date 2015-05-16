@@ -1,23 +1,20 @@
 package com.googlecode.mapperdao
 
-import org.junit.runner.RunWith
-import org.scalatest.{Matchers, FunSuite}
-import org.scalatest.junit.JUnitRunner
-import drivers.Driver
-import com.googlecode.mapperdao.drivers.Cache
-import com.googlecode.mapperdao.drivers.CachedDriver
-import com.googlecode.mapperdao.jdbc.{DatabaseValues, Batch, JdbcMap}
-import com.googlecode.mapperdao.drivers.EscapeNamesStrategy
+import com.googlecode.mapperdao.drivers.{Cache, CachedDriver, Driver, EscapeNamesStrategy}
+import com.googlecode.mapperdao.jdbc.{Batch, DatabaseValues, JdbcMap}
+import com.googlecode.mapperdao.schema.{ManyToMany, SimpleColumn, Type}
 import com.googlecode.mapperdao.sqlbuilder.SqlBuilder
-import com.googlecode.mapperdao.schema.{Type, SimpleColumn, ManyToMany}
-
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * @author kostantinos.kougios
  *
  *         23 Mar 2012
  */
 @RunWith(classOf[JUnitRunner])
-class CachedDriverSuite extends FunSuite with Matchers
+class CachedDriverSuite extends FunSuite
 {
 
 	val cachedValue = List[JdbcMap](new JdbcMap(new java.util.HashMap()))

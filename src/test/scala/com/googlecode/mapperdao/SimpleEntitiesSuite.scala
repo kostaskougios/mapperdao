@@ -1,12 +1,12 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.Setup
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.utils.Helpers
 import org.joda.time.DateTime
-
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * this is a self contained spec, all test entities, mapping are contained within this spec
  *
@@ -15,7 +15,7 @@ import org.joda.time.DateTime
  *         12 Jul 2011
  */
 @RunWith(classOf[JUnitRunner])
-class SimpleEntitiesSuite extends FunSuite with Matchers
+class SimpleEntitiesSuite extends FunSuite
 {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(JobPositionEntity))
 

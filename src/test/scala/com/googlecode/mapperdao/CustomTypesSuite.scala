@@ -1,19 +1,19 @@
 package com.googlecode.mapperdao
 
-import customization.UserDefinedDatabaseToScalaTypes
-import org.scalatest.{Matchers, FunSuite}
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import com.googlecode.mapperdao.customization.UserDefinedDatabaseToScalaTypes
+import com.googlecode.mapperdao.schema.{Column, SimpleColumn}
+import com.googlecode.mapperdao.utils.{Database, Setup}
 import org.apache.commons.dbcp.BasicDataSourceFactory
-import utils.{Database, Setup}
-import com.googlecode.mapperdao.schema.{SimpleColumn, Column}
 import org.joda.time.DateTime
-
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * @author kkougios
  */
 @RunWith(classOf[JUnitRunner])
-class CustomTypesSuite extends FunSuite with Matchers
+class CustomTypesSuite extends FunSuite
 {
 	val s = com.googlecode.mapperdao.jdbc.Setup
 	val database = s.database

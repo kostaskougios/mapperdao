@@ -1,19 +1,19 @@
 package com.googlecode.mapperdao.javatests.custom
 
-import org.scalatest.{Matchers, FunSuite}
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import com.googlecode.mapperdao.CommonEntities.createProductAttribute
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.jdbc.Setup
-import com.googlecode.mapperdao.CommonEntities.createProductAttribute
-import scala.collection.JavaConverters._
-import scala.Some
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 
+import scala.collection.JavaConverters._
 /**
  * @author kkougios
  */
 @RunWith(classOf[JUnitRunner])
-class JavaCustomCollectionsSuite extends FunSuite with Matchers
+class JavaCustomCollectionsSuite extends FunSuite
 {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, AttributeEntity))
 

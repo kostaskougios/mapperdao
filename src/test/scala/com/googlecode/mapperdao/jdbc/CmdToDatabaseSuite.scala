@@ -7,16 +7,16 @@ import com.googlecode.mapperdao.sqlbuilder.Result
 import com.googlecode.mapperdao.updatephase.persistcmds.CmdPhase
 import com.googlecode.mapperdao.updatephase.prioritise.PriorityPhase
 import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.EasyMockSugar
-import org.scalatest.{FunSuite, Matchers}
-
 /**
  * @author: kostas.kougios
  *          Date: 25/01/13
  */
 @RunWith(classOf[JUnitRunner])
-class CmdToDatabaseSuite extends FunSuite with Matchers with EasyMockSugar
+class CmdToDatabaseSuite extends FunSuite with EasyMockSugar
 {
 
 	def prepare(l: List[Entity[_, Persisted, _]]) = {

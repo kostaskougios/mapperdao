@@ -1,17 +1,16 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.Setup
-
-import org.scalatest.{Matchers, FunSuite}
 import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-
 /**
  * @author: kostas.kougios
  *          Date: 09/04/13
  */
 @RunWith(classOf[JUnitRunner])
-class UseCaseGraphOfEntitiesSuite extends FunSuite with Matchers
+class UseCaseGraphOfEntitiesSuite extends FunSuite
 {
 
 	import UseCaseGraphOfEntitiesSuite._

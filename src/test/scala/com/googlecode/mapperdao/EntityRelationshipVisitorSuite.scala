@@ -1,21 +1,18 @@
 package com.googlecode.mapperdao
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
-import com.googlecode.mapperdao.schema._
-import com.googlecode.mapperdao.schema.ColumnInfo
-import com.googlecode.mapperdao.schema.ColumnInfoManyToOne
-import com.googlecode.mapperdao.schema.ColumnInfoOneToOne
+import com.googlecode.mapperdao.schema.{ColumnInfo, ColumnInfoManyToOne, ColumnInfoOneToOne, _}
 import com.googlecode.mapperdao.utils.EntityRelationshipVisitor
-
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * @author kostantinos.kougios
  *
  *         22 May 2012
  */
 @RunWith(classOf[JUnitRunner])
-class EntityRelationshipVisitorSuite extends FunSuite with Matchers
+class EntityRelationshipVisitorSuite extends FunSuite
 {
 
 	import CommonEntities._

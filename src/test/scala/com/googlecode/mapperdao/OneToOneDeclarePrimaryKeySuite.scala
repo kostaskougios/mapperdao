@@ -1,16 +1,16 @@
 package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.Setup
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.utils.Helpers
-
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * @author kostantinos.kougios
  */
 @RunWith(classOf[JUnitRunner])
-class OneToOneDeclarePrimaryKeySuite extends FunSuite with Matchers
+class OneToOneDeclarePrimaryKeySuite extends FunSuite
 {
 	if (Setup.database == "h2") {
 		implicit val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, InventoryEntity))

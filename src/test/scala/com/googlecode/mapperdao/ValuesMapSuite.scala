@@ -1,21 +1,21 @@
 package com.googlecode.mapperdao
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
+import java.util.{Calendar, Date}
+
 import com.googlecode.mapperdao.jdbc.Setup
-import java.util.Calendar
-import java.util.Date
 import org.joda.time.DateTime
 import org.joda.time.chrono.ISOChronology
-
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * @author kostantinos.kougios
  *
  *         15 May 2012
  */
 @RunWith(classOf[JUnitRunner])
-class ValuesMapSuite extends FunSuite with Matchers
+class ValuesMapSuite extends FunSuite
 {
 	if (Setup.database == "h2") {
 		Setup.setupMapperDao(List(TypeEntity))

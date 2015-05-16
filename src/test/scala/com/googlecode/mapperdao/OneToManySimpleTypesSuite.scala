@@ -2,20 +2,20 @@ package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
-
 /**
  * @author kostantinos.kougios
  *
  *         31 Oct 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToManySimpleTypesSuite extends FunSuite with Matchers
+class OneToManySimpleTypesSuite extends FunSuite
 {
 
-	import OneToManySimpleTypesSuiteString._
 	import OneToManySimpleTypesSuiteInt._
+	import OneToManySimpleTypesSuiteString._
 
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(List(ProductEntity, ProductEntityI, TagsEntity, TagsEntityI))
 

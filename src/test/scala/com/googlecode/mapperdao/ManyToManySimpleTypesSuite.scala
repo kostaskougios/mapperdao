@@ -2,16 +2,16 @@ package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSuite, Matchers}
-
 /**
  * @author kostantinos.kougios
  *
  *         8 Nov 2011
  */
 @RunWith(classOf[JUnitRunner])
-class ManyToManySimpleTypesSuite extends FunSuite with Matchers
+class ManyToManySimpleTypesSuite extends FunSuite
 {
 
 	import com.googlecode.mapperdao.ManyToManySimpleTypesSuite._

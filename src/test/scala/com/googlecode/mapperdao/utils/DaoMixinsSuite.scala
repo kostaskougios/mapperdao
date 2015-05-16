@@ -1,21 +1,20 @@
 package com.googlecode.mapperdao.utils
 
 import com.googlecode.mapperdao._
-import com.googlecode.mapperdao.jdbc.{Setup => TestSetup}
-import com.googlecode.mapperdao.jdbc.Transaction
+import com.googlecode.mapperdao.exceptions.PersistException
 import com.googlecode.mapperdao.jdbc.Transaction._
-import exceptions.PersistException
+import com.googlecode.mapperdao.jdbc.{Setup => TestSetup, Transaction}
 import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
-
 /**
  * @author kostantinos.kougios
  *
  *         14 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class DaoMixinsSuite extends FunSuite with Matchers
+class DaoMixinsSuite extends FunSuite
 {
 
 	import DaoMixinsSuite._

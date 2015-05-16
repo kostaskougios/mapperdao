@@ -1,20 +1,19 @@
 package com.googlecode.mapperdao
 
-import org.junit.runner.RunWith
-import java.util.Calendar
-import com.googlecode.mapperdao.jdbc.Setup
-import java.util.Date
-import java.util.Locale
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
+import java.util.{Calendar, Date, Locale}
 
+import com.googlecode.mapperdao.jdbc.Setup
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * @author kostantinos.kougios
  *
  *         9 Dec 2011
  */
 @RunWith(classOf[JUnitRunner])
-class DateAndCalendarSuite extends FunSuite with Matchers
+class DateAndCalendarSuite extends FunSuite
 {
 
 	case class DC(id: Int, date: Date, calendar: Calendar)

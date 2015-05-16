@@ -1,18 +1,18 @@
 package com.googlecode.mapperdao
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.mapperdao.utils.Helpers
-
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * @author kostantinos.kougios
  *
  *         29 Jul 2012
  */
 @RunWith(classOf[JUnitRunner])
-class OneToOneCompositeKeySuite extends FunSuite with Matchers
+class OneToOneCompositeKeySuite extends FunSuite
 {
 
 	val database = Setup.database

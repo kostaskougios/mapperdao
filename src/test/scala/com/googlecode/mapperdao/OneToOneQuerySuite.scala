@@ -1,18 +1,18 @@
 package com.googlecode.mapperdao
 
+import com.googlecode.mapperdao.Query._
 import com.googlecode.mapperdao.jdbc.Setup
 import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
-import com.googlecode.mapperdao.Query._
-
 /**
  * @author kostantinos.kougios
  *
  *         1 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class OneToOneQuerySuite extends FunSuite with Matchers
+class OneToOneQuerySuite extends FunSuite
 {
 	val p = ProductEntity
 	val i = InventoryEntity

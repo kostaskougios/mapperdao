@@ -1,17 +1,17 @@
 package com.googlecode.mapperdao
 
-import org.junit.runner.RunWith
-import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.jdbc.Setup
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-
 /**
  * @author kostantinos.kougios
  *
  *         May 21, 2012
  */
 @RunWith(classOf[JUnitRunner])
-class OneToManyWithoutFKQuerySuite extends FunSuite with Matchers
+class OneToManyWithoutFKQuerySuite extends FunSuite
 {
 
 	val l1 = Location(1, "uk")

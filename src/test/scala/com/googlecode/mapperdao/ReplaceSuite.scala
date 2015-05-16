@@ -1,11 +1,11 @@
 package com.googlecode.mapperdao
 
-import org.scalatest.{Matchers, FunSuite}
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import com.googlecode.mapperdao.jdbc.Setup
 import com.googlecode.mapperdao.CommonEntities._
-
+import com.googlecode.mapperdao.jdbc.Setup
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * updating a tree of immutable entities is tough. this suite deals with this issue
  *
@@ -13,7 +13,7 @@ import com.googlecode.mapperdao.CommonEntities._
  *         Date: 16/04/13
  */
 @RunWith(classOf[JUnitRunner])
-class ReplaceSuite extends FunSuite with Matchers
+class ReplaceSuite extends FunSuite
 {
 	val (jdbc, mapperDao, queryDao) = Setup.setupMapperDao(AllEntities)
 

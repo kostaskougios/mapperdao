@@ -1,17 +1,17 @@
 package com.googlecode.mapperdao.utils
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
 import com.googlecode.mapperdao.internal.Equality
-
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
+import org.scalatest.junit.JUnitRunner
 /**
  * @author kostantinos.kougios
  *
  *         10 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class EqualitySuite extends FunSuite with Matchers
+class EqualitySuite extends FunSuite
 {
 
 	import Equality._

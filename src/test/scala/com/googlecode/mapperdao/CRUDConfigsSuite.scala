@@ -1,16 +1,16 @@
 package com.googlecode.mapperdao
 
 import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, FunSuite}
-
 /**
  * @author kostantinos.kougios
  *
  *         29 Sep 2011
  */
 @RunWith(classOf[JUnitRunner])
-class CRUDConfigsSuite extends FunSuite with Matchers
+class CRUDConfigsSuite extends FunSuite
 {
 	test("limits") {
 		QueryConfig.limits(5, 10) should be(QueryConfig(Set(), Some(5), Some(10)))
