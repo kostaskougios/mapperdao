@@ -36,7 +36,7 @@ It allows
 
 ## Example ##
 
-```
+```scala
 import java.util.Properties
 import org.apache.commons.dbcp.BasicDataSourceFactory
 
