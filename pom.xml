@@ -42,12 +42,6 @@
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>com.googlecode.scalaconcurrency</groupId>
-			<artifactId>scalaconcurrency</artifactId>
-			<version>0.9.0-${scala.major.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
 			<version>${spring.version}</version>
