@@ -95,6 +95,10 @@ class ValuesMap private[mapperdao](private[mapperdao] var o: Any, mOrig: scala.c
 		putMEM(key, v)
 	}
 
+	private[mapperdao] def update[T, V](key: String, v: V) {
+		putMEM(key, v)
+	}
+
 	def raw[T, V](column: ColumnInfo[T, V]): Option[Any] = {
 		val key = column.column.nameLowerCase
 		getMEMOption(key)
@@ -194,6 +198,10 @@ class ValuesMap private[mapperdao](private[mapperdao] var o: Any, mOrig: scala.c
 
 	protected[mapperdao] def toListOfPrimaryKeyAndValueTuple(tpe: Type[_, _]) = {
 		toListOfSimpleColumnAndValueTuple(tpe.table.primaryKeys) ::: toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(tpe)
+	}
+	
+	protected[mapperdao] def toVersionKeyAndValueTuple(tpe: Type[_, _]): Option[(SimpleColumn, Int)] = {
+	  tpe.table.versionColumn.map(c => (c.column, getMEM(c.column.aliasLowerCase).asInstanceOf[Int]))
 	}
 
 	def toListOfUnusedPrimaryKeySimpleColumnAndValueTuples(tpe: Type[_, _]): List[(SimpleColumn, Any)] =

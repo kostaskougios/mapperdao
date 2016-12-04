@@ -3,6 +3,7 @@ package com.googlecode.mapperdao.jdbc
 import com.googlecode.mapperdao._
 import com.googlecode.mapperdao.drivers.Driver
 import com.googlecode.mapperdao.exceptions.PersistException
+import com.googlecode.mapperdao.exceptions.OptimisticLockingException
 import com.googlecode.mapperdao.internal.{MutableIdentityHashMap, MutableIdentityHashSet}
 import com.googlecode.mapperdao.schema.{ColumnInfo, SimpleColumn}
 import com.googlecode.mapperdao.sqlbuilder.Result
@@ -137,7 +138,12 @@ class CmdToDatabase(
 							case e: Throwable =>
 								throw new PersistException("An error occured during a batch operation for " + sql, driver.expandError(e))
 						}
-
+						cmd match {
+						  case UpdateCmd(_, _, _, _, mainEntity) if (mainEntity && br.rowsAffected != null) => br.rowsAffected.find(_ == 0).foreach { _ =>
+  						  throw new OptimisticLockingException(table.name)
+						  }
+						  case _ => 
+						}
 						// now extract the keys and set them into the allNodes
 						if (br.keys != null) {
 							val keys: Array[List[(SimpleColumn, Any)]] = br.keys.map {
@@ -269,7 +275,8 @@ class CmdToDatabase(
 				else {
 					val pks = oldVM.toListOfPrimaryKeyAndValueTuple(tpe)
 					val relKeys = prioritized.relatedKeys(newVM)
-					val keys = pks ::: relKeys
+					val version = oldVM.toVersionKeyAndValueTuple(tpe)
+					val keys = pks ::: relKeys ::: version.toList
 					val setConverted = typeManager.transformValuesBeforeStoring(set)
 					val keysConverted = typeManager.transformValuesBeforeStoring(keys)
 					driver.updateSql(updateConfig, tpe, setConverted, keysConverted).result :: Nil

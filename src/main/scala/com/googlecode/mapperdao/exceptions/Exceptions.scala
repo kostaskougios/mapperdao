@@ -23,3 +23,5 @@ class PersistException(msg: String, val causes: List[Throwable]) extends Runtime
 }
 
 class QueryException(msg: String, cause: Throwable) extends RuntimeException(msg + "\n" + cause.getMessage, cause)
+
+class OptimisticLockingException(table: String) extends RuntimeException(s"Concurrent update of table $table detected!")
