@@ -162,6 +162,9 @@ protected[mapperdao] final class MapperDaoImpl(
 		val cmds = os.map {
 			case (o, newVM) =>
 				val oldVM = o.mapperDaoValuesMap
+			  oldVM.toVersionKeyAndValueTuple(tpe).map { case (c, v) =>
+			    newVM.update(c.aliasLowerCase, v + 1)
+			  }
 				po.toUpdateCmd(tpe, oldVM, newVM, updateConfig)
 		}.flatten
 
