@@ -2,7 +2,6 @@ package com.googlecode.mapperdao
 
 import com.googlecode.mapperdao.exceptions.OptimisticLockingException
 import com.googlecode.mapperdao.jdbc.Setup
-import com.googlecode.mapperdao.utils.Helpers
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
@@ -26,15 +25,15 @@ class OptimisticLockingSuite extends FunSuite
 		val date = Setup.now
 		val jp = JobPosition(7, "Developer", date, date.minusMonths(2), 10)
 		val inserted = mapperDao.insert(JobPositionEntity, jp)
-		inserted.version should be === 0
+		inserted.version should be(0)
 
 		val newV = JobPosition(7, "X", date, date.minusMonths(2), 10, true)
 		val updated = mapperDao.update(JobPositionEntity, inserted, newV)
-		updated should be === (newV.copy(version = 1))
+		updated should be(newV.copy(version = 1))
 		
 		val newV2 = JobPosition(7, "XX", date, date.minusMonths(2), 10, true)
 		val updated2 = mapperDao.update(JobPositionEntity, updated, newV2)
-		updated2 should be === (newV2.copy(version = 2))
+		updated2 should be(newV2.copy(version = 2))
 		
 		an[OptimisticLockingException] should be thrownBy {
   		val newV3 = JobPosition(7, "XXX", date, date.minusMonths(2), 10, true)
@@ -42,7 +41,7 @@ class OptimisticLockingSuite extends FunSuite
 		}
 		
 		val s1 = mapperDao.select(JobPositionEntity, 7).get
-		s1 should be === updated2
+		s1 should be(updated2)
 	}
 
 	test("update id, mutable") {
@@ -54,7 +53,7 @@ class OptimisticLockingSuite extends FunSuite
 
 		inserted.name = "X"
 		val updated = mapperDao.update(JobPositionEntity, inserted)
-		updated should be === (inserted.copy(version = 1))
+		updated should be(inserted.copy(version = 1))
 		
 		an[OptimisticLockingException] should be thrownBy {
 		  inserted.name = "XX"
@@ -62,7 +61,7 @@ class OptimisticLockingSuite extends FunSuite
 		}
 		
 		val s1 = mapperDao.select(JobPositionEntity, 7).get
-		s1 should be === updated
+		s1 should be(updated)
 	}
 
 	def createJobPositionTable() {
