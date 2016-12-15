@@ -81,6 +81,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 	 */
 	private var persistedColumns = List[ColumnInfoBase[T with DeclaredIds[ID], _]]()
 	private var columns = List[ColumnInfoBase[T, _]]()
+	private var verColumn: Option[ColumnInfo[T, Int]] = None
 	private var onlyForQueryColumns = List[ColumnInfoBase[T, _]]()
 	private val unusedPKs = new LazyActions[ColumnInfoBase[Any, Any]]
 	private[mapperdao] lazy val tpe = {
@@ -91,7 +92,7 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 			o.mapperDaoInit(m, pd)
 			o
 		}
-		EntityType[ID, T](clz, con, new Table[ID, T](databaseSchema, table, columns.reverse, persistedColumns, unusedPKs.executeAll.reverse), onlyForQueryColumns)
+		EntityType[ID, T](clz, con, new Table[ID, T](databaseSchema, table, columns.reverse, persistedColumns, unusedPKs.executeAll.reverse, verColumn), onlyForQueryColumns)
 	}
 
 	override def hashCode = table.hashCode
@@ -211,6 +212,25 @@ abstract class Entity[ID, +PC <: Persisted, T](val table: String, val clz: Class
 		def option[V](columnToValue: T => Option[V])(implicit m: ClassTag[V]): ColumnInfo[T, V] = to(optionToValue(columnToValue))
 	}
 
+	/**
+	 * column declaration used for optimistic locking, use as
+	 *
+	 * val version=versionColumn("version") to (_.version)
+	 */
+	protected def versionColumn(column: String) = new VersionColumnBuilder(column)
+
+	protected class VersionColumnBuilder(column: String)
+		extends OnlyForQueryDefinition
+	{
+		def to[V](columnToValue: T => Int)(implicit m: ClassTag[Int]): ColumnInfo[T, Int] = {
+			val tpe = m.runtimeClass.asInstanceOf[Class[Int]]
+			val ci = ColumnInfo[T, Int](Column(Entity.this, column, tpe), columnToValue, tpe)
+			if (!onlyForQuery) columns ::= ci else onlyForQueryColumns ::= ci
+			verColumn = Some(ci)
+			ci
+		}
+	}
+	
 	/**
 	 * many-to-many, examples
 	 *

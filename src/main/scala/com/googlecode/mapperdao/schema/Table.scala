@@ -21,7 +21,8 @@ class Table[ID, T](
 	val name: String,
 	val columnInfosPlain: List[ColumnInfoBase[T, _]],
 	val extraColumnInfosPersisted: List[ColumnInfoBase[T with DeclaredIds[ID], _]],
-	val unusedPKColumnInfos: List[ColumnInfoBase[Any, Any]]
+	val unusedPKColumnInfos: List[ColumnInfoBase[Any, Any]],
+	val versionColumn: Option[ColumnInfo[T, Int]]
 	)
 {
 
