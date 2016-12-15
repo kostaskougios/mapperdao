@@ -32,7 +32,7 @@ class TransactionSuite extends FunSuite
 				for (i <- 1 to 5) jdbc.update("insert into tx(id,name) values(?,?)", i, "x" + i)
 		}
 
-		jdbc.queryForInt("select count(*) from tx") should be === 5
+		jdbc.queryForInt("select count(*) from tx") should be(5)
 	}
 
 	test("rollback") {
@@ -47,7 +47,7 @@ class TransactionSuite extends FunSuite
 			case e: IllegalStateException => // ignore
 		}
 
-		jdbc.queryForInt("select count(*) from tx") should be === 0
+		jdbc.queryForInt("select count(*) from tx") should be(0)
 	}
 
 	test("manual rollback") {
@@ -58,6 +58,6 @@ class TransactionSuite extends FunSuite
 				status.setRollbackOnly
 		}
 
-		jdbc.queryForInt("select count(*) from tx") should be === 0
+		jdbc.queryForInt("select count(*) from tx") should be(0)
 	}
 }

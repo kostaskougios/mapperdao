@@ -35,28 +35,28 @@ class OneToOneCompositeKeySuite extends FunSuite
 				select
 					from ie
 					where ie.stock === 6
-				).toSet should be === Set(inserted2)
+				).toSet should be(Set(inserted2))
 
 			(
 				select
 					from ie
 					join(ie, ie.product, pe)
 					where pe.refCode === "rc2"
-				).toSet should be === Set(inserted2)
+				).toSet should be(Set(inserted2))
 
 			(
 				select
 					from ie
 					join(ie, ie.product, pe)
 					where pe.refCode === "rc2" or pe.refCode === "rc1"
-				).toSet should be === Set(inserted1, inserted2)
+				).toSet should be(Set(inserted1, inserted2))
 
 			(
 				select
 					from ie
 					join(ie, ie.product, pe)
 					where ie.product === rc1
-				).toSet should be === Set(inserted1)
+				).toSet should be(Set(inserted1))
 
 		}
 
@@ -66,12 +66,12 @@ class OneToOneCompositeKeySuite extends FunSuite
 			noise
 			val i = Inventory(Product("rc1"), 5)
 			val inserted = mapperDao.insert(InventoryEntity, i)
-			inserted should be === i
+			inserted should be(i)
 
-			mapperDao.select(InventoryEntity, inserted.id).get should be === inserted
+			mapperDao.select(InventoryEntity, inserted.id).get should be(inserted)
 
 			mapperDao.delete(InventoryEntity, inserted.id)
-			mapperDao.select(InventoryEntity, inserted.id) should be === None
+			mapperDao.select(InventoryEntity, inserted.id) should be(None)
 		}
 
 		test("delete associated with cascade") {
@@ -83,8 +83,8 @@ class OneToOneCompositeKeySuite extends FunSuite
 			val productId = Helpers.intIdOf(inserted.product)
 
 			mapperDao.delete(DeleteConfig(propagate = true), ProductEntity, ProductEntity.toPersistedType(inserted.product))
-			mapperDao.select(InventoryEntity, inserted.id) should be === None
-			mapperDao.select(ProductEntity, (productId, "rc1")) should be === None
+			mapperDao.select(InventoryEntity, inserted.id) should be(None)
+			mapperDao.select(ProductEntity, (productId, "rc1")) should be(None)
 		}
 
 		test("update") {
@@ -93,13 +93,13 @@ class OneToOneCompositeKeySuite extends FunSuite
 			noise
 			val i = Inventory(Product("rc1"), 5)
 			val inserted = mapperDao.insert(InventoryEntity, i)
-			inserted should be === i
+			inserted should be(i)
 
 			val upd = inserted.copy(product = Product("rc2"))
 			val updated = mapperDao.update(InventoryEntity, inserted, upd)
-			updated should be === upd
+			updated should be(upd)
 
-			mapperDao.select(InventoryEntity, updated.id).get should be === updated
+			mapperDao.select(InventoryEntity, updated.id).get should be(updated)
 		}
 
 		def noise = mapperDao.insert(InventoryEntity, Inventory(Product("rcX"), 8))

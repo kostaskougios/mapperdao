@@ -52,7 +52,7 @@ class SqlFunctionSuite extends FunSuite
 					from ce
 					where (lower(ce.name) === lower("Company B"))
 				).toSet(queryDao)
-			r should be === Set(cb)
+			r should be(Set(cb))
 		}
 
 		test("function both left and right of the query expression") {
@@ -67,7 +67,7 @@ class SqlFunctionSuite extends FunSuite
 					from ce
 					where (lower(ce.name) === lower(ce.name))
 				).toSet(queryDao)
-			r should be === Set(ca, cb)
+			r should be(Set(ca, cb))
 		}
 
 		test("std upper function") {
@@ -82,7 +82,7 @@ class SqlFunctionSuite extends FunSuite
 					from ce
 					where (upper(ce.name) === "COMPANY B")
 				).toSet(queryDao)
-			r should be === Set(cb)
+			r should be(Set(cb))
 		}
 
 		test("std lower function with equals") {
@@ -97,7 +97,7 @@ class SqlFunctionSuite extends FunSuite
 					from ce
 					where (lower(ce.name) === "company b")
 				).toSet(queryDao)
-			r should be === Set(cb)
+			r should be(Set(cb))
 		}
 
 		test("std lower function with like") {
@@ -112,7 +112,7 @@ class SqlFunctionSuite extends FunSuite
 					from ce
 					where (lower(ce.name) like "co%ny b")
 				).toSet(queryDao)
-			r should be === Set(cb)
+			r should be(Set(cb))
 		}
 
 		test("query with nested function") {
@@ -126,7 +126,7 @@ class SqlFunctionSuite extends FunSuite
 					from ce
 					where addFunction(1, subFunction(10, 9)) === cb.id
 				).toSet(queryDao)
-			r should be === Set(ca, cb)
+			r should be(Set(ca, cb))
 		}
 
 		test("query with nested function and column parameter") {
@@ -140,7 +140,7 @@ class SqlFunctionSuite extends FunSuite
 					from ce
 					where addFunction(1, subFunction(2, ce.id)) === 2
 				).toSet(queryDao)
-			r should be === Set(ca)
+			r should be(Set(ca))
 		}
 
 		test("query with one-to-one value") {
@@ -153,7 +153,7 @@ class SqlFunctionSuite extends FunSuite
 				from he
 				where addFunction(1, 1) === he.wife
 				).toSet(queryDao)
-			r should be === Set(h2)
+			r should be(Set(h2))
 		}
 
 		test("query with one-to-one param") {
@@ -166,7 +166,7 @@ class SqlFunctionSuite extends FunSuite
 				from he
 				where addFunction(he.wife, 1) === 2
 				).toSet(queryDao)
-			r should be === Set(h1)
+			r should be(Set(h1))
 		}
 
 		test("query using function with many-to-one value") {
@@ -185,7 +185,7 @@ class SqlFunctionSuite extends FunSuite
 					from pe
 					where addFunction(1, 1) > pe.company
 				).toSet(queryDao)
-			r should be === Set(p1a, p2a)
+			r should be(Set(p1a, p2a))
 		}
 
 		test("query using function with many-to-one param") {
@@ -204,7 +204,7 @@ class SqlFunctionSuite extends FunSuite
 					from pe
 					where addFunction(pe.company, 2) > 3
 				).toSet(queryDao)
-			r should be === Set(p1b, p2b)
+			r should be(Set(p1b, p2b))
 		}
 
 		test("query using expression, literal param literal comparison value positive") {
@@ -217,7 +217,7 @@ class SqlFunctionSuite extends FunSuite
 					from ce
 					where addFunction(ca.id, 1) === cb.id
 				).toSet(queryDao)
-			r should be === Set(ca, cb)
+			r should be(Set(ca, cb))
 		}
 
 		test("query using expression, literal param, column comparison value positive") {
@@ -230,7 +230,7 @@ class SqlFunctionSuite extends FunSuite
 					from ce
 					where addFunction(ca.id, 1) === ce.id
 				).toSet(queryDao)
-			r should be === Set(cb)
+			r should be(Set(cb))
 		}
 
 		test("query using expression, column param positive") {
@@ -242,7 +242,7 @@ class SqlFunctionSuite extends FunSuite
 				select
 					from ce
 					where addFunction(ce.id, 1) === cb.id
-				).toSet(queryDao) should be === Set(ca)
+				).toSet(queryDao) should be(Set(ca))
 		}
 
 		// sqlserver/oracle dont support bool type
@@ -257,7 +257,7 @@ class SqlFunctionSuite extends FunSuite
 					select
 						from ce
 						where companyAFunction("company A")
-					).toSet(queryDao) should be === Set(ca, cb)
+					).toSet(queryDao) should be(Set(ca, cb))
 			}
 
 			test("query using boolean function, literal param negative") {
@@ -270,7 +270,7 @@ class SqlFunctionSuite extends FunSuite
 					select
 						from ce
 						where companyAFunction("company XX")
-					).toSet(queryDao) should be === Set()
+					).toSet(queryDao) should be(Set())
 			}
 
 			test("query using boolean function, columninfo param") {
@@ -283,7 +283,7 @@ class SqlFunctionSuite extends FunSuite
 					select
 						from ce
 						where companyAFunction(ce.name)
-					).toSet(queryDao) should be === Set(ca)
+					).toSet(queryDao) should be(Set(ca))
 			}
 
 			test("query using boolean function with join") {
@@ -302,7 +302,7 @@ class SqlFunctionSuite extends FunSuite
 						from pe
 						join(pe, pe.company, ce)
 						where companyAFunction(ce.name)
-					).toSet(queryDao) should be === Set(p1a, p2a)
+					).toSet(queryDao) should be(Set(p1a, p2a))
 			}
 		}
 	}

@@ -26,27 +26,27 @@ class UseCaseManyToManyForTraitSuite extends FunSuite
 			val filipos = Person("filipos", 30)
 			val cl1 = ContactList("list1", Set(Person("kostas", 20), nick, Company("com1", "xx55")))
 			val inserted1 = mapperDao.insert(ContactListEntity, cl1)
-			inserted1 should be === cl1
+			inserted1 should be(cl1)
 
 			val cl2 = ContactList("list2", Set(Person("alexandros", 20), nick, filipos, Company("mc5", "gj4xxx")))
 			val inserted2 = mapperDao.insert(ContactListEntity, cl2)
-			inserted2 should be === cl2
+			inserted2 should be(cl2)
 
-			mapperDao.select(ContactListEntity, inserted1.id).get should be === cl1
-			mapperDao.select(ContactListEntity, inserted2.id).get should be === cl2
+			mapperDao.select(ContactListEntity, inserted1.id).get should be(cl1)
+			mapperDao.select(ContactListEntity, inserted2.id).get should be(cl2)
 
 			val updated2 = inserted2.copy(parties = inserted2.parties + nick)
-			mapperDao.update(ContactListEntity, inserted2, updated2) should be === updated2
+			mapperDao.update(ContactListEntity, inserted2, updated2) should be(updated2)
 
-			mapperDao.select(ContactListEntity, inserted2.id).get should be === updated2
-			mapperDao.select(ContactListEntity, inserted1.id).get should be === cl1
+			mapperDao.select(ContactListEntity, inserted2.id).get should be(updated2)
+			mapperDao.select(ContactListEntity, inserted1.id).get should be(cl1)
 
 			mapperDao.delete(ContactListEntity, inserted1)
-			mapperDao.select(ContactListEntity, inserted2.id).get should be === updated2
-			mapperDao.select(ContactListEntity, inserted1.id) should be === None
+			mapperDao.select(ContactListEntity, inserted2.id).get should be(updated2)
+			mapperDao.select(ContactListEntity, inserted1.id) should be(None)
 
 			mapperDao.delete(PersonEntity, nick)
-			mapperDao.select(ContactListEntity, inserted2.id).get should be === ContactList("list2", Set(Person("alexandros", 20), filipos, Company("mc5", "gj4xxx")))
+			mapperDao.select(ContactListEntity, inserted2.id).get should be(ContactList("list2", Set(Person("alexandros", 20), filipos, Company("mc5", "gj4xxx"))))
 		}
 
 		test("Querying") {
@@ -60,7 +60,7 @@ class UseCaseManyToManyForTraitSuite extends FunSuite
 			val company2 = mapperDao.insert(CompanyEntity, Company("mc5", "gj4xxx"))
 			val cl2 = ContactList("list2", Set(Person("alexandros", 20), nick, filipos, company2))
 			val inserted2 = mapperDao.insert(ContactListEntity, cl2)
-			inserted2 should be === cl2
+			inserted2 should be(cl2)
 
 			// noise
 			for (i <- 1 to 5)
@@ -75,28 +75,28 @@ class UseCaseManyToManyForTraitSuite extends FunSuite
 					from cle
 					where
 					cle.people === nick
-				).toList(queryDao).toSet should be === Set(inserted1, inserted2)
+				).toList(queryDao).toSet should be(Set(inserted1, inserted2))
 
 			(
 				select
 					from cle
 					where
 					cle.people === filipos
-				).toList(queryDao).toSet should be === Set(inserted2)
+				).toList(queryDao).toSet should be(Set(inserted2))
 
 			(
 				select
 					from cle
 					where
 					cle.companies === company2
-				).toList(queryDao).toSet should be === Set(inserted2)
+				).toList(queryDao).toSet should be(Set(inserted2))
 
 			(
 				select
 					from cle
 					where
 					(cle.companies === company2) or (cle.people === nick)
-				).toList(queryDao).toSet should be === Set(inserted1, inserted2)
+				).toList(queryDao).toSet should be(Set(inserted1, inserted2))
 
 			val r = (
 				select
@@ -106,7 +106,7 @@ class UseCaseManyToManyForTraitSuite extends FunSuite
 					(cle.companies === company2) or (p.name === "nick")
 					order by(cle.name)
 				).toList(queryDao)
-			r should be === List(inserted1, inserted2, inserted2, inserted2)
+			r should be(List(inserted1, inserted2, inserted2, inserted2))
 		}
 
 		def createTables() {

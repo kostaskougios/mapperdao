@@ -26,7 +26,7 @@ class SimpleEntitiesSuite extends FunSuite
 		mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date, 10))
 		mapperDao.delete(JobPositionEntity, 5)
 
-		mapperDao.select(JobPositionEntity, 5) should be === None
+		mapperDao.select(JobPositionEntity, 5) should be(None)
 	}
 
 	test("update id, immutable") {
@@ -38,9 +38,9 @@ class SimpleEntitiesSuite extends FunSuite
 
 		val newV = JobPosition(7, "X", date, date.minusMonths(2), 10, true)
 		val updated = mapperDao.update(JobPositionEntity, inserted, newV)
-		updated should be === newV
+		updated should be(newV)
 		val s1 = mapperDao.select(JobPositionEntity, 7).get
-		s1 should be === updated
+		s1 should be(updated)
 		mapperDao.select(JobPositionEntity, 5) should be(None)
 	}
 
@@ -53,8 +53,8 @@ class SimpleEntitiesSuite extends FunSuite
 
 		inserted.id = 7
 		val updated = mapperDao.update(JobPositionEntity, inserted)
-		updated should be === inserted
-		mapperDao.select(JobPositionEntity, 7).get should be === updated
+		updated should be(inserted)
+		mapperDao.select(JobPositionEntity, 7).get should be(updated)
 		mapperDao.select(JobPositionEntity, 5) should be(None)
 	}
 
@@ -68,9 +68,9 @@ class SimpleEntitiesSuite extends FunSuite
 		var updated: JobPosition = inserted
 		def doUpdate(from: JobPosition, to: JobPosition) {
 			updated = mapperDao.update(JobPositionEntity, Helpers.asNaturalIntId(from), to)
-			updated should be === to
-			mapperDao.select(JobPositionEntity, 5).get should be === to
-			mapperDao.select(JobPositionEntity, 5).get should be === updated
+			updated should be(to)
+			mapperDao.select(JobPositionEntity, 5).get should be(to)
+			mapperDao.select(JobPositionEntity, 5).get should be(updated)
 		}
 
 		doUpdate(updated, new JobPosition(5, "Developer Changed", date, date, 5))
@@ -83,26 +83,26 @@ class SimpleEntitiesSuite extends FunSuite
 
 		val date = Setup.now
 		val jp = new JobPosition(5, "Developer", date, date, 10)
-		mapperDao.insert(JobPositionEntity, jp) should be === jp
+		mapperDao.insert(JobPositionEntity, jp) should be(jp)
 
 		// now load
 		val loaded = mapperDao.select(JobPositionEntity, 5).get
-		loaded should be === jp
+		loaded should be(jp)
 
 		// update
 		loaded.name = "Scala Developer"
 		loaded.rank = 7
 		val afterUpdate = mapperDao.update(JobPositionEntity, loaded).asInstanceOf[Persisted]
-		afterUpdate.mapperDaoValuesMap(JobPositionEntity.name) should be === "Scala Developer"
-		afterUpdate.mapperDaoValuesMap(JobPositionEntity.rank) should be === 7
-		afterUpdate should be === loaded
+		afterUpdate.mapperDaoValuesMap(JobPositionEntity.name) should be("Scala Developer")
+		afterUpdate.mapperDaoValuesMap(JobPositionEntity.rank) should be(7)
+		afterUpdate should be(loaded)
 
 		val reloaded = mapperDao.select(JobPositionEntity, 5).get
-		reloaded should be === loaded
+		reloaded should be(loaded)
 
 		mapperDao.delete(JobPositionEntity, reloaded)
 
-		mapperDao.select(JobPositionEntity, 5) should be === None
+		mapperDao.select(JobPositionEntity, 5) should be(None)
 	}
 
 	test("immutable CRUD (simple type, no joins)") {
@@ -111,25 +111,25 @@ class SimpleEntitiesSuite extends FunSuite
 
 		val date = Setup.now
 		val jp = new JobPosition(5, "Developer", date, date, 10, true)
-		mapperDao.insert(JobPositionEntity, jp) should be === jp
+		mapperDao.insert(JobPositionEntity, jp) should be(jp)
 
 		// now load
 		val loaded = mapperDao.select(JobPositionEntity, 5).get
-		loaded should be === jp
+		loaded should be(jp)
 
 		// update
 		val changed = new JobPosition(5, "Scala Developer", date, date, 7, false)
 		val afterUpdate = mapperDao.update(JobPositionEntity, loaded, changed).asInstanceOf[Persisted]
-		afterUpdate.mapperDaoValuesMap(JobPositionEntity.name) should be === "Scala Developer"
-		afterUpdate.mapperDaoValuesMap(JobPositionEntity.rank) should be === 7
-		afterUpdate should be === changed
+		afterUpdate.mapperDaoValuesMap(JobPositionEntity.name) should be("Scala Developer")
+		afterUpdate.mapperDaoValuesMap(JobPositionEntity.rank) should be(7)
+		afterUpdate should be(changed)
 
 		val reloaded = mapperDao.select(JobPositionEntity, 5).get
-		reloaded should be === afterUpdate
+		reloaded should be(afterUpdate)
 
 		mapperDao.delete(JobPositionEntity, reloaded)
 
-		mapperDao.select(JobPositionEntity, 5) should be === None
+		mapperDao.select(JobPositionEntity, 5) should be(None)
 	}
 
 	test("transaction, commit") {
@@ -144,10 +144,10 @@ class SimpleEntitiesSuite extends FunSuite
 			() =>
 				val date = Setup.now
 				val inserted = mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date.minusMonths(2), 10))
-				mapperDao.select(JobPositionEntity, inserted.id).get should be === inserted
+				mapperDao.select(JobPositionEntity, inserted.id).get should be(inserted)
 				inserted
 		}
-		mapperDao.select(JobPositionEntity, inserted.id).get should be === inserted
+		mapperDao.select(JobPositionEntity, inserted.id).get should be(inserted)
 	}
 
 	test("transaction, rollback") {
@@ -163,13 +163,13 @@ class SimpleEntitiesSuite extends FunSuite
 				() =>
 					val date = Setup.now
 					val inserted = mapperDao.insert(JobPositionEntity, new JobPosition(5, "Developer", date, date.minusMonths(2), 10))
-					mapperDao.select(JobPositionEntity, inserted.id).get should be === inserted
+					mapperDao.select(JobPositionEntity, inserted.id).get should be(inserted)
 					throw new IllegalStateException
 			}
 		} catch {
 			case e: IllegalStateException => // ignore
 		}
-		mapperDao.select(JobPositionEntity, 5) should be === None
+		mapperDao.select(JobPositionEntity, 5) should be(None)
 	}
 
 	def createJobPositionTable() {

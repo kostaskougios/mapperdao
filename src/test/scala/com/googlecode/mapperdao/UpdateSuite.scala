@@ -113,7 +113,7 @@ class UpdateSuite extends FunSuite
 			Update.update(pe)
 				set pe.company === c2
 				where pe.name === "p1"
-			).run(queryDao).rowsAffected should be === 1
+			).run(queryDao).rowsAffected should be(1)
 		mapperDao.select(PersonEntity, p1.id).get.company should be(c2)
 		mapperDao.select(PersonEntity, p2.id).get.company should be(c1)
 	}
@@ -123,10 +123,10 @@ class UpdateSuite extends FunSuite
 		val (p1, p2) = createTestData
 		import Update._
 		val pe = ProductEntity
-		(Update.update(pe) set pe.name === "fast cpu").run(queryDao).rowsAffected should be === 2
+		(Update.update(pe) set pe.name === "fast cpu").run(queryDao).rowsAffected should be(2)
 
-		mapperDao.select(ProductEntity, p1.id).get.name should be === "fast cpu"
-		mapperDao.select(ProductEntity, p2.id).get.name should be === "fast cpu"
+		mapperDao.select(ProductEntity, p1.id).get.name should be("fast cpu")
+		mapperDao.select(ProductEntity, p2.id).get.name should be("fast cpu")
 	}
 
 	test("update simple") {
@@ -134,10 +134,10 @@ class UpdateSuite extends FunSuite
 		val (p1, p2) = createTestData
 		import Update._
 		val pe = ProductEntity
-		(Update.update(pe) set pe.name === "fast cpu" where pe.name === "cpu").run(queryDao).rowsAffected should be === 1
+		(Update.update(pe) set pe.name === "fast cpu" where pe.name === "cpu").run(queryDao).rowsAffected should be(1)
 
-		mapperDao.select(ProductEntity, p1.id).get.name should be === "fast cpu"
-		mapperDao.select(ProductEntity, p2.id).get.name should be === "ram"
+		mapperDao.select(ProductEntity, p1.id).get.name should be("fast cpu")
+		mapperDao.select(ProductEntity, p2.id).get.name should be("ram")
 	}
 
 	def createTestData = {

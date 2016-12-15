@@ -28,38 +28,38 @@ class UseCaseFileSystemSuite extends FunSuite
 			val archive = Archive("f.zip", inserted, "zip")
 			val toUpdate = inserted.copy(nodes = List(file, archive, Archive("f2.gz", inserted, "gz")))
 			val updated = mapperDao.update(DirectoryEntity, inserted, toUpdate)
-			updated should be === toUpdate
+			updated should be(toUpdate)
 			val selected = mapperDao.select(DirectoryEntity, inserted.id).get
 			// the file into the directory contains a mock of the directory itself.
 			// that mock is not fully populated and hence selected!=updated because
 			// the updated doesn't contain the mock. We need to check the properties
 			// one by one, avoiding the mock.
-			selected.uri should be === updated.uri
-			selected.parent should be === updated.parent
-			selected.nodes.head.uri should be === updated.nodes.head.uri
+			selected.uri should be(updated.uri)
+			selected.parent should be(updated.parent)
+			selected.nodes.head.uri should be(updated.nodes.head.uri)
 			(selected.nodes.head match {
 				case f: File => f.fileType
-			}) should be === file.fileType
+			}) should be(file.fileType)
 			(selected.nodes.tail.head match {
 				case a: Archive => a.zipType
-			}) should be === archive.zipType
+			}) should be(archive.zipType)
 
 			// now remove the archives
 			val reUpdated = mapperDao.update(DirectoryEntity, updated, updated.copy(nodes = updated.nodes.collect {
 				case f: File => f
 			}))
 			val reSelected = mapperDao.select(DirectoryEntity, reUpdated.id).get
-			reSelected.nodes.size should be === 1
+			reSelected.nodes.size should be(1)
 			(reSelected.nodes.head match {
 				case f: File => f.fileType
-			}) should be === file.fileType
+			}) should be(file.fileType)
 		}
 
 		test("persist directory") {
 			createTables()
 			val dir = Directory("my_dir", None, Nil)
 			val inserted = mapperDao.insert(DirectoryEntity, dir)
-			dir should be === inserted
+			dir should be(inserted)
 		}
 
 		test("persist directory with parent") {
@@ -67,7 +67,7 @@ class UseCaseFileSystemSuite extends FunSuite
 			val parent = Directory("parent_dir", None, Nil)
 			val dir = Directory("my_dir", Some(parent), Nil)
 			val inserted = mapperDao.insert(DirectoryEntity, dir)
-			dir should be === inserted
+			dir should be(inserted)
 		}
 	}
 

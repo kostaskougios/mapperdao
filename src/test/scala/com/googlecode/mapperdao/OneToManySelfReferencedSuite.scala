@@ -80,7 +80,7 @@ class OneToManySelfReferencedSuite extends FunSuite
 
 		val person = new Person("main-person", Set(new Person("friend1", Set()), new Person("friend2", Set())))
 		val inserted = mapperDao.insert(PersonEntity, person)
-		inserted should be === person
+		inserted should be(person)
 	}
 
 	test("insert and select") {
@@ -100,9 +100,9 @@ class OneToManySelfReferencedSuite extends FunSuite
 
 		val modified = new Person("main-changed", inserted.friends.filterNot(_.name == "friend1"))
 		val updated = mapperDao.update(PersonEntity, inserted, modified)
-		updated should be === modified
+		updated should be(modified)
 
-		mapperDao.select(PersonEntity, updated.id).get should be === updated
+		mapperDao.select(PersonEntity, updated.id).get should be(updated)
 	}
 
 	test("update, add to traversable") {
@@ -113,9 +113,9 @@ class OneToManySelfReferencedSuite extends FunSuite
 		val friends = inserted.friends
 		val modified = new Person("main-changed", friends + new Person("friend3", Set()))
 		val updated = mapperDao.update(PersonEntity, inserted, modified)
-		updated should be === modified
+		updated should be(modified)
 
-		mapperDao.select(PersonEntity, updated.id).get should be === updated
+		mapperDao.select(PersonEntity, updated.id).get should be(updated)
 	}
 
 	test("3 levels deep") {
@@ -126,9 +126,9 @@ class OneToManySelfReferencedSuite extends FunSuite
 
 		val modified = Person("main-changed", inserted.friends + Person("friend3", Set(Person("level3-friend3-1", Set()))))
 		val updated = mapperDao.update(PersonEntity, inserted, modified)
-		updated should be === modified
+		updated should be(modified)
 
-		mapperDao.select(PersonEntity, updated.id).get should be === updated
+		mapperDao.select(PersonEntity, updated.id).get should be(updated)
 	}
 
 	test("use already persisted friends") {
@@ -139,9 +139,9 @@ class OneToManySelfReferencedSuite extends FunSuite
 
 		val modified = Person("main-changed", inserted.friends + Person("friend3", Set(Person("level3-friend3-1", Set()))))
 		val updated = mapperDao.update(PersonEntity, inserted, modified)
-		updated should be === modified
+		updated should be(modified)
 
-		mapperDao.select(PersonEntity, updated.id).get should be === updated
+		mapperDao.select(PersonEntity, updated.id).get should be(updated)
 	}
 
 	def createTables() {

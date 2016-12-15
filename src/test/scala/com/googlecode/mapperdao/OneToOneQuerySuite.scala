@@ -34,25 +34,25 @@ class OneToOneQuerySuite extends FunSuite
 				join (p as 'p1) on ('p1, p.id) <> p.id
 				join(p, p.inventory, i)
 				join(p as 'p1, p.inventory, i as 'i1) on ('i1, i.sold) === i.sold
-		).toSet should be === Set(p0, p2)
+		).toSet should be(Set(p0, p2))
 	}
 
 	test("query with limits (offset only)") {
 		createTables
 		val products = for (i <- 0 to 10) yield mapperDao.insert(ProductEntity, Product(i, Inventory(10 + i, 15 + i)))
-		queryDao.query(QueryConfig(offset = Some(7)), select from p).toSet should be === Set(products(7), products(8), products(9), products(10))
+		queryDao.query(QueryConfig(offset = Some(7)), select from p).toSet should be(Set(products(7), products(8), products(9), products(10)))
 	}
 
 	test("query with limits (limit only)") {
 		createTables
 		val products = for (i <- 0 to 10) yield mapperDao.insert(ProductEntity, Product(i, Inventory(10 + i, 15 + i)))
-		queryDao.query(QueryConfig(limit = Some(2)), select from p).toSet should be === Set(products(0), products(1))
+		queryDao.query(QueryConfig(limit = Some(2)), select from p).toSet should be(Set(products(0), products(1)))
 	}
 
 	test("query with limits") {
 		createTables
 		val products = for (i <- 0 to 10) yield mapperDao.insert(ProductEntity, Product(i, Inventory(10 + i, 15 + i)))
-		queryDao.query(QueryConfig(offset = Some(3), limit = Some(4)), select from p).toSet should be === Set(products(3), products(4), products(5), products(6))
+		queryDao.query(QueryConfig(offset = Some(3), limit = Some(4)), select from p).toSet should be(Set(products(3), products(4), products(5), products(6)))
 	}
 
 	test("query with skip") {
@@ -68,7 +68,7 @@ class OneToOneQuerySuite extends FunSuite
 
 		queryDao.query(QueryConfig(skip = Set(ProductEntity.inventory)),
 			select from p join(p, p.inventory, i) where i.stock > 5
-		).toSet should be === Set(Product(2, null), Product(3, null))
+		).toSet should be(Set(Product(2, null), Product(3, null)))
 	}
 
 	test("query by inventory.stock") {
@@ -81,7 +81,7 @@ class OneToOneQuerySuite extends FunSuite
 				Product(3, Inventory(7, 13))
 			)
 		)
-		queryDao.query(select from p join(p, p.inventory, i) where i.stock > 5).toSet should be === Set(p2, p3)
+		queryDao.query(select from p join(p, p.inventory, i) where i.stock > 5).toSet should be(Set(p2, p3))
 	}
 
 	test("query with and") {
@@ -101,7 +101,7 @@ class OneToOneQuerySuite extends FunSuite
 				where
 				i.stock > 5
 				and i.sold < 13
-		).toSet should be === Set(p2)
+		).toSet should be(Set(p2))
 	}
 
 	def createTables = {

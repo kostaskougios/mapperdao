@@ -88,7 +88,7 @@ class OneToManyQuerySuite extends FunSuite
 		createTables()
 		val persons = for (i <- 0 to 10) yield mapperDao.insert(PersonEntity, Person(i, "person%d".format(i), Set(House(i * 2, "London"), House(i * 2 + 1, "Paris"))))
 		import Query._
-		queryDao.query(QueryConfig(offset = Some(5), limit = Some(2)), select from p).toSet should be === Set(persons(5), persons(6))
+		queryDao.query(QueryConfig(offset = Some(5), limit = Some(2)), select from p).toSet should be(Set(persons(5), persons(6)))
 	}
 
 	test("query with skip") {
@@ -101,7 +101,7 @@ class OneToManyQuerySuite extends FunSuite
 		queryDao.query(
 			QueryConfig(skip = Set(PersonEntity.owns)),
 			select from p join(p, p.owns, h) where h.address === "London"
-		).toSet should be === Set(Person(5, "person0", Set()), Person(6, "person1", Set()))
+		).toSet should be(Set(Person(5, "person0", Set()), Person(6, "person1", Set())))
 	}
 
 	test("based on FK") {
@@ -111,7 +111,7 @@ class OneToManyQuerySuite extends FunSuite
 
 		import Query._
 		val q1 = select from p where p.owns === p0.owns.head
-		queryDao.query(q1) should be === List(p0)
+		queryDao.query(q1) should be(List(p0))
 		queryDao.query(select from p where p.owns === p1.owns.head) should be(List(p1))
 	}
 

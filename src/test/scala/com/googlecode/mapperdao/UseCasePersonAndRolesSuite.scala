@@ -120,7 +120,7 @@ class UseCasePersonAndRolesSuite extends FunSuite
 			val (inserted1, _) = people(role1, role2, role3)
 
 			val selected1 = mapperDao.select(PersonEntity, inserted1.id).get
-			selected1 should be === inserted1
+			selected1 should be(inserted1)
 
 			val updated1 = mapperDao.update(
 				PersonEntity,
@@ -135,7 +135,7 @@ class UseCasePersonAndRolesSuite extends FunSuite
 				)
 			)
 			val selectedAgain1 = mapperDao.select(PersonEntity, inserted1.id).get
-			selectedAgain1 should be === updated1
+			selectedAgain1 should be(updated1)
 		}
 
 		test("InterPartyRelationshipEntity") {
@@ -149,26 +149,26 @@ class UseCasePersonAndRolesSuite extends FunSuite
 
 			// various queries to get it back
 			val selected = mapperDao.select(InterPartyRelationshipEntity, (person1, person2)).get
-			selected should be === ipr1
+			selected should be(ipr1)
 
-			mapperDao.select(InterPartyRelationshipEntity, (person2, person1)).get should be === ipr2
+			mapperDao.select(InterPartyRelationshipEntity, (person2, person1)).get should be(ipr2)
 
 			(
 				select
 					from ipr
 					where ipr.from === person1 and ipr.to === person2
-				).toSet(queryDao) should be === Set(ipr1)
+				).toSet(queryDao) should be(Set(ipr1))
 
 			(
 				select
 					from ipr
 					where ipr.from === person2 and ipr.to === person1
-				).toSet(queryDao) should be === Set(ipr2)
+				).toSet(queryDao) should be(Set(ipr2))
 
 			// now update
 			val upd = selected.copy(to = person1, toDate = Some(to))
 			val updated = mapperDao.update(InterPartyRelationshipEntity, selected, upd)
-			updated should be === upd
+			updated should be(upd)
 
 			val reselected = queryDao.querySingleResult(
 				(
@@ -177,7 +177,7 @@ class UseCasePersonAndRolesSuite extends FunSuite
 						where ipr.from === person1 and ipr.to === person1
 					)
 			).get
-			reselected should be === updated
+			reselected should be(updated)
 
 			mapperDao.delete(InterPartyRelationshipEntity, reselected)
 
@@ -187,14 +187,14 @@ class UseCasePersonAndRolesSuite extends FunSuite
 						from ipr
 						where ipr.from === person1 and ipr.to === person1
 					)
-			) should be === None
+			) should be(None)
 
 			// make sure we didn't delete the other one
 			(
 				select
 					from ipr
 					where ipr.from === person2 and ipr.to === person1
-				).toSet(queryDao) should be === Set(ipr2)
+				).toSet(queryDao) should be(Set(ipr2))
 		}
 
 		test("SinglePartyRoleEntity RUD") {
@@ -203,19 +203,19 @@ class UseCasePersonAndRolesSuite extends FunSuite
 			val (person1, person2) = people(role1, role2, role3)
 
 			val spr1 = mapperDao.select(SinglePartyRoleEntity, (role1, person1)).get
-			Set(spr1) should be === person1.singlePartyRoles.filter(_.roleType == role1)
+			Set(spr1) should be(person1.singlePartyRoles.filter(_.roleType == role1))
 
 			val upd = spr1.copy(roleType = role3)
 			val updated = mapperDao.update(SinglePartyRoleEntity, spr1, upd)
-			updated should be === upd
+			updated should be(upd)
 			val reloaded = mapperDao.select(SinglePartyRoleEntity, (role3, person1)).get
-			reloaded should be === updated
+			reloaded should be(updated)
 
 			mapperDao.delete(SinglePartyRoleEntity, reloaded)
 			mapperDao.select(SinglePartyRoleEntity, (role3, person1)) should be(None)
 
 			// make sure we deleted only relevant data
-			mapperDao.select(PersonEntity, "some.other").get should be === person2
+			mapperDao.select(PersonEntity, "some.other").get should be(person2)
 		}
 
 		test("SinglePartyRoleEntity from a query, UD") {
@@ -230,19 +230,19 @@ class UseCasePersonAndRolesSuite extends FunSuite
 					join(pe, pe.singlePartyRoles, spr)
 					where spr.roleType === role2
 				).toList(queryDao)
-			l.size should be === 1
+			l.size should be(1)
 			val spr1 = l.head.singlePartyRoles.filter(_.roleType == role1).head.asInstanceOf[SinglePartyRole with SPRKey]
 
 			val upd = spr1.copy(roleType = role3)
 			val updated = mapperDao.update(SinglePartyRoleEntity, spr1, upd)
-			updated should be === upd
+			updated should be(upd)
 			val reloaded = mapperDao.select(SinglePartyRoleEntity, (role3, person1)).get
-			reloaded should be === updated
+			reloaded should be(updated)
 			mapperDao.delete(SinglePartyRoleEntity, reloaded)
 			mapperDao.select(SinglePartyRoleEntity, (role3, person1)) should be(None)
 
 			// make sure we deleted only relevant data
-			mapperDao.select(PersonEntity, "some.other").get should be === person2
+			mapperDao.select(PersonEntity, "some.other").get should be(person2)
 		}
 
 		test("querying") {
@@ -282,21 +282,21 @@ class UseCasePersonAndRolesSuite extends FunSuite
 			(
 				select
 					from pe
-				).toSet(queryDao) should be === Set(inserted1, inserted2)
+				).toSet(queryDao) should be(Set(inserted1, inserted2))
 
 			(
 				select
 					from pe
 					join(pe, pe.singlePartyRoles, spr)
 					where spr.roleType === role2
-				).toSet(queryDao) should be === Set(inserted1)
+				).toSet(queryDao) should be(Set(inserted1))
 
 			(
 				select
 					from pe
 					join(pe, pe.singlePartyRoles, spr)
 					where spr.roleType === role3
-				).toSet(queryDao) should be === Set(inserted2)
+				).toSet(queryDao) should be(Set(inserted2))
 
 			(
 				select
@@ -304,7 +304,7 @@ class UseCasePersonAndRolesSuite extends FunSuite
 					join(pe, pe.singlePartyRoles, spr)
 					join(spr, spr.roleType, rte)
 					where rte.name === "Java Developer"
-				).toSet(queryDao) should be === Set(inserted1)
+				).toSet(queryDao) should be(Set(inserted1))
 		}
 
 		def createTables() = {

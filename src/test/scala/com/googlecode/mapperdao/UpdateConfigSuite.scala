@@ -22,7 +22,7 @@ class UpdateConfigSuite extends FunSuite
 		val inserted = mapperDao.insert(PersonEntity, Person(1, "kostas", Set(House(10, Set(Floor(5, "floor5"), Floor(6, "floor6"))), House(11, Set(Floor(7, "floor7"), Floor(8, "floor8"))))))
 		mapperDao.update(UpdateConfig(deleteConfig = DeleteConfig(propagate = true)), PersonEntity, inserted, Person(inserted.id, inserted.name, inserted.owns.filterNot(_.id == 11)))
 
-		jdbc.queryForInt("select count(*) from Floor") should be === 2
+		jdbc.queryForInt("select count(*) from Floor") should be(2)
 	}
 
 	def prepareDb(jdbc: Jdbc, tableCreationScript: String) {

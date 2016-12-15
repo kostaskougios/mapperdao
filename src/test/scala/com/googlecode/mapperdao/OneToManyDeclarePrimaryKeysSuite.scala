@@ -84,9 +84,9 @@ class OneToManyDeclarePrimaryKeysSuite extends FunSuite
 			val inserted = mapperDao.insert(PersonEntity, Person("kostas", Set(House("address1", SW), House("address2", SE))))
 			val u = Person("kostas updated", inserted.owns - House("address2", SE))
 			val updated = mapperDao.update(PersonEntity, inserted, u)
-			updated should be === u
+			updated should be(u)
 
-			mapperDao.select(PersonEntity, inserted.id).get should be === updated
+			mapperDao.select(PersonEntity, inserted.id).get should be(updated)
 		}
 
 		test("update, update") {
@@ -103,10 +103,10 @@ class OneToManyDeclarePrimaryKeysSuite extends FunSuite
 
 			inserted.owns.head.address = "updated first"
 			val updated = mapperDao.update(PersonEntity, inserted)
-			updated should be === inserted
+			updated should be(inserted)
 
-			mapperDao.select(PersonEntity, inserted.id).get should be === updated
-			mapperDao.select(PersonEntity, otherInserted.id).get should be === otherInserted
+			mapperDao.select(PersonEntity, inserted.id).get should be(updated)
+			mapperDao.select(PersonEntity, otherInserted.id).get should be(otherInserted)
 		}
 
 		test("update, add") {
@@ -116,9 +116,9 @@ class OneToManyDeclarePrimaryKeysSuite extends FunSuite
 			val inserted = mapperDao.insert(PersonEntity, Person("kostas", Set(House("address1", SW))))
 			val u = Person("kostas updated", inserted.owns + House("address2", SE))
 			val updated = mapperDao.update(PersonEntity, inserted, u)
-			updated should be === u
+			updated should be(u)
 
-			mapperDao.select(PersonEntity, inserted.id).get should be === updated
+			mapperDao.select(PersonEntity, inserted.id).get should be(updated)
 		}
 
 		def createTables() {

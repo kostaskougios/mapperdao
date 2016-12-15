@@ -20,25 +20,25 @@ class OneToOneReverseExternalEntitySuite extends FunSuite
 			createTables()
 			val product = Product(5, Inventory(105, 205))
 			val inserted = mapperDao.insert(ProductEntity, product)
-			inserted should be === product
-			InventoryEntity.onInsertCalled should be === 1
+			inserted should be(product)
+			InventoryEntity.onInsertCalled should be(1)
 			val selected = mapperDao.select(ProductEntity, inserted.id).get
-			selected should be === inserted
+			selected should be(inserted)
 		}
 
 		test("update/select") {
 			createTables()
 			val inserted = mapperDao.insert(ProductEntity, Product(5, Inventory(105, 205)))
 			val updated = mapperDao.update(ProductEntity, inserted, Product(5, Inventory(106, 206)))
-			InventoryEntity.onUpdateCalled should be === 1
-			mapperDao.select(ProductEntity, inserted.id).get should be === updated
+			InventoryEntity.onUpdateCalled should be(1)
+			mapperDao.select(ProductEntity, inserted.id).get should be(updated)
 		}
 
 		test("delete without propagate") {
 			createTables()
 			val inserted = mapperDao.insert(ProductEntity, Product(5, Inventory(105, 205)))
 			mapperDao.delete(ProductEntity, inserted)
-			InventoryEntity.onDeleteCalled should be === 0
+			InventoryEntity.onDeleteCalled should be(0)
 			mapperDao.select(ProductEntity, inserted.id) should be(None)
 		}
 
@@ -46,7 +46,7 @@ class OneToOneReverseExternalEntitySuite extends FunSuite
 			createTables()
 			val inserted = mapperDao.insert(ProductEntity, Product(5, Inventory(105, 205)))
 			mapperDao.delete(DeleteConfig(propagate = true), ProductEntity, inserted)
-			InventoryEntity.onDeleteCalled should be === 1
+			InventoryEntity.onDeleteCalled should be(1)
 			mapperDao.select(ProductEntity, inserted.id) should be(None)
 		}
 
@@ -56,7 +56,7 @@ class OneToOneReverseExternalEntitySuite extends FunSuite
 			mapperDao.insert(ProductEntity, Product(6, Inventory(106, 206)))
 			import Query._
 			val pe = ProductEntity
-			queryDao.query(select from pe where pe.id === 5) should be === List(inserted1)
+			queryDao.query(select from pe where pe.id === 5) should be(List(inserted1))
 		}
 	}
 

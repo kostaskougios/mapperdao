@@ -28,22 +28,22 @@ class OneToManyLazyLoadSuite extends FunSuite
 			val inserted = mapperDao.insert(PersonEntity, person)
 			val selected = mapperDao.select(selectConfig, PersonEntity, inserted.id).get
 			verifyNotLoaded(selected)
-			selected should be === person
+			selected should be(person)
 		}
 
 		test("update, 1 entity lazy loaded") {
 			createTables
 			val person = Person("Kostas", Set(House("Rhodes"), House("Athens")), List(Car("car1"), Car("car2")))
 			val inserted = mapperDao.insert(PersonEntity, person)
-			inserted should be === person
+			inserted should be(person)
 			val selected = mapperDao.select(selectConfigCar, PersonEntity, inserted.id).get
 			val updated = mapperDao.update(PersonEntity, selected, Person("kostasx",
 				inserted.owns.filterNot(_.address == "Athens"),
 				inserted.cars.filterNot(_.model == "car1")
 			))
-			updated should be === Person("kostasx", Set(House("Rhodes")), List(Car("car2")))
+			updated should be(Person("kostasx", Set(House("Rhodes")), List(Car("car2"))))
 
-			mapperDao.select(selectConfigCar, PersonEntity, inserted.id).get should be === updated
+			mapperDao.select(selectConfigCar, PersonEntity, inserted.id).get should be(updated)
 		}
 
 		test("update, 1 entity lazy loaded and not changed") {
@@ -63,7 +63,7 @@ class OneToManyLazyLoadSuite extends FunSuite
 			val inserted = mapperDao.insert(PersonEntity, person)
 			val selected = mapperDao.select(selectConfigCar, PersonEntity, inserted.id).get
 			verifyCarNotLoaded(selected)
-			selected should be === person
+			selected should be(person)
 		}
 
 		test("unlink doesn't load") {
@@ -75,7 +75,7 @@ class OneToManyLazyLoadSuite extends FunSuite
 			val r1: Set[House] = reflectionManager.get("owns", selected)
 			r1 should be(Set())
 
-			selected should be === person
+			selected should be(person)
 		}
 
 		test("query is lazy") {
@@ -90,8 +90,8 @@ class OneToManyLazyLoadSuite extends FunSuite
 			val s2 = l.last
 			verifyNotLoaded(s1)
 			verifyNotLoaded(s2)
-			s1 should be === p1
-			s2 should be === p2
+			s1 should be(p1)
+			s2 should be(p2)
 		}
 
 		test("update immutable entity, skip lazy loaded") {
@@ -102,8 +102,8 @@ class OneToManyLazyLoadSuite extends FunSuite
 			selected.owns = selected.owns.filter(_.address == "Rhodes")
 			selected.name = "kostas2"
 			val updated = mapperDao.update(UpdateConfig(skip = Set(PersonEntity.owns)), PersonEntity, selected)
-			updated should be === selected
-			mapperDao.select(selectConfig, PersonEntity, inserted.id).get should be === Person("kostas2", Set(House("Rhodes"), House("Athens")))
+			updated should be(selected)
+			mapperDao.select(selectConfig, PersonEntity, inserted.id).get should be(Person("kostas2", Set(House("Rhodes"), House("Athens"))))
 		}
 
 		test("update mutable entity") {
@@ -114,8 +114,8 @@ class OneToManyLazyLoadSuite extends FunSuite
 			selected.owns = selected.owns.filter(_.address == "Rhodes")
 			selected.name = "kostas2"
 			val updated = mapperDao.update(PersonEntity, selected)
-			updated should be === selected
-			mapperDao.select(selectConfig, PersonEntity, inserted.id).get should be === updated
+			updated should be(selected)
+			mapperDao.select(selectConfig, PersonEntity, inserted.id).get should be(updated)
 		}
 
 		test("update immutable entity") {
@@ -124,7 +124,7 @@ class OneToManyLazyLoadSuite extends FunSuite
 			val inserted = mapperDao.insert(PersonEntity, person)
 			val selected = mapperDao.select(selectConfig, PersonEntity, inserted.id).get
 			val updated = mapperDao.update(PersonEntity, selected, Person("Kostas2", Set()))
-			updated should be === Person("Kostas2", Set())
+			updated should be(Person("Kostas2", Set()))
 			mapperDao.select(selectConfig, PersonEntity, inserted.id).get should be(updated)
 		}
 

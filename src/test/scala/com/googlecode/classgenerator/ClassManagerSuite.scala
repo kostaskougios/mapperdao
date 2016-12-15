@@ -3,8 +3,8 @@ package com.googlecode.classgenerator
 import com.googlecode.classgenerator.model.{TTestSuperclass, TestSubclass, TestSuperclass}
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
 
 /**
   * @author kostantinos.kougios
@@ -12,7 +12,7 @@ import org.scalatest.matchers.ShouldMatchers
   *         8 Apr 2012
   */
 @RunWith(classOf[JUnitRunner])
-class ClassManagerSuite extends FunSuite with ShouldMatchers
+class ClassManagerSuite extends FunSuite
 {
 
 	val classManager = new ClassManager

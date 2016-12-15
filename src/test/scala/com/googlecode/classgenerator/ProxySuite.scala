@@ -3,16 +3,15 @@ package com.googlecode.classgenerator
 import com.googlecode.classgenerator.model.TestProxy
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-
 /**
   * @author kostantinos.kougios
   *
   *         8 Apr 2012
   */
 @RunWith(classOf[JUnitRunner])
-class ProxySuite extends FunSuite with ShouldMatchers
+class ProxySuite extends FunSuite
 {
 	val classManager = new ClassManager
 	val constructor = classOf[TestProxy].getConstructor(classOf[Int])

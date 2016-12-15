@@ -90,7 +90,7 @@ class OneToManySuite extends FunSuite
 		val inserted = mapperDao.insert(PersonEntity, person)
 		val house = inserted.owns.find(_.id == 1).get
 		mapperDao.update(HouseEntity, Helpers.asSurrogateIntId(house), House(5, "London"))
-		mapperDao.select(PersonEntity, 3).get should be === Person(3, "Kostas", "K", Set(House(5, "London"), House(2, "Rhodes")), 16, List(jp1, jp2, jp3))
+		mapperDao.select(PersonEntity, 3).get should be(Person(3, "Kostas", "K", Set(House(5, "London"), House(2, "Rhodes")), 16, List(jp1, jp2, jp3)))
 	}
 
 	if (Setup.database != "derby") {
@@ -103,8 +103,8 @@ class OneToManySuite extends FunSuite
 			val person = new Person(3, "Kostas", "K", Set(House(1, "London"), House(2, "Rhodes")), 16, List(jp1, jp2, jp3))
 			val inserted = mapperDao.insert(PersonEntity, person)
 			val updated = mapperDao.update(PersonEntity, inserted, Person(8, "Kostas", "K", inserted.owns, 16, inserted.positions))
-			updated should be === Person(8, "Kostas", "K", person.owns, 16, person.positions)
-			mapperDao.select(PersonEntity, 8).get should be === updated
+			updated should be(Person(8, "Kostas", "K", person.owns, 16, person.positions))
+			mapperDao.select(PersonEntity, 8).get should be(updated)
 			mapperDao.select(PersonEntity, 3) should be(None)
 		}
 	}
@@ -123,9 +123,9 @@ class OneToManySuite extends FunSuite
 		var updated: Person = inserted
 		def doUpdate(from: Person, to: Person) {
 			updated = mapperDao.update(PersonEntity, Helpers.asSurrogateIntId(from), to)
-			updated should be === to
-			mapperDao.select(PersonEntity, 3).get should be === updated
-			mapperDao.select(PersonEntity, 3).get should be === to
+			updated should be(to)
+			mapperDao.select(PersonEntity, 3).get should be(updated)
+			mapperDao.select(PersonEntity, 3).get should be(to)
 		}
 		doUpdate(updated, new Person(3, "Changed", "K", updated.owns, 18, updated.positions.filterNot(_ == jp1)))
 		doUpdate(updated, new Person(3, "Changed Again", "Surname changed too", updated.owns.filter(_.address == "London"), 18, jp5 :: updated.positions.filterNot(jp ⇒ jp == jp1 || jp == jp3)))
@@ -146,10 +146,10 @@ class OneToManySuite extends FunSuite
 		inserted.positions.foreach(_.name = "changed")
 		inserted.positions.foreach(_.rank = 5)
 		val updated = mapperDao.update(PersonEntity, inserted)
-		updated should be === inserted
+		updated should be(inserted)
 
 		val loaded = mapperDao.select(PersonEntity, 3).get
-		loaded should be === updated
+		loaded should be(updated)
 
 		mapperDao.delete(PersonEntity, updated)
 		mapperDao.select(PersonEntity, updated.id) should be(None)
@@ -166,10 +166,10 @@ class OneToManySuite extends FunSuite
 
 		inserted.positions = inserted.positions.filterNot(jp ⇒ jp == jp1 || jp == jp3)
 		val updated = mapperDao.update(PersonEntity, inserted)
-		updated should be === inserted
+		updated should be(inserted)
 
 		val loaded = mapperDao.select(PersonEntity, 3).get
-		loaded should be === updated
+		loaded should be(updated)
 
 		mapperDao.delete(PersonEntity, updated)
 		mapperDao.select(PersonEntity, updated.id) should be(None)
@@ -187,10 +187,10 @@ class OneToManySuite extends FunSuite
 		loaded.positions = new JobPosition(1, "C++ Developer", 8) :: loaded.positions
 		loaded.positions = new JobPosition(0, "Groovy Developer", 5) :: loaded.positions
 		val updatedPositions = mapperDao.update(PersonEntity, loaded)
-		updatedPositions should be === loaded
+		updatedPositions should be(loaded)
 
 		val updatedReloaded = mapperDao.select(PersonEntity, 3).get
-		updatedReloaded should be === updatedPositions
+		updatedReloaded should be(updatedPositions)
 
 		mapperDao.delete(PersonEntity, updatedReloaded)
 		mapperDao.select(PersonEntity, updatedReloaded.id) should be(None)
@@ -203,7 +203,7 @@ class OneToManySuite extends FunSuite
 		mapperDao.insert(PersonEntity, person)
 
 		val loaded = mapperDao.select(PersonEntity, 3).get
-		loaded should be === person
+		loaded should be(person)
 
 		// update
 
@@ -212,31 +212,31 @@ class OneToManySuite extends FunSuite
 		loaded.positions.head.name = "Java/Scala Developer"
 		loaded.positions.head.rank = 123
 		val updated = mapperDao.update(PersonEntity, loaded)
-		updated should be === loaded
+		updated should be(loaded)
 
 		val reloaded = mapperDao.select(PersonEntity, 3).get
-		reloaded should be === loaded
+		reloaded should be(loaded)
 
 		// add more elements to the collection
 		reloaded.positions = new JobPosition(1, "C++ Developer", 8) :: reloaded.positions
 		val updatedPositions = mapperDao.update(PersonEntity, reloaded)
-		updatedPositions should be === reloaded
+		updatedPositions should be(reloaded)
 
 		val updatedReloaded = mapperDao.select(PersonEntity, 3).get
-		updatedReloaded should be === updatedPositions
+		updatedReloaded should be(updatedPositions)
 
 		// remove elements from the collection
 		updatedReloaded.positions = updatedReloaded.positions.filterNot(_ == updatedReloaded.positions(1))
 		val removed = mapperDao.update(PersonEntity, updatedReloaded)
-		removed should be === updatedReloaded
+		removed should be(updatedReloaded)
 
 		val removedReloaded = mapperDao.select(PersonEntity, 3).get
-		removedReloaded should be === removed
+		removedReloaded should be(removed)
 
 		// remove them all
 		removedReloaded.positions = List()
-		mapperDao.update(PersonEntity, removedReloaded) should be === removedReloaded
-		mapperDao.select(PersonEntity, 3).get should be === removedReloaded
+		mapperDao.update(PersonEntity, removedReloaded) should be(removedReloaded)
+		mapperDao.select(PersonEntity, 3).get should be(removedReloaded)
 	}
 
 	def createTables() {

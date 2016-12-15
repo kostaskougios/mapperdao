@@ -22,30 +22,30 @@ class MultipleInheritance1TableSuite extends FunSuite
 			createTables()
 
 			val inserted = mapperDao.insert(ReminderEntity, Daily(12))
-			inserted should be === Daily(12)
-			mapperDao.select(ReminderEntity, inserted.id).get should be === Daily(12)
+			inserted should be(Daily(12))
+			mapperDao.select(ReminderEntity, inserted.id).get should be(Daily(12))
 
 			val updated = mapperDao.update(ReminderEntity, inserted, Daily(14))
-			updated should be === Daily(14)
-			mapperDao.select(ReminderEntity, inserted.id).get should be === Daily(14)
+			updated should be(Daily(14))
+			mapperDao.select(ReminderEntity, inserted.id).get should be(Daily(14))
 
 			mapperDao.delete(ReminderEntity, updated)
-			mapperDao.select(ReminderEntity, inserted.id) should be === None
+			mapperDao.select(ReminderEntity, inserted.id) should be(None)
 		}
 
 		test("crud for Weekly") {
 			createTables()
 
 			val inserted = mapperDao.insert(ReminderEntity, Weekly(1, 12))
-			inserted should be === Weekly(1, 12)
-			mapperDao.select(ReminderEntity, inserted.id).get should be === Weekly(1, 12)
+			inserted should be(Weekly(1, 12))
+			mapperDao.select(ReminderEntity, inserted.id).get should be(Weekly(1, 12))
 
 			val updated = mapperDao.update(ReminderEntity, inserted, Weekly(2, 14))
-			updated should be === Weekly(2, 14)
-			mapperDao.select(ReminderEntity, inserted.id).get should be === Weekly(2, 14)
+			updated should be(Weekly(2, 14))
+			mapperDao.select(ReminderEntity, inserted.id).get should be(Weekly(2, 14))
 
 			mapperDao.delete(ReminderEntity, updated)
-			mapperDao.select(ReminderEntity, inserted.id) should be === None
+			mapperDao.select(ReminderEntity, inserted.id) should be(None)
 		}
 
 		test("query") {
@@ -62,11 +62,11 @@ class MultipleInheritance1TableSuite extends FunSuite
 
 			(select
 				from re
-				where re.hourOfDay === 1.toShort).toSet should be === Set(w1, w2)
+				where re.hourOfDay === 1.toShort).toSet should be(Set(w1, w2))
 
 			(select
 				from re
-				where re.hourOfDay === 12.toShort).toSet should be === Set(d1, d2)
+				where re.hourOfDay === 12.toShort).toSet should be(Set(d1, d2))
 		}
 
 		def createTables() {

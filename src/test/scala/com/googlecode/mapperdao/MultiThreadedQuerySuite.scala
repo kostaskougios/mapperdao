@@ -42,7 +42,7 @@ class MultiThreadedQuerySuite extends FunSuite
 			)
 			val dt = System.currentTimeMillis - start
 			println("dt: " + dt)
-			loaded.toSet should be === products.toSet
+			loaded.toSet should be(products.toSet)
 			loaded.foreach {
 				p =>
 					p match {
@@ -58,10 +58,10 @@ class MultiThreadedQuerySuite extends FunSuite
 					}
 			}
 			// check the order
-			loaded.head.name should be === "product9999"
-			loaded.tail.head.name should be === "product9998"
-			loaded.tail.tail.head.name should be === "product9997"
-			loaded.tail.tail.tail.head.name should be === "product9996"
+			loaded.head.name should be("product9999")
+			loaded.tail.head.name should be("product9998")
+			loaded.tail.tail.head.name should be("product9997")
+			loaded.tail.tail.tail.head.name should be("product9996")
 		}
 
 		def createTables() {

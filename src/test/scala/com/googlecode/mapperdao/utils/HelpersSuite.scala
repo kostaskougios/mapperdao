@@ -21,13 +21,13 @@ class HelpersSuite extends FunSuite
 		val origT1 = T(1)
 		val moded = merge(Set(origT1), Set(T(1), T(2), T(3)))
 		// make sure the set retains origT1 (same instance)
-		moded.filter(_.eq(origT1)).size should be === 1
+		moded.filter(_.eq(origT1)).size should be(1)
 		// and make sure the set contains all items
-		moded should be === Set(T(1), T(2), T(3))
+		moded should be(Set(T(1), T(2), T(3)))
 	}
 
 	test("removed (set)") {
-		merge(Set(T(1)), Set(T(2), T(3))) should be === Set(T(2), T(3))
+		merge(Set(T(1)), Set(T(2), T(3))) should be(Set(T(2), T(3)))
 	}
 
 	test("added (list)") {
@@ -36,7 +36,7 @@ class HelpersSuite extends FunSuite
 		// make sure the set retains origT1 (same instance)
 		moded(0) should be theSameInstanceAs (origT1)
 		// and make sure the set contains all items
-		moded should be === List(T(1), T(2), T(3))
+		moded should be(List(T(1), T(2), T(3)))
 	}
 
 	test("added different instance but equals, keep 1 only (list)") {
@@ -46,7 +46,7 @@ class HelpersSuite extends FunSuite
 		// make sure the set retains origT1 (same instance)
 		moded(0) should be theSameInstanceAs (origT1)
 		// and make sure the set contains all items
-		moded should be === List(T(1), T(2), T(3))
+		moded should be(List(T(1), T(2), T(3)))
 	}
 
 	test("added different instance but equals, keep both (list)") {
@@ -57,12 +57,12 @@ class HelpersSuite extends FunSuite
 		moded(0) should be theSameInstanceAs (origT1)
 		moded(2) should be theSameInstanceAs (origT1Second)
 		// and make sure the set contains all items
-		moded should be === List(T(1), T(2), T(1), T(3))
+		moded should be(List(T(1), T(2), T(1), T(3)))
 	}
 
 	test("removed (list)") {
 		val moded = merge(List(T(1), T(2)), List(T(2), T(3)))
 		// and make sure the set contains all items
-		moded should be === List(T(2), T(3))
+		moded should be(List(T(2), T(3)))
 	}
 }

@@ -26,10 +26,10 @@ class OneToOneMutableTwoWaySuite extends FunSuite
 			val inserted = mapperDao.insert(ProductEntity, product)
 			inserted.id = 2
 			val updated = mapperDao.update(ProductEntity, inserted)
-			updated should be === inserted
+			updated should be(inserted)
 			val recreatedProduct = Product(2, Inventory(null, 5))
 			recreatedProduct.inventory.product = recreatedProduct
-			mapperDao.select(ProductEntity, 2).get should be === recreatedProduct
+			mapperDao.select(ProductEntity, 2).get should be(recreatedProduct)
 			mapperDao.select(ProductEntity, 1) should be(None)
 		}
 	}
@@ -41,9 +41,9 @@ class OneToOneMutableTwoWaySuite extends FunSuite
 		val inserted = mapperDao.insert(ProductEntity, product)
 		inserted.inventory.stock = 8
 		val updated = mapperDao.update(ProductEntity, inserted)
-		updated should be === inserted
+		updated should be(inserted)
 		val selected = mapperDao.select(ProductEntity, updated.id).get
-		selected should be === updated
+		selected should be(updated)
 
 		mapperDao.delete(ProductEntity, selected)
 		mapperDao.select(ProductEntity, selected.id) should be(None)
@@ -54,9 +54,9 @@ class OneToOneMutableTwoWaySuite extends FunSuite
 		val product = Product(1, Inventory(null, 5))
 		product.inventory.product = product
 		val inserted = mapperDao.insert(ProductEntity, product)
-		inserted should be === product
+		inserted should be(product)
 		val selected = mapperDao.select(ProductEntity, inserted.id).get
-		selected should be === inserted
+		selected should be(inserted)
 	}
 
 	test("from null to value") {
@@ -65,8 +65,8 @@ class OneToOneMutableTwoWaySuite extends FunSuite
 		val inserted = mapperDao.insert(ProductEntity, product)
 		inserted.inventory = Inventory(inserted, 5)
 		val updated = mapperDao.update(ProductEntity, inserted)
-		updated.inventory should be === inserted.inventory
-		mapperDao.select(ProductEntity, inserted.id).get should be === updated
+		updated.inventory should be(inserted.inventory)
+		mapperDao.select(ProductEntity, inserted.id).get should be(updated)
 
 		mapperDao.delete(ProductEntity, updated)
 		mapperDao.select(ProductEntity, updated.id) should be(None)
@@ -79,8 +79,8 @@ class OneToOneMutableTwoWaySuite extends FunSuite
 		val inserted = mapperDao.insert(ProductEntity, product)
 		inserted.inventory = null
 		val updated = mapperDao.update(ProductEntity, inserted)
-		updated.inventory should be === null
-		mapperDao.select(ProductEntity, inserted.id).get should be === updated
+		updated.inventory should be(null)
+		mapperDao.select(ProductEntity, inserted.id).get should be(updated)
 	}
 
 	def createTables = {

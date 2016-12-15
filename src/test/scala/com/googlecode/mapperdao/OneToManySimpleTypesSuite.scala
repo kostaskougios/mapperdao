@@ -23,14 +23,14 @@ class OneToManySimpleTypesSuite extends FunSuite
 		createTables("create-tables-string")
 		val product = Product("test", Set("tag1", "tag2", "tag3"))
 		val inserted = mapperDao.insert(ProductEntity, product)
-		mapperDao.select(ProductEntity, inserted.id).get should be === product
+		mapperDao.select(ProductEntity, inserted.id).get should be(product)
 	}
 
 	test("insert") {
 		createTables("create-tables-string")
 		val product = Product("test", Set("tag1", "tag2", "tag3"))
 		val inserted = mapperDao.insert(ProductEntity, product)
-		inserted should be === product
+		inserted should be(product)
 	}
 
 	test("update, remove") {
@@ -39,8 +39,8 @@ class OneToManySimpleTypesSuite extends FunSuite
 		val inserted = mapperDao.insert(ProductEntity, product)
 		val up = Product(inserted.name, inserted.tags.filterNot(_ == "tag2"))
 		val updated = mapperDao.update(ProductEntity, inserted, up)
-		updated should be === up
-		mapperDao.select(ProductEntity, inserted.id).get should be === updated
+		updated should be(up)
+		mapperDao.select(ProductEntity, inserted.id).get should be(updated)
 	}
 
 	test("update, add") {
@@ -49,8 +49,8 @@ class OneToManySimpleTypesSuite extends FunSuite
 		val inserted = mapperDao.insert(ProductEntity, product)
 		val up = Product(inserted.name, inserted.tags ++ Set("tag2", "tag3"))
 		val updated = mapperDao.update(ProductEntity, inserted, up)
-		updated should be === up
-		mapperDao.select(ProductEntity, inserted.id).get should be === updated
+		updated should be(up)
+		mapperDao.select(ProductEntity, inserted.id).get should be(updated)
 	}
 
 	test("query") {
@@ -59,7 +59,7 @@ class OneToManySimpleTypesSuite extends FunSuite
 		val p2 = mapperDao.insert(ProductEntity, Product("test2", Set("tag10", "tag20", "tag3")))
 		val p3 = mapperDao.insert(ProductEntity, Product("test3", Set("tag10", "tag20", "tag30")))
 
-		queryDao.query(q0).toSet should be === Set(p1, p2)
+		queryDao.query(q0).toSet should be(Set(p1, p2))
 	}
 
 	test("IntEntity : update, remove") {
@@ -68,8 +68,8 @@ class OneToManySimpleTypesSuite extends FunSuite
 		val inserted = mapperDao.insert(ProductEntityI, product)
 		val up = ProductI(inserted.name, inserted.tags.filterNot(_ == 6))
 		val updated = mapperDao.update(ProductEntityI, inserted, up)
-		updated should be === up
-		mapperDao.select(ProductEntityI, inserted.id).get should be === updated
+		updated should be(up)
+		mapperDao.select(ProductEntityI, inserted.id).get should be(updated)
 	}
 
 	def createTables(sql: String) {

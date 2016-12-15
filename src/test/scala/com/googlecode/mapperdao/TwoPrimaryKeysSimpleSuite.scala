@@ -20,7 +20,7 @@ class TwoPrimaryKeysSimpleSuite extends FunSuite
 
 		val user = User("Some", "Body", 20)
 		val inserted = mapperDao.insert(UserEntity, user)
-		inserted should be === user
+		inserted should be(user)
 	}
 
 	test("select") {
@@ -29,8 +29,8 @@ class TwoPrimaryKeysSimpleSuite extends FunSuite
 		val u1 = mapperDao.insert(UserEntity, User("Some", "Body", 20))
 		val u2 = mapperDao.insert(UserEntity, User("An", "Other", 25))
 
-		mapperDao.select(UserEntity, ("Some", "Body")).get should be === u1
-		mapperDao.select(UserEntity, ("An", "Other")).get should be === u2
+		mapperDao.select(UserEntity, ("Some", "Body")).get should be(u1)
+		mapperDao.select(UserEntity, ("An", "Other")).get should be(u2)
 	}
 
 	test("update") {
@@ -41,13 +41,13 @@ class TwoPrimaryKeysSimpleSuite extends FunSuite
 
 		val u1updated = User("SomeX", "BodyX", 21)
 		val uu1 = mapperDao.update(UserEntity, iu1, u1updated)
-		uu1 should be === u1updated
+		uu1 should be(u1updated)
 		val u2updated = User("AnX", "OtherX", 26)
 		val uu2 = mapperDao.update(UserEntity, iu2, u2updated)
-		uu2 should be === u2updated
+		uu2 should be(u2updated)
 
-		mapperDao.select(UserEntity, ("SomeX", "BodyX")).get should be === uu1
-		mapperDao.select(UserEntity, ("AnX", "OtherX")).get should be === uu2
+		mapperDao.select(UserEntity, ("SomeX", "BodyX")).get should be(uu1)
+		mapperDao.select(UserEntity, ("AnX", "OtherX")).get should be(uu2)
 
 		mapperDao.select(UserEntity, ("Some", "Body")) should be(None)
 		mapperDao.select(UserEntity, ("An", "Other")) should be(None)
@@ -59,7 +59,7 @@ class TwoPrimaryKeysSimpleSuite extends FunSuite
 		val inserted = mapperDao.insert(UserEntity, User("Some", "Body", 20))
 		mapperDao.delete(UserEntity, inserted)
 		mapperDao.select(UserEntity, ("Some", "Body")) should be(None)
-		mapperDao.select(UserEntity, ("A", "B")).get should be === User("A", "B", 25)
+		mapperDao.select(UserEntity, ("A", "B")).get should be(User("A", "B", 25))
 	}
 
 	test("query") {
@@ -74,7 +74,7 @@ class TwoPrimaryKeysSimpleSuite extends FunSuite
 
 		import Query._
 		queryDao.query(select from u where
-			u.surname === "Kougios" or u.name === "Kostas" order by(u.name, asc, u.surname, asc)) should be === List(u0, u4, u2)
+			u.surname === "Kougios" or u.name === "Kostas" order by(u.name, asc, u.surname, asc)) should be(List(u0, u4, u2))
 	}
 
 	def createTables = {

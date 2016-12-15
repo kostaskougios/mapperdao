@@ -26,7 +26,7 @@ class SimpleSelfJoinQuerySuite extends FunSuite
 		val j4 = mapperDao.insert(JobPositionEntity, JobPosition(4, "Scala Developer", now))
 		val j5 = mapperDao.insert(JobPositionEntity, JobPosition(5, "Scala Developer", now))
 		mapperDao.insert(JobPositionEntity, JobPosition(6, "driver", DateTime.now))
-		queryDao.query(q11).toSet should be === Set(j2, j4, j5)
+		queryDao.query(q11).toSet should be(Set(j2, j4, j5))
 	}
 
 	def createJobPositionTable() {

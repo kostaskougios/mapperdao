@@ -23,8 +23,8 @@ class OneToOneImmutableOneWaySuite extends FunSuite
 			createTables
 			val inserted = mapperDao.insert(ProductEntity, Product(1, Inventory(10)))
 			val updated = mapperDao.update(ProductEntity, inserted, Product(2, Inventory(15)))
-			updated should be === Product(2, Inventory(15))
-			mapperDao.select(ProductEntity, 2).get should be === updated
+			updated should be(Product(2, Inventory(15)))
+			mapperDao.select(ProductEntity, 2).get should be(updated)
 			mapperDao.select(ProductEntity, 1) should be(None)
 		}
 	}
@@ -34,7 +34,7 @@ class OneToOneImmutableOneWaySuite extends FunSuite
 		for (i <- 1 to 4) {
 			val p = mapperDao.insert(ProductEntity, Product(i, Inventory(4 + i)))
 			val selected = mapperDao.select(ProductEntity, i).get
-			selected should be === p
+			selected should be(p)
 		}
 	}
 
@@ -43,12 +43,12 @@ class OneToOneImmutableOneWaySuite extends FunSuite
 		val product = new Product(1, Inventory(10))
 		val inserted = mapperDao.insert(ProductEntity, product)
 		val updated = mapperDao.update(ProductEntity, inserted, Product(1, null))
-		updated should be === Product(1, null)
-		mapperDao.select(ProductEntity, updated.id).get should be === updated
+		updated should be(Product(1, null))
+		mapperDao.select(ProductEntity, updated.id).get should be(updated)
 
 		val reUpdated = mapperDao.update(ProductEntity, updated, Product(1, Inventory(8)))
-		reUpdated should be === Product(1, Inventory(8))
-		mapperDao.select(ProductEntity, reUpdated.id).get should be === reUpdated
+		reUpdated should be(Product(1, Inventory(8)))
+		mapperDao.select(ProductEntity, reUpdated.id).get should be(reUpdated)
 
 		mapperDao.delete(ProductEntity, reUpdated)
 		mapperDao.select(ProductEntity, reUpdated.id) should be(None)
@@ -59,22 +59,22 @@ class OneToOneImmutableOneWaySuite extends FunSuite
 		val product = new Product(1, Inventory(10))
 		val inserted = mapperDao.insert(ProductEntity, product)
 		val updated = mapperDao.update(ProductEntity, inserted, Product(1, Inventory(15)))
-		updated should be === Product(1, Inventory(15))
-		mapperDao.select(ProductEntity, inserted.id).get should be === updated
+		updated should be(Product(1, Inventory(15)))
+		mapperDao.select(ProductEntity, inserted.id).get should be(updated)
 	}
 
 	test("insert") {
 		createTables
 		val product = new Product(3, Inventory(10))
 		val inserted = mapperDao.insert(ProductEntity, product)
-		inserted should be === product
+		inserted should be(product)
 	}
 
 	test("select") {
 		createTables
 		val product = new Product(8, Inventory(10))
 		val inserted = mapperDao.insert(ProductEntity, product)
-		mapperDao.select(ProductEntity, inserted.id).get should be === inserted
+		mapperDao.select(ProductEntity, inserted.id).get should be(inserted)
 	}
 
 	def createTables = {

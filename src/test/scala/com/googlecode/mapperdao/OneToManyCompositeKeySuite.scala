@@ -100,19 +100,19 @@ class OneToManyCompositeKeySuite extends FunSuite
 			(select
 				from he
 				where he.address === "London"
-				).toSet should be === Set(h1, h2)
+				).toSet should be(Set(h1, h2))
 
 			(select
 				from he
 				join(he, he.doors, de)
 				where he.address === "London" and de.location === "balcony"
-				).toList should be === List(h2)
+				).toList should be(List(h2))
 
 			(select
 				from he
 				join(he, he.doors, de)
 				where he.address === "London" and de.location === "bathroom"
-				).toSet should be === Set(h1, h2)
+				).toSet should be(Set(h1, h2))
 		}
 
 		test("insert, select and delete") {
@@ -124,11 +124,11 @@ class OneToManyCompositeKeySuite extends FunSuite
 			val h = House("London", Set(Door("kitchen"), Door("bathroom")))
 
 			val inserted = mapperDao.insert(HouseEntity, h)
-			inserted should be === h
+			inserted should be(h)
 
-			mapperDao.select(HouseEntity, (inserted.id, h.address)).get should be === inserted
+			mapperDao.select(HouseEntity, (inserted.id, h.address)).get should be(inserted)
 			mapperDao.delete(HouseEntity, inserted)
-			mapperDao.select(HouseEntity, (inserted.id, h.address)) should be === None
+			mapperDao.select(HouseEntity, (inserted.id, h.address)) should be(None)
 		}
 
 		test("update, remove") {
@@ -140,9 +140,9 @@ class OneToManyCompositeKeySuite extends FunSuite
 			val inserted = mapperDao.insert(HouseEntity, House("London", Set(Door("kitchen"), Door("bathroom"))))
 			val upd = inserted.copy(doors = inserted.doors.filter(_.location == "kitchen"))
 			val updated = mapperDao.update(HouseEntity, inserted, upd)
-			updated should be === upd
+			updated should be(upd)
 			val selected = mapperDao.select(HouseEntity, (inserted.id, inserted.address)).get
-			selected should be === updated
+			selected should be(updated)
 		}
 
 		test("update, add") {
@@ -154,9 +154,9 @@ class OneToManyCompositeKeySuite extends FunSuite
 			val inserted = mapperDao.insert(HouseEntity, House("London", Set(Door("kitchen"))))
 			val upd = inserted.copy(doors = inserted.doors + Door("bathroom"))
 			val updated = mapperDao.update(HouseEntity, inserted, upd)
-			updated should be === upd
+			updated should be(upd)
 			val selected = mapperDao.select(HouseEntity, (inserted.id, inserted.address)).get
-			selected should be === updated
+			selected should be(updated)
 		}
 
 		def noise = mapperDao.insert(HouseEntity, House("Paris", Set(Door("livingroom"), Door("balcony"))))

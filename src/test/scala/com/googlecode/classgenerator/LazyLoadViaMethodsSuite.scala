@@ -3,16 +3,15 @@ package com.googlecode.classgenerator
 import com.googlecode.classgenerator.model.{CaseSuper, Lazy, Super}
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-
 /**
   * @author kostantinos.kougios
   *
   *         15 Apr 2012
   */
 @RunWith(classOf[JUnitRunner])
-class LazyLoadViaMethodsSuite extends FunSuite with ShouldMatchers
+class LazyLoadViaMethodsSuite extends FunSuite
 {
 
 	val classManager = new ClassManager

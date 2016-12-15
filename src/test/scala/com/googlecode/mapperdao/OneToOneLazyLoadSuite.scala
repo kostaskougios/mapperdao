@@ -35,8 +35,8 @@ class OneToOneLazyLoadSuite extends FunSuite
 			verifyNotLoaded(lp1)
 			verifyNotLoaded(lp2)
 
-			lp1 should be === i1
-			lp2 should be === i2
+			lp1 should be(i1)
+			lp2 should be(i2)
 		}
 
 		test("update immutable entity, skip lazy loaded") {
@@ -49,9 +49,9 @@ class OneToOneLazyLoadSuite extends FunSuite
 
 			val up = Product(Inventory(9), 3)
 			val updated = mapperDao.update(UpdateConfig(skip = Set(ProductEntity.inventory)), ProductEntity, selected, up)
-			updated should be === up
+			updated should be(up)
 			val reloaded = mapperDao.select(selectConfig, ProductEntity, inserted.id).get
-			reloaded should be === Product(Inventory(8), 3)
+			reloaded should be(Product(Inventory(8), 3))
 		}
 
 		test("update mutable entity") {
@@ -64,9 +64,9 @@ class OneToOneLazyLoadSuite extends FunSuite
 
 			selected.inventory = Inventory(9)
 			val updated = mapperDao.update(ProductEntity, selected)
-			updated should be === selected
+			updated should be(selected)
 			val reloaded = mapperDao.select(selectConfig, ProductEntity, inserted.id).get
-			reloaded should be === updated
+			reloaded should be(updated)
 		}
 
 		test("update immutable entity") {
@@ -79,9 +79,9 @@ class OneToOneLazyLoadSuite extends FunSuite
 
 			val up = Product(Inventory(9), 2)
 			val updated = mapperDao.update(ProductEntity, selected, up)
-			updated should be === up
+			updated should be(up)
 			val reloaded = mapperDao.select(selectConfig, ProductEntity, inserted.id).get
-			reloaded should be === updated
+			reloaded should be(updated)
 		}
 
 		test("manually updating them stops lazy loading") {
@@ -93,7 +93,7 @@ class OneToOneLazyLoadSuite extends FunSuite
 			val selected = mapperDao.select(selectConfig, ProductEntity, inserted.id).get
 			selected.inventory = Inventory(12)
 			verifyNotLoaded(selected)
-			selected should be === Product(Inventory(12), 2)
+			selected should be(Product(Inventory(12), 2))
 			verifyNotLoaded(selected)
 		}
 
@@ -105,7 +105,7 @@ class OneToOneLazyLoadSuite extends FunSuite
 
 			val selected = mapperDao.select(selectConfig, ProductEntity, inserted.id).get
 			verifyNotLoaded(selected)
-			selected should be === inserted
+			selected should be(inserted)
 			selected.id should be > 0.toLong
 		}
 	}

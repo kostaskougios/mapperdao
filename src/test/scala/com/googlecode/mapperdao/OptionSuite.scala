@@ -54,19 +54,19 @@ class OptionSuite extends FunSuite
 	}
 
 	test("manyToOneOption Some(x)=>x") {
-		CategoryEntity.parent.columnToValue(Category("x", Some(Category("y", None, None)), None)) should be === Category("y", None, None)
+		CategoryEntity.parent.columnToValue(Category("x", Some(Category("y", None, None)), None)) should be(Category("y", None, None))
 	}
 
 	test("manyToOne/oneToOne constructor with None") {
 		val cat = Category("x", None, None)
 		val newCat = CategoryEntity.constructor(ValuesMap.fromType(typeManager, CategoryEntity.tpe, cat))
-		newCat should be === cat
+		newCat should be(cat)
 	}
 
 	test("manyToOne constructor with Some") {
 		val cat = Category("x", Some(Category("y", None, None)), None)
 		val newCat = CategoryEntity.constructor(ValuesMap.fromType(typeManager, CategoryEntity.tpe, cat))
-		newCat should be === cat
+		newCat should be(cat)
 	}
 
 	test("oneToOne None=>null") {
@@ -74,12 +74,12 @@ class OptionSuite extends FunSuite
 	}
 
 	test("oneToOneOption Some(x)=>x") {
-		CategoryEntity.linked.columnToValue(Category("x", None, Some(Category("y", None, None)))) should be === Category("y", None, None)
+		CategoryEntity.linked.columnToValue(Category("x", None, Some(Category("y", None, None)))) should be(Category("y", None, None))
 	}
 
 	test("oneToOne constructor with Some") {
 		val cat = Category("x", None, Some(Category("y", None, None)))
 		val newCat = CategoryEntity.constructor(ValuesMap.fromType(typeManager, CategoryEntity.tpe, cat))
-		newCat should be === cat
+		newCat should be(cat)
 	}
 }

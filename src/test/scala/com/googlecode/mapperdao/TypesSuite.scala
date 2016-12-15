@@ -21,26 +21,26 @@ class TypesSuite extends FunSuite
 			createTables("interval")
 			val time = Duration.standardDays(5).plus(Duration.standardHours(6))
 			val inserted = mapperDao.insert(IntervalDurationEntity, IntervalDuration(5, time))
-			inserted should be === IntervalDuration(5, time)
+			inserted should be(IntervalDuration(5, time))
 			val selected = mapperDao.select(IntervalDurationEntity, 5).get
-			selected should be === inserted
+			selected should be(inserted)
 		}
 
 		test("duration accurancy") {
 			createTables("interval")
 			val time = Duration.standardDays(1).plus(987)
 			val inserted = mapperDao.insert(IntervalDurationEntity, IntervalDuration(5, time))
-			inserted should be === IntervalDuration(5, time)
+			inserted should be(IntervalDuration(5, time))
 			val selected = mapperDao.select(IntervalDurationEntity, 5).get
-			selected should be === inserted
+			selected should be(inserted)
 		}
 
 		test("duration null") {
 			createTables("interval")
 			val inserted = mapperDao.insert(IntervalDurationEntity, IntervalDuration(5, null))
-			inserted should be === IntervalDuration(5, null)
+			inserted should be(IntervalDuration(5, null))
 			val selected = mapperDao.select(IntervalDurationEntity, 5).get
-			selected should be === inserted
+			selected should be(inserted)
 		}
 
 		test("duration query") {
@@ -58,17 +58,17 @@ class TypesSuite extends FunSuite
 			createTables("interval")
 			val time = Duration.standardDays(5).plus(Duration.standardHours(6))
 			val inserted = mapperDao.insert(OIntervalDurationEntity, OIntervalDuration(5, Some(time)))
-			inserted should be === OIntervalDuration(5, Some(time))
+			inserted should be(OIntervalDuration(5, Some(time)))
 			val selected = mapperDao.select(OIntervalDurationEntity, 5).get
-			selected should be === inserted
+			selected should be(inserted)
 		}
 
 		test("duration option none") {
 			createTables("interval")
 			val inserted = mapperDao.insert(OIntervalDurationEntity, OIntervalDuration(5, None))
-			inserted should be === OIntervalDuration(5, None)
+			inserted should be(OIntervalDuration(5, None))
 			val selected = mapperDao.select(OIntervalDurationEntity, 5).get
-			selected should be === inserted
+			selected should be(inserted)
 		}
 
 		test("duration option query") {
@@ -86,7 +86,7 @@ class TypesSuite extends FunSuite
 			createTables("interval")
 			val time = Period.days(5).plusHours(2).plusMinutes(8).plusMonths(7).plusYears(6).plusSeconds(12).plusMillis(10)
 			val inserted = mapperDao.insert(IntervalEntity, Interval(5, time))
-			inserted should be === Interval(5, time)
+			inserted should be(Interval(5, time))
 			val selected = mapperDao.select(IntervalEntity, 5).get
 			selected should be(inserted)
 		}
@@ -95,7 +95,7 @@ class TypesSuite extends FunSuite
 			createTables("interval")
 			val time = Period.days(5).plusHours(2).plusMinutes(8).plusMonths(7).plusYears(6).plusSeconds(12).plusMillis(987)
 			val inserted = mapperDao.insert(IntervalEntity, Interval(5, time))
-			inserted should be === Interval(5, time)
+			inserted should be(Interval(5, time))
 			val selected = mapperDao.select(IntervalEntity, 5).get
 			selected should be(inserted)
 		}
@@ -104,9 +104,9 @@ class TypesSuite extends FunSuite
 			createTables("interval")
 			val time = null
 			val inserted = mapperDao.insert(IntervalEntity, Interval(5, time))
-			inserted should be === Interval(5, time)
+			inserted should be(Interval(5, time))
 			val selected = mapperDao.select(IntervalEntity, 5).get
-			selected should be === inserted
+			selected should be(inserted)
 		}
 
 		test("interval query") {
@@ -122,17 +122,17 @@ class TypesSuite extends FunSuite
 			createTables("interval")
 			val time = Period.days(5).plusHours(2).plusMinutes(8).plusMonths(7).plusYears(6).plusSeconds(12)
 			val inserted = mapperDao.insert(OIntervalEntity, OInterval(5, Some(time)))
-			inserted should be === OInterval(5, Some(time))
+			inserted should be(OInterval(5, Some(time)))
 			val selected = mapperDao.select(OIntervalEntity, 5).get
-			selected should be === inserted
+			selected should be(inserted)
 		}
 
 		test("interval option, none") {
 			createTables("interval")
 			val inserted = mapperDao.insert(OIntervalEntity, OInterval(5, None))
-			inserted should be === OInterval(5, None)
+			inserted should be(OInterval(5, None))
 			val selected = mapperDao.select(OIntervalEntity, 5).get
-			selected should be === inserted
+			selected should be(inserted)
 		}
 
 		test("interval option query") {
@@ -151,14 +151,14 @@ class TypesSuite extends FunSuite
 		val time = DateTime.now.withMillisOfSecond(0).toLocalTime
 		val nextHour = time.plusHours(1)
 		val inserted = mapperDao.insert(DatesEntity, Dates(5, time = time))
-		inserted should be === Dates(5, time = time)
+		inserted should be(Dates(5, time = time))
 		val selected = mapperDao.select(DatesEntity, 5).get
-		selected should be === inserted
+		selected should be(inserted)
 
 		val upd = selected.copy(time = nextHour)
 		val updated = mapperDao.update(DatesEntity, selected, upd)
-		updated should be === upd
-		mapperDao.select(DatesEntity, 5).get should be === updated
+		updated should be(upd)
+		mapperDao.select(DatesEntity, 5).get should be(updated)
 	}
 
 	if (Setup.database != "sqlserver") {
@@ -179,14 +179,14 @@ class TypesSuite extends FunSuite
 		val today = LocalDate.now
 		val tomorrow = LocalDate.now.plusDays(1)
 		val inserted = mapperDao.insert(DatesEntity, Dates(5, today))
-		inserted should be === Dates(5, today)
+		inserted should be(Dates(5, today))
 		val selected = mapperDao.select(DatesEntity, 5).get
-		selected should be === inserted
+		selected should be(inserted)
 
 		val upd = selected.copy(localDate = tomorrow)
 		val updated = mapperDao.update(DatesEntity, selected, upd)
-		updated should be === upd
-		mapperDao.select(DatesEntity, 5).get should be === updated
+		updated should be(upd)
+		mapperDao.select(DatesEntity, 5).get should be(updated)
 	}
 
 	test("localDate, query") {
@@ -203,9 +203,9 @@ class TypesSuite extends FunSuite
 	test("localDate, null") {
 		createTables("dates")
 		val inserted = mapperDao.insert(DatesEntity, Dates(5, null))
-		inserted should be === Dates(5, null)
+		inserted should be(Dates(5, null))
 		val selected = mapperDao.select(DatesEntity, 5).get
-		selected should be === inserted
+		selected should be(inserted)
 	}
 
 	test("localDate, some(x)") {
@@ -213,205 +213,205 @@ class TypesSuite extends FunSuite
 		val today = LocalDate.now
 		val tomorrow = LocalDate.now.plusDays(1)
 		val inserted = mapperDao.insert(ODatesEntity, ODates(5, Some(today)))
-		inserted should be === ODates(5, Some(today))
+		inserted should be(ODates(5, Some(today)))
 		val selected = mapperDao.select(ODatesEntity, 5).get
-		selected should be === inserted
+		selected should be(inserted)
 
 		val upd = selected.copy(localDate = Some(tomorrow))
 		val updated = mapperDao.update(ODatesEntity, selected, upd)
-		updated should be === upd
-		mapperDao.select(ODatesEntity, 5).get should be === updated
+		updated should be(upd)
+		mapperDao.select(ODatesEntity, 5).get should be(updated)
 	}
 
 	test("localDate, none") {
 		createTables("dates")
 		val inserted = mapperDao.insert(ODatesEntity, ODates(5, None))
-		inserted should be === ODates(5, None)
+		inserted should be(ODates(5, None))
 		val selected = mapperDao.select(ODatesEntity, 5).get
-		selected should be === inserted
+		selected should be(inserted)
 	}
 
 	test("optional double, some(x)") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, double = Some(3.3d)))
-		inserted should be === OBD(5, double = Some(3.3d))
-		mapperDao.select(OBDEntity, 5).get should be === inserted
+		inserted should be(OBD(5, double = Some(3.3d)))
+		mapperDao.select(OBDEntity, 5).get should be(inserted)
 	}
 
 	test("optional double, none") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, double = None))
-		inserted should be === OBD(5, double = None)
-		mapperDao.select(OBDEntity, 5).get should be === inserted
+		inserted should be(OBD(5, double = None))
+		mapperDao.select(OBDEntity, 5).get should be(inserted)
 	}
 
 	test("optional float, some(x)") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, float = Some(3.3f)))
-		inserted should be === OBD(5, float = Some(3.3f))
-		mapperDao.select(OBDEntity, 5).get should be === inserted
+		inserted should be(OBD(5, float = Some(3.3f)))
+		mapperDao.select(OBDEntity, 5).get should be(inserted)
 	}
 
 	test("optional float, none") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, float = None))
-		inserted should be === OBD(5, float = None)
-		mapperDao.select(OBDEntity, 5).get should be === inserted
+		inserted should be(OBD(5, float = None))
+		mapperDao.select(OBDEntity, 5).get should be(inserted)
 	}
 
 	test("optional long, some(x)") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, long = Some(3)))
-		inserted should be === OBD(5, long = Some(3))
-		mapperDao.select(OBDEntity, 5).get should be === inserted
+		inserted should be(OBD(5, long = Some(3)))
+		mapperDao.select(OBDEntity, 5).get should be(inserted)
 	}
 
 	test("optional long, none") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, long = None))
-		inserted should be === OBD(5, long = None)
-		mapperDao.select(OBDEntity, 5).get should be === inserted
+		inserted should be(OBD(5, long = None))
+		mapperDao.select(OBDEntity, 5).get should be(inserted)
 	}
 
 	test("optional int, some(x)") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, int = Some(3)))
-		inserted should be === OBD(5, int = Some(3))
-		mapperDao.select(OBDEntity, 5).get should be === inserted
+		inserted should be(OBD(5, int = Some(3)))
+		mapperDao.select(OBDEntity, 5).get should be(inserted)
 	}
 
 	test("optional int, none") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, int = None))
-		inserted should be === OBD(5, int = None)
-		mapperDao.select(OBDEntity, 5).get should be === inserted
+		inserted should be(OBD(5, int = None))
+		mapperDao.select(OBDEntity, 5).get should be(inserted)
 	}
 
 	test("optional short, some(x)") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, small = Some(3)))
-		inserted should be === OBD(5, small = Some(3))
-		mapperDao.select(OBDEntity, 5).get should be === inserted
+		inserted should be(OBD(5, small = Some(3)))
+		mapperDao.select(OBDEntity, 5).get should be(inserted)
 	}
 
 	test("optional short, none") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, small = None))
-		inserted should be === OBD(5, small = None)
-		mapperDao.select(OBDEntity, 5).get should be === inserted
+		inserted should be(OBD(5, small = None))
+		mapperDao.select(OBDEntity, 5).get should be(inserted)
 	}
 
 	test("optional byte, some(x)") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, byte = Some(3)))
-		inserted should be === OBD(5, byte = Some(3))
-		mapperDao.select(OBDEntity, 5).get should be === inserted
+		inserted should be(OBD(5, byte = Some(3)))
+		mapperDao.select(OBDEntity, 5).get should be(inserted)
 	}
 
 	test("optional byte, none") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, byte = None))
-		inserted should be === OBD(5, byte = None)
-		mapperDao.select(OBDEntity, 5).get should be === inserted
+		inserted should be(OBD(5, byte = None))
+		mapperDao.select(OBDEntity, 5).get should be(inserted)
 	}
 
 	test("optional bigdecimal, some(x)") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, big = Some(BigDecimal(500, 5))))
-		inserted should be === OBD(5, big = Some(BigDecimal(500, 5)))
-		mapperDao.select(OBDEntity, 5).get should be === inserted
+		inserted should be(OBD(5, big = Some(BigDecimal(500, 5))))
+		mapperDao.select(OBDEntity, 5).get should be(inserted)
 	}
 
 	test("optional bigdecimal, none") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, big = None))
-		inserted should be === OBD(5, big = None)
-		mapperDao.select(OBDEntity, 5).get should be === inserted
+		inserted should be(OBD(5, big = None))
+		mapperDao.select(OBDEntity, 5).get should be(inserted)
 	}
 
 	test("optional string, some(x)") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, nvarchar = Some("x")))
-		inserted should be === OBD(5, nvarchar = Some("x"))
-		mapperDao.select(OBDEntity, 5).get should be === inserted
+		inserted should be(OBD(5, nvarchar = Some("x")))
+		mapperDao.select(OBDEntity, 5).get should be(inserted)
 	}
 
 	test("optional string, none") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, nvarchar = None))
-		inserted should be === OBD(5, nvarchar = None)
-		mapperDao.select(OBDEntity, 5).get should be === inserted
+		inserted should be(OBD(5, nvarchar = None))
+		mapperDao.select(OBDEntity, 5).get should be(inserted)
 	}
 
 	test("optional boolean, some(x)") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, bool = Some(true)))
-		inserted should be === OBD(5, bool = Some(true))
-		mapperDao.select(OBDEntity, 5).get should be === inserted
+		inserted should be(OBD(5, bool = Some(true)))
+		mapperDao.select(OBDEntity, 5).get should be(inserted)
 	}
 
 	test("optional boolean, none") {
 		createTables("obd")
 		val inserted = mapperDao.insert(OBDEntity, OBD(5, bool = None))
-		inserted should be === OBD(5, bool = None)
-		mapperDao.select(OBDEntity, 5).get should be === inserted
+		inserted should be(OBD(5, bool = None))
+		mapperDao.select(OBDEntity, 5).get should be(inserted)
 	}
 
 	test("string, text, not null") {
 		createTables("bd")
 		val inserted = mapperDao.insert(BDEntity, BD(5, text = "x"))
-		inserted should be === BD(5, text = "x")
-		mapperDao.select(BDEntity, 5).get should be === inserted
+		inserted should be(BD(5, text = "x"))
+		mapperDao.select(BDEntity, 5).get should be(inserted)
 	}
 
 	test("string, text, null") {
 		createTables("bd")
 		val inserted = mapperDao.insert(BDEntity, BD(5, text = null))
-		inserted should be === BD(5, text = null)
-		mapperDao.select(BDEntity, 5).get should be === inserted
+		inserted should be(BD(5, text = null))
+		mapperDao.select(BDEntity, 5).get should be(inserted)
 	}
 
 	test("string, nvarchar, not null") {
 		createTables("bd")
 		val inserted = mapperDao.insert(BDEntity, BD(5, nvarchar = "x"))
-		inserted should be === BD(5, nvarchar = "x")
-		mapperDao.select(BDEntity, 5).get should be === inserted
+		inserted should be(BD(5, nvarchar = "x"))
+		mapperDao.select(BDEntity, 5).get should be(inserted)
 	}
 
 	test("string, nvarchar, null") {
 		createTables("bd")
 		val inserted = mapperDao.insert(BDEntity, BD(5, nvarchar = null))
-		inserted should be === BD(5, nvarchar = null)
-		mapperDao.select(BDEntity, 5).get should be === inserted
+		inserted should be(BD(5, nvarchar = null))
+		mapperDao.select(BDEntity, 5).get should be(inserted)
 	}
 
 	test("bigdecimal") {
 		createTables("bd")
 		val big = BigDecimal(500, 5)
 		val inserted = mapperDao.insert(BDEntity, BD(5, big = big))
-		inserted should be === BD(5, big)
-		mapperDao.select(BDEntity, 5).get should be === inserted
+		inserted should be(BD(5, big))
+		mapperDao.select(BDEntity, 5).get should be(inserted)
 	}
 
 	test("bigdecimal, null") {
 		createTables("bd")
 		val inserted = mapperDao.insert(BDEntity, BD(5, big = null))
-		inserted should be === BD(5)
-		mapperDao.select(BDEntity, 5).get should be === inserted
+		inserted should be(BD(5))
+		mapperDao.select(BDEntity, 5).get should be(inserted)
 	}
 
 	test("boolean, true") {
 		createTables("bd")
 		val inserted = mapperDao.insert(BDEntity, BD(5, bool = true))
-		inserted should be === BD(5, bool = true)
-		mapperDao.select(BDEntity, 5).get should be === inserted
+		inserted should be(BD(5, bool = true))
+		mapperDao.select(BDEntity, 5).get should be(inserted)
 	}
 
 	test("boolean, false") {
 		createTables("bd")
 		val inserted = mapperDao.insert(BDEntity, BD(5, bool = false))
-		inserted should be === BD(5, bool = false)
-		mapperDao.select(BDEntity, 5).get should be === inserted
+		inserted should be(BD(5, bool = false))
+		mapperDao.select(BDEntity, 5).get should be(inserted)
 	}
 
 	def createTables(ddl: String) = {

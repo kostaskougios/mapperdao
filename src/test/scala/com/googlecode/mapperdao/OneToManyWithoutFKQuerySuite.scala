@@ -28,7 +28,7 @@ class OneToManyWithoutFKQuerySuite extends FunSuite
 
 			import Query._
 			val l = queryDao.query(select from ProductEntity)
-			l.toSet should be === Set(p1, p2)
+			l.toSet should be(Set(p1, p2))
 		}
 
 		def createTables() {

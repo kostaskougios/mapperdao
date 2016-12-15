@@ -34,7 +34,7 @@ class CachingEndToEndSuite extends FunSuite
 	//		val h = Helpers.asIntId(p.owns.head)
 	//		mapperDao.update(HouseEntity, h, House("Rhodes"))
 	//
-	//		mapperDao.select(selectConfig, PersonEntity, p.id).get should be === Person("kostas", Set(House("Rhodes")))
+	//		mapperDao.select(selectConfig, PersonEntity, p.id).get should be ( Person("kostas", Set(House("Rhodes")))
 	//	}
 
 	test("update one-to-many, insert related, flushes cache") {

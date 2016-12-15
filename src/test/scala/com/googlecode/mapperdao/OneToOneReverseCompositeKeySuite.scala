@@ -40,24 +40,24 @@ class OneToOneReverseCompositeKeySuite extends FunSuite
 					from pe
 					join(pe, pe.inventory, ie)
 					where pe.inventory === inserted2
-				).toSet should be === Set(Product("product 2", Inventory(100, "rc2", Product("product 2", null), 6)))
+				).toSet should be(Set(Product("product 2", Inventory(100, "rc2", Product("product 2", null), 6))))
 
 			(
 				select
 					from pe
 					join(pe, pe.inventory, ie)
 					where pe.inventory === inserted1
-				).toSet should be === Set(Product("product 1", Inventory(100, "rc1", Product("product 1", null), 5)))
+				).toSet should be(Set(Product("product 1", Inventory(100, "rc1", Product("product 1", null), 5))))
 
 			(
 				select
 					from pe
 					join(pe, pe.inventory, ie)
 					where ie.refCode === "rc1"
-				).toSet should be === Set(
+				).toSet should be(Set(
 				Product("product 1", Inventory(100, "rc1", Product("product 1", null), 5)),
 				Product("product 1a", Inventory(101, "rc1", Product("product 1a", null), 5))
-			)
+			))
 		}
 
 		test("query") {
@@ -72,7 +72,7 @@ class OneToOneReverseCompositeKeySuite extends FunSuite
 				select
 					from ie
 					where ie.stock === 6
-				).toSet should be === Set(Inventory(2, "rc2", Product("product 2", Inventory(2, "rc2", Product("product 2", null), 6)), 6))
+				).toSet should be(Set(Inventory(2, "rc2", Product("product 2", Inventory(2, "rc2", Product("product 2", null), 6)), 6)))
 		}
 
 		test("create, select and delete") {
@@ -81,12 +81,12 @@ class OneToOneReverseCompositeKeySuite extends FunSuite
 			noise
 			val i = Inventory(100, "ref1", Product("product 1", null), 5)
 			val inserted = mapperDao.insert(InventoryEntity, i)
-			inserted should be === i
+			inserted should be(i)
 
-			mapperDao.select(InventoryEntity, (inserted.id, inserted.refCode)).get should be === Inventory(100, "ref1", Product("product 1", Inventory(100, "ref1", Product("product 1", null), 5)), 5)
+			mapperDao.select(InventoryEntity, (inserted.id, inserted.refCode)).get should be(Inventory(100, "ref1", Product("product 1", Inventory(100, "ref1", Product("product 1", null), 5)), 5))
 
 			mapperDao.delete(InventoryEntity, inserted)
-			mapperDao.select(InventoryEntity, (inserted.id, inserted.refCode)) should be === None
+			mapperDao.select(InventoryEntity, (inserted.id, inserted.refCode)) should be(None)
 		}
 
 		test("delete associated with cascade") {
@@ -98,8 +98,8 @@ class OneToOneReverseCompositeKeySuite extends FunSuite
 			val productId = Helpers.intIdOf(inserted.product)
 
 			mapperDao.delete(DeleteConfig(propagate = true), ProductEntity, Helpers.asSurrogateIntId(inserted.product))
-			mapperDao.select(InventoryEntity, (inserted.id, inserted.refCode)) should be === None
-			mapperDao.select(ProductEntity, productId) should be === None
+			mapperDao.select(InventoryEntity, (inserted.id, inserted.refCode)) should be(None)
+			mapperDao.select(ProductEntity, productId) should be(None)
 		}
 
 		test("update") {
@@ -108,13 +108,13 @@ class OneToOneReverseCompositeKeySuite extends FunSuite
 			noise
 			val i = Inventory(100, "ref1", Product("rc1", null), 5)
 			val inserted = mapperDao.insert(InventoryEntity, i)
-			inserted should be === i
+			inserted should be(i)
 
 			val upd = inserted.copy(product = Product("rc2", null))
 			val updated = mapperDao.update(InventoryEntity, inserted, upd)
-			updated should be === upd
+			updated should be(upd)
 
-			mapperDao.select(InventoryEntity, (updated.id, "ref1")).get should be === Inventory(100, "ref1", Product("rc2", Inventory(100, "ref1", Product("rc2", null), 5)), 5)
+			mapperDao.select(InventoryEntity, (updated.id, "ref1")).get should be(Inventory(100, "ref1", Product("rc2", Inventory(100, "ref1", Product("rc2", null), 5)), 5))
 		}
 
 		def noise = {

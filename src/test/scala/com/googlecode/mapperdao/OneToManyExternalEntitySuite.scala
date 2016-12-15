@@ -22,10 +22,10 @@ class OneToManyExternalEntitySuite extends FunSuite
 
 			val person = Person("p1", HouseEntity.currentData.toSet)
 			val inserted = mapperDao.insert(PersonEntity, person)
-			inserted should be === person
+			inserted should be(person)
 			HouseEntity.addedStore should be(HouseEntity.currentData)
 
-			mapperDao.select(PersonEntity, inserted.id).get should be === inserted
+			mapperDao.select(PersonEntity, inserted.id).get should be(inserted)
 		}
 
 		test("update, remove") {
@@ -38,8 +38,8 @@ class OneToManyExternalEntitySuite extends FunSuite
 			HouseEntity.removedStore should be(List(House(10, "House10")))
 			HouseEntity.addedStore should be(Nil)
 			HouseEntity.intersectionStore should be((House(11, "House11"), House(11, "House11")) :: Nil)
-			updated should be === toUpdate
-			mapperDao.select(PersonEntity, inserted.id).get should be === updated
+			updated should be(toUpdate)
+			mapperDao.select(PersonEntity, inserted.id).get should be(updated)
 		}
 
 		test("update, add") {
@@ -52,8 +52,8 @@ class OneToManyExternalEntitySuite extends FunSuite
 			HouseEntity.addedStore should be(List(House(11, "H11")))
 			HouseEntity.removedStore should be(Nil)
 			HouseEntity.intersectionStore should be(List((House(10, "H10"), House(10, "H10"))))
-			updated should be === toUpdate
-			mapperDao.select(PersonEntity, inserted.id).get should be === updated
+			updated should be(toUpdate)
+			mapperDao.select(PersonEntity, inserted.id).get should be(updated)
 		}
 
 		test("update, intersect") {
@@ -67,8 +67,8 @@ class OneToManyExternalEntitySuite extends FunSuite
 			HouseEntity.addedStore should be(Nil)
 			HouseEntity.removedStore should be(Nil)
 			HouseEntity.intersectionStore should be(List((House(10, "updated"), House(10, "updated"))))
-			updated should be === toUpdate
-			mapperDao.select(PersonEntity, inserted.id).get should be === updated
+			updated should be(toUpdate)
+			mapperDao.select(PersonEntity, inserted.id).get should be(updated)
 		}
 
 		test("delete without propagation") {
@@ -77,7 +77,7 @@ class OneToManyExternalEntitySuite extends FunSuite
 			val person = Person("p1", Set(House(11, "house for 1"), House(12, "2nd house for 1")))
 			val inserted = mapperDao.insert(PersonEntity, person)
 			mapperDao.delete(PersonEntity, inserted)
-			HouseEntity.onDeleteCount should be === 0
+			HouseEntity.onDeleteCount should be(0)
 			mapperDao.select(PersonEntity, inserted.id) should be(None)
 		}
 		test("delete with propagation") {
@@ -86,7 +86,7 @@ class OneToManyExternalEntitySuite extends FunSuite
 			val person = Person("p1", Set(House(11, "house for 1"), House(12, "2nd house for 1")))
 			val inserted = mapperDao.insert(PersonEntity, person)
 			mapperDao.delete(DeleteConfig(propagate = true), PersonEntity, inserted)
-			HouseEntity.onDeleteCount should be === 1
+			HouseEntity.onDeleteCount should be(1)
 			mapperDao.select(PersonEntity, inserted.id) should be(None)
 		}
 	}

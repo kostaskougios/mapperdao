@@ -35,7 +35,7 @@ class SimpleQuerySuite extends FunSuite
 		val j33 = mapperDao.insert(JobPositionEntity, JobPosition(33, "correct", now))
 		val j37 = mapperDao.insert(JobPositionEntity, JobPosition(37, "wrong", now))
 		val j41 = mapperDao.insert(JobPositionEntity, JobPosition(41, "correct", now))
-		queryDao.query(q9).toSet should be === Set(j11, j15, j16, j17, j31, j32, j33)
+		queryDao.query(q9).toSet should be(Set(j11, j15, j16, j17, j31, j32, j33))
 	}
 
 	test("query select where string value like") {
@@ -48,7 +48,7 @@ class SimpleQuerySuite extends FunSuite
 		val j8 = mapperDao.insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
 		val j12 = mapperDao.insert(JobPositionEntity, JobPosition(12, "Scala Developer", now))
 		val j9 = mapperDao.insert(JobPositionEntity, JobPosition(9, "x", now))
-		queryDao.query(q7).toSet should be === Set(j5, j6, j8, j12)
+		queryDao.query(q7).toSet should be(Set(j5, j6, j8, j12))
 	}
 
 	test("query with both limits , with orderby") {
@@ -56,7 +56,7 @@ class SimpleQuerySuite extends FunSuite
 
 		val now = Setup.now
 		val l = for (i <- 0 to 10) yield mapperDao.insert(JobPositionEntity, JobPosition(i, "x" + i, now))
-		queryDao.query(QueryConfig(offset = Some(5), limit = Some(3)), qWithLimitAndOrderBy) should be === List(l(5), l(4), l(3))
+		queryDao.query(QueryConfig(offset = Some(5), limit = Some(3)), qWithLimitAndOrderBy) should be(List(l(5), l(4), l(3)))
 	}
 
 	test("query with limits (limit only)") {
@@ -64,7 +64,7 @@ class SimpleQuerySuite extends FunSuite
 
 		val now = Setup.now
 		val l = for (i <- 0 to 10) yield mapperDao.insert(JobPositionEntity, JobPosition(i, "x" + i, now))
-		queryDao.query(QueryConfig(limit = Some(3)), qWithLimit) should be === List(l(0), l(1), l(2))
+		queryDao.query(QueryConfig(limit = Some(3)), qWithLimit) should be(List(l(0), l(1), l(2)))
 	}
 
 	test("count with where clause") {
@@ -75,7 +75,7 @@ class SimpleQuerySuite extends FunSuite
 		mapperDao.insert(JobPositionEntity, JobPosition(6, "Scala Developer", now))
 		mapperDao.insert(JobPositionEntity, JobPosition(7, "manager", now))
 		mapperDao.insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
-		queryDao.count(q1) should be === 2
+		queryDao.count(q1) should be(2)
 	}
 
 	test("count of rows") {
@@ -83,7 +83,7 @@ class SimpleQuerySuite extends FunSuite
 
 		val now = Setup.now
 		for (i <- 0 to 7) mapperDao.insert(JobPositionEntity, JobPosition(i, "x" + i, now))
-		queryDao.count(q0) should be === 8
+		queryDao.count(q0) should be(8)
 	}
 
 	test("query with limits (offset only)") {
@@ -91,7 +91,7 @@ class SimpleQuerySuite extends FunSuite
 
 		val now = Setup.now
 		val l = for (i <- 0 to 10) yield mapperDao.insert(JobPositionEntity, JobPosition(i, "x" + i, now))
-		queryDao.query(QueryConfig(offset = Some(5)), qWithLimit) should be === List(l(5), l(6), l(7), l(8), l(9), l(10))
+		queryDao.query(QueryConfig(offset = Some(5)), qWithLimit) should be(List(l(5), l(6), l(7), l(8), l(9), l(10)))
 	}
 
 	test("query with both limits") {
@@ -99,7 +99,7 @@ class SimpleQuerySuite extends FunSuite
 
 		val now = Setup.now
 		val l = for (i <- 0 to 10) yield mapperDao.insert(JobPositionEntity, JobPosition(i, "x" + i, now))
-		queryDao.query(QueryConfig.limits(5, 3), qWithLimit) should be === List(l(5), l(6), l(7))
+		queryDao.query(QueryConfig.limits(5, 3), qWithLimit) should be(List(l(5), l(6), l(7)))
 	}
 
 	test("query builder") {
@@ -107,7 +107,7 @@ class SimpleQuerySuite extends FunSuite
 
 		val now = Setup.now
 		val l = for (i <- 0 to 10) yield mapperDao.insert(JobPositionEntity, JobPosition(i, "x" + i, now))
-		queryDao.query(qAsBuilder) should be === List(l(6), l(5), l(2), l(1))
+		queryDao.query(qAsBuilder) should be(List(l(6), l(5), l(2), l(1)))
 	}
 
 	test("query with order by 1 column") {
@@ -118,7 +118,7 @@ class SimpleQuerySuite extends FunSuite
 		val j2 = mapperDao.insert(JobPositionEntity, JobPosition(6, "scala developer", now))
 		val j3 = mapperDao.insert(JobPositionEntity, JobPosition(7, "manager", now))
 		val j4 = mapperDao.insert(JobPositionEntity, JobPosition(8, "java developer", now))
-		queryDao.query(qOrderBy1) should be === List(j1, j4, j3, j2)
+		queryDao.query(qOrderBy1) should be(List(j1, j4, j3, j2))
 	}
 
 	test("query with order by 2 column") {
@@ -129,8 +129,8 @@ class SimpleQuerySuite extends FunSuite
 		val j2 = mapperDao.insert(JobPositionEntity, JobPosition(6, "C developer", now.minusHours(1)))
 		val j3 = mapperDao.insert(JobPositionEntity, JobPosition(7, "B developer", now))
 		val j4 = mapperDao.insert(JobPositionEntity, JobPosition(8, "B developer", now.minusHours(1)))
-		queryDao.query(qOrderBy2Alias1) should be === List(j4, j3, j2, j1)
-		queryDao.query(qOrderBy2Alias2) should be === List(j4, j3, j2, j1)
+		queryDao.query(qOrderBy2Alias1) should be(List(j4, j3, j2, j1))
+		queryDao.query(qOrderBy2Alias2) should be(List(j4, j3, j2, j1))
 	}
 
 	test("query with order by 2 column desc,asc") {
@@ -141,8 +141,8 @@ class SimpleQuerySuite extends FunSuite
 		val j2 = mapperDao.insert(JobPositionEntity, JobPosition(6, "C developer", now.minusHours(1)))
 		val j3 = mapperDao.insert(JobPositionEntity, JobPosition(7, "B developer", now))
 		val j4 = mapperDao.insert(JobPositionEntity, JobPosition(8, "B developer", now.minusHours(1)))
-		queryDao.query(qOrderBy3Alias1) should be === List(j2, j1, j4, j3)
-		queryDao.query(qOrderBy3Alias2) should be === List(j2, j1, j4, j3)
+		queryDao.query(qOrderBy3Alias1) should be(List(j2, j1, j4, j3))
+		queryDao.query(qOrderBy3Alias2) should be(List(j2, j1, j4, j3))
 	}
 
 	test("query select *") {
@@ -152,7 +152,7 @@ class SimpleQuerySuite extends FunSuite
 		val j1 = mapperDao.insert(JobPositionEntity, JobPosition(5, "developer", now))
 		val j2 = mapperDao.insert(JobPositionEntity, JobPosition(6, "web designer", now))
 		val j3 = mapperDao.insert(JobPositionEntity, JobPosition(7, "manager", now))
-		queryDao.query(q0).toSet should be === Set(j1, j2, j3)
+		queryDao.query(q0).toSet should be(Set(j1, j2, j3))
 	}
 
 	test("query select where string value") {
@@ -163,7 +163,7 @@ class SimpleQuerySuite extends FunSuite
 		val j2 = mapperDao.insert(JobPositionEntity, JobPosition(6, "Scala Developer", now))
 		val j3 = mapperDao.insert(JobPositionEntity, JobPosition(7, "manager", now))
 		val j4 = mapperDao.insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
-		queryDao.query(q1).toSet should be === Set(j2, j4)
+		queryDao.query(q1).toSet should be(Set(j2, j4))
 	}
 
 	test("query select where string value === and int value >") {
@@ -176,7 +176,7 @@ class SimpleQuerySuite extends FunSuite
 		val j8 = mapperDao.insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
 		val j12 = mapperDao.insert(JobPositionEntity, JobPosition(12, "Scala Developer", now))
 		val j9 = mapperDao.insert(JobPositionEntity, JobPosition(9, "x", now))
-		queryDao.query(q2).toSet should be === Set(j8, j12)
+		queryDao.query(q2).toSet should be(Set(j8, j12))
 	}
 
 	test("query select where string value === or int value <") {
@@ -189,7 +189,7 @@ class SimpleQuerySuite extends FunSuite
 		val j8 = mapperDao.insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
 		val j12 = mapperDao.insert(JobPositionEntity, JobPosition(12, "Scala Developer", now))
 		val j9 = mapperDao.insert(JobPositionEntity, JobPosition(9, "x", now))
-		queryDao.query(q3).toSet should be === Set(j5, j6, j8, j12)
+		queryDao.query(q3).toSet should be(Set(j5, j6, j8, j12))
 	}
 
 	test("query select where int value <=") {
@@ -202,7 +202,7 @@ class SimpleQuerySuite extends FunSuite
 		val j8 = mapperDao.insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
 		val j12 = mapperDao.insert(JobPositionEntity, JobPosition(12, "Scala Developer", now))
 		val j9 = mapperDao.insert(JobPositionEntity, JobPosition(9, "x", now))
-		queryDao.query(q4).toSet should be === Set(j5, j6, j7)
+		queryDao.query(q4).toSet should be(Set(j5, j6, j7))
 	}
 
 	test("query select where int value >=") {
@@ -215,7 +215,7 @@ class SimpleQuerySuite extends FunSuite
 		val j8 = mapperDao.insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
 		val j12 = mapperDao.insert(JobPositionEntity, JobPosition(12, "Scala Developer", now))
 		val j9 = mapperDao.insert(JobPositionEntity, JobPosition(9, "x", now))
-		queryDao.query(q5).toSet should be === Set(j7, j8, j12, j9)
+		queryDao.query(q5).toSet should be(Set(j7, j8, j12, j9))
 	}
 
 	test("query select where int value =") {
@@ -228,7 +228,7 @@ class SimpleQuerySuite extends FunSuite
 		val j8 = mapperDao.insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
 		val j12 = mapperDao.insert(JobPositionEntity, JobPosition(12, "Scala Developer", now))
 		val j9 = mapperDao.insert(JobPositionEntity, JobPosition(9, "x", now))
-		queryDao.query(q6).toSet should be === Set(j7)
+		queryDao.query(q6).toSet should be(Set(j7))
 	}
 
 	test("query select parenthesis") {
@@ -241,7 +241,7 @@ class SimpleQuerySuite extends FunSuite
 		val j8 = mapperDao.insert(JobPositionEntity, JobPosition(8, "Scala Developer", now))
 		val j12 = mapperDao.insert(JobPositionEntity, JobPosition(12, "Scala Developer", now))
 		val j9 = mapperDao.insert(JobPositionEntity, JobPosition(9, "x", now))
-		queryDao.query(q8).toSet should be === Set(j5, j7, j9, j12)
+		queryDao.query(q8).toSet should be(Set(j5, j7, j9, j12))
 	}
 
 	test("query select datetime") {
@@ -254,8 +254,8 @@ class SimpleQuerySuite extends FunSuite
 		val j8 = mapperDao.insert(JobPositionEntity, JobPosition(8, "Scala Developer", now.plusDays(1)))
 		val j12 = mapperDao.insert(JobPositionEntity, JobPosition(12, "Scala Developer", now.plusDays(2)))
 		mapperDao.insert(JobPositionEntity, JobPosition(9, "x", now.plusDays(3)))
-		queryDao.query(q10).toSet should be === Set(j8, j12)
-		queryDao.query(q10Alias).toSet should be === Set(j8, j12)
+		queryDao.query(q10).toSet should be(Set(j8, j12))
+		queryDao.query(q10Alias).toSet should be(Set(j8, j12))
 	}
 
 	def createJobPositionTable() {

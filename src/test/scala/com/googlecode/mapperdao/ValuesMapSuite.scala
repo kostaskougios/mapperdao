@@ -26,8 +26,8 @@ class ValuesMapSuite extends FunSuite
 			val o = Type(date.toCalendar(null), null, null)
 			val vm = ValuesMap.fromType(typeManager, TypeEntity.tpe, o)
 			val v = vm.raw(TypeEntity.cal).get
-			v.getClass should be === classOf[DateTime]
-			v should be === date
+			v.getClass should be(classOf[DateTime])
+			v should be(date)
 		}
 
 		test("date") {
@@ -35,8 +35,8 @@ class ValuesMapSuite extends FunSuite
 			val o = Type(null, date.toDate, null)
 			val vm = ValuesMap.fromType(typeManager, TypeEntity.tpe, o)
 			val v = vm.raw(TypeEntity.dt).get
-			v.getClass should be === classOf[DateTime]
-			v should be === date
+			v.getClass should be(classOf[DateTime])
+			v should be(date)
 		}
 
 		test("datetime") {
@@ -44,8 +44,8 @@ class ValuesMapSuite extends FunSuite
 			val o = Type(null, null, date)
 			val vm = ValuesMap.fromType(typeManager, TypeEntity.tpe, o)
 			val v = vm.raw(TypeEntity.joda).get
-			v.getClass should be === classOf[DateTime]
-			v should be === date
+			v.getClass should be(classOf[DateTime])
+			v should be(date)
 		}
 	}
 

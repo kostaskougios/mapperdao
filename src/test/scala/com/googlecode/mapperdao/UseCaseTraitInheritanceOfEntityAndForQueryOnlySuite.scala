@@ -29,15 +29,15 @@ class UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite extends FunSuite
 			val sl1 = mapperDao.select(TagEntity, (l1.tag, Helpers.asNaturalStringId(l1.product))).get
 
 			val ul1 = mapperDao.update(TagEntity, sl1, sl1.copy(tag = "changed"))
-			ul1 should be === Tag("changed", Product("lapt100", "SuperFast 1000"))
+			ul1 should be(Tag("changed", Product("lapt100", "SuperFast 1000")))
 
 			val rsl1 = mapperDao.select(TagEntity, (ul1.tag, Helpers.asNaturalStringId(ul1.product))).get
-			rsl1 should be === ul1
+			rsl1 should be(ul1)
 
 			mapperDao.delete(TagEntity, rsl1)
 			mapperDao.select(TagEntity, (ul1.tag, Helpers.asNaturalStringId(ul1.product))) should be(None)
 
-			mapperDao.select(TagEntity, (l2.tag, Helpers.asNaturalStringId(l2.product))).get should be === l2
+			mapperDao.select(TagEntity, (l2.tag, Helpers.asNaturalStringId(l2.product))).get should be(l2)
 		}
 
 		test("query forQueryOnly column") {
@@ -51,13 +51,13 @@ class UseCaseTraitInheritanceOfEntityAndForQueryOnlySuite extends FunSuite
 				select
 					from spe
 					where spe.tags === l1
-				).toSet(queryDao) should be === Set(l1.product)
+				).toSet(queryDao) should be(Set(l1.product))
 			(
 				select
 					from spe
 					join(spe, spe.tags, te)
 					where te.tag === "laptop"
-				).toSet(queryDao) should be === Set(l1.product, l2.product)
+				).toSet(queryDao) should be(Set(l1.product, l2.product))
 		}
 
 		def createTables() = {

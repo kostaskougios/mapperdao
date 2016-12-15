@@ -71,7 +71,7 @@ class JavaMappingSuite extends FunSuite
 		p.setAttributes(attrs)
 
 		val as = ProductEntityMTM.attributes.columnToValue(p)
-		as.toSet should be === attrs.asScala
+		as.toSet should be(attrs.asScala)
 	}
 
 	test("many to many, construct") {
@@ -85,7 +85,7 @@ class JavaMappingSuite extends FunSuite
 			"product:1" -> attrs.asScala.toList
 		))
 		val pc = ProductEntityMTM.tpe.constructor(null, null, vm)
-		pc.getAttributes.asScala should be === attrs.asScala.toSet
+		pc.getAttributes.asScala should be(attrs.asScala.toSet)
 	}
 
 	test("one to many, get") {
@@ -96,7 +96,7 @@ class JavaMappingSuite extends FunSuite
 		p.setAttributes(attrs)
 
 		val as = ProductEntityOTM.attributes.columnToValue(p)
-		as.toSet should be === attrs.asScala
+		as.toSet should be(attrs.asScala)
 	}
 
 	test("one to many, construct") {
@@ -110,7 +110,7 @@ class JavaMappingSuite extends FunSuite
 			"product:1" -> attrs.asScala.toList
 		))
 		val pc = ProductEntityOTM.tpe.constructor(null, null, vm)
-		pc.getAttributes.asScala should be === attrs.asScala.toSet
+		pc.getAttributes.asScala should be(attrs.asScala.toSet)
 	}
 
 	object ProductEntityMTM extends Entity[Int, SurrogateIntId, Product]

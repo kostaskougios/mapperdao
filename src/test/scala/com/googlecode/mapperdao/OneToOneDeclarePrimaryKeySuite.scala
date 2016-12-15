@@ -26,15 +26,15 @@ class OneToOneDeclarePrimaryKeySuite extends FunSuite
 			val ip5Id = Helpers.asNaturalIntId(i5.product)
 			val si5 = mapperDao.select(InventoryEntity, ip5Id).get
 			val ui5 = mapperDao.update(InventoryEntity, si5, si5.copy(stock = 15))
-			ui5 should be === Inventory(Product(1), 15)
+			ui5 should be(Inventory(Product(1), 15))
 
 			val rsi5 = mapperDao.select(InventoryEntity, Helpers.asNaturalIntId(i5.product)).get
-			rsi5 should be === ui5
+			rsi5 should be(ui5)
 
 			mapperDao.delete(InventoryEntity, rsi5)
 			mapperDao.select(InventoryEntity, Helpers.asNaturalIntId(i5.product)) should be(None)
 
-			mapperDao.select(InventoryEntity, Helpers.asNaturalIntId(i6.product)).get should be === i6
+			mapperDao.select(InventoryEntity, Helpers.asNaturalIntId(i6.product)).get should be(i6)
 		}
 
 		test("query on product") {
@@ -48,13 +48,13 @@ class OneToOneDeclarePrimaryKeySuite extends FunSuite
 					from i
 					join(i, i.product, p)
 					where i.product === p2
-				).toSet should be === Set(inventories(2))
+				).toSet should be(Set(inventories(2)))
 
 			(
 				select
 					from i
 					where i.stock <= 7
-				).toSet should be === Set(inventories(0), inventories(1), inventories(2))
+				).toSet should be(Set(inventories(0), inventories(1), inventories(2)))
 
 		}
 
