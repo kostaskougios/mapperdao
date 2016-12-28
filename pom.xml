@@ -39,8 +39,17 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring.version>4.0.5.RELEASE</spring.version>
+		<scala.major.version>2.12</scala.major.version>
+		<scala.version>${scala.major.version}.1</scala.version>
 	</properties>
 	<dependencies>
+		<dependency>
+			<groupId>org.scalatest</groupId>
+			<artifactId>scalatest_2.12</artifactId>
+			<version>3.0.1</version>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
@@ -75,7 +84,7 @@
 		<dependency>
 			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
-			<version>3.16.1-GA</version>
+			<version>3.21.0-GA</version>
 		</dependency>
 		<dependency>
 			<groupId>postgresql</groupId>
@@ -172,15 +181,15 @@
 	</repositories>
 	<build>
 		<plugins>
-			<!-- Ensures we are compiling at 1.7 level -->
+			<!-- Ensures we are compiling at 1.8 level -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
+				<version>3.6.0</version>
 				<configuration>
 					<encoding>${project.build.sourceEncoding}</encoding>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -356,74 +365,6 @@
 		</plugins>
 	</build>
 	<profiles>
-		<profile>
-			<id>optimized</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>net.alchim31.maven</groupId>
-						<artifactId>scala-maven-plugin</artifactId>
-						<version>3.2.2</version>
-						<configuration>
-							<scalaVersion>${scala.version}</scalaVersion>
-							<args>
-								<arg>-optimize</arg>
-								<arg>-unchecked</arg>
-								<arg>-Xexperimental</arg>
-							</args>
-							<charset>${project.build.sourceEncoding}</charset>
-							<jvmArgs>
-								<jvmArg>-Xmx1024m</jvmArg>
-							</jvmArgs>
-						</configuration>
-						<executions>
-							<execution>
-								<id>scala-compile-first</id>
-								<phase>process-resources</phase>
-								<goals>
-									<goal>add-source</goal>
-									<goal>compile</goal>
-								</goals>
-							</execution>
-							<execution>
-								<id>scala-test-compile</id>
-								<phase>process-test-resources</phase>
-								<goals>
-									<goal>testCompile</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>scala2.11</id>
-			<properties>
-				<scala.major.version>2.11</scala.major.version>
-				<scala.version>${scala.major.version}.8</scala.version>
-				<scala.lib.version>${scala.major.version}.0</scala.lib.version>
-			</properties>
-			<activation>
-				<property>
-					<name>!exclude</name>
-				</property>
-			</activation>
-			<dependencies>
-				<!--<dependency>-->
-				<!--<groupId>org.scala-lang.modules</groupId>-->
-				<!--<artifactId>scala-xml_2.11</artifactId>-->
-				<!--<version>1.0.1</version>-->
-				<!--<scope>test</scope>-->
-				<!--</dependency>-->
-				<dependency>
-					<groupId>org.scalatest</groupId>
-					<artifactId>scalatest_2.11</artifactId>
-					<version>3.0.0</version>
-					<scope>test</scope>
-				</dependency>
-			</dependencies>
-		</profile>
 		<profile>
 			<id>sonatype-deploy</id>
 			<build>
