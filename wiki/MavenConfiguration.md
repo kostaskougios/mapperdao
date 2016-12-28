@@ -4,7 +4,7 @@ Please note: if the artifact can't be found, please add the "sonatype.releases" 
 ### Sbt ###
 
 ```
-"com.googlecode.mapperdao" %% "mapperdao" % "1.0.1"
+"com.googlecode.mapperdao" %% "mapperdao" % "1.0.2"
 ```
 
 ### Maven ###
@@ -15,7 +15,7 @@ Dependency:
 <dependency>
 	<groupId>com.googlecode.mapperdao</groupId>
 	<artifactId>mapperdao_2.11</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.2</version>
 </dependency>
 ```
 
