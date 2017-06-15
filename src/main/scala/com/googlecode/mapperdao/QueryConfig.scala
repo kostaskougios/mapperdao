@@ -35,7 +35,8 @@ case class QueryConfig(
 	// within a transaction.
 	multi: MultiThreadedConfig = MultiThreadedConfig.Single,
 	hints: SelectHints = SelectHints.None,
-	schemaModifications: SchemaModifications = SchemaModifications.NoOp
+	schemaModifications: SchemaModifications = SchemaModifications.NoOp,
+  manyToManyCustomLoaders: List[CustomLoader[_, _, _]] = Nil
 	)
 {
 
