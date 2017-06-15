@@ -9,7 +9,7 @@
 	<groupId>com.googlecode.mapperdao</groupId>
 	<artifactId>mapperdao_${scala.major.version}</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0.2</version>
+	<version>1.0.3</version>
 	<name>mapperdao</name>
 	<description><![CDATA[
 	MapperDao is an ORM library for the scala language. https://code.google.com/p/mapperdao/ 
@@ -40,7 +40,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring.version>4.0.5.RELEASE</spring.version>
 		<scala.major.version>2.12</scala.major.version>
-		<scala.version>${scala.major.version}.1</scala.version>
+		<scala.version>${scala.major.version}.2</scala.version>
 	</properties>
 	<dependencies>
 		<dependency>
