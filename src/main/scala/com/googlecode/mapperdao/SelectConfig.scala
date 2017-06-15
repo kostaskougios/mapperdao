@@ -41,7 +41,8 @@ object SelectConfig
 			cacheOptions = queryConfig.cacheOptions,
 			lazyLoad = queryConfig.lazyLoad,
 			hints = queryConfig.hints,
-			schemaModifications = queryConfig.schemaModifications
+			schemaModifications = queryConfig.schemaModifications,
+      manyToManyCustomLoaders = queryConfig.manyToManyCustomLoaders
 		)
 
 	def lazyLoad = SelectConfig(lazyLoad = LazyLoad.all)
