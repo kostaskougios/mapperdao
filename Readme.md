@@ -112,8 +112,6 @@ val people=query(QueryConfig.pagination(2, 10),select from pe)
   * optimistic locking
   * sum, avg, min, max and for column mappings and groupby in mappings of statistical entities
 
-[Please visit the Wiki for setup instructions & usage documentation](TableOfContents.md)
-
 ### MapperDao would like to thank ###
 
   * [YourKit](http://www.yourkit.com/home/index.jsp) is kindly supporting this open source project with its full-featured Java Profiler.
