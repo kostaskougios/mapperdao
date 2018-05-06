@@ -15,10 +15,13 @@ object MImpl
 	private val m = scala.collection.mutable.Map[Int, Array[Class[_]]]()
 	private var c = 0
 
-	def get(cnt: Int) = m.remove(cnt).get
+	// called reflectively
+	def get(cnt: Int) = m.synchronized {
+		m.remove(cnt).get
+	}
 
 	protected[classgenerator] def register[T, RT](argTypes: Array[Class[_]]) =
-		this.synchronized {
+		m.synchronized {
 			c += 1
 			m += c -> argTypes
 			c

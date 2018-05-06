@@ -1,9 +1,9 @@
 package com.googlecode.classgenerator
 
 import java.lang.reflect.Method
-import javassist._
 
 import com.googlecode.classgenerator.runtime.MImpl
+import javassist._
 
 /**
   * @author kostantinos.kougios
@@ -77,9 +77,7 @@ class ClassBuilder[T](val pool: ClassPool, val ctClass: CtClass, val reflectionM
 		def implementation: ClassBuilder[T with MethodImplementation[T]] = {
 			val rt = toType(ret)
 			val a = art.toArray
-			val at = a.map {
-				toType(_)
-			}
+			val at = a.map(toType)
 			val m = new CtMethod(rt, name, at, ctClass)
 
 			val methodCounter = MImpl.register(a)

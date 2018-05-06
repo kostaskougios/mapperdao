@@ -9,7 +9,7 @@
 	<groupId>com.googlecode.mapperdao</groupId>
 	<artifactId>mapperdao_${scala.major.version}</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0.3</version>
+	<version>1.0.4</version>
 	<name>mapperdao</name>
 	<description><![CDATA[
 	MapperDao is an ORM library for the scala language. https://code.google.com/p/mapperdao/ 
@@ -87,9 +87,9 @@
 			<version>3.21.0-GA</version>
 		</dependency>
 		<dependency>
-			<groupId>postgresql</groupId>
+			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>9.1-901-1.jdbc4</version>
+			<version>42.2.2.jre7</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
