@@ -218,27 +218,26 @@ protected[mapperdao] final class MapperDaoImpl(
 				val declaredArgs = if (tpe.table.unusedPKs.isEmpty)
 					Nil
 				else
-					(
-						(tpe.table.unusedPKColumnInfos zip declared) map {
-							case (ci, v) =>
-								ci match {
-									case ci: ColumnInfoManyToOne[_, _, Any@unchecked] =>
-										val foreign = ci.column.foreign
-										val fentity = foreign.entity
-										val ftable = fentity.tpe.table
-										ci.column.columns zip ftable.toListOfPrimaryKeyValues(v)
-									case ci: ColumnInfoTraversableOneToMany[_, _, _, _] =>
-										val fentity = ci.entityOfT
-										val ftable = fentity.tpe.table
-										ci.column.columns zip ftable.toListOfPrimaryKeyValues(v)
-									case ci: ColumnInfoOneToOne[_, _, Any@unchecked] =>
-										val foreign = ci.column.foreign
-										val fentity = foreign.entity
-										val ftable = fentity.tpe.table
-										ci.column.columns zip ftable.toListOfPrimaryKeyValues(v)
-									case _ => throw new IllegalArgumentException("Please use declarePrimaryKey only for relationships. For normal data please use key(). This occured for entity %s".format(entity.getClass))
-								}
-						}).flatten
+					(tpe.table.unusedPKColumnInfos zip declared).flatMap {
+						case (ci, v) =>
+							ci match {
+								case ci: ColumnInfoManyToOne[_, _, Any@unchecked] =>
+									val foreign = ci.column.foreign
+									val fentity = foreign.entity
+									val ftable = fentity.tpe.table
+									ci.column.columns zip ftable.toListOfPrimaryKeyValues(v)
+								case ci: ColumnInfoTraversableOneToMany[_, _, _, _] =>
+									val fentity = ci.entityOfT
+									val ftable = fentity.tpe.table
+									ci.column.columns zip ftable.toListOfPrimaryKeyValues(v)
+								case ci: ColumnInfoOneToOne[_, _, Any@unchecked] =>
+									val foreign = ci.column.foreign
+									val fentity = foreign.entity
+									val ftable = fentity.tpe.table
+									ci.column.columns zip ftable.toListOfPrimaryKeyValues(v)
+								case _ => throw new IllegalArgumentException("Please use declarePrimaryKey only for relationships. For normal data please use key(). This occured for entity %s".format(entity.getClass))
+							}
+					}
 
 				val args = pkArgs ::: declaredArgs
 
